@@ -1,0 +1,12 @@
+{
+  "presets": [
+    "@babel/preset-typescript",
+    "@babel/preset-react"
+  ],
+  "sourceMaps": true,
+  "env": {
+    "production": {
+      "minified": true
+    }
+  }
+}
