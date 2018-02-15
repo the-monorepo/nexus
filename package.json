@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npx babel src --out-dir dist --extensions .tsx",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "test": "npx jest"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,9 @@
     "@babel/core": "^7.0.0-beta.40",
     "@babel/preset-react": "^7.0.0-beta.40",
     "@babel/preset-typescript": "^7.0.0-beta.40",
-    "prettier": "^1.10.2",
+    "babel-jest": "^22.2.2",
+    "babel-plugin-module-resolver": "^3.1.0",
+    "jest": "^22.3.0",
     "typescript": "^2.7.1"
   },
   "dependencies": {
