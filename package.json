@@ -1,0 +1,31 @@
+{
+  "name": "is-color",
+  "version": "1.0.0",
+  "description": "Library for whether a value is a valid color value",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx babel src --out-dir dist --extensions .tsx",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/is-color.git"
+  },
+  "keywords": [
+    "css",
+    "color"
+  ],
+  "author": "Patrick Shaw",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.40",
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/preset-react": "^7.0.0-beta.40",
+    "@babel/preset-typescript": "^7.0.0-beta.40",
+    "prettier": "^1.10.2",
+    "typescript": "^2.7.1"
+  },
+  "dependencies": {
+    "css-color-names": "0.0.4"
+  }
+}
