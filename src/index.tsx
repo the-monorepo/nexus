@@ -24,7 +24,7 @@ export function isHexColor(value: string): boolean {
 }
 
 export function isRgbColor(value: string) {
-  const rgbMatches: RegExpMatchArray = value.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/);
+  const rgbMatches: RegExpMatchArray = value.match(/^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/);
   if (rgbMatches && rgbMatches.length >= 4) {
     const [rgb, r, g, b] = rgbMatches;
     if (isValidRgbValues(r, g, b)) {
@@ -35,7 +35,7 @@ export function isRgbColor(value: string) {
 }
 
 export function isRgbaColor(value: string) {
-  const rgbaMatches: RegExpMatchArray | null = value.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+(?:\.\d+)?)\s*$/);
+  const rgbaMatches: RegExpMatchArray | null = value.match(/^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*$/);
   if (rgbaMatches && rgbaMatches.length >= 5) {
     const [rgb, r, g, b, a] = rgbaMatches;
     if (isValidRgbValues(r, g, b) && isValidAlphaValue(a)) {
