@@ -19,8 +19,8 @@ function isValidAlphaValue(magnitudeString: string): boolean {
   return magnitude <= 1 && magnitude >= 0;
 }
 
-export function isHexColor(value: string): RegExpMatchArray | null {
-  return value.match(/^#[0-9a-f]{3,6,8}$/);
+export function isHexColor(value: string): boolean {
+  return value.match(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i) !== null;
 }
 
 export function isRgbColor(value: string) {
