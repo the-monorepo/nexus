@@ -35,7 +35,7 @@ export function isRgbColor(value: string) {
 }
 
 export function isRgbaColor(value: string) {
-  const rgbaMatches: RegExpMatchArray | null = value.match(/^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*$/);
+  const rgbaMatches: RegExpMatchArray | null = value.match(/^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/);
   if (rgbaMatches && rgbaMatches.length >= 5) {
     const [rgb, r, g, b, a] = rgbaMatches;
     if (isValidRgbValues(r, g, b) && isValidAlphaValue(a)) {

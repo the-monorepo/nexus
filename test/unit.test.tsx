@@ -1,4 +1,4 @@
-import { isHexColor, isRgbColor } from 'src/index';
+import { isHexColor, isRgbColor, isRgbaColor } from 'src/index';
 function testFunction(isColorFunction, trueCases: Set<any>, falseCases: Set<any>) {
   const invalidTypes = [
     ["Function", () => undefined],
@@ -122,3 +122,6 @@ describe('Hex', () => {
 describe('rgb(...)', () => {
   testFunction(isRgbColor, validRgbValues, invalidRgbValues);
 });
+describe('rgba(...)', () => {
+  testFunction(isRgbaColor, validRgbaValues, invalidRgbaValues);
+})
