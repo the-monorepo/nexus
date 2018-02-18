@@ -23,6 +23,16 @@ export function isHexColor(value: string): boolean {
   return value.match(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i) !== null;
 }
 
+export function isValidPercentage(magnitudeString: string): boolean {
+  const magnitude: number = Number.parseFloat(magnitudeString);
+  return magnitude >= 0 && magnitude <= 100;
+}
+
+export function isValidHue(valueString: string): boolean {
+  const value: number = Number.parseFloat(valueString);
+  return value >= 0 && value <= 360;
+}
+
 export function isRgbColor(value: string) {
   const rgbMatches: RegExpMatchArray = value.match(/^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/);
   if (rgbMatches && rgbMatches.length >= 4) {
@@ -46,6 +56,13 @@ export function isRgbaColor(value: string) {
 }
 
 export function isHslColor(value: string): boolean {
+  const hslMatches: RegExpMatchArray | null = value.match(/^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/);
+  if (hslMatches && hslMatches.length > 4) {
+    const [hsl, h, s, l] = hslMatches;
+    if (isValidHue(h) && isValidPercentage(s) && isValidPercentage(l)) {
+      return true;
+    }
+  }
   return false;
 }
 
