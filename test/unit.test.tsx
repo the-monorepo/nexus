@@ -1,4 +1,4 @@
-import { isHexColor, isRgbColor, isRgbaColor } from 'src/index';
+import { isHexColor, isRgbColor, isRgbaColor, isHslColor } from 'src/index';
 function testFunction(isColorFunction, trueCases: Set<any>, falseCases: Set<any>) {
   const invalidTypes = [
     ["Function", () => undefined],
@@ -44,6 +44,7 @@ function testFunction(isColorFunction, trueCases: Set<any>, falseCases: Set<any>
   }
 }
 const validHexValues = new Set([
+  "#fff",
   "#FFF",
   "#FFFFFF",
   "#FFFFFFFF",
@@ -52,6 +53,7 @@ const validHexValues = new Set([
   "#00000000"
 ]);
 const invalidHexValues = new Set([
+  "#f",
   "#F",
   "#FF",
   "#FFFF",
@@ -96,6 +98,7 @@ const invalidRgbValues = new Set([
   "rgb(0,0,0",
   "rgb(0,0,0))",
   "rgb(0,0,0) ",
+  "RGB(0,0,0)",
   " rgb(0,0,0)",
   "rgb(255.0001,255.0001,255.0001)",
   "rgb(256,256,256)",
@@ -104,8 +107,19 @@ const validRgbaValues = new Set([
   "rgba(0,0,0,0)",
   "rgba(255,255,255,1)",
   "rgba(.1,.1,.1,.1)",
+  'rgba  (0,0,0,0)',
+  "rgba(  0,0,0,0)",
+  'rgba(0  ,0,0,0)',
+  'rgba(0,  0,0,0)',
+  'rgba(0,0  ,0,0)',
+  'rgba(0,0,  0,0)',
+  'rgba(0,0,0  ,0)',
+  'rgba(0,0,0,  0)',
+  'rgba(0,0,0,0  )',
+
 ]);
 const invalidRgbaValues = new Set([
+  "RGBA(0,0,0)",
   "rgba(256,256,256,1)",
   "rgba(255,255,255,1.1)",
   "rgba(256,256,256,1.1)",
@@ -116,6 +130,31 @@ const invalidRgbaValues = new Set([
   " rgba(255,255,255,1)",
   "rgba(-1,-1,-1,-1)"
 ]);
+const validHslValues = new Set([
+  "hsl(360,100%,100%)",
+  "hsl(0,0%,0%)",
+  "hsl  (0,0%,0%)",
+  "hsl(  0,0%,0%)",
+  "hsl(0  ,0%,0%)",
+  "hsl(0,  0%,0%)",
+  "hsl(0,0%  ,0%)",
+  "hsl(0,0%,  0%)",
+  "hsl(0,0%,0%  )",
+  "hsl(0.1,0.1%,0.1%)",
+  "hsl(359.9999,99.9999%,99.99999%)",
+  "hsl(.1,.1%,.1%)"
+]);
+const invalidHslValues = new Set([
+  "hsl(360.0001,100.0001%,100.0001%)",
+  "hsl(0,0%,0%",
+  "sl(0,0%,0%)",
+  "0,0%,0%",
+  "rgb(255,255,255)",
+  "rgb(0,0%,0%)",
+  " hsl(0,0%,0%)",
+  "hsl(0%,0%,0%) ",
+  "HSL(0,0%,0%)"
+])
 describe('Hex', () => {
   testFunction(isHexColor, validHexValues, invalidHexValues);
 });
@@ -124,4 +163,7 @@ describe('rgb(...)', () => {
 });
 describe('rgba(...)', () => {
   testFunction(isRgbaColor, validRgbaValues, invalidRgbaValues);
+});
+describe('hsl(...)', () => {
+  testFunction(isHslColor, validHslValues, invalidHslValues);
 })

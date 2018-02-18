@@ -57,7 +57,7 @@ export function isRgbaColor(value: string) {
 
 export function isHslColor(value: string): boolean {
   const hslMatches: RegExpMatchArray | null = value.match(/^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/);
-  if (hslMatches && hslMatches.length > 4) {
+  if (hslMatches && hslMatches.length >= 4) {
     const [hsl, h, s, l] = hslMatches;
     if (isValidHue(h) && isValidPercentage(s) && isValidPercentage(l)) {
       return true;
