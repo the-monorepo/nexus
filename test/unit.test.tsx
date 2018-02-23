@@ -1,4 +1,4 @@
-import { isHexColor, isRgbColor, isRgbaColor, isHslColor } from 'src/index';
+import { isHexColor, isRgbColor, isRgbaColor, isHslColor, isHslaColor } from 'src/index';
 import { expandInputs } from './inputs/expand';
 import { inputs, TestInputs } from './inputs/suites';
 function testFunction(description: string, isColorFunction, ...validTestInputs: TestInputs[]) {
@@ -52,3 +52,4 @@ testFunction('Hex', isHexColor, inputs.hex);
 testFunction('rgb(...)', isRgbColor, inputs.rgb);
 testFunction('rgba(...)', isRgbaColor, inputs.rgba);
 testFunction('hsl(...)', isHslColor, inputs.hsl);
+testFunction('hsla(...)', isHslaColor, inputs.hsla)
