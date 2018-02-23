@@ -66,6 +66,17 @@ export function isHslColor(value: string): boolean {
   return false;
 }
 
+export function isHslaColor(value: string): boolean {
+  const hslaMatches: RegExpMatchArray | null = value.match(/^hsla\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)\s*\)$/);
+  if (hslaMatches && hslaMatches.length >= 5) {
+    const [hsl, h, s, l, a] = hslaMatches;
+    if (isValidHue(h) && isValidPercentage(s) && isValidPercentage(l) && isValidAlphaValue(a)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function isColor(value: string) {
   if (isHexColor(value)) {
     return 'hex';
