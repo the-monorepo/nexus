@@ -1,8 +1,5 @@
-export interface TestInputs {
-  readonly valid: Set<string>;
-  readonly invalid: Set<string>;
-}
-
+import { TestInputs } from './test-inputs';
+import { generateCssColorFunctionInputs, ParameterFormat } from './css-color-function-inputs';
 function testInputs(valid: any[], invalid: any[]): TestInputs {
   return {
     valid: new Set(valid),
@@ -10,40 +7,58 @@ function testInputs(valid: any[], invalid: any[]): TestInputs {
   }
 }
 
+const rgbFormat: ParameterFormat = {
+  min: {
+    value: 0,
+    inclusive: true
+  },
+  max: {
+    value: 255,
+    inclusive: true
+  },
+  percentages: false
+};
+
+const degreesFormat: ParameterFormat = {
+  min: {
+    value: 0,
+    inclusive: true
+  },
+  max: {
+    value: 360,
+    inclusive: true
+  },
+  percentages: false
+}
+
+const alphaFormat: ParameterFormat = {
+  min: {
+    value: 0,
+    inclusive: true
+  },
+  max: {
+    value: 1,
+    inclusive: true
+  },
+  percentages: false
+};
+
+const standardPercentage: ParameterFormat = {
+  min: {
+    value: 0,
+    inclusive: true
+  },
+  max: {
+    value: 100,
+    inclusive: true
+  },
+  percentages: true 
+};
+
 export const inputs: { 
   [key: string]: TestInputs
 } = {
-  rgb: testInputs(
-    [
-      "rgb(0,0,0)",
-      "rgb(0.1,0.1,0.1)",
-      "rgb(.2,.2,.2)",
-      "rgb(255,255,255)",
-      "rgb(0,0,0)",
-      "rgb  (0,0,0)",
-      "rgb(  0,0,0)",
-      "rgb(0  ,0,0)",
-      "rgb(0,  0,0)",
-      "rgb(0,0  ,0)",
-      "rgb(0,0,  0)",
-      "rgb(0,0,0  )",
-      "rgb(254.9999,254.9999,254.9999)"
-    ], [
-      "gb(0,0,0)",
-      "rb(0,0,0)",
-      "b(0,0,0)",
-      "rgb(-1,-1,-1)",
-      "rgb1,1,1",
-      "rgb(0",
-      "rgb(0,0,0",
-      "rgb(0,0,0))",
-      "rgb(0,0,0) ",
-      "RGB(0,0,0)",
-      " rgb(0,0,0)",
-      "rgb(255.0001,255.0001,255.0001)",
-      "rgb(256,256,256)"
-    ]
-  ),
+  rgb: generateCssColorFunctionInputs('rgb', rgbFormat, rgbFormat, rgbFormat),
   hex: testInputs(
     [
       "#fff",
@@ -74,81 +89,24 @@ export const inputs: {
       "#FFFFFF "
     ]
   ),
-  rgba: testInputs(
-    [
-      "rgba(0,0,0,0)",
-      "rgba(255,255,255,1)",
-      "rgba(.1,.1,.1,.1)",
-      'rgba  (0,0,0,0)',
-      "rgba(  0,0,0,0)",
-      'rgba(0  ,0,0,0)',
-      'rgba(0,  0,0,0)',
-      'rgba(0,0  ,0,0)',
-      'rgba(0,0,  0,0)',
-      'rgba(0,0,0  ,0)',
-      'rgba(0,0,0,  0)',
-      'rgba(0,0,0,0  )'
-    ], [
-      "RGBA(0,0,0)",
-      "rgba(256,256,256,1)",
-      "rgba(255,255,255,1.1)",
-      "rgba(256,256,256,1.1)",
-      "rgba(255,255,255,1",
-      "255,255,255,1",
-      "(255,255,255,1)",
-      "rgba(255,255,255,1) ",
-      " rgba(255,255,255,1)",
-      "rgba(-1,-1,-1,-1)"
-    ]
+  rgba: generateCssColorFunctionInputs(
+    'rgba',
+    rgbFormat,
+    rgbFormat,
+    rgbFormat,
+    alphaFormat
   ),
-  hsl: testInputs(
-    [
-      "hsl(360,100%,100%)",
-      "hsl(0,0%,0%)",
-      "hsl  (0,0%,0%)",
-      "hsl(  0,0%,0%)",
-      "hsl(0  ,0%,0%)",
-      "hsl(0,  0%,0%)",
-      "hsl(0,0%  ,0%)",
-      "hsl(0,0%,  0%)",
-      "hsl(0,0%,0%  )",
-      "hsl(0.1,0.1%,0.1%)",
-      "hsl(359.9999,99.9999%,99.99999%)",
-      "hsl(.1,.1%,.1%)"
-    ], [
-      "hsl(360.0001,100.0001%,100.0001%)",
-      "hsl(0,0%,0%",
-      "sl(0,0%,0%)",
-      "0,0%,0%",
-      "rgb(255,255,255)",
-      "rgb(0,0%,0%)",
-      " hsl(0,0%,0%)",
-      "hsl(0%,0%,0%) ",
-      "HSL(0,0%,0%)"
-    ]
+  hsl: generateCssColorFunctionInputs(
+    'hsl',
+    degreesFormat,
+    standardPercentage,
+    standardPercentage
   ),
-  hsla: testInputs([
-    "hsla(360,100%,100%,1)",
-    "hsla(0,0%,0%,0)",
-    "hsla  (0,0%,0%,0)",
-    "hsla(  0,0%,0%,0)",
-    "hsla(0  ,0%,0%,0)",
-    "hsla(0,  0%,0%,0)",
-    "hsla(0,0%  ,0%,0)",
-    "hsla(0,0%,  0%,0)",
-    "hsla(0,0%,0%  ,0)",
-    "hsla(0,0%,0%,  0)",
-    "hsla(0,0%,0%,0  )",
-    "hsla(0.1,0.1%,0.1%, 0.1)",
-    "hsla(359.9999,99.9999%,99.99999%,0.999999)",
-    "hsla(.1,.1%,.1%,.1)"
-  ], [
-    "hsla(360.0001,100.0001%,100.0001%,1.0001)",
-    "hsla(0,0%,0%,0",
-    "sla(0,0%,0%,0)",
-    "0,0%,0%,0",
-    " hsla(0,0%,0%,0)",
-    "hsla(0%,0%,0%,0) ",
-    "HSLA(0,0%,0%,0)"
-  ])
+  hsla: generateCssColorFunctionInputs(
+    'hsla',
+    degreesFormat,
+    standardPercentage,
+    standardPercentage,
+    alphaFormat
+  )
 } 

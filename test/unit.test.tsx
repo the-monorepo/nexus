@@ -1,6 +1,7 @@
 import { isHexColor, isRgbColor, isRgbaColor, isHslColor, isHslaColor } from 'src/index';
 import { expandInputs } from './inputs/expand';
-import { inputs, TestInputs } from './inputs/suites';
+import { inputs } from './inputs/suites';
+import { TestInputs } from './inputs/test-inputs';
 function testFunction(description: string, isColorFunction, ...validTestInputs: TestInputs[]) {
   describe(description, () => {
     const testInputs = expandInputs(...validTestInputs);
