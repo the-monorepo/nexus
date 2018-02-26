@@ -1,4 +1,5 @@
-import { inputs, TestInputs } from './suites';
+import { inputs } from './suites';
+import { TestInputs } from './test-inputs';
 
 function union<T>(...sets: Set<T>[]) {
   const unionSet: Set<T> = new Set();
