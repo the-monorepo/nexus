@@ -8,4 +8,3 @@ testColorTypeFunction(
   isCssColor,
   ...(Object.keys(inputs).map(key => [key, inputs[key], key]))
 );
-//testFunction('CSS Color', isCssColor, inputs.hex, inputs.rgb, inputs.rgba, inputs.hsl, inputs.hsla);

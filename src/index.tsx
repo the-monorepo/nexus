@@ -1,5 +1,5 @@
 import cssColors from 'css-color-names';
-
+const cssColorNames = Object.keys(cssColors);
 function isValidRgbVal(magnitudeString: string): boolean {
   const magnitude: number = Number.parseFloat(magnitudeString);
   return magnitude >= 0 && magnitude <= 255;
@@ -20,6 +20,15 @@ function isValidAlphaValue(magnitudeString: string): boolean {
 }
 
 export type IsColorFunction = (aString: string) => boolean;
+
+export function isColorName(value: string) {
+  for(const name of cssColorNames) {
+    if (name === value) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export const isHexColor: IsColorFunction = (value) => {
   return value.match(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i) !== null;
@@ -78,14 +87,15 @@ export const isHslaColor: IsColorFunction = (value) => {
   }
   return false;
 }
-export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | null; 
+export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | 'named' | null; 
 export function isCssColor(value: string): ColorType {
   const colorTypeCheckers: [IsColorFunction, ColorType][] = [
     [isHexColor, 'hex'],
     [isHslaColor, 'hsla'],
     [isHslColor, 'hsl'],
     [isRgbColor, 'rgb'],
-    [isRgbaColor, 'rgba']
+    [isRgbaColor, 'rgba'],
+    [isColorName, 'named']
   ];
   for (const [colorCheckingFunction, typeName] of colorTypeCheckers) {
     if (colorCheckingFunction(value)) {

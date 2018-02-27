@@ -1,5 +1,6 @@
 import { TestInputs } from './test-inputs';
 import { generateCssColorFunctionInputs, ParameterFormat } from './css-color-function-inputs';
+import cssColors from 'css-color-names';
 function testInputs(valid: any[], invalid: any[]): TestInputs {
   return {
     valid: new Set(valid),
@@ -108,5 +109,6 @@ export const inputs: {
     standardPercentage,
     standardPercentage,
     alphaFormat
-  )
+  ),
+  named: testInputs(Object.keys(cssColors), [])
 } 
