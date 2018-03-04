@@ -34,9 +34,13 @@ export const isHexColor: IsColorFunction = (value) => {
   return value.match(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i) !== null;
 }
 
-export function isValidPercentage(magnitudeString: string): boolean {
+export function isValidPercentageString(magnitudeString: string): boolean {
   const magnitude: number = Number.parseFloat(magnitudeString);
-  return magnitude >= 0 && magnitude <= 100;
+  return isValidPercentage(magnitude);
+}
+
+export function isValidPercentage(magnitude: number): boolean {
+ return magnitude >= 0 && magnitude <= 100;
 }
 
 export function isValidHue(valueString: string): boolean {
@@ -70,7 +74,7 @@ export const isHslColor: IsColorFunction = (value) => {
   const hslMatches: RegExpMatchArray | null = value.match(/^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/);
   if (hslMatches && hslMatches.length >= 4) {
     const [hsl, h, s, l] = hslMatches;
-    if (isValidHue(h) && isValidPercentage(s) && isValidPercentage(l)) {
+    if (isValidHue(h) && isValidPercentageString(s) && isValidPercentageString(l)) {
       return true;
     }
   }
@@ -81,13 +85,27 @@ export const isHslaColor: IsColorFunction = (value) => {
   const hslaMatches: RegExpMatchArray | null = value.match(/^hsla\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)\s*\)$/);
   if (hslaMatches && hslaMatches.length >= 5) {
     const [hsl, h, s, l, a] = hslaMatches;
-    if (isValidHue(h) && isValidPercentage(s) && isValidPercentage(l) && isValidAlphaValue(a)) {
+    if (isValidHue(h) && isValidPercentageString(s) && isValidPercentageString(l) && isValidAlphaValue(a)) {
       return true;
     }
   }
   return false;
 }
-export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | 'named' | null; 
+
+export const isHwbColor: IsColorFunction = (value) => {
+  const hwbMatches: RegExpMatchArray | null = value.match(/^hwb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/);
+  if(hwbMatches && hwbMatches.length >= 4) {
+    const [hwb, h, w, b] = hwbMatches;
+    const whiteness: number = Number.parseFloat(w);
+    const blackness: number = Number.parseFloat(b);
+    if (isValidHue(h) && isValidPercentage(whiteness + blackness) && isValidPercentage(whiteness) && isValidPercentage(blackness)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | 'named' | 'hwb' | null; 
 export function isCssColor(value: string): ColorType {
   const colorTypeCheckers: [IsColorFunction, ColorType][] = [
     [isHexColor, 'hex'],
@@ -95,7 +113,8 @@ export function isCssColor(value: string): ColorType {
     [isHslColor, 'hsl'],
     [isRgbColor, 'rgb'],
     [isRgbaColor, 'rgba'],
-    [isColorName, 'named']
+    [isColorName, 'named'],
+    [isHwbColor, 'hwb']
   ];
   for (const [colorCheckingFunction, typeName] of colorTypeCheckers) {
     if (colorCheckingFunction(value)) {
