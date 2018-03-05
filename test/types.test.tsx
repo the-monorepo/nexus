@@ -1,4 +1,4 @@
-import { findSingleType } from '/src/index';
+import { findSingleType } from 'src/index';
 describe('types', () => {
   let callbacks = { 
     boolean: jest.fn(),

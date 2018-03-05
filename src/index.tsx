@@ -7,11 +7,28 @@ function allAreIntegers(values) {
   return true;
 }
 
-export function typeTest(typeCheck, callback) {
-  return [ typeCheck, callback ];
+type TypeCheck = (...stuff: any[]) => boolean;
+type TypeTestInfo = {
+  readonly typeCheck: (...params: any[]) => any;
+  readonly callback: (...params: any[]) => any;
+}
+export function typeTest(typeCheck: TypeCheck, callback): TypeTestInfo {
+  return { typeCheck, callback };
 }
 
-export function defaultTypeTests(values, { boolean, string, func, number, integer, array, object }) {
+type TypeChecks = {
+  [key: string]: TypeCheck
+}
+export function defaultTypeTests(
+  values, { 
+    boolean, 
+    string, 
+    func, 
+    number, 
+    integer,
+    array, 
+    object } : TypeChecks
+  ): TypeTestInfo[] {
    return [
     typeTest(
       (value) => value === true || value === false,
