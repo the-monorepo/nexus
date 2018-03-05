@@ -10,11 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/PatrickShaw/extract-types"
+    "url": "https://github.com/PatrickShaw/extract-types.git"
   },
   "keywords": [
-    "css",
-    "color"
+    "types"
   ],
   "author": "Patrick Shaw",
   "license": "MIT",
@@ -30,6 +29,5 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
-    "css-color-names": "^0.0.4"
   }
 }
