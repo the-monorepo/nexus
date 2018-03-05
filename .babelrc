@@ -1,0 +1,25 @@
+{
+  "presets": [
+    "@babel/preset-typescript",
+    ["@babel/preset-env", {
+      "targets": {
+        "node": "current"
+      }
+    }]
+  ],
+  "plugins": [
+    ["module-resolver", {
+      "root": ["."],
+      "alias": {
+        "src": "./src",
+        "test": "./test"
+      }
+    }]
+  ],
+  "sourceMaps": true,
+  "env": {
+    "production": {
+      "minified": true
+    }
+  }
+}
