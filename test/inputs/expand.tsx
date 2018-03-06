@@ -1,7 +1,7 @@
 import { inputs } from './suites';
 import { TestInputs } from './test-inputs';
 
-function union<T>(...sets: Set<T>[]) {
+export function union<T>(...sets: Set<T>[]) {
   const unionSet: Set<T> = new Set();
   for (const set of sets) {
     for (const value of set) {
@@ -14,7 +14,7 @@ function union<T>(...sets: Set<T>[]) {
 export function expandInputs(...validTestInputs: TestInputs[]) { 
   const validInputs: Set<any> = union(...validTestInputs.map(i => i.valid));
   const invalidInputs: Set<any> = union(...validTestInputs.map(i => i.invalid));
-  Object.keys(inputs).forEach((key) => {
+   Object.keys(inputs).forEach((key) => {
     const { valid, invalid } = inputs[key]; 
     for (const invalidValue of invalid) {
       if (validInputs.has(invalidValue)) {

@@ -55,6 +55,21 @@ const standardPercentage: ParameterFormat = {
   },
   percentages: true 
 };
+// TODO: Use Automatic generation
+const hwb: TestInputs = testInputs([
+  'hwb(0,0%,0%)',
+  'hwb(0,100%,0%)',
+  'hwb(0,50%,50%)',
+  'hwb(0,0%,100%)',
+  'hwb(360,0%,0%)',
+  'hwb(359.99,99.99%,0.01%)'
+], [
+  'hwb(0,101%,0%)',
+  'hwb(-1,0%,0%)',
+  'hwb(0,0%,101%)',
+  'hwb(0,51%,50%)',
+  'hwb(361,0%,0%)'
+])
 
 export const inputs: { 
   [key: string]: TestInputs
@@ -110,5 +125,6 @@ export const inputs: {
     standardPercentage,
     alphaFormat
   ),
+  hwb,
   named: testInputs(Object.keys(cssColors), [])
 } 
