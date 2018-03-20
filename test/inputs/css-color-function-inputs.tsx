@@ -6,19 +6,21 @@ export interface Bound {
 
 export interface ParameterFormat {
   percentages: boolean;
-  min: Bound,
-  max: Bound
+  min: Bound;
+  max: Bound;
 }
 
-
-export function generateCssColorFunctionInputs(functionName, ...parameters: ParameterFormat[]): TestInputs {
+export function generateCssColorFunctionInputs(
+  functionName,
+  ...parameters: ParameterFormat[]
+): TestInputs {
   const valid: Set<any> = new Set();
   const invalid: Set<any> = new Set();
   const parameterCount: number = parameters.length;
   function generateInput(
-    hasName: boolean, 
-    hasLeftBracket: boolean, 
-    hasRightBracket: boolean, 
+    hasName: boolean,
+    hasLeftBracket: boolean,
+    hasRightBracket: boolean,
     spaceIndex: number = -1,
     parameterStrings: string[]
   ): string {
@@ -28,22 +30,22 @@ export function generateCssColorFunctionInputs(functionName, ...parameters: Para
     input += hasLeftBracket ? '(' : '';
     const formatedParameterStrings: string[] = [];
     for (let parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
-      let formatedParameterString: string = "";
+      let formatedParameterString: string = '';
       formatedParameterString += spaceIndex === 1 + parameterIndex * 2 ? spaceGap : '';
       formatedParameterString += parameterStrings[parameterIndex];
       formatedParameterString += spaceIndex === 2 + parameterIndex * 2 ? spaceGap : '';
       formatedParameterStrings.push(formatedParameterString);
     }
-    input += formatedParameterStrings.join(",");
+    input += formatedParameterStrings.join(',');
     input += hasRightBracket ? ')' : '';
     return input;
   }
 
   function parameterValue(
-    parameter: ParameterFormat, 
-    min: boolean, 
-    offsetDelta: number, 
-    hasCorrectSuffix: boolean, 
+    parameter: ParameterFormat,
+    min: boolean,
+    offsetDelta: number,
+    hasCorrectSuffix: boolean,
     decimal: 'leading' | 'short'
   ) {
     const bound: Bound = min ? parameter.min : parameter.max;
@@ -52,20 +54,21 @@ export function generateCssColorFunctionInputs(functionName, ...parameters: Para
     const deltaSign: number = offsetDelta >= 0 ? correctDeltaSign : incorrectDeltaSign;
     const delta: number = deltaSign * Math.abs(offsetDelta);
     const value: number = bound.value + delta;
-    const correctSuffix: string= parameter.percentages ? '%' : '';
+    const correctSuffix: string = parameter.percentages ? '%' : '';
     const incorrectSuffix: string = parameter.percentages ? '' : '%';
     const suffix: string = hasCorrectSuffix ? correctSuffix : incorrectSuffix;
-    const decimalString: string = decimal === 'leading' ? value.toString() : value.toString().replace(/^0+\./, '.');
+    const decimalString: string =
+      decimal === 'leading' ? value.toString() : value.toString().replace(/^0+\./, '.');
     return `${decimalString}${suffix}`;
   }
-  
+
   function validValue(parameter: ParameterFormat, min: boolean) {
     return parameterValue(parameter, min, 0, true, 'leading');
   }
-  
+
   function validMinValues() {
     return parameters.map(p => validValue(p, true));
-  } 
+  }
 
   function validMaxValues() {
     return parameters.map(p => validValue(p, false));
@@ -73,18 +76,84 @@ export function generateCssColorFunctionInputs(functionName, ...parameters: Para
 
   valid.add(generateInput(true, true, true, undefined, validMinValues()));
   valid.add(generateInput(true, true, true, undefined, validMaxValues()));
-  valid.add(generateInput(true, true, true, undefined, parameters.map(p => parameterValue(p, true, 0.001, true, 'short'))));
-  valid.add(generateInput(true, true, true, undefined, parameters.map(p => parameterValue(p, true, 0.001, true, 'leading'))));
-  valid.add(generateInput(true, true, true, undefined, parameters.map(p => parameterValue(p, false, 0.001, true, 'short'))));
-  valid.add(generateInput(true, true, true, undefined, parameters.map(p => parameterValue(p, false, 0.001, true, 'leading'))));
-  valid.add(generateInput(true, true, true, undefined, parameters.map(p => parameterValue(p, true, 1, true, 'leading'))));
+  valid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, true, 0.001, true, 'short'))
+    )
+  );
+  valid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, true, 0.001, true, 'leading'))
+    )
+  );
+  valid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, false, 0.001, true, 'short'))
+    )
+  );
+  valid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, false, 0.001, true, 'leading'))
+    )
+  );
+  valid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, true, 1, true, 'leading'))
+    )
+  );
 
-  invalid.add(generateInput(true, true, true, undefined, parameters.map(p => parameterValue(p, true, -0.001, true, 'leading'))));
-  invalid.add(generateInput(true, true, true, undefined, parameters.map(p => parameterValue(p, false, -0.001, true, 'leading'))));
+  invalid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, true, -0.001, true, 'leading'))
+    )
+  );
+  invalid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, false, -0.001, true, 'leading'))
+    )
+  );
   if (parameters.filter(p => p.min.value < 0).length > 0) {
-    invalid.add(generateInput(true, true, true, undefined, parameters.map(p => `${p.min.value > 0 ? '-' : ''}${parameterValue(p, true, 0.001, true, 'leading')}`)));
+    invalid.add(
+      generateInput(
+        true,
+        true,
+        true,
+        undefined,
+        parameters.map(
+          p => `${p.min.value > 0 ? '-' : ''}${parameterValue(p, true, 0.001, true, 'leading')}`
+        )
+      )
+    );
   }
-  invalid.add(generateInput(true,false,false, undefined, validMinValues()));
+  invalid.add(generateInput(true, false, false, undefined, validMinValues()));
   invalid.add(generateInput(false, true, true, undefined, validMaxValues()));
 
   for (let spaceIndex = 1; spaceIndex < parameterCount * 2 + 1; spaceIndex++) {
