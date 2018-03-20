@@ -11,11 +11,11 @@ export function union<T>(...sets: Set<T>[]) {
   return unionSet;
 }
 
-export function expandInputs(...validTestInputs: TestInputs[]) { 
+export function expandInputs(...validTestInputs: TestInputs[]) {
   const validInputs: Set<any> = union(...validTestInputs.map(i => i.valid));
   const invalidInputs: Set<any> = union(...validTestInputs.map(i => i.invalid));
-   Object.keys(inputs).forEach((key) => {
-    const { valid, invalid } = inputs[key]; 
+  Object.keys(inputs).forEach(key => {
+    const { valid, invalid } = inputs[key];
     for (const invalidValue of invalid) {
       if (validInputs.has(invalidValue)) {
         // Suggests that this suite of inputs might have overlapping values with the valid test inputs
@@ -32,12 +32,12 @@ export function expandInputs(...validTestInputs: TestInputs[]) {
     for (const value of invalid) {
       invalidInputs.add(value);
     }
-    for(const value of valid) {
+    for (const value of valid) {
       invalidInputs.add(value);
     }
   });
   return {
     valid: validInputs,
     invalid: invalidInputs
-  }
+  };
 }

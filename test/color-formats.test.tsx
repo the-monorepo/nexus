@@ -1,4 +1,12 @@
-import { isHexColor, isRgbColor, isRgbaColor, isColorName, isHslColor, isHslaColor, isHwbColor } from 'src/index';
+import {
+  isHexColor,
+  isRgbColor,
+  isRgbaColor,
+  isColorName,
+  isHslColor,
+  isHslaColor,
+  isHwbColor
+} from 'src/index';
 import { inputs } from './inputs/suites';
 import { testFunction } from './helpers/test-function';
 testFunction('Hex', isHexColor, inputs.hex);
