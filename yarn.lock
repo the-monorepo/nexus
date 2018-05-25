@@ -1121,6 +1121,16 @@ cryptiles@3.x.x:
   dependencies:
     boom "5.x.x"
 
+css-color-checker@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/css-color-checker/-/css-color-checker-1.0.1.tgz#af83521645f087eab80b35a655fb76d42cadd869"
+  dependencies:
+    css-color-names "^0.0.4"
+
+css-color-names@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
+
 cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/cssom/-/cssom-0.3.2.tgz#b8036170c79f07a90ff2f16e22284027a243848b"

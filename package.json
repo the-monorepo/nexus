@@ -29,5 +29,6 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
+    "css-color-checker": "^1.0.1"
   }
 }

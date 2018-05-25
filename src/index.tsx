@@ -20,39 +20,41 @@ type TypeChecks = {
   [key: string]: TypeCheck
 }
 export function defaultTypeTests(
-  values, { 
-    boolean, 
-    string, 
-    func, 
-    number, 
-    integer,
-    array, 
-    object } : TypeChecks
+  values, getItemTypes
   ): TypeTestInfo[] {
    return [
     typeTest(
       (value) => value === true || value === false,
-      boolean
+      { type: 'boolean' }
     ),
     typeTest(
       (value) => typeof value === 'string',
-      string
+      { type: 'string' }
     ),
     typeTest(
       (value) => typeof value === 'function',
-      func
+      () => ({ type: 'function' })
     ),
     typeTest(
       (value) => typeof value === 'number',
-      (...params) => allAreIntegers(values) ? integer(...params) : number(...params)
+      {
+        type: 'number',
+        format: allAreIntegers(values) ? 'integer' : 'number'
+      }
     ),
     typeTest(
       (value) => Array.isArray(value),
-      array
+      {
+        type: 'array',
+        itemTypes: getItemTypes(values)
+      }
     ),
     typeTest(
       (value) => value instanceof Object && value.constructor === Object,
-      object
+      {
+        type: 'array',
+        itemTypes: getItemTypes
+      }
     )
   ];
 }
@@ -62,10 +64,10 @@ export function findSingleType(values, typeCallbacks) {
 }
 
 export function findMultipleTypes(values, typeCallbacks) {
-  return runSingularTypeTests(values, defaultTypeTests);
+  return runSingularTypeTests(values, defaultTypeTests(values, typeCallbacks));
 }
 
-export function runMultiTypeTests(values, typeTests) {
+export function runMultiTypeTests(values, typeTests: TypeTestInfo[]) {
   const successfulTypeTests = [];
   let undefinedCount = 0;
   let nullCount = 0;
@@ -86,22 +88,21 @@ export function runMultiTypeTests(values, typeTests) {
   return { nullCount, undefinedCount, typeTests: successfulTypeTests };
 }
 
-export function runSingularTypeTests(values, typeTests) {
-  typeTests = typeTests.slice();
+export function runSingularTypeTests(values, typeTests: TypeTestInfo[]) {
   let undefinedCount = 0;
   let nullCount = 0;
   for (const value of values) {
     if (value === null) {
       nullCount += 1;
     }
-    if (value === null) {
+    if (value === undefined) {
       undefinedCount += 1;
     }
     for(let i = typeTests.length - 1; i >= 0; i--) {
-      if (!typeTest[i].typeCheck(value)) {
+      if (!typeTests[i].typeCheck(value)) {
         typeTests.splice(i, 1);
       }
     }
   }
-  return { nullCount, undefinedCount, typeTest: typeTests.length == 1 ? typeTests[0] : undefined };
+  return { nullCount, undefinedCount, typeTest: typeTests.length === 1 ? typeTests[0] : undefined };
 }
