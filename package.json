@@ -4,6 +4,7 @@
   "description": "Extracts the types used in a particular object",
   "main": "build/index.js",
   "scripts": {
+    "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
     "build": "babel src --out-dir build --extensions .tsx",
     "prepublish": "npm run build",
     "test": "jest"
@@ -26,6 +27,7 @@
     "babel-jest": "^22.2.2",
     "babel-plugin-module-resolver": "^3.1.0",
     "jest": "^22.3.0",
+    "prettier": "^1.13.0",
     "typescript": "^2.7.1"
   },
   "dependencies": {
