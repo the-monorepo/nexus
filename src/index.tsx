@@ -19,9 +19,9 @@ export function typeTest(typeCheck: TypeCheck, callback): TypeTestInfo {
 type TypeChecks = {
   [key: string]: TypeCheck;
 };
-export function defaultTypeTests(values, getItemTypes): TypeTestInfo[] {
+export function defaultTypeTests(values): TypeTestInfo[] {
   return [
-    typeTest(value => value === true || value === false, { type: 'boolean' }),
+    typeTest(value => typeof value === 'boolean', { type: 'boolean' }),
     typeTest(value => typeof value === 'string', { type: 'string' }),
     typeTest(value => typeof value === 'function', () => ({ type: 'function' })),
     typeTest(value => typeof value === 'number', {
@@ -29,12 +29,10 @@ export function defaultTypeTests(values, getItemTypes): TypeTestInfo[] {
       format: allAreIntegers(values) ? 'integer' : 'number',
     }),
     typeTest(value => Array.isArray(value), {
-      type: 'array',
-      itemTypes: getItemTypes(values),
+      type: 'array'
     }),
     typeTest(value => value instanceof Object && value.constructor === Object, {
-      type: 'array',
-      itemTypes: getItemTypes,
+      type: 'object'
     }),
   ];
 }
