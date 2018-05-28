@@ -38,11 +38,11 @@ export function defaultTypeTests(values): TypeTestInfo[] {
 }
 
 export function findSingleType(values, typeCallbacks) {
-  return runSingularTypeTests(values, defaultTypeTests(values, typeCallbacks));
+  return runSingularTypeTests(values, defaultTypeTests(values));
 }
 
 export function findMultipleTypes(values, typeCallbacks) {
-  return runSingularTypeTests(values, defaultTypeTests(values, typeCallbacks));
+  return runSingularTypeTests(values, defaultTypeTests(values));
 }
 
 export function runMultiTypeTests(values, typeTests: TypeTestInfo[]) {

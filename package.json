@@ -1,5 +1,5 @@
 {
-  "name": "extract-types",
+  "name": "by-example",
   "version": "1.0.0",
   "description": "Extracts the types used in a particular object",
   "main": "build/index.js",
