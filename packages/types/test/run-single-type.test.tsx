@@ -1,4 +1,4 @@
-import { runSingularTypeTests, typeTest } from 'src/index';
+import { runSingularTypeTests, typeTest } from '../src/index';
 function testResult(values, typeTests, expectedResult) {
   it('correct result', () => {
     const result = runSingularTypeTests(values, typeTests);
