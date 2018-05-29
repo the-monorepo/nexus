@@ -1,12 +1,8 @@
 {
   "name": "by-example",
-  "version": "1.0.0",
   "description": "Extracts the types used in a particular object",
-  "main": "build/index.js",
   "scripts": {
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
-    "build": "babel src --out-dir build --extensions .tsx",
-    "prepublish": "npm run build",
     "test": "jest"
   },
   "repository": {
@@ -27,11 +23,10 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^22.2.2",
     "babel-plugin-module-resolver": "^3.1.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "jest": "^22.3.0",
+    "lerna": "^3.0.0-beta.20",
     "prettier": "^1.13.0",
     "typescript": "^2.7.1"
-  },
-  "dependencies": {
-    "css-color-checker": "^1.0.1"
   }
 }
