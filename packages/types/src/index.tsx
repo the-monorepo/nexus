@@ -19,6 +19,7 @@ export function typeTest(typeCheck: TypeCheck, callback): TypeTestInfo {
 type TypeChecks = {
   [key: string]: TypeCheck;
 };
+
 export function defaultTypeTests(values): TypeTestInfo[] {
   return [
     typeTest(value => typeof value === 'boolean', { type: 'boolean' }),
