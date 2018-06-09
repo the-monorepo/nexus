@@ -19,10 +19,10 @@ function allAreIntegers(values) {
 type TypeCheck = (...stuff: any[]) => boolean;
 type TypeTestInfo = {
   readonly typeCheck: (...params: any[]) => any;
-  readonly callback: (...params: any[]) => any;
+  readonly value: (...params: any[]) => any;
 };
-export function typeTest(typeCheck: TypeCheck, callback): TypeTestInfo {
-  return { typeCheck, callback };
+export function typeTest(typeCheck: TypeCheck, value): TypeTestInfo {
+  return { typeCheck, value };
 }
 
 type TypeChecks = {
@@ -31,28 +31,29 @@ type TypeChecks = {
 
 export function defaultTypeTests(values): TypeTestInfo[] {
   return [
-    typeTest(isBoolean, { type: 'boolean' }),
-    typeTest(isString, { type: 'string' }),
+    typeTest(isBoolean, () => ({ type: 'boolean' })),
+    typeTest(isString, () => ({ type: 'string' })),
     typeTest(isFunction, () => ({ type: 'function' })),
-    typeTest(isNumber, {
+    typeTest(isNumber, () => ({
       type: 'number',
-      format: allAreIntegers(values) ? 'integer' : 'number',
-    }),
-    typeTest(isArray, {
+      format: () => allAreIntegers(values) ? 'integer' : 'number',
+    })),
+    typeTest(isArray, () => ({
       type: 'array',
-    }),
-    typeTest(isObject, {
+    })),
+    typeTest(isObject, () => ({
       type: 'object',
-    }),
+    })),
   ];
 }
 
-export function findSingleType(values, typeCallbacks) {
-  return runSingularTypeTests(values, defaultTypeTests(values));
-}
-
-export function findMultipleTypes(values, typeCallbacks) {
-  return runSingularTypeTests(values, defaultTypeTests(values));
+export function findTypes(values, typeCallbacks) {
+  const { nullCount, undefinedCount, typeValues } = runTypeTests(values, defaultTypeTests(values));
+  return {
+    nullCount,
+    undefinedCount,
+    info: typeValues.map((callback) => callback())
+  };
 }
 
 export function nullCounts(values: any[]): number {
@@ -63,24 +64,9 @@ export function undefinedCounts(values: any[]): number {
   return values.filter(value => value === undefined).length;
 }
 
-export function runMultiTypeTests(values, typeTests: TypeTestInfo[]) {
-  const successfulTypeTests = [];
-  let undefinedCount = undefinedCounts(values);
-  let nullCount = nullCounts(values);
-  for (const value of values) {
-    for (let i = typeTests.length - 1; i >= 0; i--) {
-      if (typeTest[i].typeCheck(value)) {
-        typeTests.splice(i, 1);
-        successfulTypeTests.push(typeTests[i]);
-      }
-    }
-  }
-  return { nullCount, undefinedCount, typeTests: successfulTypeTests };
-}
-
-export function runSingularTypeTests(values, typeTests: TypeTestInfo[]) {
-  let undefinedCount = undefinedCounts(values);
-  let nullCount = nullCounts(values);
+export function runTypeTests(values, typeTests: TypeTestInfo[] = defaultTypeTests(values)) {
+  const undefinedCount = undefinedCounts(values);
+  const nullCount = nullCounts(values);
   for (const value of values) {
     for (let i = typeTests.length - 1; i >= 0; i--) {
       if (!typeTests[i].typeCheck(value)) {
@@ -88,9 +74,5 @@ export function runSingularTypeTests(values, typeTests: TypeTestInfo[]) {
       }
     }
   }
-  return {
-    nullCount,
-    undefinedCount,
-    typeTest: typeTests.length === 1 ? typeTests[0] : undefined,
-  };
+  return { nullCount, undefinedCount, typeValues: typeTests.map(({ value }) => value) };
 }
