@@ -1,3 +1,12 @@
+import {
+  isBoolean, 
+  isObject,
+  isArray,
+  isString,
+  isFunction,
+  isNumber
+} from './type-checks';
+
 function allAreIntegers(values) {
   for (const value of values) {
     if (!Number.isInteger(value)) {
@@ -22,17 +31,17 @@ type TypeChecks = {
 
 export function defaultTypeTests(values): TypeTestInfo[] {
   return [
-    typeTest(value => typeof value === 'boolean', { type: 'boolean' }),
-    typeTest(value => typeof value === 'string', { type: 'string' }),
-    typeTest(value => typeof value === 'function', () => ({ type: 'function' })),
-    typeTest(value => typeof value === 'number', {
+    typeTest(isBoolean, { type: 'boolean' }),
+    typeTest(isString, { type: 'string' }),
+    typeTest(isFunction, () => ({ type: 'function' })),
+    typeTest(isNumber, {
       type: 'number',
       format: allAreIntegers(values) ? 'integer' : 'number',
     }),
-    typeTest(value => Array.isArray(value), {
+    typeTest(isArray, {
       type: 'array'
     }),
-    typeTest(value => value instanceof Object && value.constructor === Object, {
+    typeTest(isObject, {
       type: 'object'
     }),
   ];
