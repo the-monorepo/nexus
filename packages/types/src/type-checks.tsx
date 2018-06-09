@@ -1,5 +1,5 @@
 function typeOfCheck(type) {
-  return (value) => typeof value === type;
+  return value => typeof value === type;
 }
 
 export const isBoolean = typeOfCheck('boolean');

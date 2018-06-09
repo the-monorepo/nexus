@@ -1,10 +1,10 @@
 import {
-  isBoolean, 
+  isBoolean,
   isObject,
   isArray,
   isString,
   isFunction,
-  isNumber
+  isNumber,
 } from './type-checks';
 
 function allAreIntegers(values) {
@@ -39,10 +39,10 @@ export function defaultTypeTests(values): TypeTestInfo[] {
       format: allAreIntegers(values) ? 'integer' : 'number',
     }),
     typeTest(isArray, {
-      type: 'array'
+      type: 'array',
     }),
     typeTest(isObject, {
-      type: 'object'
+      type: 'object',
     }),
   ];
 }
