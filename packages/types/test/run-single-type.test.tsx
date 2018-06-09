@@ -1,19 +1,24 @@
-import { runSingularTypeTests, typeTest } from '../src/index';
-function testResult(values, typeTests, expectedResult) {
+import { runTypeTests, typeTest } from '../src/index';
+function testResult(values, checks, expectedResult) {
   it('correct result', () => {
-    const result = runSingularTypeTests(values, typeTests);
-
+    const expectedValues = [];
+    checks.filter(check => expectedResult.checks.includes(check)).forEach((check, i) => {
+      expectedValues.push(i);
+    });
+    const typeTests = checks.map((check, i) => typeTest(check, i));
+    const result = runTypeTests(values, typeTests);
     expect(result.undefinedCount).toBe(expectedResult.undefinedCount);
     expect(result.nullCount).toBe(expectedResult.nullCount);
-    expect(result.typeTest).toBe(expectedResult.typeTest);
+    expect(result.typeValues.length).toBe(expectedValues.length);
+    expectedValues.forEach(value => expect(result.typeValues.includes(value)).toBe(true));
   });
 }
 describe('run-single-type', () => {
   it('No checks', () => {
-    runSingularTypeTests([1, '', undefined], []);
+    runTypeTests([1, '', undefined], []);
   });
   it('No values', () => {
-    runSingularTypeTests(
+    runTypeTests(
       [],
       [typeTest(jest.fn(), undefined), typeTest(jest.fn(), undefined)],
     );
@@ -21,16 +26,16 @@ describe('run-single-type', () => {
   describe('type check called', () => {
     it('1 check', () => {
       const check = jest.fn();
-      runSingularTypeTests([1], [typeTest(check, undefined)]);
+      runTypeTests([1], [typeTest(check, undefined)]);
       expect(check.mock.calls.length).toBe(1);
     });
   });
   describe('1 type', () => {
-    const int = typeTest(value => Number.isInteger(value), undefined);
+    const int = jest.fn().mockReturnValue(true);
     testResult([1, 2, 3], [int], {
       undefinedCount: 0,
       nullCount: 0,
-      typeTest: int,
+      checks: [int]
     });
   });
 });
