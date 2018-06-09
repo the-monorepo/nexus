@@ -55,17 +55,19 @@ export function findMultipleTypes(values, typeCallbacks) {
   return runSingularTypeTests(values, defaultTypeTests(values));
 }
 
+export function nullCounts(values: any[]): number {
+  return values.filter(value => value === null).length;
+}
+
+export function undefinedCounts(values: any[]): number {
+  return values.filter(value => value === undefined).length;
+}
+
 export function runMultiTypeTests(values, typeTests: TypeTestInfo[]) {
   const successfulTypeTests = [];
-  let undefinedCount = 0;
-  let nullCount = 0;
+  let undefinedCount = undefinedCounts(values);
+  let nullCount = nullCounts(values);
   for (const value of values) {
-    if (value === null) {
-      nullCount += 1;
-    }
-    if (value === null) {
-      undefinedCount += 1;
-    }
     for (let i = typeTests.length - 1; i >= 0; i--) {
       if (typeTest[i].typeCheck(value)) {
         typeTests.splice(i, 1);
@@ -77,15 +79,9 @@ export function runMultiTypeTests(values, typeTests: TypeTestInfo[]) {
 }
 
 export function runSingularTypeTests(values, typeTests: TypeTestInfo[]) {
-  let undefinedCount = 0;
-  let nullCount = 0;
+  let undefinedCount = undefinedCounts(values);
+  let nullCount = nullCounts(values);
   for (const value of values) {
-    if (value === null) {
-      nullCount += 1;
-    }
-    if (value === undefined) {
-      undefinedCount += 1;
-    }
     for (let i = typeTests.length - 1; i >= 0; i--) {
       if (!typeTests[i].typeCheck(value)) {
         typeTests.splice(i, 1);
