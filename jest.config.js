@@ -4,6 +4,7 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],
   collectCoverage: true,
   coverageDirectory: './coverage/',
+  collectCoverageFrom: ['src/**/*.ts'],
   transform: {
     '^.+\\.ts$': 'babel-jest',
   },
