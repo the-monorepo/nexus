@@ -36,7 +36,7 @@ describe('only mocks functions', () => {
   it('with array', () => {
     const mockedArray = mockFunctions(anArray);
     const aFunction = mockedArray.shift();
-    const originalFunction = anArray[0] as Function;
+    const originalFunction: Function = anArray[0] as Function;
     expect(aFunction()).not.toBe(originalFunction());
     mockedArray.forEach((notAFunction, i) => {
       expect(notAFunction).toBe(anArray[i + 1]);
@@ -83,4 +83,18 @@ describe('can mock the function', () => {
     const mockedArray = mockFunctions(originalArray);
     expect(mockedArray[0]()).not.toBe(originalArray[0]());
   });
+});
+
+it('onMockedFunction works', () => {
+  const objectWithFunctions = {
+    1: () => -202,
+    2: () => 10
+  };
+  const mockedObject = mockFunctions(objectWithFunctions, {
+    // Return the same exactly the same thing
+    onMockedFunction: (fn, ogVal) => fn.mockImplementation(() => ogVal())
+  });
+  Object.keys(objectWithFunctions).forEach(key => {
+    expect(objectWithFunctions[key]()).toBe(mockedObject[key]());
+  })
 });
