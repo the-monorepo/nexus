@@ -1,7 +1,7 @@
 {
   "name": "jest-mock-functions",
   "description": "Mock all functions inside an array or object literal",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "./lib/index.js",
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
@@ -41,6 +41,7 @@
     "@babel/core": "^7.0.0-beta.54",
     "@babel/preset-env": "^7.0.0-beta.54",
     "@babel/preset-typescript": "^7.0.0-beta.54",
+    "@types/jest": "^23.3.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^23.4.0",
     "codecov": "^3.0.4",
@@ -49,9 +50,7 @@
     "lint-staged": "^7.2.0",
     "prettier": "^1.13.7"
   },
-  "dependencies": {
-    "@types/jest": "^23.3.0"
-  },
+  "dependencies": {},
   "engines": {
     "node": ">=8.11.3"
   }
