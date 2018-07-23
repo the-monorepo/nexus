@@ -4,5 +4,5 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest',
-  }
+  },
 };
