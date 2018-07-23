@@ -32,8 +32,12 @@ const mockedArray = mockFunctions([
   function() {},
 ]);
 ```
+### Options
+You can pass options into `mockFunctions`.
+E.g. `mockFunctions(aValue, { recursive: true })`
 
-### Recursively mock functions
+#### recursive: boolean
+
 You can mock functions inside arrays inside objects. With `{ recursive: true }`.
 ```js
 import { mockFunctions } from 'jest-mock-functions';
@@ -61,4 +65,20 @@ const mockedThing = mockFunctions(
   [[{ this: { is: [{ rediculous: () => {}}]}}]],
   { recursive: true }
 );
+```
+
+#### onMockedFunction: (mockedFunction, originalValue) => any
+
+Use this if you want to do something with the mocked functions. 
+E.g. Return a specific value:
+```js
+import { mockFunctions } from 'jest-mock-functions';
+const mockedObject = mockFunctions({
+  test: () => 2,
+  test2: () => 3
+}, { onMockedFunction: (fn, ogVal) => fn.mockImplementation(() => ogVal * 2 });
+// Returns 4
+mockedObject.test();
+// Returns 6
+mockedObject.test2();
 ```

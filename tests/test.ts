@@ -88,13 +88,13 @@ describe('can mock the function', () => {
 it('onMockedFunction works', () => {
   const objectWithFunctions = {
     1: () => -202,
-    2: () => 10
+    2: () => 10,
   };
   const mockedObject = mockFunctions(objectWithFunctions, {
     // Return the same exactly the same thing
-    onMockedFunction: (fn, ogVal) => fn.mockImplementation(() => ogVal())
+    onMockedFunction: (fn, ogVal) => fn.mockImplementation(() => ogVal()),
   });
   Object.keys(objectWithFunctions).forEach(key => {
     expect(objectWithFunctions[key]()).toBe(mockedObject[key]());
-  })
+  });
 });
