@@ -1,44 +1,61 @@
 {
   "name": "css-color-checker",
-  "version": "1.0.1",
-  "description": "Library for whether a value is a valid color value",
-  "main": "build/index.js",
-  "scripts": {
-    "build": "babel src --out-dir build --extensions .tsx",
-    "format": "prettier --write {**/,}/*.{js,jsx,ts,tsx}",
-    "prepublish": "npm run build",
-    "test": "jest"
-  },
+  "version": "1.0.2",
+  "description": "Library for checking whether a value is a valid color value",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/css-color-checker.git"
   },
   "keywords": [
     "css",
-    "color"
+    "color",
+    "type",
+    "check",
+    "util",
+    "helper",
+    "string",
+    "pattern",
+    "typescript",
+    "regex"
   ],
-  "author": "Patrick Shaw",
-  "license": "MIT",
+  "scripts": {
+    "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
+    "test": "jest",
+    "ci-test": "yarn test && codecov",
+    "build": "babel src --out-dir lib --extensions \".ts\"",
+    "prepublish": "yarn build",
+    "precommit": "lint-staged"
+  },
   "husky": {
     "hooks": {
-      "pre-commit": "run-s format test"
+      "pre-commit": "yarn precommit"
     }
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn format",
+      "git add"
+    ]
+  },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.40",
-    "@babel/core": "^7.0.0-beta.40",
-    "@babel/preset-env": "^7.0.0-beta.40",
-    "@babel/preset-typescript": "^7.0.0-beta.40",
+    "@babel/cli": "7.0.0-beta.54",
+    "@babel/core": "7.0.0-beta.54",
+    "@babel/preset-env": "7.0.0-beta.54",
+    "@babel/preset-typescript": "7.0.0-beta.54",
+    "@types/jest": "^23.3.0",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^22.2.2",
-    "babel-plugin-module-resolver": "^3.1.0",
+    "babel-jest": "^23.4.0",
     "husky": "^0.15.0-rc.9",
-    "jest": "^22.3.0",
-    "npm-run-all": "^4.1.2",
+    "jest": "^23.4.1",
+    "lint-staged": "^7.2.0",
     "prettier": "^1.11.1",
     "typescript": "^2.7.1"
   },
   "dependencies": {
     "css-color-names": "^0.0.4"
+  },
+  "engines": {
+    "node": ">=8.11.3"
   }
 }

@@ -1,59 +1,62 @@
 import { TestInputs } from './test-inputs';
-import { generateCssColorFunctionInputs, ParameterFormat } from './css-color-function-inputs';
+import {
+  generateCssColorFunctionInputs,
+  ParameterFormat,
+} from './css-color-function-inputs';
 import cssColors from 'css-color-names';
 function testInputs(valid: any[], invalid: any[]): TestInputs {
   return {
     valid: new Set(valid),
-    invalid: new Set(invalid)
+    invalid: new Set(invalid),
   };
 }
 
 const rgbFormat: ParameterFormat = {
   min: {
     value: 0,
-    inclusive: true
+    inclusive: true,
   },
   max: {
     value: 255,
-    inclusive: true
+    inclusive: true,
   },
-  percentages: false
+  percentages: false,
 };
 
 const degreesFormat: ParameterFormat = {
   min: {
     value: 0,
-    inclusive: true
+    inclusive: true,
   },
   max: {
     value: 360,
-    inclusive: true
+    inclusive: true,
   },
-  percentages: false
+  percentages: false,
 };
 
 const alphaFormat: ParameterFormat = {
   min: {
     value: 0,
-    inclusive: true
+    inclusive: true,
   },
   max: {
     value: 1,
-    inclusive: true
+    inclusive: true,
   },
-  percentages: false
+  percentages: false,
 };
 
 const standardPercentage: ParameterFormat = {
   min: {
     value: 0,
-    inclusive: true
+    inclusive: true,
   },
   max: {
     value: 100,
-    inclusive: true
+    inclusive: true,
   },
-  percentages: true
+  percentages: true,
 };
 // TODO: Use Automatic generation
 const hwb: TestInputs = testInputs(
@@ -63,9 +66,15 @@ const hwb: TestInputs = testInputs(
     'hwb(0,50%,50%)',
     'hwb(0,0%,100%)',
     'hwb(360,0%,0%)',
-    'hwb(359.99,99.99%,0.01%)'
+    'hwb(359.99,99.99%,0.01%)',
   ],
-  ['hwb(0,101%,0%)', 'hwb(-1,0%,0%)', 'hwb(0,0%,101%)', 'hwb(0,51%,50%)', 'hwb(361,0%,0%)']
+  [
+    'hwb(0,101%,0%)',
+    'hwb(-1,0%,0%)',
+    'hwb(0,0%,101%)',
+    'hwb(0,51%,50%)',
+    'hwb(361,0%,0%)',
+  ]
 );
 
 export const inputs: {
@@ -92,11 +101,22 @@ export const inputs: {
       'G',
       '0',
       ' #FFFFFF',
-      '#FFFFFF '
+      '#FFFFFF ',
     ]
   ),
-  rgba: generateCssColorFunctionInputs('rgba', rgbFormat, rgbFormat, rgbFormat, alphaFormat),
-  hsl: generateCssColorFunctionInputs('hsl', degreesFormat, standardPercentage, standardPercentage),
+  rgba: generateCssColorFunctionInputs(
+    'rgba',
+    rgbFormat,
+    rgbFormat,
+    rgbFormat,
+    alphaFormat
+  ),
+  hsl: generateCssColorFunctionInputs(
+    'hsl',
+    degreesFormat,
+    standardPercentage,
+    standardPercentage
+  ),
   hsla: generateCssColorFunctionInputs(
     'hsla',
     degreesFormat,
@@ -105,5 +125,5 @@ export const inputs: {
     alphaFormat
   ),
   hwb,
-  named: testInputs(Object.keys(cssColors), [])
+  named: testInputs(Object.keys(cssColors), []),
 };

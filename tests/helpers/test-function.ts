@@ -1,6 +1,5 @@
-import { expandInputs } from 'test/inputs/expand';
-import { TestInputs } from 'test/inputs/test-inputs';
-import { IsColorFunction } from 'src/index';
+import { expandInputs } from '../inputs/expand';
+import { TestInputs } from '../inputs/test-inputs';
 export const invalidTypes: [string, any][] = [
   ['Function', () => undefined],
   ['Integer', 1],
@@ -8,7 +7,7 @@ export const invalidTypes: [string, any][] = [
   ['Class object', new class {}()],
   ['Object', {}],
   ['Array', []],
-  ['null', null]
+  ['null', null],
 ];
 
 export function testColorTypeFunction(

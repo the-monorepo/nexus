@@ -38,6 +38,6 @@ export function expandInputs(...validTestInputs: TestInputs[]) {
   });
   return {
     valid: validInputs,
-    invalid: invalidInputs
+    invalid: invalidInputs,
   };
 }
