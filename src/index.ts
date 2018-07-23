@@ -1,6 +1,6 @@
 interface Options {
   recursive?: boolean;
-  onMockedFunction?: (mockedFunction, originalValue) => any
+  onMockedFunction?: (mockedFunction, originalValue) => any;
 }
 
 type Input =
@@ -9,10 +9,7 @@ type Input =
     }
   | Array<any>;
 
-export function mockFunctions(
-  value: Input, 
-  options: Options = {  }
-) {
+export function mockFunctions(value: Input, options: Options = {}) {
   const { onMockedFunction = () => {} } = options;
   const mockedObject = value.constructor();
   Object.keys(value).forEach(key => {
