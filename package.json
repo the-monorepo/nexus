@@ -5,6 +5,7 @@
   "scripts": {
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
     "test": "jest",
+    "ci-test": "yarn test",
     "build": "babel src --out-dir lib --extensions \".ts\"",
     "prepublish": "yarn build"
   },
