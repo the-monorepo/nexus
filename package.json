@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "./lib/index.js",
   "license": "MIT",
+  "repository": "https://github.com/PatrickShaw/jest-mock-functions",
   "scripts": {
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
     "test": "jest",
