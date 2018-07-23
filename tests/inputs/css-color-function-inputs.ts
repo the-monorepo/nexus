@@ -148,7 +148,14 @@ export function generateCssColorFunctionInputs(
         true,
         undefined,
         parameters.map(
-          p => `${p.min.value > 0 ? '-' : ''}${parameterValue(p, true, 0.001, true, 'leading')}`
+          p =>
+            `${p.min.value > 0 ? '-' : ''}${parameterValue(
+              p,
+              true,
+              0.001,
+              true,
+              'leading'
+            )}`
         )
       )
     );
@@ -169,6 +176,6 @@ export function generateCssColorFunctionInputs(
   invalid.add(generateInput(true, true, true, undefined, validMinValues()).toUpperCase());
   return {
     valid,
-    invalid
+    invalid,
   };
 }

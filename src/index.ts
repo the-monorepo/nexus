@@ -134,7 +134,7 @@ export function isCssColor(value: string): ColorType {
     [isRgbColor, 'rgb'],
     [isRgbaColor, 'rgba'],
     [isColorName, 'named'],
-    [isHwbColor, 'hwb']
+    [isHwbColor, 'hwb'],
   ];
   for (const [colorCheckingFunction, typeName] of colorTypeCheckers) {
     if (colorCheckingFunction(value)) {
