@@ -23,12 +23,18 @@
     "ci-test": "yarn test && codecov",
     "build": "babel src --out-dir lib --extensions \".ts\"",
     "prepublish": "yarn build",
-    "precommit": "yarn format"
+    "precommit": "lint-staged"
   },
   "husky": {
     "hooks": {
       "pre-commit": "precommit"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn format:prettier",
+      "git add"
+    ]
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.54",
@@ -40,6 +46,7 @@
     "codecov": "^3.0.4",
     "husky": "^0.14.3",
     "jest": "^23.4.1",
+    "lint-staged": "^7.2.0",
     "prettier": "^1.13.7"
   },
   "dependencies": {
