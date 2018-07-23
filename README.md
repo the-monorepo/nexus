@@ -1,5 +1,6 @@
 # jest-mock-functions
 Mocks all functions inside an array or object literal.
+
 **Note**: This package is specifically meant for use with [Jest](https://jestjs.io/)
 
 ## Installation
