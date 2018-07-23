@@ -2,11 +2,24 @@
   "name": "jest-mock-functions",
   "version": "1.0.0",
   "main": "./lib/index.js",
+  "scripts": {
+    "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
+    "test": "jest",
+    "build": "babel src --out-dir lib --extensions \".ts\"",
+    "prepublish": "yarn build"
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.54",
     "@babel/core": "^7.0.0-beta.54",
-    "@babel/node": "^7.0.0-beta.54",
     "@babel/preset-env": "^7.0.0-beta.54",
-    "@babel/preset-typescript": "^7.0.0-beta.54"
+    "@babel/preset-typescript": "^7.0.0-beta.54",
+    "babel-core": "7.0.0-bridge.0",
+    "jest": "^23.4.1"
+  },
+  "dependencies": {
+    "@types/jest": "^23.3.0"
+  },
+  "engines": {
+    "node": ">=8.11.3"
   }
 }
