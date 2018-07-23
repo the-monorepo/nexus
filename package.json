@@ -2,6 +2,7 @@
   "name": "jest-mock-functions",
   "version": "1.0.0",
   "main": "./lib/index.js",
+  "license": "MIT",
   "scripts": {
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
     "test": "jest",
