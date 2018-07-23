@@ -1,4 +1,6 @@
 # jest-mock-functions
+[![npm version](https://badge.fury.io/js/jest-mock-functions.svg)](https://badge.fury.io/js/jest-mock-functions)
+[![Build Status](https://travis-ci.com/PatrickShaw/jest-mock-functions.svg?branch=master)](https://travis-ci.com/PatrickShaw/jest-mock-functions)
 Mocks all functions inside an array or object literal.
 
 **Note**: This package is specifically meant for use with [Jest](https://jestjs.io/)
