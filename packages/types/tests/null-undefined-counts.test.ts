@@ -2,7 +2,7 @@ import { nullCounts, undefinedCounts } from '../src/index';
 function test(values, nullCount, undefinedCount) {
   it(`${values}`, () => {
     expect(nullCounts(values)).toBe(nullCount);
-    expect(undefinedCounts(values)).toBe(undefinedCount);  
+    expect(undefinedCounts(values)).toBe(undefinedCount);
   });
 }
 /**
@@ -15,4 +15,4 @@ describe('null-undefined-counts', () => {
   test([undefined, null], 1, 1);
   test([''], 0, 0);
   test(['', 0, 1, () => {}, 'null', 'undefined', class {}, undefined, null], 1, 1);
-})
+});

@@ -1,11 +1,22 @@
+/*
+ * TODO: Not a great file name
+ * To be honest, if it didn't sound confusing, I would call this type-types :P
+ */
 import { DefaultTypeName } from './DefaultTypeName';
 
 export interface Type {
   type: string;
 }
 
+export enum NumberFormat {
+  number = 'number',
+  integer = 'integer',
+  // TODO: float
+}
+
 export interface NumberType extends Type {
   type: DefaultTypeName.number;
+  format: NumberFormat;
 }
 
 export interface StringType extends Type {
@@ -34,15 +45,22 @@ export interface BooleanType extends Type {
   type: DefaultTypeName.boolean;
 }
 
+export type DefaultType =
+  | NumberType
+  | StringType
+  | ObjectType
+  | ArrayType
+  | FunctionType
+  | BooleanType;
+
 export interface TypeInfo {
-  types:
-    | NumberType
-    | StringType
-    | ObjectType
-    | ArrayType
-    | FunctionType
-    | BooleanType
-    | Type[];
+  types: Type[];
+  undefinedCount: number;
+  nullCount: number;
+}
+
+export interface DefaultTypeInfo {
+  types: DefaultType[];
   undefinedCount: number;
   nullCount: number;
 }

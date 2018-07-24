@@ -2,8 +2,8 @@ import { extractTypeInfo, DefaultType } from '@by-example/types';
 export function createSchema(examples) {
   const { typeValues } = extractTypeInfo(examples);
   let knob;
-  if(typeValues.length === 1) {
-    switch(typeValues[0].type) {
+  if (typeValues.length === 1) {
+    switch (typeValues[0].type) {
       case DefaultType.number:
         knob = number();
       case DefaultType.boolean:
@@ -21,5 +21,4 @@ export function createSchema(examples) {
     knob = object();
   }
   return knob;
-
 }

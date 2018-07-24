@@ -7,6 +7,18 @@ import {
   isNumber,
 } from './type-checks';
 import { DefaultTypeName } from './DefaultTypeName';
+import {
+  Type,
+  DefaultTypeInfo,
+  DefaultType,
+  BooleanType,
+  StringType,
+  FunctionType,
+  NumberType,
+  NumberFormat,
+  ArrayType,
+  ObjectType,
+} from './type-info-types';
 
 function allAreIntegers(values) {
   for (const value of values) {
@@ -23,7 +35,8 @@ type TypeTestInfo<V = any> = {
   readonly typeCheck: (...params: any[]) => boolean;
   readonly value: V;
 };
-export function typeTest(typeCheck: TypeCheck, value): TypeTestInfo {
+
+export function typeTest<T>(typeCheck: TypeCheck, value: T): TypeTestInfo<T> {
   return { typeCheck, value };
 }
 
@@ -31,43 +44,54 @@ type TypeChecks = {
   [key: string]: TypeCheck;
 };
 
-type DefaultTypeNameInfo = {
-  readonly type: DefaultTypeName;
-};
-
-export function DefaultTypeNameTests(values): TypeTestInfo<DefaultTypeNameInfo>[] {
+export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] {
   return [
-    typeTest(isBoolean, () => ({ type: DefaultTypeName.boolean })),
-    typeTest(isString, () => ({ type: DefaultTypeName.string })),
-    typeTest(isFunction, () => ({ type: DefaultTypeName.function })),
-    typeTest(isNumber, () => ({
-      type: DefaultTypeName.number,
-      format: () => (allAreIntegers(values) ? 'integer' : 'number'),
-    })),
-    typeTest(isArray, () => ({
-      type: DefaultTypeName.array,
-    })),
-    typeTest(isObject, () => ({
-      type: DefaultTypeName.object,
-    })),
+    typeTest(isBoolean, () => {
+      const type: BooleanType = { type: DefaultTypeName.boolean };
+      return type;
+    }),
+    typeTest(isString, () => {
+      const type: StringType = { type: DefaultTypeName.string };
+      return type;
+    }),
+    typeTest(isFunction, () => {
+      const type: FunctionType = { type: DefaultTypeName.function };
+      return type;
+    }),
+    typeTest(isNumber, () => {
+      const type: NumberType = {
+        type: DefaultTypeName.number,
+        format: allAreIntegers(values) ? NumberFormat.integer : NumberFormat.number,
+      };
+      return type;
+    }),
+    typeTest(isArray, () => {
+      const type: ArrayType = {
+        type: DefaultTypeName.array,
+        items: [],
+      };
+      return type;
+    }),
+    typeTest(isObject, () => {
+      const type: ObjectType = {
+        type: DefaultTypeName.object,
+        fields: {},
+      };
+      return type;
+    }),
   ];
 }
 
-type ExtractedTypes = {
-  nullCount: number;
-  undefinedCount: number;
-  typeValues: DefaultTypeNameInfo[];
-};
-
-export function extractTypeInfo(values): ExtractedTypes {
+export function extractTypeInfo(values): DefaultTypeInfo {
   const { nullCount, undefinedCount, typeValues } = runTypeTests(
     values,
     DefaultTypeNameTests(values),
   );
+  const types: DefaultType[] = typeValues.map(callback => callback());
   return {
     nullCount,
     undefinedCount,
-    typeValues: typeValues.map(callback => callback()),
+    types,
   };
 }
 
@@ -79,18 +103,20 @@ export function undefinedCounts(values: any[]): number {
   return values.filter(value => value === undefined).length;
 }
 
-export function runTypeTests(
-  values,
-  typeTests: TypeTestInfo[] = DefaultTypeNameTests(values),
-) {
+export function runTypeTests<V = Type>(values, typeTests: TypeTestInfo<V>[]) {
   const undefinedCount = undefinedCounts(values);
   const nullCount = nullCounts(values);
+  const coppiedTypeTests = [...typeTests];
   for (const value of values) {
-    for (let i = typeTests.length - 1; i >= 0; i--) {
-      if (!typeTests[i].typeCheck(value)) {
-        typeTests.splice(i, 1);
+    for (let i = coppiedTypeTests.length - 1; i >= 0; i--) {
+      if (!coppiedTypeTests[i].typeCheck(value)) {
+        coppiedTypeTests.splice(i, 1);
       }
     }
   }
-  return { nullCount, undefinedCount, typeValues: typeTests.map(({ value }) => value) };
+  return {
+    nullCount,
+    undefinedCount,
+    typeValues: coppiedTypeTests.map(({ value }) => value),
+  };
 }
