@@ -1,0 +1,10 @@
+{
+  "name": "addon-storybook-knobify",
+  "version": "1.0.0",
+  "peerDependencies": {
+    "@storybook/addon-knobs": "^3.4.6"
+  },
+  "dependencies": {
+    "css-color-checker": "^1.0.3"
+  }
+}
