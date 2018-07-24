@@ -18,10 +18,7 @@ describe('run-single-type', () => {
     runTypeTests([1, '', undefined], []);
   });
   it('No values', () => {
-    runTypeTests(
-      [],
-      [typeTest(jest.fn(), undefined), typeTest(jest.fn(), undefined)],
-    );
+    runTypeTests([], [typeTest(jest.fn(), undefined), typeTest(jest.fn(), undefined)]);
   });
   describe('type check called', () => {
     it('1 check', () => {
@@ -35,7 +32,7 @@ describe('run-single-type', () => {
     testResult([1, 2, 3], [int], {
       undefinedCount: 0,
       nullCount: 0,
-      checks: [int]
+      checks: [int],
     });
   });
 });
