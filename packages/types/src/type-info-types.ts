@@ -34,7 +34,7 @@ export interface ObjectType extends Type {
 
 export interface ArrayType extends Type {
   type: DefaultTypeName.array;
-  items: TypeInfo[];
+  items: TypeInfo;
 }
 
 export interface FunctionType extends Type {

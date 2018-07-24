@@ -62,9 +62,18 @@ export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] 
       return type;
     }),
     typeTest(isArray, () => {
+      /*
+       * TODO: Currently doesn't necessarily behave as expected.
+       * E.g. Examples = [[1, 1, 1], ['', '', '']] will return a type 
+       * that expects an array of both strings and numbers
+       */
+      const arrayValues = values.filter(value => isArray(value));
+      const allValues = [].concat(...arrayValues);
       const type: ArrayType = {
         type: DefaultTypeName.array,
-        items: [],
+        // TODO: This currently will only extract default types
+        // TODO: Should probably lazy load this
+        items: extractTypeInfo(allValues),
       };
       return type;
     }),
@@ -88,7 +97,7 @@ export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] 
       });
       const type: ObjectType = {
         type: DefaultTypeName.object,
-        fields,
+        fields, // TODO: Should probably lazy load this
       };
       return type;
     }),
