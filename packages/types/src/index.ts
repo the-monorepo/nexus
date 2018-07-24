@@ -40,10 +40,6 @@ export function typeTest<T>(typeCheck: TypeCheck, value: T): TypeTestInfo<T> {
   return { typeCheck, value };
 }
 
-type TypeChecks = {
-  [key: string]: TypeCheck;
-};
-
 export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] {
   return [
     typeTest(isBoolean, () => {
@@ -73,9 +69,26 @@ export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] 
       return type;
     }),
     typeTest(isObject, () => {
+      const objectValues = values.filter(value => isObject(value));
+      const keyToValuesMap: { [key: string]: any[] } = {};
+      // Gather the values for each key
+      objectValues.forEach(objectValue => {
+        Object.keys(objectValue).forEach(key => {
+          if (objectValue[key] === undefined) {
+            objectValue[key] = [];
+          }
+          keyToValuesMap[key].push(objectValue[key]);
+        });
+      });
+
+      const fields = {};
+      Object.keys(keyToValuesMap).forEach(key => {
+        const values = keyToValuesMap[key];
+        fields[key] = extractTypeInfo(values);
+      });
       const type: ObjectType = {
         type: DefaultTypeName.object,
-        fields: {},
+        fields,
       };
       return type;
     }),
