@@ -6,6 +6,7 @@ import {
   isFunction,
   isNumber,
 } from './type-checks';
+import { DefaultTypeName } from './DefaultTypeName';
 
 function allAreIntegers(values) {
   for (const value of values) {
@@ -30,33 +31,24 @@ type TypeChecks = {
   [key: string]: TypeCheck;
 };
 
-export enum DefaultType {
-  boolean = 'boolean',
-  string = 'string',
-  function = 'function',
-  number = 'number',
-  array = 'array',
-  object = 'object'
-}
+type DefaultTypeNameInfo = {
+  readonly type: DefaultTypeName;
+};
 
-type DefaultTypeInfo = {
-  readonly type: DefaultType;
-}
-
-export function defaultTypeTests(values): TypeTestInfo<DefaultTypeInfo>[] {
+export function DefaultTypeNameTests(values): TypeTestInfo<DefaultTypeNameInfo>[] {
   return [
-    typeTest(isBoolean, () => ({ type: DefaultType.boolean })),
-    typeTest(isString, () => ({ type: DefaultType.string })),
-    typeTest(isFunction, () => ({ type: DefaultType.function })),
+    typeTest(isBoolean, () => ({ type: DefaultTypeName.boolean })),
+    typeTest(isString, () => ({ type: DefaultTypeName.string })),
+    typeTest(isFunction, () => ({ type: DefaultTypeName.function })),
     typeTest(isNumber, () => ({
-      type: DefaultType.number,
-      format: () => allAreIntegers(values) ? 'integer' : 'number',
+      type: DefaultTypeName.number,
+      format: () => (allAreIntegers(values) ? 'integer' : 'number'),
     })),
     typeTest(isArray, () => ({
-      type: DefaultType.array,
+      type: DefaultTypeName.array,
     })),
     typeTest(isObject, () => ({
-      type: DefaultType.object,
+      type: DefaultTypeName.object,
     })),
   ];
 }
@@ -64,15 +56,18 @@ export function defaultTypeTests(values): TypeTestInfo<DefaultTypeInfo>[] {
 type ExtractedTypes = {
   nullCount: number;
   undefinedCount: number;
-  typeValues: DefaultTypeInfo[]
-}
+  typeValues: DefaultTypeNameInfo[];
+};
 
 export function extractTypeInfo(values): ExtractedTypes {
-  const { nullCount, undefinedCount, typeValues } = runTypeTests(values, defaultTypeTests(values));
+  const { nullCount, undefinedCount, typeValues } = runTypeTests(
+    values,
+    DefaultTypeNameTests(values),
+  );
   return {
     nullCount,
     undefinedCount,
-    typeValues: typeValues.map((callback) => callback())
+    typeValues: typeValues.map(callback => callback()),
   };
 }
 
@@ -84,7 +79,10 @@ export function undefinedCounts(values: any[]): number {
   return values.filter(value => value === undefined).length;
 }
 
-export function runTypeTests(values, typeTests: TypeTestInfo[] = defaultTypeTests(values)) {
+export function runTypeTests(
+  values,
+  typeTests: TypeTestInfo[] = DefaultTypeNameTests(values),
+) {
   const undefinedCount = undefinedCounts(values);
   const nullCount = nullCounts(values);
   for (const value of values) {
