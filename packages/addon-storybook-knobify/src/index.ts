@@ -1,37 +1,44 @@
 import { text, boolean, number, object, array } from '@storybook/addon-knobs';
-import { extractTypeInfo, DefaultType } from '@by-example/types';
+import { extractTypeInfo, DefaultType, DefaultTypeName } from '@by-example/types';
+
+export function knobifyField(example, fieldTypeInfos, key) {
+  const value = example[key];
+  const typeInfo = fieldTypeInfos[key];
+  let knob = undefined;
+  if (typeInfo.types.length === 1) {
+    switch (typeInfo.types[0].type) {
+      case DefaultType.number:
+        knob = number(value);
+      case DefaultType.boolean:
+        knob = boolean(value);
+      case DefaultType.string:
+        // TODO: Check if color
+        knob = text(value);
+      case DefaultType.array:
+        knob = array(value);
+      case DefaultType.object:
+      default:
+        knob = object(value);
+    }
+  } else {
+    knob = object(value);
+  }
+  example[key] = knob;
+}
 
 export function knobify(examples: any[]) {
-  const { typeValues } = extractTypeInfo(examples);
-  if (typeValues.length === 1) {
-    return value => object(value);
-  } else if (typeValues.length > 1) {
-    return value => object(value);
-  } else {
-    // No types = No idea what type it is, just return the original value
-    return value => value;
+  const { types, nullCount, undefinedCount } = extractTypeInfo(examples);
+  if (types.length <= 0) {
+    return;
+  } else if (types.length > 1 || types[0].type !== DefaultTypeName.object) {
+    throw new Error('Examples were not objects');
+  } else if (nullCount > 0 || undefinedCount > 0) {
+    throw new Error('No null or undefined examples are allowed');
   }
-  return function wrapWithKnob(example) {
-    const { types } = extractTypeInfo(examples);
-    let knob;
-    if (types.length === 1) {
-      switch (typeValues[0].type) {
-        case DefaultType.number:
-          knob = number();
-        case DefaultType.boolean:
-          knob = boolean();
-        case DefaultType.string:
-          // TODO: Check if color
-          knob = text();
-        case DefaultType.array:
-          knob = array();
-        case DefaultType.object:
-        default:
-          knob = object();
-      }
-    } else {
-      knob = object();
-    }
-    return knob;
-  };
+  const rootType = types[0];
+  for (const example of examples) {
+    Object.keys(example).forEach(key => {
+      knobifyField(example, rootType.fields, key);
+    });
+  }
 }
