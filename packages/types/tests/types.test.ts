@@ -44,6 +44,9 @@ function testTypeCheck(name, validValues, typeCheck) {
       });
   });
 }
+/**
+ * Checking to see if each individual type check is working as expected
+ */
 describe('type checks', () => {
   testTypeCheck('isBoolean', ['boolean'], isBoolean);
   testTypeCheck('isObject', ['object'], isObject);

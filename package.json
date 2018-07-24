@@ -1,6 +1,10 @@
 {
   "name": "by-example",
   "description": "Extracts the types used in a particular object",
+  "workspaces": ["packages/*", "build-packages/*"],
+  "private": true,
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "license": "MIT",
   "scripts": {
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
     "test": "jest --coverage"
@@ -12,8 +16,6 @@
   "keywords": [
     "types"
   ],
-  "author": "Patrick Shaw",
-  "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.40",
     "@babel/core": "^7.0.0-beta.40",
@@ -32,7 +34,7 @@
     "typescript": "^2.7.1"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["yarn format", "git add ."]
+    "*.{js,jsx,ts,tsx}": ["yarn format", "git add"]
   },
   "husky": {
     "hooks": {

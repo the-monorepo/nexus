@@ -1,5 +1,6 @@
 {
-  "name": "addon-storybook-create-knobs",
+  "name": "addon-storybook-knobify",
+  "private": false,
   "peerDependencies": {
     "@storybook/addon-knobs": "^3.4.6"
   }
