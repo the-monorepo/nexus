@@ -1,4 +1,4 @@
-{
+module.exports = {
   "presets": [
     "@babel/preset-typescript",
     ["@babel/preset-env", {
@@ -6,11 +6,5 @@
         "node": "current"
       }
     }]
-  ],
-  "sourceMaps": true,
-  "env": {
-    "production": {
-      "minified": true
-    }
-  }
-}
+  ]
+};

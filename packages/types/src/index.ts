@@ -17,9 +17,10 @@ function allAreIntegers(values) {
 }
 
 type TypeCheck = (...stuff: any[]) => boolean;
-type TypeTestInfo = {
-  readonly typeCheck: (...params: any[]) => any;
-  readonly value: (...params: any[]) => any;
+
+type TypeTestInfo<V = any> = {
+  readonly typeCheck: (...params: any[]) => boolean;
+  readonly value: V;
 };
 export function typeTest(typeCheck: TypeCheck, value): TypeTestInfo {
   return { typeCheck, value };
@@ -29,30 +30,49 @@ type TypeChecks = {
   [key: string]: TypeCheck;
 };
 
-export function defaultTypeTests(values): TypeTestInfo[] {
+export enum DefaultType {
+  boolean = 'boolean',
+  string = 'string',
+  function = 'function',
+  number = 'number',
+  array = 'array',
+  object = 'object'
+}
+
+type DefaultTypeInfo = {
+  readonly type: DefaultType;
+}
+
+export function defaultTypeTests(values): TypeTestInfo<DefaultTypeInfo>[] {
   return [
-    typeTest(isBoolean, () => ({ type: 'boolean' })),
-    typeTest(isString, () => ({ type: 'string' })),
-    typeTest(isFunction, () => ({ type: 'function' })),
+    typeTest(isBoolean, () => ({ type: DefaultType.boolean })),
+    typeTest(isString, () => ({ type: DefaultType.string })),
+    typeTest(isFunction, () => ({ type: DefaultType.function })),
     typeTest(isNumber, () => ({
-      type: 'number',
+      type: DefaultType.number,
       format: () => allAreIntegers(values) ? 'integer' : 'number',
     })),
     typeTest(isArray, () => ({
-      type: 'array',
+      type: DefaultType.array,
     })),
     typeTest(isObject, () => ({
-      type: 'object',
+      type: DefaultType.object,
     })),
   ];
 }
 
-export function findTypes(values, typeCallbacks) {
+type ExtractedTypes = {
+  nullCount: number;
+  undefinedCount: number;
+  typeValues: DefaultTypeInfo[]
+}
+
+export function extractTypeInfo(values): ExtractedTypes {
   const { nullCount, undefinedCount, typeValues } = runTypeTests(values, defaultTypeTests(values));
   return {
     nullCount,
     undefinedCount,
-    info: typeValues.map((callback) => callback())
+    typeValues: typeValues.map((callback) => callback())
   };
 }
 
