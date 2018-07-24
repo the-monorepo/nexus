@@ -125,5 +125,5 @@ export const inputs: {
     alphaFormat
   ),
   hwb,
-  named: testInputs(Object.keys(cssColors), []),
+  named: testInputs(Object.keys(cssColors), ['reddd', '']),
 };
