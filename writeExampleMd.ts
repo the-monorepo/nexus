@@ -39,8 +39,6 @@ function colorMatcherExamples(title, isColorFunction, inputSuite: TestInputs) {
 }
 function genExampleMdString() {
   let md = '# Examples\n';
-  md +=
-    '**Note:** If you would like more examples of what is returns true and what returns false, I recommend looking at the tests.\n';
   md += '\n';
   md += `## ${isCssColor.name}`;
   md += '\n';
