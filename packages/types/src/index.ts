@@ -57,7 +57,7 @@ export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] 
     typeTest(isNumber, () => {
       const type: NumberType = {
         type: DefaultTypeName.number,
-        format: allAreIntegers(values) ? NumberFormat.integer : NumberFormat.number,
+        format: allAreIntegers(values) ? NumberFormat.integer : NumberFormat.none,
       };
       return type;
     }),
@@ -69,11 +69,12 @@ export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] 
        */
       const arrayValues = values.filter(value => isArray(value));
       const allValues = [].concat(...arrayValues);
+      const items = extractTypeInfo(allValues);
       const type: ArrayType = {
         type: DefaultTypeName.array,
         // TODO: This currently will only extract default types
         // TODO: Should probably lazy load this
-        items: extractTypeInfo(allValues),
+        items,
       };
       return type;
     }),
@@ -83,8 +84,8 @@ export function DefaultTypeNameTests(values): TypeTestInfo<() => DefaultType>[] 
       // Gather the values for each key
       objectValues.forEach(objectValue => {
         Object.keys(objectValue).forEach(key => {
-          if (objectValue[key] === undefined) {
-            objectValue[key] = [];
+          if (keyToValuesMap[key] === undefined) {
+            keyToValuesMap[key] = [];
           }
           keyToValuesMap[key].push(objectValue[key]);
         });
@@ -128,17 +129,18 @@ export function undefinedCounts(values: any[]): number {
 export function runTypeTests<V = Type>(values, typeTests: TypeTestInfo<V>[]) {
   const undefinedCount = undefinedCounts(values);
   const nullCount = nullCounts(values);
-  const coppiedTypeTests = [...typeTests];
-  for (const value of values) {
-    for (let i = coppiedTypeTests.length - 1; i >= 0; i--) {
-      if (!coppiedTypeTests[i].typeCheck(value)) {
-        coppiedTypeTests.splice(i, 1);
+  const passedTests = [];
+  for (const typeTest of typeTests) {
+    for (const value of values) {
+      if (typeTest.typeCheck(value)) {
+        passedTests.push(typeTest);
+        break;
       }
     }
   }
   return {
     nullCount,
     undefinedCount,
-    typeValues: coppiedTypeTests.map(({ value }) => value),
+    typeValues: passedTests.map(({ value }) => value),
   };
 }

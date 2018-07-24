@@ -9,7 +9,7 @@ export interface Type {
 }
 
 export enum NumberFormat {
-  number = 'number',
+  none = 'none',
   integer = 'integer',
   // TODO: float
 }
