@@ -50,7 +50,7 @@ export function isValidHue(valueString: string): boolean {
 
 export const isRgbColor: IsColorFunction = value => {
   const rgbMatches: RegExpMatchArray = value.match(
-    /^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/
+    /^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
   if (rgbMatches && rgbMatches.length >= 4) {
     const [rgb, r, g, b] = rgbMatches;
@@ -63,7 +63,7 @@ export const isRgbColor: IsColorFunction = value => {
 
 export const isRgbaColor: IsColorFunction = value => {
   const rgbaMatches: RegExpMatchArray | null = value.match(
-    /^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/
+    /^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
   if (rgbaMatches && rgbaMatches.length >= 5) {
     const [rgb, r, g, b, a] = rgbaMatches;
@@ -76,7 +76,7 @@ export const isRgbaColor: IsColorFunction = value => {
 
 export const isHslColor: IsColorFunction = value => {
   const hslMatches: RegExpMatchArray | null = value.match(
-    /^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/
+    /^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
   if (hslMatches && hslMatches.length >= 4) {
     const [hsl, h, s, l] = hslMatches;
@@ -89,7 +89,7 @@ export const isHslColor: IsColorFunction = value => {
 
 export const isHslaColor: IsColorFunction = value => {
   const hslaMatches: RegExpMatchArray | null = value.match(
-    /^hsla\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)\s*\)$/
+    /^hsla\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
   if (hslaMatches && hslaMatches.length >= 5) {
     const [hsl, h, s, l, a] = hslaMatches;
@@ -107,7 +107,7 @@ export const isHslaColor: IsColorFunction = value => {
 
 export const isHwbColor: IsColorFunction = value => {
   const hwbMatches: RegExpMatchArray | null = value.match(
-    /^hwb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/
+    /^hwb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
   if (hwbMatches && hwbMatches.length >= 4) {
     const [hwb, h, w, b] = hwbMatches;

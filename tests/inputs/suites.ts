@@ -74,7 +74,7 @@ const hwb: TestInputs = testInputs(
     'hwb(0,0%,101%)',
     'hwb(0,51%,50%)',
     'hwb(361,0%,0%)',
-  ]
+  ],
 );
 
 export const inputs: {
@@ -102,27 +102,27 @@ export const inputs: {
       '0',
       ' #FFFFFF',
       '#FFFFFF ',
-    ]
+    ],
   ),
   rgba: generateCssColorFunctionInputs(
     'rgba',
     rgbFormat,
     rgbFormat,
     rgbFormat,
-    alphaFormat
+    alphaFormat,
   ),
   hsl: generateCssColorFunctionInputs(
     'hsl',
     degreesFormat,
     standardPercentage,
-    standardPercentage
+    standardPercentage,
   ),
   hsla: generateCssColorFunctionInputs(
     'hsla',
     degreesFormat,
     standardPercentage,
     standardPercentage,
-    alphaFormat
+    alphaFormat,
   ),
   hwb,
   named: testInputs(Object.keys(cssColors), ['reddd', '']),
