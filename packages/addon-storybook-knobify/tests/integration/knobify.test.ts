@@ -19,7 +19,7 @@ describe('knobify', () => {
     ];
 
     const typeInfo = extractTypeInfo(examples);
-    knobify(examples, typeInfo);
+    knobify(examples, typeInfo, undefined);
 
     expect(examples).toEqual([
       {
