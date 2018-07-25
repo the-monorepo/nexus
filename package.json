@@ -1,6 +1,6 @@
 {
   "name": "css-color-checker",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Library for checking whether a value is a valid color value",
   "main": "./lib/index.js",
   "repository": {
