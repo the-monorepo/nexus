@@ -1,8 +1,11 @@
 {
   "name": "css-color-checker",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Library for checking whether a value is a valid color value",
   "main": "./lib/index.js",
+  "files": [
+    "lib"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/css-color-checker.git"
