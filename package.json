@@ -3,7 +3,7 @@
   "description": "Mock all functions inside an array or object literal",
   "version": "1.1.0",
   "main": "./lib/index.js",
-  "typings": "./src/index.ts",
+  "types": "./src/index.ts",
   "files": [
     "lib",
     "src"
