@@ -27,7 +27,7 @@
     "build:babel": "babel src --out-dir lib --extensions \".ts\"",
     "build:gen-examples": "babel-node ./writeExampleMd.ts --extensions \".ts\"",
     "prepublish": "yarn build",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged && yarn build:gen-examples"
   },
   "husky": {
     "hooks": {
