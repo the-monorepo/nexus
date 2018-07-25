@@ -1,4 +1,4 @@
-import { nullCounts, undefinedCounts } from '../src/index';
+import { nullCounts, undefinedCounts } from '../../src/util';
 function test(values, nullCount, undefinedCount) {
   it(`${values}`, () => {
     expect(nullCounts(values)).toBe(nullCount);

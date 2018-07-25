@@ -1,6 +1,6 @@
-import { text, boolean, number, object, array } from '@storybook/addon-knobs';
+import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
 import { extractTypeInfo, DefaultType, DefaultTypeName } from '@by-example/types';
-
+import { isCssColor } from 'css-color-checker';
 export function knobifyField(example, fieldTypeInfos, key) {
   const value = example[key];
   const typeInfo = fieldTypeInfos[key];
@@ -13,7 +13,11 @@ export function knobifyField(example, fieldTypeInfos, key) {
         knob = boolean(value);
       case DefaultType.string:
         // TODO: Check if color
-        knob = text(value);
+        if (isCssColor(value)) {
+          knob = color(value);
+        } else {
+          knob = text(value);
+        }
       case DefaultType.array:
         knob = array(value);
       case DefaultType.object:
