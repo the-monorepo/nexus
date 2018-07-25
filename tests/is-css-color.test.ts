@@ -4,5 +4,5 @@ import { isCssColor } from '../src/index';
 testColorTypeFunction(
   'Css color',
   isCssColor,
-  ...Object.keys(inputs).map(key => [key, inputs[key], key])
+  ...Object.keys(inputs).map(key => [key, inputs[key], key]),
 );
