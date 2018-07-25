@@ -1,10 +1,21 @@
 {
-  "name": "addon-storybook-knobify",
-  "version": "1.0.0",
+  "name": "@by-example/storybook-addon-knobify",
+  "version": "1.0.0-alpha.0",
+  "private": false,
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./src/index.ts",
   "peerDependencies": {
-    "@storybook/addon-knobs": "^3.4.6"
+    "@storybook/addon-knobs": "^3.4.8"
   },
   "dependencies": {
-    "css-color-checker": "^1.0.3"
+    "@by-example/types": "1.0.0-alpha.0",
+    "css-color-checker": "^1.3.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-knobs": "^3.4.8",
+    "@storybook/addons": "^3.4.8",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
   }
 }
