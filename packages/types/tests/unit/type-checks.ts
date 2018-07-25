@@ -5,7 +5,7 @@ import {
   isString,
   isFunction,
   isNumber,
-} from '../src/type-checks';
+} from '../../src/type-checks';
 const typeValues = {
   boolean: [true, false],
   string: ['true', 'false', ''],

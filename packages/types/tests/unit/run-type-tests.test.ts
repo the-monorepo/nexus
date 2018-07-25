@@ -1,4 +1,5 @@
-import { runTypeTests, typeTest } from '../src/index';
+import { runTypeTests } from '../../src/runTypeTests';
+import { typeTest } from '../../src/TypeTest';
 function testResult(values, checks, expectedResult) {
   it('correct result', () => {
     const expectedValues = [];

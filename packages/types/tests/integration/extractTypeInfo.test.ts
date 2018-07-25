@@ -1,6 +1,6 @@
-import { extractTypeInfo } from '../src/index';
-import { DefaultTypeName } from '../src/DefaultTypeName';
-import { NumberFormat } from '../src/type-info-types';
+import { extractTypeInfo } from '../../src/index';
+import { DefaultTypeName } from '../../src/DefaultTypeName';
+import { NumberFormat } from '../../src/type-info-types';
 describe(extractTypeInfo.name, () => {
   it('string', () => {
     const typeInfo = extractTypeInfo(['']);
