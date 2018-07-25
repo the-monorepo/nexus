@@ -1,28 +1,34 @@
+// TODO: Should probably mock @storybook/addon-knobs
 import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
-import { extractTypeInfo, DefaultType, DefaultTypeName } from '@by-example/types';
+import { TypeInfo, DefaultTypeName } from '@by-example/types';
 import { isCssColor } from 'css-color-checker';
-export function knobifyField(example, fieldTypeInfos, key) {
+export function knobifyField(example, fieldTypeInfos: TypeInfo, key) {
   const value = example[key];
   const typeInfo = fieldTypeInfos[key];
   let knob = undefined;
   if (typeInfo.types.length === 1) {
     switch (typeInfo.types[0].type) {
-      case DefaultType.number:
+      case DefaultTypeName.number:
         knob = number(value);
-      case DefaultType.boolean:
+        break;
+      case DefaultTypeName.boolean:
         knob = boolean(value);
-      case DefaultType.string:
+        break;
+      case DefaultTypeName.string:
         // TODO: Check if color
         if (isCssColor(value)) {
           knob = color(value);
         } else {
           knob = text(value);
         }
-      case DefaultType.array:
+        break;
+      case DefaultTypeName.array:
         knob = array(value);
-      case DefaultType.object:
+        break;
+      case DefaultTypeName.object:
       default:
         knob = object(value);
+        break;
     }
   } else {
     knob = object(value);
@@ -30,8 +36,8 @@ export function knobifyField(example, fieldTypeInfos, key) {
   example[key] = knob;
 }
 
-export function knobify(examples: any[]) {
-  const { types, nullCount, undefinedCount } = extractTypeInfo(examples);
+export function knobify(examples: any[], typeInfo: TypeInfo) {
+  const { types, nullCount, undefinedCount } = typeInfo;
   if (types.length <= 0) {
     return;
   } else if (types.length > 1 || types[0].type !== DefaultTypeName.object) {
