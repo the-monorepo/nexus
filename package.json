@@ -1,8 +1,13 @@
 {
   "name": "jest-mock-functions",
   "description": "Mock all functions inside an array or object literal",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "main": "./lib/index.js",
+  "typings": "./src/index.ts",
+  "files": [
+    "lib",
+    "src"
+  ],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": "https://github.com/PatrickShaw/jest-mock-functions",
