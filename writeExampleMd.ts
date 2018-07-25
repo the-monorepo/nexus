@@ -30,10 +30,10 @@ function colorMatcherExamples(title, isColorFunction, inputSuite: TestInputs) {
   let md = `## ${title} colors\n`;
   md += '\n';
   md += '### Inputs that return true\n';
-  md += examples(isColorFunction, inputSuite.invalid, true);
+  md += examples(isColorFunction, inputSuite.valid, true);
   md += '\n';
   md += '### Inputs that return true\n';
-  md += examples(isColorFunction, inputSuite.valid, false);
+  md += examples(isColorFunction, inputSuite.invalid, false);
   md += '\n';
   return md;
 }
