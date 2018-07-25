@@ -1,5 +1,4 @@
 # Examples
-**Note:** If you would like more examples of what is returns true and what returns false, I recommend looking at the tests.
 
 ## isCssColor
 `isCssColor` will return true for any input that returns true in the functions below.
@@ -9,376 +8,376 @@ E.g. `isCssColor('#FFFFFF')` and `isCssColor('rgb(255,255,255)')` will both retu
 
 ### Inputs that return true
 ```js
-isHexColor("#f"); // true
-isHexColor("#F"); // true
-isHexColor("#FF"); // true
-isHexColor("#FFFF"); // true
-isHexColor("#FFFFF"); // true
-isHexColor("#0000000"); // true
-isHexColor("#0"); // true
-isHexColor("#00"); // true
-isHexColor("#0000"); // true
-isHexColor("#00000"); // true
-isHexColor("#GGG"); // true
-isHexColor("#GGGGGG"); // true
-isHexColor("F"); // true
-isHexColor("G"); // true
-isHexColor("0"); // true
-isHexColor(" #FFFFFF"); // true
-isHexColor("#FFFFFF "); // true
+isHexColor("#fff"); // true
+isHexColor("#FFF"); // true
+isHexColor("#FFFFFF"); // true
+isHexColor("#FFFFFFFF"); // true
+isHexColor("#000"); // true
+isHexColor("#000000"); // true
+isHexColor("#00000000"); // true
 ```
 
 ### Inputs that return true
 ```js
-isHexColor("#fff"); // false
-isHexColor("#FFF"); // false
-isHexColor("#FFFFFF"); // false
-isHexColor("#FFFFFFFF"); // false
-isHexColor("#000"); // false
-isHexColor("#000000"); // false
-isHexColor("#00000000"); // false
+isHexColor("#f"); // false
+isHexColor("#F"); // false
+isHexColor("#FF"); // false
+isHexColor("#FFFF"); // false
+isHexColor("#FFFFF"); // false
+isHexColor("#0000000"); // false
+isHexColor("#0"); // false
+isHexColor("#00"); // false
+isHexColor("#0000"); // false
+isHexColor("#00000"); // false
+isHexColor("#GGG"); // false
+isHexColor("#GGGGGG"); // false
+isHexColor("F"); // false
+isHexColor("G"); // false
+isHexColor("0"); // false
+isHexColor(" #FFFFFF"); // false
+isHexColor("#FFFFFF "); // false
 ```
 
 ## rgb(...) colors
 
 ### Inputs that return true
 ```js
-isRgbColor("rgb(-0.001,-0.001,-0.001)"); // true
-isRgbColor("rgb(255.001,255.001,255.001)"); // true
-isRgbColor("rgb0,0,0"); // true
-isRgbColor("(255,255,255)"); // true
-isRgbColor("(0,0,0)"); // true
-isRgbColor("rgb255,255,255)"); // true
-isRgbColor("rgb(0,0,0"); // true
-isRgbColor(" rgb(255,255,255)"); // true
-isRgbColor("rgb(0,0,0) "); // true
-isRgbColor("RGB(0,0,0)"); // true
+isRgbColor("rgb(0,0,0)"); // true
+isRgbColor("rgb(255,255,255)"); // true
+isRgbColor("rgb(.001,.001,.001)"); // true
+isRgbColor("rgb(0.001,0.001,0.001)"); // true
+isRgbColor("rgb(254.999,254.999,254.999)"); // true
+isRgbColor("rgb(1,1,1)"); // true
+isRgbColor("rgb(  0,0,0)"); // true
+isRgbColor("rgb(  255,255,255)"); // true
+isRgbColor("rgb(0  ,0,0)"); // true
+isRgbColor("rgb(255  ,255,255)"); // true
+isRgbColor("rgb(0,  0,0)"); // true
+isRgbColor("rgb(255,  255,255)"); // true
+isRgbColor("rgb(0,0  ,0)"); // true
+isRgbColor("rgb(255,255  ,255)"); // true
+isRgbColor("rgb(0,0,  0)"); // true
+isRgbColor("rgb(255,255,  255)"); // true
+isRgbColor("rgb(0,0,0  )"); // true
+isRgbColor("rgb(255,255,255  )"); // true
 ```
 
 ### Inputs that return true
 ```js
-isRgbColor("rgb(0,0,0)"); // false
-isRgbColor("rgb(255,255,255)"); // false
-isRgbColor("rgb(.001,.001,.001)"); // false
-isRgbColor("rgb(0.001,0.001,0.001)"); // false
-isRgbColor("rgb(254.999,254.999,254.999)"); // false
-isRgbColor("rgb(1,1,1)"); // false
-isRgbColor("rgb(  0,0,0)"); // false
-isRgbColor("rgb(  255,255,255)"); // false
-isRgbColor("rgb(0  ,0,0)"); // false
-isRgbColor("rgb(255  ,255,255)"); // false
-isRgbColor("rgb(0,  0,0)"); // false
-isRgbColor("rgb(255,  255,255)"); // false
-isRgbColor("rgb(0,0  ,0)"); // false
-isRgbColor("rgb(255,255  ,255)"); // false
-isRgbColor("rgb(0,0,  0)"); // false
-isRgbColor("rgb(255,255,  255)"); // false
-isRgbColor("rgb(0,0,0  )"); // false
-isRgbColor("rgb(255,255,255  )"); // false
+isRgbColor("rgb(-0.001,-0.001,-0.001)"); // false
+isRgbColor("rgb(255.001,255.001,255.001)"); // false
+isRgbColor("rgb0,0,0"); // false
+isRgbColor("(255,255,255)"); // false
+isRgbColor("(0,0,0)"); // false
+isRgbColor("rgb255,255,255)"); // false
+isRgbColor("rgb(0,0,0"); // false
+isRgbColor(" rgb(255,255,255)"); // false
+isRgbColor("rgb(0,0,0) "); // false
+isRgbColor("RGB(0,0,0)"); // false
 ```
 
 ## rgba(...) colors
 
 ### Inputs that return true
 ```js
-isRgbaColor("rgba(-0.001,-0.001,-0.001,-0.001)"); // true
-isRgbaColor("rgba(255.001,255.001,255.001,1.001)"); // true
-isRgbaColor("rgba0,0,0,0"); // true
-isRgbaColor("(255,255,255,1)"); // true
-isRgbaColor("(0,0,0,0)"); // true
-isRgbaColor("rgba255,255,255,1)"); // true
-isRgbaColor("rgba(0,0,0,0"); // true
-isRgbaColor(" rgba(255,255,255,1)"); // true
-isRgbaColor("rgba(0,0,0,0) "); // true
-isRgbaColor("RGBA(0,0,0,0)"); // true
+isRgbaColor("rgba(0,0,0,0)"); // true
+isRgbaColor("rgba(255,255,255,1)"); // true
+isRgbaColor("rgba(.001,.001,.001,.001)"); // true
+isRgbaColor("rgba(0.001,0.001,0.001,0.001)"); // true
+isRgbaColor("rgba(254.999,254.999,254.999,.999)"); // true
+isRgbaColor("rgba(254.999,254.999,254.999,0.999)"); // true
+isRgbaColor("rgba(1,1,1,1)"); // true
+isRgbaColor("rgba(  0,0,0,0)"); // true
+isRgbaColor("rgba(  255,255,255,1)"); // true
+isRgbaColor("rgba(0  ,0,0,0)"); // true
+isRgbaColor("rgba(255  ,255,255,1)"); // true
+isRgbaColor("rgba(0,  0,0,0)"); // true
+isRgbaColor("rgba(255,  255,255,1)"); // true
+isRgbaColor("rgba(0,0  ,0,0)"); // true
+isRgbaColor("rgba(255,255  ,255,1)"); // true
+isRgbaColor("rgba(0,0,  0,0)"); // true
+isRgbaColor("rgba(255,255,  255,1)"); // true
+isRgbaColor("rgba(0,0,0  ,0)"); // true
+isRgbaColor("rgba(255,255,255  ,1)"); // true
+isRgbaColor("rgba(0,0,0,  0)"); // true
+isRgbaColor("rgba(255,255,255,  1)"); // true
+isRgbaColor("rgba(0,0,0,0  )"); // true
+isRgbaColor("rgba(255,255,255,1  )"); // true
 ```
 
 ### Inputs that return true
 ```js
-isRgbaColor("rgba(0,0,0,0)"); // false
-isRgbaColor("rgba(255,255,255,1)"); // false
-isRgbaColor("rgba(.001,.001,.001,.001)"); // false
-isRgbaColor("rgba(0.001,0.001,0.001,0.001)"); // false
-isRgbaColor("rgba(254.999,254.999,254.999,.999)"); // false
-isRgbaColor("rgba(254.999,254.999,254.999,0.999)"); // false
-isRgbaColor("rgba(1,1,1,1)"); // false
-isRgbaColor("rgba(  0,0,0,0)"); // false
-isRgbaColor("rgba(  255,255,255,1)"); // false
-isRgbaColor("rgba(0  ,0,0,0)"); // false
-isRgbaColor("rgba(255  ,255,255,1)"); // false
-isRgbaColor("rgba(0,  0,0,0)"); // false
-isRgbaColor("rgba(255,  255,255,1)"); // false
-isRgbaColor("rgba(0,0  ,0,0)"); // false
-isRgbaColor("rgba(255,255  ,255,1)"); // false
-isRgbaColor("rgba(0,0,  0,0)"); // false
-isRgbaColor("rgba(255,255,  255,1)"); // false
-isRgbaColor("rgba(0,0,0  ,0)"); // false
-isRgbaColor("rgba(255,255,255  ,1)"); // false
-isRgbaColor("rgba(0,0,0,  0)"); // false
-isRgbaColor("rgba(255,255,255,  1)"); // false
-isRgbaColor("rgba(0,0,0,0  )"); // false
-isRgbaColor("rgba(255,255,255,1  )"); // false
+isRgbaColor("rgba(-0.001,-0.001,-0.001,-0.001)"); // false
+isRgbaColor("rgba(255.001,255.001,255.001,1.001)"); // false
+isRgbaColor("rgba0,0,0,0"); // false
+isRgbaColor("(255,255,255,1)"); // false
+isRgbaColor("(0,0,0,0)"); // false
+isRgbaColor("rgba255,255,255,1)"); // false
+isRgbaColor("rgba(0,0,0,0"); // false
+isRgbaColor(" rgba(255,255,255,1)"); // false
+isRgbaColor("rgba(0,0,0,0) "); // false
+isRgbaColor("RGBA(0,0,0,0)"); // false
 ```
 
 ## hsl(...) colors
 
 ### Inputs that return true
 ```js
-isHslColor("hsl(-0.001,-0.001%,-0.001%)"); // true
-isHslColor("hsl(360.001,100.001%,100.001%)"); // true
-isHslColor("hsl0,0%,0%"); // true
-isHslColor("(360,100%,100%)"); // true
-isHslColor("(0,0%,0%)"); // true
-isHslColor("hsl360,100%,100%)"); // true
-isHslColor("hsl(0,0%,0%"); // true
-isHslColor(" hsl(360,100%,100%)"); // true
-isHslColor("hsl(0,0%,0%) "); // true
-isHslColor("HSL(0,0%,0%)"); // true
+isHslColor("hsl(0,0%,0%)"); // true
+isHslColor("hsl(360,100%,100%)"); // true
+isHslColor("hsl(.001,.001%,.001%)"); // true
+isHslColor("hsl(0.001,0.001%,0.001%)"); // true
+isHslColor("hsl(359.999,99.999%,99.999%)"); // true
+isHslColor("hsl(1,1%,1%)"); // true
+isHslColor("hsl(  0,0%,0%)"); // true
+isHslColor("hsl(  360,100%,100%)"); // true
+isHslColor("hsl(0  ,0%,0%)"); // true
+isHslColor("hsl(360  ,100%,100%)"); // true
+isHslColor("hsl(0,  0%,0%)"); // true
+isHslColor("hsl(360,  100%,100%)"); // true
+isHslColor("hsl(0,0%  ,0%)"); // true
+isHslColor("hsl(360,100%  ,100%)"); // true
+isHslColor("hsl(0,0%,  0%)"); // true
+isHslColor("hsl(360,100%,  100%)"); // true
+isHslColor("hsl(0,0%,0%  )"); // true
+isHslColor("hsl(360,100%,100%  )"); // true
 ```
 
 ### Inputs that return true
 ```js
-isHslColor("hsl(0,0%,0%)"); // false
-isHslColor("hsl(360,100%,100%)"); // false
-isHslColor("hsl(.001,.001%,.001%)"); // false
-isHslColor("hsl(0.001,0.001%,0.001%)"); // false
-isHslColor("hsl(359.999,99.999%,99.999%)"); // false
-isHslColor("hsl(1,1%,1%)"); // false
-isHslColor("hsl(  0,0%,0%)"); // false
-isHslColor("hsl(  360,100%,100%)"); // false
-isHslColor("hsl(0  ,0%,0%)"); // false
-isHslColor("hsl(360  ,100%,100%)"); // false
-isHslColor("hsl(0,  0%,0%)"); // false
-isHslColor("hsl(360,  100%,100%)"); // false
-isHslColor("hsl(0,0%  ,0%)"); // false
-isHslColor("hsl(360,100%  ,100%)"); // false
-isHslColor("hsl(0,0%,  0%)"); // false
-isHslColor("hsl(360,100%,  100%)"); // false
-isHslColor("hsl(0,0%,0%  )"); // false
-isHslColor("hsl(360,100%,100%  )"); // false
+isHslColor("hsl(-0.001,-0.001%,-0.001%)"); // false
+isHslColor("hsl(360.001,100.001%,100.001%)"); // false
+isHslColor("hsl0,0%,0%"); // false
+isHslColor("(360,100%,100%)"); // false
+isHslColor("(0,0%,0%)"); // false
+isHslColor("hsl360,100%,100%)"); // false
+isHslColor("hsl(0,0%,0%"); // false
+isHslColor(" hsl(360,100%,100%)"); // false
+isHslColor("hsl(0,0%,0%) "); // false
+isHslColor("HSL(0,0%,0%)"); // false
 ```
 
 ## hsla(...) colors
 
 ### Inputs that return true
 ```js
-isHslaColor("hsla(-0.001,-0.001%,-0.001%,-0.001)"); // true
-isHslaColor("hsla(360.001,100.001%,100.001%,1.001)"); // true
-isHslaColor("hsla0,0%,0%,0"); // true
-isHslaColor("(360,100%,100%,1)"); // true
-isHslaColor("(0,0%,0%,0)"); // true
-isHslaColor("hsla360,100%,100%,1)"); // true
-isHslaColor("hsla(0,0%,0%,0"); // true
-isHslaColor(" hsla(360,100%,100%,1)"); // true
-isHslaColor("hsla(0,0%,0%,0) "); // true
-isHslaColor("HSLA(0,0%,0%,0)"); // true
+isHslaColor("hsla(0,0%,0%,0)"); // true
+isHslaColor("hsla(360,100%,100%,1)"); // true
+isHslaColor("hsla(.001,.001%,.001%,.001)"); // true
+isHslaColor("hsla(0.001,0.001%,0.001%,0.001)"); // true
+isHslaColor("hsla(359.999,99.999%,99.999%,.999)"); // true
+isHslaColor("hsla(359.999,99.999%,99.999%,0.999)"); // true
+isHslaColor("hsla(1,1%,1%,1)"); // true
+isHslaColor("hsla(  0,0%,0%,0)"); // true
+isHslaColor("hsla(  360,100%,100%,1)"); // true
+isHslaColor("hsla(0  ,0%,0%,0)"); // true
+isHslaColor("hsla(360  ,100%,100%,1)"); // true
+isHslaColor("hsla(0,  0%,0%,0)"); // true
+isHslaColor("hsla(360,  100%,100%,1)"); // true
+isHslaColor("hsla(0,0%  ,0%,0)"); // true
+isHslaColor("hsla(360,100%  ,100%,1)"); // true
+isHslaColor("hsla(0,0%,  0%,0)"); // true
+isHslaColor("hsla(360,100%,  100%,1)"); // true
+isHslaColor("hsla(0,0%,0%  ,0)"); // true
+isHslaColor("hsla(360,100%,100%  ,1)"); // true
+isHslaColor("hsla(0,0%,0%,  0)"); // true
+isHslaColor("hsla(360,100%,100%,  1)"); // true
+isHslaColor("hsla(0,0%,0%,0  )"); // true
+isHslaColor("hsla(360,100%,100%,1  )"); // true
 ```
 
 ### Inputs that return true
 ```js
-isHslaColor("hsla(0,0%,0%,0)"); // false
-isHslaColor("hsla(360,100%,100%,1)"); // false
-isHslaColor("hsla(.001,.001%,.001%,.001)"); // false
-isHslaColor("hsla(0.001,0.001%,0.001%,0.001)"); // false
-isHslaColor("hsla(359.999,99.999%,99.999%,.999)"); // false
-isHslaColor("hsla(359.999,99.999%,99.999%,0.999)"); // false
-isHslaColor("hsla(1,1%,1%,1)"); // false
-isHslaColor("hsla(  0,0%,0%,0)"); // false
-isHslaColor("hsla(  360,100%,100%,1)"); // false
-isHslaColor("hsla(0  ,0%,0%,0)"); // false
-isHslaColor("hsla(360  ,100%,100%,1)"); // false
-isHslaColor("hsla(0,  0%,0%,0)"); // false
-isHslaColor("hsla(360,  100%,100%,1)"); // false
-isHslaColor("hsla(0,0%  ,0%,0)"); // false
-isHslaColor("hsla(360,100%  ,100%,1)"); // false
-isHslaColor("hsla(0,0%,  0%,0)"); // false
-isHslaColor("hsla(360,100%,  100%,1)"); // false
-isHslaColor("hsla(0,0%,0%  ,0)"); // false
-isHslaColor("hsla(360,100%,100%  ,1)"); // false
-isHslaColor("hsla(0,0%,0%,  0)"); // false
-isHslaColor("hsla(360,100%,100%,  1)"); // false
-isHslaColor("hsla(0,0%,0%,0  )"); // false
-isHslaColor("hsla(360,100%,100%,1  )"); // false
+isHslaColor("hsla(-0.001,-0.001%,-0.001%,-0.001)"); // false
+isHslaColor("hsla(360.001,100.001%,100.001%,1.001)"); // false
+isHslaColor("hsla0,0%,0%,0"); // false
+isHslaColor("(360,100%,100%,1)"); // false
+isHslaColor("(0,0%,0%,0)"); // false
+isHslaColor("hsla360,100%,100%,1)"); // false
+isHslaColor("hsla(0,0%,0%,0"); // false
+isHslaColor(" hsla(360,100%,100%,1)"); // false
+isHslaColor("hsla(0,0%,0%,0) "); // false
+isHslaColor("HSLA(0,0%,0%,0)"); // false
 ```
 
 ## hwb(...) colors
 
 ### Inputs that return true
 ```js
-isHwbColor("hwb(0,101%,0%)"); // true
-isHwbColor("hwb(-1,0%,0%)"); // true
-isHwbColor("hwb(0,0%,101%)"); // true
-isHwbColor("hwb(0,51%,50%)"); // true
-isHwbColor("hwb(361,0%,0%)"); // true
+isHwbColor("hwb(0,0%,0%)"); // true
+isHwbColor("hwb(0,100%,0%)"); // true
+isHwbColor("hwb(0,50%,50%)"); // true
+isHwbColor("hwb(0,0%,100%)"); // true
+isHwbColor("hwb(360,0%,0%)"); // true
+isHwbColor("hwb(359.99,99.99%,0.01%)"); // true
 ```
 
 ### Inputs that return true
 ```js
-isHwbColor("hwb(0,0%,0%)"); // false
-isHwbColor("hwb(0,100%,0%)"); // false
-isHwbColor("hwb(0,50%,50%)"); // false
-isHwbColor("hwb(0,0%,100%)"); // false
-isHwbColor("hwb(360,0%,0%)"); // false
-isHwbColor("hwb(359.99,99.99%,0.01%)"); // false
+isHwbColor("hwb(0,101%,0%)"); // false
+isHwbColor("hwb(-1,0%,0%)"); // false
+isHwbColor("hwb(0,0%,101%)"); // false
+isHwbColor("hwb(0,51%,50%)"); // false
+isHwbColor("hwb(361,0%,0%)"); // false
 ```
 
 ## Named colors
 
 ### Inputs that return true
 ```js
-isColorName("reddd"); // true
-isColorName(""); // true
+isColorName("aliceblue"); // true
+isColorName("antiquewhite"); // true
+isColorName("aqua"); // true
+isColorName("aquamarine"); // true
+isColorName("azure"); // true
+isColorName("beige"); // true
+isColorName("bisque"); // true
+isColorName("black"); // true
+isColorName("blanchedalmond"); // true
+isColorName("blue"); // true
+isColorName("blueviolet"); // true
+isColorName("brown"); // true
+isColorName("burlywood"); // true
+isColorName("cadetblue"); // true
+isColorName("chartreuse"); // true
+isColorName("chocolate"); // true
+isColorName("coral"); // true
+isColorName("cornflowerblue"); // true
+isColorName("cornsilk"); // true
+isColorName("crimson"); // true
+isColorName("cyan"); // true
+isColorName("darkblue"); // true
+isColorName("darkcyan"); // true
+isColorName("darkgoldenrod"); // true
+isColorName("darkgray"); // true
+isColorName("darkgreen"); // true
+isColorName("darkgrey"); // true
+isColorName("darkkhaki"); // true
+isColorName("darkmagenta"); // true
+isColorName("darkolivegreen"); // true
+isColorName("darkorange"); // true
+isColorName("darkorchid"); // true
+isColorName("darkred"); // true
+isColorName("darksalmon"); // true
+isColorName("darkseagreen"); // true
+isColorName("darkslateblue"); // true
+isColorName("darkslategray"); // true
+isColorName("darkslategrey"); // true
+isColorName("darkturquoise"); // true
+isColorName("darkviolet"); // true
+isColorName("deeppink"); // true
+isColorName("deepskyblue"); // true
+isColorName("dimgray"); // true
+isColorName("dimgrey"); // true
+isColorName("dodgerblue"); // true
+isColorName("firebrick"); // true
+isColorName("floralwhite"); // true
+isColorName("forestgreen"); // true
+isColorName("fuchsia"); // true
+isColorName("gainsboro"); // true
+isColorName("ghostwhite"); // true
+isColorName("gold"); // true
+isColorName("goldenrod"); // true
+isColorName("gray"); // true
+isColorName("green"); // true
+isColorName("greenyellow"); // true
+isColorName("grey"); // true
+isColorName("honeydew"); // true
+isColorName("hotpink"); // true
+isColorName("indianred"); // true
+isColorName("indigo"); // true
+isColorName("ivory"); // true
+isColorName("khaki"); // true
+isColorName("lavender"); // true
+isColorName("lavenderblush"); // true
+isColorName("lawngreen"); // true
+isColorName("lemonchiffon"); // true
+isColorName("lightblue"); // true
+isColorName("lightcoral"); // true
+isColorName("lightcyan"); // true
+isColorName("lightgoldenrodyellow"); // true
+isColorName("lightgray"); // true
+isColorName("lightgreen"); // true
+isColorName("lightgrey"); // true
+isColorName("lightpink"); // true
+isColorName("lightsalmon"); // true
+isColorName("lightseagreen"); // true
+isColorName("lightskyblue"); // true
+isColorName("lightslategray"); // true
+isColorName("lightslategrey"); // true
+isColorName("lightsteelblue"); // true
+isColorName("lightyellow"); // true
+isColorName("lime"); // true
+isColorName("limegreen"); // true
+isColorName("linen"); // true
+isColorName("magenta"); // true
+isColorName("maroon"); // true
+isColorName("mediumaquamarine"); // true
+isColorName("mediumblue"); // true
+isColorName("mediumorchid"); // true
+isColorName("mediumpurple"); // true
+isColorName("mediumseagreen"); // true
+isColorName("mediumslateblue"); // true
+isColorName("mediumspringgreen"); // true
+isColorName("mediumturquoise"); // true
+isColorName("mediumvioletred"); // true
+isColorName("midnightblue"); // true
+isColorName("mintcream"); // true
+isColorName("mistyrose"); // true
+isColorName("moccasin"); // true
+isColorName("navajowhite"); // true
+isColorName("navy"); // true
+isColorName("oldlace"); // true
+isColorName("olive"); // true
+isColorName("olivedrab"); // true
+isColorName("orange"); // true
+isColorName("orangered"); // true
+isColorName("orchid"); // true
+isColorName("palegoldenrod"); // true
+isColorName("palegreen"); // true
+isColorName("paleturquoise"); // true
+isColorName("palevioletred"); // true
+isColorName("papayawhip"); // true
+isColorName("peachpuff"); // true
+isColorName("peru"); // true
+isColorName("pink"); // true
+isColorName("plum"); // true
+isColorName("powderblue"); // true
+isColorName("purple"); // true
+isColorName("rebeccapurple"); // true
+isColorName("red"); // true
+isColorName("rosybrown"); // true
+isColorName("royalblue"); // true
+isColorName("saddlebrown"); // true
+isColorName("salmon"); // true
+isColorName("sandybrown"); // true
+isColorName("seagreen"); // true
+isColorName("seashell"); // true
+isColorName("sienna"); // true
+isColorName("silver"); // true
+isColorName("skyblue"); // true
+isColorName("slateblue"); // true
+isColorName("slategray"); // true
+isColorName("slategrey"); // true
+isColorName("snow"); // true
+isColorName("springgreen"); // true
+isColorName("steelblue"); // true
+isColorName("tan"); // true
+isColorName("teal"); // true
+isColorName("thistle"); // true
+isColorName("tomato"); // true
+isColorName("turquoise"); // true
+isColorName("violet"); // true
+isColorName("wheat"); // true
+isColorName("white"); // true
+isColorName("whitesmoke"); // true
+isColorName("yellow"); // true
+isColorName("yellowgreen"); // true
 ```
 
 ### Inputs that return true
 ```js
-isColorName("aliceblue"); // false
-isColorName("antiquewhite"); // false
-isColorName("aqua"); // false
-isColorName("aquamarine"); // false
-isColorName("azure"); // false
-isColorName("beige"); // false
-isColorName("bisque"); // false
-isColorName("black"); // false
-isColorName("blanchedalmond"); // false
-isColorName("blue"); // false
-isColorName("blueviolet"); // false
-isColorName("brown"); // false
-isColorName("burlywood"); // false
-isColorName("cadetblue"); // false
-isColorName("chartreuse"); // false
-isColorName("chocolate"); // false
-isColorName("coral"); // false
-isColorName("cornflowerblue"); // false
-isColorName("cornsilk"); // false
-isColorName("crimson"); // false
-isColorName("cyan"); // false
-isColorName("darkblue"); // false
-isColorName("darkcyan"); // false
-isColorName("darkgoldenrod"); // false
-isColorName("darkgray"); // false
-isColorName("darkgreen"); // false
-isColorName("darkgrey"); // false
-isColorName("darkkhaki"); // false
-isColorName("darkmagenta"); // false
-isColorName("darkolivegreen"); // false
-isColorName("darkorange"); // false
-isColorName("darkorchid"); // false
-isColorName("darkred"); // false
-isColorName("darksalmon"); // false
-isColorName("darkseagreen"); // false
-isColorName("darkslateblue"); // false
-isColorName("darkslategray"); // false
-isColorName("darkslategrey"); // false
-isColorName("darkturquoise"); // false
-isColorName("darkviolet"); // false
-isColorName("deeppink"); // false
-isColorName("deepskyblue"); // false
-isColorName("dimgray"); // false
-isColorName("dimgrey"); // false
-isColorName("dodgerblue"); // false
-isColorName("firebrick"); // false
-isColorName("floralwhite"); // false
-isColorName("forestgreen"); // false
-isColorName("fuchsia"); // false
-isColorName("gainsboro"); // false
-isColorName("ghostwhite"); // false
-isColorName("gold"); // false
-isColorName("goldenrod"); // false
-isColorName("gray"); // false
-isColorName("green"); // false
-isColorName("greenyellow"); // false
-isColorName("grey"); // false
-isColorName("honeydew"); // false
-isColorName("hotpink"); // false
-isColorName("indianred"); // false
-isColorName("indigo"); // false
-isColorName("ivory"); // false
-isColorName("khaki"); // false
-isColorName("lavender"); // false
-isColorName("lavenderblush"); // false
-isColorName("lawngreen"); // false
-isColorName("lemonchiffon"); // false
-isColorName("lightblue"); // false
-isColorName("lightcoral"); // false
-isColorName("lightcyan"); // false
-isColorName("lightgoldenrodyellow"); // false
-isColorName("lightgray"); // false
-isColorName("lightgreen"); // false
-isColorName("lightgrey"); // false
-isColorName("lightpink"); // false
-isColorName("lightsalmon"); // false
-isColorName("lightseagreen"); // false
-isColorName("lightskyblue"); // false
-isColorName("lightslategray"); // false
-isColorName("lightslategrey"); // false
-isColorName("lightsteelblue"); // false
-isColorName("lightyellow"); // false
-isColorName("lime"); // false
-isColorName("limegreen"); // false
-isColorName("linen"); // false
-isColorName("magenta"); // false
-isColorName("maroon"); // false
-isColorName("mediumaquamarine"); // false
-isColorName("mediumblue"); // false
-isColorName("mediumorchid"); // false
-isColorName("mediumpurple"); // false
-isColorName("mediumseagreen"); // false
-isColorName("mediumslateblue"); // false
-isColorName("mediumspringgreen"); // false
-isColorName("mediumturquoise"); // false
-isColorName("mediumvioletred"); // false
-isColorName("midnightblue"); // false
-isColorName("mintcream"); // false
-isColorName("mistyrose"); // false
-isColorName("moccasin"); // false
-isColorName("navajowhite"); // false
-isColorName("navy"); // false
-isColorName("oldlace"); // false
-isColorName("olive"); // false
-isColorName("olivedrab"); // false
-isColorName("orange"); // false
-isColorName("orangered"); // false
-isColorName("orchid"); // false
-isColorName("palegoldenrod"); // false
-isColorName("palegreen"); // false
-isColorName("paleturquoise"); // false
-isColorName("palevioletred"); // false
-isColorName("papayawhip"); // false
-isColorName("peachpuff"); // false
-isColorName("peru"); // false
-isColorName("pink"); // false
-isColorName("plum"); // false
-isColorName("powderblue"); // false
-isColorName("purple"); // false
-isColorName("rebeccapurple"); // false
-isColorName("red"); // false
-isColorName("rosybrown"); // false
-isColorName("royalblue"); // false
-isColorName("saddlebrown"); // false
-isColorName("salmon"); // false
-isColorName("sandybrown"); // false
-isColorName("seagreen"); // false
-isColorName("seashell"); // false
-isColorName("sienna"); // false
-isColorName("silver"); // false
-isColorName("skyblue"); // false
-isColorName("slateblue"); // false
-isColorName("slategray"); // false
-isColorName("slategrey"); // false
-isColorName("snow"); // false
-isColorName("springgreen"); // false
-isColorName("steelblue"); // false
-isColorName("tan"); // false
-isColorName("teal"); // false
-isColorName("thistle"); // false
-isColorName("tomato"); // false
-isColorName("turquoise"); // false
-isColorName("violet"); // false
-isColorName("wheat"); // false
-isColorName("white"); // false
-isColorName("whitesmoke"); // false
-isColorName("yellow"); // false
-isColorName("yellowgreen"); // false
+isColorName("reddd"); // false
+isColorName(""); // false
 ```
 
