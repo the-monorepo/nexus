@@ -50,7 +50,7 @@ describe('can mock recursively', () => {
       {
         nested: aObjectLiteral,
       },
-      { recursive: true }
+      { recursive: true },
     );
     expect(mockedObject.nested.returnObject()).not.toBe(aObjectLiteral.returnObject());
   });
