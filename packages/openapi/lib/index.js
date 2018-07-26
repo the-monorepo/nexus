@@ -3,36 +3,29 @@
 Object.defineProperty(exports, '__esModule', {
   value: true,
 });
+exports.objectTypeToSwagger = objectTypeToSwagger;
 exports.createSchema = createSchema;
 
-var _types = require('@by-example/types');
-
-function createSchema(examples) {
-  const { typeValues } = (0, _types.extractTypeInfo)(examples);
-  let knob;
-
-  if (typeValues.length === 1) {
-    switch (typeValues[0].type) {
-      case _types.DefaultType.number:
-        knob = number();
-
-      case _types.DefaultType.boolean:
-        knob = boolean();
-
-      case _types.DefaultType.string:
-        // TODO: Check if color
-        knob = text();
-
-      case _types.DefaultType.array:
-        knob = array();
-
-      case _types.DefaultType.object:
-      default:
-        knob = object();
-    }
-  } else {
-    knob = object();
-  }
-
-  return knob;
+function objectTypeToSwagger(objectType, typeToSwaggerMap) {
+  const schema = {};
+  schema.type = 'object';
+  const properties = {};
+  Object.keys(objectType.fields).forEach(key => {
+    const fieldType = objectType.fields[key];
+    properties[key] = typeToSwaggerMap[key](fieldType);
+  });
+  return schema;
 }
+
+function mapType(type) {
+  const byExampleToSwaggerTypeMap = {
+    object: type => objectTypeToSwagger(type, byExampleToSwaggerTypeMap),
+    string: type => 'string',
+    array: type => 'array',
+    number: type => (type.format === 'integer' ? 'integer' : 'number'),
+    boolean: type => 'boolean',
+  };
+  return byExampleToSwaggerTypeMap[type.name](type);
+}
+
+function createSchema(typeInfo) {}

@@ -34,20 +34,20 @@ export function defaultTypeTests(
 ): TypeTest<() => DefaultType>[] {
   return [
     typeTest(isBoolean, () => {
-      const type: BooleanType = { type: DefaultTypeName.boolean };
+      const type: BooleanType = { name: DefaultTypeName.boolean };
       return type;
     }),
     typeTest(isString, () => {
-      const type: StringType = { type: DefaultTypeName.string };
+      const type: StringType = { name: DefaultTypeName.string };
       return type;
     }),
     typeTest(isFunction, () => {
-      const type: FunctionType = { type: DefaultTypeName.function };
+      const type: FunctionType = { name: DefaultTypeName.function };
       return type;
     }),
     typeTest(isNumber, () => {
       const type: NumberType = {
-        type: DefaultTypeName.number,
+        name: DefaultTypeName.number,
         format: allAreIntegers(values) ? NumberFormat.integer : NumberFormat.none,
       };
       return type;
@@ -62,7 +62,7 @@ export function defaultTypeTests(
       const allValues = [].concat(...arrayValues);
       const items = extractTypeInfoFunction(allValues);
       const type: ArrayType = {
-        type: DefaultTypeName.array,
+        name: DefaultTypeName.array,
         // TODO: This currently will only extract default types
         // TODO: Should probably lazy load this
         items,
@@ -88,7 +88,7 @@ export function defaultTypeTests(
         fields[key] = extractTypeInfoFunction(values);
       });
       const type: ObjectType = {
-        type: DefaultTypeName.object,
+        name: DefaultTypeName.object,
         fields, // TODO: Should probably lazy load this
       };
       return type;

@@ -36,7 +36,7 @@ function knobBasedOffPropType(value, propType) {
 function knobBasedOffExamples(value, typeInfo: TypeInfo) {
   let knob = undefined;
   if (typeInfo.types.length === 1) {
-    switch (typeInfo.types[0].type) {
+    switch (typeInfo.types[0].name) {
       case DefaultTypeName.number:
         knob = number(value);
         break;
@@ -85,12 +85,22 @@ export function knobify(
   const { types, nullCount, undefinedCount } = typeInfo;
   if (types.length <= 0) {
     return;
-  } else if (types.length > 1 || types[0].type !== DefaultTypeName.object) {
-    throw new Error('Examples were not objects');
-  } else if (nullCount > 0 || undefinedCount > 0) {
+  }
+  if (types.length > 1) {
+    throw new Error(
+      `Was expect object types only but root value of examples included [ ${types
+        .map(type => type.name)
+        .join(', ')} ]`,
+    );
+  }
+  const type = types[0];
+  if (type.name !== DefaultTypeName.object) {
+    throw new Error(`Expected ${DefaultTypeName.object} but received ${type.name}`);
+  }
+  if (nullCount > 0 || undefinedCount > 0) {
     throw new Error('No null or undefined examples are allowed');
   }
-  const rootType: ObjectType = types[0] as ObjectType;
+  const rootType: ObjectType = type as ObjectType;
   for (const example of examples) {
     Object.keys(example).forEach(key => {
       // TODO: prop types

@@ -1,24 +1,35 @@
-import { extractTypeInfo, DefaultType } from '@by-example/types';
-export function createSchema(examples) {
-  const { typeValues } = extractTypeInfo(examples);
-  let knob;
-  if (typeValues.length === 1) {
-    switch (typeValues[0].type) {
-      case DefaultType.number:
-        knob = number();
-      case DefaultType.boolean:
-        knob = boolean();
-      case DefaultType.string:
-        // TODO: Check if color
-        knob = text();
-      case DefaultType.array:
-        knob = array();
-      case DefaultType.object:
-      default:
-        knob = object();
-    }
-  } else {
-    knob = object();
-  }
-  return knob;
+import {
+  TypeInfo,
+  ObjectType,
+  StringType,
+  NumberType,
+  ArrayType,
+  BooleanType,
+  Type,
+} from '@by-example/types';
+
+export function objectTypeToSwagger(objectType: ObjectType, typeToSwaggerMap) {
+  const schema: any = {};
+  schema.type = 'object';
+  const properties = {};
+  Object.keys(objectType.fields).forEach(key => {
+    const fieldType = objectType.fields[key];
+    properties[key] = typeToSwaggerMap[key](fieldType);
+  });
+  return schema;
 }
+
+function mapType(type: Type) {
+  const byExampleToSwaggerTypeMap: {
+    [key: string]: (type: Type) => any;
+  } = {
+    object: (type: ObjectType) => objectTypeToSwagger(type, byExampleToSwaggerTypeMap),
+    string: (type: StringType) => 'string',
+    array: (type: ArrayType) => 'array',
+    number: (type: NumberType) => (type.format === 'integer' ? 'integer' : 'number'),
+    boolean: (type: BooleanType) => 'boolean',
+  };
+  return byExampleToSwaggerTypeMap[type.name](type);
+}
+
+export function createSchema(typeInfo: TypeInfo) {}
