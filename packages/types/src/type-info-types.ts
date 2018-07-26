@@ -5,7 +5,7 @@
 import { DefaultTypeName } from './DefaultTypeName';
 
 export interface Type {
-  type: string;
+  name: string;
 }
 
 export enum NumberFormat {
@@ -15,12 +15,12 @@ export enum NumberFormat {
 }
 
 export interface NumberType extends Type {
-  type: DefaultTypeName.number;
+  name: DefaultTypeName.number;
   format: NumberFormat;
 }
 
 export interface StringType extends Type {
-  type: DefaultTypeName.string;
+  name: DefaultTypeName.string;
 }
 
 export interface Fields {
@@ -28,21 +28,21 @@ export interface Fields {
 }
 
 export interface ObjectType extends Type {
-  type: DefaultTypeName.object;
+  name: DefaultTypeName.object;
   fields: Fields;
 }
 
 export interface ArrayType extends Type {
-  type: DefaultTypeName.array;
+  name: DefaultTypeName.array;
   items: TypeInfo;
 }
 
 export interface FunctionType extends Type {
-  type: DefaultTypeName.function;
+  name: DefaultTypeName.function;
 }
 
 export interface BooleanType extends Type {
-  type: DefaultTypeName.boolean;
+  name: DefaultTypeName.boolean;
 }
 
 export type DefaultType =

@@ -39,6 +39,66 @@ Object.defineProperty(exports, 'DefaultTypeName', {
     return _DefaultTypeName.DefaultTypeName;
   },
 });
+Object.defineProperty(exports, 'TypeInfo', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.TypeInfo;
+  },
+});
+Object.defineProperty(exports, 'DefaultType', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.DefaultType;
+  },
+});
+Object.defineProperty(exports, 'DefaultTypeInfo', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.DefaultTypeInfo;
+  },
+});
+Object.defineProperty(exports, 'BooleanType', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.BooleanType;
+  },
+});
+Object.defineProperty(exports, 'NumberType', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.NumberType;
+  },
+});
+Object.defineProperty(exports, 'Type', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.Type;
+  },
+});
+Object.defineProperty(exports, 'ArrayType', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.ArrayType;
+  },
+});
+Object.defineProperty(exports, 'FunctionType', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.FunctionType;
+  },
+});
+Object.defineProperty(exports, 'ObjectType', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.ObjectType;
+  },
+});
+Object.defineProperty(exports, 'StringType', {
+  enumerable: true,
+  get: function() {
+    return _typeInfoTypes.StringType;
+  },
+});
 
 var _extractTypeInfo = require('./extractTypeInfo');
 
@@ -49,3 +109,5 @@ var _TypeTest = require('./TypeTest');
 var _defaultTypeTests = require('./defaultTypeTests');
 
 var _DefaultTypeName = require('./DefaultTypeName');
+
+var _typeInfoTypes = require('./type-info-types');

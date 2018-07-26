@@ -7,7 +7,7 @@ describe(extractTypeInfo.name, () => {
     expect(typeInfo).toEqual({
       types: [
         {
-          type: DefaultTypeName.string,
+          name: DefaultTypeName.string,
         },
       ],
       nullCount: 0,
@@ -20,7 +20,7 @@ describe(extractTypeInfo.name, () => {
     expect(typeInfo).toEqual({
       types: [
         {
-          type: DefaultTypeName.number,
+          name: DefaultTypeName.number,
           format: NumberFormat.integer,
         },
       ],
@@ -44,15 +44,15 @@ describe(extractTypeInfo.name, () => {
     expect(typeInfo).toEqual({
       types: [
         {
-          type: DefaultTypeName.object,
+          name: DefaultTypeName.object,
           fields: {
             int: {
-              types: [{ type: DefaultTypeName.number, format: NumberFormat.integer }],
+              types: [{ name: DefaultTypeName.number, format: NumberFormat.integer }],
               nullCount: 0,
               undefinedCount: 0,
             },
             string: {
-              types: [{ type: DefaultTypeName.string }],
+              types: [{ name: DefaultTypeName.string }],
               nullCount: 0,
               undefinedCount: 0,
             },
@@ -77,15 +77,15 @@ describe(extractTypeInfo.name, () => {
     expect(typeInfo).toEqual({
       types: [
         {
-          type: DefaultTypeName.object,
+          name: DefaultTypeName.object,
           fields: {
             int: {
-              types: [{ type: DefaultTypeName.number, format: NumberFormat.integer }],
+              types: [{ name: DefaultTypeName.number, format: NumberFormat.integer }],
               nullCount: 0,
               undefinedCount: 0,
             },
             string: {
-              types: [{ type: DefaultTypeName.string }],
+              types: [{ name: DefaultTypeName.string }],
               nullCount: 0,
               undefinedCount: 0,
             },
@@ -102,10 +102,10 @@ describe(extractTypeInfo.name, () => {
     const typeInfo = extractTypeInfo(examples);
     expect(typeInfo).toEqual({
       types: [
-        { type: DefaultTypeName.string },
-        { type: DefaultTypeName.number, format: NumberFormat.none },
+        { name: DefaultTypeName.string },
+        { name: DefaultTypeName.number, format: NumberFormat.none },
         {
-          type: DefaultTypeName.object,
+          name: DefaultTypeName.object,
           fields: {},
         },
       ],
@@ -120,11 +120,11 @@ describe(extractTypeInfo.name, () => {
     expect(typeInfo).toEqual({
       types: [
         {
-          type: DefaultTypeName.array,
+          name: DefaultTypeName.array,
           items: {
             types: [
-              { type: DefaultTypeName.string },
-              { type: DefaultTypeName.number, format: NumberFormat.none },
+              { name: DefaultTypeName.string },
+              { name: DefaultTypeName.number, format: NumberFormat.none },
             ],
             nullCount: 1,
             undefinedCount: 0,

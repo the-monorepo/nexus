@@ -28,25 +28,25 @@ function defaultTypeTests(values, extractTypeInfoFunction) {
   return [
     (0, _TypeTest.typeTest)(_typeChecks.isBoolean, () => {
       const type = {
-        type: _DefaultTypeName.DefaultTypeName.boolean,
+        name: _DefaultTypeName.DefaultTypeName.boolean,
       };
       return type;
     }),
     (0, _TypeTest.typeTest)(_typeChecks.isString, () => {
       const type = {
-        type: _DefaultTypeName.DefaultTypeName.string,
+        name: _DefaultTypeName.DefaultTypeName.string,
       };
       return type;
     }),
     (0, _TypeTest.typeTest)(_typeChecks.isFunction, () => {
       const type = {
-        type: _DefaultTypeName.DefaultTypeName.function,
+        name: _DefaultTypeName.DefaultTypeName.function,
       };
       return type;
     }),
     (0, _TypeTest.typeTest)(_typeChecks.isNumber, () => {
       const type = {
-        type: _DefaultTypeName.DefaultTypeName.number,
+        name: _DefaultTypeName.DefaultTypeName.number,
         format: allAreIntegers(values)
           ? _typeInfoTypes.NumberFormat.integer
           : _typeInfoTypes.NumberFormat.none,
@@ -63,7 +63,7 @@ function defaultTypeTests(values, extractTypeInfoFunction) {
       const allValues = [].concat(...arrayValues);
       const items = extractTypeInfoFunction(allValues);
       const type = {
-        type: _DefaultTypeName.DefaultTypeName.array,
+        name: _DefaultTypeName.DefaultTypeName.array,
         // TODO: This currently will only extract default types
         // TODO: Should probably lazy load this
         items,
@@ -89,7 +89,7 @@ function defaultTypeTests(values, extractTypeInfoFunction) {
         fields[key] = extractTypeInfoFunction(values);
       });
       const type = {
-        type: _DefaultTypeName.DefaultTypeName.object,
+        name: _DefaultTypeName.DefaultTypeName.object,
         fields, // TODO: Should probably lazy load this
       };
       return type;
