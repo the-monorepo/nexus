@@ -1,0 +1,11 @@
+{
+  "name": "@by-example/cli",
+  "version": "1.0.0-alpha.0",
+  "bin": "./bin/index.ts",
+  "main": "./lib/index.js",
+  "types": "./src/index.ts",
+  "private": false,
+  "dependencies": {
+    "@types/node": "^10.5.4"
+  }
+}
