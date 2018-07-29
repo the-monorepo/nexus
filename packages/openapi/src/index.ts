@@ -6,30 +6,51 @@ import {
   ArrayType,
   BooleanType,
   Type,
+  NumberFormat,
 } from '@by-example/types';
-
-export function objectTypeToSwagger(objectType: ObjectType, typeToSwaggerMap) {
-  const schema: any = {};
-  schema.type = 'object';
-  const properties = {};
-  Object.keys(objectType.fields).forEach(key => {
-    const fieldType = objectType.fields[key];
-    properties[key] = typeToSwaggerMap[key](fieldType);
-  });
-  return schema;
-}
 
 function mapType(type: Type) {
   const byExampleToSwaggerTypeMap: {
     [key: string]: (type: Type) => any;
   } = {
-    object: (type: ObjectType) => objectTypeToSwagger(type, byExampleToSwaggerTypeMap),
-    string: (type: StringType) => 'string',
-    array: (type: ArrayType) => 'array',
-    number: (type: NumberType) => (type.format === 'integer' ? 'integer' : 'number'),
-    boolean: (type: BooleanType) => 'boolean',
+    object: (objectType: ObjectType) => {
+      const schema: any = {};
+      schema.type = 'object';
+      const properties = {};
+      Object.keys(objectType.fields).forEach(key => {
+        const fieldTypeInfo = objectType.fields[key];
+        properties[key] = createSchema(fieldTypeInfo);
+      });
+      schema.properties = properties;
+      return schema;
+    },
+    string: (type: StringType) => {
+      return { type: 'string' };
+    },
+    array: (type: ArrayType) => {
+      return { type: 'array' };
+    },
+    number: (type: NumberType) => {
+      if (type.format === NumberFormat.integer) {
+        return { type: 'integer' };
+      } else {
+        return { type: 'number' };
+      }
+    },
+    boolean: (type: BooleanType) => {
+      return { type: 'boolean' };
+    },
   };
   return byExampleToSwaggerTypeMap[type.name](type);
 }
 
-export function createSchema(typeInfo: TypeInfo) {}
+export function createSchema(typeInfo: TypeInfo) {
+  const swaggerTypes = typeInfo.types.map(mapType);
+  let schema = undefined;
+  if (swaggerTypes.length > 1) {
+    schema = { oneOf: swaggerTypes };
+  } else if (swaggerTypes.length === 1) {
+    schema = swaggerTypes[0];
+  }
+  return schema;
+}
