@@ -15,3 +15,4 @@ export {
   ObjectType,
   StringType,
 } from './type-info-types';
+export { NumberFormat } from './type-info-types';
