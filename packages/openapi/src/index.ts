@@ -90,3 +90,7 @@ export function createSchema(typeInfo: TypeInfo, options = {}) {
   }
   return schema;
 }
+
+export function fromTypes(typeInfo) {
+  return createSchema(typeInfo);
+}
