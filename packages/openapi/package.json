@@ -3,5 +3,8 @@
   "version": "1.0.0-alpha.0",
   "private": false,
   "main": "./lib/index.js",
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "devDependencies": {
+    "swagger-parser": "^5.0.2"
+  }
 }

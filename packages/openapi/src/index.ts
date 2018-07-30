@@ -9,19 +9,42 @@ import {
   NumberFormat,
 } from '@by-example/types';
 
+function addTypeInfoToOpenSchema(openApiType, typeInfo, options) {
+  if (options.assumeNonNull) {
+    if (typeInfo.nullCount > 0) {
+      openApiType.nullable = true;
+    }
+  } else {
+    openApiType.nullable = true;
+  }
+}
+
 function mapType(type: Type, typeInfo: TypeInfo, options) {
   const byExampleToSwaggerTypeMap: {
     [key: string]: (type: Type) => any;
   } = {
     object: (objectType: ObjectType) => {
-      const schema: any = {};
-      schema.type = 'object';
       const properties = {};
+      const required = [];
+      if (options.assumeRequired) {
+        Object.keys(objectType.fields).forEach(key => {
+          const fieldTypeInfo = objectType.fields[key];
+          if (fieldTypeInfo.undefinedCount <= 0) {
+            required.push(key);
+          }
+        });
+      }
       Object.keys(objectType.fields).forEach(key => {
         const fieldTypeInfo = objectType.fields[key];
         properties[key] = createSchema(fieldTypeInfo, options);
       });
-      schema.properties = properties;
+      const schema: any = {
+        type: 'object',
+        properties,
+      };
+      if (required.length > 0) {
+        schema.required = required;
+      }
       return schema;
     },
     string: (type: StringType) => {
@@ -42,18 +65,7 @@ function mapType(type: Type, typeInfo: TypeInfo, options) {
     },
   };
   const mapped = byExampleToSwaggerTypeMap[type.name](type);
-  if (options.assumeRequired) {
-    if (typeInfo.undefinedCount <= 0) {
-      mapped.required = true;
-    }
-  }
-  if (options.assumeNonNull) {
-    if (typeInfo.nullCount > 0) {
-      mapped.nullable = true;
-    }
-  } else {
-    mapped.nullable = true;
-  }
+  addTypeInfoToOpenSchema(mapped, typeInfo, options);
   return mapped;
 }
 
@@ -63,6 +75,7 @@ export function createSchema(typeInfo: TypeInfo, options = {}) {
     assumeNonNull: true,
     ...options,
   };
+
   const swaggerTypes = typeInfo.types.map(type =>
     mapType(type, typeInfo, optionsWithDefaults),
   );
@@ -71,6 +84,9 @@ export function createSchema(typeInfo: TypeInfo, options = {}) {
     schema = { oneOf: swaggerTypes };
   } else if (swaggerTypes.length === 1) {
     schema = swaggerTypes[0];
+  } else {
+    schema = {};
+    addTypeInfoToOpenSchema(schema, typeInfo, options);
   }
   return schema;
 }
