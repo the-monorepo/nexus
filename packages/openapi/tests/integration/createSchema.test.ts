@@ -9,8 +9,8 @@ function testWithValidation(name, callback) {
       info: {
         version: '1.0.0',
         title: 'Test',
-        license: 'MIT',
       },
+      paths: {},
       components: {
         schemas: {
           Test: schema,
@@ -18,7 +18,7 @@ function testWithValidation(name, callback) {
       },
     };
     const validatePromise = SwaggerParser.validate(spec);
-    await expect(validatePromise).toEqual(expect.anything());
+    await expect(validatePromise).resolves.toEqual(expect.anything());
   });
 }
 
