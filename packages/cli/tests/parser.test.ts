@@ -1,13 +1,20 @@
 import { createArgParser } from '../src/createArgParser';
+function testName(argv) {
+  return `['${argv.join("', '")}']`;
+}
 
 describe('Arg parser', () => {
   let parser = createArgParser();
   function testPasses(argv) {
-    parser.parse(argv);
+    it(testName(argv), () => {
+      parser.parse(argv);
+    });
   }
   function testThrows(argv) {
-    expect(() => parser.parse(argv)).toThrowError();
+    it(testName(argv), () => {
+      expect(() => parser.parse(argv)).toThrowError();
+    });
   }
   testPasses(['', 'openapi']);
-  testThrows(['', 'openapi', '']);
+  //testThrows(['', 'openapi', '']);
 });

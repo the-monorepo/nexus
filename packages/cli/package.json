@@ -1,7 +1,13 @@
 {
   "name": "@by-example/cli",
   "version": "1.0.0-alpha.0",
-  "bin": "./bin/index.ts",
+  "license": "MIT",
+  "bin": {
+    "by-example": "./bin/index.js"
+  },
+  "scripts": {
+    "cli": "node ./bin/index.js"
+  },
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "private": false,
