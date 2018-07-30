@@ -82,12 +82,12 @@ describe(extractTypeInfo.name, () => {
             int: {
               types: [{ name: DefaultTypeName.number, format: NumberFormat.integer }],
               nullCount: 0,
-              undefinedCount: 0,
+              undefinedCount: 1,
             },
             string: {
               types: [{ name: DefaultTypeName.string }],
               nullCount: 0,
-              undefinedCount: 0,
+              undefinedCount: 1,
             },
           },
         },

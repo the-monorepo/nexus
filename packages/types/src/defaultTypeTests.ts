@@ -21,7 +21,7 @@ import { typeTest, TypeTest } from './TypeTest';
 
 export function allAreIntegers(values: any[]): boolean {
   for (const value of values) {
-    if (!Number.isInteger(value)) {
+    if (value && !Number.isInteger(value)) {
       return false;
     }
   }
@@ -71,22 +71,24 @@ export function defaultTypeTests(
     }),
     typeTest(isObject, () => {
       const objectValues = values.filter(value => isObject(value));
-      const keyToValuesMap: { [key: string]: any[] } = {};
-      // Gather the values for each key
+      const keyToValuesMap = new Map<string, { [k: string]: any }>();
       objectValues.forEach(objectValue => {
         Object.keys(objectValue).forEach(key => {
-          if (keyToValuesMap[key] === undefined) {
-            keyToValuesMap[key] = [];
-          }
-          keyToValuesMap[key].push(objectValue[key]);
+          keyToValuesMap.set(key, []);
         });
       });
-
+      // Gather the values for each key
+      for (const key of keyToValuesMap.keys()) {
+        objectValues.forEach(objectValue => {
+          keyToValuesMap.get(key).push(objectValue[key]);
+        });
+      }
+      // Extract the type info of each field
       const fields = {};
-      Object.keys(keyToValuesMap).forEach(key => {
-        const values = keyToValuesMap[key];
-        fields[key] = extractTypeInfoFunction(values);
-      });
+      for (const [key, fieldValues] of keyToValuesMap.entries()) {
+        fields[key] = extractTypeInfoFunction(fieldValues);
+      }
+      // Chuck everything into an object type
       const type: ObjectType = {
         name: DefaultTypeName.object,
         fields, // TODO: Should probably lazy load this
