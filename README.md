@@ -8,15 +8,21 @@ A set of functions that check whether a string matches a particular color format
 
 ```js
 import { isCssColor } from 'css-color-checker';
-isCssColor('#FFF');
-isCssColor('#FFFFFF');
-isCssColor('#FFFFFFFF');
-isCssColor('rgb(255,255,255)');
-isCssColor('rgba(255,255,255,1)');
-isCssColor('hsl(0,0%,0%)');
-isCssColor('hsla(255,255,255,0.1)');
-isCssColor('hwb(360,0%,0%)');
-isCssColor('red');
+
+// Valid CSS color values return true
+isCssColor('#FFF'); // true
+isCssColor('#FFFFFF'); // true
+isCssColor('#FFFFFFFF'); // true
+isCssColor('rgb(255,255,255)'); // true
+isCssColor('rgba(255,255,255,1)'); // true
+isCssColor('hsl(0,0%,0%)'); // true
+isCssColor('hsla(255,255,255,0.1)'); // true
+isCssColor('hwb(360,0%,0%)'); // true
+isCssColor('red'); // true
+
+// Everything else returns false
+isCssColor('Not a color'); // false
+isCssColor('#F'); // false
 ```
 
 
