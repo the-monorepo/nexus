@@ -8,15 +8,15 @@
   "private": true,
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/by-example.git"
+  },
   "scripts": {
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
     "test": "jest --coverage",
     "build": "gulp build",
     "watch": "gulp watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/PatrickShaw/extract-types.git"
   },
   "keywords": [
     "types"
