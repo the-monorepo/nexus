@@ -6,6 +6,7 @@ import { DefaultTypeName } from './DefaultTypeName';
 
 export interface Type {
   name: string;
+  [k: string]: any;
 }
 
 export enum NumberFormat {
