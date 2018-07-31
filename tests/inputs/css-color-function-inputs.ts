@@ -8,6 +8,7 @@ export interface ParameterFormat {
   percentages: boolean;
   min: Bound;
   max: Bound;
+  noLetters: boolean;
 }
 
 export function generateCssColorFunctionInputs(
@@ -47,23 +48,29 @@ export function generateCssColorFunctionInputs(
     offsetDelta: number,
     hasCorrectSuffix: boolean,
     decimal: 'leading' | 'short',
+    noLetter: boolean,
   ) {
-    const bound: Bound = min ? parameter.min : parameter.max;
-    const correctDeltaSign: number = min ? 1 : -1;
-    const incorrectDeltaSign: number = min ? -1 : 1;
-    const deltaSign: number = offsetDelta >= 0 ? correctDeltaSign : incorrectDeltaSign;
-    const delta: number = deltaSign * Math.abs(offsetDelta);
-    const value: number = bound.value + delta;
     const correctSuffix: string = parameter.percentages ? '%' : '';
     const incorrectSuffix: string = parameter.percentages ? '' : '%';
     const suffix: string = hasCorrectSuffix ? correctSuffix : incorrectSuffix;
-    const decimalString: string =
-      decimal === 'leading' ? value.toString() : value.toString().replace(/^0+\./, '.');
+    let decimalString: string = undefined;
+    if (noLetter) {
+      const bound: Bound = min ? parameter.min : parameter.max;
+      const correctDeltaSign: number = min ? 1 : -1;
+      const incorrectDeltaSign: number = min ? -1 : 1;
+      const deltaSign: number = offsetDelta >= 0 ? correctDeltaSign : incorrectDeltaSign;
+      const delta: number = deltaSign * Math.abs(offsetDelta);
+      const value: number = bound.value + delta;
+      decimalString =
+        decimal === 'leading' ? value.toString() : value.toString().replace(/^0+\./, '.');
+    } else {
+      decimalString = 'e';
+    }
     return `${decimalString}${suffix}`;
   }
 
   function validValue(parameter: ParameterFormat, min: boolean) {
-    return parameterValue(parameter, min, 0, true, 'leading');
+    return parameterValue(parameter, min, 0, true, 'leading', parameter.noLetters);
   }
 
   function validMinValues() {
@@ -82,7 +89,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, 0.001, true, 'short')),
+      parameters.map(p => parameterValue(p, true, 0.001, true, 'short', p.noLetters)),
     ),
   );
   valid.add(
@@ -91,7 +98,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, 0.001, true, 'leading')),
+      parameters.map(p => parameterValue(p, true, 0.001, true, 'leading', p.noLetters)),
     ),
   );
   valid.add(
@@ -100,7 +107,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, false, 0.001, true, 'short')),
+      parameters.map(p => parameterValue(p, false, 0.001, true, 'short', p.noLetters)),
     ),
   );
   valid.add(
@@ -109,7 +116,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, false, 0.001, true, 'leading')),
+      parameters.map(p => parameterValue(p, false, 0.001, true, 'leading', p.noLetters)),
     ),
   );
   valid.add(
@@ -118,7 +125,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, 1, true, 'leading')),
+      parameters.map(p => parameterValue(p, true, 1, true, 'leading', p.noLetters)),
     ),
   );
 
@@ -128,7 +135,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, -0.001, true, 'leading')),
+      parameters.map(p => parameterValue(p, true, -0.001, true, 'leading', p.noLetters)),
     ),
   );
   invalid.add(
@@ -137,7 +144,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, false, -0.001, true, 'leading')),
+      parameters.map(p => parameterValue(p, false, -0.001, true, 'leading', p.noLetters)),
     ),
   );
   if (parameters.filter(p => p.min.value < 0).length > 0) {
@@ -155,11 +162,21 @@ export function generateCssColorFunctionInputs(
               0.001,
               true,
               'leading',
+              p.noLetters,
             )}`,
         ),
       ),
     );
   }
+  invalid.add(
+    generateInput(
+      true,
+      true,
+      true,
+      undefined,
+      parameters.map(p => parameterValue(p, true, 1, true, 'leading', false)),
+    ),
+  );
   invalid.add(generateInput(true, false, false, undefined, validMinValues()));
   invalid.add(generateInput(false, true, true, undefined, validMaxValues()));
 
