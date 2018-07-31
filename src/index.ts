@@ -1,13 +1,13 @@
 import cssColors from 'css-color-names';
+import {
+  isValidAlphaValue,
+  isValidPercentageString,
+  isValidPercentage,
+  isValidHue,
+  isValidRgbVal,
+} from './value-checks';
+
 const cssColorNames = Object.keys(cssColors);
-function isValidRgbVal(magnitudeString: string): boolean {
-  try {
-    const magnitude: number = Number.parseFloat(magnitudeString);
-    return magnitude >= 0 && magnitude <= 255;
-  } catch (err) {
-    return false;
-  }
-}
 
 function isValidRgbValues(...values: string[]): boolean {
   for (const value of values) {
@@ -18,17 +18,6 @@ function isValidRgbValues(...values: string[]): boolean {
   return true;
 }
 
-function isValidAlphaValue(magnitudeString: string): boolean {
-  try {
-    const magnitude: number = Number.parseFloat(magnitudeString);
-    return magnitude <= 1 && magnitude >= 0;
-  } catch (err) {
-    return false;
-  }
-}
-
-export type IsColorFunction = (aString: string) => boolean;
-
 export function isColorName(value: string) {
   for (const name of cssColorNames) {
     if (name === value) {
@@ -38,33 +27,11 @@ export function isColorName(value: string) {
   return false;
 }
 
-export const isHexColor: IsColorFunction = value => {
+export function isHexColor(value: string): boolean {
   return value.match(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i) !== null;
-};
-
-export function isValidPercentageString(magnitudeString: string): boolean {
-  try {
-    const magnitude: number = Number.parseFloat(magnitudeString);
-    return isValidPercentage(magnitude);
-  } catch (err) {
-    return false;
-  }
 }
 
-export function isValidPercentage(magnitude: number): boolean {
-  return magnitude >= 0 && magnitude <= 100;
-}
-
-export function isValidHue(valueString: string): boolean {
-  try {
-    const value: number = Number.parseFloat(valueString);
-    return value >= 0 && value <= 360;
-  } catch (err) {
-    return false;
-  }
-}
-
-export const isRgbColor: IsColorFunction = value => {
+export function isRgbColor(value: string): boolean {
   const rgbMatches: RegExpMatchArray = value.match(
     /^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
@@ -75,9 +42,9 @@ export const isRgbColor: IsColorFunction = value => {
     }
   }
   return false;
-};
+}
 
-export const isRgbaColor: IsColorFunction = value => {
+export function isRgbaColor(value: string): boolean {
   const rgbaMatches: RegExpMatchArray | null = value.match(
     /^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
@@ -88,9 +55,9 @@ export const isRgbaColor: IsColorFunction = value => {
     }
   }
   return false;
-};
+}
 
-export const isHslColor: IsColorFunction = value => {
+export function isHslColor(value: string): boolean {
   const hslMatches: RegExpMatchArray | null = value.match(
     /^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
@@ -101,9 +68,9 @@ export const isHslColor: IsColorFunction = value => {
     }
   }
   return false;
-};
+}
 
-export const isHslaColor: IsColorFunction = value => {
+export function isHslaColor(value: string): boolean {
   const hslaMatches: RegExpMatchArray | null = value.match(
     /^hsla\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
@@ -119,9 +86,9 @@ export const isHslaColor: IsColorFunction = value => {
     }
   }
   return false;
-};
+}
 
-export const isHwbColor: IsColorFunction = value => {
+export function isHwbColor(value: string): boolean {
   const hwbMatches: RegExpMatchArray | null = value.match(
     /^hwb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
@@ -143,11 +110,11 @@ export const isHwbColor: IsColorFunction = value => {
     }
   }
   return false;
-};
+}
 
 export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | 'named' | 'hwb' | null;
 export function cssColorFormat(value: string): ColorType {
-  const colorTypeCheckers: [IsColorFunction, ColorType][] = [
+  const colorTypeCheckers: [(s: string) => boolean, ColorType][] = [
     [isHexColor, 'hex'],
     [isHslaColor, 'hsla'],
     [isHslColor, 'hsl'],
