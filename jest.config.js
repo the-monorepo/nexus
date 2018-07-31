@@ -5,6 +5,7 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: './coverage/',
   collectCoverageFrom: ['src/**/*.ts'],
+  resetMocks: true,
   transform: {
     '^.+\\.ts$': 'babel-jest',
   },
