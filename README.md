@@ -7,22 +7,26 @@
 A set of functions that check whether a string matches a particular color format.
 
 ```js
-import { isCssColor } from 'css-color-checker';
+import { cssColorFormat } from 'css-color-checker';
 
-// Valid CSS color values return true
-isCssColor('#FFF'); // true
-isCssColor('#FFFFFF'); // true
-isCssColor('#FFFFFFFF'); // true
-isCssColor('rgb(255,255,255)'); // true
-isCssColor('rgba(255,255,255,1)'); // true
-isCssColor('hsl(0,0%,0%)'); // true
-isCssColor('hsla(255,255,255,0.1)'); // true
-isCssColor('hwb(360,0%,0%)'); // true
-isCssColor('red'); // true
+if (cssColorFormat('#FFF')) {
+  console.log("It's a color!");
+}
 
-// Everything else returns false
-isCssColor('Not a color'); // false
-isCssColor('#F'); // false
+// Valid CSS color values return a string
+cssColorFormat('#FFF'); // Returns 'hex'
+cssColorFormat('#FFFFFF'); // Returns 'hex'
+cssColorFormat('#FFFFFFFF'); // Returns 'hex'
+cssColorFormat('rgb(255,255,255)'); // Returns 'rgb'
+cssColorFormat('rgba(255,255,255,1)'); // Returns 'rgba'
+cssColorFormat('hsl(0,0%,0%)'); // Returns 'hsl'
+cssColorFormat('hsla(255,255,255,0.1)'); // Returns 'hsla'
+cssColorFormat('hwb(360,0%,0%)'); // Returns 'hwb'
+cssColorFormat('red'); // Returns 'red'
+
+// Everything else return null
+cssColorFormat('Not a color'); // false
+cssColorFormat('#F'); // false
 ```
 
 

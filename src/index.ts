@@ -126,7 +126,7 @@ export const isHwbColor: IsColorFunction = value => {
 };
 
 export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | 'named' | 'hwb' | null;
-export function isCssColor(value: string): ColorType {
+export function cssColorFormat(value: string): ColorType {
   const colorTypeCheckers: [IsColorFunction, ColorType][] = [
     [isHexColor, 'hex'],
     [isHslaColor, 'hsla'],
@@ -142,4 +142,12 @@ export function isCssColor(value: string): ColorType {
     }
   }
   return null;
+}
+
+export function isCssColor(value: string): boolean {
+  if (cssColorFormat(value)) {
+    return true;
+  } else {
+    return false;
+  }
 }

@@ -1,8 +1,8 @@
 import { testColorTypeFunction } from './helpers/test-function';
 import { inputs } from './inputs/suites';
-import { isCssColor } from '../src/index';
+import { cssColorFormat } from '../src/index';
 testColorTypeFunction(
   'Css color',
-  isCssColor,
+  cssColorFormat,
   ...Object.keys(inputs).map(key => [key, inputs[key], key]),
 );
