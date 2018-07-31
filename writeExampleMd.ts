@@ -7,6 +7,7 @@ import {
   isHslaColor,
   isColorName,
   isHwbColor,
+  cssColorFormat,
   isCssColor,
 } from './src/index';
 import { inputs } from './tests/inputs/suites';
@@ -40,14 +41,20 @@ function colorMatcherExamples(title, isColorFunction, inputSuite: TestInputs) {
 function genExampleMdString() {
   let md = '# Examples\n';
   md += '\n';
-  md += `## ${isCssColor.name}`;
+  md += `## ${cssColorFormat.name}\n`;
   md += '\n';
   md +=
-    '`isCssColor` will return true for any input that returns true in the functions below.\n';
+    '`cssColorFormat` will return a string representing the color type for any input that returns true in the functions below and null for everything else.\n';
   md +=
-    "E.g. `isCssColor('#FFFFFF')` and `isCssColor('rgb(255,255,255)')` will both return true\n";
+    "E.g. `cssColorFormat('#FFFFFF')` returns 'hex' and `cssColorFormat('rgb(255,255,255)')` returns 'rgb', `cssColorFormat('bleh')` returns null.\n";
   md += '\n';
   // TODO: Pretty much copy pasted from tests. Should refactor for better code reuse.
+  md += `## ${isCssColor.name}\n`;
+  md += '\n';
+  md +=
+    'Exactly the same as `cssColorFormat` except, where `cssColorFormat` returns a `string`, `isCssColor` returns `true` and where `cssColorFormat` returns `null`, `isCssColor` returns `false`';
+  md += '\n';
+
   md += colorMatcherExamples('Hex', isHexColor, inputs.hex);
   md += colorMatcherExamples('rgb(...)', isRgbColor, inputs.rgb);
   md += colorMatcherExamples('rgba(...)', isRgbaColor, inputs.rgba);

@@ -1,9 +1,13 @@
 # Examples
 
-## isCssColor
-`isCssColor` will return true for any input that returns true in the functions below.
-E.g. `isCssColor('#FFFFFF')` and `isCssColor('rgb(255,255,255)')` will both return true
+## cssColorFormat
 
+`cssColorFormat` will return a string representing the color type for any input that returns true in the functions below and null for everything else.
+E.g. `cssColorFormat('#FFFFFF')` returns 'hex' and `cssColorFormat('rgb(255,255,255)')` returns 'rgb', `cssColorFormat('bleh')` returns null.
+
+## isCssColor
+
+Exactly the same as `cssColorFormat` except, where `cssColorFormat` returns a `string`, `isCssColor` returns `true` and where `cssColorFormat` returns `null`, `isCssColor` returns `false`
 ## Hex colors
 
 ### Inputs that return true
