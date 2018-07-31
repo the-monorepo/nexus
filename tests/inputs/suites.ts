@@ -12,6 +12,7 @@ function testInputs(valid: any[], invalid: any[]): TestInputs {
 }
 
 const rgbFormat: ParameterFormat = {
+  noLetters: true,
   min: {
     value: 0,
     inclusive: true,
@@ -24,6 +25,7 @@ const rgbFormat: ParameterFormat = {
 };
 
 const degreesFormat: ParameterFormat = {
+  noLetters: true,
   min: {
     value: 0,
     inclusive: true,
@@ -36,6 +38,7 @@ const degreesFormat: ParameterFormat = {
 };
 
 const alphaFormat: ParameterFormat = {
+  noLetters: true,
   min: {
     value: 0,
     inclusive: true,
@@ -48,6 +51,7 @@ const alphaFormat: ParameterFormat = {
 };
 
 const standardPercentage: ParameterFormat = {
+  noLetters: true,
   min: {
     value: 0,
     inclusive: true,
@@ -69,6 +73,8 @@ const hwb: TestInputs = testInputs(
     'hwb(359.99,99.99%,0.01%)',
   ],
   [
+    'hwb(e,0%,0%)',
+    'hwb(0,e%,0%)',
     'hwb(0,101%,0%)',
     'hwb(-1,0%,0%)',
     'hwb(0,0%,101%)',

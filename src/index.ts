@@ -1,8 +1,12 @@
 import cssColors from 'css-color-names';
 const cssColorNames = Object.keys(cssColors);
 function isValidRgbVal(magnitudeString: string): boolean {
-  const magnitude: number = Number.parseFloat(magnitudeString);
-  return magnitude >= 0 && magnitude <= 255;
+  try {
+    const magnitude: number = Number.parseFloat(magnitudeString);
+    return magnitude >= 0 && magnitude <= 255;
+  } catch (err) {
+    return false;
+  }
 }
 
 function isValidRgbValues(...values: string[]): boolean {
@@ -15,8 +19,12 @@ function isValidRgbValues(...values: string[]): boolean {
 }
 
 function isValidAlphaValue(magnitudeString: string): boolean {
-  const magnitude: number = Number.parseFloat(magnitudeString);
-  return magnitude <= 1 && magnitude >= 0;
+  try {
+    const magnitude: number = Number.parseFloat(magnitudeString);
+    return magnitude <= 1 && magnitude >= 0;
+  } catch (err) {
+    return false;
+  }
 }
 
 export type IsColorFunction = (aString: string) => boolean;
@@ -35,8 +43,12 @@ export const isHexColor: IsColorFunction = value => {
 };
 
 export function isValidPercentageString(magnitudeString: string): boolean {
-  const magnitude: number = Number.parseFloat(magnitudeString);
-  return isValidPercentage(magnitude);
+  try {
+    const magnitude: number = Number.parseFloat(magnitudeString);
+    return isValidPercentage(magnitude);
+  } catch (err) {
+    return false;
+  }
 }
 
 export function isValidPercentage(magnitude: number): boolean {
@@ -44,8 +56,12 @@ export function isValidPercentage(magnitude: number): boolean {
 }
 
 export function isValidHue(valueString: string): boolean {
-  const value: number = Number.parseFloat(valueString);
-  return value >= 0 && value <= 360;
+  try {
+    const value: number = Number.parseFloat(valueString);
+    return value >= 0 && value <= 360;
+  } catch (err) {
+    return false;
+  }
 }
 
 export const isRgbColor: IsColorFunction = value => {
@@ -111,15 +127,19 @@ export const isHwbColor: IsColorFunction = value => {
   );
   if (hwbMatches && hwbMatches.length >= 4) {
     const [hwb, h, w, b] = hwbMatches;
-    const whiteness: number = Number.parseFloat(w);
-    const blackness: number = Number.parseFloat(b);
-    if (
-      isValidHue(h) &&
-      isValidPercentage(whiteness + blackness) &&
-      isValidPercentage(whiteness) &&
-      isValidPercentage(blackness)
-    ) {
-      return true;
+    try {
+      const whiteness: number = Number.parseFloat(w);
+      const blackness: number = Number.parseFloat(b);
+      if (
+        isValidHue(h) &&
+        isValidPercentage(whiteness + blackness) &&
+        isValidPercentage(whiteness) &&
+        isValidPercentage(blackness)
+      ) {
+        return true;
+      }
+    } catch (err) {
+      return false;
     }
   }
   return false;

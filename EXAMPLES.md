@@ -70,6 +70,7 @@ isRgbColor("rgb(255,255,255  )"); // true
 ```js
 isRgbColor("rgb(-0.001,-0.001,-0.001)"); // false
 isRgbColor("rgb(255.001,255.001,255.001)"); // false
+isRgbColor("rgb(e,e,e)"); // false
 isRgbColor("rgb0,0,0"); // false
 isRgbColor("(255,255,255)"); // false
 isRgbColor("(0,0,0)"); // false
@@ -113,6 +114,7 @@ isRgbaColor("rgba(255,255,255,1  )"); // true
 ```js
 isRgbaColor("rgba(-0.001,-0.001,-0.001,-0.001)"); // false
 isRgbaColor("rgba(255.001,255.001,255.001,1.001)"); // false
+isRgbaColor("rgba(e,e,e,e)"); // false
 isRgbaColor("rgba0,0,0,0"); // false
 isRgbaColor("(255,255,255,1)"); // false
 isRgbaColor("(0,0,0,0)"); // false
@@ -151,6 +153,7 @@ isHslColor("hsl(360,100%,100%  )"); // true
 ```js
 isHslColor("hsl(-0.001,-0.001%,-0.001%)"); // false
 isHslColor("hsl(360.001,100.001%,100.001%)"); // false
+isHslColor("hsl(e,e%,e%)"); // false
 isHslColor("hsl0,0%,0%"); // false
 isHslColor("(360,100%,100%)"); // false
 isHslColor("(0,0%,0%)"); // false
@@ -194,6 +197,7 @@ isHslaColor("hsla(360,100%,100%,1  )"); // true
 ```js
 isHslaColor("hsla(-0.001,-0.001%,-0.001%,-0.001)"); // false
 isHslaColor("hsla(360.001,100.001%,100.001%,1.001)"); // false
+isHslaColor("hsla(e,e%,e%,e)"); // false
 isHslaColor("hsla0,0%,0%,0"); // false
 isHslaColor("(360,100%,100%,1)"); // false
 isHslaColor("(0,0%,0%,0)"); // false
@@ -218,6 +222,8 @@ isHwbColor("hwb(359.99,99.99%,0.01%)"); // true
 
 ### Inputs that return true
 ```js
+isHwbColor("hwb(e,0%,0%)"); // false
+isHwbColor("hwb(0,e%,0%)"); // false
 isHwbColor("hwb(0,101%,0%)"); // false
 isHwbColor("hwb(-1,0%,0%)"); // false
 isHwbColor("hwb(0,0%,101%)"); // false
