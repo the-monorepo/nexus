@@ -1,5 +1,5 @@
 import { createSchema } from '../../src/index';
-import { extractTypeInfo, DefaultTypeName } from '@by-example/types';
+import { extractTypeInfo } from '@by-example/types';
 import SwaggerParser from 'swagger-parser';
 function testWithValidation(name, callback) {
   it(name, async () => {
