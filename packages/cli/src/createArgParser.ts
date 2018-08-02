@@ -9,8 +9,6 @@ export function createArgParser() {
   return program
     .version(packageJson.version)
     .name(name)
-    .command('test')
-    .action(() => console.log('test'))
     .command(`use <conversion-module> generrate`)
     .action(moduleName => {
       console.log('test');
@@ -44,6 +42,5 @@ export function createArgParser() {
         throw new Error(`${finalModuleName} does not provide fromTypes or fromExamples`);
       }
       process.stdout.write(JSON.stringify(output, undefined, 2));
-    })
-    .parse(process.argv);
+    });
 }

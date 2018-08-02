@@ -18,15 +18,7 @@ import {
   ObjectType,
 } from './type-info-types';
 import { typeTest, TypeTest } from './TypeTest';
-
-export function allAreIntegers(values: any[]): boolean {
-  for (const value of values) {
-    if (value && !Number.isInteger(value)) {
-      return false;
-    }
-  }
-  return true;
-}
+import { allAreIntegers } from './util';
 
 export function defaultTypeTests(
   values,
@@ -48,7 +40,9 @@ export function defaultTypeTests(
     typeTest(isNumber, () => {
       const type: NumberType = {
         name: DefaultTypeName.number,
-        format: allAreIntegers(values) ? NumberFormat.integer : NumberFormat.none,
+        format: allAreIntegers(values.filter(isNumber))
+          ? NumberFormat.integer
+          : NumberFormat.none,
       };
       return type;
     }),
