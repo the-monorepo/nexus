@@ -51,7 +51,10 @@ function mapType(type: Type, typeInfo: TypeInfo, options) {
       return { type: 'string' };
     },
     array: (type: ArrayType) => {
-      return { type: 'array' };
+      return {
+        type: 'array',
+        items: createSchema(type.items, options),
+      };
     },
     number: (type: NumberType) => {
       if (type.format === NumberFormat.integer) {

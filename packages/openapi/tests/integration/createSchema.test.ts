@@ -115,4 +115,14 @@ describe('createSchema', () => {
       },
     });
   });
+  it('array of strings', () => {
+    const typeInfo = extractTypeInfo([['test', 'string']]);
+    const schema = createSchema(typeInfo);
+    expect(schema).toEqual({
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    });
+  });
 });
