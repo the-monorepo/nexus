@@ -9,7 +9,9 @@ export function createArgParser() {
   return program
     .version(packageJson.version)
     .name(name)
-    .command(`<module>`)
+    .command('test')
+    .action(() => console.log('test'))
+    .command(`use <conversion-module> generrate`)
     .action(moduleName => {
       console.log('test');
       const prefixes = ['@by-example/', 'by-example-', ''];
@@ -22,6 +24,7 @@ export function createArgParser() {
         aModule = require(finalModuleName);
         i++;
       }
+      console.info(`Using ${finalModuleName}...`);
       if (!aModule) {
         throw new Error(
           `Could not find module using any of the following: ${compiledModuleNames.join(
@@ -41,5 +44,6 @@ export function createArgParser() {
         throw new Error(`${finalModuleName} does not provide fromTypes or fromExamples`);
       }
       process.stdout.write(JSON.stringify(output, undefined, 2));
-    });
+    })
+    .parse(process.argv);
 }

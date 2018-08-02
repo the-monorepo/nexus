@@ -1,7 +1,7 @@
-import packageJson from '../package.json';
 import { createArgParser } from './createArgParser';
 
 export function run() {
-  const parser = createArgParser();
-  parser.parse(process.argv);
+  const parser = createArgParser(); /*
+  const test = parser.parse(process.argv);
+  console.log(test);*/
 }
