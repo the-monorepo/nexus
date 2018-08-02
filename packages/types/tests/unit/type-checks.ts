@@ -19,6 +19,8 @@ const typeValues = {
   number: [1, -1, 0, 2.32],
   function: [() => {}, function() {}, function namedFunction() {}],
   class: [class {}, class NamedClass {}],
+  null: [null],
+  undefined: [undefined],
 };
 function testTypeCheck(name, validValues, typeCheck) {
   describe(name, () => {

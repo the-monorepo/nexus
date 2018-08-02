@@ -28,6 +28,7 @@ describe('createSchema', () => {
       const typeInfo = extractTypeInfo([
         {
           string: 'string',
+          array: ['string', 1],
           required: 1,
           float: 1.2,
           nullableBoolean: null,
@@ -44,6 +45,12 @@ describe('createSchema', () => {
         properties: {
           string: { type: 'string' },
           required: { type: 'integer' },
+          array: {
+            type: 'array',
+            items: {
+              oneOf: [{ type: 'string' }, { type: 'integer' }],
+            },
+          },
           float: { type: 'number' },
           nullableBoolean: { type: 'boolean', nullable: true },
         },

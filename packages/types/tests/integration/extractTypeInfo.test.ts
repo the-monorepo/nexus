@@ -103,7 +103,7 @@ describe(extractTypeInfo.name, () => {
     expect(typeInfo).toEqual({
       types: [
         { name: DefaultTypeName.string },
-        { name: DefaultTypeName.number, format: NumberFormat.none },
+        { name: DefaultTypeName.number, format: NumberFormat.integer },
         {
           name: DefaultTypeName.object,
           fields: {},
@@ -124,7 +124,7 @@ describe(extractTypeInfo.name, () => {
           items: {
             types: [
               { name: DefaultTypeName.string },
-              { name: DefaultTypeName.number, format: NumberFormat.none },
+              { name: DefaultTypeName.number, format: NumberFormat.integer },
             ],
             nullCount: 1,
             undefinedCount: 0,

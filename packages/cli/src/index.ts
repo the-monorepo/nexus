@@ -1,7 +1,7 @@
 import { createArgParser } from './createArgParser';
 
 export function run() {
-  const parser = createArgParser(); /*
+  const parser = createArgParser();
   const test = parser.parse(process.argv);
-  console.log(test);*/
+  console.log(test);
 }
