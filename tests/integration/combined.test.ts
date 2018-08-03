@@ -1,52 +1,9 @@
-import { extractTypeInfo } from '../../src/index';
-import { DefaultTypeName } from '../../src/DefaultTypeName';
-import { NumberFormat } from '../../src/type-info-types';
-describe(extractTypeInfo.name, () => {
-  it('function', () => {
-    const typeInfo = extractTypeInfo([() => {}]);
-    expect(typeInfo).toEqual({
-      types: [{ name: DefaultTypeName.function }],
-      nullCount: 0,
-      undefinedCount: 0,
-    });
-  });
-  it('boolean', () => {
-    const typeInfo = extractTypeInfo([true]);
-    expect(typeInfo).toEqual({
-      types: [{ name: DefaultTypeName.boolean }],
-      nullCount: 0,
-      undefinedCount: 0,
-    });
-  });
-  it('string', () => {
-    const typeInfo = extractTypeInfo(['']);
-    expect(typeInfo).toEqual({
-      types: [
-        {
-          name: DefaultTypeName.string,
-        },
-      ],
-      nullCount: 0,
-      undefinedCount: 0,
-    });
-  });
-
-  it('integer', () => {
-    const typeInfo = extractTypeInfo([1]);
-    expect(typeInfo).toEqual({
-      types: [
-        {
-          name: DefaultTypeName.number,
-          format: NumberFormat.integer,
-        },
-      ],
-      nullCount: 0,
-      undefinedCount: 0,
-    });
-  });
-
+import { examples } from '../util/from-examples';
+import * as openapi from '@by-example/openapi';
+import { extractTypeInfo, DefaultTypeName, NumberFormat } from '@by-example/types';
+describe('combined', () => {
   it('2 objects with all fields', () => {
-    const examples = [
+    examples([
       {
         int: 1,
         string: '',
@@ -55,9 +12,7 @@ describe(extractTypeInfo.name, () => {
         int: 1,
         string: '',
       },
-    ];
-    const typeInfo = extractTypeInfo(examples);
-    expect(typeInfo).toEqual({
+    ]).typeInfo({
       types: [
         {
           name: DefaultTypeName.object,
@@ -81,16 +36,14 @@ describe(extractTypeInfo.name, () => {
   });
 
   it('2 objects with different fields', () => {
-    const examples = [
+    examples([
       {
         int: -1,
       },
       {
         string: 'a',
       },
-    ];
-    const typeInfo = extractTypeInfo(examples);
-    expect(typeInfo).toEqual({
+    ]).typeInfo({
       types: [
         {
           name: DefaultTypeName.object,
@@ -131,9 +84,7 @@ describe(extractTypeInfo.name, () => {
   });
 
   it('arrays', () => {
-    const examples = [[1, 'string', null]];
-    const typeInfo = extractTypeInfo(examples);
-    expect(typeInfo).toEqual({
+    examples([[1, 'string', null]]).typeInfo({
       types: [
         {
           name: DefaultTypeName.array,

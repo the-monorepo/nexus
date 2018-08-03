@@ -6,23 +6,8 @@ import {
   isFunction,
   isNumber,
 } from '../../src/type-checks';
-const typeValues = {
-  boolean: [true, false],
-  string: ['true', 'false', ''],
-  object: [
-    {},
-    {
-      test: 'test',
-    },
-  ],
-  array: [[], ['test'], [{}]],
-  number: [1, -1, 0, 2.32],
-  function: [() => {}, function() {}, function namedFunction() {}],
-  class: [class {}, class NamedClass {}],
-  null: [null],
-  undefined: [undefined],
-};
-function testTypeCheck(name, validValues, typeCheck) {
+import { typeValues } from '../inputs/typeValues';
+function testTypeCheckWithTypeValues(name, validValues, typeCheck) {
   describe(name, () => {
     validValues.forEach(key =>
       describe(`${key} (valid)`, () => {
@@ -50,10 +35,10 @@ function testTypeCheck(name, validValues, typeCheck) {
  * Checking to see if each individual type check is working as expected
  */
 describe('type checks', () => {
-  testTypeCheck('isBoolean', ['boolean'], isBoolean);
-  testTypeCheck('isObject', ['object'], isObject);
-  testTypeCheck('isArray', ['array'], isArray);
-  testTypeCheck('isString', ['string'], isString);
-  testTypeCheck('isFunction', ['function', 'class'], isFunction);
-  testTypeCheck('isNumber', ['number'], isNumber);
+  testTypeCheckWithTypeValues('isBoolean', ['boolean'], isBoolean);
+  testTypeCheckWithTypeValues('isObject', ['object'], isObject);
+  testTypeCheckWithTypeValues('isArray', ['array'], isArray);
+  testTypeCheckWithTypeValues('isString', ['string'], isString);
+  testTypeCheckWithTypeValues('isFunction', ['function', 'class'], isFunction);
+  testTypeCheckWithTypeValues('isNumber', ['number'], isNumber);
 });
