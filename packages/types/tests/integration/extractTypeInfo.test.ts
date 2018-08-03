@@ -2,6 +2,22 @@ import { extractTypeInfo } from '../../src/index';
 import { DefaultTypeName } from '../../src/DefaultTypeName';
 import { NumberFormat } from '../../src/type-info-types';
 describe(extractTypeInfo.name, () => {
+  it('function', () => {
+    const typeInfo = extractTypeInfo([() => {}]);
+    expect(typeInfo).toEqual({
+      types: [{ name: DefaultTypeName.function }],
+      nullCount: 0,
+      undefinedCount: 0,
+    });
+  });
+  it('boolean', () => {
+    const typeInfo = extractTypeInfo([true]);
+    expect(typeInfo).toEqual({
+      types: [{ name: DefaultTypeName.boolean }],
+      nullCount: 0,
+      undefinedCount: 0,
+    });
+  });
   it('string', () => {
     const typeInfo = extractTypeInfo(['']);
     expect(typeInfo).toEqual({
