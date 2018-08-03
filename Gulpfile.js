@@ -5,6 +5,7 @@ const colors = require('colors');
 const { join, sep, resolve } = require('path');
 
 const gulp = require('gulp');
+const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
 const newer = require('gulp-newer');
 const gulpWatch = require('gulp-watch');
@@ -44,8 +45,10 @@ function buildBabel() {
   return stream
     .pipe(newer({ dest: base, map: swapSrcWithLib }))
     .pipe(compilationLogger())
+    .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(rename(file => resolve(file.base, swapSrcWithLib(file.relative))))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(base));
 }
 
