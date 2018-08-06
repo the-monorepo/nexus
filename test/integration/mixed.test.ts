@@ -1,6 +1,6 @@
 import { examples } from '../util/from-examples';
-import * as openapi from '@by-example/openapi';
-import { extractTypeInfo, DefaultTypeName, NumberFormat } from '@by-example/types';
+import * as openapi from '../../packages/openapi';
+import { extractTypeInfo, DefaultTypeName, NumberFormat } from '../../packages/types';
 describe('mixed root types', () => {
   it('examples with different root values', () => {
     const examples = [{}, 1, ''];

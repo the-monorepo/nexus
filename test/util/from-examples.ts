@@ -1,6 +1,6 @@
-import { extractTypeInfo } from '@by-example/types';
-import { createSchema } from '@by-example/openapi';
-import { knobify } from '@by-example/storybook-addon-knobify';
+import { extractTypeInfo } from '../../packages/types';
+import { createSchema } from '../../packages/openapi';
+import { knobify } from '../../packages/storybook-addon-knobify';
 export function examples(examples: any[]) {
   const typeInfo = extractTypeInfo(examples);
   return {
