@@ -1,21 +1,21 @@
 import { examples } from '../util/from-examples';
 import { DefaultTypeName, NumberFormat } from '../../packages/types';
 describe('single types', () => {
-  it('function', () => {
+  describe('function', () => {
     examples([() => {}]).typeInfo({
       types: [{ name: DefaultTypeName.function }],
       nullCount: 0,
       undefinedCount: 0,
     });
   });
-  it('boolean', () => {
+  describe('boolean', () => {
     examples([true]).typeInfo({
       types: [{ name: DefaultTypeName.boolean }],
       nullCount: 0,
       undefinedCount: 0,
     });
   });
-  it('string', () => {
+  describe('string', () => {
     examples(['']).typeInfo({
       types: [
         {
@@ -27,7 +27,7 @@ describe('single types', () => {
     });
   });
 
-  it('integer', () => {
+  describe('integer', () => {
     examples([1]).typeInfo({
       types: [
         {
