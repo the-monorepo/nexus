@@ -1,5 +1,5 @@
 import { examples } from '../util/from-examples';
-import { DefaultTypeName, NumberFormat } from '@by-example/types';
+import { DefaultTypeName, NumberFormat } from '../../packages/types';
 describe('objects', () => {
   it('2 objects with all fields', () => {
     examples([

@@ -1,5 +1,5 @@
 import { examples } from '../util/from-examples';
-import { DefaultTypeName, NumberFormat } from '@by-example/types';
+import { DefaultTypeName, NumberFormat } from '../../packages/types';
 describe('single types', () => {
   it('function', () => {
     examples([() => {}]).typeInfo({

@@ -10,21 +10,5 @@ module.exports = {
       },
     ],
   ],
-  plugins: [
-    [
-      'babel-plugin-istanbul',
-      {
-        include: ['src/**'],
-        exclude: [
-          'lib/**',
-          'coverage/**',
-          'tests/**',
-          'test{,-*}.{j,t}s',
-          '**/*.test.{j,t}s',
-          '**/__tests__/**',
-          '**/node_modules/**',
-        ],
-      },
-    ],
-  ],
+  plugins: [['babel-plugin-istanbul']],
 };

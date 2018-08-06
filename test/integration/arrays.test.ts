@@ -1,5 +1,5 @@
 import { examples } from '../util/from-examples';
-import { DefaultTypeName, NumberFormat } from '@by-example/types';
+import { DefaultTypeName, NumberFormat } from '../../packages/types';
 describe('arrays', () => {
   it('different types in seperate arrays', () => {
     examples([[1], ['string']]).typeInfo({
