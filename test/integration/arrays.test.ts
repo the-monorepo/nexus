@@ -1,7 +1,7 @@
 import { examples } from '../util/from-examples';
 import { DefaultTypeName, NumberFormat } from '../../packages/types';
 describe('arrays', () => {
-  it('different types in seperate arrays', () => {
+  describe('different types in seperate arrays', () => {
     examples([[1], ['string']]).typeInfo({
       types: [
         {
@@ -20,7 +20,7 @@ describe('arrays', () => {
       undefinedCount: 0,
     });
   });
-  it('string elements', () => {
+  describe('string elements', () => {
     examples([['', '1', 'undefined', 'null']]).typeInfo({
       types: [
         {
@@ -36,7 +36,7 @@ describe('arrays', () => {
       nullCount: 0,
     });
   });
-  it('different element types', () => {
+  describe('different element types', () => {
     examples([[1, 'string', null]]).typeInfo({
       types: [
         {

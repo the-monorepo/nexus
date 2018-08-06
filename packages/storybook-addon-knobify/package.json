@@ -10,6 +10,7 @@
     "test": "getstorybook"
   },
   "peerDependencies": {
+    "@storybook/addon-actions": "^3.4.10",
     "@storybook/addon-knobs": "^3.4.8"
   },
   "dependencies": {

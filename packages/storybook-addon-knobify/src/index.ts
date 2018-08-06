@@ -1,5 +1,6 @@
 // TODO: Should probably mock @storybook/addon-knobs
 import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
+import { action } from '@storybook/addon-actions';
 import { ObjectType, DefaultTypeName, TypeInfo } from '@by-example/types';
 import { isCssColor } from 'css-color-checker';
 import PropTypes from 'prop-types';
@@ -54,6 +55,9 @@ function knobBasedOffExamples(value, typeInfo: TypeInfo) {
       case DefaultTypeName.array:
         knob = array(value);
         break;
+      case DefaultTypeName.function:
+        knob = action(value);
+        break;
       case DefaultTypeName.object:
       default:
         knob = object(value);
@@ -81,6 +85,7 @@ export function knobify(
   examples: any[],
   typeInfo: TypeInfo,
   propTypes?: { [key: string]: any },
+  options: any = {},
 ) {
   const { types, nullCount, undefinedCount } = typeInfo;
   if (types.length <= 0) {
