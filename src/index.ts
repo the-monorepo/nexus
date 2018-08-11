@@ -11,7 +11,7 @@ type Input =
 
 export function mockFunctions(value: Input, options: Options = {}) {
   const { onMockedFunction = () => {} } = options;
-  const mockedObject = value.constructor();
+  const mockedObject = value.constructor ? value.constructor() : {};
   Object.keys(value).forEach(key => {
     const realValue = value[key];
     if (typeof realValue === 'function') {
