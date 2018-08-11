@@ -85,16 +85,27 @@ describe('can mock the function', () => {
   });
 });
 
-it('onMockedFunction works', () => {
-  const objectWithFunctions = {
-    1: () => -202,
-    2: () => 10,
-  };
-  const mockedObject = mockFunctions(objectWithFunctions, {
-    // Return the same exactly the same thing
-    onMockedFunction: (fn, ogVal) => fn.mockImplementation(() => ogVal()),
+describe('onMockedFunction', () => {
+  it('works with no parameters', () => {
+    const objectWithFunctions = {
+      0: () => -202,
+      1: () => 10,
+    };
+    const mockedObject = mockFunctions(objectWithFunctions, {
+      // Return the same exactly the same thing
+      onMockedFunction: (fn, ogFn) => fn.mockImplementation(() => ogFn()),
+    });
+    Object.keys(objectWithFunctions).forEach(key => {
+      expect(objectWithFunctions[key]()).toBe(mockedObject[key]());
+    });
   });
-  Object.keys(objectWithFunctions).forEach(key => {
-    expect(objectWithFunctions[key]()).toBe(mockedObject[key]());
+  it('works with parameters', () => {
+    const arrayWithFunctions = [val => val];
+    const mockedArray = mockFunctions(arrayWithFunctions, {
+      onMockedFunction: (fn, ogFn) => fn.mockImplementation((...other) => ogFn(...other)),
+    });
+    Object.keys(mockedArray).keys(key => {
+      expect(mockedArray[key](1337)).toBe(arrayWithFunctions[key](1337));
+    });
   });
 });
