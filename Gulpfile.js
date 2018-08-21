@@ -12,6 +12,8 @@ const gulpWatch = require('gulp-watch');
 
 const through = require('through2');
 
+const { genReadmeFromPackageDir } = require('@by-example/gen-readmes');
+
 const packagesDirName = 'packages';
 
 function swapSrcWithLib(srcPath) {
@@ -21,29 +23,32 @@ function swapSrcWithLib(srcPath) {
 }
 
 function rename(fn) {
-  return through.obj(function(file, enc, callback) {
+  return through.obj((file, enc, callback) => {
     file.path = fn(file);
     callback(null, file);
   });
 }
-
-function globFromPackagesDirName(dirName) {
-  return `./${dirName}/*/src/**/*.{js,jsx,ts,tsx}`;
+function packagesGlobFromPackagesDirName(dirName) {
+  return `./${dirName}/*`;
 }
 
-function compilationLogger(rollup) {
+function sourceGlobFromPackagesDirName(dirName) {
+  return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
+}
+
+function simpleFileMessageLogger(verb) {
   return through.obj(function(file, enc, callback) {
-    console.log(`Compiling '${file.relative.cyan}'`);
+    console.log(`${verb} '${file.relative.cyan}'`);
     callback(null, file);
   });
 }
 
 function buildBabel() {
   const base = join(__dirname, packagesDirName);
-  const stream = gulp.src(globFromPackagesDirName(packagesDirName), { base });
+  const stream = gulp.src(sourceGlobFromPackagesDirName(packagesDirName), { base });
   return stream
     .pipe(newer({ dest: base, map: swapSrcWithLib }))
-    .pipe(compilationLogger())
+    .pipe(simpleFileMessageLogger('Compiling'))
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(rename(file => resolve(file.base, swapSrcWithLib(file.relative))))
@@ -51,15 +56,31 @@ function buildBabel() {
     .pipe(gulp.dest(base));
 }
 
-gulp.task('build', () => {
-  return buildBabel();
+gulp.task('transpile', buildBabel);
+
+gulp.task('gen-readmes', function genReadmes() {
+  const base = join(__dirname, packagesDirName);
+  return gulp
+    .src(packagesGlobFromPackagesDirName(packagesDirName), { base })
+    .pipe(simpleFileMessageLogger('Generating readme for'))
+    .pipe(
+      through.obj((file, enc, callback) => {
+        const readmeText = genReadmeFromPackageDir(file.path, { isDevPackage: false });
+        file.contents = new Buffer(readmeText);
+        file.path = join(file.path, 'README.md');
+        callback(null, file);
+      }),
+    )
+    .pipe(gulp.dest(base));
 });
+
+gulp.task('build', gulp.series('transpile', 'gen-readmes'));
 
 gulp.task(
   'watch',
   gulp.series('build', function watch() {
     gulpWatch(
-      [globFromPackagesDirName(packagesDirName)],
+      [sourceGlobFromPackagesDirName(packagesDirName)],
       { debounceDelay: 200 },
       gulp.task('build'),
     );

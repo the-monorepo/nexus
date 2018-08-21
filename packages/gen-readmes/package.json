@@ -1,0 +1,14 @@
+{
+  "name": "@by-example/gen-readmes",
+  "description": "Utility for generating readmes",
+  "version": "1.0.0-alpha.0",
+  "private": false,
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./src/index.ts",
+  "devPackage": true,
+  "dependencies": {
+    "@types/mz": "^0.0.32",
+    "mz": "^2.7.0"
+  }
+}

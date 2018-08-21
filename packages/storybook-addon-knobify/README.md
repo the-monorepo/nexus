@@ -1,4 +1,6 @@
-# Add knobs and actions to props
+# Storybook Addon-Knobify
+
+Generate Storybook knobs based off examples and prop types
 
 ## Installation
 
@@ -6,8 +8,3 @@
 or
 `yarn add @by-example/storybook-addon-knobify`
 
-## How to use it
-```js
-import React, { Component } from 'react';
-const propsList = []
-```

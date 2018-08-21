@@ -1,5 +1,6 @@
 {
   "name": "@by-example/cli",
+  "description": "Use by-example packages using a CLI",
   "version": "1.0.0-alpha.0",
   "license": "MIT",
   "bin": {
@@ -11,6 +12,7 @@
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "private": false,
+  "devPackage": true,
   "dependencies": {
     "@types/node": "^10.5.4"
   }
