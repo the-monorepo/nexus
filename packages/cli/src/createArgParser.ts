@@ -2,7 +2,7 @@ import program from 'commander';
 
 import { extractTypeInfo } from '@by-example/types';
 
-import packageJson from '../package.json';
+import packageJson from '../package';
 
 export function createArgParser() {
   const name = 'by-example';
