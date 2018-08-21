@@ -10,5 +10,23 @@ module.exports = {
       },
     ],
   ],
-  plugins: [['babel-plugin-istanbul']],
+  plugins: ['babel-plugin-istanbul'],
+  overrides: [
+    {
+      test: './packages/storybook-addon-knobify/.storybook',
+      presets: [
+        '@babel/preset-react',
+        '@babel/preset-typescript',
+        [
+          '@babel/preset-env',
+          {
+            targets: {
+              browsers: ['last 2 versions'],
+            },
+          },
+        ],
+      ],
+      plugins: ['babel-plugin-istanbul'],
+    },
+  ],
 };

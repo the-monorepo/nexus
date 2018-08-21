@@ -13,7 +13,6 @@ const gulpWatch = require('gulp-watch');
 const through = require('through2');
 
 const packagesDirName = 'packages';
-const distDirName = 'dist';
 
 function swapSrcWithLib(srcPath) {
   const parts = srcPath.split(sep);

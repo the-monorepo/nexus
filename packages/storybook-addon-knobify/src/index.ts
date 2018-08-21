@@ -45,7 +45,6 @@ function knobBasedOffExamples(value, typeInfo: TypeInfo) {
         knob = boolean(value);
         break;
       case DefaultTypeName.string:
-        // TODO: Check if color
         if (isCssColor(value)) {
           knob = color(value);
         } else {
@@ -93,7 +92,7 @@ export function knobify(
   }
   if (types.length > 1) {
     throw new Error(
-      `Was expect object types only but root value of examples included [ ${types
+      `Expecting root values to be object types. Root value types included [ ${types
         .map(type => type.name)
         .join(', ')} ]`,
     );
