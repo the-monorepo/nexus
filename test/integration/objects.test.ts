@@ -90,7 +90,8 @@ describe('objects', () => {
           int: { type: 'integer' },
           string: { type: 'string' },
         },
-      });
+      })
+      .storybook([{ int: number(-1) }, { string: text('a') }]);
   });
   describe('object with every default type', () => {
     const fn = () => {};

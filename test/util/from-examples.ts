@@ -3,12 +3,12 @@ import { createSchema } from '../../packages/openapi';
 import { knobify } from '../../packages/storybook-addon-knobify';
 jest.mock('@storybook/addon-actions');
 jest.mock('@storybook/addon-knobs');
-export type ExpectOutputFunction = <T>() => T;
-export type Tester = ExpectOutputFunction & {
-  toThrowError<T>(error: Error): T;
+export type ExpectOutputFunction<T> = (expectedOutput: any, options?: any) => T;
+export type Tester<T> = ExpectOutputFunction<T> & {
+  toThrowError(error?: Error): T;
 };
 
-type Testers<T> = { [K in keyof T]: (...params: any[]) => Testers<T> };
+type Testers<T> = { [K in keyof T]: Tester<Testers<T>> };
 
 function mapToTestersObject<T>(conversionFunctionsObject: T): Testers<T> {
   const testers = {};
