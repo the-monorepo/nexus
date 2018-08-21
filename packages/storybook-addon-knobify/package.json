@@ -1,10 +1,12 @@
 {
   "name": "@by-example/storybook-addon-knobify",
+  "description": "Generate Storybook knobs based off examples and prop types",
   "version": "1.0.0-alpha.0",
   "private": false,
   "license": "MIT",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
+  "devPackage": false,
   "scripts": {
     "storybook": "start-storybook -p 3001"
   },

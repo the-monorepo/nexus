@@ -1,9 +1,11 @@
 {
   "name": "@by-example/openapi",
+  "description": "Generate OpenAPI schemas from examples",
   "version": "1.0.0-alpha.0",
   "private": false,
   "main": "./lib/index.js",
   "types": "./src/index.ts",
+  "devPackage": false,
   "devDependencies": {
     "swagger-parser": "^5.0.2"
   }
