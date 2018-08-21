@@ -159,9 +159,9 @@ describe('objects', () => {
           array: array([]),
           object: object({}),
           number: number(1.1),
-          string: text(''),
+          string: text('e'),
           boolean: boolean(true),
-          fn: action(),
+          fn: action(fn),
         },
       ]);
   });

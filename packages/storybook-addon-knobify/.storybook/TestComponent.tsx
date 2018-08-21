@@ -1,9 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 class TestComponent extends React.Component {
-  static defaultProps = {
-    defaultBoolean: true,
-  };
-
   render() {
     return (
       <div>
@@ -20,6 +17,9 @@ class TestComponent extends React.Component {
     );
   }
 }
+TestComponent.defaultProps = {
+  defaultBoolean: true,
+};
 
 TestComponent.propTypes = {
   propTypesString: PropTypes.string,
