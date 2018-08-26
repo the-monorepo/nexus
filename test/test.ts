@@ -2,9 +2,9 @@ import { mockFunctions } from '../src/index';
 
 const aObjectFunctionReturnValue = new Object();
 
-let aObjectLiteral = undefined;
-let anArrayFunctionReturnValue = undefined;
-let anArray = undefined;
+let aObjectLiteral: any = undefined;
+let anArrayFunctionReturnValue: any = undefined;
+let anArray: any = undefined;
 
 beforeEach(() => {
   anArrayFunctionReturnValue = new Object();
@@ -166,7 +166,7 @@ describe('onMockedFunction', () => {
     const mockedArray = mockFunctions(arrayWithFunctions, {
       onMockedFunction: (fn, ogFn) => fn.mockImplementation((...other) => ogFn(...other)),
     });
-    Object.keys(mockedArray).keys(key => {
+    Object.keys(mockedArray).forEach(key => {
       expect(mockedArray[key](1337)).toBe(arrayWithFunctions[key](1337));
     });
   });
