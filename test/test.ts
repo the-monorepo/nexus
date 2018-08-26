@@ -81,6 +81,11 @@ describe('only mocks functions', () => {
 });
 
 describe('can mock recursively', () => {
+  it('Infinitely deep object', () => {
+    const anObject = {};
+    anObject['itself'] = anObject;
+    mockFunctions(anObject, { recursive: true });
+  });
   it('with {...}', () => {
     const mockedObject = mockFunctions(
       {
