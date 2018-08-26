@@ -1,32 +1,40 @@
-interface Options {
+export interface Options {
   recursive?: boolean;
   onMockedFunction?: (mockedFunction, originalValue) => any;
 }
 
-type MockedObject<T> = { [P in keyof T]: any };
+export type Mocked<T> = { [P in keyof T]: any };
 
-function mockValue<T>(
+function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
+  const { onMockedFunction = () => {} } = options;
+  if (typeof realValue === 'function') {
+    const mockedFn = jest.fn();
+    onMockedFunction(mockedFn, realValue);
+    return mockedFn;
+  } else if (typeof realValue === 'object') {
+    if (realValue !== null && options.recursive) {
+      return mockFunctions(realValue, options, ogToMockedMap);
+    } else {
+      return realValue;
+    }
+  } else {
+    return realValue;
+  }
+}
+
+function mockProperties<T>(
   value: T,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-): MockedObject<T> {
-  const { onMockedFunction = () => {} } = options;
+): Mocked<T> {
   const mockedObject = Object.assign(Object.create(Object.getPrototypeOf(value)), value);
   ogToMockedMap.set(value, mockedObject);
-  Object.getOwnPropertyNames(value).forEach(key => {
-    const realValue = value[key];
-    if (typeof realValue === 'function') {
-      mockedObject[key] = jest.fn();
-      onMockedFunction(mockedObject[key], realValue);
-    } else if (typeof realValue === 'object') {
-      if (realValue !== null && options.recursive) {
-        mockedObject[key] = mockFunctions(realValue, options, ogToMockedMap);
-      } else {
-        mockedObject[key] = realValue;
-      }
-    } else {
-      mockedObject[key] = realValue;
-    }
+  const propertyDescriptors = Object.getOwnPropertyDescriptors(value);
+  Object.keys(propertyDescriptors).forEach(key => {
+    const propertyDescriptor = propertyDescriptors[key];
+    const mockedValue = mockValue(propertyDescriptor.value, options, ogToMockedMap);
+    const mockedPropertyDescriptor = { ...propertyDescriptor, value: mockedValue };
+    Object.defineProperty(mockedObject, key, mockedPropertyDescriptor);
   });
   return mockedObject;
 }
@@ -35,8 +43,8 @@ export function mockFunctions<T>(
   value: T,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-): MockedObject<T> {
+): Mocked<T> {
   return ogToMockedMap.has(value)
     ? ogToMockedMap.get(value)
-    : mockValue(value, options, ogToMockedMap);
+    : mockProperties(value, options, ogToMockedMap);
 }
