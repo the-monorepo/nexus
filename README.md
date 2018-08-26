@@ -5,7 +5,9 @@
 [![codecov](https://codecov.io/gh/PatrickShaw/jest-mock-functions/branch/master/graph/badge.svg)](https://codecov.io/gh/PatrickShaw/jest-mock-functions) 
 [![Greenkeeper badge](https://badges.greenkeeper.io/PatrickShaw/jest-mock-functions.svg)](https://greenkeeper.io/)
 
-Mocks all functions inside an array or object literal.
+Ever needed to mock all the functions of an object but nothing else?
+
+This package mocks all functions inside an array or object literal and copy overs everything else into a new object.
 **Note**: This package is specifically meant for use with [Jest](https://jestjs.io/)
 
 ## Installation
