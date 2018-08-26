@@ -59,6 +59,13 @@ it('cloned instance behaves correctly', () => {
 });
 
 describe('only mocks functions', () => {
+  it('with modules', () => {
+    const aModule = require('./test-module');
+    const mockedModule = mockFunctions(aModule);
+    expect(mockedModule.someNumber).toBe(aModule.someNumber);
+    expect(mockedModule.someFunction()).not.toBe(aModule.someFunction());
+  });
+
   it('with object literal', () => {
     const mockedObject = mockFunctions(aObjectLiteral);
     expect(mockedObject.returnObject()).not.toBe(aObjectLiteral.returnObject());
