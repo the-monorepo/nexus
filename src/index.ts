@@ -3,17 +3,21 @@ interface Options {
   onMockedFunction?: (mockedFunction, originalValue) => any;
 }
 
-type Input =
+type Input<T, V> =
   | {
-      [key: string]: any;
+      [key: string]: T;
     }
-  | Array<any>;
+  | Array<V>;
 
-export function mockFunctions(
-  value: Input,
+type InputObject<T> = { [P in keyof T]: T[P] };
+
+type MockedObject<T> = { [P in keyof T]: any };
+
+export function mockFunctions<T>(
+  value: InputObject<T> | any,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-) {
+): MockedObject<T> | any {
   const { onMockedFunction = () => {} } = options;
   let mockedObject = undefined;
   if (ogToMockedMap.has(value)) {
