@@ -81,7 +81,21 @@ describe('only mocks functions', () => {
 });
 
 describe('can mock recursively', () => {
-  it('Infinitely deep object', () => {
+  it('class with object', () => {
+    class ClassWithObject {
+      public anObject;
+      constructor() {
+        this.anObject = {
+          aFunction: () => 10,
+        };
+      }
+    }
+    const classInstance = new ClassWithObject();
+    const mockedInstance = mockFunctions(classInstance, { recursive: true });
+    expect(classInstance.anObject.aFunction()).toBe(10);
+    expect(mockedInstance.anObject.aFunction()).toBeUndefined();
+  });
+  it('infinitely deep object', () => {
     const anObject = {};
     anObject['itself'] = anObject;
     mockFunctions(anObject, { recursive: true });
