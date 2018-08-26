@@ -1,7 +1,7 @@
 {
   "name": "jest-mock-functions",
   "description": "Mock all functions inside an array or object literal",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "files": [
@@ -57,6 +57,6 @@
   },
   "dependencies": {},
   "engines": {
-    "node": ">=8.11.3"
+    "node": ">=6"
   }
 }
