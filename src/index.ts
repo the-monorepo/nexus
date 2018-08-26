@@ -11,8 +11,10 @@ type Input =
 
 export function mockFunctions(value: Input, options: Options = {}) {
   const { onMockedFunction = () => {} } = options;
-  const mockedObject = value.constructor ? value.constructor() : {};
-  Object.keys(value).forEach(key => {
+  let mockedObject = undefined;
+
+  mockedObject = Object.assign(Object.create(Object.getPrototypeOf(value)), value);
+  Object.getOwnPropertyNames(value).forEach(key => {
     const realValue = value[key];
     if (typeof realValue === 'function') {
       mockedObject[key] = jest.fn();

@@ -2,26 +2,61 @@ import { mockFunctions } from '../src/index';
 
 const aObjectFunctionReturnValue = new Object();
 
-const aObjectLiteral = {
-  int: 1,
-  str: '',
-  undefined: undefined,
-  null: null,
-  returnObject: () => aObjectFunctionReturnValue,
-  someRegex: /regex/,
-};
+let aObjectLiteral = undefined;
+let anArrayFunctionReturnValue = undefined;
+let anArray = undefined;
 
-const anArrayFunctionReturnValue = new Object();
-const anArray = [
-  function() {
-    return anArrayFunctionReturnValue;
-  },
-  1,
-  3,
-  undefined,
-  null,
-  /regex/,
-];
+beforeEach(() => {
+  anArrayFunctionReturnValue = new Object();
+  aObjectLiteral = {
+    int: 1,
+    str: '',
+    undefined: undefined,
+    null: null,
+    returnObject: () => aObjectFunctionReturnValue,
+    someRegex: /regex/,
+  };
+  anArray = [
+    function() {
+      return anArrayFunctionReturnValue;
+    },
+    1,
+    3,
+    undefined,
+    null,
+    /regex/,
+  ];
+});
+
+it('cloned instance behaves correctly', () => {
+  const array = mockFunctions([2]);
+  expect(array[0]).toBe(2);
+  array.push(1);
+  expect(array.shift()).toBe(2);
+  expect(array.shift()).toBe(1);
+
+  class TestClass {
+    private _value: number;
+    constructor() {
+      this._value = 0;
+    }
+
+    changeValue(newValue) {
+      this._value = newValue;
+    }
+    get value() {
+      return this._value;
+    }
+  }
+
+  const testInstance = new TestClass();
+  testInstance.changeValue(4);
+  expect(testInstance.value).toBe(4);
+  const clonedInstance = mockFunctions(testInstance);
+  expect(clonedInstance.value).toBe(4);
+  clonedInstance.changeValue(10);
+  expect(clonedInstance.value).toBe(10);
+});
 
 describe('only mocks functions', () => {
   it('with object literal', () => {
@@ -35,6 +70,7 @@ describe('only mocks functions', () => {
   });
   it('with array', () => {
     const mockedArray = mockFunctions(anArray);
+    // Check that the function (1st element) isn't the same function
     const aFunction = mockedArray.shift();
     const originalFunction: Function = anArray[0] as Function;
     expect(aFunction()).not.toBe(originalFunction());
