@@ -1,9 +1,12 @@
 import { create } from 'domain';
 
-export interface Options {
-  recursive?: boolean;
-  // Mock the methods of class instances too?
+export interface RecursionOptions {
   classInstances?: boolean;
+}
+
+export interface Options {
+  recursive?: boolean | RecursionOptions;
+  // Mock the methods of class instances too?
   onMockedFunction?: (mockedFunction, originalValue) => any;
 }
 
@@ -19,6 +22,10 @@ function constructBasedOff(obj) {
 }
 
 function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
+  const { recursive } = options;
+  const classInstances: boolean | undefined = recursive
+    ? (recursive as RecursionOptions).classInstances
+    : false;
   if (ogToMockedMap.has(realValue)) {
     return ogToMockedMap.get(realValue);
   }
@@ -54,7 +61,10 @@ function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
   ) {
     // Mock fields in {...}
     return handleContainer(constructBasedOff, mockProperties);
-  } else if (typeof realValue === 'object' && options.classInstances) {
+  } else if (
+    typeof realValue === 'object' &&
+    (classInstances || ogToMockedMap.size == 0)
+  ) {
     return handleContainer(constructBasedOff, (realVal, mocked, opts, map) => {
       const mocked2 = mockPrototypeFunctions(realVal, mocked, opts, map);
       return mockProperties(realVal, mocked2, opts, map);
