@@ -12,10 +12,11 @@ function constructBasedOff(obj) {
 }
 
 function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
+  if (ogToMockedMap.has(realValue)) {
+    return ogToMockedMap.get(realValue);
+  }
   function handleContainer(createMockStubCallback, mockCallback) {
-    if (ogToMockedMap.has(realValue)) {
-      return ogToMockedMap.get(realValue);
-    } else if (options.recursive || ogToMockedMap.size == 0) {
+    if (options.recursive || ogToMockedMap.size == 0) {
       const mocked = createMockStubCallback(realValue);
       ogToMockedMap.set(realValue, mocked);
       return mockCallback(realValue, mocked, options, ogToMockedMap);
@@ -23,9 +24,13 @@ function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
       return realValue;
     }
   }
+
   const { onMockedFunction = () => {} } = options;
   if (typeof realValue === 'function') {
+    if (ogToMockedMap.has(realValue)) {
+    }
     const mockedFn = jest.fn();
+    ogToMockedMap.set(realValue, mockedFn);
     onMockedFunction(mockedFn, realValue);
     return mockedFn;
   } else if (realValue === null || realValue === undefined) {
@@ -61,10 +66,10 @@ function mockProperties<T>(
 
 function mockMapValues<T, V>(
   actualMap: Map<T, V>,
+  mockedMap,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
 ): Map<T, V | Mocked<V>> {
-  const mockedMap = new Map();
   for (const [key, value] of actualMap.entries()) {
     mockedMap.set(key, mockValue(value, options, ogToMockedMap));
   }
@@ -73,10 +78,10 @@ function mockMapValues<T, V>(
 
 function mockSetValues<T>(
   actualSet: Set<T>,
+  mockedSet,
   options: Options = {},
-  ogToMockedMap: Map<any, any> = new Map(),
+  ogToMockedMap: Map<any, any>,
 ): Set<T | Mocked<T>> {
-  const mockedSet = new Set();
   for (const value of actualSet) {
     mockedSet.add(mockValue(value, options, ogToMockedMap));
   }
