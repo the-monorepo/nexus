@@ -2,13 +2,20 @@ import { create } from 'domain';
 
 export interface Options {
   recursive?: boolean;
+  // Mock the methods of class instances too?
+  classInstances?: boolean;
   onMockedFunction?: (mockedFunction, originalValue) => any;
 }
 
 export type Mocked<T> = { [P in keyof T]: any };
 
 function constructBasedOff(obj) {
-  return new obj.constructor();
+  if (obj.constructor) {
+    return new obj.constructor();
+  } else {
+    // Trying to fallback on creating an object with the same prototype (rather than reconstructing an object)
+    return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+  }
 }
 
 function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
@@ -25,13 +32,14 @@ function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
     }
   }
 
-  const { onMockedFunction = () => {} } = options;
   if (typeof realValue === 'function') {
     if (ogToMockedMap.has(realValue)) {
     }
     const mockedFn = jest.fn();
     ogToMockedMap.set(realValue, mockedFn);
-    onMockedFunction(mockedFn, realValue);
+    if (options.onMockedFunction) {
+      options.onMockedFunction(mockedFn, realValue);
+    }
     return mockedFn;
   } else if (realValue === null || realValue === undefined) {
     return realValue;
@@ -39,29 +47,61 @@ function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
     return handleContainer(constructBasedOff, mockMapValues);
   } else if (realValue instanceof Set) {
     return handleContainer(constructBasedOff, mockSetValues);
-  }
-  if (typeof realValue === 'object') {
+  } else if (
+    Array.isArray(realValue) ||
+    Object.getPrototypeOf({}) === Object.getPrototypeOf(realValue) ||
+    Object.getPrototypeOf(exports) === Object.getPrototypeOf(realValue)
+  ) {
+    // Mock fields in {...}
     return handleContainer(constructBasedOff, mockProperties);
+  } else if (typeof realValue === 'object' && options.classInstances) {
+    return handleContainer(constructBasedOff, (realVal, mocked, opts, map) => {
+      const mocked2 = mockPrototypeFunctions(realVal, mocked, opts, map);
+      return mockProperties(realVal, mocked2, opts, map);
+    });
   } else {
     return realValue;
   }
 }
 
-function mockProperties<T>(
+function mockPrototypeFunctions<T, V>(
   value: T,
-  mockedObject,
+  mockedObject: V,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-): Mocked<T> {
-  const propertyDescriptors = Object.getOwnPropertyDescriptors(value);
+): Mocked<any> & V {
+  // This will map the prototype values to the mocked object and not other objects with the same prototype
+  return mockProperties(
+    Object.getPrototypeOf(value),
+    mockedObject,
+    options,
+    ogToMockedMap,
+  );
+}
 
+function mockProperties<T, V>(
+  value: T,
+  mockedObject: V,
+  options: Options = {},
+  ogToMockedMap: Map<any, any> = new Map(),
+): Mocked<T> & V {
+  const propertyDescriptors = Object.getOwnPropertyDescriptors(value);
   Object.keys(propertyDescriptors).forEach(key => {
     const propertyDescriptor = propertyDescriptors[key];
-    const mockedValue = mockValue(propertyDescriptor.value, options, ogToMockedMap);
-    const mockedPropertyDescriptor = { ...propertyDescriptor, value: mockedValue };
+    const mockedPropertyDescriptor =
+      propertyDescriptor.get || propertyDescriptor.set
+        ? {
+            ...propertyDescriptor,
+            get: mockValue(propertyDescriptor.get, options, ogToMockedMap),
+            set: mockValue(propertyDescriptor.set, options, ogToMockedMap),
+          }
+        : {
+            ...propertyDescriptor,
+            value: mockValue(propertyDescriptor.value, options, ogToMockedMap),
+          };
     Object.defineProperty(mockedObject, key, mockedPropertyDescriptor);
   });
-  return mockedObject;
+  return mockedObject as Mocked<T> & V;
 }
 
 function mockMapValues<T, V>(
