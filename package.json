@@ -1,7 +1,7 @@
 {
   "name": "jest-mock-functions",
   "description": "Mock all functions inside an array or object literal",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "files": [
