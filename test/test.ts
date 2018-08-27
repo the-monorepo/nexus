@@ -107,6 +107,27 @@ describe('can mock recursively', () => {
     anObject['itself'] = anObject;
     mockFunctions(anObject, { recursive: true });
   });
+  it('with Map object', () => {
+    const aMap = new Map();
+    aMap.set(1, 5);
+    const mockedMap = mockFunctions(aMap, { recursive: true });
+    expect(aMap.get(1)).toBe(5);
+    expect(mockedMap.get(1)).toBe(5);
+    expect(mockedMap.has(1)).toBe(true);
+  });
+
+  it('with Set object', () => {
+    const aSet = new Set();
+    const aFunction = () => {};
+    aSet.add(1);
+    aSet.add(aFunction);
+    const mockedSet = mockFunctions(aSet);
+    expect(aSet.has(1)).toBe(true);
+    expect(aSet.has(aFunction)).toBe(true);
+    expect(mockedSet.has(1)).toBe(true);
+    expect(mockedSet.has(aFunction)).toBe(false);
+  });
+
   it('with {...}', () => {
     const mockedObject = mockFunctions(
       {
@@ -128,14 +149,6 @@ it('only mocks recursively when recursive = true', () => {
     nested: aObjectLiteral,
   });
   expect(mockedObject.nested.returnObject()).toBe(aObjectLiteral.returnObject());
-});
-
-describe('invalid inputs', () => {
-  [null, undefined].forEach(value => {
-    it(`${value}`, () => {
-      expect(() => mockFunctions(value)).toThrow(expect.any(Error));
-    });
-  });
 });
 
 describe('can mock the function', () => {
