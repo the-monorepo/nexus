@@ -58,6 +58,17 @@ it('cloned instance behaves correctly', () => {
   expect(clonedInstance.value).toBe(10);
 });
 
+it('Multiple references to functions all map to same mocked function', () => {
+  const aFunction = () => {};
+  const anObject = {
+    fn1: aFunction,
+    fn2: aFunction,
+  };
+  const mockedObject = mockFunctions(anObject);
+  expect(anObject.fn1).not.toBe(mockedObject.fn1);
+  expect(mockedObject.fn1).toBe(mockedObject.fn2);
+});
+
 describe('only mocks functions', () => {
   it('with modules', () => {
     const aModule = require('./es6-module');
