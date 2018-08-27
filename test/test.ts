@@ -51,11 +51,11 @@ it('cloned instance behaves correctly', () => {
 
   const testInstance = new TestClass();
   testInstance.changeValue(4);
-  expect(testInstance.value).toBe(4);
   const mockedInstance = mockFunctions(testInstance);
-  expect(mockedInstance.value).toBe(4);
+  expect(testInstance.value).toBe(4);
+  expect(mockedInstance.value).toBeUndefined();
   mockedInstance.changeValue(10);
-  expect(mockedInstance.value).toBe(10);
+  expect(mockedInstance.value).toBeUndefined();
 });
 
 it('Multiple references to functions all map to same mocked function', () => {
@@ -90,7 +90,7 @@ it('can mock class instances', () => {
     }
   }
   const instance = new AClass();
-  const mockedInstance = mockFunctions(instance, { classInstances: true });
+  const mockedInstance = mockFunctions(instance);
   expect(mockedInstance.fn1()).toBeUndefined();
   expect(mockedInstance.fn2()).toBeUndefined();
 });
@@ -101,6 +101,35 @@ it('instance without constructor', () => {
   const mockedInstance = mockFunctions(instance);
   expect(instance.aFunction()).toBe(11);
   expect(mockedInstance.aFunction()).not.toBe(instance.aFunction());
+});
+
+describe('classInstance behaves correctly', () => {
+  class BClass {
+    innerMethod() {
+      return 42;
+    }
+  }
+  class AClass {
+    public inner;
+    constructor() {
+      this.inner = new BClass();
+    }
+    test() {
+      return 100;
+    }
+  }
+  it('mocks inner class when true', () => {
+    const instance = new AClass();
+    const mocked = mockFunctions(instance, { recursive: { classInstances: true } });
+    expect(mocked.test()).toBeUndefined();
+    expect(mocked.inner.innerMethod()).toBeUndefined();
+  });
+  it('mocks inner class when false', () => {
+    const instance = new AClass();
+    const mocked = mockFunctions(instance);
+    expect(mocked.test()).toBeUndefined();
+    expect(mocked.inner.innerMethod()).toBe(42);
+  });
 });
 
 describe('only mocks functions', () => {
@@ -116,7 +145,7 @@ describe('only mocks functions', () => {
   });
   it('with modules', () => {
     const aModule = require('./es6-module');
-    const mockedModule = mockFunctions(aModule, { classInstances: true });
+    const mockedModule = mockFunctions(aModule);
     expect(mockedModule.someNumber).toBe(aModule.someNumber);
     expect(mockedModule.someFunction()).not.toBe(aModule.someFunction());
   });
@@ -155,7 +184,6 @@ describe('can mock recursively', () => {
     const classInstance = new ClassWithObject();
     const mockedInstance = mockFunctions(classInstance, {
       recursive: true,
-      classInstances: true,
     });
     expect(classInstance.anObject.aFunction()).toBe(10);
     expect(mockedInstance.anObject.aFunction()).toBeUndefined();
