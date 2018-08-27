@@ -16,9 +16,13 @@ function constructBasedOff(obj) {
   if (obj.constructor) {
     return new obj.constructor();
   } else {
-    // Trying to fallback on creating an object with the same prototype (rather than reconstructing an object)
-    return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+    // We can fallback to just cloning the prototype across if there's no constructor
+    return objectWithPrototypeFrom(obj);
   }
+}
+
+function objectWithPrototypeFrom(obj) {
+  return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
 }
 
 function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
@@ -65,7 +69,7 @@ function mockValue(realValue, options: Options, ogToMockedMap: Map<any, any>) {
     typeof realValue === 'object' &&
     (classInstances || ogToMockedMap.size == 0)
   ) {
-    return handleContainer(constructBasedOff, (realVal, mocked, opts, map) => {
+    return handleContainer(objectWithPrototypeFrom, (realVal, mocked, opts, map) => {
       const mocked2 = mockPrototypeFunctions(realVal, mocked, opts, map);
       return mockProperties(realVal, mocked2, opts, map);
     });
@@ -81,12 +85,12 @@ function mockPrototypeFunctions<T, V>(
   ogToMockedMap: Map<any, any> = new Map(),
 ): Mocked<any> & V {
   // This will map the prototype values to the mocked object and not other objects with the same prototype
-  return mockProperties(
-    Object.getPrototypeOf(value),
-    mockedObject,
-    options,
-    ogToMockedMap,
-  );
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype) {
+    return mockProperties(prototype, mockedObject, options, ogToMockedMap);
+  } else {
+    return mockedObject;
+  }
 }
 
 function mockProperties<T, V>(
