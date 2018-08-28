@@ -7,13 +7,15 @@
 
 Ever needed to mock all the functions of an object but nothing else?
 
-This package mocks all functions inside an array or object literal and copy overs everything else into a new object.
+This package mocks all functions inside a arrays, objects, Maps, Sets and class instances and copys overs everything else into a new object.
+
 **Note**: This package is specifically meant for use with [Jest](https://jestjs.io/)
 
 ## Installation
 `npm install jest-mock-functions`
 or
 `yarn add --dev jest-mock-functions`
+
 
 ## How to use it
 ### Objects
@@ -29,8 +31,8 @@ const mockedObject = mockFunctions({
 });
 ```
 
-### Array
-You can mock arrays:
+### Arrays
+You can mock the contents of arrays:
 ```js
 import { mockFunctions } from 'jest-mock-functions';
 // Will return [1, jest.fn(), jest.fn()];
@@ -40,11 +42,41 @@ const mockedArray = mockFunctions([
   function() {},
 ]);
 ```
+
+### Sets
+
+
+
+### Class instances
+Mocking an instance of class will add mocked functions for all the instance's functions and all of it's prototype's functions.
+```js
+class Example {
+  constructor() { 
+    this.aFunction = () => { return 1; }
+  } 
+  anotherFuntion() {
+    return 2;
+  }
+}
+
+const mocked = mockFunctions(new Example());
+// Has been mocked
+mocked.aFunction();
+// Has been mocked
+mocked.anotherFunction();
+
+const notMocked = new Example();
+// Returns 1
+notMocked.aFunction();
+// Returns 2
+notMocked.anotherFunction();
+```
+
 ### Options
 You can pass options into `mockFunctions`.
 E.g. `mockFunctions(aValue, { recursive: true })`
 
-#### recursive: boolean
+#### recursive: boolean | RecursionOptions
 
 You can mock functions inside arrays inside objects. With `{ recursive: true }`.
 ```js
@@ -55,7 +87,7 @@ const mockedThing = mockFunctions({
 }, { recursive: true });
 ```
 
-Or the other way around.
+or the other way around
 ```js
 import { mockFunctions } from 'jest-mock-functions';
 // Will return [ { test: jest.fn() }, { aInt: 1 }]
@@ -65,7 +97,7 @@ const mockedThing = mockFunctions(
 );
 ```
 
-Go crazy with it.
+go crazy with it
 ```js
 import { mockFunctions } from 'jest-mock-functions';
 // Will return [[{ this: { is: [{ rediculous: jest.fn() }]}}]]
@@ -74,6 +106,10 @@ const mockedThing = mockFunctions(
   { recursive: true }
 );
 ```
+
+##### Class instances
+By default, class instances are not mocked recursively. If you wish to mock class instances add the option: `{ recursive: { classInstances: true } }`.
+
 
 #### onMockedFunction: (mockedFunction, originalValue) => any
 
