@@ -16,7 +16,8 @@
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
     "test": "yarn build && jest",
     "build": "gulp build",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+    "prepublish": "yarn build"
   },
   "keywords": [
     "types"
@@ -45,7 +46,7 @@
     "husky": "1.0.0-rc.13",
     "jest": "^23.4.2",
     "jest-mock-functions": "^1.2.0",
-    "lerna": "^3.0.0-rc.0",
+    "lerna": "^3.2.1",
     "lint-staged": "^7.2.0",
     "mz": "^2.7.0",
     "prettier": "^1.14.0",
