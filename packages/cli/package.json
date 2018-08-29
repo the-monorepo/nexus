@@ -1,7 +1,7 @@
 {
   "name": "@by-example/cli",
   "description": "Use by-example packages using a CLI",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "license": "MIT",
   "bin": {
     "by-example": "./bin/index.js"
