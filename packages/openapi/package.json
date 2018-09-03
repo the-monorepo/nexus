@@ -1,7 +1,7 @@
 {
   "name": "@by-example/openapi",
   "description": "Generate OpenAPI schemas from examples",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "publishConfig": {
     "access": "public"
   },
