@@ -2,6 +2,9 @@
   "name": "@by-example/openapi",
   "description": "Generate OpenAPI schemas from examples",
   "version": "1.0.0-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "private": false,
   "main": "./lib/index.js",
   "types": "./src/index.ts",

@@ -9,6 +9,9 @@
   "scripts": {
     "cli": "node ./bin/index.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "private": false,
