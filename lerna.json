@@ -1,6 +1,6 @@
 {
   "lerna": "3.2.1",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "changelog": {
     "repo": "PatrickShaw/by-example",
     "cacheDir": ".changelog"

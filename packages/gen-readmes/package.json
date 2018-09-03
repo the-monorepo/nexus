@@ -1,7 +1,7 @@
 {
   "name": "@by-example/gen-readmes",
   "description": "Utility for generating readmes",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "private": false,
   "publishConfig": {
     "access": "public"
