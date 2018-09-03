@@ -10,6 +10,9 @@
   "scripts": {
     "storybook": "start-storybook -p 3001"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@storybook/addon-actions": "^4.0.0-alpha.16",
     "@storybook/addon-knobs": "^4.0.0-alpha.16"
