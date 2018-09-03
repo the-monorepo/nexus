@@ -3,6 +3,9 @@
   "description": "Utility for generating readmes",
   "version": "1.0.0-alpha.2",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
@@ -10,5 +13,6 @@
   "dependencies": {
     "@types/mz": "^0.0.32",
     "mz": "^2.7.0"
-  }
+  },
+  "gitHead": "e4cd098a10f0d1a24f8d304b81d9baa392ffe8be"
 }
