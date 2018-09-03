@@ -1,7 +1,7 @@
 {
   "name": "@by-example/storybook-addon-knobify",
   "description": "Generate Storybook knobs based off examples and prop types",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "private": false,
   "license": "MIT",
   "main": "./lib/index.js",
@@ -18,7 +18,7 @@
     "@storybook/addon-knobs": "^4.0.0-alpha.16"
   },
   "dependencies": {
-    "@by-example/types": "^1.0.0-alpha.1",
+    "@by-example/types": "^1.0.0-alpha.2",
     "css-color-checker": "^1.3.1",
     "prop-types": "^15.6.2"
   },
