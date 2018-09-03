@@ -31,5 +31,6 @@
     "@storybook/react": "^3.4.8",
     "react": "^16.4.2",
     "react-dom": "^16.4.2"
-  }
+  },
+  "gitHead": "e4cd098a10f0d1a24f8d304b81d9baa392ffe8be"
 }

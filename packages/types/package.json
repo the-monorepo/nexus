@@ -8,5 +8,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "devPackage": false
+  "devPackage": false,
+  "gitHead": "e4cd098a10f0d1a24f8d304b81d9baa392ffe8be"
 }
