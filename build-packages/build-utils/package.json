@@ -4,10 +4,12 @@
   "version": "1.0.0-alpha.3",
   "main": "./src/index.js",
   "private": false,
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "example": "node ./scripts/example.js"
-  }
+  },
+  "gitHead": "edb9346c6a52e0f0cfba72f5a0bb618079137bcc"
 }
