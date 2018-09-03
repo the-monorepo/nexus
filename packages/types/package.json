@@ -5,9 +5,10 @@
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "private": false,
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "devPackage": false,
-  "gitHead": "e4cd098a10f0d1a24f8d304b81d9baa392ffe8be"
+  "gitHead": "edb9346c6a52e0f0cfba72f5a0bb618079137bcc"
 }
