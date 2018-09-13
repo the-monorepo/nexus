@@ -27,6 +27,17 @@ beforeEach(() => {
     /regex/,
   ];
 });
+it('can mock prototypeless objects', () => {
+  const prototypeless = Object.setPrototypeOf(
+    new class {
+      aFunction() {}
+    }(),
+    null,
+  );
+  expect(prototypeless.aFunction).toBeUndefined();
+  const mocked = mockFunctions(prototypeless);
+  expect(mocked.aFunction).toBeUndefined();
+});
 it('same class instances map to the same mocked class instances', () => {
   class TestClass {}
   const testClass1 = new TestClass();
