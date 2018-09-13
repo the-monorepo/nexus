@@ -27,6 +27,29 @@ beforeEach(() => {
     /regex/,
   ];
 });
+it('same class instances map to the same mocked class instances', () => {
+  class TestClass {}
+  const testClass1 = new TestClass();
+  const testClass2 = new TestClass();
+  const classes = [testClass1, testClass1, testClass2];
+  const mockedClasses = mockFunctions(classes, { recursive: { classInstances: true } });
+  for (let c = 0; c < classes.length; c++) {
+    expect(classes[c]).not.toBe(mockedClasses[c]);
+  }
+  expect(mockedClasses[0]).toBe(mockedClasses[1]);
+  expect(mockedClasses[0]).not.toBe(mockedClasses[2]);
+});
+it('same original function maps to the same mocked function', () => {
+  const aFunction1 = () => {};
+  const aFunction2 = () => {};
+  const functions = [aFunction1, aFunction1, aFunction2];
+  const mockedFunctions = mockFunctions(functions);
+  for (let f = 0; f < functions.length; f++) {
+    expect(functions[f]).not.toBe(mockedFunctions[f]);
+  }
+  expect(mockedFunctions[0]).toBe(mockedFunctions[1]);
+  expect(mockedFunctions[0]).not.toBe(mockedFunctions[2]);
+});
 
 it('cloned instance behaves correctly', () => {
   const array = mockFunctions([2]);
