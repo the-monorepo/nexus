@@ -27,6 +27,20 @@ beforeEach(() => {
     /regex/,
   ];
 });
+describe('empty containers', () => {
+  it('set', () => {
+    expect(mockFunctions(new Set()).size).toBe(0);
+  });
+  it('map', () => {
+    expect(mockFunctions(new Map()).size).toBe(0);
+  });
+  it('object', () => {
+    expect(Object.keys(mockFunctions({})).length).toBe(0);
+  });
+  it('array', () => {
+    expect(mockFunctions([]).length).toBe(0);
+  });
+});
 it('can mock prototypeless objects', () => {
   const prototypeless = Object.setPrototypeOf(
     new class {
