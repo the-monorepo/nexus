@@ -1,9 +1,10 @@
 {
   "name": "jest-mock-functions",
   "description": "Mock all functions inside an array or object literal",
-  "version": "3.0.1",
-  "main": "./lib/index.js",
+  "version": "3.1.1",
   "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
   "files": [
     "lib",
     "src"
@@ -28,7 +29,10 @@
     "test:types": "tsc --noEmit",
     "test:jest": "jest",
     "ci-test": "yarn test && codecov",
-    "build": "babel src --out-dir lib --extensions \".ts\"",
+    "transpile": "babel src --extensions \".ts\"",
+    "build:main": "yarn transpile --out-dir lib",
+    "build:module": "yarn transpile --out-dir esm --env-name ES6",
+    "build": "yarn build:main && yarn build:module",
     "prepublish": "yarn build",
     "precommit": "lint-staged"
   },
