@@ -61,5 +61,6 @@ typings/
 lib
 
 dist
+esm
 
 .idea
