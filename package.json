@@ -29,7 +29,7 @@
     "test:types": "tsc --noEmit",
     "test:jest": "jest",
     "ci-test": "yarn test && codecov",
-    "transpile": "babel src --extensions \".ts\"",
+    "transpile": "babel src --extensions \".ts\" --source-maps",
     "build:main": "yarn transpile --out-dir lib",
     "build:module": "yarn transpile --out-dir esm --env-name ES6",
     "build": "yarn build:main && yarn build:module",
