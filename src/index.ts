@@ -1,5 +1,3 @@
-import { create } from 'domain';
-
 export interface RecursionOptions {
   classInstances?: boolean;
 }
