@@ -58,8 +58,8 @@ typings/
 # dotenv environment variables file
 .env
 
+esm 
 lib
-
 dist
 
 .idea
