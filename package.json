@@ -67,7 +67,7 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "css-color-names": "^0.0.4"
+    "css-color-names": "^1.0.0"
   },
   "engines": {
     "node": ">=6"
