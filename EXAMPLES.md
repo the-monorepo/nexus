@@ -235,16 +235,30 @@ isHwbColor("hwb(361,0%,0%)"); // false
 
 ### Inputs that return true
 ```js
+isColorName("black"); // true
+isColorName("silver"); // true
+isColorName("gray"); // true
+isColorName("white"); // true
+isColorName("maroon"); // true
+isColorName("red"); // true
+isColorName("purple"); // true
+isColorName("fuchsia"); // true
+isColorName("green"); // true
+isColorName("lime"); // true
+isColorName("olive"); // true
+isColorName("yellow"); // true
+isColorName("navy"); // true
+isColorName("blue"); // true
+isColorName("teal"); // true
+isColorName("aqua"); // true
+isColorName("orange"); // true
 isColorName("aliceblue"); // true
 isColorName("antiquewhite"); // true
-isColorName("aqua"); // true
 isColorName("aquamarine"); // true
 isColorName("azure"); // true
 isColorName("beige"); // true
 isColorName("bisque"); // true
-isColorName("black"); // true
 isColorName("blanchedalmond"); // true
-isColorName("blue"); // true
 isColorName("blueviolet"); // true
 isColorName("brown"); // true
 isColorName("burlywood"); // true
@@ -283,13 +297,10 @@ isColorName("dodgerblue"); // true
 isColorName("firebrick"); // true
 isColorName("floralwhite"); // true
 isColorName("forestgreen"); // true
-isColorName("fuchsia"); // true
 isColorName("gainsboro"); // true
 isColorName("ghostwhite"); // true
 isColorName("gold"); // true
 isColorName("goldenrod"); // true
-isColorName("gray"); // true
-isColorName("green"); // true
 isColorName("greenyellow"); // true
 isColorName("grey"); // true
 isColorName("honeydew"); // true
@@ -317,11 +328,9 @@ isColorName("lightslategray"); // true
 isColorName("lightslategrey"); // true
 isColorName("lightsteelblue"); // true
 isColorName("lightyellow"); // true
-isColorName("lime"); // true
 isColorName("limegreen"); // true
 isColorName("linen"); // true
 isColorName("magenta"); // true
-isColorName("maroon"); // true
 isColorName("mediumaquamarine"); // true
 isColorName("mediumblue"); // true
 isColorName("mediumorchid"); // true
@@ -336,11 +345,8 @@ isColorName("mintcream"); // true
 isColorName("mistyrose"); // true
 isColorName("moccasin"); // true
 isColorName("navajowhite"); // true
-isColorName("navy"); // true
 isColorName("oldlace"); // true
-isColorName("olive"); // true
 isColorName("olivedrab"); // true
-isColorName("orange"); // true
 isColorName("orangered"); // true
 isColorName("orchid"); // true
 isColorName("palegoldenrod"); // true
@@ -353,9 +359,6 @@ isColorName("peru"); // true
 isColorName("pink"); // true
 isColorName("plum"); // true
 isColorName("powderblue"); // true
-isColorName("purple"); // true
-isColorName("rebeccapurple"); // true
-isColorName("red"); // true
 isColorName("rosybrown"); // true
 isColorName("royalblue"); // true
 isColorName("saddlebrown"); // true
@@ -364,7 +367,6 @@ isColorName("sandybrown"); // true
 isColorName("seagreen"); // true
 isColorName("seashell"); // true
 isColorName("sienna"); // true
-isColorName("silver"); // true
 isColorName("skyblue"); // true
 isColorName("slateblue"); // true
 isColorName("slategray"); // true
@@ -373,16 +375,14 @@ isColorName("snow"); // true
 isColorName("springgreen"); // true
 isColorName("steelblue"); // true
 isColorName("tan"); // true
-isColorName("teal"); // true
 isColorName("thistle"); // true
 isColorName("tomato"); // true
 isColorName("turquoise"); // true
 isColorName("violet"); // true
 isColorName("wheat"); // true
-isColorName("white"); // true
 isColorName("whitesmoke"); // true
-isColorName("yellow"); // true
 isColorName("yellowgreen"); // true
+isColorName("rebeccapurple"); // true
 ```
 
 ### Inputs that return true

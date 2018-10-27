@@ -53,7 +53,7 @@ export function generateCssColorFunctionInputs(
     const correctSuffix: string = parameter.percentages ? '%' : '';
     const incorrectSuffix: string = parameter.percentages ? '' : '%';
     const suffix: string = hasCorrectSuffix ? correctSuffix : incorrectSuffix;
-    let decimalString: string = undefined;
+    let decimalString: string | undefined = undefined;
     if (noLetter) {
       const bound: Bound = min ? parameter.min : parameter.max;
       const correctDeltaSign: number = min ? 1 : -1;

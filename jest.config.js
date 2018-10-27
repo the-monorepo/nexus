@@ -8,5 +8,6 @@ module.exports = {
   resetMocks: true,
   transform: {
     '^.+\\.ts$': 'babel-jest',
+    '^.+\\.js$': 'babel-jest',
   },
 };
