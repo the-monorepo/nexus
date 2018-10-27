@@ -1,7 +1,7 @@
 /**
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */
-const colors = require('colors');
+require('colors');
 const { join, sep, resolve } = require('path');
 
 const gulp = require('gulp');
@@ -43,7 +43,7 @@ function simpleFileMessageLogger(verb) {
   });
 }
 
-function buildBabel() {
+function transpile() {
   const base = join(__dirname, packagesDirName);
   const stream = gulp.src(sourceGlobFromPackagesDirName(packagesDirName), { base });
   return stream
@@ -56,7 +56,7 @@ function buildBabel() {
     .pipe(gulp.dest(base));
 }
 
-gulp.task('transpile', buildBabel);
+gulp.task('transpile', transpile);
 
 gulp.task('gen-readmes', function genReadmes() {
   const base = join(__dirname, packagesDirName);
@@ -74,17 +74,19 @@ gulp.task('gen-readmes', function genReadmes() {
     .pipe(gulp.dest(base));
 });
 
-gulp.task('build', gulp.series('transpile', 'gen-readmes'));
+const build = gulp.series(transpile, 'gen-readmes');
+gulp.task('build', build);
 
-gulp.task(
-  'watch',
-  gulp.series('build', function watch() {
-    gulpWatch(
-      [sourceGlobFromPackagesDirName(packagesDirName)],
-      { debounceDelay: 200 },
-      gulp.task('build'),
-    );
-  }),
-);
+function watch() {
+  return gulp.watch(
+    [sourceGlobFromPackagesDirName(packagesDirName)],
+    { ignoreInitial: false },
+    build,
+  );
+}
+gulp.task('watch', watch);
 
-gulp.task('default', gulp.series('build'));
+function clean() {}
+gulp.task('clean', clean);
+
+gulp.task('default', build);
