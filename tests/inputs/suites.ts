@@ -3,7 +3,7 @@ import {
   generateCssColorFunctionInputs,
   ParameterFormat,
 } from './css-color-function-inputs';
-import cssColors from 'css-color-names';
+import * as cssColors from '../../src/css-named-colors';
 function testInputs(valid: any[], invalid: any[]): TestInputs {
   return {
     valid: new Set(valid),

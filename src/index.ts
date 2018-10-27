@@ -1,4 +1,4 @@
-import cssColors from 'css-color-names';
+import * as cssColors from './css-named-colors';
 import {
   isValidAlphaValue,
   isValidPercentageString,
@@ -32,7 +32,7 @@ export function isHexColor(value: string): boolean {
 }
 
 export function isRgbColor(value: string): boolean {
-  const rgbMatches: RegExpMatchArray = value.match(
+  const rgbMatches: RegExpMatchArray | null = value.match(
     /^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
   if (rgbMatches && rgbMatches.length >= 4) {
