@@ -1,7 +1,7 @@
 {
   "name": "jest-mock-functions",
   "description": "Mock all functions inside an array or object literal",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
@@ -38,7 +38,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "precommit"
+      "pre-commit": "yarn precommit"
     }
   },
   "lint-staged": {
@@ -47,17 +47,19 @@
       "git add"
     ]
   },
+  "peerDependencies": {
+    "@types/jest": "^23.3.8",
+    "jest": "^23.6.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.1",
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-typescript": "^7.0.0",
-    "@types/jest": "^23.3.2",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
     "codecov": "^3.1.0",
     "husky": "^1.0.0",
-    "jest": "^23.6.0",
     "lint-staged": "^7.2.2",
     "prettier": "^1.14.2",
     "typescript": "^3.0.3"
