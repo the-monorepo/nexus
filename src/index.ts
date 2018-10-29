@@ -8,7 +8,9 @@ export interface Options {
   onMockedFunction?: (mockedFunction, originalValue) => any;
 }
 
-export type Mocked<T> = { [P in keyof T]: any };
+export type MockedFunctions<T> = {
+  [P in keyof T]: P extends Function ? jest.Mock<T[P]> : T[P]
+};
 
 function constructBasedOff(obj) {
   if (obj.constructor) {
@@ -82,7 +84,7 @@ function mockPrototypeFunctions<T, V>(
   mockedObject: V,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-): Mocked<any> & V {
+): MockedFunctions<T> & V | V {
   // This will map the prototype values to the mocked object and not other objects with the same prototype
   const prototype = Object.getPrototypeOf(value);
   if (prototype) {
@@ -97,7 +99,7 @@ function mockProperties<T, V>(
   mockedObject: V,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-): Mocked<T> & V {
+): MockedFunctions<T> & V {
   const propertyDescriptors = Object.getOwnPropertyDescriptors(value);
   Object.keys(propertyDescriptors).forEach(key => {
     const propertyDescriptor = propertyDescriptors[key];
@@ -114,7 +116,7 @@ function mockProperties<T, V>(
           };
     Object.defineProperty(mockedObject, key, mockedPropertyDescriptor);
   });
-  return mockedObject as Mocked<T> & V;
+  return mockedObject as MockedFunctions<T> & V;
 }
 
 function mockMapValues<T, V>(
@@ -122,7 +124,7 @@ function mockMapValues<T, V>(
   mockedMap,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-): Map<T, V | Mocked<V>> {
+): Map<T, V | MockedFunctions<V>> {
   for (const [key, value] of actualMap.entries()) {
     mockedMap.set(key, mockValue(value, options, ogToMockedMap));
   }
@@ -134,7 +136,7 @@ function mockSetValues<T>(
   mockedSet,
   options: Options = {},
   ogToMockedMap: Map<any, any>,
-): Set<T | Mocked<T>> {
+): Set<T | MockedFunctions<T>> {
   for (const value of actualSet) {
     mockedSet.add(mockValue(value, options, ogToMockedMap));
   }
@@ -145,6 +147,6 @@ export function mockFunctions<T>(
   value: T,
   options: Options = {},
   ogToMockedMap: Map<any, any> = new Map(),
-): Mocked<T> {
+): MockedFunctions<T> {
   return mockValue(value, options, ogToMockedMap);
 }
