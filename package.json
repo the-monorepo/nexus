@@ -1,13 +1,14 @@
 {
   "name": "jest-mock-functions",
   "description": "Mock all functions inside an array or object literal",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
   "files": [
     "lib",
-    "src"
+    "src",
+    "esm"
   ],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
