@@ -1,6 +1,6 @@
 {
   "name": "css-color-checker",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Library for checking whether a value is a valid color value",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
@@ -31,7 +31,7 @@
     "test": "jest",
     "checker:types": "tsc -p .",
     "ci-test": "yarn test && codecov",
-    "transpile": "babel src --extensions \".{ts,js}\" --source-maps",
+    "transpile": "babel src --extensions .ts,.js --source-maps",
     "build": "run-s build:*",
     "build:main": "yarn transpile --out-dir lib",
     "build:module": "yarn transpile --out-dir esm --env-name ESM",
@@ -51,10 +51,10 @@
     ]
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.5",
     "@babel/node": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-env": "^7.1.5",
     "@babel/preset-typescript": "^7.1.0",
     "@types/jest": "^23.3.7",
     "@types/node": "^10.12.0",
