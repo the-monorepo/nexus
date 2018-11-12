@@ -1,13 +1,14 @@
 {
   "name": "css-color-checker",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Library for checking whether a value is a valid color value",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
   "files": [
     "lib",
-    "src"
+    "src",
+    "esm"
   ],
   "repository": {
     "type": "git",
