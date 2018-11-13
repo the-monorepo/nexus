@@ -8,6 +8,9 @@ export const invalidTypes: [string, any][] = [
   ['Object', {}],
   ['Array', []],
   ['null', null],
+  ['undefined', undefined],
+  ['true', true],
+  ['false', false],
 ];
 
 export function testColorTypeFunction(
@@ -66,30 +69,21 @@ export function testFunction(
     describe('Invalid', () => {
       invalidTypes.forEach(([testName, value]) => {
         it(testName, () => {
-          try {
-            expect(isColorFunction).not.toBe(true);
-          } catch (err) {}
+          expect(isColorFunction(value)).toBe(false);
         });
       });
-      it('undefined', () => {
-        try {
-          expect(isColorFunction(undefined)).not.toBe(true);
-        } catch (err) {}
-      });
       it('no parameters', () => {
-        try {
-          expect(isColorFunction()).not.toBe(true);
-        } catch (err) {}
+        expect(isColorFunction()).toBe(false);
       });
       for (const testInput of testInputs.invalid) {
-        it(testInput, () => {
+        it(`${testInput}`, () => {
           expect(isColorFunction(testInput)).toBe(false);
         });
       }
     });
     describe('Valid', () => {
       for (const testInput of testInputs.valid) {
-        it(testInput, () => {
+        it(`${testInput}`, () => {
           expect(isColorFunction(testInput)).toBe(true);
         });
       }

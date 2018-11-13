@@ -18,7 +18,7 @@ function isValidRgbValues(...values: string[]): boolean {
   return true;
 }
 
-export function isColorName(value: string) {
+export function isColorName(value?: unknown | null) {
   for (const name of cssColorNames) {
     if (name === value) {
       return true;
@@ -27,11 +27,17 @@ export function isColorName(value: string) {
   return false;
 }
 
-export function isHexColor(value: string): boolean {
-  return value.match(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i) !== null;
+export function isHexColor(value?: unknown | null): boolean {
+  return (
+    typeof value === 'string' &&
+    value.match(/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i) !== null
+  );
 }
 
-export function isRgbColor(value: string): boolean {
+export function isRgbColor(value?: unknown | null): boolean {
+  if (typeof value !== 'string') {
+    return false;
+  }
   const rgbMatches: RegExpMatchArray | null = value.match(
     /^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
@@ -44,7 +50,10 @@ export function isRgbColor(value: string): boolean {
   return false;
 }
 
-export function isRgbaColor(value: string): boolean {
+export function isRgbaColor(value?: unknown | null): boolean {
+  if (typeof value !== 'string') {
+    return false;
+  }
   const rgbaMatches: RegExpMatchArray | null = value.match(
     /^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
@@ -57,7 +66,10 @@ export function isRgbaColor(value: string): boolean {
   return false;
 }
 
-export function isHslColor(value: string): boolean {
+export function isHslColor(value?: unknown | null): boolean {
+  if (typeof value !== 'string') {
+    return false;
+  }
   const hslMatches: RegExpMatchArray | null = value.match(
     /^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
@@ -70,7 +82,10 @@ export function isHslColor(value: string): boolean {
   return false;
 }
 
-export function isHslaColor(value: string): boolean {
+export function isHslaColor(value?: unknown | null): boolean {
+  if (typeof value !== 'string') {
+    return false;
+  }
   const hslaMatches: RegExpMatchArray | null = value.match(
     /^hsla\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
@@ -88,7 +103,10 @@ export function isHslaColor(value: string): boolean {
   return false;
 }
 
-export function isHwbColor(value: string): boolean {
+export function isHwbColor(value?: unknown | null): boolean {
+  if (typeof value !== 'string') {
+    return false;
+  }
   const hwbMatches: RegExpMatchArray | null = value.match(
     /^hwb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
@@ -113,8 +131,11 @@ export function isHwbColor(value: string): boolean {
 }
 
 export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | 'named' | 'hwb' | null;
-export function cssColorFormat(value: string): ColorType {
-  const colorTypeCheckers: [(s: string) => boolean, ColorType][] = [
+export function cssColorFormat(value?: unknown | null): ColorType {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const colorTypeCheckers: [(s: unknown) => boolean, ColorType][] = [
     [isHexColor, 'hex'],
     [isHslaColor, 'hsla'],
     [isHslColor, 'hsl'],

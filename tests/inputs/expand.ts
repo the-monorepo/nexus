@@ -36,6 +36,8 @@ export function expandInputs(...validTestInputs: TestInputs[]) {
       invalidInputs.add(value);
     }
   });
+  invalidInputs.add(null);
+  invalidInputs.add(undefined);
   return {
     valid: validInputs,
     invalid: invalidInputs,
