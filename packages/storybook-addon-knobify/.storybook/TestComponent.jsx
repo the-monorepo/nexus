@@ -1,22 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 class TestComponent extends React.Component {
   render() {
     return (
       <div>
-        {this.props.string}
-        {this.props.object}
-        {this.props.number}
-        {this.props.array}
-        {this.props.function}
-        {this.props.boolean}
-        {this.props.color}
-        {this.props.defaultBoolean}
-        {this.props.propTypesString}
+        {Object.keys(this.props).map((key, index) => (
+          <p key={index}>{`${key}: ${this.props[key]}`}</p>
+        ))}
       </div>
     );
   }
 }
+
 TestComponent.defaultProps = {
   defaultBoolean: true,
 };
