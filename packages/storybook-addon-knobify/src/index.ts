@@ -18,70 +18,66 @@ function propTypeMatches(testedPropType, expectedPropType) {
 }
 
 // TODO: Could probably refactor this to be less verbose
-function knobBasedOffPropType(value, propType) {
-  let knob = undefined;
+function knobBasedOffPropType(value, propType, key) {
   if (propTypeMatches(propType, PropTypes.string)) {
-    knob = text(value);
+    return text(key, value);
   } else if (propTypeMatches(propType, PropTypes.number)) {
-    knob = number(value);
+    return number(key, value);
   } else if (propTypeMatches(propType, PropTypes.bool)) {
-    knob = boolean(value);
+    return boolean(key, value);
   } else if (propTypeMatches(propType, PropTypes.object)) {
-    knob = object(value);
+    return object(key, value);
   } else if (propTypeMatches(propType, PropTypes.array)) {
-    knob = array(value);
+    return array(key, value);
   }
-  return knob;
 }
 
-function knobBasedOffExamples(value, typeInfo: TypeInfo) {
-  let knob = undefined;
+function knobBasedOffExamples(value, typeInfo: TypeInfo, key) {
+  console.log(value);
+  console.log(typeInfo);
   if (typeInfo.types.length === 1) {
-    switch (typeInfo.types[0].name) {
+    const type = typeInfo.types[0];
+    switch (type.name) {
       case DefaultTypeName.number:
-        knob = number(value);
-        break;
+        return number(key, value);
       case DefaultTypeName.boolean:
-        knob = boolean(value);
-        break;
+        return boolean(key, value);
       case DefaultTypeName.string:
         if (isCssColor(value)) {
-          knob = color(value);
+          return color(key, value);
         } else {
-          knob = text(value);
+          return text(key, value);
         }
-        break;
       case DefaultTypeName.array:
-        knob = array(value);
-        break;
+        return array(key, !!value ? value : []);
       case DefaultTypeName.function:
-        knob = action(value);
-        break;
+        return action(key, value);
       case DefaultTypeName.object:
       default:
-        knob = object(value);
-        break;
+        return object(key, value);
     }
   } else {
-    knob = object(value);
+    return object(key, value);
   }
-  return knob;
 }
 
-function knobifyField(example, objectType: ObjectType, propType, key) {
-  const value = example[key];
+function knobOfField(value, objectType: ObjectType, propType, key) {
   let knob = undefined;
+  console.log(key);
   if (propType) {
-    knob = knobBasedOffPropType(value, propType);
+    console.log('prop types');
+    knob = knobBasedOffPropType(value, propType, key);
   }
   if (!knob) {
-    knob = knobBasedOffExamples(value, objectType.fields[key]);
+    console.log('examples');
+    knob = knobBasedOffExamples(value, objectType.fields[key], key);
   }
-  example[key] = knob;
+  console.log('\n');
+  return knob;
 }
 
 export function knobify(
-  examples: any[],
+  example,
   typeInfo: TypeInfo,
   propTypes?: { [key: string]: any },
   options: any = {},
@@ -105,10 +101,8 @@ export function knobify(
     throw new Error('No null or undefined examples are allowed');
   }
   const rootType: ObjectType = type as ObjectType;
-  for (const example of examples) {
-    Object.keys(example).forEach(key => {
-      // TODO: prop types
-      knobifyField(example, rootType, propTypes, key);
-    });
-  }
+  return Object.keys(rootType.fields).reduce((knobified, fieldKey) => {
+    knobified[fieldKey] = knobOfField(example[fieldKey], rootType, propTypes, fieldKey);
+    return knobified;
+  }, {});
 }
