@@ -28,8 +28,6 @@ function propTypeMatches(testedPropType, expectedPropType) {
 export const isCssColorSymb = Symbol('isCssColor');
 
 function knobBasedOffExamples(value, typeInfo: TypeInfo, key) {
-  console.log(value);
-  console.log(typeInfo);
   if (typeInfo.types.length === 1) {
     const type = typeInfo.types[0];
     switch (type.name) {
