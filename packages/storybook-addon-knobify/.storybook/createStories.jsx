@@ -18,7 +18,6 @@ export function createStories() {
       color: '#FFF',
     },
   ];
-  console.log(addon);
   const { knobified } = addon.fromExamples(propsList, TestComponent);
   propsList.forEach((props, index) => {
     stories1.add(`Story ${index + 1}`, () => <TestComponent {...knobified(props)} />);
