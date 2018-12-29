@@ -1,7 +1,7 @@
 import util from 'util';
 import { createLogger, format, transports } from 'winston';
 
-import * as psFormats from '@patrickshaw/winston-formats';
+import * as psFormats from '@pshaw/winston-formats';
 
 export interface LoggerOptions {
   // True if you want timestamps added to your logged output
