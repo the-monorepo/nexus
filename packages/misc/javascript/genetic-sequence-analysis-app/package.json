@@ -1,0 +1,44 @@
+{
+  "name": "genetic-sequencing-analysis-app",
+  "private": true,
+  "description": "A few tools that might help with analysis for (very specific) genetic sequences in apps",
+  "version": "1.0.0",
+  "types": "./src/index.tsx",
+  "module": "./esm/index.tsx",
+  "main": "./commonjs/index.tsx",
+  ".": {
+    "import": "./esm/index.tsx",
+    "require": "./commonjs/index.tsx"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/genetic-sequencing-analysis-app"
+  },
+  "keywords": [
+    "FASTA",
+    "genetics",
+    "typescript",
+    "app"
+  ],
+  "dependencies": {
+    "@polymer/paper-radio-button": "^3.0.1",
+    "@pshaw/contextual-documents": "workspace:^",
+    "@types/jest": "^26.0.10",
+    "cinder": "workspace:^",
+    "core-js": "^3.22.1",
+    "fasta-format-parser": "workspace:^",
+    "replace-functions": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.10",
+    "jest-mock": "^27.5.1"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@contextual-documents/html-elements",
+  "version": "1.0.0-alpha.0",
+  "description": "Helper HTMLElement classes that implement elements that use the @contextual-documents/html-symbols",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "contextual-documents/contextual-documents-html-elements"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@contextual-documents/element": "workspace:^",
+    "@contextual-documents/html-symbols": "workspace:^"
+  }
+}

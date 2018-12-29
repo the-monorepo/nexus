@@ -1,0 +1,28 @@
+{
+  "name": "@pshaw/contextual-documents-style-root",
+  "version": "1.0.0-alpha.0",
+  "description": "Contextual document style root for @pshaw/contextual-documents-scss",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "patrick-shaw/contextual-documents-style-root"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@contextual-documents/classname-picker": "workspace:^",
+    "@contextual-documents/html-symbols": "workspace:^",
+    "@pshaw/contextual-documents-scss": "workspace:^"
+  }
+}

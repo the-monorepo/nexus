@@ -1,0 +1,31 @@
+{
+  "name": "@pshaw/keyed-binary-heap",
+  "description": "A implementation of a binary heap with O(1) search & item updates",
+  "keywords": [
+    "heap",
+    "typescript",
+    "binary-heap",
+    "algorithm",
+    "data-structure"
+  ],
+  "version": "1.0.0-alpha.0",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/binary-heap"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

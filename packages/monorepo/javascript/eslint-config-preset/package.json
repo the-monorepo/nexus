@@ -1,0 +1,42 @@
+{
+  "name": "@pshaw/eslint-config-preset",
+  "description": "A pratical style preset for ESLint",
+  "keywords": [
+    "config",
+    "eslint",
+    "javasript",
+    "style",
+    "lint",
+    "preset"
+  ],
+  "version": "1.4.3-0",
+  "main": "./src/index.json",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "patrick-shaw/eslint-config"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@pshaw/eslint-config-core": "workspace:^",
+    "@pshaw/eslint-config-plugin-cinder": "workspace:^",
+    "@pshaw/eslint-config-plugin-react": "workspace:^",
+    "@pshaw/eslint-config-plugin-typescript": "workspace:^",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-react": "^7.29.4"
+  },
+  "peerDependencies": {
+    "eslint": "*"
+  }
+}

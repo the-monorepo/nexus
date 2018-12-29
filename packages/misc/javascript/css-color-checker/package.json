@@ -1,0 +1,36 @@
+{
+  "name": "css-color-checker",
+  "version": "1.6.2-0",
+  "description": "Library for determining the CSS color format of string values",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/css-color-checker"
+  },
+  "keywords": [
+    "css",
+    "color",
+    "type",
+    "check",
+    "util",
+    "helper",
+    "string",
+    "pattern",
+    "typescript",
+    "regex"
+  ],
+  "devDependencies": {
+    "jest-mock": "^27.5.1"
+  },
+  "dependencies": {
+    "named-css-colors": "workspace:^"
+  }
+}

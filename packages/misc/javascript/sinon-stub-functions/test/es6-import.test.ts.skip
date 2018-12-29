@@ -1,0 +1,19 @@
+import rewiremock from 'rewiremock/node';
+
+import stubFunctions from '../src/index.ts'
+import * as es6 from './es6-module.ts'
+import * as commonjs from './exports-module.ts'
+rewiremock('./exports-module').with(
+  stubFunctions(rewiremock.requireActual('./exports-module')),
+);
+rewiremock('./es6-module').with(stubFunctions(rewiremock.requireActual('./es6-module')));
+
+describe('esm imports', () => {
+  it('exports mocked modules work', () => {
+    expect(commonjs.someFunction()).toBeUndefined();
+  });
+
+  it('mocked modules work', () => {
+    expect(es6.someFunction()).toBeUndefined();
+  });
+});

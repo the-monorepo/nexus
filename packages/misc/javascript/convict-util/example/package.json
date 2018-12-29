@@ -1,0 +1,7 @@
+{
+  "name": "convict-util-example",
+  "version": "1.0.0",
+  "dependencies": {
+    "@pshaw/convict-util": "^1.1.0"
+  }
+}

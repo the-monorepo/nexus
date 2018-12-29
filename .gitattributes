@@ -1,0 +1,16 @@
+# Originally from https://github.com/yarnpkg/berry/blob/master/.gitattributes
+# This line does two things:
+# - forces git to use LF
+# - tell git to guess whether files are text or binary
+*                       text=auto eol=lf
+# Set Yarn to use LFS for bundled files
+/.yarn/releases/** binary filter=lfs diff=lfs merge=lfs
+/.yarn/cache/** binary filter=lfs diff=lfs merge=lfs
+/.yarn/plugins/** binary filter=lfs diff=lfs merge=lfs
+/.yarn/sdks/** binary filter=lfs diff=lfs merge=lfs
+/.yarn/** linguist-vendored
+/.pnp.* binary linguist-generated
+# Run yarn install whenever a merge conflict happens
+yarn.lock merge=yarn
+# Set the language for these files to json5 to ensure GitHub doesn't show the comments as errors
+/.vscode/*.json         linguist-language=json5

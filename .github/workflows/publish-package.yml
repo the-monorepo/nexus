@@ -1,0 +1,23 @@
+name: Publish JavaScript package
+
+env:
+  NODE_ENV: production
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3.0.2
+      with:
+        lfs: true
+    - uses: cachix/install-nix-action@v17
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn install --immutable --immutable-cache
+    - run: nix --experimental-features 'nix-command flakes' develop --command scriptplan prepublish
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn version check
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn version apply
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

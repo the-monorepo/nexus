@@ -1,0 +1,21 @@
+{
+  "name": "@klio/chunk",
+  "version": "1.0.0-alpha.2",
+  "description": "Split an iterator into chunked iterators",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "packages/klio/javascript/chunk"
+  },
+  "keywords": []
+}

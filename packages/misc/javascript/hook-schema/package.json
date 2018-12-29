@@ -1,0 +1,33 @@
+{
+  "name": "hook-schema",
+  "version": "2.2.4-0",
+  "description": "A package for adding no operation (noop) hooks to incomplete hook objects",
+  "keywords": [
+    "hooks",
+    "schema",
+    "util"
+  ],
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/hook-schema"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "devDependencies": {
+    "@pshaw/markdown-util": "workspace:^",
+    "jest-mock": "^27.5.1"
+  }
+}

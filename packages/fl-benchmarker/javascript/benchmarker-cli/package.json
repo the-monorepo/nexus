@@ -1,0 +1,69 @@
+{
+  "name": "@fl-benchmarker/benchmarker-cli",
+  "version": "1.0.0-alpha.1",
+  "description": "Benchmark your fault localization techniques",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "private": true,
+  "scripts": {
+    "start": "yarn node --max-old-space-size=4096 ./commonjs/index.ts",
+    "results": "yarn node ./commonjs/index.ts",
+    "build": "yarn start && yarn results",
+    "report": "webpack-dev-server --watch --mode development",
+    "scrape-repo": "yarn node --experimental-fetch ./commonjs/index.ts"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "fl-benchmarker/benchmarker-cli"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "benchmark"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.18.13",
+    "@babel/parser": "^7.18.13",
+    "@babel/register": "^7.18.9",
+    "@fault/addon-sbfl": "workspace:^",
+    "@fault/istanbul-util": "workspace:^",
+    "@fault/record-faults": "workspace:^",
+    "@fault/runner": "workspace:^",
+    "@fault/sbfl-barinel": "workspace:^",
+    "@fault/sbfl-dstar": "workspace:^",
+    "@fault/sbfl-ochiai": "workspace:^",
+    "@fault/sbfl-op2": "workspace:^",
+    "@fault/sbfl-tarantula": "workspace:^",
+    "@fault/tester-mocha": "workspace:^",
+    "@fl-benchmarker/viewer-cli": "workspace:^",
+    "@pshaw/fs": "workspace:^",
+    "@pshaw/logger": "workspace:^",
+    "chai": "^4.3.6",
+    "chalk": "^4.1.2",
+    "chart.js": "^3.7.1",
+    "chartjs-chart-box-and-violin-plot": "^4.0.0",
+    "cinder": "workspace:^",
+    "globby": "^11.1.0",
+    "micromatch": "^4.0.5",
+    "mocha": "^9.2.2",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "cross-spawn": "^7.0.3",
+    "del": "^6.0.0",
+    "isomorphic-git": "^1.17.1"
+  }
+}

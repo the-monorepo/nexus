@@ -1,0 +1,27 @@
+{
+  "name": "replace-functions",
+  "description": "Mock all functions inside an array or object literal",
+  "version": "4.0.0",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/mock-functions-core"
+  },
+  "keywords": [
+    "typescript",
+    "util",
+    "helper",
+    "function",
+    "replace"
+  ]
+}

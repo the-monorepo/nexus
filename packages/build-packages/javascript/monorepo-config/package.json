@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0-alpha.1",
+  "name": "@monorepo/config",
+  "private": true,
+  "description": "Retrieves a configuration for monorepo",
+  "keywords": [
+    "gulp",
+    "git",
+    "status",
+    "plugin",
+    "util",
+    "build"
+  ],
+  "main": "./src/index.js",
+  "license": "MIT",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "monorepo"
+  },
+  "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34"
+}

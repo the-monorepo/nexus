@@ -1,0 +1,31 @@
+query Query($repoName: String!, $owner: String!, $after: String) {
+  repository(name: $repoName, owner: $owner) {
+    url,
+    pullRequests(first: 100, after: $after, states: [MERGED]) {
+      pageInfo{
+        hasNextPage,
+        endCursor
+      }
+      edges {
+        node {
+          number,
+          title
+          url
+          mergeCommit {
+            oid
+          }
+          additions
+          deletions
+          files(first: 100) {
+            totalCount
+            nodes {
+              path
+              additions,
+              deletions
+            }
+          }
+        }
+      }
+    }
+  }
+}

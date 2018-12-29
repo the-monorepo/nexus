@@ -1,0 +1,31 @@
+name: JavaScript tests
+
+on: [push, pull_request]
+
+env:
+  NODE_ENV: production
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os:
+          -
+            id: ubuntu-latest
+          -
+            id: macos-latest
+        node-version: [14.x]
+
+    runs-on: ${{ matrix.os.id }}
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+      with:
+        lfs: true
+    - uses: cachix/install-nix-action@v17
+      with:
+        extra_nix_config: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn install --immutable-cache --immutable
+    - run: nix --experimental-features 'nix-command flakes' develop --command scriptplan build
+    - run: nix --experimental-features 'nix-command flakes' develop --command scriptplan test

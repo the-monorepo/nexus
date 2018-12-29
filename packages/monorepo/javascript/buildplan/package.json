@@ -1,0 +1,72 @@
+{
+  "name": "@monorepo/buildplan",
+  "private": true,
+  "description": "TODO",
+  "version": "1.0.0",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "exports": {
+    ".": {
+      "monorepo-original": "./src/index.ts",
+      "import": "./esm/index.ts",
+      "require": "./commonjs/index.ts",
+      "deno": "./esm/index.deno.ts"
+    }
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "monorepo/javascript/buildplan"
+  },
+  "keywords": [
+    "FASTA",
+    "genetics",
+    "typescript",
+    "app"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.18.13",
+    "@buildplan/core": "workspace:^",
+    "@fault/addon-mutation-localization": "workspace:^",
+    "@fault/addon-sbfl": "workspace:^",
+    "@fault/runner": "workspace:^",
+    "@fault/sbfl-dstar": "workspace:^",
+    "@fault/tester-mocha": "workspace:^",
+    "@fl-benchmarker/viewer-cli": "workspace:^",
+    "@monorepo/config": "workspace:^",
+    "@pshaw/logger": "workspace:^",
+    "@pshaw/markdown-util": "workspace:^",
+    "@pshaw/webpack": "workspace:^",
+    "@writeme/core": "workspace:^",
+    "chalk": "^4.1.2",
+    "del": "^6.0.0",
+    "globby": "^11.1.0",
+    "gulp": "^4.0.2",
+    "gulp-changed": "^4.0.3",
+    "gulp-plumber": "^1.2.1",
+    "gulp-rename": "^2.0.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-transform": "^3.0.5",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "lint-staged": "^11.2.6",
+    "micromatch": "^4.0.5",
+    "minimist": "^1.2.6",
+    "plugin-error": "^1.0.1",
+    "prettier": "^2.6.2",
+    "source-map-support": "^0.5.21",
+    "stream-filter-glob": "workspace:^",
+    "stream-to-promise": "^3.0.0",
+    "through2": "^4.0.2",
+    "typescript": "^4.8.2",
+    "vinyl": "^2.2.1",
+    "vinyl-sourcemaps-apply": "^0.2.1"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-empty": "error",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "object-literal-sort-keys": "off",
+    "prefer-template": "error"
+  }
+}

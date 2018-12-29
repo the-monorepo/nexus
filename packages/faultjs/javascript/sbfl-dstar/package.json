@@ -1,0 +1,31 @@
+{
+  "name": "@fault/sbfl-dstar",
+  "version": "1.0.0-alpha.1",
+  "description": "DStar algorithm for use with @fault/addon-sbfl",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/sbfl-dstar"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "fault-localization",
+    "sbfl",
+    "dstar"
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:^"
+  }
+}

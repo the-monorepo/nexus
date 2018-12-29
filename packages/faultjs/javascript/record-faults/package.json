@@ -1,0 +1,30 @@
+{
+  "name": "@fault/record-faults",
+  "version": "1.0.0-alpha.1",
+  "description": "Record faults",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/record-faults"
+  },
+  "keywords": [
+    "typescript",
+    "util",
+    "fautltjs"
+  ],
+  "dependencies": {
+    "@fault/istanbul-util": "workspace:^",
+    "@pshaw/fs": "workspace:^",
+    "chalk": "^4.1.2"
+  }
+}

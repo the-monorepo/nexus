@@ -1,0 +1,32 @@
+{
+  "name": "@pshaw/convict-util",
+  "description": "A helper package for reading configs in using convict",
+  "keywords": [
+    "config",
+    "convict",
+    "util"
+  ],
+  "version": "1.4.3",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/convict-util"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "fs-extra": "^10.1.0"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

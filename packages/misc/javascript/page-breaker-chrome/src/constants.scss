@@ -1,0 +1,26 @@
+$unit: 4px;
+
+$txt-primary-black: rgba(0, 0, 0, 0.87);
+$txt-secondary-black: rgba(0, 0, 0, 0.60);
+$txt-tertiary-black: rgba(0, 0, 0, 0.38);
+
+$txt-primary-white: rgba(255, 255, 255, 0.87);
+$txt-secondary-white: rgba(255, 255, 255, 0.6);
+$txt-tertiary-white: rgba(255, 255, 255, 0.38);
+
+$primary: rgb(65, 83, 175);
+$accent: #42b983;
+
+.theme {
+  &.dark {
+    --txt-primary: #{$txt-primary-white};
+    --txt-secondary: #{$txt-secondary-white};
+    --txt-tertiary: #{$txt-tertiary-white};
+  }
+}
+
+:root, .theme.light {
+  --txt-primary: #{$txt-primary-black};
+  --txt-secondary: #{$txt-secondary-black};
+  --txt-tertiary: #{$txt-tertiary-black};
+}

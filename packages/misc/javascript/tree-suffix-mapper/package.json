@@ -1,0 +1,23 @@
+{
+  "name": "tree-suffix-mapper",
+  "version": "1.0.0-alpha.0",
+  "description": "Maps suffixes of a tree to particular values",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/tree-paths"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts"
+}

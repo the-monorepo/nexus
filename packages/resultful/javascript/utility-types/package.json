@@ -1,0 +1,28 @@
+{
+  "version": "0.0.4",
+  "name": "@resultful/utility-types",
+  "description": "String constants for the different result types returned by resultful",
+  "keywords": [],
+  "license": "MIT",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "exports": {
+    "monorepo-original": "./src/index.ts",
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "resultful/utility-types"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

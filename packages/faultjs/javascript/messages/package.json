@@ -1,0 +1,28 @@
+{
+  "name": "@fault/messages",
+  "version": "1.0.0-alpha.1",
+  "description": "Helper methods for easier communication between the main @fault/runner process and its workers",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/messages"
+  },
+  "keywords": [
+    "faultjs",
+    "ipc"
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:^",
+    "ipc-fifo-processor": "workspace:^"
+  }
+}

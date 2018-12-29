@@ -1,0 +1,9 @@
+{
+  "name": "from-directory-example",
+  "private": true,
+  "description": "An example of how to use writeme",
+  "version": "1.0.0",
+  "dependencies": {
+    "@writeme/core": "^1.0.3"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "cinder",
+  "version": "1.0.0-alpha.2",
+  "description": "A compile/runtime hybrid DOM rendering framework",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "cinder/cinder"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm",
+    "babel.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "exports": {
+    ".": {
+      "monorepo-original": "./src/index.ts",
+      "import": "./esm/index.ts",
+      "require": "./commonjs/index.ts"
+    },
+    "./babel": {
+      "monorepo-original": "./src/babel.ts",
+      "import": "./esm/babel.ts",
+      "require": "./commonjs/babel.ts"
+    }
+  },
+  "dependencies": {
+    "@cinderjs/babel-plugin-transform-jsx": "workspace:^",
+    "@cinderjs/core": "workspace:^",
+    "@cinderjs/element": "workspace:^"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

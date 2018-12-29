@@ -1,0 +1,36 @@
+{
+  "name": "@cinderjs/babel-plugin-transform-jsx",
+  "version": "1.0.0-alpha.2",
+  "description": "Convert JSX logic to cinder compatible JavaScript",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "cinder/cinder-babel-plugin-transform-jsx"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "exports": {
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
+  },
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@babel/core": "^7.18.13",
+    "@babel/helper-builder-react-jsx": "^7.18.6",
+    "@babel/helper-plugin-utils": "^7.18.9",
+    "@babel/plugin-syntax-jsx": "^7.18.6",
+    "@babel/traverse": "^7.18.13",
+    "@babel/types": "^7.18.13"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

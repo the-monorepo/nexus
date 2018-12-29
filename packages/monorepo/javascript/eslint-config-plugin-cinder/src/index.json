@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "react": {
+      "pragma": "cinder"
+    }
+  },
+  "rules": {
+    "jsx-quotes": ["error", "prefer-double"],
+    "react/prop-types": "off",
+    "react/no-deprecated": "off",
+    "react/no-unknown-property": "off"
+  }
+}

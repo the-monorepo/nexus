@@ -1,0 +1,34 @@
+[req]
+default_bits = 4096
+default_md = sha256
+prompt = no
+distinguished_name = req_distinguished_name
+req_extensions      = req_ext
+x509_extensions     = x509_ext
+
+
+[req_distinguished_name]
+C = AU
+ST = Melbourne
+CN = localhost
+
+[ x509_ext ]
+
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid,issuer
+
+basicConstraints  = CA:FALSE
+keyUsage          = digitalSignature, keyEncipherment
+subjectAltName    = @alternate_names
+
+[ req_ext ]
+
+subjectKeyIdentifier        = hash
+
+basicConstraints    = CA:FALSE
+keyUsage            = digitalSignature, keyEncipherment
+subjectAltName      = @alternate_names
+
+[ alternate_names ]
+DNS.1       = localhost
+DNS.2       = 127.0.0.1

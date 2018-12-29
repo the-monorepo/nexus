@@ -1,0 +1,8 @@
+{
+   "name": "file-and-console",
+   "version": "1.0.0",
+   "dependencies": {
+      "@pshaw/logger": "*",
+      "hook-schema": "*"
+   }
+}
