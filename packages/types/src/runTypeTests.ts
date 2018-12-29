@@ -2,21 +2,25 @@ import { Type } from './type-info-types';
 import { TypeTest } from './TypeTest';
 import { nullCounts, undefinedCounts } from './util';
 
-export function runTypeTests<V = Type>(values, typeTests: TypeTest<V>[]) {
+export function runTypeTests(
+  values,
+  typeTests: TypeTest<Type>[] | { [k: string]: TypeTest<Type> },
+) {
   const undefinedCount = undefinedCounts(values);
   const nullCount = nullCounts(values);
-  const passedTests = [];
-  for (const typeTest of typeTests) {
-    for (const value of values) {
-      if (typeTest.typeCheck(value)) {
-        passedTests.push(typeTest);
-        break;
+  const passedTests = Object.keys(typeTests)
+    .map(key => typeTests[key])
+    .filter(typeTest => {
+      for (const value of values) {
+        if (typeTest.typeCheck(value)) {
+          return true;
+        }
       }
-    }
-  }
+      return false;
+    });
   return {
     nullCount,
     undefinedCount,
-    typeValues: passedTests.map(({ value }) => value),
+    values: passedTests.map(({ value }) => value),
   };
 }

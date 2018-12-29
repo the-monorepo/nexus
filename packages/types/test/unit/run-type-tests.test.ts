@@ -3,15 +3,17 @@ import { typeTest } from '../../src/TypeTest';
 function testResult(values, checks, expectedResult) {
   it('correct result', () => {
     const expectedValues = [];
-    checks.filter(check => expectedResult.checks.includes(check)).forEach((check, i) => {
-      expectedValues.push(i);
-    });
+    checks
+      .filter(check => expectedResult.checks.includes(check))
+      .forEach((check, i) => {
+        expectedValues.push(i);
+      });
     const typeTests = checks.map((check, i) => typeTest(check, i));
     const result = runTypeTests(values, typeTests);
     expect(result.undefinedCount).toBe(expectedResult.undefinedCount);
     expect(result.nullCount).toBe(expectedResult.nullCount);
-    expect(result.typeValues.length).toBe(expectedValues.length);
-    expectedValues.forEach(value => expect(result.typeValues.includes(value)).toBe(true));
+    expect(result.values.length).toBe(expectedValues.length);
+    expectedValues.forEach(value => expect(result.values.includes(value)).toBe(true));
   });
 }
 describe('run-single-type', () => {

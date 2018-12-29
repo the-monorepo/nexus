@@ -1,10 +1,7 @@
 import { TestComponent } from './TestComponent';
 import { storiesOf } from '@storybook/react';
-
-import { extractTypeInfo } from '@by-example/types';
-import { knobify } from '../lib/index';
+import * as addon from '../src/index';
 import React from 'react';
-import { boolean, number } from '@storybook/addon-knobs';
 export function createStories() {
   const stories1 = storiesOf('All types in object', module);
   const propsList = [
@@ -21,10 +18,9 @@ export function createStories() {
       color: '#FFF',
     },
   ];
-  const typeInfo = extractTypeInfo(propsList);
+  console.log(addon);
+  const { knobified } = addon.fromExamples(propsList, TestComponent);
   propsList.forEach((props, index) => {
-    stories1.add(`Story ${index + 1}`, () => (
-      <TestComponent {...knobify(props, typeInfo, TestComponent.propTypes)} />
-    ));
+    stories1.add(`Story ${index + 1}`, () => <TestComponent {...knobified(props)} />);
   });
 }
