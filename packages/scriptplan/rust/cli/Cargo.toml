@@ -1,0 +1,21 @@
+[[bin]]
+name = "scriptplan"
+path = "src/main.rs"
+
+[package]
+name = "scriptplan-cli"
+version = "8.0.0"
+authors = ["Patrick Shaw <mail@patrickshaw.me>"]
+edition = "2021"
+license = "MIT"
+description = "A script CLI builder"
+
+[dependencies]
+ansi_term = "0.12.1"
+clap = "3.1.16"
+tokio = { version = "1.21.0", features = ["fs", "io-util", "process", "macros", 'rt-multi-thread'] }
+shellwords = { version = "1.1.0" }
+async-trait = { version = "0.1.53" }
+async-recursion = { version = "1.0.0" }
+futures = { version = "0.3.21" }
+scriptplan-bash = { path="../bash", version = "6.0.0" }

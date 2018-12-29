@@ -1,0 +1,41 @@
+{
+  "version": "0.0.11",
+  "name": "@resultful/failure-types",
+  "description": "Resultful type symbols",
+  "keywords": [
+    "util",
+    "typescript",
+    "reliability",
+    "throw",
+    "try",
+    "catch",
+    "error",
+    "handling"
+  ],
+  "license": "MIT",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "exports": {
+    "monorepo-original": "./src/index.ts",
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "packages/resultful/javascript/failure-types"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
+  "dependencies": {
+    "@resultful/failure-types": "workspace:^"
+  }
+}

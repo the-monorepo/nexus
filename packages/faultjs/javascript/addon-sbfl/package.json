@@ -1,0 +1,38 @@
+{
+  "name": "@fault/addon-sbfl",
+  "version": "1.0.0-alpha.1",
+  "description": "A spectrum based localization addon",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/chai"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "sbfl"
+  ],
+  "dependencies": {
+    "@fault/addon-hook-schema": "workspace:^",
+    "@fault/istanbul-util": "workspace:^",
+    "@fault/localization-util": "workspace:^",
+    "@fault/record-faults": "workspace:^",
+    "@fault/sbfl-dstar": "workspace:^",
+    "micromatch": "^4.0.4",
+    "stacktrace-js": "^2.0.2"
+  }
+}

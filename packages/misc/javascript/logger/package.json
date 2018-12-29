@@ -1,0 +1,42 @@
+{
+  "name": "@pshaw/logger",
+  "description": "A preformatted, opinionated logger",
+  "keywords": [
+    "logger"
+  ],
+  "version": "2.0.5-0",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    "monorepo-original-deno": "./src/index.deno.ts",
+    "monorepo-original": "./src/index.ts",
+    "deno": "./esm/index.deno.ts",
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
+  },
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/logger"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@pshaw/markdown-util": "workspace:^",
+    "jest-mock": "^27.5.1",
+    "mockdate": "^3.0.5"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "dependencies": {
+    "chalk": "^4.1.2"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@pshaw/contextual-documents-scss",
+  "version": "1.0.0-alpha.0",
+  "description": "SCSS files for @pshaw/contextual-documents-scss",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "patrick-shaw/contextual-documents-scss"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./src/index.scss"
+}

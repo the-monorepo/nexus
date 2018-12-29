@@ -1,0 +1,24 @@
+{
+  "name": "named-css-colors",
+  "version": "1.6.1",
+  "description": "Package of named CSS colors and their values",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/named-css-colors"
+  },
+  "keywords": [
+    "css",
+    "names",
+    "color",
+    "typescript"
+  ]
+}

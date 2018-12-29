@@ -1,0 +1,32 @@
+{
+  "name": "@pshaw/markdown-util",
+  "description": "A helper package for writing markdown files",
+  "keywords": [
+    "markdown",
+    "util"
+  ],
+  "version": "1.4.3",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/markdown-util"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "devDependencies": {
+    "rewiremock": "^3.14.3",
+    "sinon": "^13.0.2"
+  }
+}

@@ -1,0 +1,15 @@
+[package]
+name = "scriptplan-bash"
+version = "6.0.0"
+authors = ["Patrick Shaw <mail@patrickshaw.me>"]
+edition = "2021"
+license = "MIT"
+description = "Experimental Bash language parser and runtime for "
+
+[dependencies]
+yaml-rust = "0.4.5"
+shellwords = "1.1.0"
+async-trait = "0.1.53"
+futures = "0.3.21"
+scriptplan-core = { path="../core", version = "6.0.0" }
+tokio = { version = "1.21.0", features = ['process', 'rt', 'io-util'] }

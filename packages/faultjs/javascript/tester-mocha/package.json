@@ -1,0 +1,37 @@
+{
+  "name": "@fault/tester-mocha",
+  "version": "1.0.0-alpha.1",
+  "description": "Use Mocha tests in the fl test runner",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/tester-mocha"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "fault-localization",
+    "sbfl",
+    "mocha"
+  ],
+  "dependencies": {
+    "@fault/istanbul-util": "workspace:^",
+    "@fault/messages": "workspace:^",
+    "@fault/types": "workspace:^",
+    "resultful": "workspace:^"
+  },
+  "peerDependencies": {
+    "mocha": "*"
+  }
+}

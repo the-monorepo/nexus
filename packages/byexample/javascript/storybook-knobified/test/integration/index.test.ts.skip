@@ -1,0 +1,43 @@
+import rewiremock from 'rewiremock';
+
+import { text, color, number } from '@storybook/addon-knobs';
+
+import { fromExamples } from '../../src/index.ts'
+
+rewiremock('@storybook/addon-knobs').enable();
+rewiremock('@storybook/addon-actions').enable();
+rewiremock.enable();
+
+describe('correctly knobifies object', () => {
+  it('with colors', () => {
+    const theObject = {
+      aString: 'aString',
+      aColor: '#FFFFFF',
+    };
+    const knobbedObject = fromExamples([
+      {
+        aString: '#fff',
+        color: '#fff',
+      },
+      {
+        aString: 'e',
+        color: 'rgb(255,255,255)',
+      },
+    ]).knobified(theObject);
+    expect(knobbedObject).toEqual({
+      aString: text('aString', theObject.aString),
+      aColor: color('aColor', theObject.aColor),
+    });
+  });
+  it('with single example', () => {
+    const theObject = {
+      number: 5,
+    };
+    const knobbedObject = fromExamples({
+      number: 1,
+    }).knobified(theObject);
+    expect(knobbedObject).toEqual({
+      number: number('number', theObject.number),
+    });
+  });
+});

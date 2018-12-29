@@ -1,0 +1,29 @@
+{
+  "name": "@pshaw/my-resume",
+  "version": "1.1.4-0",
+  "description": "My resume",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/my-resume"
+  },
+  "types": "./src/index.tsx",
+  "module": "./esm/index.tsx",
+  "main": "./commonjs/index.tsx",
+  ".": {
+    "import": "./esm/index.tsx",
+    "require": "./commonjs/index.tsx"
+  },
+  "scripts": {
+    "pdf": "yarn node ./commonjs/to-pdf.ts"
+  },
+  "dependencies": {
+    "@pshaw/logger": "workspace:^",
+    "@pshaw/resume-template": "workspace:^",
+    "cinder": "workspace:^",
+    "core-js": "^3.22.1",
+    "express": "^4.17.3",
+    "puppeteer": "^13.6.0"
+  }
+}

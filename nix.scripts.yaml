@@ -1,0 +1,1 @@
+default: nix --extra-experimental-features 'nix-command flakes' develop --command scriptplan

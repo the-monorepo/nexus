@@ -1,0 +1,7 @@
+{
+  "name": "logged-read-json",
+  "version": "1.0.0",
+  "dependencies": {
+    "hook-schema": "^1.1.0"
+  }
+}

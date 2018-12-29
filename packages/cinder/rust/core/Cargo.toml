@@ -1,0 +1,24 @@
+[package]
+name = "cinder-core"
+version = "0.1.0"
+authors = ["Patrick Shaw <mail@patrickshaw.me>"]
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2.76"
+js-sys = "0.3.53"
+
+[dependencies.web-sys]
+version = "0.3.53"
+features = [
+  'Document',
+  'Text',
+  'Element',
+  'HtmlElement',
+  'Node',
+  'Window',
+]

@@ -1,0 +1,13 @@
+[package]
+name = "scriptplan-core"
+version = "6.0.0"
+authors = ["Patrick Shaw <mail@patrickshaw.me>"]
+edition = "2021"
+license = "MIT"
+description = "Core schema for creating programatic script plans"
+
+[dependencies]
+async-trait = { version = "0.1.53" }
+async-recursion = { version = "1.0.0" }
+futures = { version = "0.3.21" }
+scriptplan-lang-utils = { path="../lang-utils", version = "1.0.0" }

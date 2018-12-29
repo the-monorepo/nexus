@@ -1,0 +1,40 @@
+{
+  "name": "sinon-stub-functions",
+  "description": "Stub all functions inside an arrays, objects and classes with sinon",
+  "version": "4.0.1-0",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/sinon-stub-functions"
+  },
+  "keywords": [
+    "sinon",
+    "stub",
+    "testing",
+    "test",
+    "typescript",
+    "util",
+    "helper",
+    "function"
+  ],
+  "dependencies": {
+    "replace-functions": "^4.0.0"
+  },
+  "peerDependencies": {
+    "sinon": "^7.3.2"
+  },
+  "devDependencies": {
+    "rewiremock": "^3.14.3",
+    "sinon": "^13.0.2"
+  }
+}

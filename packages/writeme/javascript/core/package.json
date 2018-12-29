@@ -1,0 +1,40 @@
+{
+  "name": "@writeme/core",
+  "description": "A readme generator",
+  "keywords": [
+    "build",
+    "readme",
+    "writeme",
+    "util"
+  ],
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "version": "3.1.4-0",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "writeme/writeme-core"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@pshaw/fs": "workspace:^",
+    "fs-extra": "^10.1.0",
+    "globby": "^11.1.0",
+    "hook-schema": "^2.2.4-0"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "devDependencies": {
+    "@pshaw/markdown-util": "workspace:^",
+    "@types/node": "^14.6.0"
+  }
+}

@@ -1,0 +1,22 @@
+name: JavaScript modules integrity check
+
+on: 
+  pull_request:
+    paths:
+    - '**/package.json'
+    - 'yarn.lock'
+    - '.yarn/**'
+
+env:
+  NODE_ENV: production
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3.0.2
+      with:
+        lfs: true
+    - uses: cachix/install-nix-action@v17
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn install --immutable --immutable-cache --check-cache
+ 

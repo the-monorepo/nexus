@@ -1,0 +1,30 @@
+{
+  "name": "@fault/addon-hook-schema",
+  "version": "1.0.0-alpha.1",
+  "description": "Hook schema for Fault.js addons",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/addon-hook-schema"
+  },
+  "keywords": [
+    "typescript",
+    "util",
+    "helper",
+    "utility"
+  ],
+  "dependencies": {
+    "hook-schema": "workspace:^",
+    "stacktrace-js": "^2.0.2"
+  }
+}

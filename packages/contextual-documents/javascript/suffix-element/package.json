@@ -1,0 +1,27 @@
+{
+  "name": "@contextual-documents/suffix-element",
+  "version": "1.0.0-alpha.0",
+  "description": "TODO",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "contextual-documents/contextual-documents-html-symbols"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@contextual-documents/classname-picker": "workspace:^",
+    "dom-context": "workspace:^"
+  }
+}

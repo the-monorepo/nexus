@@ -1,0 +1,32 @@
+{
+  "name": "@pshaw/fs",
+  "description": "fs utilities",
+  "keywords": [
+    "fs",
+    "util",
+    "typescript"
+  ],
+  "version": "1.0.0-alpha.0",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/pshaw-fs"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "dependencies": {
+    "@types/node": "^14.6.0"
+  }
+}

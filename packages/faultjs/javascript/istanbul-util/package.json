@@ -1,0 +1,32 @@
+{
+  "name": "@fault/istanbul-util",
+  "version": "1.0.0-alpha.0",
+  "description": "Helper functions for use with istanbul",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/istanbul-util"
+  },
+  "keywords": [
+    "coverage",
+    "util",
+    "utility",
+    "faultjs",
+    "typescript"
+  ],
+  "dependencies": {
+    "istanbul-lib-coverage": "^3.2.0",
+    "istanbul-lib-report": "^3.0.0",
+    "istanbul-reports": "^3.1.4"
+  }
+}

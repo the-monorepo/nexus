@@ -1,0 +1,16 @@
+{
+  "name": "@byexample/types",
+  "description": "Extract type information from examples",
+  "version": "1.0.0-alpha.6",
+  "main": "./commonjs/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devPackage": false,
+  "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da",
+  "devDependencies": {
+    "jest-mock": "^27.5.1"
+  }
+}

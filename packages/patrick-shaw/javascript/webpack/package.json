@@ -1,0 +1,59 @@
+{
+  "name": "@pshaw/webpack",
+  "description": "Some utilities for building webpack configs",
+  "keywords": [
+    "config",
+    "webpack",
+    "utils"
+  ],
+  "version": "1.4.2",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "exports": {
+    ".": {
+      "import": "./esm/index.ts",
+      "require": "./commonjs/index.ts"
+    },
+    "./webpack": {
+      "import": "./common/webpack.ts",
+      "require": "./commonjs/webpack.ts"
+    }
+  },
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "patrick-shaw/webpack"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "dependencies": {
+    "@pshaw/monorepo-config": "workspace:^",
+    "@types/webpack-dev-server": "^3.11.0",
+    "babel-loader": "^8.2.5",
+    "copy-webpack-plugin": "^10.2.4",
+    "css-loader": "^6.7.1",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "json-loader": "^0.5.7",
+    "sass-embedded": "^1.50.1",
+    "sass-loader": "^12.6.0",
+    "source-map-loader": "^3.0.1",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.72.0",
+    "webpack-bundle-analyzer": "^4.5.0",
+    "webpack-dev-server": "^4.8.1"
+  },
+  "peerDependencies": {
+    "@babel/core": "*"
+  }
+}

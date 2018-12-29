@@ -1,0 +1,27 @@
+{
+  "name": "@cinderjs/hooks",
+  "version": "1.0.0-alpha.2",
+  "description": "Cinder hooks",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "cinder/cinder-hooks"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "peerDependencies": {
+    "@cinderjs/core": "*"
+  }
+}

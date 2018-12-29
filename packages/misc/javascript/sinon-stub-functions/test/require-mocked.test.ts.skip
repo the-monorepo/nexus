@@ -1,0 +1,26 @@
+import rewiremock from 'rewiremock/node';
+
+import stubFunctions from '../src/index.ts'
+describe('require', () => {
+  it('exports mocked modules work', () => {
+    rewiremock('./exports-module').with(
+      stubFunctions(rewiremock.requireActual('./exports-module')),
+    );
+    rewiremock.enable();
+    const mockedModule = require('./exports-module');
+    rewiremock.disable();
+
+    expect(mockedModule.someFunction()).toBeUndefined();
+  });
+
+  it('mocked modules work', () => {
+    rewiremock('./es6-module').with(
+      stubFunctions(rewiremock.requireActual('./es6-module')),
+    );
+    rewiremock.enable();
+    const mockedModule = require('./es6-module');
+    rewiremock.disable();
+
+    expect(mockedModule.someFunction()).toBeUndefined();
+  });
+});

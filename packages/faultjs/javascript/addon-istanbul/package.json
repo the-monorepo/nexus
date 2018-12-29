@@ -1,0 +1,35 @@
+{
+  "name": "@fault/addon-istanbul",
+  "version": "1.0.0-alpha.1",
+  "description": "Report istanbul coverage",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/istanbul-reporter"
+  },
+  "keywords": [
+    "coverage",
+    "faultjs",
+    "testing",
+    "istanbul",
+    "logging",
+    "typescript"
+  ],
+  "dependencies": {
+    "@fault/addon-hook-schema": "workspace:^",
+    "@fault/types": "workspace:^",
+    "istanbul-lib-coverage": "^3.2.0",
+    "istanbul-lib-report": "^3.0.0",
+    "istanbul-reports": "^3.1.4"
+  }
+}

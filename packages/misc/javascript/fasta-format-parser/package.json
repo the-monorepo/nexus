@@ -1,0 +1,36 @@
+{
+  "name": "fasta-format-parser",
+  "private": true,
+  "description": "A FASTA format parser",
+  "version": "1.0.0-alpha",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/fasta-format-parser"
+  },
+  "keywords": [
+    "FASTA",
+    "genetics",
+    "typescript"
+  ],
+  "dependencies": {
+    "@polymer/paper-radio-button": "^3.0.1",
+    "@types/jest": "^26.0.10",
+    "replace-functions": "^4.0.0",
+    "resultful": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.10",
+    "jest-mock": "^27.5.1"
+  }
+}

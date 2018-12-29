@@ -1,0 +1,59 @@
+{
+  "name": "@fl-benchmarker/viewer-cli",
+  "version": "1.0.0-alpha.1",
+  "description": "View your benchmarking results",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "bin": {
+    "fl-benchmarker-viewer": "./commonjs/bin.js"
+  },
+  "private": true,
+  "scripts": {
+    "run-cli": "yarn node ./commonjs/bin.js --results-dir ./fl-benchmarker-results-example",
+    "demo-serve": "yarn run-cli serve",
+    "demo-build": "yarn run-cli build",
+    "start": "yarn demo-serve",
+    "serve": "yarn demo-serve",
+    "build": "yarn demo-build"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "fl-benchmarker/viewer-cli"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "benchmark"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.18.13",
+    "@pshaw/contextual-documents": "workspace:^",
+    "@pshaw/fs": "workspace:^",
+    "@pshaw/logger": "workspace:^",
+    "@pshaw/webpack": "workspace:^",
+    "@types/d3": "^5.7.2",
+    "chalk": "^4.1.2",
+    "chart.js": "^3.7.1",
+    "chartjs-chart-box-and-violin-plot": "^4.0.0",
+    "cinder": "workspace:^",
+    "classnames": "^2.3.1",
+    "d3": "^7.4.4",
+    "globby": "^11.1.0",
+    "mobx": "^6.5.0",
+    "xy-ui": "^1.10.5",
+    "yargs": "^17.4.1"
+  }
+}

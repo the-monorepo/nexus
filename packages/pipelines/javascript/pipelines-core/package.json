@@ -1,0 +1,43 @@
+{
+  "name": "@pipelines/core",
+  "version": "1.0.0-alpha.1",
+  "description": "Programatic API for Buildplan",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "exports": {
+    "monorepo-original": "./src/index.ts",
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
+  },
+  "files": [
+    "bin",
+    "commonjs",
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "pipelines/core"
+  },
+  "keywords": [
+    "css",
+    "color",
+    "type",
+    "check",
+    "util",
+    "helper",
+    "string",
+    "pattern",
+    "typescript",
+    "regex"
+  ],
+  "dependencies": {
+    "globby": "^11.1.0",
+    "web-streams-polyfill": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.6.0"
+  }
+}

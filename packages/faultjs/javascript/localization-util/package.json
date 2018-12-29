@@ -1,0 +1,32 @@
+{
+  "name": "@fault/localization-util",
+  "version": "1.0.0-alpha.1",
+  "description": "Utility package containing common fault localization methods",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/localization-util"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "util"
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:^"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "pretty": true,
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": false,
+    "experimentalDecorators": false,
+    "esModuleInterop": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "jsx": "preserve",
+    "resolveJsonModule": false,
+    "lib": ["esnext", "dom"],
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "typings": ["./global.d.ts"],
+  "exclude": [
+    "**/.yarn/**",
+    "**/node_modules",
+    "**/build",
+    "**/commonjs",
+    "**/esm",
+    "**/dist"
+  ]
+}

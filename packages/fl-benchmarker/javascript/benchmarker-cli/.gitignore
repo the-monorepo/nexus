@@ -1,0 +1,5 @@
+/scrape-repo.auth
+/scrape-repo
+projects/*/fault-results.json
+/benchmark-results.json
+/benchmark-results.*.json
