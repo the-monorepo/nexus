@@ -17,19 +17,15 @@ export interface FileTransportOptions extends TransportOptions {
   path?: string;
 }
 
-export interface FormatOptions {
-  colors?: boolean;
-}
-
 export function consoleTransport(options: TransportOptions = {}) {
+  const formats = [];
+  if (options.colors) {
+    formats.push(format.colorize(), psFormats.colorize());
+  }
+  formats.push(psFormats.objects({ colors: options.colors }), psFormats.printer);
   return new transports.Console({
     level: options.level,
-    format: format.combine(
-      format.colorize(),
-      psFormats.colorize(),
-      psFormats.objects({ colors: true }),
-      psFormats.printer,
-    ),
+    format: format.combine(...formats),
   });
 }
 
