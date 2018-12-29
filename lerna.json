@@ -1,0 +1,24 @@
+{
+  "lerna": "3.2.1",
+  "version": "1.0.0",
+  "changelog": {
+    "repo": "PatrickShaw/monorepo",
+    "cacheDir": ".changelog"
+  },
+  "packages": [
+    "build-packages/*",
+    "packages/*"
+  ],
+  "npmClient": "yarn",
+  "npmClientArgs": [
+    "--no-lockfile"
+  ],
+  "command": {
+    "publish": {
+      "ignoreChanges": [
+        "*.md",
+        "test/**"
+      ]
+    }
+  }
+}
