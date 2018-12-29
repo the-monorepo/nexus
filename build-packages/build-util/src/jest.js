@@ -4,6 +4,7 @@ function settings() {
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
     testPathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/'],
     collectCoverage: true,
+    resetMocks: true,
     testURL: 'http://localhost/',
     transform: {
       '^.+\\.[jt]sx?$': 'babel-jest',
