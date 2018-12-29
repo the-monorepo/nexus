@@ -7,7 +7,7 @@ import {
   isNumber,
 } from '../../src/type-checks';
 import { typeValues } from '../inputs/typeValues';
-function testTypeCheckWithTypeValues(name, validValues, typeCheck) {
+function testTypeCheckWithtypes(name, validValues, typeCheck) {
   describe(name, () => {
     validValues.forEach(key =>
       describe(`${key} (valid)`, () => {
@@ -35,10 +35,10 @@ function testTypeCheckWithTypeValues(name, validValues, typeCheck) {
  * Checking to see if each individual type check is working as expected
  */
 describe('type checks', () => {
-  testTypeCheckWithTypeValues('isBoolean', ['boolean'], isBoolean);
-  testTypeCheckWithTypeValues('isObject', ['object'], isObject);
-  testTypeCheckWithTypeValues('isArray', ['array'], isArray);
-  testTypeCheckWithTypeValues('isString', ['string'], isString);
-  testTypeCheckWithTypeValues('isFunction', ['function', 'class'], isFunction);
-  testTypeCheckWithTypeValues('isNumber', ['number'], isNumber);
+  testTypeCheckWithtypes('isBoolean', ['boolean'], isBoolean);
+  testTypeCheckWithtypes('isObject', ['object'], isObject);
+  testTypeCheckWithtypes('isArray', ['array'], isArray);
+  testTypeCheckWithtypes('isString', ['string'], isString);
+  testTypeCheckWithtypes('isFunction', ['function', 'class'], isFunction);
+  testTypeCheckWithtypes('isNumber', ['number'], isNumber);
 });

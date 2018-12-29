@@ -19,52 +19,48 @@ import {
 } from './type-info-types';
 import { typeTest, TypeTest } from './TypeTest';
 import { allAreIntegers } from './util';
+import { extractTypeInfo } from './extractTypeInfo';
 
-export function defaultTypeTests(
-  values,
-  extractTypeInfoFunction,
-): TypeTest<() => DefaultType>[] {
-  return [
-    typeTest(isBoolean, () => {
+export function defaultTypeTests(examples, extractTypeInfoFunction = extractTypeInfo) {
+  return {
+    boolean: typeTest(isBoolean, () => {
       const type: BooleanType = { name: DefaultTypeName.boolean };
       return type;
     }),
-    typeTest(isString, () => {
+    string: typeTest(isString, () => {
       const type: StringType = { name: DefaultTypeName.string };
       return type;
     }),
-    typeTest(isFunction, () => {
+    function: typeTest(isFunction, () => {
       const type: FunctionType = { name: DefaultTypeName.function };
       return type;
     }),
-    typeTest(isNumber, () => {
+    number: typeTest(isNumber, () => {
       const type: NumberType = {
         name: DefaultTypeName.number,
-        format: allAreIntegers(values.filter(isNumber))
+        format: allAreIntegers(examples.filter(isNumber))
           ? NumberFormat.integer
           : NumberFormat.none,
       };
       return type;
     }),
-    typeTest(isArray, () => {
+    array: typeTest(isArray, () => {
       /*
        * TODO: Currently doesn't necessarily behave as expected.
-       * E.g. Examples = [[1, 1, 1], ['', '', '']] will return a type 
+       * E.g. Examples = [[1, 1, 1], ['', '', '']] will return a type
        * that expects an array of both strings and numbers
        */
-      const arrayValues = values.filter(value => isArray(value));
+      const arrayValues = examples.filter(value => isArray(value));
       const allValues = [].concat(...arrayValues);
       const items = extractTypeInfoFunction(allValues);
       const type: ArrayType = {
         name: DefaultTypeName.array,
-        // TODO: This currently will only extract default types
-        // TODO: Should probably lazy load this
         items,
       };
       return type;
     }),
-    typeTest(isObject, () => {
-      const objectValues = values.filter(value => isObject(value));
+    object: typeTest(isObject, () => {
+      const objectValues = examples.filter(value => isObject(value));
       const keyToValuesMap = new Map<string, { [k: string]: any }>();
       objectValues.forEach(objectValue => {
         Object.keys(objectValue).forEach(key => {
@@ -89,5 +85,5 @@ export function defaultTypeTests(
       };
       return type;
     }),
-  ];
+  };
 }

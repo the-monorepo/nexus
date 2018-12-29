@@ -1,6 +1,6 @@
 import { extractTypeInfo } from '../../packages/types';
 import { createSchema } from '../../packages/openapi';
-import { knobify } from '../../packages/storybook-addon-knobify';
+import { knobified } from '../../packages/storybook-addon-knobify';
 jest.mock('@storybook/addon-actions');
 jest.mock('@storybook/addon-knobs');
 export type ExpectOutputFunction<T> = (expectedOutput: any, options?: any) => T;
@@ -45,7 +45,7 @@ export function examples(examples: any[]) {
         openapi: options => createSchema(expectedTypeInfo, options),
         storybook: options => {
           const shallowCopy = examples.map(example => ({ ...example }));
-          knobify(examples, expectedTypeInfo, undefined, options);
+          knobified(examples, expectedTypeInfo, undefined, options);
           return shallowCopy;
         },
       });

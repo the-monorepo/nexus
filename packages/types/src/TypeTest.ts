@@ -1,7 +1,7 @@
 import { TypeCheck } from './type-checks';
 export type TypeTest<V = any> = {
-  readonly typeCheck: (...params: any[]) => boolean;
-  readonly value: V;
+  typeCheck: (...params: any[]) => boolean;
+  value: V;
 };
 
 /**
