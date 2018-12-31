@@ -5,5 +5,6 @@
   "types": "./src/index.ts",
   "license": "MIT",
   "private": false,
-  "sideEffects": false
+  "sideEffects": false,
+  "gitHead": "bad3a80440af8bd3aea9103568d79360f988fbbd"
 }

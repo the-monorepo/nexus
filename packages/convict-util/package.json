@@ -1,5 +1,5 @@
 {
-  "name": "@pshaw/convict-util",
+  "name": "@patrickshaw/convict-util",
   "description": "A small helper package for reading configs in using convict",
   "version": "1.0.0-alpha.0",
   "main": "./lib/index.js",
@@ -9,5 +9,6 @@
   "sideEffects": false,
   "dependencies": {
     "fs-exists": "^0.1.1"
-  }
+  },
+  "gitHead": "bad3a80440af8bd3aea9103568d79360f988fbbd"
 }
