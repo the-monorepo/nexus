@@ -1,1 +1,1 @@
-module.exports = require('@pshaw/build-util').jest.settings();
+module.exports = require('@patrickshaw/build-util').jest.settings();
