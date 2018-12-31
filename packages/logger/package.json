@@ -1,7 +1,7 @@
 {
   "name": "@patrickshaw/logger",
   "description": "A preformatted, opinionated logger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
