@@ -1,6 +1,6 @@
 {
-  "name": "@by-example/storybook-addon-knobify",
-  "description": "Generate Storybook knobs based off examples and prop types",
+  "name": "@by-example/storybook-knobified",
+  "description": "Automatically created knobbed versions of your stories based on value and prop types",
   "version": "1.0.0-alpha.5",
   "private": false,
   "license": "MIT",

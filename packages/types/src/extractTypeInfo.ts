@@ -4,16 +4,13 @@ import { runTypeTests } from './runTypeTests';
 
 export function extractTypeInfo<T>(
   examples: T[] | T,
-  createTypeTestsFn = defaultTypeTests,
+  typeTests = defaultTypeTests(extractTypeInfo),
 ): DefaultTypeInfo {
   const arrayOfExamples: T[] = Array.isArray(examples) ? examples : [examples];
-  const { nullCount, undefinedCount, values } = runTypeTests(
-    arrayOfExamples,
-    createTypeTestsFn(examples, extractTypeInfo),
-  );
+  const { nullCount, undefinedCount, values } = runTypeTests(arrayOfExamples, typeTests);
   return {
     nullCount,
     undefinedCount,
-    types: values.map(value => value()),
+    types: values.map(value => value(examples)),
   };
 }

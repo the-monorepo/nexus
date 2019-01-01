@@ -8,7 +8,7 @@ module.exports = config => {
       options: {
         cwd: join(__dirname, '../../..'),
       },
-      exclude: /node_module/,
+      exclude: /node_modules/,
     },
   ];
   return config;
