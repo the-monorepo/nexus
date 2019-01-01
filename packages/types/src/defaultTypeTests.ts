@@ -21,7 +21,7 @@ import { typeTest, TypeTest } from './TypeTest';
 import { allAreIntegers } from './util';
 import { extractTypeInfo } from './extractTypeInfo';
 
-export function defaultTypeTests(examples, extractTypeInfoFunction = extractTypeInfo) {
+export function defaultTypeTests(extractTypeInfoFunction = extractTypeInfo) {
   return {
     boolean: typeTest(isBoolean, () => {
       const type: BooleanType = { name: DefaultTypeName.boolean };
@@ -35,22 +35,22 @@ export function defaultTypeTests(examples, extractTypeInfoFunction = extractType
       const type: FunctionType = { name: DefaultTypeName.function };
       return type;
     }),
-    number: typeTest(isNumber, () => {
+    number: typeTest(isNumber, values => {
       const type: NumberType = {
         name: DefaultTypeName.number,
-        format: allAreIntegers(examples.filter(isNumber))
+        format: allAreIntegers(values.filter(isNumber))
           ? NumberFormat.integer
           : NumberFormat.none,
       };
       return type;
     }),
-    array: typeTest(isArray, () => {
+    array: typeTest(isArray, values => {
       /*
        * TODO: Currently doesn't necessarily behave as expected.
        * E.g. Examples = [[1, 1, 1], ['', '', '']] will return a type
        * that expects an array of both strings and numbers
        */
-      const arrayValues = examples.filter(value => isArray(value));
+      const arrayValues = values.filter(value => isArray(value));
       const allValues = [].concat(...arrayValues);
       const items = extractTypeInfoFunction(allValues);
       const type: ArrayType = {
@@ -59,8 +59,8 @@ export function defaultTypeTests(examples, extractTypeInfoFunction = extractType
       };
       return type;
     }),
-    object: typeTest(isObject, () => {
-      const objectValues = examples.filter(value => isObject(value));
+    object: typeTest(isObject, values => {
+      const objectValues = values.filter(value => isObject(value));
       const keyToValuesMap = new Map<string, { [k: string]: any }>();
       objectValues.forEach(objectValue => {
         Object.keys(objectValue).forEach(key => {

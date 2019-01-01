@@ -13,7 +13,7 @@ module.exports = {
   plugins: ['babel-plugin-istanbul'],
   overrides: [
     {
-      test: './packages/storybook-addon-knobify/.storybook',
+      test: './packages/storybook-knobified/.storybook',
       presets: [
         '@babel/preset-react',
         '@babel/preset-typescript',
