@@ -1,5 +1,5 @@
 {
-  "name": "@by-example/openapi",
+  "name": "@byexample/openapi",
   "description": "Generate OpenAPI schemas from examples",
   "version": "1.0.0-alpha.5",
   "license": "MIT",

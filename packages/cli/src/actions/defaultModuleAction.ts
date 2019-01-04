@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 
-import { extractTypeInfo } from '@by-example/types';
+import { extractTypeInfo } from '@byexample/types';
 
 import { findModule } from '../findModule';
 

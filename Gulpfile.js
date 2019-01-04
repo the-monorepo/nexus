@@ -12,7 +12,7 @@ const gulpWatch = require('gulp-watch');
 
 const through = require('through2');
 
-const { genReadmeFromPackageDir } = require('@by-example/gen-readmes');
+const { genReadmeFromPackageDir } = require('@byexample/gen-readmes');
 
 const packagesDirName = 'packages';
 

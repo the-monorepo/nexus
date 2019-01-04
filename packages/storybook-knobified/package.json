@@ -1,5 +1,5 @@
 {
-  "name": "@by-example/storybook-knobified",
+  "name": "@byexample/storybook-knobified",
   "description": "Automatically created knobbed versions of your stories based on value and prop types",
   "version": "1.0.0-alpha.5",
   "private": false,
@@ -16,7 +16,7 @@
     "prop-types": "^15.6.2"
   },
   "dependencies": {
-    "@by-example/types": "^1.0.0-alpha.5",
+    "@byexample/types": "^1.0.0-alpha.5",
     "css-color-checker": "^1.6.0"
   },
   "devDependencies": {

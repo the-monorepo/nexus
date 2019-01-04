@@ -1,5 +1,5 @@
 {
-  "name": "@by-example/storybook-addon-auto-knobs",
+  "name": "@byexample/storybook-addon-auto-knobs",
   "description": "Automatically created knobbed versions of your stories based on value and prop types",
   "version": "1.0.0-alpha.5",
   "private": false,
@@ -17,7 +17,7 @@
     "@storybook/addons": "^4.0.4"
   },
   "dependencies": {
-    "@by-example/storybook-knobified": "1.0.0-alpha.5"
+    "@byexample/storybook-knobified": "1.0.0-alpha.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",

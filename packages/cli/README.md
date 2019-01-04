@@ -1,10 +1,10 @@
 # Cli
 
-Use by-example packages using a CLI
+Use byexample packages using a CLI
 
 ## Installation
 
-`npm install --save @by-example/cli@1.0.0-alpha.5`
+`npm install --save @byexample/cli@1.0.0-alpha.5`
 or
-`yarn add @by-example/cli@1.0.0-alpha.5`
+`yarn add @byexample/cli@1.0.0-alpha.5`
 
