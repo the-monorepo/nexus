@@ -1,0 +1,40 @@
+{
+  "name": "@by-example/storybook-addon-auto-knobs",
+  "description": "Automatically created knobbed versions of your stories based on value and prop types",
+  "version": "1.0.0-alpha.5",
+  "private": false,
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./src/index.ts",
+  "devPackage": false,
+  "scripts": {
+    "storybook": "start-storybook -p 3001"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@storybook/addons": "^4.0.4"
+  },
+  "dependencies": {
+    "@by-example/storybook-knobified": "1.0.0-alpha.5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.5",
+    "@babel/preset-env": "^7.1.5",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.1.0",
+    "@storybook/addon-actions": "^4.0.4",
+    "@storybook/addon-knobs": "^4.0.4",
+    "@storybook/addons": "^4.0.4",
+    "@storybook/cli": "^4.0.4",
+    "@storybook/core": "^4.0.4",
+    "@storybook/react": "^4.0.4",
+    "@types/storybook__react": "^4.0.0",
+    "babel-loader": "^8.0.4",
+    "react": "^16.6.1",
+    "react-dom": "^16.4.2"
+  },
+  "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da"
+}
