@@ -10,7 +10,6 @@ import {
 } from '@by-example/types';
 import { isCssColor } from 'css-color-checker';
 import PropTypes from 'prop-types';
-import { makeDecorator } from '@storybook/addons';
 
 function propTypeMatches(testedPropType, expectedPropType) {
   if (testedPropType === expectedPropType) {
@@ -161,9 +160,16 @@ export function fromExamples(examples, Component, options = {}) {
   }
   const objectFields = extractKnobInfo(examples, Component, options);
   const typeInfo = {
-    type: DefaultTypeName.object,
-    fields: objectFields,
+    types: [
+      {
+        name: DefaultTypeName.object,
+        fields: objectFields,
+      },
+    ],
+    nullCount: 0,
+    undefinedCount: 0,
   };
+  console.log(typeInfo);
   return {
     knobified: example => {
       return knobified(example, typeInfo, options);
@@ -196,19 +202,3 @@ export function knobified(example, typeInfo, options: any = {}) {
     return knobified;
   }, {});
 }
-
-export const withAutoKnobs = makeDecorator({
-  name: 'withAutoKnobs',
-  wrapper: (getStory, context) => {
-    /*const bucket = getStorybook().filter((bucket) => bucket.kind === context.kind)[0];
-    const storiesProps = bucket.stories.filter(story => story.name !== context.story).map(story => {
-      return getStory()
-    });*/
-    const story = getStory(context);
-    const knobbedStory = {
-      ...story,
-      props: fromExamples([story.props], context.type, {}).knobified(story.props),
-    };
-    return knobbedStory;
-  },
-});
