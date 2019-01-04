@@ -173,7 +173,6 @@ export function fromExamples(
     nullCount: 0,
     undefinedCount: 0,
   };
-  console.log(typeInfo);
   return {
     knobified: example => {
       return knobified(example, typeInfo, options);
