@@ -5,7 +5,7 @@ import { defaultModuleAction } from './actions/defaultModuleAction';
 import packageJson from '../package';
 
 export function createArgParser() {
-  const name = 'by-example';
+  const name = 'byexample';
   const rootCommand = new Command();
   rootCommand.version(packageJson.version).name(name);
 

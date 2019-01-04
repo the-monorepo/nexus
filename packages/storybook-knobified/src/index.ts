@@ -7,7 +7,7 @@ import {
   TypeInfo,
   extractTypeInfo,
   defaultTypeTests,
-} from '@by-example/types';
+} from '@byexample/types';
 import { isCssColor } from 'css-color-checker';
 import PropTypes from 'prop-types';
 
@@ -154,7 +154,11 @@ function extractKnobInfo(examples, Component = {}, options) {
   return typeInfo;
 }
 
-export function fromExamples(examples, Component, options = {}) {
+export function fromExamples(
+  examples: any | any[],
+  Component?: React.Component,
+  options = {},
+) {
   if (!Array.isArray(examples)) {
     examples = [examples];
   }

@@ -7,7 +7,7 @@ import {
   BooleanType,
   Type,
   NumberFormat,
-} from '@by-example/types';
+} from '@byexample/types';
 
 function addTypeInfoToOpenSchema(openApiType, typeInfo, options) {
   if (options.assumeNonNull) {

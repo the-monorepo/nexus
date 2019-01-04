@@ -4,7 +4,7 @@ Automatically created knobbed versions of your stories based on value and prop t
 
 ## Installation
 
-`npm install --save @by-example/storybook-knobified@1.0.0-alpha.5`
+`npm install --save @byexample/storybook-knobified@1.0.0-alpha.5`
 or
-`yarn add @by-example/storybook-knobified@1.0.0-alpha.5`
+`yarn add @byexample/storybook-knobified@1.0.0-alpha.5`
 

@@ -2,7 +2,7 @@
   "lerna": "3.2.1",
   "version": "1.0.0-alpha.5",
   "changelog": {
-    "repo": "PatrickShaw/by-example",
+    "repo": "PatrickShaw/byexample",
     "cacheDir": ".changelog"
   },
   "packages": [

@@ -1,5 +1,5 @@
 {
-  "name": "by-example",
+  "name": "byexample",
   "description": "Extracts the types used in a particular object",
   "workspaces": [
     "packages/*",
@@ -10,7 +10,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PatrickShaw/by-example.git"
+    "url": "https://github.com/PatrickShaw/byexample.git"
   },
   "scripts": {
     "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",

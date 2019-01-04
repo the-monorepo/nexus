@@ -77,7 +77,7 @@ function readPackageJson(packageDir) {
  */
 function packageNameToTitle(packageName: string) {
   return packageName
-    .replace(/@by-example\//, '')
+    .replace(/@byexample\//, '')
     .replace('-', ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 }

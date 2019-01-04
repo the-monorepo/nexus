@@ -1,5 +1,5 @@
 import { makeDecorator } from '@storybook/addons';
-import { fromExamples } from '@by-example/storybook-knobified';
+import { fromExamples } from '@byexample/storybook-knobified';
 export const withAutoKnobs = makeDecorator({
   name: 'withAutoKnobs',
   wrapper: (getStory, context) => {
