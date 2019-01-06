@@ -1,4 +1,4 @@
-import { mockFunctions } from '../lib';
+import mockFunctions from '../lib';
 
 jest.mock('./es6-module', () => {
   const actualModule = require.requireActual('./es6-module');
