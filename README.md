@@ -7,7 +7,7 @@
 A set of functions that check whether a string matches a particular color format.
 
 ```js
-import { cssColorFormat } from 'css-color-checker';
+import cssColorFormat from 'css-color-checker';
 
 if (cssColorFormat('#FFF')) {
   console.log("It's a color!");

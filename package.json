@@ -1,7 +1,7 @@
 {
   "name": "css-color-checker",
-  "version": "1.6.0",
-  "description": "Library for checking whether a value is a valid color value",
+  "version": "1.6.1",
+  "description": "Library for determining the CSS color format of string values",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
