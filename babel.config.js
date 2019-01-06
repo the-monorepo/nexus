@@ -3,7 +3,6 @@ module.exports = api => {
   const esm = env === 'ESM';
   return {
     sourceMaps: true,
-    plugins: ['babel-plugin-istanbul'],
     presets: [
       [
         '@babel/preset-env',
