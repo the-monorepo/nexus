@@ -150,3 +150,5 @@ export function mockFunctions<T>(
 ): MockedFunctions<T> {
   return mockValue(value, options, ogToMockedMap);
 }
+
+export default mockFunctions;

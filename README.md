@@ -21,7 +21,7 @@ or
 ### Objects
 You can mock objects:
 ```js
-import { mockFunctions } from 'jest-mock-functions';
+import mockFunctions from 'jest-mock-functions';
 const mockedObject = mockFunctions({
   aInteger: 1,
   // This is replaced with jest.fn()
@@ -34,7 +34,7 @@ const mockedObject = mockFunctions({
 ### Arrays
 You can mock the contents of arrays:
 ```js
-import { mockFunctions } from 'jest-mock-functions';
+import mockFunctions from 'jest-mock-functions';
 // Will return [1, jest.fn(), jest.fn()];
 const mockedArray = mockFunctions([
   1,
@@ -80,7 +80,7 @@ E.g. `mockFunctions(aValue, { recursive: true })`
 
 You can mock functions inside arrays inside objects. With `{ recursive: true }`.
 ```js
-import { mockFunctions } from 'jest-mock-functions';
+import mockFunctions from 'jest-mock-functions';
 // Will return { test: [ jest.fn(), 1] }
 const mockedThing = mockFunctions({
   test: [() => {}, 1]
@@ -89,7 +89,7 @@ const mockedThing = mockFunctions({
 
 or the other way around
 ```js
-import { mockFunctions } from 'jest-mock-functions';
+import mockFunctions from 'jest-mock-functions';
 // Will return [ { test: jest.fn() }, { aInt: 1 }]
 const mockedThing = mockFunctions(
   [ { test: () => {} }, { aInt: 1 }],
@@ -99,7 +99,7 @@ const mockedThing = mockFunctions(
 
 go crazy with it
 ```js
-import { mockFunctions } from 'jest-mock-functions';
+import mockFunctions from 'jest-mock-functions';
 // Will return [[{ this: { is: [{ rediculous: jest.fn() }]}}]]
 const mockedThing = mockFunctions(
   [[{ this: { is: [{ rediculous: () => {}}]}}]],
@@ -116,7 +116,7 @@ By default, class instances are not mocked recursively. If you wish to mock clas
 Use this if you want to do something with the mocked functions. 
 E.g. Return a specific value:
 ```js
-import { mockFunctions } from 'jest-mock-functions';
+import mockFunctions from 'jest-mock-functions';
 const mockedObject = mockFunctions({
   test: () => 2,
   test2: () => 3
