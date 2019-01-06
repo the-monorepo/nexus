@@ -2,24 +2,43 @@
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */
 require('colors');
-const { join, sep, resolve } = require('path');
+const { join, sep, relative } = require('path');
 
 const gulp = require('gulp');
 const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
-const newer = require('gulp-newer');
-const gulpWatch = require('gulp-watch');
+const changed = require('gulp-changed');
+const plumber = require('gulp-plumber');
 
 const through = require('through2');
 
 const { genReadmeFromPackageDir } = require('@byexample/gen-readmes');
 
 const packagesDirName = 'packages';
+const packagesDir = join(__dirname, packagesDirName);
 
-function swapSrcWithLib(srcPath) {
+function errorLogger() {
+  return plumber({
+    errorHandler(err) {
+      console.error(err.stack);
+    },
+  });
+}
+
+function swapSrcWith(srcPath, newDirName) {
+  // Should look like /packages/<package-name>/src/<rest-of-the-path>
+  srcPath = relative(__dirname, srcPath);
   const parts = srcPath.split(sep);
-  parts[1] = 'lib';
-  return parts.join(sep);
+  // Swap out src for the new dir name
+  parts[2] = newDirName;
+  return join(__dirname, ...parts);
+}
+
+/**
+ * @param srcPath An absolute path
+ */
+function swapSrcWithLib(srcPath) {
+  return swapSrcWith(srcPath, 'lib');
 }
 
 function rename(fn) {
@@ -46,14 +65,16 @@ function simpleFileMessageLogger(verb) {
 function transpile() {
   const base = join(__dirname, packagesDirName);
   const stream = gulp.src(sourceGlobFromPackagesDirName(packagesDirName), { base });
+
   return stream
-    .pipe(newer({ dest: base, map: swapSrcWithLib }))
+    .pipe(errorLogger())
+    .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
     .pipe(simpleFileMessageLogger('Compiling'))
     .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(rename(file => resolve(file.base, swapSrcWithLib(file.relative))))
+    .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(base));
+    .pipe(gulp.dest(packagesDir));
 }
 
 gulp.task('transpile', transpile);
