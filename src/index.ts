@@ -159,3 +159,5 @@ export function isCssColor(value: string): boolean {
     return false;
   }
 }
+
+export default cssColorFormat;

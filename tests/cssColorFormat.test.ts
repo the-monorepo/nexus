@@ -1,6 +1,6 @@
 import { testColorTypeFunction } from './helpers/test-function';
 import { inputs } from './inputs/suites';
-import { cssColorFormat } from '../src/index';
+import cssColorFormat from '../src/index';
 import { TestInputs } from './inputs/test-inputs';
 testColorTypeFunction(
   'Css color',
