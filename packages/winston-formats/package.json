@@ -1,5 +1,5 @@
 {
-  "name": "@patrickshaw/winston-formats",
+  "name": "@pshaw/winston-formats",
   "version": "1.0.1",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
