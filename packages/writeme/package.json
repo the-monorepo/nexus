@@ -1,5 +1,5 @@
 {
-  "name": "@patrickshaw/writeme",
+  "name": "@pshaw/writeme",
   "description": "A small helper package for reading configs in using convict",
   "version": "1.0.1",
   "main": "./lib/index.js",

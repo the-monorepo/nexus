@@ -4,7 +4,7 @@ A preformatted, opinionated logger
 
 ## Installation
 
-`npm install --save @patrickshaw/logger`
+`npm install --save @pshaw/logger`
 or
-`yarn add @patrickshaw/logger`
+`yarn add @pshaw/logger`
 

@@ -82,14 +82,17 @@ function packageNameToTitle(packageName: string) {
     .replace(/\b\w/g, l => l.toUpperCase());
 }
 
-export async function genReadmeFromPackageDir(packageDir: string) {
+export type MissingFileCallback = (configPath: string) => any;
+export async function genReadmeFromPackageDir(
+  packageDir: string,
+  missingConfigHandle: MissingFileCallback = () => ({}),
+) {
   async function readConfig() {
     const configPath = join(packageDir, 'readme.config');
     try {
       return require(configPath);
     } catch {
-      console.warn(`Could not find ${configPath}.js`);
-      return {};
+      return missingConfigHandle(configPath);
     }
   }
   const packageJson = readPackageJson(packageDir);
@@ -102,3 +105,4 @@ export async function genReadmeFromPackageDir(packageDir: string) {
   });
   return readmeText;
 }
+export default genReadmeFromPackageDir;

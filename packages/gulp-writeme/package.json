@@ -1,6 +1,6 @@
 {
-  "name": "@pshaw/convict-util",
-  "description": "A small helper package for reading configs in using convict",
+  "name": "@pshaw/gulp-writeme",
+  "description": "A gulp wrapper for writeme",
   "version": "1.0.1",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
@@ -11,7 +11,9 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "fs-exists": "^0.1.1"
+    "@pshaw/writeme": "1.0.1",
+    "fs-exists": "^0.1.1",
+    "through2": "^3.0.0"
   },
   "gitHead": "c99c260d5bc49a1bb3ce6ba39efc2df272cd15e9"
 }
