@@ -82,12 +82,19 @@ function packageNameToTitle(packageName: string) {
     .replace(/\b\w/g, l => l.toUpperCase());
 }
 
-export function genReadmeFromPackageDir(
-  packageDir: string,
-  contents: ManualReadmeContents,
-) {
+export async function genReadmeFromPackageDir(packageDir: string) {
+  async function readConfig() {
+    const configPath = join(packageDir, 'readme.config');
+    try {
+      return require(configPath);
+    } catch {
+      console.warn(`Could not find ${configPath}.js`);
+      return {};
+    }
+  }
   const packageJson = readPackageJson(packageDir);
   const title = packageNameToTitle(packageJson.name);
+  const contents = await readConfig();
   const readmeText = genReadme({
     title,
     packageJson,
