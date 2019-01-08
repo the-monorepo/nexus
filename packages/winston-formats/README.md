@@ -2,7 +2,7 @@
 
 ## Installation
 
-`npm install --save @patrickshaw/winston-formats`
+`npm install --save @pshaw/winston-formats`
 or
-`yarn add @patrickshaw/winston-formats`
+`yarn add @pshaw/winston-formats`
 

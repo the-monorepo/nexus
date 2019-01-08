@@ -9,8 +9,6 @@ const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
 const newer = require('gulp-newer');
 
-const { genReadmeFromPackageDir } = require('@patrickshaw/writeme');
-
 const through = require('through2');
 
 const packagesDirName = 'packages';
@@ -59,19 +57,11 @@ gulp.task('transpile', transpile);
 
 function writeme() {
   const base = join(__dirname, packagesDirName);
+  const { writeme } = require('@pshaw/gulp-writeme');
   return gulp
     .src(packagesGlobFromPackagesDirName(packagesDirName), { base })
     .pipe(simpleFileMessageLogger('Generating readme for'))
-    .pipe(
-      through.obj(async (file, enc, callback) => {
-        const readmeText = await genReadmeFromPackageDir(file.path, {
-          isDevPackage: false,
-        });
-        file.contents = new Buffer(readmeText);
-        file.path = join(file.path, 'README.md');
-        callback(null, file);
-      }),
-    )
+    .pipe(writeme(configPath => console.warn(`Missing ${configPath}.js`)))
     .pipe(gulp.dest(base));
 }
 gulp.task('writeme', writeme);

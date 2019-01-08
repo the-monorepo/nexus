@@ -4,7 +4,7 @@ A small helper package for reading configs in using convict
 
 ## Installation
 
-`npm install --save @patrickshaw/writeme`
+`npm install --save @pshaw/writeme`
 or
-`yarn add @patrickshaw/writeme`
+`yarn add @pshaw/writeme`
 
