@@ -74,7 +74,10 @@ export default logger;
  */
 export function overrideConsoleLogger(aLogger) {
   // Since we're using splat we have to create placeholders for the arguments to go into
-  // TODO: Note that string interpolation with console.log won't work (E.g. console.log("%s", "test") will print "%stest")
+  /*
+    TODO: Note that string interpolation with console.log won't work
+    (E.g. console.log("%s", "test") will print "%stest")
+  */
   const createPlaceholders = args => new Array(args.length).fill('%s').join(' ');
   Object.keys(aLogger.levels).forEach(level => {
     console[level] = (...args) => aLogger[level](createPlaceholders(args), ...args);
