@@ -3,12 +3,13 @@
  */
 require('colors');
 require('source-map-support/register');
-const { join, sep, resolve } = require('path');
+const { join, sep, relative } = require('path');
 
 const gulp = require('gulp');
 const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
-const newer = require('gulp-newer');
+const changed = require('gulp-changed');
+const plumber = require('gulp-plumber');
 
 const gulpTslint = require('gulp-tslint');
 const gulpTypescript = require('gulp-typescript');
@@ -22,10 +23,28 @@ const through = require('through2');
 const packagesDirName = 'packages';
 const packagesDir = join(__dirname, packagesDirName);
 
-function swapSrcWithLib(srcPath) {
+function swapSrcWith(srcPath, newDirName) {
+  // Should look like /packages/<package-name>/src/<rest-of-the-path>
+  srcPath = relative(__dirname, srcPath);
   const parts = srcPath.split(sep);
-  parts[1] = 'lib';
-  return parts.join(sep);
+  // Swap out src for the new dir name
+  parts[2] = newDirName;
+  return join(__dirname, ...parts);
+}
+
+function errorLogger(l) {
+  return plumber({
+    errorHandler(err) {
+      l.error(err);
+    },
+  });
+}
+
+/**
+ * @param srcPath An absolute path
+ */
+function swapSrcWithLib(srcPath) {
+  return swapSrcWith(srcPath, 'lib');
 }
 
 function rename(fn) {
@@ -62,37 +81,35 @@ function packagesSrcStream() {
   return gulp.src(globSrcFromPackagesDirName(packagesDirName), { base: packagesDir });
 }
 
-function simplePipeLogger(tag, verb) {
+function simplePipeLogger(l, verb) {
   return through.obj(function(file, enc, callback) {
-    logger()
-      .tag(tag)
-      .info(`${verb} '${file.relative.cyan}'`);
+    l.info(`${verb} '${file.relative.cyan}'`);
     callback(null, file);
   });
 }
 
 function transpile() {
-  const base = join(__dirname, packagesDirName);
-  const stream = gulp.src(sourceGlobFromPackagesDirName(packagesDirName), { base });
-  return stream
-    .pipe(newer({ dest: base, map: swapSrcWithLib }))
-    .pipe(simplePipeLogger('transpile'.blue, 'Compiling'))
+  const l = logger().tag('transpile'.blue);
+  return packagesSrcStream()
+    .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
+    .pipe(simplePipeLogger(l, 'Compiling'))
     .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(rename(file => resolve(file.base, swapSrcWithLib(file.relative))))
+    .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(base));
+    .pipe(gulp.dest(packagesDir));
 }
 
 gulp.task('transpile', transpile);
 
 function writeme() {
   const base = join(__dirname, packagesDirName);
+  const stream = gulp.src(packagesGlobFromPackagesDirName(packagesDirName), { base });
   const { writeme } = require('@shawp/gulp-writeme');
   const l = logger().tag('writeme'.green);
-  return gulp
-    .src(packagesGlobFromPackagesDirName(packagesDirName), { base })
-    .pipe(simplePipeLogger('writeme'.green, 'Generating readme for'))
+  return stream
+    .pipe(errorLogger())
+    .pipe(simplePipeLogger(l, 'Generating readme for'))
     .pipe(writeme(configPath => l.warn(`Missing '${`${configPath}.js`.cyan}'`)))
     .pipe(gulp.dest(base));
 }
