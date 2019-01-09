@@ -1,4 +1,4 @@
-{
+  {
   "name": "@shawp/writeme",
   "description": "A small helper package for reading configs in using convict",
   "version": "1.0.3",
