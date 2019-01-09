@@ -1,9 +1,8 @@
 import util from 'util';
-
-import colors from 'colors';
 import moment from 'moment';
 import { SPLAT } from 'triple-beam';
 import { format } from 'winston';
+import chalk from 'chalk';
 
 export const errors = format(info => {
   if (info instanceof Error) {
@@ -34,8 +33,8 @@ export const objects = format((info, options) => {
 });
 
 // Adds a timestamp to the logger information
-export const timestamp = format(info => {
-  info.timestamp = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+export const timestamp = format((info, { format = 'YYYY-MM-DD HH:mm:ss' }) => {
+  info.timestamp = moment(new Date()).format(format);
   return info;
 });
 
@@ -48,7 +47,7 @@ export const align = format(info => {
 
 // Colorizes/formats javascript objects and timestamps
 export const colorize = format(info => {
-  info.timestamp = colors.gray(info.timestamp);
+  info.timestamp = chalk.gray(info.timestamp);
   return info;
 });
 

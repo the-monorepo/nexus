@@ -50,6 +50,7 @@
     "lint-staged": "^8.1.0",
     "mz": "^2.7.0",
     "prettier": "^1.15.3",
+    "source-map-support": "^0.5.9",
     "through2": "^3.0.0",
     "typescript": "^3.0.1",
     "webpack": "4.28.2"
