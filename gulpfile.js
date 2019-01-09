@@ -10,14 +10,17 @@ const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
 const newer = require('gulp-newer');
 
-const logger = () => {
-  const pshawLogger = require('@shawp/logger');
-  return pshawLogger.logger().add(pshawLogger.consoleTransport());
-};
+const gulpTslint = require('gulp-tslint');
+const gulpTypescript = require('gulp-typescript');
+
+const tslint = require('tslint');
+
+const tsProject = gulpTypescript.createProject('tsconfig.json');
 
 const through = require('through2');
 
 const packagesDirName = 'packages';
+const packagesDir = join(__dirname, packagesDirName);
 
 function swapSrcWithLib(srcPath) {
   const parts = srcPath.split(sep);
@@ -35,8 +38,28 @@ function packagesGlobFromPackagesDirName(dirName) {
   return `./${dirName}/*`;
 }
 
+function globFolderFromPackagesDirName(dirName, folderName) {
+  return [
+    `./${dirName}/*/${folderName}/**/*.{js,jsx,ts,tsx,html,css}`,
+    `!./${dirName}/*/${folderName}/**/__mocks__/*.{js,ts,tsx,jsx,html,css}`,
+  ];
+}
+
+function globSrcFromPackagesDirName(dirName) {
+  return globFolderFromPackagesDirName(dirName, 'src');
+}
+
 function sourceGlobFromPackagesDirName(dirName) {
   return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
+}
+
+const logger = () => {
+  const pshawLogger = require('@shawp/logger');
+  return pshawLogger.logger().add(pshawLogger.consoleTransport());
+};
+
+function packagesSrcStream() {
+  return gulp.src(globSrcFromPackagesDirName(packagesDirName), { base: packagesDir });
 }
 
 function simplePipeLogger(tag, verb) {
@@ -91,3 +114,38 @@ function clean() {}
 gulp.task('clean', clean);
 
 gulp.task('default', build);
+
+function runLinter({ fix }) {
+  const stream = packagesSrcStream();
+  const tslintProgram = tslint.Linter.createProgram('./tsconfig.json');
+  return stream
+    .pipe(
+      gulpTslint({
+        program: tslintProgram,
+        fix,
+        formatter: 'stylish',
+        tslint,
+      }),
+    )
+    .pipe(
+      gulpTslint.report({
+        summarizeFailureOutput: true,
+      }),
+    );
+}
+function formatLint() {
+  return runLinter({ fix: true });
+}
+formatLint.description =
+  'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
+  'overwrite files without creating a backup.';
+gulp.task('format:lint', formatLint);
+
+function checkTypes() {
+  const stream = packagesSrcStream();
+  return stream.pipe(tsProject(gulpTypescript.reporter.fullReporter()));
+}
+checkTypes.description =
+  'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
+  'serious errors in the code, such as invalid syntax or the use of incorrect types.';
+gulp.task('checker:types', checkTypes);

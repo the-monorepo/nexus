@@ -1,7 +1,8 @@
 {
   "name": "@shawp/tslint-preset",
   "version": "1.0.3",
-  "main": "./tslint.json",
+  "main": "tslint.json",
+  "files": ["tslint.json"],
   "license": "MIT",
   "private": false,
   "sideEffects": false,

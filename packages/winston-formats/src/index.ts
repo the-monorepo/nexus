@@ -1,13 +1,13 @@
-import util from 'util';
+import chalk from 'chalk';
 import moment from 'moment';
 import { SPLAT } from 'triple-beam';
+import util from 'util';
 import { format } from 'winston';
-import chalk from 'chalk';
 
 export const errors = format(info => {
   if (info instanceof Error) {
     /*
-      TODO: Winston 3.0.0 removes .message for errors for some reason. 
+      TODO: Winston 3.0.0 removes .message for errors for some reason.
       Using a workaround found here: https://github.com/winstonjs/winston/issues/1243 to preserve the message
     */
 
@@ -33,10 +33,12 @@ export const objects = format((info, options) => {
 });
 
 // Adds a timestamp to the logger information
-export const timestamp = format((info, { format = 'YYYY-MM-DD HH:mm:ss' }) => {
-  info.timestamp = moment(new Date()).format(format);
-  return info;
-});
+export const timestamp = format(
+  (info, { format: timestampFormat = 'YYYY-MM-DD HH:mm:ss' }) => {
+    info.timestamp = moment(new Date()).format(timestampFormat);
+    return info;
+  },
+);
 
 // Aligns all the information before the message section of the log
 export const align = format(info => {
