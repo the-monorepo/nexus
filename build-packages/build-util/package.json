@@ -1,7 +1,7 @@
 {
-  "name": "@pshaw/build-util",
+  "name": "@shawp/build-util",
   "description": "Tries to save some time by providing basic build configurations",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "./src/index.js",
   "private": false,
   "license": "MIT",

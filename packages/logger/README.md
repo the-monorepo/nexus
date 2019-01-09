@@ -1,10 +1,10 @@
-# @Patrickshaw/Logger
+# @Shawp/Logger
 
 A preformatted, opinionated logger
 
 ## Installation
 
-`npm install --save @pshaw/logger`
+`npm install --save @shawp/logger`
 or
-`yarn add @pshaw/logger`
+`yarn add @shawp/logger`
 

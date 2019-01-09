@@ -88,7 +88,7 @@ export async function genReadmeFromPackageDir(
   missingConfigHandle: MissingFileCallback = () => ({}),
 ) {
   async function readConfig() {
-    const configPath = join(packageDir, 'readme.config');
+    const configPath = join(packageDir, 'writeme.config');
     try {
       return require(configPath);
     } catch {

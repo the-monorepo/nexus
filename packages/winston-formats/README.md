@@ -1,8 +1,8 @@
-# @Patrickshaw/Winston Formats
+# @Shawp/Winston Formats
 
 ## Installation
 
-`npm install --save @pshaw/winston-formats`
+`npm install --save @shawp/winston-formats`
 or
-`yarn add @pshaw/winston-formats`
+`yarn add @shawp/winston-formats`
 
