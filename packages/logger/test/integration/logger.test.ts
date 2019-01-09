@@ -35,7 +35,7 @@ const log = logger().add(consoleTransport({ level: 'debug' }));
 const levelName = 'info';
 
 function formatExpected(expectedString) {
-  const prefix: string = '2018-05-03 12:34:56 ';
+  const prefix: string = '12:34:56 ';
   const padding: string = ' '.repeat(9 - levelName.length);
   const output: string = `${prefix}${levelName}${padding}${expectedString}\n`;
   return output;
