@@ -2,12 +2,18 @@
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */
 require('colors');
+require('source-map-support/register');
 const { join, sep, resolve } = require('path');
 
 const gulp = require('gulp');
 const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
 const newer = require('gulp-newer');
+
+const logger = () => {
+  const pshawLogger = require('@shawp/logger');
+  return pshawLogger.logger().add(pshawLogger.consoleTransport());
+};
 
 const through = require('through2');
 
@@ -33,9 +39,11 @@ function sourceGlobFromPackagesDirName(dirName) {
   return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
 }
 
-function simpleFileMessageLogger(verb) {
+function simplePipeLogger(tag, verb) {
   return through.obj(function(file, enc, callback) {
-    console.log(`${verb} '${file.relative.cyan}'`);
+    logger()
+      .tag(tag)
+      .info(`${verb} '${file.relative.cyan}'`);
     callback(null, file);
   });
 }
@@ -45,7 +53,7 @@ function transpile() {
   const stream = gulp.src(sourceGlobFromPackagesDirName(packagesDirName), { base });
   return stream
     .pipe(newer({ dest: base, map: swapSrcWithLib }))
-    .pipe(simpleFileMessageLogger('Compiling'))
+    .pipe(simplePipeLogger('transpile'.blue, 'Compiling'))
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(rename(file => resolve(file.base, swapSrcWithLib(file.relative))))
@@ -58,10 +66,11 @@ gulp.task('transpile', transpile);
 function writeme() {
   const base = join(__dirname, packagesDirName);
   const { writeme } = require('@shawp/gulp-writeme');
+  const l = logger().tag('writeme'.green);
   return gulp
     .src(packagesGlobFromPackagesDirName(packagesDirName), { base })
-    .pipe(simpleFileMessageLogger('Generating readme for'))
-    .pipe(writeme(configPath => console.warn(`Missing ${configPath}.js`)))
+    .pipe(simplePipeLogger('writeme'.green, 'Generating readme for'))
+    .pipe(writeme(configPath => l.warn(`Missing '${`${configPath}.js`.cyan}'`)))
     .pipe(gulp.dest(base));
 }
 gulp.task('writeme', writeme);

@@ -3,50 +3,67 @@ import { createLogger, format, transports } from 'winston';
 
 import * as psFormats from '@shawp/winston-formats';
 
-export interface LoggerOptions {
-  // True if you want timestamps added to your logged output
-  timestamp?: boolean;
-}
+export interface LoggerOptions {}
 
 export interface TransportOptions {
   level?: string;
   colors?: boolean;
+  timestamp?: string | null;
 }
 
 export interface FileTransportOptions extends TransportOptions {
   path?: string;
 }
 
-export function consoleTransport(options: TransportOptions = {}) {
+export function consoleTransport({
+  level,
+  colors = true,
+  timestamp = 'hh:mm:ss',
+}: TransportOptions = {}) {
   const formats = [];
-  if (options.colors) {
+  if (timestamp) {
+    formats.push(psFormats.timestamp({ format: timestamp }));
+  }
+  if (colors) {
     formats.push(format.colorize(), psFormats.colorize());
   }
-  formats.push(psFormats.objects({ colors: options.colors }), psFormats.printer);
+  formats.push(psFormats.objects({ colors }), psFormats.printer);
   return new transports.Console({
-    level: options.level,
+    level,
     format: format.combine(...formats),
   });
 }
 
 export function fileTransport(options: FileTransportOptions = {}) {
+  const formats = [];
+  if (options.timestamp) {
+    formats.push(psFormats.timestamp({ timestamp: options.timestamp }));
+  }
+  formats.push(psFormats.objects({ colors: options.colors }));
   return new transports.File({
     filename: options.path,
     level: options.level,
-    format: format.combine(psFormats.objects({ colors: false }), psFormats.printer),
+    format: format.combine(...formats, psFormats.printer),
   });
 }
 
 export function logger(options: LoggerOptions = {}) {
-  const { timestamp = true } = options;
   const formatters: any[] = [];
-  if (timestamp) {
-    formatters.push(psFormats.timestamp());
-  }
   formatters.push(psFormats.errors(), psFormats.align());
-  return createLogger({
+  const aLogger = createLogger({
     format: format.combine(...formatters),
   });
+  (aLogger as any).tag = tag => {
+    return Object.keys(aLogger.levels)
+      .concat('log')
+      .reduce((prev, key) => {
+        prev[key] = message => {
+          aLogger[key](`[${tag}] ${message}`);
+        };
+        return prev;
+      }, {});
+  };
+  return aLogger;
 }
 export default logger;
 
