@@ -1,6 +1,6 @@
 {
-  "name": "@pshaw/winston-formats",
-  "version": "1.0.1",
+  "name": "@shawp/winston-formats",
+  "version": "1.0.2",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",

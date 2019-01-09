@@ -1,10 +1,10 @@
-# @Patrickshaw/Convict Util
+# @Shawp/Convict Util
 
 A small helper package for reading configs in using convict
 
 ## Installation
 
-`npm install --save @pshaw/convict-util`
+`npm install --save @shawp/convict-util`
 or
-`yarn add @pshaw/convict-util`
+`yarn add @shawp/convict-util`
 

@@ -11,9 +11,9 @@ jest.mock('winston', () => {
   return actualModule;
 });
 
-jest.mock('@pshaw/winston-formats', () => {
+jest.mock('@shawp/winston-formats', () => {
   const { mockFormatter } = require('../util/mockFormatter');
-  const actualModule = require.requireActual('@pshaw/winston-formats');
+  const actualModule = require.requireActual('@shawp/winston-formats');
   actualModule.colorize = mockFormatter();
   const ogObjectsFormatter = actualModule.objects;
   actualModule.objects = ({ ...other }) =>
