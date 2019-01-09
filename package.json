@@ -28,6 +28,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0-beta.56",
     "@babel/preset-typescript": "^7.0.0-beta.56",
+    "@patrickshaw/logger": "^1.0.1",
     "@storybook/core": "4.1.4",
     "@types/jest": "^23.3.10",
     "@types/mz": "^0.0.32",
