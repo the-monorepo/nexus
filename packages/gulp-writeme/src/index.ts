@@ -1,6 +1,6 @@
 import through from 'through2';
 import { join } from 'path';
-import { genReadmeFromPackageDir } from '@pshaw/writeme';
+import { genReadmeFromPackageDir } from '@shawp/writeme';
 export function writeme(missingFileCallback) {
   return through.obj(async (file, enc, callback) => {
     const readmeText = await genReadmeFromPackageDir(file.path, missingFileCallback);

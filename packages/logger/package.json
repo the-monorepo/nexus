@@ -1,7 +1,7 @@
 {
-  "name": "@pshaw/logger",
+  "name": "@shawp/logger",
   "description": "A preformatted, opinionated logger",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "winston": "^3.1.0"
   },
   "peerDependencies": {
-    "@pshaw/winston-formats": "^1.0.0",
+    "@shawp/winston-formats": "^1.0.0",
     "winston": "^3.1.0"
   },
   "gitHead": "c99c260d5bc49a1bb3ce6ba39efc2df272cd15e9"

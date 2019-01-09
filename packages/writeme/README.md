@@ -1,10 +1,10 @@
-# @Patrickshaw/Writeme
+# @Shawp/Writeme
 
 A small helper package for reading configs in using convict
 
 ## Installation
 
-`npm install --save @pshaw/writeme`
+`npm install --save @shawp/writeme`
 or
-`yarn add @pshaw/writeme`
+`yarn add @shawp/writeme`
 

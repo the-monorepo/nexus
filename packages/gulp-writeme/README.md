@@ -1,10 +1,10 @@
-# @Patrickshaw/Gulp Writeme
+# @Shawp/Gulp Writeme
 
 A gulp wrapper for writeme
 
 ## Installation
 
-`npm install --save @pshaw/gulp-writeme`
+`npm install --save @shawp/gulp-writeme`
 or
-`yarn add @pshaw/gulp-writeme`
+`yarn add @shawp/gulp-writeme`
 

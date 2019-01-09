@@ -57,7 +57,7 @@ gulp.task('transpile', transpile);
 
 function writeme() {
   const base = join(__dirname, packagesDirName);
-  const { writeme } = require('@pshaw/gulp-writeme');
+  const { writeme } = require('@shawp/gulp-writeme');
   return gulp
     .src(packagesGlobFromPackagesDirName(packagesDirName), { base })
     .pipe(simpleFileMessageLogger('Generating readme for'))
