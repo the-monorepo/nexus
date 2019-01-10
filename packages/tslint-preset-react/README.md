@@ -2,7 +2,7 @@
 
 ## Installation
 
-`npm install --save @shawp/tslint-react-preset`
+`npm install --save-dev @shawp/tslint-react-preset`
 or
-`yarn add @shawp/tslint-react-preset`
+`yarn add --dev @shawp/tslint-react-preset`
 
