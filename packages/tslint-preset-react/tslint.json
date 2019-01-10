@@ -1,0 +1,9 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint-react"],
+  "rules": {
+    "jsx-boolean-value": [true, "never"],
+    "jsx-no-multiline-js": false,
+    "quotemark": [true, "single", "jsx-double"]
+  }
+}
