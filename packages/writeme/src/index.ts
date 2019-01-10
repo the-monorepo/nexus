@@ -89,10 +89,23 @@ export async function genReadmeFromPackageDir(
 ) {
   async function readConfig() {
     const configPath = join(packageDir, 'writeme.config');
-    try {
-      return await Promise.resolve(require(configPath));
-    } catch {
-      return await Promise.resolve(missingConfigHandle(configPath));
+    async function getConfigModule() {
+      try {
+        return require(configPath);
+      } catch (err) {
+        if (err.code === 'MODULE_NOT_FOUND') {
+          return await Promise.resolve(missingConfigHandle(configPath));
+        } else {
+          throw err;
+        }
+      }
+    }
+    const configModule = await getConfigModule();
+    const configModuleType = typeof configModule;
+    if (configModuleType === 'function') {
+      return await Promise.resolve(configModule());
+    } else {
+      return configModule;
     }
   }
   const packageJson = readPackageJson(packageDir);
