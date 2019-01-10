@@ -1,6 +1,7 @@
 {
   "name": "@shawp/gulp-writeme",
   "description": "A gulp wrapper for writeme",
+  "keywords": ["gulp", "build", "readme", "writeme", "util"],
   "version": "1.0.3",
   "main": "./lib/index.js",
   "types": "./src/index.ts",

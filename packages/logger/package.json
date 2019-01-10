@@ -1,6 +1,7 @@
 {
   "name": "@shawp/logger",
   "description": "A preformatted, opinionated logger",
+  "keywords": ["logger"],
   "version": "1.0.4",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
