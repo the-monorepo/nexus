@@ -3,6 +3,7 @@
   "version": "1.0.3",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
+  "keywords": ["winston", "formats"],
   "license": "MIT",
   "private": false,
   "sideEffects": false,
