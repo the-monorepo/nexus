@@ -1,8 +1,10 @@
 {
   "name": "@shawp/tslint-react-preset",
+  "description": "A pratical React style preset for TSLint",
   "version": "1.0.3",
   "main": "tslint.json",
   "files": ["tslint.json"],
+  "keywords": ["config", "react", "tslint", "typescript", "style", "lint", "preset"],
   "license": "MIT",
   "private": false,
   "sideEffects": false,

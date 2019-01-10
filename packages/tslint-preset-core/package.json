@@ -1,5 +1,7 @@
 {
   "name": "@shawp/tslint-preset-core",
+  "description": "A pratical style preset for TSLint",
+  "keywords": ["config", "tslint", "typescript", "style", "lint", "preset"],
   "version": "1.0.3",
   "main": "tslint.json",
   "files": ["tslint.json"],
