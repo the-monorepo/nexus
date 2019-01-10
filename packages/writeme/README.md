@@ -4,7 +4,7 @@ A small helper package for reading configs in using convict
 
 ## Installation
 
-`npm install --save-dev @shawp/writeme`
+`npm install --save @shawp/writeme`
 or
-`yarn add --dev @shawp/writeme`
+`yarn add @shawp/writeme`
 

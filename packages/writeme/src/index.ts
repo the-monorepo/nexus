@@ -90,9 +90,9 @@ export async function genReadmeFromPackageDir(
   async function readConfig() {
     const configPath = join(packageDir, 'writeme.config');
     try {
-      return require(configPath);
+      return await Promise.resolve(require(configPath));
     } catch {
-      return missingConfigHandle(configPath);
+      return Promise.resolve(missingConfigHandle(configPath));
     }
   }
   const packageJson = readPackageJson(packageDir);
