@@ -22,7 +22,7 @@
     "ci-test": "yarn test"
   },
   "keywords": [
-    "types"
+    "typescript"
   ],
   "devDependencies": {
     "@babel/cli": "^7.2.3",
