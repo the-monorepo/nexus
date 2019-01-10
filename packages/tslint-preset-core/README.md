@@ -6,3 +6,12 @@
 or
 `yarn add --dev @shawp/tslint-preset-core`
 
+## Examples
+
+```json
+{
+  "extends": [
+    "@shawp/tslint-preset-core"
+  ]
+}
+```
