@@ -1,6 +1,6 @@
 # Convict Util
 
-A small helper package for reading configs in using convict
+A helper package for reading configs in using convict
 
 ## Installation
 

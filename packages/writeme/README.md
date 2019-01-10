@@ -1,6 +1,6 @@
 # Writeme
 
-A small helper package for reading configs in using convict
+A readme generator
 
 ## Installation
 
