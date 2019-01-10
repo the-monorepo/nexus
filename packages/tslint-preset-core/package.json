@@ -1,0 +1,15 @@
+{
+  "name": "@shawp/tslint-preset-core",
+  "version": "1.0.3",
+  "main": "tslint.json",
+  "files": ["tslint.json"],
+  "license": "MIT",
+  "private": false,
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "tslint": "^5.12.0"
+  }
+}
