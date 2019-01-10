@@ -1,4 +1,4 @@
-# @Shawp/Tslint React-Preset
+# Tslint React-Preset
 
 ## Installation
 

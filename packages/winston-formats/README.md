@@ -1,4 +1,4 @@
-# @Shawp/Winston Formats
+# Winston Formats
 
 ## Installation
 

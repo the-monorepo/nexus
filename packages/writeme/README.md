@@ -1,4 +1,4 @@
-# @Shawp/Writeme
+# Writeme
 
 A small helper package for reading configs in using convict
 

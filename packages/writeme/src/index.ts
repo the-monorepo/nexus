@@ -77,7 +77,7 @@ function readPackageJson(packageDir) {
  */
 function packageNameToTitle(packageName: string) {
   return packageName
-    .replace(/@byexample\//, '')
+    .replace(/^@[^\/]+\//, '')
     .replace('-', ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 }
@@ -92,7 +92,7 @@ export async function genReadmeFromPackageDir(
     try {
       return await Promise.resolve(require(configPath));
     } catch {
-      return Promise.resolve(missingConfigHandle(configPath));
+      return await Promise.resolve(missingConfigHandle(configPath));
     }
   }
   const packageJson = readPackageJson(packageDir);

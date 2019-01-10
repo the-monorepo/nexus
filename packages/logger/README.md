@@ -1,4 +1,4 @@
-# @Shawp/Logger
+# Logger
 
 A preformatted, opinionated logger
 
