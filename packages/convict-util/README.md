@@ -1,4 +1,4 @@
-# @Shawp/Convict Util
+# Convict Util
 
 A small helper package for reading configs in using convict
 

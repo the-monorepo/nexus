@@ -1,4 +1,4 @@
-# @Shawp/Gulp Writeme
+# Gulp Writeme
 
 A gulp wrapper for writeme
 

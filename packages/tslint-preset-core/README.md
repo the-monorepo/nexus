@@ -1,4 +1,4 @@
-# @Shawp/Tslint Preset-Core
+# Tslint Preset-Core
 
 ## Installation
 
