@@ -1,8 +1,14 @@
 {
   "name": "@shawp/gulp-writeme",
   "description": "A gulp wrapper for writeme",
-  "keywords": ["gulp", "build", "readme", "writeme", "util"],
-  "version": "1.0.3",
+  "keywords": [
+    "gulp",
+    "build",
+    "readme",
+    "writeme",
+    "util"
+  ],
+  "version": "1.1.0",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
@@ -12,7 +18,7 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@shawp/writeme": "^1.0.3",
+    "@shawp/writeme": "^1.1.0",
     "fs-exists": "^0.1.1",
     "through2": "^3.0.0"
   },
