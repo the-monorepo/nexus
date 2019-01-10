@@ -1,11 +1,14 @@
 const { readFile } = require('mz/fs');
 const { join } = require('path');
 module.exports = async () => {
-  const example = await readFile(join(__dirname, 'examples', 'from-package-directory'));
+  const example = await readFile(
+    join(__dirname, 'examples/from-package-directory/index.js'),
+  );
   const examples = '```js\n' + example + '\n' + '```';
-  console.log(examples);
   return {
     isDevPackage: true,
-    examples,
+    sections: {
+      examples,
+    },
   };
 };
