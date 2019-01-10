@@ -1,6 +1,6 @@
 {
   "name": "@shawp/convict-util",
-  "description": "A small helper package for reading configs in using convict",
+  "description": "A helper package for reading configs in using convict",
   "keywords": ["config", "convict", "util"],
   "version": "1.0.3",
   "main": "./lib/index.js",

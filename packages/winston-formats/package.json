@@ -1,5 +1,6 @@
 {
   "name": "@shawp/winston-formats",
+  "description": "A set of Winston formats",
   "version": "1.0.3",
   "main": "./lib/index.js",
   "types": "./src/index.ts",

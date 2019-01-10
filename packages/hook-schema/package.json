@@ -1,6 +1,7 @@
 {
   "name": "hook-schema",
   "version": "1.0.3",
+  "description": "A package for adding no operation (noop) hooks to incomplete hook objects",
   "keywords": ["hooks", "schema", "util"],
   "main": "./lib/index.js",
   "types": "./src/index.ts",

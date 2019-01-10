@@ -1,6 +1,6 @@
   {
   "name": "@shawp/writeme",
-  "description": "A small helper package for reading configs in using convict",
+  "description": "A readme generator",
   "keywords": ["build", "readme", "writeme", "util"],
   "version": "1.0.3",
   "main": "./lib/index.js",
