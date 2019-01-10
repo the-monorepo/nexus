@@ -2,7 +2,7 @@
 
 ## Installation
 
-`npm install --save @shawp/tslint-preset-core`
+`npm install --save-dev @shawp/tslint-preset-core`
 or
-`yarn add @shawp/tslint-preset-core`
+`yarn add --dev @shawp/tslint-preset-core`
 
