@@ -1,10 +1,11 @@
 const { readFile } = require('mz/fs');
 const { join } = require('path');
+const { readCodeBlock } = require('@shawp/markdown-util');
 module.exports = async () => {
-  const example = await readFile(
+  const example = await readCodeBlock(
     join(__dirname, 'examples/from-package-directory/index.js'),
   );
-  const examples = '```js\n' + example + '\n' + '```';
+  const examples = example;
   return {
     isDevPackage: true,
     sections: {
