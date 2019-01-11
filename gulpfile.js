@@ -57,15 +57,30 @@ function packagesGlobFromPackagesDirName(dirName) {
   return `./${dirName}/*`;
 }
 
-function globFolderFromPackagesDirName(dirName, folderName) {
+function srcGlob(dirName, folderName) {
+  return `./${dirName}/*/${folderName}/**/*`;
+}
+
+function srcTranspiledGlob(dirName, folderName) {
+  return `${srcGlob(dirName, folderName)}.${transpiledExtensions}`;
+}
+
+function mockGlob(dirName, folderName) {
+  return `${srcGlob(dirName, folderName)}/__mocks__/*`;
+}
+
+const transpiledExtensions = '{js,jsx,ts,tsx,html,css}';
+
+function globSrcMiscFromPackagesDirName(dirName) {
   return [
-    `./${dirName}/*/${folderName}/**/*.{js,jsx,ts,tsx,html,css}`,
-    `!./${dirName}/*/${folderName}/**/__mocks__/*.{js,ts,tsx,jsx,html,css}`,
+    `${srcGlob(dirName, 'src')}`,
+    `!${srcTranspiledGlob(dirName, 'src')}`,
+    `!${mockGlob(dirName, 'src')}`,
   ];
 }
 
-function globSrcFromPackagesDirName(dirName) {
-  return globFolderFromPackagesDirName(dirName, 'src');
+function globSrcCodeFromPackagesDirName(dirName) {
+  return [`${srcTranspiledGlob(dirName, 'src')}`, `!${mockGlob(dirName, 'src')}`];
 }
 
 function sourceGlobFromPackagesDirName(dirName) {
@@ -77,8 +92,12 @@ const logger = () => {
   return pshawLogger.logger().add(pshawLogger.consoleTransport());
 };
 
-function packagesSrcStream() {
-  return gulp.src(globSrcFromPackagesDirName(packagesDirName), { base: packagesDir });
+function packagesSrcMiscStream() {
+  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: packagesDir });
+}
+
+function packagesSrcCodeStream() {
+  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), { base: packagesDir });
 }
 
 function simplePipeLogger(l, verb) {
@@ -88,9 +107,17 @@ function simplePipeLogger(l, verb) {
   });
 }
 
+function copy() {
+  const l = logger().tag('copy'.yellow);
+  return packagesSrcMiscStream()
+    .pipe(simplePipeLogger(l, 'Copying'))
+    .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
+    .pipe(gulp.dest(packagesDir));
+}
+
 function transpile() {
   const l = logger().tag('transpile'.blue);
-  return packagesSrcStream()
+  return packagesSrcCodeStream()
     .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
     .pipe(simplePipeLogger(l, 'Compiling'))
     .pipe(sourcemaps.init())
@@ -115,7 +142,7 @@ function writeme() {
 }
 gulp.task('writeme', writeme);
 
-const build = gulp.series(transpile, writeme);
+const build = gulp.series(copy, transpile, writeme);
 gulp.task('build', build);
 
 function watch() {
@@ -133,7 +160,7 @@ gulp.task('clean', clean);
 gulp.task('default', build);
 
 function runLinter({ fix }) {
-  const stream = packagesSrcStream();
+  const stream = packagesSrcCodeStream();
   const tslintProgram = tslint.Linter.createProgram('./tsconfig.json');
   return stream
     .pipe(
@@ -159,7 +186,7 @@ formatLint.description =
 gulp.task('format:lint', formatLint);
 
 function checkTypes() {
-  const stream = packagesSrcStream();
+  const stream = packagesSrcCodeStream();
   return stream.pipe(tsProject(gulpTypescript.reporter.fullReporter()));
 }
 checkTypes.description =
