@@ -1,0 +1,7 @@
+{
+   "name": "file-and-console",
+   "version": "1.0.0",
+   "dependencies": {
+      "@shawp/logger": "^1.1.0"
+   }
+}
