@@ -4,7 +4,7 @@ A helper package for writing markdown files
 
 ## Installation
 
-`npm install --save @shawp/markdown-util`
+`npm install --save-dev @shawp/markdown-util`
 or
-`yarn add @shawp/markdown-util`
+`yarn add --dev @shawp/markdown-util`
 
