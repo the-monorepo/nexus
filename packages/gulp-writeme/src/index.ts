@@ -7,8 +7,8 @@ export function writeme(missingFileCallback) {
     try {
       const readmeText = await ogWriteme(file.path, missingFileCallback);
       file.contents = new Buffer(readmeText, enc);
-      file.path = join(file.path, 'README.md');  
-    } catch(err) {
+      file.path = join(file.path, 'README.md');
+    } catch (err) {
       callback(new PluginError('writeme', err, { showStack: true }));
       return;
     }
