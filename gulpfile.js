@@ -87,10 +87,8 @@ function sourceGlobFromPackagesDirName(dirName) {
   return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
 }
 
-const logger = () => {
-  const pshawLogger = require('@shawp/logger');
-  return pshawLogger.logger().add(pshawLogger.consoleTransport());
-};
+const pshawLogger = require('@shawp/logger');
+const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream() {
   return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: packagesDir });
@@ -108,7 +106,7 @@ function simplePipeLogger(l, verb) {
 }
 
 function copy() {
-  const l = logger().tag('copy'.yellow);
+  const l = logger.tag('copy'.yellow);
   return packagesSrcMiscStream()
     .pipe(simplePipeLogger(l, 'Copying'))
     .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
@@ -116,8 +114,9 @@ function copy() {
 }
 
 function transpile() {
-  const l = logger().tag('transpile'.blue);
+  const l = logger.tag('transpile'.blue);
   return packagesSrcCodeStream()
+    .pipe(errorLogger(l))
     .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
     .pipe(simplePipeLogger(l, 'Compiling'))
     .pipe(sourcemaps.init())
@@ -133,9 +132,9 @@ function writeme() {
   const base = join(__dirname, packagesDirName);
   const stream = gulp.src(packagesGlobFromPackagesDirName(packagesDirName), { base });
   const { writeme } = require('@shawp/gulp-writeme');
-  const l = logger().tag('writeme'.green);
+  const l = logger.tag('writeme'.green);
   return stream
-    .pipe(errorLogger())
+    .pipe(errorLogger(l))
     .pipe(simplePipeLogger(l, 'Generating readme for'))
     .pipe(writeme(configPath => l.warn(`Missing '${`${configPath}.js`.cyan}'`)))
     .pipe(gulp.dest(base));

@@ -1,4 +1,5 @@
 import { join } from 'path';
+import { pathExists } from 'fs-extra';
 
 function section(title, content) {
   let md = '';
@@ -90,14 +91,10 @@ export async function genReadmeFromPackageDir(
   async function readConfig() {
     const configPath = join(packageDir, 'writeme.config');
     async function getConfigModule() {
-      try {
+      if (await pathExists(`${configPath}.js`)) {
         return require(configPath);
-      } catch (err) {
-        if (err.code === 'MODULE_NOT_FOUND') {
-          return await Promise.resolve(missingConfigHandle(configPath));
-        } else {
-          throw err;
-        }
+      } else {
+        return await Promise.resolve(missingConfigHandle(configPath));
       }
     }
     const configModule = await getConfigModule();
