@@ -5244,11 +5244,6 @@ from2@^2.1.0:
     inherits "^2.0.1"
     readable-stream "^2.0.0"
 
-fs-exists@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/fs-exists/-/fs-exists-0.1.1.tgz#a0126762c5e9416a3dde695891ceb5e29fc7e133"
-  integrity sha1-oBJnYsXpQWo93mlYkc614p/H4TM=
-
 fs-extra@^0.30.0:
   version "0.30.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-0.30.0.tgz#f233ffcc08d4da7d432daa449776989db1df93f0"
