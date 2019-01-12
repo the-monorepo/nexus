@@ -1,16 +1,3 @@
-# Hook Schema
-
-A package for adding no operation (noop) hooks to incomplete hook objects
-
-## Installation
-
-`npm install --save hook-schema`
-or
-`yarn add hook-schema`
-
-## Examples
-
-```javascript
 const { schema } = require('hook-schema');
 const { readFile } = require('mz/fs');
 const { join } = require('path');
@@ -65,5 +52,3 @@ async function run() {
   await loggedReadJson(join(__dirname, 'package.json'));
 }
 run();
-```
-
