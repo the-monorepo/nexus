@@ -76,6 +76,7 @@ export function schema<H extends HookSchema>(schemaObj: H) {
     };
   };
 }
+export default schema;
 
 export function mergeHooks<H extends HookSchema>(
   hooksList: Array<RecursivePartial<Hooks<H>> | HookCallback | undefined>,
