@@ -8,7 +8,7 @@
     "writeme",
     "util"
   ],
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
@@ -18,7 +18,7 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@shawp/writeme": "^1.1.0",
+    "@shawp/writeme": "^1.2.0",
     "plugin-error": "^1.0.1",
     "through2": "^3.0.0"
   },
