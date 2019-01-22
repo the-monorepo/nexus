@@ -58,10 +58,12 @@ function genReadme({ title, packageJson, isDevPackage, sections = {} }: ReadmeCo
   }
   md += '## Installation\n';
   md += '\n';
-  md += `\`npm install${npmSaveFlag} ${installPackageName}\`\n`;
-  md += 'or\n';
-  md += `\`yarn add${yarnSaveFlag} ${installPackageName}\`\n`;
-  md += '\n';
+  if (packageJson.private !== true) {
+    md += `\`npm install${npmSaveFlag} ${installPackageName}\`\n`;
+    md += 'or\n';
+    md += `\`yarn add${yarnSaveFlag} ${installPackageName}\`\n`;
+    md += '\n';  
+  } 
   md += section('How to use it', howTo);
   md += section('Examples', examples);
   md += section('Development', development);
