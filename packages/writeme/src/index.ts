@@ -34,31 +34,32 @@ export interface ReadmeContents extends ManualReadmeContents {
 
 const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
 
-function genReadme({ title, packageJson, isDevPackage, sections = {} }: ReadmeContents) {
+function genReadme({ name, version, private, isDevPackage, description, sections = {} }: ReadmeContents) {
+  const title = packageNameToTitle(name);
   const { examples, howTo, development = '' } = sections;
   // TODO: Also add peer dependencies
   const yarnSaveFlag = isDevPackage ? ' --dev' : '';
   const npmSaveFlag = isDevPackage ? ' --save-dev' : ' --save';
-  if (!packageJson.name) {
-    throw new Error('Package does not have a name');
+  if (!name) {
+    throw new Error(`Name was ${name}`);
   }
-  if (!packageJson.version) {
-    throw new Error(`${packageJson.name} does not have a version`);
+  if (!version) {
+    throw new Error(`${name} does not have a version`);
   }
-  const installPackageName = packageJson.version.match(suffixedVersionRegex)
-    ? `${packageJson.name}@${packageJson.version}`
-    : packageJson.name;
+  const installPackageName = version.match(suffixedVersionRegex)
+    ? `${name}@${version}`
+    : name;
 
   let md = '';
   md += `# ${title}\n`;
   md += '\n';
-  if (packageJson.description) {
-    md += `${packageJson.description}\n`;
+  if (description) {
+    md += `${description}\n`;
     md += '\n';
   }
   md += '## Installation\n';
   md += '\n';
-  if (packageJson.private !== true) {
+  if (private !== true) {
     md += `\`npm install${npmSaveFlag} ${installPackageName}\`\n`;
     md += 'or\n';
     md += `\`yarn add${yarnSaveFlag} ${installPackageName}\`\n`;
@@ -108,11 +109,9 @@ export async function genReadmeFromPackageDir(
     }
   }
   const packageJson = readPackageJson(packageDir);
-  const title = packageNameToTitle(packageJson.name);
   const contents = await readConfig();
   const readmeText = genReadme({
-    title,
-    packageJson,
+    ...packageJson,
     ...contents,
   });
   return readmeText;
