@@ -25,11 +25,9 @@ export interface ManualReadmeContents {
 
 export interface ReadmeContents extends ManualReadmeContents {
   title: string;
-  packageJson: {
-    name: string;
-    description?: string;
-    version: string;
-  };
+  name: string;
+  version: string;
+  description?: string;
 }
 
 const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
