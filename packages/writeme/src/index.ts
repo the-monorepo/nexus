@@ -37,9 +37,6 @@ const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
 function genReadme({ name, version, private, isDevPackage, description, sections = {} }: ReadmeContents) {
   const title = packageNameToTitle(name);
   const { examples, howTo, development = '' } = sections;
-  // TODO: Also add peer dependencies
-  const yarnSaveFlag = isDevPackage ? ' --dev' : '';
-  const npmSaveFlag = isDevPackage ? ' --save-dev' : ' --save';
   if (!name) {
     throw new Error(`Name was ${name}`);
   }
@@ -60,6 +57,10 @@ function genReadme({ name, version, private, isDevPackage, description, sections
   md += '## Installation\n';
   md += '\n';
   if (private !== true) {
+    // TODO: Also add peer dependencies
+    const yarnSaveFlag = isDevPackage ? ' --dev' : '';
+    const npmSaveFlag = isDevPackage ? ' --save-dev' : ' --save';
+
     md += `\`npm install${npmSaveFlag} ${installPackageName}\`\n`;
     md += 'or\n';
     md += `\`yarn add${yarnSaveFlag} ${installPackageName}\`\n`;
