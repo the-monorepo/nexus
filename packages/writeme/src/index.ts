@@ -28,11 +28,19 @@ export interface ReadmeContents extends ManualReadmeContents {
   name: string;
   version: string;
   description?: string;
+  private?: boolean;
 }
 
 const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
 
-function genReadme({ name, version, private, isDevPackage, description, sections = {} }: ReadmeContents) {
+function genReadme({
+  name,
+  version,
+  isDevPackage,
+  description,
+  sections = {},
+  ...other
+}: ReadmeContents) {
   const title = packageNameToTitle(name);
   const { examples, howTo, development = '' } = sections;
   if (!name) {
@@ -54,7 +62,7 @@ function genReadme({ name, version, private, isDevPackage, description, sections
   }
   md += '## Installation\n';
   md += '\n';
-  if (private !== true) {
+  if (other.private !== true) {
     // TODO: Also add peer dependencies
     const yarnSaveFlag = isDevPackage ? ' --dev' : '';
     const npmSaveFlag = isDevPackage ? ' --save-dev' : ' --save';
@@ -62,8 +70,8 @@ function genReadme({ name, version, private, isDevPackage, description, sections
     md += `\`npm install${npmSaveFlag} ${installPackageName}\`\n`;
     md += 'or\n';
     md += `\`yarn add${yarnSaveFlag} ${installPackageName}\`\n`;
-    md += '\n';  
-  } 
+    md += '\n';
+  }
   md += section('How to use it', howTo);
   md += section('Examples', examples);
   md += section('Development', development);
