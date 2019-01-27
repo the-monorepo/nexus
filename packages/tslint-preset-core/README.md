@@ -5,11 +5,11 @@ A pratical style preset for TSLint
 ## Installation
 
 ```bash
-npm install --save-dev @shawp/tslint-preset-core
+npm install --save-dev @shawp/tslint-preset-core tslint
 ```
 or
 ```bash
-yarn add --dev @shawp/tslint-preset-core
+yarn add --dev @shawp/tslint-preset-core tslint
 ```
 
 ## Examples

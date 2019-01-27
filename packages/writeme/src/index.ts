@@ -29,9 +29,29 @@ export interface ReadmeContents extends ManualReadmeContents {
   version: string;
   description?: string;
   private?: boolean;
+  peerDependencies?: { [s: string]: string };
 }
 
 const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
+
+function packageInstallation(command, flag, packageNames) {
+  let md = '';
+  md += '```bash\n';
+  md += `${command}${flag} ${packageNames.join(' ')}\n`;
+  md += '```\n';
+  return md;
+}
+
+function installationInstructions(isDevPackage, allDependenciesToInstall) {
+  const yarnSaveFlag = isDevPackage ? ' --dev' : '';
+  const npmSaveFlag = isDevPackage ? ' --save-dev' : ' --save';
+  let md = '';
+  md += packageInstallation('npm install', npmSaveFlag, allDependenciesToInstall);
+  md += 'or\n';
+  md += packageInstallation('yarn add', yarnSaveFlag, allDependenciesToInstall);
+  md += '\n';
+  return md;
+}
 
 function genReadme({
   name,
@@ -39,6 +59,7 @@ function genReadme({
   isDevPackage,
   description,
   sections = {},
+  peerDependencies = {},
   ...other
 }: ReadmeContents) {
   const title = packageNameToTitle(name);
@@ -49,9 +70,6 @@ function genReadme({
   if (!version) {
     throw new Error(`${name} does not have a version`);
   }
-  const installPackageName = version.match(suffixedVersionRegex)
-    ? `${name}@${version}`
-    : name;
 
   let md = '';
   md += `# ${title}\n`;
@@ -63,18 +81,16 @@ function genReadme({
   md += '## Installation\n';
   md += '\n';
   if (other.private !== true) {
-    // TODO: Also add peer dependencies
-    const yarnSaveFlag = isDevPackage ? ' --dev' : '';
-    const npmSaveFlag = isDevPackage ? ' --save-dev' : ' --save';
+    const installPackageName = version.match(suffixedVersionRegex)
+      ? `${name}@${version}`
+      : name;
 
-    md += '```bash\n';
-    md += `npm install${npmSaveFlag} ${installPackageName}\n`;
-    md += '```\n';
-    md += 'or\n';
-    md += '```bash\n';
-    md += `yarn add${yarnSaveFlag} ${installPackageName}\n`;
-    md += '```\n';
-    md += '\n';
+    const peerDependenciesToInstall = Object.keys(peerDependencies);
+    const allDependenciesToInstall = [installPackageName].concat(
+      ...Array.from(peerDependenciesToInstall),
+    );
+
+    md += installationInstructions(isDevPackage, allDependenciesToInstall);
   }
   md += section('How to use it', howTo);
   md += section('Examples', examples);

@@ -5,11 +5,11 @@ A pratical React style preset for TSLint
 ## Installation
 
 ```bash
-npm install --save-dev @shawp/tslint-react-preset
+npm install --save-dev @shawp/tslint-react-preset tslint
 ```
 or
 ```bash
-yarn add --dev @shawp/tslint-react-preset
+yarn add --dev @shawp/tslint-react-preset tslint
 ```
 
 ## Examples
