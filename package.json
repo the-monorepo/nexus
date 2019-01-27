@@ -18,6 +18,7 @@
     "test": "yarn build && jest",
     "build": "gulp build",
     "watch": "gulp watch",
+    "writeme": "gulp writeme",
     "prepublish": "yarn build",
     "ci-test": "yarn test"
   },
