@@ -4,9 +4,13 @@ A pratical style preset for TSLint
 
 ## Installation
 
-`npm install --save-dev @shawp/tslint-preset-core`
+```bash
+npm install --save-dev @shawp/tslint-preset-core
+```
 or
-`yarn add --dev @shawp/tslint-preset-core`
+```bash
+yarn add --dev @shawp/tslint-preset-core
+```
 
 ## Examples
 

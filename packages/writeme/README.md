@@ -4,9 +4,13 @@ A readme generator
 
 ## Installation
 
-`npm install --save-dev @shawp/writeme`
+```bash
+npm install --save-dev @shawp/writeme
+```
 or
-`yarn add --dev @shawp/writeme`
+```bash
+yarn add --dev @shawp/writeme
+```
 
 ## Examples
 
