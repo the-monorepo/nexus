@@ -31,28 +31,53 @@ MockDate.set(adjustedTime);
 const mockedWrite = jest.fn();
 (console as any)._stdout = { write: mockedWrite };
 
-const log = logger().add(consoleTransport({ level: 'debug' }));
-const levelName = 'info';
-
-function formatExpected(expectedString) {
-  const prefix: string = '12:34:56 ';
-  const padding: string = ' '.repeat(9 - levelName.length);
-  const output: string = `${prefix}${levelName}${padding}${expectedString}\n`;
-  return output;
+function formatTester({ timestamp = true }: any = {}) {
+  return expectedString => {
+    // TODO: Check different timestamps
+    const timestampString: string = '12:34:56 ';
+    const padding: string = ' '.repeat(9 - levelName.length);
+    const output: string = `${
+      timestamp ? timestampString : ''
+    }${levelName}${padding}${expectedString}\n`;
+    return output;
+  };
 }
 
-describe(levelName + ' logger tests', () => {
-  for (const testCase of testCases) {
-    it(testCase.name, () => {
-      (log.info as any)(...testCase.input);
-      expect(mockedWrite).toHaveBeenCalledTimes(1);
-      // Trimming to ignore inconsistencies with \rs
-      const printedMessage = mockedWrite.mock.calls[0][0].replace('\r', '');
-      if (typeof testCase.output === 'string') {
-        expect(printedMessage).toBe(formatExpected(testCase.output).replace('\r', ''));
-      } else {
-        expect(printedMessage).toMatch(testCase.output);
+const loggers = {
+  'console-default': {
+    log: logger().add(consoleTransport({ level: 'debug' })),
+  },
+  'console-no-color-no-timestamp': {
+    log: logger().add(
+      consoleTransport({ level: 'debug', colors: false, timestamp: null }),
+    ),
+    formatExpected: formatTester({ timestamp: false }),
+  },
+};
+const levelName = 'info';
+
+Object.keys(loggers).forEach(loggerName => {
+  const { formatExpected = formatTester(), log, writeFn = mockedWrite } = loggers[
+    loggerName
+  ];
+
+  describe(loggerName, () => {
+    describe(levelName + ' logger tests', () => {
+      for (const testCase of testCases) {
+        it(testCase.name, () => {
+          (log[levelName] as any)(...testCase.input);
+          expect(writeFn).toHaveBeenCalledTimes(1);
+          // Trimming to ignore inconsistencies with \rs
+          const printedMessage = writeFn.mock.calls[0][0].replace('\r', '');
+          if (typeof testCase.output === 'string') {
+            expect(printedMessage).toBe(
+              formatExpected(testCase.output).replace('\r', ''),
+            );
+          } else {
+            expect(printedMessage).toMatch(testCase.output);
+          }
+        });
       }
     });
-  }
+  });
 });
