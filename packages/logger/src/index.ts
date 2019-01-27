@@ -8,23 +8,26 @@ export interface LoggerOptions {}
 export interface TransportOptions {
   level?: string;
   colors?: boolean;
-  timestamp?: string | null;
+  timestamp?: string | null | boolean;
 }
 
 export interface FileTransportOptions extends TransportOptions {
   path?: string;
 }
 
+const defaultConsoleFormat = 'hh:mm:ss';
 export function consoleTransport({
   level,
   colors = true,
-  timestamp = 'hh:mm:ss',
+  timestamp = true,
 }: TransportOptions = {}) {
   const formats = [];
-  if (timestamp) {
-    formats.push(psFormats.timestamp({ format: timestamp }));
+  if (!!timestamp) {
+    const timestampFormat =
+      typeof timestamp === 'boolean' ? defaultConsoleFormat : timestamp;
+    formats.push(psFormats.timestamp({ format: timestampFormat }));
   }
-  if (colors) {
+  if (!!colors) {
     formats.push(format.colorize(), psFormats.colorize());
   }
   formats.push(psFormats.objects({ colors }), psFormats.printer);
@@ -34,10 +37,14 @@ export function consoleTransport({
   });
 }
 
-export function fileTransport(options: FileTransportOptions = {}) {
+export function fileTransport({
+  timestamp = true,
+  ...options
+}: FileTransportOptions = {}) {
   const formats = [];
-  if (options.timestamp) {
-    formats.push(psFormats.timestamp({ timestamp: options.timestamp }));
+  if (!!timestamp) {
+    const timestampFormat = typeof timestamp === 'boolean' ? undefined : timestamp;
+    formats.push(psFormats.timestamp({ format: timestampFormat }));
   }
   formats.push(psFormats.objects({ colors: options.colors }));
   return new transports.File({

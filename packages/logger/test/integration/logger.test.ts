@@ -1,6 +1,6 @@
 import MockDate from 'mockdate';
 
-import { logger, consoleTransport } from '../../src/index';
+import { logger, consoleTransport, fileTransport } from '../../src/index';
 import { testCases } from '../util/testCases';
 
 // We're removing color codes from logging
@@ -8,6 +8,9 @@ jest.mock('winston', () => {
   const { mockFormatter } = require('../util/mockFormatter');
   const actualModule = require.requireActual('winston');
   Object.defineProperty(actualModule.format, 'colorize', { value: mockFormatter() });
+  Object.defineProperty(actualModule.transports, 'File', {
+    value: actualModule.transports.Console,
+  });
   return actualModule;
 });
 
@@ -31,14 +34,10 @@ MockDate.set(adjustedTime);
 const mockedWrite = jest.fn();
 (console as any)._stdout = { write: mockedWrite };
 
-function formatTester({ timestamp = true }: any = {}) {
+function formatTester({ timestamp = '' }: any = {}) {
   return expectedString => {
-    // TODO: Check different timestamps
-    const timestampString: string = '12:34:56 ';
     const padding: string = ' '.repeat(9 - levelName.length);
-    const output: string = `${
-      timestamp ? timestampString : ''
-    }${levelName}${padding}${expectedString}\n`;
+    const output: string = `${timestamp}${levelName}${padding}${expectedString}\n`;
     return output;
   };
 }
@@ -46,12 +45,16 @@ function formatTester({ timestamp = true }: any = {}) {
 const loggers = {
   'console-default': {
     log: logger().add(consoleTransport({ level: 'debug' })),
+    formatExpected: formatTester({ timestamp: '12:34:56 ' }),
   },
   'console-no-color-no-timestamp': {
     log: logger().add(
       consoleTransport({ level: 'debug', colors: false, timestamp: null }),
     ),
-    formatExpected: formatTester({ timestamp: false }),
+  },
+  'file-default': {
+    log: logger().add(fileTransport()),
+    formatExpected: formatTester({ timestamp: '2018-05-03 12:34:56 ' }),
   },
 };
 const levelName = 'info';
