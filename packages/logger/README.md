@@ -5,11 +5,11 @@ A preformatted, opinionated logger
 ## Installation
 
 ```bash
-npm install --save @shawp/logger
+npm install --save @shawp/logger @shawp/winston-formats winston
 ```
 or
 ```bash
-yarn add @shawp/logger
+yarn add @shawp/logger @shawp/winston-formats winston
 ```
 
 ## Examples
