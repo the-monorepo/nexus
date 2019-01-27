@@ -4,9 +4,13 @@ A preformatted, opinionated logger
 
 ## Installation
 
-`npm install --save @shawp/logger`
+```bash
+npm install --save @shawp/logger
+```
 or
-`yarn add @shawp/logger`
+```bash
+yarn add @shawp/logger
+```
 
 ## Examples
 

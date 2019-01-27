@@ -4,7 +4,11 @@ A gulp wrapper for writeme
 
 ## Installation
 
-`npm install --save-dev @shawp/gulp-writeme`
+```bash
+npm install --save-dev @shawp/gulp-writeme
+```
 or
-`yarn add --dev @shawp/gulp-writeme`
+```bash
+yarn add --dev @shawp/gulp-writeme
+```
 
