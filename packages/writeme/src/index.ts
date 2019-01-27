@@ -67,9 +67,13 @@ function genReadme({
     const yarnSaveFlag = isDevPackage ? ' --dev' : '';
     const npmSaveFlag = isDevPackage ? ' --save-dev' : ' --save';
 
-    md += `\`npm install${npmSaveFlag} ${installPackageName}\`\n`;
+    md += '```bash\n';
+    md += `npm install${npmSaveFlag} ${installPackageName}\n`;
+    md += '```\n';
     md += 'or\n';
-    md += `\`yarn add${yarnSaveFlag} ${installPackageName}\`\n`;
+    md += '```bash\n';
+    md += `yarn add${yarnSaveFlag} ${installPackageName}\n`;
+    md += '```\n';
     md += '\n';
   }
   md += section('How to use it', howTo);
