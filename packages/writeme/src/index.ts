@@ -27,6 +27,7 @@ export interface ReadmeContents extends ManualReadmeContents {
   title: string;
   name: string;
   version: string;
+  private?: string;
   description?: string;
 }
 
