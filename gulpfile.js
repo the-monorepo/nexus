@@ -89,7 +89,7 @@ function sourceGlobFromPackagesDirName(dirName) {
 
 const pshawLogger = require('@pshaw/logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
-
+console.log(logger);
 function packagesSrcMiscStream() {
   return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: packagesDir });
 }
