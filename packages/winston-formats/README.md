@@ -4,7 +4,7 @@ A set of Winston formats
 
 ## Installation
 
-`npm install --save @shawp/winston-formats`
+`npm install --save @pshaw/winston-formats`
 or
-`yarn add @shawp/winston-formats`
+`yarn add @pshaw/winston-formats`
 

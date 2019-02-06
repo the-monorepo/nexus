@@ -1,4 +1,4 @@
-const { logger, consoleTransport, fileTransport } = require('@shawp/logger');
+const { logger, consoleTransport, fileTransport } = require('@pshaw/logger');
 const { join } = require('path');
 
 const l = logger()

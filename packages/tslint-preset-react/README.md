@@ -4,17 +4,17 @@ A pratical React style preset for TSLint
 
 ## Installation
 
-`npm install --save-dev @shawp/tslint-react-preset`
+`npm install --save-dev @pshaw/tslint-react-preset`
 or
-`yarn add --dev @shawp/tslint-react-preset`
+`yarn add --dev @pshaw/tslint-react-preset`
 
 ## Examples
 
 ```json
 {
   "extends": [
-    "@shawp/tslint-preset-core",
-    "@shawp/tslint-react-preset"
+    "@pshaw/tslint-preset-core",
+    "@pshaw/tslint-react-preset"
   ]
 }
 ```
