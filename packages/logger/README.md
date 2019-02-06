@@ -5,17 +5,17 @@ A preformatted, opinionated logger
 ## Installation
 
 ```bash
-npm install --save @shawp/logger @shawp/winston-formats winston
+npm install --save @pshaw/logger @pshaw/winston-formats winston
 ```
 or
 ```bash
-yarn add @shawp/logger @shawp/winston-formats winston
+yarn add @pshaw/logger @pshaw/winston-formats winston
 ```
 
 ## Examples
 
 ```javascript
-const { logger, consoleTransport, fileTransport } = require('@shawp/logger');
+const { logger, consoleTransport, fileTransport } = require('@pshaw/logger');
 const { join } = require('path');
 
 const l = logger()

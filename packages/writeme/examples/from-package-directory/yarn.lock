@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@shawp/writeme@^1.0.3":
+"@pshaw/writeme@^1.0.3":
   version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@shawp/writeme/-/writeme-1.0.3.tgz#b09cca49b427dd50f98c3fb53f2cfd2bf3dfd50a"
+  resolved "https://registry.yarnpkg.com/@pshaw/writeme/-/writeme-1.0.3.tgz#b09cca49b427dd50f98c3fb53f2cfd2bf3dfd50a"
   integrity sha512-XJWz+cO/zq4oNXPbMBKG4kEaNSWkMDNa5yxytTiFkOzyaJQGZ1aBJFRJ4oVtzgahETrKqp72yHbSTTPVIiE29g==
   dependencies:
     fs-exists "^0.1.1"

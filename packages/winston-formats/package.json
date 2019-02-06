@@ -1,5 +1,5 @@
 {
-  "name": "@shawp/winston-formats",
+  "name": "@pshaw/winston-formats",
   "description": "A set of Winston formats",
   "version": "1.2.0",
   "main": "./lib/index.js",

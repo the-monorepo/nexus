@@ -1,5 +1,5 @@
 {
-  "name": "@shawp/convict-util",
+  "name": "@pshaw/convict-util",
   "description": "A helper package for reading configs in using convict",
   "keywords": [
     "config",

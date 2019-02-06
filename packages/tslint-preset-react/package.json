@@ -1,5 +1,5 @@
 {
-  "name": "@shawp/tslint-react-preset",
+  "name": "@pshaw/tslint-react-preset",
   "description": "A pratical React style preset for TSLint",
   "version": "1.1.0",
   "main": "tslint.json",
