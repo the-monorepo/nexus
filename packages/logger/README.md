@@ -4,14 +4,14 @@ A preformatted, opinionated logger
 
 ## Installation
 
-`npm install --save @shawp/logger`
+`npm install --save @pshaw/logger`
 or
-`yarn add @shawp/logger`
+`yarn add @pshaw/logger`
 
 ## Examples
 
 ```javascript
-const { logger, consoleTransport, fileTransport } = require('@shawp/logger');
+const { logger, consoleTransport, fileTransport } = require('@pshaw/logger');
 const { join } = require('path');
 
 const l = logger()

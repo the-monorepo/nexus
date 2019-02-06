@@ -87,7 +87,7 @@ function sourceGlobFromPackagesDirName(dirName) {
   return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
 }
 
-const pshawLogger = require('@shawp/logger');
+const pshawLogger = require('@pshaw/logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream() {
@@ -131,7 +131,7 @@ gulp.task('transpile', transpile);
 function writeme() {
   const base = join(__dirname, packagesDirName);
   const stream = gulp.src(packagesGlobFromPackagesDirName(packagesDirName), { base });
-  const { writeme } = require('@shawp/gulp-writeme');
+  const { writeme } = require('@pshaw/gulp-writeme');
   const l = logger.tag('writeme'.green);
   return stream
     .pipe(errorLogger(l))

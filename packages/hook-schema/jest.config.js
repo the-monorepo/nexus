@@ -1,1 +1,1 @@
-module.exports = require('@shawp/build-util').jest.settings();
+module.exports = require('@pshaw/build-util').jest.settings();

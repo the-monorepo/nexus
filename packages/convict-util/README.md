@@ -4,7 +4,7 @@ A helper package for reading configs in using convict
 
 ## Installation
 
-`npm install --save @shawp/convict-util`
+`npm install --save @pshaw/convict-util`
 or
-`yarn add @shawp/convict-util`
+`yarn add @pshaw/convict-util`
 
