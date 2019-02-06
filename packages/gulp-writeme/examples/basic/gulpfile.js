@@ -1,4 +1,4 @@
-const writeme = require('@shawp/gulp-writeme');
+const writeme = require('@pshaw/gulp-writeme');
 gulp.task('writeme', () => {
   return thythgulp
     .src('.')
