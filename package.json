@@ -6,6 +6,7 @@
     "build-packages/*"
   ],
   "private": true,
+  "npmClient": "yarn",
   "license": "MIT",
   "repository": {
     "type": "git",
