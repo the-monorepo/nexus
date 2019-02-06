@@ -4,7 +4,7 @@ A gulp wrapper for writeme
 
 ## Installation
 
-`npm install --save-dev @shawp/gulp-writeme`
+`npm install --save-dev @pshaw/gulp-writeme`
 or
-`yarn add --dev @shawp/gulp-writeme`
+`yarn add --dev @pshaw/gulp-writeme`
 

@@ -4,16 +4,16 @@ A pratical style preset for TSLint
 
 ## Installation
 
-`npm install --save-dev @shawp/tslint-preset-core`
+`npm install --save-dev @pshaw/tslint-preset-core`
 or
-`yarn add --dev @shawp/tslint-preset-core`
+`yarn add --dev @pshaw/tslint-preset-core`
 
 ## Examples
 
 ```json
 {
   "extends": [
-    "@shawp/tslint-preset-core"
+    "@pshaw/tslint-preset-core"
   ]
 }
 ```

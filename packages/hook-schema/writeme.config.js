@@ -1,4 +1,4 @@
-const { readCodeBlock } = require('@shawp/markdown-util');
+const { readCodeBlock } = require('@pshaw/markdown-util');
 const { join } = require('path');
 
 module.exports = async () => {
