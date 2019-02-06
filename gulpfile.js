@@ -5,6 +5,8 @@ require('colors');
 require('source-map-support/register');
 const { join, sep, relative } = require('path');
 
+const del = require('del');
+
 const gulp = require('gulp');
 const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
@@ -53,27 +55,28 @@ function rename(fn) {
     callback(null, file);
   });
 }
+
 function packagesGlobFromPackagesDirName(dirName) {
   return `./${dirName}/*`;
 }
 
-function srcGlob(dirName, folderName) {
+function packageSubDirGlob(dirName, folderName) {
   return `./${dirName}/*/${folderName}/**/*`;
 }
 
 function srcTranspiledGlob(dirName, folderName) {
-  return `${srcGlob(dirName, folderName)}.${transpiledExtensions}`;
+  return `${packageSubDirGlob(dirName, folderName)}.${transpiledExtensions}`;
 }
 
 function mockGlob(dirName, folderName) {
-  return `${srcGlob(dirName, folderName)}/__mocks__/*`;
+  return `${packageSubDirGlob(dirName, folderName)}/__mocks__/*`;
 }
 
 const transpiledExtensions = '{js,jsx,ts,tsx,html,css}';
 
 function globSrcMiscFromPackagesDirName(dirName) {
   return [
-    `${srcGlob(dirName, 'src')}`,
+    `${packageSubDirGlob(dirName, 'src')}`,
     `!${srcTranspiledGlob(dirName, 'src')}`,
     `!${mockGlob(dirName, 'src')}`,
   ];
@@ -81,6 +84,14 @@ function globSrcMiscFromPackagesDirName(dirName) {
 
 function globSrcCodeFromPackagesDirName(dirName) {
   return [`${srcTranspiledGlob(dirName, 'src')}`, `!${mockGlob(dirName, 'src')}`];
+}
+
+function globBuildOutputFromPackagesDirName(dirName) {
+  return [
+    `${packageSubDirGlob(dirName, 'lib')}`,
+    `${packageSubDirGlob(dirName, 'esm')}`,
+    `${packageSubDirGlob(dirName, 'dist')}`,
+  ];
 }
 
 function sourceGlobFromPackagesDirName(dirName) {
@@ -104,6 +115,11 @@ function simplePipeLogger(l, verb) {
     callback(null, file);
   });
 }
+
+function clean() {
+  return del(globBuildOutputFromPackagesDirName(packagesDirName));
+}
+gulp.task('clean', clean);
 
 function copy() {
   const l = logger.tag('copy'.yellow);
@@ -152,9 +168,6 @@ function watch() {
   );
 }
 gulp.task('watch', watch);
-
-function clean() {}
-gulp.task('clean', clean);
 
 gulp.task('default', build);
 
