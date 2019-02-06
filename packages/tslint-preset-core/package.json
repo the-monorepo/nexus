@@ -1,5 +1,5 @@
 {
-  "name": "@shawp/tslint-preset-core",
+  "name": "@pshaw/tslint-preset-core",
   "description": "A pratical style preset for TSLint",
   "keywords": [
     "config",
