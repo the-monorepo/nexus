@@ -6,6 +6,7 @@ require('source-map-support/register');
 const { join, sep, relative } = require('path');
 
 const del = require('del');
+const chalk = require('chalk');
 
 const gulp = require('gulp');
 const sourcemaps = require('gulp-sourcemaps');
@@ -142,18 +143,34 @@ function transpile() {
     .pipe(gulp.dest(packagesDir));
 }
 
+function printFriendlyAbsoluteDir(dir) {
+  if (relative(dir, __dirname) === '') {
+    return '.';
+  }
+  return relative(join(__dirname), dir);
+}
+
 gulp.task('transpile', transpile);
 
-function writeme() {
-  const base = join(__dirname, packagesDirName);
-  const stream = gulp.src(packagesGlobFromPackagesDirName(packagesDirName), { base });
-  const { writeme } = require('@pshaw/gulp-writeme');
+async function writeme() {
+  const { writeReadmeFromPackageDir } = require('@pshaw/writeme');
   const l = logger.tag('writeme'.green);
-  return stream
-    .pipe(errorLogger(l))
-    .pipe(simplePipeLogger(l, 'Generating readme for'))
-    .pipe(writeme(configPath => l.warn(`Missing '${`${configPath}.js`.cyan}'`)))
-    .pipe(gulp.dest(base));
+  await writeReadmeFromPackageDir(__dirname, {
+    before: {
+      genReadme: async ({ packageDir }) => {
+        l.info(
+          `Generating readme for '${chalk.cyan(printFriendlyAbsoluteDir(packageDir))}'`,
+        );
+      },
+    },
+    after: {
+      readConfig: async ({ config, configPath }) => {
+        if (!config) {
+          l.warn(`Missing '${chalk.cyan(printFriendlyAbsoluteDir(configPath))}'`);
+        }
+      },
+    },
+  });
 }
 gulp.task('writeme', writeme);
 
