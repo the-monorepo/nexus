@@ -1,8 +1,8 @@
 {
   "defaultSeverity": "error",
   "extends": [
-      "@shawp/tslint-preset-core",
-      "@shawp/tslint-preset-react",
+      "@pshaw/tslint-preset-core",
+      "@pshaw/tslint-preset-react",
       "tslint-config-prettier"
   ]
 }

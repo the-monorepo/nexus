@@ -1,4 +1,4 @@
-import ogWriteme from '@shawp/writeme';
+import ogWriteme from '@pshaw/writeme';
 import { join } from 'path';
 import through from 'through2';
 import PluginError from 'plugin-error';
