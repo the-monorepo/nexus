@@ -4,7 +4,7 @@
   "keywords": [
     "logger"
   ],
-  "version": "1.4.0",
+  "version": "1.4.1",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
