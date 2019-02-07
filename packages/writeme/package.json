@@ -7,7 +7,7 @@
     "writeme",
     "util"
   ],
-  "version": "1.4.1",
+  "version": "2.0.0",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
@@ -19,7 +19,7 @@
   "dependencies": {
     "fs-extra": "^7.0.1",
     "globby": "^9.0.0",
-    "hook-schema": "^1.4.0",
+    "hook-schema": "^2.0.0",
     "mz": "^2.7.0"
   },
   "gitHead": "e777a5c9361c81a33fb78a8ffb62d440be59ab69"
