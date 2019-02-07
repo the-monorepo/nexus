@@ -1,4 +1,4 @@
-import { mergeHookOptions } from '../../src';
+import schema, { mergeHookOptions } from '../../src';
 describe('mergeHookOptions', () => {
   it('calls all associated hooks', async () => {
     const testSchema = {
@@ -42,5 +42,46 @@ describe('mergeHookOptions', () => {
     await merged.before.nested.test2();
     await merged.after.test1();
     await merged.before.nested.nested.test3();
+  });
+
+  it('works with "on" hooks', async () => {
+    const beforeAfterSchema = {
+      a: null,
+    };
+    const onSchema = {
+      b: null,
+    };
+    const withHooks = schema(beforeAfterSchema, onSchema);
+
+    const hooks1 = withHooks({
+      before: {
+        a: jest.fn(),
+      },
+      on: {
+        b: jest.fn(),
+      },
+    });
+    const hooks2 = {
+      before: {
+        a: jest.fn(),
+      },
+      on: {
+        b: jest.fn(),
+      },
+    };
+
+    const mergedHooks = mergeHookOptions(
+      [hooks1, hooks2, undefined],
+      beforeAfterSchema,
+      onSchema,
+    );
+
+    await mergedHooks.on.b();
+    expect(hooks1.on.b).toBeCalled();
+    expect(hooks2.on.b).toBeCalled();
+
+    await mergedHooks.before.a();
+    expect(hooks1.before.a).toBeCalled();
+    expect(hooks2.before.a).toBeCalled();
   });
 });
