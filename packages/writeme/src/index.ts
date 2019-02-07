@@ -1,8 +1,7 @@
 import { join, relative } from 'path';
 import { pathExists } from 'fs-extra';
 import { writeFile, readFile } from 'mz/fs';
-import schema from 'hook-schema';
-import { mergeHookOptions } from 'hook-schema';
+import { fromSchema, mergeHookOptions, HookOptionsOf } from 'hook-schema';
 import globby from 'globby';
 
 function section(title, content) {
@@ -121,22 +120,28 @@ function packageNameToTitle(packageName: string) {
 
 export type MissingFileCallback = (configPath: string) => any;
 
-const genReadmeFromPackageDirHookSchema = {
+const genReadmeFromPackageDirSchema = {
   readConfig: null,
   readPackageJson: null,
   genReadme: null,
 };
+const errorSchema = {
+  error: null,
+};
 
-const withGenReadmeFromPackageDirHooks = schema(genReadmeFromPackageDirHookSchema);
-export type GenReadmeFromPackageDirHooks = Parameters<
-  typeof withGenReadmeFromPackageDirHooks
->[0];
+const genReadmeFromPackageDirHookUtil = fromSchema(
+  genReadmeFromPackageDirSchema,
+  errorSchema,
+);
+export type GenReadmeFromPackageDirHooks = HookOptionsOf<
+  typeof genReadmeFromPackageDirHookUtil
+>;
 
 export async function genReadmeFromPackageDir(
   packageDir: string,
   hooks: GenReadmeFromPackageDirHooks,
 ) {
-  const h = withGenReadmeFromPackageDirHooks(hooks);
+  const h = genReadmeFromPackageDirHookUtil.withHooks(hooks);
   const context: any = { packageDir };
   async function readConfig() {
     context.configRequirePath = join(packageDir, 'writeme.config');
@@ -156,75 +161,78 @@ export async function genReadmeFromPackageDir(
       return configModule;
     }
   }
-  await h.before.readPackageJson(context);
-  const packageJson = await readPackageJson(context.packageDir);
-  context.packageJson = packageJson;
-  await h.after.readPackageJson(context);
+  try {
+    await h.before.readPackageJson(context);
+    const packageJson = await readPackageJson(context.packageDir);
+    context.packageJson = packageJson;
+    await h.after.readPackageJson(context);
 
-  await h.before.readConfig(context);
-  const config = await readConfig();
-  context.config = config;
-  await h.after.readConfig(context);
+    await h.before.readConfig(context);
+    const config = await readConfig();
+    context.config = config;
+    await h.after.readConfig(context);
+    const writemeOptions = {
+      ...context.packageJson,
+      ...context.config,
+    };
 
-  const writemeOptions = {
-    ...context.packageJson,
-    ...context.config,
-  };
+    context.writemeOptions = writemeOptions;
+    if (context.writemeOptions.workspaces) {
+      context.globPaths = context.writemeOptions.workspaces.map(glob =>
+        join(context.packageDir, glob),
+      );
 
-  context.writemeOptions = writemeOptions;
-  if (context.writemeOptions.workspaces) {
-    context.globPaths = context.writemeOptions.workspaces.map(glob =>
-      join(context.packageDir, glob),
-    );
+      const paths = await globby(context.globPaths, { onlyFiles: false });
 
-    const paths = await globby(context.globPaths, { onlyFiles: false });
-
-    for (const path of paths) {
-      await genReadmeFromPackageDir(path, hooks);
+      for (const path of paths) {
+        await genReadmeFromPackageDir(path, hooks);
+      }
     }
+
+    await h.before.genReadme(context);
+    const readmeText = genReadme(context.writemeOptions);
+    context.readmeText = readmeText;
+    await h.after.genReadme(context);
+
+    return readmeText;
+  } catch (err) {
+    h.on.error(err);
   }
-
-  await h.before.genReadme(context);
-  const readmeText = genReadme(context.writemeOptions);
-  context.readmeText = readmeText;
-  await h.after.genReadme(context);
-
-  return readmeText;
 }
 
 const writeReadmeFromPackageDirHookSchema = {
-  ...genReadmeFromPackageDirHookSchema,
+  ...genReadmeFromPackageDirSchema,
   writeReadme: null,
 };
-const withWriteReadmeFromPackageDirHooks = schema(writeReadmeFromPackageDirHookSchema);
-export type WriteReadmeFromPackageDirHooks = Parameters<
-  typeof withWriteReadmeFromPackageDirHooks
->[0];
+const writeReadmeFromPackageDirUtil = fromSchema(
+  writeReadmeFromPackageDirHookSchema,
+  errorSchema,
+);
+export type WriteReadmeFromPackageDirHooks = HookOptionsOf<
+  typeof writeReadmeFromPackageDirUtil
+>;
 
 export async function writeReadmeFromPackageDir(
   packageDir: string,
   hooks: WriteReadmeFromPackageDirHooks,
 ) {
-  const h = withWriteReadmeFromPackageDirHooks(hooks);
+  const h = writeReadmeFromPackageDirUtil.withHooks(hooks);
   await genReadmeFromPackageDir(
     packageDir,
-    mergeHookOptions(
-      [
-        {
-          after: {
-            async genReadme(context) {
-              await h.before.writeReadme(context);
-              await writeFile(join(packageDir, 'README.md'), context.readmeText, {
-                encoding: 'utf-8',
-              });
-              await h.after.writeReadme(context);
-            },
+    writeReadmeFromPackageDirUtil.mergeHookOptions([
+      {
+        after: {
+          async genReadme(context) {
+            await h.before.writeReadme(context);
+            await writeFile(join(packageDir, 'README.md'), context.readmeText, {
+              encoding: 'utf-8',
+            });
+            await h.after.writeReadme(context);
           },
         },
-        h,
-      ],
-      genReadmeFromPackageDirHookSchema,
-    ),
+      },
+      h,
+    ]),
   );
 }
-export default genReadmeFromPackageDir;
+export default writeReadmeFromPackageDir;

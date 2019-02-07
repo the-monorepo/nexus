@@ -170,6 +170,11 @@ async function writeme() {
         }
       },
     },
+    on: {
+      error: async err => {
+        l.error(err);
+      },
+    },
   });
 }
 gulp.task('writeme', writeme);

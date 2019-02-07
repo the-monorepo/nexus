@@ -51,9 +51,9 @@ describe('mergeHookOptions', () => {
     const onSchema = {
       b: null,
     };
-    const withHooks = schema(beforeAfterSchema, onSchema);
+    const hookUtil = schema(beforeAfterSchema, onSchema);
 
-    const hooks1 = withHooks({
+    const hooks1 = hookUtil.withHooks({
       before: {
         a: jest.fn(),
       },
@@ -70,11 +70,7 @@ describe('mergeHookOptions', () => {
       },
     };
 
-    const mergedHooks = mergeHookOptions(
-      [hooks1, hooks2, undefined],
-      beforeAfterSchema,
-      onSchema,
-    );
+    const mergedHooks = hookUtil.mergeHookOptions([hooks1, hooks2, undefined]);
 
     await mergedHooks.on.b();
     expect(hooks1.on.b).toBeCalled();
