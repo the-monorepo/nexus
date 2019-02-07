@@ -16,7 +16,7 @@ export interface FileTransportOptions extends TransportOptions {
 }
 
 function getFormats({ colors, timestamp }: TransportOptions = {}, defaults) {
-  const formats = [];
+  const formats: any[] = [];
   if (!!timestamp) {
     const timestampFormat =
       typeof timestamp === 'boolean' ? defaults.timestampFormat : timestamp;
