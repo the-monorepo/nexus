@@ -47,6 +47,8 @@ export type HookOptions<K extends HookSchema, O extends HookSchema> = {
   on?: RecursivePartial<Hooks<O>>;
 };
 
+export type HookOptionsOf<T extends any> = Parameters<T['withHooks']>[0];
+
 export function defaultHook(): HookCallback {
   return async () => {};
 }
@@ -70,19 +72,23 @@ export function defaultHooksFromSchema<H extends HookSchema>(
   }, hooksObj) as Hooks<H>;
 }
 
-export function schema<H extends HookSchema, O extends HookSchema>(
+export function fromSchema<H extends HookSchema, O extends HookSchema>(
   beforeAfterSchemaObj: H,
   onSchemaObj: O = {} as any,
 ) {
-  return (partialHooks: HookOptions<H, O> = {}): CompleteHooksOptions<H, O> => {
-    return {
-      on: defaultHooksFromSchema(onSchemaObj, partialHooks.on),
-      before: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.before),
-      after: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.after),
-    };
+  return {
+    withHooks: (partialHooks: HookOptions<H, O> = {}): CompleteHooksOptions<H, O> => {
+      return {
+        on: defaultHooksFromSchema(onSchemaObj, partialHooks.on),
+        before: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.before),
+        after: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.after),
+      };
+    },
+    mergeHookOptions: (options: Array<HookOptions<H, O> | undefined>) =>
+      mergeHookOptions(options, beforeAfterSchemaObj, onSchemaObj),
   };
 }
-export default schema;
+export default fromSchema;
 
 /**
  * Wraps the calls of a set of hooks into a single call
