@@ -163,8 +163,7 @@ export async function genReadmeFromPackageDir(
   }
   try {
     await h.before.readPackageJson(context);
-    const packageJson = await readPackageJson(context.packageDir);
-    context.packageJson = packageJson;
+    context.packageJson = await readPackageJson(context.packageDir);
     await h.after.readPackageJson(context);
 
     await h.before.readConfig(context);
