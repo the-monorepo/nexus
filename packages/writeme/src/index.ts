@@ -192,7 +192,7 @@ export async function genReadmeFromPackageDir(
 
     return context.readmeText;
   } catch (err) {
-    h.on.error(err);
+    await h.on.error(err);
   }
 }
 
