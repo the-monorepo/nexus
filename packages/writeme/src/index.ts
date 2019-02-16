@@ -168,15 +168,13 @@ export async function genReadmeFromPackageDir(
     await h.after.readPackageJson(context);
 
     await h.before.readConfig(context);
-    const config = await readConfig();
-    context.config = config;
+    context.config = await readConfig();
     await h.after.readConfig(context);
-    const writemeOptions = {
+    context.writemeOptions = {
       ...context.packageJson,
       ...context.config,
     };
 
-    context.writemeOptions = writemeOptions;
     if (context.writemeOptions.workspaces) {
       context.globPaths = context.writemeOptions.workspaces.map(glob =>
         join(context.packageDir, glob),
@@ -190,11 +188,10 @@ export async function genReadmeFromPackageDir(
     }
 
     await h.before.genReadme(context);
-    const readmeText = genReadme(context.writemeOptions);
-    context.readmeText = readmeText;
+    context.readmeText = genReadme(context.writemeOptions);
     await h.after.genReadme(context);
 
-    return readmeText;
+    return context.readmeText;
   } catch (err) {
     h.on.error(err);
   }
