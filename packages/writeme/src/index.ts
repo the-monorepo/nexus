@@ -174,6 +174,17 @@ export async function genReadmeFromPackageDir(
       ...context.config,
     };
 
+    context.projects = projects(context);
+    if (context.writemeOptions.projects) {
+      const defaultPaths = await globby(context.writemeOptions.projects.test);
+      console.log(defaultPaths);
+      if (context.writemeOptions.overrides) {
+        for (const override of context.writemeOptions.projects.overrides) {
+          const paths = await globby(override.test);
+          console.log(paths);
+        }
+      }
+    }
     if (context.writemeOptions.workspaces) {
       context.globPaths = context.writemeOptions.workspaces.map(glob =>
         join(context.packageDir, glob),
