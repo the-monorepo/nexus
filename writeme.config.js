@@ -1,7 +1,6 @@
 module.exports = {
   projects: {
     category: 'Other',
-    test: ['./packages/*'],
     overrides: [
       {
         category: 'Linting',
