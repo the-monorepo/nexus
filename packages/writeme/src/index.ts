@@ -137,6 +137,20 @@ export type GenReadmeFromPackageDirHooks = HookOptionsOf<
   typeof genReadmeFromPackageDirHookUtil
 >;
 
+function workspacesToProjects(workspaces: string[]) {
+  return { test: workspaces };
+}
+
+function projects(context) {
+  if (context.writemeOptions.projects) {
+    return context.writemeOptions.projects;
+  } else {
+    return workspacesToProjects(context.writemeOptions.workspaces);
+  }
+}
+
+function testToGlobPaths(test: string) {}
+
 export async function genReadmeFromPackageDir(
   packageDir: string,
   hooks: GenReadmeFromPackageDirHooks,
@@ -144,7 +158,7 @@ export async function genReadmeFromPackageDir(
   const h = genReadmeFromPackageDirHookUtil.withHooks(hooks);
   const context: any = { packageDir };
   async function readConfig() {
-    context.configRequirePath = join(packageDir, 'writeme.config');
+    context.configRequirePath = join(context.packageDir, 'writeme.config');
     context.configPath = `${context.configRequirePath}.js`;
     async function getConfigModule() {
       if (await pathExists(context.configPath)) {
@@ -176,7 +190,10 @@ export async function genReadmeFromPackageDir(
 
     context.projects = projects(context);
     if (context.writemeOptions.projects) {
-      const defaultPaths = await globby(context.writemeOptions.projects.test);
+      const defaultPaths = await globby(context.projects.test);
+      const overridePaths = await globby(context.overrides.map(({ test }) => {}));
+      for (const path of defaultPaths) {
+      }
       console.log(defaultPaths);
       if (context.writemeOptions.overrides) {
         for (const override of context.writemeOptions.projects.overrides) {
