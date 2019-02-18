@@ -60,3 +60,5 @@ typings/
 packages/*/lib/
 lib/
 .cache
+
+packages/*/stats.html
