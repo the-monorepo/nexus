@@ -210,7 +210,7 @@ export async function genReadmeFromPackageDir(
     };
     context.projects = getProjects(context.writemeOptions);
     if (context.projects) {
-      const overrideProjects = context.projects.overrides
+      const overrideProjects: any[] = context.projects.overrides
         ? await Promise.all(
             context.projects.overrides.map(async project => ({
               ...project,
