@@ -1,0 +1,28 @@
+{
+  "name": "@pshaw/resume-template",
+  "version": "1.0.0-alpha.0",
+  "description": "A template you can use to generate resumes",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./lib/index.js",
+  "dependencies": {
+    "@material-ui/core": "^3.9.2",
+    "@types/classnames": "^2.2.7",
+    "@types/date-fns": "^2.6.0",
+    "@types/jss": "^9.5.7",
+    "@types/react": "^16.8.3",
+    "@types/react-jss": "^8.6.2",
+    "classnames": "^2.2.6",
+    "date-fns": "^2.0.0-alpha.27",
+    "jss": "^9.8.7",
+    "react": "^16.8.2",
+    "react-jss": "^8.6.1"
+  },
+  "devDependencies": {
+    "jss": "^9.8.7",
+    "jss-global": "^3.0.0",
+    "jss-nested": "^6.0.1",
+    "react": "^16.8.2",
+    "webpack-dev-server": "^3.1.14"
+  }
+}
