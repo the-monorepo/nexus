@@ -1,0 +1,15 @@
+{
+  "name": "@pshaw/my-resume",
+  "version": "1.0.0-alpha.0",
+  "description": "My resume",
+  "private": true,
+  "scripts": {
+    "start": "yarn watch",
+    "watch": "webpack-dev-server --watch --mode development"
+  },
+  "dependencies": {
+    "@pshaw/resume-template": "1.0.0-alpha.0",
+    "react": "^16.8.2",
+    "react-dom": "^16.8.2"
+  }
+}
