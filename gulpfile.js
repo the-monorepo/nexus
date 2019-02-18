@@ -1,7 +1,6 @@
 /**
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */
-require('colors');
 require('source-map-support/register');
 const { join, sep, relative } = require('path');
 
@@ -77,21 +76,21 @@ const transpiledExtensions = '{js,jsx,ts,tsx,html,css}';
 
 function globSrcMiscFromPackagesDirName(dirName) {
   return [
-    `${packageSubDirGlob(dirName, 'src')}`,
+    packageSubDirGlob(dirName, 'src'),
     `!${srcTranspiledGlob(dirName, 'src')}`,
     `!${mockGlob(dirName, 'src')}`,
   ];
 }
 
 function globSrcCodeFromPackagesDirName(dirName) {
-  return [`${srcTranspiledGlob(dirName, 'src')}`, `!${mockGlob(dirName, 'src')}`];
+  return [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`];
 }
 
 function globBuildOutputFromPackagesDirName(dirName) {
   return [
-    `${packageSubDirGlob(dirName, 'lib')}`,
-    `${packageSubDirGlob(dirName, 'esm')}`,
-    `${packageSubDirGlob(dirName, 'dist')}`,
+    packageSubDirGlob(dirName, 'lib'),
+    packageSubDirGlob(dirName, 'esm'),
+    packageSubDirGlob(dirName, 'dist'),
   ];
 }
 
@@ -99,7 +98,7 @@ function sourceGlobFromPackagesDirName(dirName) {
   return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
 }
 
-const pshawLogger = require('@pshaw/logger');
+const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream() {
@@ -112,7 +111,7 @@ function packagesSrcCodeStream() {
 
 function simplePipeLogger(l, verb) {
   return through.obj(function(file, enc, callback) {
-    l.info(`${verb} '${file.relative.cyan}'`);
+    l.info(`${verb} '${chalk.cyan(file.relative)}'`);
     callback(null, file);
   });
 }
@@ -123,7 +122,7 @@ function clean() {
 gulp.task('clean', clean);
 
 function copy() {
-  const l = logger.tag('copy'.yellow);
+  const l = logger.tag(chalk.yellow('copy'));
   return packagesSrcMiscStream()
     .pipe(simplePipeLogger(l, 'Copying'))
     .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
@@ -131,7 +130,7 @@ function copy() {
 }
 
 function transpile() {
-  const l = logger.tag('transpile'.blue);
+  const l = logger.tag(chalk.blue('transpile'));
   return packagesSrcCodeStream()
     .pipe(errorLogger(l))
     .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
@@ -154,7 +153,7 @@ gulp.task('transpile', transpile);
 
 async function writeme() {
   const { writeReadmeFromPackageDir } = require('@pshaw/writeme');
-  const l = logger.tag('writeme'.green);
+  const l = logger.tag(chalk.green('writeme'));
   await writeReadmeFromPackageDir(__dirname, {
     before: {
       genReadme: async ({ packageDir }) => {
