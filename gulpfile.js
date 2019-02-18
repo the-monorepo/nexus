@@ -12,6 +12,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
 const changed = require('gulp-changed');
 const plumber = require('gulp-plumber');
+const rename = require('gulp-rename');
 
 const gulpTslint = require('gulp-tslint');
 const gulpTypescript = require('gulp-typescript');
@@ -47,13 +48,6 @@ function errorLogger(l) {
  */
 function swapSrcWithLib(srcPath) {
   return swapSrcWith(srcPath, 'lib');
-}
-
-function rename(fn) {
-  return through.obj((file, enc, callback) => {
-    file.path = fn(file);
-    callback(null, file);
-  });
 }
 
 function packagesGlobFromPackagesDirName(dirName) {
@@ -125,7 +119,12 @@ function copy() {
   const l = logger.tag(chalk.yellow('copy'));
   return packagesSrcMiscStream()
     .pipe(simplePipeLogger(l, 'Copying'))
-    .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
+    .pipe(
+      rename(filePath => {
+        filePath.dirname = join(filePath.dirname, '../lib');
+        return filePath;
+      }),
+    )
     .pipe(gulp.dest(packagesDir));
 }
 
@@ -134,10 +133,15 @@ function transpile() {
   return packagesSrcCodeStream()
     .pipe(errorLogger(l))
     .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
-    .pipe(simplePipeLogger(l, 'Compiling'))
+    .pipe(simplePipeLogger(l, 'Transpiling'))
     .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
+    .pipe(
+      rename(filePath => {
+        filePath.dirname = join(filePath.dirname, '../lib');
+        return filePath;
+      }),
+    )
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(packagesDir));
 }
@@ -171,7 +175,7 @@ async function writeme() {
     },
     on: {
       error: async err => {
-        l.error(err);
+        l.error(err.stack);
       },
     },
   });
