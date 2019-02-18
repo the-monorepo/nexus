@@ -137,28 +137,39 @@ export type GenReadmeFromPackageDirHooks = HookOptionsOf<
   typeof genReadmeFromPackageDirHookUtil
 >;
 
-function workspacesToProjects(workspaces: string[]) {
-  return { test: workspaces };
-}
-
 function getProjects(writemeOptions) {
-  if (writemeOptions.projects) {
+  if (writemeOptions.projects === undefined) {
+    return undefined;
+  } else if (!writemeOptions.projects) {
+    return null;
+  } else if (!!writemeOptions.projects.test) {
     return writemeOptions.projects;
+  } else if (!writemeOptions.workspaces) {
+    throw new Error(
+      "Projects object does not have 'test' field, nor does package.json have 'workspaces'",
+    );
   } else {
-    return workspacesToProjects(writemeOptions.workspaces);
+    return {
+      ...writemeOptions.projects,
+      test: writemeOptions.workspaces,
+    };
   }
 }
 
-function testToGlobPaths(test: string | string[]) {
-  if(typeof test === 'string') {
+function testToGlobs(test: string | string[]) {
+  if (typeof test === 'string') {
     return [test];
   } else {
     return test;
   }
 }
 
-async function testToPaths(test: string | string[]) {
-  return await globby(testToGlobPaths(test));
+async function testToPaths(packageDir: string, test: string | string[]) {
+  if (!test) {
+    throw new Error("'test' was undefined");
+  }
+  const joinedGlobs = testToGlobs(test).map(glob => join(packageDir, glob));
+  return await globby(joinedGlobs, { onlyFiles: false });
 }
 
 export async function genReadmeFromPackageDir(
@@ -197,41 +208,32 @@ export async function genReadmeFromPackageDir(
       ...context.packageJson,
       ...context.config,
     };
-
     context.projects = getProjects(context.writemeOptions);
     if (context.projects) {
-      const defaultPaths = await testToGlobPaths(context.projects.test);
-      const overrideProjects = await Promise.all(
-        context.projects.overrides.map((project) => ({
-          testPaths: testToGlobPaths(project.test),
-          ...project
-        }))
-      );
-      for (const path of defaultPaths) {
-        if (!overrideProjects.some((project => project.testPaths.includes(path)))) {
-          for (const path of paths) {
-            await genReadmeFromPackageDir(path, h);
-          }              
-        }
-      }
-      console.log(defaultPaths);
-      if (context.writemeOptions.overrides) {
-        for (const override of context.writemeOptions.projects.overrides) {
-          const paths = await globby(override.test);
-          console.log(paths);
-        }
-      }
-    }
-    if (context.writemeOptions.workspaces) {
-      context.globPaths = context.writemeOptions.workspaces.map(glob =>
-        join(context.packageDir, glob),
-      );
+      const overrideProjects = context.projects.overrides
+        ? await Promise.all(
+            context.projects.overrides.map(async project => ({
+              ...project,
+              testPaths: await testToPaths(packageDir, project.test),
+            })),
+          )
+        : [];
+      const defaultPaths = await testToPaths(packageDir, context.projects.test);
+      const allProjects = overrideProjects.concat({
+        ...context.projects,
+        testPaths: defaultPaths.filter(
+          path => !overrideProjects.some(project => project.testPaths.includes(path)),
+        ),
+      });
 
-      const paths = await globby(context.globPaths, { onlyFiles: false });
-
-      for (const path of paths) {
-        await genReadmeFromPackageDir(path, hooks);
-      }
+      await Promise.all(
+        allProjects.map(
+          async project =>
+            await Promise.all(
+              project.testPaths.map(path => genReadmeFromPackageDir(path, h)),
+            ),
+        ),
+      );
     }
 
     await h.before.genReadme(context);
