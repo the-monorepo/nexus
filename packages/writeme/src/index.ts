@@ -141,15 +141,25 @@ function workspacesToProjects(workspaces: string[]) {
   return { test: workspaces };
 }
 
-function projects(context) {
-  if (context.writemeOptions.projects) {
-    return context.writemeOptions.projects;
+function getProjects(writemeOptions) {
+  if (writemeOptions.projects) {
+    return writemeOptions.projects;
   } else {
-    return workspacesToProjects(context.writemeOptions.workspaces);
+    return workspacesToProjects(writemeOptions.workspaces);
   }
 }
 
-function testToGlobPaths(test: string) {}
+function testToGlobPaths(test: string | string[]) {
+  if(typeof test === 'string') {
+    return [test];
+  } else {
+    return test;
+  }
+}
+
+async function testToPaths(test: string | string[]) {
+  return await globby(testToGlobPaths(test));
+}
 
 export async function genReadmeFromPackageDir(
   packageDir: string,
@@ -188,11 +198,21 @@ export async function genReadmeFromPackageDir(
       ...context.config,
     };
 
-    context.projects = projects(context);
-    if (context.writemeOptions.projects) {
-      const defaultPaths = await globby(context.projects.test);
-      const overridePaths = await globby(context.overrides.map(({ test }) => {}));
+    context.projects = getProjects(context.writemeOptions);
+    if (context.projects) {
+      const defaultPaths = await testToGlobPaths(context.projects.test);
+      const overrideProjects = await Promise.all(
+        context.projects.overrides.map((project) => ({
+          testPaths: testToGlobPaths(project.test),
+          ...project
+        }))
+      );
       for (const path of defaultPaths) {
+        if (!overrideProjects.some((project => project.testPaths.includes(path)))) {
+          for (const path of paths) {
+            await genReadmeFromPackageDir(path, h);
+          }              
+        }
       }
       console.log(defaultPaths);
       if (context.writemeOptions.overrides) {
