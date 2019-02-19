@@ -78,9 +78,10 @@ function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
       relative(resolve(rootDir), resolve(packageOptions.dir)),
       'README.md',
     );
-    const title = getTitle(packageOptions);
 
-    md += `${packageOptions.version} | [${title}](${relativePackageLink}) | ${
+    md += `${packageOptions.version} | [\`${
+      packageOptions.name
+    }\`](${relativePackageLink}) | ${
       packageOptions.description ? packageOptions.description : ''
     }\n`;
   }
@@ -171,7 +172,7 @@ async function readPackageJson(packageDir) {
 function packageNameToTitle(packageName: string) {
   return packageName
     .replace(/^@[^\/]+\//, '')
-    .replace(/-+/, ' ')
+    .replace(/-+/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 }
 

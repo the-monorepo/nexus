@@ -1,4 +1,4 @@
-# Tslint Preset-Core
+# Tslint Preset Core
 
 A pratical style preset for TSLint
 
