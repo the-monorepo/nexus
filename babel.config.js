@@ -13,7 +13,7 @@ module.exports = {
   plugins: ['babel-plugin-istanbul'],
   overrides: [
     {
-      test: './packages/storybook-addon-knobify/.storybook',
+      test: ['./packages/my-resume', './packages/resume-template'],
       presets: [
         '@babel/preset-react',
         '@babel/preset-typescript',

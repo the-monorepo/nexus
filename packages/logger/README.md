@@ -4,9 +4,13 @@ A preformatted, opinionated logger
 
 ## Installation
 
-`npm install --save @pshaw/logger`
+```bash
+npm install --save @pshaw/logger @pshaw/winston-formats winston
+```
 or
-`yarn add @pshaw/logger`
+```bash
+yarn add @pshaw/logger @pshaw/winston-formats winston
+```
 
 ## Examples
 
@@ -27,3 +31,5 @@ l.error('rawr');
 l.tag('tagged').info('test');
 ```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

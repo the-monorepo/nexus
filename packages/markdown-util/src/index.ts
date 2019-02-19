@@ -32,7 +32,7 @@ async function extToCodeBlockTag(ext: string) {
 /**
  * Reads a file and outputs it as a code block in markdown
  */
-export async function readCodeBlock(path: string): string {
+export async function readCodeBlock(path: string): Promise<string> {
   const block = await readFile(path, 'utf8');
   const ext = extname(path);
   const blockNoTrailingLines = block.replace(/[\s\n]+$/, '');

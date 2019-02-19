@@ -1,4 +1,4 @@
-import { schema, HookSchema } from '../../src';
+import { fromSchema, HookSchema } from '../../src';
 describe('schema', () => {
   const testSchema = {
     a: null,
@@ -13,9 +13,9 @@ describe('schema', () => {
     },
   };
 
-  const withDefaults = schema(testSchema);
+  const hookUtil = fromSchema(testSchema);
   it('undefined', async () => {
-    const hooks = withDefaults();
+    const hooks = hookUtil.withHooks();
     await hooks.before.a({});
     await hooks.before.b({});
     await hooks.before.nested1.c({});
@@ -25,7 +25,7 @@ describe('schema', () => {
   });
 
   it("doesn't replace when hook callback already exists", async () => {
-    const hooks = withDefaults({
+    const hooks = hookUtil.withHooks({
       before: {
         a: async () => 33,
       },

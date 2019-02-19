@@ -4,7 +4,13 @@ A set of Winston formats
 
 ## Installation
 
-`npm install --save @pshaw/winston-formats`
+```bash
+npm install --save @pshaw/winston-formats winston
+```
 or
-`yarn add @pshaw/winston-formats`
+```bash
+yarn add @pshaw/winston-formats winston
+```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
