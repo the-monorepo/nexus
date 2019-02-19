@@ -1,15 +1,18 @@
 /**
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */
-require('colors');
 require('source-map-support/register');
 const { join, sep, relative } = require('path');
+
+const del = require('del');
+const chalk = require('chalk');
 
 const gulp = require('gulp');
 const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
 const changed = require('gulp-changed');
 const plumber = require('gulp-plumber');
+const rename = require('gulp-rename');
 
 const gulpTslint = require('gulp-tslint');
 const gulpTypescript = require('gulp-typescript');
@@ -47,49 +50,51 @@ function swapSrcWithLib(srcPath) {
   return swapSrcWith(srcPath, 'lib');
 }
 
-function rename(fn) {
-  return through.obj((file, enc, callback) => {
-    file.path = fn(file);
-    callback(null, file);
-  });
-}
 function packagesGlobFromPackagesDirName(dirName) {
   return `./${dirName}/*`;
 }
 
-function srcGlob(dirName, folderName) {
+function packageSubDirGlob(dirName, folderName) {
   return `./${dirName}/*/${folderName}/**/*`;
 }
 
 function srcTranspiledGlob(dirName, folderName) {
-  return `${srcGlob(dirName, folderName)}.${transpiledExtensions}`;
+  return `${packageSubDirGlob(dirName, folderName)}.${transpiledExtensions}`;
 }
 
 function mockGlob(dirName, folderName) {
-  return `${srcGlob(dirName, folderName)}/__mocks__/*`;
+  return `${packageSubDirGlob(dirName, folderName)}/__mocks__/*`;
 }
 
 const transpiledExtensions = '{js,jsx,ts,tsx,html,css}';
 
 function globSrcMiscFromPackagesDirName(dirName) {
   return [
-    `${srcGlob(dirName, 'src')}`,
+    packageSubDirGlob(dirName, 'src'),
     `!${srcTranspiledGlob(dirName, 'src')}`,
     `!${mockGlob(dirName, 'src')}`,
   ];
 }
 
 function globSrcCodeFromPackagesDirName(dirName) {
-  return [`${srcTranspiledGlob(dirName, 'src')}`, `!${mockGlob(dirName, 'src')}`];
+  return [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`];
+}
+
+function globBuildOutputFromPackagesDirName(dirName) {
+  return [
+    packageSubDirGlob(dirName, 'lib'),
+    packageSubDirGlob(dirName, 'esm'),
+    packageSubDirGlob(dirName, 'dist'),
+  ];
 }
 
 function sourceGlobFromPackagesDirName(dirName) {
   return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
 }
 
-const pshawLogger = require('@pshaw/logger');
+const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
-console.log(logger);
+
 function packagesSrcMiscStream() {
   return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: packagesDir });
 }
@@ -100,44 +105,80 @@ function packagesSrcCodeStream() {
 
 function simplePipeLogger(l, verb) {
   return through.obj(function(file, enc, callback) {
-    l.info(`${verb} '${file.relative.cyan}'`);
+    l.info(`${verb} '${chalk.cyan(file.relative)}'`);
     callback(null, file);
   });
 }
 
+function clean() {
+  return del(globBuildOutputFromPackagesDirName(packagesDirName));
+}
+gulp.task('clean', clean);
+
 function copy() {
-  const l = logger.tag('copy'.yellow);
+  const l = logger.tag(chalk.yellow('copy'));
   return packagesSrcMiscStream()
     .pipe(simplePipeLogger(l, 'Copying'))
-    .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
+    .pipe(
+      rename(filePath => {
+        filePath.dirname = join(filePath.dirname, '../lib');
+        return filePath;
+      }),
+    )
     .pipe(gulp.dest(packagesDir));
 }
 
 function transpile() {
-  const l = logger.tag('transpile'.blue);
+  const l = logger.tag(chalk.blue('transpile'));
   return packagesSrcCodeStream()
     .pipe(errorLogger(l))
     .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
-    .pipe(simplePipeLogger(l, 'Compiling'))
+    .pipe(simplePipeLogger(l, 'Transpiling'))
     .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(rename(file => (file.path = swapSrcWithLib(file.path))))
+    .pipe(
+      rename(filePath => {
+        filePath.dirname = join(filePath.dirname, '../lib');
+        return filePath;
+      }),
+    )
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(packagesDir));
 }
 
+function printFriendlyAbsoluteDir(dir) {
+  if (relative(dir, __dirname) === '') {
+    return '.';
+  }
+  return relative(join(__dirname), dir);
+}
+
 gulp.task('transpile', transpile);
 
-function writeme() {
-  const base = join(__dirname, packagesDirName);
-  const stream = gulp.src(packagesGlobFromPackagesDirName(packagesDirName), { base });
-  const { writeme } = require('@pshaw/gulp-writeme');
-  const l = logger.tag('writeme'.green);
-  return stream
-    .pipe(errorLogger(l))
-    .pipe(simplePipeLogger(l, 'Generating readme for'))
-    .pipe(writeme(configPath => l.warn(`Missing '${`${configPath}.js`.cyan}'`)))
-    .pipe(gulp.dest(base));
+async function writeme() {
+  const { writeReadmeFromPackageDir } = require('@pshaw/writeme');
+  const l = logger.tag(chalk.green('writeme'));
+  await writeReadmeFromPackageDir(__dirname, {
+    before: {
+      genReadme: async ({ packageDir }) => {
+        l.info(
+          `Generating readme for '${chalk.cyan(printFriendlyAbsoluteDir(packageDir))}'`,
+        );
+      },
+    },
+    after: {
+      readConfig: async ({ config, configPath }) => {
+        if (!config) {
+          l.warn(`Missing '${chalk.cyan(printFriendlyAbsoluteDir(configPath))}'`);
+        }
+      },
+    },
+    on: {
+      error: async err => {
+        l.error(err.stack);
+      },
+    },
+  });
 }
 gulp.task('writeme', writeme);
 
@@ -152,9 +193,6 @@ function watch() {
   );
 }
 gulp.task('watch', watch);
-
-function clean() {}
-gulp.task('clean', clean);
 
 gulp.task('default', build);
 

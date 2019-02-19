@@ -1,12 +1,16 @@
-# Tslint Preset-Core
+# Tslint Preset Core
 
 A pratical style preset for TSLint
 
 ## Installation
 
-`npm install --save-dev @pshaw/tslint-preset-core`
+```bash
+npm install --save-dev @pshaw/tslint-preset-core tslint
+```
 or
-`yarn add --dev @pshaw/tslint-preset-core`
+```bash
+yarn add --dev @pshaw/tslint-preset-core tslint
+```
 
 ## Examples
 
@@ -17,3 +21,5 @@ or
   ]
 }
 ```
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

@@ -4,9 +4,13 @@ A readme generator
 
 ## Installation
 
-`npm install --save-dev @pshaw/writeme`
+```bash
+npm install --save-dev @pshaw/writeme
+```
 or
-`yarn add --dev @pshaw/writeme`
+```bash
+yarn add --dev @pshaw/writeme
+```
 
 ## Examples
 
@@ -16,3 +20,5 @@ import writeme from 'writeme';
 writeme(__dirname);
 ```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
