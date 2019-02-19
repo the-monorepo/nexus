@@ -1,6 +1,6 @@
 # Monorepo
 
-Extracts the types used in a particular object
+An assortment of miscellaneous libraries - Saves me time on rewriting build tooling
 
 ## Packages
 
