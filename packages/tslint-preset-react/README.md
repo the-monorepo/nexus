@@ -22,3 +22,5 @@ yarn add --dev @pshaw/tslint-react-preset tslint
   ]
 }
 ```
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

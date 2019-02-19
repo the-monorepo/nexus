@@ -31,3 +31,5 @@ l.error('rawr');
 l.tag('tagged').info('test');
 ```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

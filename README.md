@@ -10,7 +10,7 @@ Version | Package | Description
 2.0.0 | [Hook Schema](packages\hook-schema\README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 1.2.2 | [Markdown Util](packages\markdown-util\README.md) | A helper package for writing markdown files
 1.0.0-alpha.0 | [Resume Template](packages\resume-template\README.md) | A template you can use to generate resumes
-2.1.1 | [Writeme](packages\writeme\README.md) | A readme generator
+3.0.0 | [Writeme](packages\writeme\README.md) | A readme generator
 2.0.0 | [Build Util](build-packages\build-util\README.md) | Tries to save some time by providing basic build configurations
 
 ### Linting

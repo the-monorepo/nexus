@@ -12,3 +12,5 @@ or
 yarn add @pshaw/winston-formats winston
 ```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
