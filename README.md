@@ -7,7 +7,6 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 Version | Package | Description
 --- | --- | ---
 1.3.0 | [`@pshaw/convict-util`](packages/convict-util/README.md) | A helper package for reading configs in using convict
-1.3.0 | [`@pshaw/gulp-writeme`](packages/gulp-writeme/README.md) | A gulp wrapper for writeme
 2.0.0 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 1.3.0 | [`@pshaw/markdown-util`](packages/markdown-util/README.md) | A helper package for writing markdown files
 1.0.0-alpha.0 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
