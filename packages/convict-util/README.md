@@ -12,3 +12,5 @@ or
 yarn add @pshaw/convict-util
 ```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
