@@ -71,7 +71,7 @@ export interface Project {
 }
 
 function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
-  let md = 'Package | Description\n';
+  let md = 'Version | Package | Description\n';
   md += '--- | --- | ---\n';
   for (const packageOptions of packages) {
     const relativePackageLink = join(
@@ -80,7 +80,7 @@ function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
     );
     const title = getTitle(packageOptions);
 
-    md += `[${title}](${relativePackageLink}) | ${
+    md += `${packageOptions.version} | [${title}](${relativePackageLink}) | ${
       packageOptions.description ? packageOptions.description : ''
     }\n`;
   }
