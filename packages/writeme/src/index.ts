@@ -319,8 +319,6 @@ export async function genReadmeFromPackageDir(
     await h.before.genReadme(context);
     context.readmeText = genReadme(context.writemeOptions);
     await h.after.genReadme(context);
-
-    return context.readmeText;
   } catch (err) {
     await h.on.error(err);
   }
