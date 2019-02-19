@@ -178,7 +178,7 @@ export const hackathons = [
     links: {
       entry: 'https://devpost.com/software/meditrace',
     },
-    event: 'Unihack 2018',
+    event: 'Unihack Melb. 2018',
     startDate: new Date(2018),
     endDate: new Date(),
     prize: '1st place, best design and best pitch winner',
@@ -192,7 +192,7 @@ export const hackathons = [
     links: {
       entry: 'https://devpost.com/software/seatme',
     },
-    event: 'Unihack 2017',
+    event: 'Unihack Melb. 2017',
     prize: '2nd place prize winner',
     startDate: new Date(2017),
     endDate: new Date(),
