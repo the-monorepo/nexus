@@ -15,11 +15,11 @@ yarn add hook-schema
 ## Examples
 
 ```javascript
-const { schema } = require('hook-schema');
+const fromSchema = require('hook-schema');
 const { readFile } = require('mz/fs');
 const { join } = require('path');
 
-const addHooks = schema({
+const { withHooks } = fromSchema({
   readFile: null,
   parseJson: null,
 });
@@ -34,7 +34,7 @@ async function readJson(filePath, partialHooks) {
     path: filePath,
     encoding: 'utf8',
   };
-  const hooks = addHooks(partialHooks);
+  const hooks = withHooks(partialHooks);
 
   await hooks.before.readFile(context);
   context.contents = await readFile(context.path, context.encoding);
@@ -71,3 +71,5 @@ async function run() {
 run();
 ```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

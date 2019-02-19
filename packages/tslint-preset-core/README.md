@@ -21,3 +21,5 @@ yarn add --dev @pshaw/tslint-preset-core tslint
   ]
 }
 ```
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

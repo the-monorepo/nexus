@@ -20,3 +20,5 @@ import writeme from 'writeme';
 writeme(__dirname);
 ```
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

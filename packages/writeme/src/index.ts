@@ -348,7 +348,7 @@ export async function writeReadmeFromPackageDir(
         after: {
           async genReadme(context) {
             await h.before.writeReadme(context);
-            await writeFile(join(packageDir, 'README.md'), context.readmeText, {
+            await writeFile(join(context.packageDir, 'README.md'), context.readmeText, {
               encoding: 'utf-8',
             });
             await h.after.writeReadme(context);
