@@ -1,4 +1,4 @@
-import { join, relative } from 'path';
+import { join, relative, resolve } from 'path';
 import { pathExists } from 'fs-extra';
 import { writeFile, readFile } from 'mz/fs';
 import { fromSchema, mergeHookOptions, HookOptionsOf } from 'hook-schema';
@@ -21,21 +21,28 @@ export interface Sections {
   development?: string;
 }
 
-export interface ManualReadmeContents {
-  isDevPackage?: boolean;
-  sections?: Sections;
+export interface Projects extends Project {
+  overrides: Project[];
 }
 
-export interface ReadmeContents extends ManualReadmeContents {
+export interface PackageOptions {
+  dir: string;
   title: string;
   name: string;
   version: string;
   description?: string;
+  projects?: Project[];
   private?: boolean;
   peerDependencies?: { [s: string]: string };
+  isDevPackage?: boolean;
+  sections?: Sections;
 }
 
 const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
+
+function getTitle(options) {
+  return options.title ? options.title : packageNameToTitle(options.name);
+}
 
 function packageInstallation(command, flag, packageNames) {
   let md = '';
@@ -56,16 +63,60 @@ function installationInstructions(isDevPackage, allDependenciesToInstall) {
   return md;
 }
 
+export interface Project {
+  category: string;
+  description?: string;
+  packages: PackageOptions[];
+  [s: string]: any;
+}
+
+function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
+  let md = 'Package | Description\n';
+  md += '--- | --- | ---\n';
+  for (const packageOptions of packages) {
+    const relativePackageLink = join(
+      relative(resolve(rootDir), resolve(packageOptions.dir)),
+      'README.md',
+    );
+    const title = getTitle(packageOptions);
+
+    md += `[${title}](${relativePackageLink}) | ${
+      packageOptions.description ? packageOptions.description : ''
+    }\n`;
+  }
+  return md + '\n';
+}
+
+function projectOptionsToMd(projects: Project[], rootDir: string): string {
+  let md = '';
+  for (const project of projects) {
+    const filteredPackages = project.packages.filter(
+      packageOptions => !packageOptions.private,
+    );
+    if (filteredPackages.length <= 0) {
+      continue;
+    }
+    if (project.category) {
+      md += `### ${project.category}\n`;
+    }
+    md += packagesToProjectMd(filteredPackages, rootDir);
+  }
+
+  return section('Packages', md);
+}
+
 function genReadme({
   name,
+  dir,
   version,
   isDevPackage,
   description,
+  projects,
   sections = {},
   peerDependencies = {},
   ...other
-}: ReadmeContents) {
-  const title = packageNameToTitle(name);
+}: PackageOptions) {
+  const title = getTitle({ name, ...other });
   const { examples, howTo, development = '' } = sections;
   if (!name) {
     throw new Error(`Name was ${name}`);
@@ -94,6 +145,9 @@ function genReadme({
     );
 
     md += installationInstructions(isDevPackage, allDependenciesToInstall);
+  }
+  if (projects) {
+    md += projectOptionsToMd(projects, dir);
   }
   md += section('How to use it', howTo);
   md += section('Examples', examples);
@@ -207,33 +261,56 @@ export async function genReadmeFromPackageDir(
     context.writemeOptions = {
       ...context.packageJson,
       ...context.config,
+      dir: packageDir,
     };
-    context.projects = getProjects(context.writemeOptions);
-    if (context.projects) {
-      const overrideProjects: any[] = context.projects.overrides
+
+    const projectsConfig = getProjects(context.writemeOptions);
+    if (projectsConfig) {
+      const overrideProjects: any[] = projectsConfig.overrides
         ? await Promise.all(
-            context.projects.overrides.map(async project => ({
+            projectsConfig.overrides.map(async project => ({
               ...project,
               testPaths: await testToPaths(packageDir, project.test),
             })),
           )
         : [];
-      const defaultPaths = await testToPaths(packageDir, context.projects.test);
-      const allProjects = overrideProjects.concat({
-        ...context.projects,
-        testPaths: defaultPaths.filter(
-          path => !overrideProjects.some(project => project.testPaths.includes(path)),
-        ),
-      });
+      const defaultPaths = await testToPaths(packageDir, projectsConfig.test);
+      const allProjects = [
+        {
+          ...projectsConfig,
+          testPaths: defaultPaths.filter(
+            path => !overrideProjects.some(project => project.testPaths.includes(path)),
+          ),
+        },
+      ].concat(overrideProjects);
 
-      await Promise.all(
-        allProjects.map(
-          async project =>
-            await Promise.all(
-              project.testPaths.map(path => genReadmeFromPackageDir(path, h)),
-            ),
-        ),
+      const expandedProjectsConfig = await Promise.all(
+        allProjects.map(async project => {
+          const packages = await Promise.all(
+            project.testPaths.map(async path => {
+              let writemeOptions = undefined;
+              const nestedHooks = genReadmeFromPackageDirHookUtil.mergeHookOptions([
+                {
+                  after: {
+                    async genReadme(innerContext) {
+                      writemeOptions = innerContext.writemeOptions;
+                    },
+                  },
+                },
+                h,
+              ]);
+              await genReadmeFromPackageDir(path, nestedHooks);
+              return writemeOptions;
+            }),
+          );
+          return {
+            ...project,
+            packages,
+          };
+        }),
       );
+      // TODO: Going a little overboard with the mutability here...
+      context.writemeOptions.projects = expandedProjectsConfig;
     }
 
     await h.before.genReadme(context);
