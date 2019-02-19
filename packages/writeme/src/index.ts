@@ -77,7 +77,7 @@ function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
     const relativePackageLink = join(
       relative(resolve(rootDir), resolve(packageOptions.dir)),
       'README.md',
-    );
+    ).replace('\\\\', '/');
 
     md += `${packageOptions.version} | [\`${
       packageOptions.name
