@@ -26,3 +26,5 @@ Version | Package | Description
 1.3.0 | [Winston Formats](packages\winston-formats\README.md) | A set of Winston formats
 
 
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)

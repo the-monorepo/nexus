@@ -152,6 +152,9 @@ function genReadme({
   md += section('How to use it', howTo);
   md += section('Examples', examples);
   md += section('Development', development);
+  md += '---\n';
+  md +=
+    'This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)\n';
   return md;
 }
 
