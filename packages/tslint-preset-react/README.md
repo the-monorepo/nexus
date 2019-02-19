@@ -1,12 +1,16 @@
-# Tslint React-Preset
+# Tslint React Preset
 
 A pratical React style preset for TSLint
 
 ## Installation
 
-`npm install --save-dev @pshaw/tslint-react-preset`
+```bash
+npm install --save-dev @pshaw/tslint-react-preset tslint
+```
 or
-`yarn add --dev @pshaw/tslint-react-preset`
+```bash
+yarn add --dev @pshaw/tslint-react-preset tslint
+```
 
 ## Examples
 
@@ -18,3 +22,5 @@ or
   ]
 }
 ```
+---
+This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
