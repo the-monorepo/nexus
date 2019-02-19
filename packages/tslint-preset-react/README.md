@@ -1,4 +1,4 @@
-# Tslint React-Preset
+# Tslint React Preset
 
 A pratical React style preset for TSLint
 
