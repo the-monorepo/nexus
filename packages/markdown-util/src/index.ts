@@ -1,6 +1,6 @@
+import { safeLoad } from 'js-yaml';
 import { readFile } from 'mz/fs';
 import { extname, join } from 'path';
-import { safeLoad } from 'js-yaml';
 let extMap = () => {
   const readLanguages = async () => {
     const languagesContents = await readFile(join(__dirname, 'languages.yml'));

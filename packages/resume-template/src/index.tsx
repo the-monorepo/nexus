@@ -1,9 +1,9 @@
-import * as React from 'react';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core';
 import jss from 'jss';
 import * as jssGlobal from 'jss-global';
 import * as jssNested from 'jss-nested';
+import * as React from 'react';
 import { Page } from './components';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core';
 
 export function createResume() {
   const theme = createMuiTheme({

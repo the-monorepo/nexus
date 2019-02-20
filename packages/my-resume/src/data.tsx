@@ -1,3 +1,4 @@
+/* tslint:disable:prefer-template */
 export const details = {
   name: 'Patrick Shaw',
   email: 'mail@patrickshaw.me',
