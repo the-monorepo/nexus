@@ -196,22 +196,27 @@ export type GenReadmeFromPackageDirHooks = HookOptionsOf<
 >;
 
 function getProjects(writemeOptions) {
-  if (writemeOptions.projects === undefined) {
-    return undefined;
-  } else if (!writemeOptions.projects) {
+  if (writemeOptions.projects === null) {
     return null;
-  } else if (!!writemeOptions.projects.test) {
-    return writemeOptions.projects;
-  } else if (!writemeOptions.workspaces) {
-    throw new Error(
-      "Projects object does not have 'test' field, nor does package.json have 'workspaces'",
-    );
-  } else {
+  } else if (!writemeOptions.projects) {
+    if (!writemeOptions.workspaces) {
+      return null;
+    }
+    return {
+      test: writemeOptions.workspaces,
+    };
+  } else if (!writemeOptions.projects.test) {
+    if (!writemeOptions.workspaces) {
+      throw new Error(
+        "Projects object does not have 'test' field, nor does package.json have 'workspaces'",
+      );
+    }
     return {
       ...writemeOptions.projects,
       test: writemeOptions.workspaces,
     };
   }
+  return writemeOptions.projects;
 }
 
 function testToGlobs(test: string | string[]) {
