@@ -57,7 +57,7 @@
     "@babel/preset-env": "^7.1.5",
     "@babel/preset-typescript": "^7.1.0",
     "@types/jest": "^24.0.0",
-    "@types/node": "^10.12.18",
+    "@types/node": "^11.9.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
     "codecov": "^3.1.0",
