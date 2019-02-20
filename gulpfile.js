@@ -14,6 +14,8 @@ const changed = require('gulp-changed');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
 const prettier = require('gulp-prettier');
+const filter = require('gulp-filter');
+const staged = require('./gulp-staged');
 
 const gulpTslint = require('gulp-tslint');
 const gulpTypescript = require('gulp-typescript');
@@ -25,7 +27,6 @@ const tsProject = gulpTypescript.createProject('tsconfig.json');
 const through = require('through2');
 
 const packagesDirName = 'packages';
-const packagesDir = join(__dirname, packagesDirName);
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -96,12 +97,12 @@ function sourceGlobFromPackagesDirName(dirName) {
 const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
-function packagesSrcMiscStream() {
-  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: '.' });
+function packagesSrcMiscStream(options) {
+  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: '.', ...options });
 }
 
-function packagesSrcCodeStream() {
-  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), { base: '.' });
+function packagesSrcCodeStream(options) {
+  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), { base: '.', ...options });
 }
 
 function simplePipeLogger(l, verb) {
@@ -202,15 +203,26 @@ function gulpPrettier() {
   return prettier();
 }
 
+function prettierPipes(stream) {
+  const l = logger.tag(chalk.magentaBright('prettier'));
+  return stream.pipe(simplePipeLogger(l, 'Formatting'))
+    .pipe(gulpPrettier());
+}
+
 function formatPrettier() {
-  const l = logger.tag(chalk.greenBright('prettier'));
-  return packagesSrcCodeStream()
-    .pipe(changed('.'))
-    .pipe(simplePipeLogger(l, 'Formatting'))
-    .pipe(gulpPrettier())
-    .pipe(gulp.dest('.'));
+  return prettierPipes(
+    packagesSrcCodeStream()
+  ).pipe(gulp.dest('.'));
 }
 gulp.task('format:prettier', formatPrettier);
+
+function formatStagedPrettier() {
+  return prettierPipes(
+    packagesSrcCodeStream()
+      .pipe(staged())
+  ).pipe(gulp.dest('.'));
+}
+gulp.task('format-staged:staged', formatStagedPrettier);
 
 function gulpLint(options) {
   return gulpTslint({
@@ -228,7 +240,7 @@ function gulpLintReport() {
 
 function lintPipes(stream, lintOptions) {
   const tslintProgram = tslint.Linter.createProgram('./tsconfig.json');
-  const l = logger.tag(chalk.greenBright('tslint'));
+  const l = logger.tag(chalk.magenta('tslint'));
   return stream
     .pipe(simplePipeLogger(l, 'Formatting'))
     .pipe(gulpLint({
@@ -240,11 +252,21 @@ function lintPipes(stream, lintOptions) {
 
 function runLinter(lintOptions) {
   return lintPipes(
-    packagesSrcCodeStream()
-      .pipe(changed('.')),
+    packagesSrcCodeStream(),
     lintOptions
   );
 }
+
+function formatStagedLint() {
+  return lintPipes(
+    packagesSrcCodeStream()
+      .pipe(staged())
+  );
+}
+gulp.task('format-staged:lint', formatStagedLint);
+
+const formatStaged = gulp.series(formatStagedLint, formatStagedPrettier);
+gulp.task('format-staged', formatStaged);
 
 function formatLint() {
   return runLinter({ fix: true });
