@@ -7,7 +7,7 @@
     "writeme",
     "util"
   ],
-  "version": "3.0.0",
+  "version": "3.0.1",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
   "license": "MIT",

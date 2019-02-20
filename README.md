@@ -10,7 +10,7 @@ Version | Package | Description
 2.1.0 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 1.3.1 | [`@pshaw/markdown-util`](packages/markdown-util/README.md) | A helper package for writing markdown files
 1.0.1-alpha.0 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
-3.0.0 | [`@pshaw/writeme`](packages/writeme/README.md) | A readme generator
+3.0.1 | [`@pshaw/writeme`](packages/writeme/README.md) | A readme generator
 2.0.1 | [`@pshaw/build-util`](build-packages/build-util/README.md) | Tries to save some time by providing basic build configurations
 
 ### Linting
