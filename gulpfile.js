@@ -226,20 +226,24 @@ function gulpLintReport() {
   });
 }
 
-function runLinter(lintOptions) {
-  const stream = packagesSrcCodeStream();
+function lintPipes(stream, lintOptions) {
   const tslintProgram = tslint.Linter.createProgram('./tsconfig.json');
   const l = logger.tag(chalk.greenBright('tslint'));
   return stream
     .pipe(simplePipeLogger(l, 'Formatting'))
-    .pipe(changed('.'))
-    .pipe(
-      gulpLint({
+    .pipe(gulpLint({
         tslintProgram,
         ...lintOptions,
-      }),
-    )
+    }))
     .pipe(gulpLintReport());
+}
+
+function runLinter(lintOptions) {
+  return lintPipes(
+    packagesSrcCodeStream()
+      .pipe(changed('.')),
+    lintOptions
+  );
 }
 
 function formatLint() {
