@@ -91,9 +91,9 @@ function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
 function projectOptionsToMd(projects: Project[], rootDir: string): string {
   let md = '';
   for (const project of projects) {
-    const filteredPackages = project.packages.filter(
-      packageOptions => !packageOptions.private,
-    );
+    const filteredPackages = project.packages
+      .filter(packageOptions => !packageOptions.private)
+      .sort((a, b) => a.name < b.name);
     if (filteredPackages.length <= 0) {
       continue;
     }
