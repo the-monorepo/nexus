@@ -13,6 +13,7 @@ const babel = require('gulp-babel');
 const changed = require('gulp-changed');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
+const prettier = require('gulp-prettier');
 
 const gulpTslint = require('gulp-tslint');
 const gulpTypescript = require('gulp-typescript');
@@ -96,11 +97,11 @@ const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream() {
-  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: packagesDir });
+  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: '.' });
 }
 
 function packagesSrcCodeStream() {
-  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), { base: packagesDir });
+  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), { base: '.' });
 }
 
 function simplePipeLogger(l, verb) {
@@ -125,14 +126,14 @@ function copy() {
         return filePath;
       }),
     )
-    .pipe(gulp.dest(packagesDir));
+    .pipe(gulp.dest('.'));
 }
 
 function transpile() {
   const l = logger.tag(chalk.blue('transpile'));
   return packagesSrcCodeStream()
     .pipe(errorLogger(l))
-    .pipe(changed(packagesDir, { extension: '.js', transformPath: swapSrcWithLib }))
+    .pipe(changed('.', { extension: '.js', transformPath: swapSrcWithLib }))
     .pipe(simplePipeLogger(l, 'Transpiling'))
     .pipe(sourcemaps.init())
     .pipe(babel())
@@ -143,7 +144,7 @@ function transpile() {
       }),
     )
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(packagesDir));
+    .pipe(gulp.dest('.'));
 }
 
 function printFriendlyAbsoluteDir(dir) {
@@ -196,24 +197,50 @@ gulp.task('watch', watch);
 
 gulp.task('default', build);
 
-function runLinter({ fix }) {
+function gulpPrettier() {
+  return prettier();
+}
+
+function formatPrettier() {
+  const l = logger.tag(chalk.greenBright('prettier'));
+  return packagesSrcCodeStream()
+    .pipe(changed('.'))
+    .pipe(simplePipeLogger(l, 'Formatting'))
+    .pipe(gulpPrettier())
+    .pipe(gulp.dest('.'));
+}
+gulp.task('format:prettier', formatPrettier);
+
+function gulpLint(options) {
+  return gulpTslint({
+    formatter: 'stylish',
+    tslint,
+    ...options,
+  });
+}
+
+function gulpLintReport() {
+  return gulpTslint.report({
+    summarizeFailureOutput: true,
+  });
+}
+
+function runLinter(lintOptions) {
   const stream = packagesSrcCodeStream();
   const tslintProgram = tslint.Linter.createProgram('./tsconfig.json');
+  const l = logger.tag(chalk.greenBright('tslint'));
   return stream
+    .pipe(simplePipeLogger(l, 'Formatting'))
+    .pipe(changed('.'))
     .pipe(
-      gulpTslint({
-        program: tslintProgram,
-        fix,
-        formatter: 'stylish',
-        tslint,
+      gulpLint({
+        tslintProgram,
+        ...lintOptions,
       }),
     )
-    .pipe(
-      gulpTslint.report({
-        summarizeFailureOutput: true,
-      }),
-    );
+    .pipe(gulpLintReport());
 }
+
 function formatLint() {
   return runLinter({ fix: true });
 }
@@ -221,6 +248,9 @@ formatLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
   'overwrite files without creating a backup.';
 gulp.task('format:lint', formatLint);
+
+const format = gulp.series(formatLint, formatPrettier);
+gulp.task('format', format);
 
 function checkTypes() {
   const stream = packagesSrcCodeStream();

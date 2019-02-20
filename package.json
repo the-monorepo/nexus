@@ -13,9 +13,9 @@
     "url": "https://github.com/PatrickShaw/monorepo.git"
   },
   "scripts": {
-    "format": "yarn format:lint && yarn format:prettier",
+    "format": "gulp format",
     "format:lint": "gulp format:lint",
-    "format:prettier": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
+    "format:prettier": "gulp format:prettier",
     "test": "yarn build && jest",
     "clean": "gulp clean",
     "build": "gulp build",
@@ -51,6 +51,7 @@
     "gulp-babel": "8.0.0",
     "gulp-changed": "^3.2.0",
     "gulp-plumber": "^1.2.1",
+    "gulp-prettier": "^2.1.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-tslint": "^8.1.3",
@@ -62,7 +63,6 @@
     "jest": "^23.4.2",
     "jest-mock-functions": "^3.3.3",
     "lerna": "^3.10.7",
-    "lint-staged": "^8.1.0",
     "mz": "^2.7.0",
     "prettier": "^1.15.3",
     "source-map-support": "^0.5.9",
@@ -79,15 +79,9 @@
   "resolutions": {
     "build-pshaw-logger/@pshaw/winston-formats": "npm:@pshaw/winston-formats@1.3.0"
   },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "yarn format:prettier",
-      "git add"
-    ]
-  },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint-staged && yarn test && git add ."
+      "pre-commit": "yarn format && yarn test && git add ."
     }
   }
 }

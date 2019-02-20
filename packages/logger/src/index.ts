@@ -50,7 +50,7 @@ export function fileTransport({
   const formats = getFormats({ colors, timestamp }, { timestampFormat: undefined });
   return new transports.File({
     filename: path,
-    level: level,
+    level,
     format: format.combine(...formats, psFormats.printer),
   });
 }
