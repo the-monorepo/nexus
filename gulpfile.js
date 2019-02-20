@@ -119,6 +119,7 @@ gulp.task('clean', clean);
 function copy() {
   const l = logger.tag(chalk.yellow('copy'));
   return packagesSrcMiscStream()
+    .pipe(changed('.'))
     .pipe(simplePipeLogger(l, 'Copying'))
     .pipe(
       rename(filePath => {
