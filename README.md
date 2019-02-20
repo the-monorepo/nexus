@@ -17,7 +17,7 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.3.1 | [`@pshaw/tslint-preset-core`](packages/tslint-preset-core/README.md) | A pratical style preset for TSLint
-1.3.1 | [`@pshaw/tslint-react-preset`](packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
+1.3.1 | [`@pshaw/tslint-preset-react`](packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
 
 ### Logging
 Version | Package | Description
