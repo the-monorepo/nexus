@@ -41,11 +41,11 @@ export interface CompleteHooksOptions<K extends HookSchema, O extends HookSchema
   on: Hooks<O>;
 }
 
-export type HookOptions<K extends HookSchema, O extends HookSchema> = {
+export interface HookOptions<K extends HookSchema, O extends HookSchema> {
   before?: RecursivePartial<Hooks<K>>;
   after?: RecursivePartial<Hooks<K>>;
   on?: RecursivePartial<Hooks<O>>;
-};
+}
 
 export type HookOptionsOf<T extends any> = Parameters<T['withHooks']>[0];
 

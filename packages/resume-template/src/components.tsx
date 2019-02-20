@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { format as dateFormat } from 'date-fns/esm/index';
 import { Typography, withStyles } from '@material-ui/core';
 import classNames from 'classnames';
-import linkedin from './linkedin';
-import github from './github';
+import { format as formatDate } from 'date-fns/esm/index';
+import * as React from 'react';
 import envelope from './envelope';
+import github from './github';
+import linkedin from './linkedin';
 
 const Contact = withStyles(
   theme => ({
@@ -110,9 +110,9 @@ const Header = withStyles(
 const EntryTopic = withStyles({
   entryTopic: {
     '&>*': {
-      //'&:not(:last-child)': {
+      // '&:not(:last-child)': {
       marginBottom: '24px',
-      //},<
+      // },<
     },
   },
 })(({ children, classes, ...other }) => (
@@ -217,14 +217,14 @@ const EducationEntry = ({ school, grade, course, ...other }) => (
 
 const DateRange = ({ start, end, format }) => (
   <>
-    {dateFormat(start, format, { awareOfUnicodeTokens: true })}
+    {formatDate(start, format, { awareOfUnicodeTokens: true })}
     {end !== undefined ? (
       <>
         {' '}
         <span aria-label="to">-</span>{' '}
         {end === null
           ? 'Current'
-          : dateFormat(end, format, { awareOfUnicodeTokens: true })}
+          : formatDate(end, format, { awareOfUnicodeTokens: true })}
       </>
     ) : null}
   </>
@@ -259,9 +259,9 @@ const LabeledList = withStyles({
       },
     },
   },
-})(({ items, classes }) => (
+})(({ classes, ...other }) => (
   <div className={classes.list}>
-    {items.map(({ label, items }, index) => (
+    {other.items.map(({ label, items }, index) => (
       <p key={index}>
         <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
           {label}:
@@ -351,7 +351,7 @@ const EntryMapper = ({ Component, data }) =>
 export const Page = withStyles({
   pageGrid: {
     display: 'grid',
-    //gridAutoColumns: 'auto',
+    // gridAutoColumns: 'auto',
     gridTemplateColumns:
       'minmax(24px, 1fr) minmax(392px, 444px) minmax(252px, 300px) minmax(24px, 1fr)',
     gridGap: '24px',
@@ -366,9 +366,9 @@ export const Page = withStyles({
   },
   topicEntries: {
     '&>*': {
-      //'&:not(:last-child)': {
+      // '&:not(:last-child)': {
       marginBottom: '24px',
-      //},
+      // },
     },
   },
   main: {

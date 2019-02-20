@@ -1,8 +1,8 @@
-import { join, relative, resolve } from 'path';
 import { pathExists } from 'fs-extra';
-import { writeFile, readFile } from 'mz/fs';
-import { fromSchema, mergeHookOptions, HookOptionsOf } from 'hook-schema';
 import globby from 'globby';
+import { fromSchema, mergeHookOptions, HookOptionsOf } from 'hook-schema';
+import { writeFile, readFile } from 'mz/fs';
+import { join, relative, resolve } from 'path';
 
 function section(title, content) {
   let md = '';
@@ -297,7 +297,7 @@ export async function genReadmeFromPackageDir(
         allProjects.map(async project => {
           const packages = await Promise.all(
             project.testPaths.map(async path => {
-              let writemeOptions = undefined;
+              let writemeOptions;
               const nestedHooks = genReadmeFromPackageDirHookUtil.mergeHookOptions([
                 {
                   after: {
