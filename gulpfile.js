@@ -14,8 +14,7 @@ const changed = require('gulp-changed');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
 const prettier = require('gulp-prettier');
-const filter = require('gulp-filter');
-const staged = require('./gulp-staged');
+const staged = require('gulp-staged');
 
 const gulpTslint = require('gulp-tslint');
 const gulpTypescript = require('gulp-typescript');

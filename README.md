@@ -12,6 +12,7 @@ Version | Package | Description
 1.0.1-alpha.0 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
 3.0.1 | [`@pshaw/writeme`](packages/writeme/README.md) | A readme generator
 2.0.1 | [`@pshaw/build-util`](build-packages/build-util/README.md) | Tries to save some time by providing basic build configurations
+1.0.0-alpha.0 | [`gulp-staged`](build-packages/gulp-staged/README.md) | A gulp plugin that filters out unstaged files from streams
 
 ### Linting
 Version | Package | Description
