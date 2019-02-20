@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0-alpha.0",
+  "name": "gulp-staged",
+  "description": "A gulp plugin that filters out unstaged files from streams",
+  "keywords": [
+    "gulp",
+    "git",
+    "staged",
+    "plugin",
+    "util",
+    "build"
+  ],
+  "main": "./src/index.js",
+  "license": "MIT",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "isomorphic-git": "^0.51.12",
+    "multimatch": "^3.0.0",
+    "streamfilter": "2"
+  }
+}
