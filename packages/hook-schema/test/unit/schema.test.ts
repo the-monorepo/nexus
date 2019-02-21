@@ -1,4 +1,4 @@
-import { fromSchema, HookSchema } from '../../src';
+import { fromSchema } from '../../src';
 describe('schema', () => {
   const testSchema = {
     a: null,

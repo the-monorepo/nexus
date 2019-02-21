@@ -1,4 +1,5 @@
 import { mockFunctions } from 'jest-mock-functions';
+
 import { logger, overrideConsoleLogger } from '../../src';
 import { testCases } from '../util/testCases';
 
@@ -32,6 +33,7 @@ function testConsoleInput(...input) {
     loggingMethods.forEach(loggingMethodName => {
       it(`logging to console.${loggingMethodName}}`, () => {
         overrideConsoleLogger(mockLogger);
+        // eslint-disable-next-line no-console
         console[loggingMethodName](...input);
         testLoggerCallCounts({ [loggingMethodName]: 1 });
       });

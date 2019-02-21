@@ -1,6 +1,6 @@
 import { pathExists } from 'fs-extra';
 import globby from 'globby';
-import { fromSchema } from 'hook-schema';
+import { fromSchema, HookOptionsOf } from 'hook-schema';
 import { writeFile, readFile } from 'mz/fs';
 import { join, relative, resolve } from 'path';
 
@@ -39,6 +39,16 @@ export interface PackageOptions {
 }
 
 const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
+
+/**
+ * Removes @ scopes, replaces "-"" with a space and capitalises each word
+ */
+function packageNameToTitle(packageName: string) {
+  return packageName
+    .replace(/^@[^/]+\//, '')
+    .replace(/-+/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
+}
 
 function getTitle(options) {
   return options.title ? options.title : packageNameToTitle(options.name);
@@ -93,7 +103,7 @@ function projectOptionsToMd(projects: Project[], rootDir: string): string {
   for (const project of projects) {
     const filteredPackages = project.packages
       .filter(packageOptions => !packageOptions.private)
-      .sort((a, b) => a.name < b.name);
+      .sort((a, b) => (a.name < b.name ? -1 : a.name == b.name ? 0 : 1));
     if (filteredPackages.length <= 0) {
       continue;
     }
@@ -164,16 +174,6 @@ async function readPackageJson(packageDir) {
     encoding: 'utf-8',
   });
   return JSON.parse(packageJsonText);
-}
-
-/**
- * Removes @ scopes, replaces "-"" with a space and capitalises each word
- */
-function packageNameToTitle(packageName: string) {
-  return packageName
-    .replace(/^@[^/]+\//, '')
-    .replace(/-+/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase());
 }
 
 export type MissingFileCallback = (configPath: string) => any;

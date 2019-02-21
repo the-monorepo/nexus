@@ -4,13 +4,16 @@
     "@pshaw/eslint-config-core",
     "@pshaw/eslint-config-react",
     "@pshaw/eslint-config-typescript",
-    "prettier"
+    "plugin:jest/recommended",
+    "prettier",
+    "prettier/@typescript-eslint"
   ],
   "env": {
       "browser": true,
       "amd": true,
       "node": true,
-      "es6": true
+      "es6": true,
+      "jest": true
   },
   "parserOptions": {
     "ecmaVersion": 9,
@@ -21,6 +24,19 @@
     }
   },
   "rules": {
-    "react/prop-types": "off"
-  }
+    "react/prop-types": "off",
+    "jest/valid-describe": "off"
+  },
+  "overrides": [{
+    "files": [ "**/examples/**" ],
+    "rules": {
+      "no-console": "off",
+      "@typescript-eslint/no-var-requires": "off"
+    }
+  }, {
+    "files": ["**/test/**", "build-packages/**", "**/*.config.js", "**/gulpfile.js"],
+    "rules": {
+      "@typescript-eslint/no-var-requires": "off"
+    }
+  }]
 }

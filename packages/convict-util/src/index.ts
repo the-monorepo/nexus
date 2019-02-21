@@ -1,5 +1,6 @@
-import { pathExists } from 'fs-extra';
 import { join } from 'path';
+
+import { pathExists } from 'fs-extra';
 
 /**
  * Gets the url of a particular section of the config based off the protocol, host and port fields.

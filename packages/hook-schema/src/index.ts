@@ -28,8 +28,8 @@ export type Hooks<H extends HookSchema> = {
 };
 
 type RecursivePartial<T> = {
-  [P in keyof T]?: T[P] extends Array<infer U>
-    ? Array<RecursivePartial<U>>
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? RecursivePartial<U>[]
     : T[P] extends object
     ? RecursivePartial<T[P]>
     : T[P]
@@ -72,36 +72,18 @@ export function defaultHooksFromSchema<H extends HookSchema>(
   }, hooksObj) as Hooks<H>;
 }
 
-export function fromSchema<H extends HookSchema, O extends HookSchema>(
-  beforeAfterSchemaObj: H,
-  onSchemaObj: O = {} as any,
-) {
-  return {
-    withHooks: (partialHooks: HookOptions<H, O> = {}): CompleteHooksOptions<H, O> => {
-      return {
-        on: defaultHooksFromSchema(onSchemaObj, partialHooks.on),
-        before: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.before),
-        after: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.after),
-      };
-    },
-    mergeHookOptions: (options: Array<HookOptions<H, O> | undefined>) =>
-      mergeHookOptions(options, beforeAfterSchemaObj, onSchemaObj),
-  };
-}
-export default fromSchema;
-
 /**
  * Wraps the calls of a set of hooks into a single call
  * @param hooksList The list of hooks
  * @param hookSchema The schema that the hooks are based off
  */
 export function mergeHooks<H extends HookSchema>(
-  hooksList: Array<RecursivePartial<Hooks<H>> | HookCallback | undefined>,
+  hooksList: (RecursivePartial<Hooks<H>> | HookCallback | undefined)[],
   value: H | null | HookCallbackFactory,
 ): Hooks<H> {
-  const filteredHooksList = hooksList.filter(hooks => !!hooks) as Array<
-    RecursivePartial<Hooks<H>> | HookCallback
-  >;
+  const filteredHooksList = hooksList.filter(hooks => !!hooks) as (
+    | RecursivePartial<Hooks<H>>
+    | HookCallback)[];
   if (typeof value === 'function' || value === null) {
     const merged = async (...params) => {
       for (const callback of filteredHooksList as HookCallback[]) {
@@ -122,31 +104,49 @@ export function mergeHooks<H extends HookSchema>(
 }
 
 export function mergeHookOptions<H extends HookSchema, O extends HookSchema>(
-  hookOptionsList: Array<HookOptions<H, O> | undefined>,
+  hookOptionsList: (HookOptions<H, O> | undefined)[],
   beforeAfterSchemaObj: H,
   onSchemaObj: O = {} as any,
 ): CompleteHooksOptions<H, O> {
-  const definedHookOptionsList = hookOptionsList.filter(
-    hookOptions => !!hookOptions,
-  ) as Array<HookOptions<H, O> | RecursivePartial<Hooks<H>>>;
+  const definedHookOptionsList = hookOptionsList.filter(hookOptions => !!hookOptions) as (
+    | HookOptions<H, O>
+    | RecursivePartial<Hooks<H>>)[];
   return {
     before: mergeHooks(
       definedHookOptionsList
         .filter(hookOptions => !!hookOptions.before)
-        .map(hookOptions => hookOptions!.before as RecursivePartial<Hooks<H>>),
+        .map(hookOptions => hookOptions.before as RecursivePartial<Hooks<H>>),
       beforeAfterSchemaObj,
     ),
     after: mergeHooks(
       definedHookOptionsList
         .filter(hookOptions => !!hookOptions.after)
-        .map(hookOptions => hookOptions!.after as RecursivePartial<Hooks<H>>),
+        .map(hookOptions => hookOptions.after as RecursivePartial<Hooks<H>>),
       beforeAfterSchemaObj,
     ),
     on: mergeHooks(
       definedHookOptionsList
         .filter(hookOptions => !!hookOptions.on)
-        .map(hookOptions => hookOptions!.on as RecursivePartial<Hooks<O>>),
+        .map(hookOptions => hookOptions.on as RecursivePartial<Hooks<O>>),
       onSchemaObj,
     ),
   };
 }
+
+export function fromSchema<H extends HookSchema, O extends HookSchema>(
+  beforeAfterSchemaObj: H,
+  onSchemaObj: O = {} as any,
+) {
+  return {
+    withHooks: (partialHooks: HookOptions<H, O> = {}): CompleteHooksOptions<H, O> => {
+      return {
+        on: defaultHooksFromSchema(onSchemaObj, partialHooks.on),
+        before: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.before),
+        after: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.after),
+      };
+    },
+    mergeHookOptions: (options: (HookOptions<H, O> | undefined)[]) =>
+      mergeHookOptions(options, beforeAfterSchemaObj, onSchemaObj),
+  };
+}
+export default fromSchema;

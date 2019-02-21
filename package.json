@@ -49,6 +49,7 @@
     "del": "^3.0.0",
     "eslint": "^5.14.1",
     "eslint-config-prettier": "^4.0.0",
+    "eslint-plugin-jest": "^22.3.0",
     "eslint-plugin-react": "^7.12.4",
     "gulp": "^4.0.0",
     "gulp-babel": "8.0.0",

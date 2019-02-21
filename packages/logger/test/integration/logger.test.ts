@@ -34,6 +34,7 @@ MockDate.set(adjustedTime);
 const mockedWrite = jest.fn();
 (console as any)._stdout = { write: mockedWrite };
 
+const levelName = 'info';
 function formatTester({ timestamp = '' }: any = {}) {
   return expectedString => {
     const padding: string = ' '.repeat(9 - levelName.length);
@@ -57,7 +58,6 @@ const loggers = {
     formatExpected: formatTester({ timestamp: '2018-05-03 12:34:56 ' }),
   },
 };
-const levelName = 'info';
 
 Object.keys(loggers).forEach(loggerName => {
   const { formatExpected = formatTester(), log, writeFn = mockedWrite } = loggers[
@@ -65,7 +65,7 @@ Object.keys(loggers).forEach(loggerName => {
   ];
 
   describe(loggerName, () => {
-    describe(levelName + ' logger tests', () => {
+    describe(`${levelName} logger tests`, () => {
       for (const testCase of testCases) {
         it(testCase.name, () => {
           (log[levelName] as any)(...testCase.input);

@@ -73,11 +73,11 @@ describe('mergeHookOptions', () => {
     const mergedHooks = hookUtil.mergeHookOptions([hooks1, hooks2, undefined]);
 
     await mergedHooks.on.b();
-    expect(hooks1.on.b).toBeCalled();
-    expect(hooks2.on.b).toBeCalled();
+    expect(hooks1.on.b).toHaveBeenCalled();
+    expect(hooks2.on.b).toHaveBeenCalled();
 
     await mergedHooks.before.a();
-    expect(hooks1.before.a).toBeCalled();
-    expect(hooks2.before.a).toBeCalled();
+    expect(hooks1.before.a).toHaveBeenCalled();
+    expect(hooks2.before.a).toHaveBeenCalled();
   });
 });
