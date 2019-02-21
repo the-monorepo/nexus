@@ -1,4 +1,6 @@
 module.exports = {
   extends: ['plugin:react/recommended'],
-  rules: {},
+  rules: {
+    'jsx-quotes': ['error', 'prefer-double'],
+  },
 };

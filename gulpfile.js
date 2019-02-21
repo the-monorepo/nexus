@@ -203,7 +203,7 @@ async function writeme() {
 }
 gulp.task('writeme', writeme);
 
-const build = gulp.series(copy, transpile, writeme);
+const build = gulp.series(gulp.parallel(copy, transpile), writeme);
 gulp.task('build', build);
 
 function watch() {
@@ -271,3 +271,26 @@ checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
   'serious errors in the code, such as invalid syntax or the use of incorrect types.';
 gulp.task('checker:types', checkTypes);
+
+function testNoBuild() {
+  const jest = require('jest-cli/build/cli');
+  return jest.runCLI({ json: false }, [process.cwd()]);
+}
+gulp.task('test-no-build', testNoBuild);
+
+const test = gulp.series(transpile, testNoBuild);
+gulp.task('test', test);
+
+const precommit = gulp.series(
+  formatStaged,
+  transpile,
+  gulp.parallel(testNoBuild, writeme),
+);
+gulp.task('precommit', precommit);
+
+const prepublish = gulp.series(
+  gulp.parallel(gulp.series(clean, copy), format),
+  transpile,
+  gulp.parallel(testNoBuild, writeme),
+);
+gulp.task('prepublish', prepublish);
