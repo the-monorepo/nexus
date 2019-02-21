@@ -14,11 +14,15 @@ Version | Package | Description
 1.3.1 | [`@pshaw/convict-util`](packages/convict-util/README.md) | A helper package for reading configs in using convict
 2.0.1 | [`@pshaw/build-util`](build-packages/build-util/README.md) | Tries to save some time by providing basic build configurations
 
-### Linting
+### ESLint
 Version | Package | Description
 --- | --- | ---
 1.3.1 | [`@pshaw/tslint-preset-react`](packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
 1.3.1 | [`@pshaw/tslint-preset-core`](packages/tslint-preset-core/README.md) | A pratical style preset for TSLint
+
+### TSLint
+Version | Package | Description
+--- | --- | ---
 1.3.1 | [`@pshaw/eslint-config-typescript`](packages/eslint-config-typescript/README.md) | A pratical Typescript style preset for ESLint
 1.3.1 | [`@pshaw/eslint-config-react`](packages/eslint-config-react/README.md) | A pratical React style preset for ESLint
 1.3.1 | [`@pshaw/eslint-config-core`](packages/eslint-config-core/README.md) | A pratical style preset for ESLint
