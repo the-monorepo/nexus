@@ -40,9 +40,10 @@ export function createResume() {
     })
     .attach();
 
-  return ({ data }) => (
+  const Resume = ({ data }) => (
     <MuiThemeProvider theme={theme}>
       <Page data={data} />
     </MuiThemeProvider>
   );
+  return Resume;
 }

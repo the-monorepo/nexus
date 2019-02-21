@@ -1,6 +1,6 @@
 import { pathExists } from 'fs-extra';
 import globby from 'globby';
-import { fromSchema, mergeHookOptions, HookOptionsOf } from 'hook-schema';
+import { fromSchema } from 'hook-schema';
 import { writeFile, readFile } from 'mz/fs';
 import { join, relative, resolve } from 'path';
 
@@ -85,7 +85,7 @@ function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
       packageOptions.description ? packageOptions.description : ''
     }\n`;
   }
-  return md + '\n';
+  return `${md}\n`;
 }
 
 function projectOptionsToMd(projects: Project[], rootDir: string): string {
@@ -171,7 +171,7 @@ async function readPackageJson(packageDir) {
  */
 function packageNameToTitle(packageName: string) {
   return packageName
-    .replace(/^@[^\/]+\//, '')
+    .replace(/^@[^/]+\//, '')
     .replace(/-+/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 }

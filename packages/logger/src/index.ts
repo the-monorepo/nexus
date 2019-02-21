@@ -3,8 +3,6 @@ import { createLogger, format, transports } from 'winston';
 
 import * as psFormats from '@pshaw/winston-formats';
 
-export interface LoggerOptions {}
-
 export interface TransportOptions {
   level?: string;
   colors?: boolean;
@@ -17,12 +15,12 @@ export interface FileTransportOptions extends TransportOptions {
 
 function getFormats({ colors, timestamp }: TransportOptions = {}, defaults) {
   const formats: any[] = [];
-  if (!!timestamp) {
+  if (timestamp) {
     const timestampFormat =
       typeof timestamp === 'boolean' ? defaults.timestampFormat : timestamp;
     formats.push(psFormats.timestamp({ format: timestampFormat }));
   }
-  if (!!colors) {
+  if (colors) {
     formats.push(format.colorize(), psFormats.colorize());
   }
   formats.push(psFormats.objects({ colors }), psFormats.printer);
@@ -55,7 +53,7 @@ export function fileTransport({
   });
 }
 
-export function logger(options: LoggerOptions = {}) {
+export function logger() {
   const formatters: any[] = [];
   formatters.push(psFormats.errors(), psFormats.align());
   const aLogger = createLogger({
@@ -88,9 +86,10 @@ export function overrideConsoleLogger(aLogger) {
   */
   const createPlaceholders = args => new Array(args.length).fill('%s').join(' ');
   Object.keys(aLogger.levels).forEach(level => {
+    // eslint-disable-next-line no-console
     console[level] = (...args) => aLogger[level](createPlaceholders(args), ...args);
   });
-  // tslint:disable-next-line:no-console
+  // eslint-disable-next-line no-console
   console.log = (...args) => aLogger.verbose(createPlaceholders(args), ...args);
 }
 

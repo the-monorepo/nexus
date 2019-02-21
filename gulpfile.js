@@ -14,14 +14,8 @@ const changed = require('gulp-changed');
 const plumber = require('gulp-plumber');
 const rename = require('gulp-rename');
 const prettier = require('gulp-prettier');
+const eslint = require('gulp-eslint');
 const staged = require('gulp-staged');
-
-const gulpTslint = require('gulp-tslint');
-const gulpTypescript = require('gulp-typescript');
-
-const tslint = require('tslint');
-
-const tsProject = gulpTypescript.createProject('tsconfig.json');
 
 const through = require('through2');
 
@@ -231,21 +225,34 @@ function gulpLint(options) {
   });
 }
 
-function gulpLintReport() {
-  return gulpTslint.report({
-    summarizeFailureOutput: true,
-  });
+function messageLoggingFn(message, l) {
+  switch(message.severity) {
+    case 1:
+      return l.warn;
+    case 2:
+      return l.error;
+    default:
+      return l.info;
+  }
+}
+
+function eslintReporter(l) {
+  return (result) => {
+    l.info(JSON.stringify(message, undefined, 2));
+    for (const message of result.messages) {    
+      const logFn = messageLoggingFn(message, l);
+      logFn(message.message);
+    }
+  }  
 }
 
 function lintPipes(stream, lintOptions) {
-  const tslintProgram = tslint.Linter.createProgram('./tsconfig.json');
-  const l = logger.tag(chalk.magenta('tslint'));
+  const l = logger.tag(chalk.magenta('eslint'));
   return stream
     .pipe(simplePipeLogger(l, 'Formatting'))
-    .pipe(gulpLint({
-        tslintProgram,
-        ...lintOptions,
-    }));
+    .pipe(eslint(lintOptions))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 }
 
 function formatStagedLint() {
@@ -253,7 +260,7 @@ function formatStagedLint() {
     packagesSrcCodeStream()
       .pipe(staged()),
       { fix: true }
-  ).pipe(gulpLintReport());
+  );
 }
 formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
@@ -271,8 +278,7 @@ function formatPipes(stream) {
 
 function format() {
   return formatPipes(packagesSrcCodeStream())
-  .pipe(gulp.dest('.'))
-  .pipe(gulpLintReport());
+    .pipe(gulp.dest('.'));
 }
 gulp.task('format', format);
 
@@ -280,8 +286,7 @@ function formatStaged() {
   return formatPipes(
     packagesSrcCodeStream()
       .pipe(staged())
-  ).pipe(gulp.dest('.'))
-  .pipe(gulpLintReport());
+  ).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged', formatStaged);
 
