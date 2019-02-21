@@ -2,8 +2,12 @@ module.exports = {
   projects: {
     overrides: [
       {
-        category: 'Linting',
-        test: './packages/{t,e}slint-*',
+        category: "ESLint",
+        test: './packages/tslint*'
+      },
+      {
+        category: 'TSLint',
+        test: './packages/eslint*',
       },
       {
         category: 'Logging',
