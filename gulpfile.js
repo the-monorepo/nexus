@@ -245,38 +245,45 @@ function lintPipes(stream, lintOptions) {
     .pipe(gulpLint({
         tslintProgram,
         ...lintOptions,
-    }))
-    .pipe(gulpLintReport());
-}
-
-function runLinter(lintOptions) {
-  return lintPipes(
-    packagesSrcCodeStream(),
-    lintOptions
-  );
+    }));
 }
 
 function formatStagedLint() {
   return lintPipes(
     packagesSrcCodeStream()
-      .pipe(staged())
-  );
+      .pipe(staged()),
+      { fix: true }
+  ).pipe(gulpLintReport());
 }
-gulp.task('format-staged:lint', formatStagedLint);
-
-const formatStaged = gulp.series(formatStagedLint, formatStagedPrettier);
-gulp.task('format-staged', formatStaged);
-
-function formatLint() {
-  return runLinter({ fix: true });
-}
-formatLint.description =
+formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
   'overwrite files without creating a backup.';
-gulp.task('format:lint', formatLint);
+gulp.task('format-staged:lint', formatStagedLint);
 
-const format = gulp.series(formatLint, formatPrettier);
+function formatPipes(stream) {
+  return prettierPipes(
+    lintPipes(
+      stream,
+      { fix: true }
+    )
+  );
+}
+
+function format() {
+  return formatPipes(packagesSrcCodeStream())
+  .pipe(gulp.dest('.'))
+  .pipe(gulpLintReport());
+}
 gulp.task('format', format);
+
+function formatStaged() {
+  return formatPipes(
+    packagesSrcCodeStream()
+      .pipe(staged())
+  ).pipe(gulp.dest('.'))
+  .pipe(gulpLintReport());
+}
+gulp.task('format-staged', formatStaged);
 
 function checkTypes() {
   const stream = packagesSrcCodeStream();
