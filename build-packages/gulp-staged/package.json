@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "isomorphic-git": "^0.51.12",
-    "multimatch": "^3.0.0",
     "streamfilter": "2"
   }
 }

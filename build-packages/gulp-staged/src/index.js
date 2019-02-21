@@ -2,7 +2,6 @@ const fs = require('fs');
 const { relative, resolve } = require('path');
 
 const git = require('isomorphic-git');
-const multimatch = require('multimatch');
 const streamfilter = require('streamfilter');
 
 git.plugins.set('fs', fs);
@@ -27,8 +26,7 @@ module.exports = function stagedFilter(options = {}) {
       if (/^\.\.[\\/]/.test(relPath)) {
         relPath = resolve(relPath);
       }
-
-      const match = multimatch(relPath, stagedPaths, options).length > 0;
+      const match = stagedPaths.includes(relPath);
 
       cb(!match);
     },
