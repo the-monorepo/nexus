@@ -14,13 +14,13 @@
   },
   "scripts": {
     "format": "gulp format",
-    "test": "yarn build && jest",
+    "test": "gulp test",
     "clean": "gulp clean",
     "build": "gulp build",
     "watch": "gulp watch",
     "writeme": "gulp writeme",
-    "prepublish": "yarn build",
-    "ci-test": "yarn test"
+    "prepublish": "gulp prepublish",
+    "ci-test": "gulp test"
   },
   "keywords": [
     "typescript"
@@ -55,6 +55,7 @@
     "gulp-babel": "8.0.0",
     "gulp-changed": "^3.2.0",
     "gulp-eslint": "^5.0.0",
+    "gulp-if": "^2.0.2",
     "gulp-plumber": "^1.2.1",
     "gulp-prettier": "^2.1.0",
     "gulp-rename": "^1.4.0",
@@ -82,7 +83,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "gulp format-staged && yarn test && git add ."
+      "pre-commit": "gulp precommit && git add ."
     }
   }
 }
