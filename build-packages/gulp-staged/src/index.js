@@ -4,8 +4,6 @@ const { relative, resolve } = require('path');
 const git = require('isomorphic-git');
 const streamfilter = require('streamfilter');
 
-git.plugins.set('fs', fs);
-
 async function stagedAndPartiallyStagedFilePaths() {
   const statusMatrix = await git.statusMatrix({ fs, dir: '.' });
   return statusMatrix.filter(status => status[3] >= 2).map(([filePath]) => filePath);
