@@ -16,7 +16,6 @@ const rename = require('gulp-rename');
 const prettier = require('gulp-prettier');
 const eslint = require('gulp-eslint');
 const staged = require('gulp-staged');
-const gulpIf = require('gulp-if');
 
 const gulpTypescript = require('gulp-typescript');
 
@@ -189,13 +188,6 @@ function lintPipes(stream, lintOptions) {
 function formatPipes(stream) {
   return prettierPipes(lintPipes(stream, { fix: true }));
 }
-
-function transpileFormat() {
-  return formatPipes(codeStream())
-    .pipe(gulp.dest('.'))
-    .pipe(gulpIf(globSrcCodeFromPackagesDirName(packagesDirName), transpilePipes));
-}
-gulp.task('transpile-format', transpileFormat);
 
 function printFriendlyAbsoluteDir(dir) {
   if (relative(dir, __dirname) === '') {
