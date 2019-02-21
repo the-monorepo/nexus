@@ -282,8 +282,7 @@ const test = gulp.series(transpile, testNoBuild);
 gulp.task('test', test);
 
 const precommit = gulp.series(
-  formatStaged,
-  transpile,
+  gulp.parallel(gulp.series(formatStaged, transpile), copy),
   gulp.parallel(testNoBuild, writeme),
 );
 gulp.task('precommit', precommit);
