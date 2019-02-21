@@ -3,8 +3,6 @@
   "extends": ["tslint:recommended"],
   "rules": {
     "interface-name": false,
-    "jsx-boolean-value": [true, "never"],
-    "jsx-no-multiline-js": false,
     "member-ordering": false,
     "quotemark": [true, "single"],
     "no-console": [true, "log", "warn"],
