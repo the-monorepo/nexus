@@ -16,6 +16,7 @@ const rename = require('gulp-rename');
 const prettier = require('gulp-prettier');
 const eslint = require('gulp-eslint');
 const staged = require('gulp-staged');
+const gulpIf = require('gulp-if');
 
 const gulpTypescript = require('gulp-typescript');
 
@@ -149,9 +150,9 @@ function copy() {
     .pipe(gulp.dest('.'));
 }
 
-function transpile() {
+function transpilePipes(stream) {
   const l = logger.tag(chalk.blue('transpile'));
-  return packagesSrcCodeStream()
+  return stream
     .pipe(errorLogger(l))
     .pipe(changed('.', { extension: '.js', transformPath: swapSrcWithLib }))
     .pipe(simplePipeLogger(l, 'Transpiling'))
@@ -166,6 +167,35 @@ function transpile() {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('.'));
 }
+
+function transpile() {
+  return transpilePipes(packagesSrcCodeStream());
+}
+
+function prettierPipes(stream) {
+  const l = logger.tag(chalk.magentaBright('prettier'));
+  return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
+}
+
+function lintPipes(stream, lintOptions) {
+  const l = logger.tag(chalk.magenta('eslint'));
+  return stream
+    .pipe(simplePipeLogger(l, 'Formatting'))
+    .pipe(eslint(lintOptions))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+}
+
+function formatPipes(stream) {
+  return prettierPipes(lintPipes(stream, { fix: true }));
+}
+
+function transpileFormat() {
+  return formatPipes(codeStream())
+    .pipe(gulp.dest('.'))
+    .pipe(gulpIf(globSrcCodeFromPackagesDirName(packagesDirName), transpilePipes));
+}
+gulp.task('transpile-format', transpileFormat);
 
 function printFriendlyAbsoluteDir(dir) {
   if (relative(dir, __dirname) === '') {
@@ -217,11 +247,6 @@ gulp.task('watch', watch);
 
 gulp.task('default', build);
 
-function prettierPipes(stream) {
-  const l = logger.tag(chalk.magentaBright('prettier'));
-  return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
-}
-
 function formatPrettier() {
   return prettierPipes(codeStream()).pipe(gulp.dest('.'));
 }
@@ -232,15 +257,6 @@ function formatStagedPrettier() {
 }
 gulp.task('format-staged:staged', formatStagedPrettier);
 
-function lintPipes(stream, lintOptions) {
-  const l = logger.tag(chalk.magenta('eslint'));
-  return stream
-    .pipe(simplePipeLogger(l, 'Formatting'))
-    .pipe(eslint(lintOptions))
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
-}
-
 function formatStagedLint() {
   return lintPipes(codeStream().pipe(staged()), { fix: true });
 }
@@ -248,10 +264,6 @@ formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
   'overwrite files without creating a backup.';
 gulp.task('format-staged:lint', formatStagedLint);
-
-function formatPipes(stream) {
-  return prettierPipes(lintPipes(stream, { fix: true }));
-}
 
 function format() {
   return formatPipes(codeStream()).pipe(gulp.dest('.'));
