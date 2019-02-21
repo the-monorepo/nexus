@@ -25,7 +25,7 @@ function testConsoleInput(...input) {
   describe(`input = [${stringifiedInput}]`, () => {
     it(`logging to console.log`, () => {
       overrideConsoleLogger(mockLogger);
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(...input);
       testLoggerCallCounts({ verbose: 1 });
     });

@@ -1,0 +1,28 @@
+{
+  "name": "@pshaw/eslint-config-typescript",
+  "description": "A pratical Typescript style preset for ESLint",
+  "keywords": [
+    "config",
+    "eslint",
+    "javasript",
+    "typescript",
+    "style",
+    "lint",
+    "preset"
+  ],
+  "version": "1.3.1",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "private": false,
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "dependencies": {
+    "eslint-plugin-import": "^2.16.0"
+  }
+}

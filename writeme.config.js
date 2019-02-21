@@ -3,7 +3,7 @@ module.exports = {
     overrides: [
       {
         category: 'Linting',
-        test: './packages/tslint-*',
+        test: './packages/{t,e}slint-*',
       },
       {
         category: 'Logging',
