@@ -17,7 +17,11 @@ const prettier = require('gulp-prettier');
 const eslint = require('gulp-eslint');
 const staged = require('gulp-staged');
 
+const gulpTypescript = require('gulp-typescript');
+
 const through = require('through2');
+
+const tsProject = gulpTypescript.createProject('tsconfig.json');
 
 const packagesDirName = 'packages';
 
@@ -53,6 +57,8 @@ function packageSubDirGlob(dirName, folderName) {
   return `./${dirName}/*/${folderName}/**/*`;
 }
 
+const transpiledExtensions = '{js,jsx,ts,tsx,html,css}';
+
 function srcTranspiledGlob(dirName, folderName) {
   return `${packageSubDirGlob(dirName, folderName)}.${transpiledExtensions}`;
 }
@@ -60,8 +66,6 @@ function srcTranspiledGlob(dirName, folderName) {
 function mockGlob(dirName, folderName) {
   return `${packageSubDirGlob(dirName, folderName)}/__mocks__/*`;
 }
-
-const transpiledExtensions = '{js,jsx,ts,tsx,html,css}';
 
 function globSrcMiscFromPackagesDirName(dirName) {
   return [
@@ -91,11 +95,32 @@ const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream(options) {
-  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), { base: '.', ...options });
+  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), {
+    base: '.',
+    ...options,
+  });
 }
 
 function packagesSrcCodeStream(options) {
-  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), { base: '.', ...options });
+  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), {
+    base: '.',
+    ...options,
+  });
+}
+
+function codeStream(options) {
+  return gulp.src(
+    [
+      '**/*.{js,jsx,ts,tsx}',
+      '!**/node_modules/**',
+      '!coverage/**',
+      '!{build-packages,packages}/*/{dist,lib}/**',
+    ],
+    {
+      base: '.',
+      ...options,
+    },
+  );
 }
 
 function simplePipeLogger(l, verb) {
@@ -192,59 +217,20 @@ gulp.task('watch', watch);
 
 gulp.task('default', build);
 
-function gulpPrettier() {
-  return prettier();
-}
-
 function prettierPipes(stream) {
   const l = logger.tag(chalk.magentaBright('prettier'));
-  return stream.pipe(simplePipeLogger(l, 'Formatting'))
-    .pipe(gulpPrettier());
+  return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
 }
 
 function formatPrettier() {
-  return prettierPipes(
-    packagesSrcCodeStream()
-  ).pipe(gulp.dest('.'));
+  return prettierPipes(codeStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format:prettier', formatPrettier);
 
 function formatStagedPrettier() {
-  return prettierPipes(
-    packagesSrcCodeStream()
-      .pipe(staged())
-  ).pipe(gulp.dest('.'));
+  return prettierPipes(codeStream().pipe(staged())).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged:staged', formatStagedPrettier);
-
-function gulpLint(options) {
-  return gulpTslint({
-    formatter: 'stylish',
-    tslint,
-    ...options,
-  });
-}
-
-function messageLoggingFn(message, l) {
-  switch(message.severity) {
-    case 1:
-      return l.warn;
-    case 2:
-      return l.error;
-    default:
-      return l.info;
-  }
-}
-
-function eslintReporter(l) {
-  return (result) => {
-    l.info(JSON.stringify(message, undefined, 2));
-    for (const message of result.messages) {    
-      const logFn = messageLoggingFn(message, l);
-      logFn(message.message);
-    }
-  }  
-}
 
 function lintPipes(stream, lintOptions) {
   const l = logger.tag(chalk.magenta('eslint'));
@@ -256,11 +242,7 @@ function lintPipes(stream, lintOptions) {
 }
 
 function formatStagedLint() {
-  return lintPipes(
-    packagesSrcCodeStream()
-      .pipe(staged()),
-      { fix: true }
-  );
+  return lintPipes(codeStream().pipe(staged()), { fix: true });
 }
 formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
@@ -268,25 +250,16 @@ formatStagedLint.description =
 gulp.task('format-staged:lint', formatStagedLint);
 
 function formatPipes(stream) {
-  return prettierPipes(
-    lintPipes(
-      stream,
-      { fix: true }
-    )
-  );
+  return prettierPipes(lintPipes(stream, { fix: true }));
 }
 
 function format() {
-  return formatPipes(packagesSrcCodeStream())
-    .pipe(gulp.dest('.'));
+  return formatPipes(codeStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format', format);
 
 function formatStaged() {
-  return formatPipes(
-    packagesSrcCodeStream()
-      .pipe(staged())
-  ).pipe(gulp.dest('.'));
+  return formatPipes(codeStream().pipe(staged())).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged', formatStaged);
 

@@ -6,7 +6,7 @@ module.exports = () => {
     undefined,
     2,
   );
-  const examples = '```json\n' + example + '\n' + '```';
+  const examples = `\`\`\`json\n${example}\n` + `\`\`\``;
   return {
     isDevPackage: true,
     sections: {
