@@ -13,7 +13,7 @@
     "url": "https://github.com/PatrickShaw/monorepo.git"
   },
   "scripts": {
-    "format": "gulp format-staged",
+    "format": "gulp format",
     "test": "yarn build && jest",
     "clean": "gulp clean",
     "build": "gulp build",
