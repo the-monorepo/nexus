@@ -2,8 +2,8 @@ module.exports = {
   projects: {
     overrides: [
       {
-        category: "ESLint",
-        test: './packages/tslint*'
+        category: 'ESLint',
+        test: './packages/tslint*',
       },
       {
         category: 'TSLint',

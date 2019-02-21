@@ -1,7 +1,8 @@
+import util from 'util';
+
 import chalk from 'chalk';
 import moment from 'moment';
 import { SPLAT } from 'triple-beam';
-import util from 'util';
 import { format } from 'winston';
 
 export const errors = format(info => {

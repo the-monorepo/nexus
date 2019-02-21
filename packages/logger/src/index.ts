@@ -1,4 +1,5 @@
 import util from 'util';
+
 import { createLogger, format, transports } from 'winston';
 
 import * as psFormats from '@pshaw/winston-formats';

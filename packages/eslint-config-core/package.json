@@ -21,7 +21,5 @@
     "access": "public"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
-  "dependencies": {
-    "eslint-plugin-import": "^2.16.0"
-  }
+  "dependencies": {}
 }

@@ -15,9 +15,10 @@ yarn add hook-schema
 ## Examples
 
 ```javascript
+const { join } = require('path');
+
 const fromSchema = require('hook-schema');
 const { readFile } = require('mz/fs');
-const { join } = require('path');
 
 const { withHooks } = fromSchema({
   readFile: null,
