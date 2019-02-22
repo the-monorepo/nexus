@@ -8,6 +8,7 @@
     "access": "public"
   },
   "main": "./lib/index.js",
+  "module": "./src/index.js",
   "dependencies": {
     "@material-ui/core": "^3.9.2",
     "@types/classnames": "^2.2.7",
