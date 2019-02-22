@@ -74,8 +74,8 @@ function createTagFn(loggerObj) {
             loggerObj[key](`[${tag}] ${message}`);
           };
           return prev;
-        }, {})
-      };
+        }, {}),
+    };
     (taggedLoggerObj as any).tag = createTagFn(taggedLoggerObj);
     return taggedLoggerObj;
   };
