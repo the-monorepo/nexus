@@ -205,7 +205,7 @@ function lintPipes(stream, lintOptions) {
       .pipe(simplePipeLogger(l, 'Formatting'))
       .pipe(eslint(lintOptions))
       .pipe(eslint.format())
-      // TODO: Need to halt build process/throw error code
+      // TODO: Need to halt build process/throw error
       .pipe(eslint.failAfterError())
   );
 }
@@ -318,8 +318,8 @@ const precommit = gulp.series(
 gulp.task('precommit', precommit);
 
 const prepublish = gulp.series(
-  gulp.parallel(gulp.series(clean, copy), format),
-  transpile,
+  gulp.parallel(clean, format),
+  gulp.parallel(transpile, copy),
   gulp.parallel(testNoBuild, writeme),
 );
 gulp.task('prepublish', prepublish);
