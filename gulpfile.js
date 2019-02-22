@@ -34,23 +34,16 @@ function swapSrcWith(srcPath, newDirName) {
   return join(__dirname, ...parts);
 }
 
+function createSrcDirSwapper(dir) {
+  return srcPath => swapSrcWith(srcPath, dir);
+}
+
 function errorLogger(l) {
   return plumber({
     errorHandler(err) {
       l.error(err);
     },
   });
-}
-
-/**
- * @param srcPath An absolute path
- */
-function swapSrcWithLib(srcPath) {
-  return swapSrcWith(srcPath, 'lib');
-}
-
-function swapSrcWithEsm(srcPath) {
-  return swapSrcWith(srcPath, 'esm');
 }
 
 function packagesGlobFromPackagesDirName(dirName) {
@@ -139,9 +132,9 @@ function clean() {
 }
 gulp.task('clean', clean);
 
-function copyPipes(stream, l, transformPath, dir) {
+function copyPipes(stream, l, dir) {
   return stream
-    .pipe(changed('.', { transformPath }))
+    .pipe(changed('.', { transformPath: createSrcDirSwapper(dir) }))
     .pipe(simplePipeLogger(l, 'Copying'))
     .pipe(
       rename(filePath => {
@@ -154,26 +147,26 @@ function copyPipes(stream, l, transformPath, dir) {
 
 function copyScript() {
   const l = logger.tag(chalk.yellow('copy'));
-  return copyPipes(packagesSrcMiscStream(), l, swapSrcWithLib, 'lib');
+  return copyPipes(packagesSrcMiscStream(), l, 'lib');
 }
 
 function copyEsm() {
   const l = logger.tag(chalk.yellow('copy'));
-  return copyPipes(packagesSrcMiscStream(), l, swapSrcWithEsm, 'esm');
+  return copyPipes(packagesSrcMiscStream(), l, 'esm');
 }
 
 const copy = gulp.parallel(copyScript, copyEsm);
 
-function transpilePipes(stream, babelOptions, l, loggerVerb, transformPath) {
+function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
   return stream
     .pipe(errorLogger(l))
-    .pipe(changed('.', { extension: '.js', transformPath }))
+    .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
     .pipe(simplePipeLogger(l, loggerVerb))
     .pipe(sourcemaps.init())
     .pipe(babel(babelOptions))
     .pipe(
       rename(filePath => {
-        filePath.dirname = join(filePath.dirname, '../esm');
+        filePath.dirname = join(filePath.dirname, `../${dir}`);
         return filePath;
       }),
     )
@@ -182,13 +175,9 @@ function transpilePipes(stream, babelOptions, l, loggerVerb, transformPath) {
 
 function transpileScript() {
   const l = logger.tag(chalk.blue('transpile'));
-  return transpilePipes(
-    packagesSrcCodeStream(),
-    undefined,
-    l,
-    'Transpiling',
-    swapSrcWithLib,
-  ).pipe(gulp.dest('.'));
+  return transpilePipes(packagesSrcCodeStream(), undefined, l, 'Transpiling', 'lib').pipe(
+    gulp.dest('.'),
+  );
 }
 
 function transpileEsm() {
@@ -200,7 +189,7 @@ function transpileEsm() {
     },
     l,
     'Transpiling',
-    swapSrcWithEsm,
+    'esm',
   ).pipe(gulp.dest('.'));
 }
 
