@@ -49,6 +49,10 @@ function swapSrcWithLib(srcPath) {
   return swapSrcWith(srcPath, 'lib');
 }
 
+function swapSrcWithEsm(srcPath) {
+  return swapSrcWith(srcPath, 'esm');
+}
+
 function packagesGlobFromPackagesDirName(dirName) {
   return `./${dirName}/*`;
 }
@@ -114,7 +118,7 @@ function codeStream(options) {
       '**/*.{js,jsx,ts,tsx}',
       '!**/node_modules/**',
       '!coverage/**',
-      '!{build-packages,packages}/*/{dist,lib}/**',
+      '!{build-packages,packages}/*/{dist,lib,esm}/**',
     ],
     {
       base: '.',
@@ -135,40 +139,69 @@ function clean() {
 }
 gulp.task('clean', clean);
 
-function copy() {
-  const l = logger.tag(chalk.yellow('copy'));
-  return packagesSrcMiscStream()
-    .pipe(changed('.', { transformPath: swapSrcWithLib }))
+function copyPipes(stream, l, transformPath, dir) {
+  return stream
+    .pipe(changed('.', { transformPath }))
     .pipe(simplePipeLogger(l, 'Copying'))
     .pipe(
       rename(filePath => {
-        filePath.dirname = join(filePath.dirname, '../lib');
+        filePath.dirname = join(filePath.dirname, `../${dir}`);
         return filePath;
       }),
     )
     .pipe(gulp.dest('.'));
 }
 
-function transpilePipes(stream) {
-  const l = logger.tag(chalk.blue('transpile'));
+function copyScript() {
+  const l = logger.tag(chalk.yellow('copy'));
+  return copyPipes(packagesSrcMiscStream(), l, swapSrcWithLib, 'lib');
+}
+
+function copyEsm() {
+  const l = logger.tag(chalk.yellow('copy'));
+  return copyPipes(packagesSrcMiscStream(), l, swapSrcWithEsm, 'esm');
+}
+
+const copy = gulp.parallel(copyScript, copyEsm);
+
+function transpilePipes(stream, babelOptions, l, loggerVerb, transformPath) {
   return stream
     .pipe(errorLogger(l))
-    .pipe(changed('.', { extension: '.js', transformPath: swapSrcWithLib }))
-    .pipe(simplePipeLogger(l, 'Transpiling'))
+    .pipe(changed('.', { extension: '.js', transformPath }))
+    .pipe(simplePipeLogger(l, loggerVerb))
     .pipe(sourcemaps.init())
-    .pipe(babel())
+    .pipe(babel(babelOptions))
     .pipe(
       rename(filePath => {
-        filePath.dirname = join(filePath.dirname, '../lib');
+        filePath.dirname = join(filePath.dirname, '../esm');
         return filePath;
       }),
     )
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('.'));
+    .pipe(sourcemaps.write('.'));
 }
 
-function transpile() {
-  return transpilePipes(packagesSrcCodeStream());
+function transpileScript() {
+  const l = logger.tag(chalk.blue('transpile'));
+  return transpilePipes(
+    packagesSrcCodeStream(),
+    undefined,
+    l,
+    'Transpiling',
+    swapSrcWithLib,
+  ).pipe(gulp.dest('.'));
+}
+
+function transpileEsm() {
+  const l = logger.tag(chalk.blue('transpile'));
+  return transpilePipes(
+    packagesSrcCodeStream(),
+    {
+      envName: 'ESM',
+    },
+    l,
+    'Transpiling',
+    swapSrcWithEsm,
+  ).pipe(gulp.dest('.'));
 }
 
 function prettierPipes(stream) {
@@ -196,6 +229,7 @@ function printFriendlyAbsoluteDir(dir) {
   return relative(join(__dirname), dir);
 }
 
+const transpile = gulp.parallel(transpileScript, transpileEsm);
 gulp.task('transpile', transpile);
 
 async function writeme() {

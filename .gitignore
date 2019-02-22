@@ -58,6 +58,9 @@ typings/
 .env
 
 packages/*/lib/
+packages/*/esm/
+esm/
+dist/
 lib/
 .cache
 
