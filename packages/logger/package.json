@@ -6,6 +6,7 @@
   ],
   "version": "1.5.0",
   "main": "./lib/index.js",
+  "module": "./src/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
   "private": false,
