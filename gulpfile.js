@@ -200,11 +200,14 @@ function prettierPipes(stream) {
 
 function lintPipes(stream, lintOptions) {
   const l = logger.tag(chalk.magenta('eslint'));
-  return stream
-    .pipe(simplePipeLogger(l, 'Formatting'))
-    .pipe(eslint(lintOptions))
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
+  return (
+    stream
+      .pipe(simplePipeLogger(l, 'Formatting'))
+      .pipe(eslint(lintOptions))
+      .pipe(eslint.format())
+      // TODO: Need to halt build process/throw error code
+      .pipe(eslint.failAfterError())
+  );
 }
 
 function formatPipes(stream) {
