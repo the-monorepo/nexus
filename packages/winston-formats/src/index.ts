@@ -55,7 +55,7 @@ export const colorize = format(info => {
 });
 
 // Specifies the order in which all the information is printed out
-export const printer = format.printf((info) => {
+export const printer = format.printf(info => {
   const timestampString = info.timestamp;
   const splat = info[SPLAT];
   const splatList = splat
@@ -65,8 +65,14 @@ export const printer = format.printf((info) => {
   const selectedMessage = info.errorMessage ? info.errorMessage : info.message;
   const message = selectedMessage === undefined ? 'undefined' : selectedMessage;
   const tags = info.tags ? info.tags : [];
-  const displayTags =  tags.map(tag => `[${tag}]`);
-  return [timestampString, info.level + levelPadding, ...displayTags, message, ...splatList]
+  const displayTagsString = tags.map(tag => `[${tag}]`).join('');
+  return [
+    timestampString,
+    info.level + levelPadding,
+    displayTagsString,
+    message,
+    ...splatList,
+  ]
     .filter(item => item !== undefined)
     .join(' ');
 });
