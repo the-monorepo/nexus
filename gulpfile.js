@@ -10,7 +10,6 @@ const gulp = require('gulp');
 const changed = require('gulp-changed');
 const staged = require('gulp-staged');
 const rename = require('gulp-rename');
-const plumber = require('gulp-plumber');
 
 const through = require('through2');
 
@@ -27,14 +26,6 @@ function swapSrcWith(srcPath, newDirName) {
 
 function createSrcDirSwapper(dir) {
   return srcPath => swapSrcWith(srcPath, dir);
-}
-
-function errorLogger(l) {
-  return plumber({
-    errorHandler(err) {
-      l.error(err);
-    },
-  });
 }
 
 function packagesGlobFromPackagesDirName(dirName) {
@@ -154,7 +145,6 @@ function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
   const babel = require('gulp-babel');
 
   return stream
-    .pipe(errorLogger(l))
     .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
     .pipe(simplePipeLogger(l, loggerVerb))
     .pipe(sourcemaps.init())
