@@ -146,12 +146,12 @@ function copyPipes(stream, l, dir) {
 }
 
 function copyScript() {
-  const l = logger.tag(chalk.yellow('copy'));
+  const l = logger.child({ tags: [chalk.yellow('copy')] });
   return copyPipes(packagesSrcMiscStream(), l, 'lib');
 }
 
 function copyEsm() {
-  const l = logger.tag(chalk.yellow('copy'));
+  const l = logger.child({ tags: [chalk.yellow('copy')] });
   return copyPipes(packagesSrcMiscStream(), l, 'esm');
 }
 
@@ -174,14 +174,14 @@ function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
 }
 
 function transpileScript() {
-  const l = logger.tag(chalk.blue('transpile'));
+  const l = logger.child({ tags: [chalk.blue('transpile')] });
   return transpilePipes(packagesSrcCodeStream(), undefined, l, 'Transpiling', 'lib').pipe(
     gulp.dest('.'),
   );
 }
 
 function transpileEsm() {
-  const l = logger.tag(chalk.blue('transpile'));
+  const l = logger.child({ tags: [chalk.blue('transpile')] });
   return transpilePipes(
     packagesSrcCodeStream(),
     {
@@ -194,12 +194,12 @@ function transpileEsm() {
 }
 
 function prettierPipes(stream) {
-  const l = logger.tag(chalk.magentaBright('prettier'));
+  const l = logger.child({ tags: [chalk.magentaBright('prettier')] });
   return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
 }
 
 function lintPipes(stream, lintOptions) {
-  const l = logger.tag(chalk.magenta('eslint'));
+  const l = logger.child({ tags: [chalk.magenta('eslint')] });
   return (
     stream
       .pipe(simplePipeLogger(l, 'Formatting'))
@@ -226,7 +226,7 @@ gulp.task('transpile', transpile);
 
 async function writeme() {
   const { writeReadmeFromPackageDir } = require('@pshaw/writeme');
-  const l = logger.tag(chalk.green('writeme'));
+  const l = logger.child({ tags: [chalk.green('writeme')] });
   await writeReadmeFromPackageDir(__dirname, {
     before: {
       genReadme: async ({ packageDir }) => {
