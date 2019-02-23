@@ -1564,10 +1564,10 @@
     universal-user-agent "^2.0.0"
     url-template "^2.0.8"
 
-"@pshaw/winston-formats@npm:@pshaw/winston-formats@1.3.0", "build-pshaw-winston-formats@npm:@pshaw/winston-formats@1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@pshaw/winston-formats/-/winston-formats-1.3.0.tgz#5fe9c7bf9f3fedfcda9caf5b80a2943533c7c61d"
-  integrity sha512-87+CifyLrr2kxShcyclesa5vl9unXFrQpjpNPnfWi4/BpUjgG9FV7qpkQEQUaCcGfEqOlZ6d07tPVsL1Ig1kzQ==
+"@pshaw/winston-formats@npm:@pshaw/winston-formats@1.4.0", "build-pshaw-winston-formats@npm:@pshaw/winston-formats@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@pshaw/winston-formats/-/winston-formats-1.4.0.tgz#f4fc103f29a15bef879fb913d227493c552fcc91"
+  integrity sha512-5vU2xRv7kVN74/i5HMBLtRiopafeKIT1eTOD2EGdFIrd7bSqSwZSUVFwlX70OE3UKeDMKwfiuPLvoolwTtQ6fQ==
   dependencies:
     chalk "^2.4.2"
     moment "^2.22.1"

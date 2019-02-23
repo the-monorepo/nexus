@@ -174,14 +174,14 @@ function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
 }
 
 function transpileScript() {
-  const l = logger.child({ tags: [chalk.blue('transpile')] });
+  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.cyan('script')] });
   return transpilePipes(packagesSrcCodeStream(), undefined, l, 'Transpiling', 'lib').pipe(
     gulp.dest('.'),
   );
 }
 
 function transpileEsm() {
-  const l = logger.child({ tags: [chalk.blue('transpile')] });
+  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.cyan('esm')] });
   return transpilePipes(
     packagesSrcCodeStream(),
     {
