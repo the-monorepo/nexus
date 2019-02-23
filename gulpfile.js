@@ -305,10 +305,14 @@ gulp.task('checker:types', checkTypes);
 
 async function testNoBuild() {
   const jest = require('jest-cli/build/cli');
-  const results = await jest.runCLI({ json: false }, [process.cwd()]);
-  const PluginError = require('plugin-error');
-  if (results.results.numFailedTests > 0) {
-    throw new PluginError('Jest', { message: 'Test failed' });
+  try {
+    const results = await jest.runCLI({ json: false }, [process.cwd()]);
+    if (!results.results.success) {
+      throw new Error('Tests failed');
+    }
+  } catch (err) {
+    const PluginError = require('plugin-error');
+    throw new PluginError('Jest', err);
   }
 }
 gulp.task('test-no-build', testNoBuild);
