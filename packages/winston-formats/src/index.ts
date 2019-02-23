@@ -69,7 +69,7 @@ export const printer = format.printf(info => {
   return [
     timestampString,
     info.level + levelPadding,
-    displayTagsString,
+    displayTagsString ? displayTagsString : undefined,
     message,
     ...splatList,
   ]

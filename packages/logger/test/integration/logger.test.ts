@@ -58,9 +58,12 @@ const loggers = {
     formatExpected: formatTester({ timestamp: '2018-05-03 12:34:56 ' }),
   },
   'console-default-double-tagged': {
-    log: logger().add(consoleTransport()).child({ tags: ['hello', 'world'] }),
-    formatExpected: (string) => formatTester({ timestamp: '12:34:56 ' })(`[hello][world] ${string}`)
-  }
+    log: logger()
+      .add(consoleTransport())
+      .child({ tags: ['hello', 'world'] }),
+    formatExpected: string =>
+      formatTester({ timestamp: '12:34:56 ' })(`[hello][world] ${string}`),
+  },
 };
 
 Object.keys(loggers).forEach(loggerName => {

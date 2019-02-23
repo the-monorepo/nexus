@@ -54,43 +54,13 @@ export function fileTransport({
   });
 }
 
-type TaggableLogger<Logger> = {
-  [K in keyof Logger]: Logger[K] extends (...args: any) => any
-    ? ReturnType<Logger[K]> extends Logger
-      ? (...args: Parameters<Logger[K]>) => TaggableLogger<Logger>
-      : Logger[K]
-    : Logger[K]
-} & {
-  tag: (tagString: string) => TaggableLogger<Logger>;
-};
-function createTagFn(loggerObj) {
-  return tag => {
-    const taggedLoggerObj = {
-      ...loggerObj,
-      ...Object.keys(loggerObj.levels)
-        .concat('log')
-        .reduce((prev, key) => {
-          prev[key] = message => {
-            loggerObj[key](`[${tag}] ${message}`);
-          };
-          return prev;
-        }, {}),
-    };
-    (taggedLoggerObj as any).tag = createTagFn(taggedLoggerObj);
-    return taggedLoggerObj;
-  };
-}
-
 export function logger() {
   const formatters: any[] = [];
   formatters.push(psFormats.errors(), psFormats.align());
   const aLogger = createLogger({
     format: format.combine(...formatters),
   });
-
-  (aLogger as any).tag = createTagFn(aLogger);
-  // TODO: Remove the as any
-  return (aLogger as any) as TaggableLogger<typeof aLogger>;
+  return aLogger;
 }
 export default logger;
 
