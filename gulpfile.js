@@ -271,7 +271,7 @@ gulp.task('format:prettier', formatPrettier);
 function formatStagedPrettier() {
   return prettierPipes(codeStream().pipe(staged())).pipe(gulp.dest('.'));
 }
-gulp.task('format-staged:staged', formatStagedPrettier);
+gulp.task('format-staged:prettier', formatStagedPrettier);
 
 function formatStagedLint() {
   return lintPipes(codeStream().pipe(staged()), { fix: true });
