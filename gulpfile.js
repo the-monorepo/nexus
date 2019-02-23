@@ -302,9 +302,13 @@ checkTypes.description =
   'serious errors in the code, such as invalid syntax or the use of incorrect types.';
 gulp.task('checker:types', checkTypes);
 
-function testNoBuild() {
+async function testNoBuild() {
   const jest = require('jest-cli/build/cli');
-  return jest.runCLI({ json: false }, [process.cwd()]);
+  const results = await jest.runCLI({ json: false }, [process.cwd()]);
+  const PluginError = require('plugin-error');
+  if (results.results.numFailedTests > 0) {
+    throw new PluginError('Jest', { message: 'Test failed' });
+  }
 }
 gulp.task('test-no-build', testNoBuild);
 
