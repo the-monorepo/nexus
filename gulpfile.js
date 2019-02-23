@@ -4,24 +4,15 @@
 require('source-map-support/register');
 const { join, sep, relative } = require('path');
 
-const del = require('del');
 const chalk = require('chalk');
 
 const gulp = require('gulp');
-const sourcemaps = require('gulp-sourcemaps');
-const babel = require('gulp-babel');
 const changed = require('gulp-changed');
-const plumber = require('gulp-plumber');
-const rename = require('gulp-rename');
-const prettier = require('gulp-prettier');
-const eslint = require('gulp-eslint');
 const staged = require('gulp-staged');
-
-const gulpTypescript = require('gulp-typescript');
+const rename = require('gulp-rename');
+const plumber = require('gulp-plumber');
 
 const through = require('through2');
-
-const tsProject = gulpTypescript.createProject('tsconfig.json');
 
 const packagesDirName = 'packages';
 
@@ -128,6 +119,7 @@ function simplePipeLogger(l, verb) {
 }
 
 function clean() {
+  const del = require('del');
   return del(globBuildOutputFromPackagesDirName(packagesDirName));
 }
 gulp.task('clean', clean);
@@ -158,6 +150,9 @@ function copyEsm() {
 const copy = gulp.parallel(copyScript, copyEsm);
 
 function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
+  const sourcemaps = require('gulp-sourcemaps');
+  const babel = require('gulp-babel');
+
   return stream
     .pipe(errorLogger(l))
     .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
@@ -194,11 +189,14 @@ function transpileEsm() {
 }
 
 function prettierPipes(stream) {
+  const prettier = require('gulp-prettier');
   const l = logger.child({ tags: [chalk.magentaBright('prettier')] });
   return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
 }
 
 function lintPipes(stream, lintOptions) {
+  const eslint = require('gulp-eslint');
+
   const l = logger.child({ tags: [chalk.magenta('eslint')] });
   return (
     stream
@@ -294,6 +292,9 @@ function formatStaged() {
 gulp.task('format-staged', formatStaged);
 
 function checkTypes() {
+  const gulpTypescript = require('gulp-typescript');
+
+  const tsProject = gulpTypescript.createProject('tsconfig.json');
   const stream = packagesSrcCodeStream();
   return stream.pipe(tsProject(gulpTypescript.reporter.fullReporter()));
 }
