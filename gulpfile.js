@@ -109,9 +109,10 @@ function simplePipeLogger(l, verb) {
   });
 }
 
-function clean() {
+async function clean() {
   const del = require('del');
-  return del(globBuildOutputFromPackagesDirName(packagesDirName));
+  await del(globBuildOutputFromPackagesDirName(packagesDirName));
+  await del(['./README.md', './packages/*/README.md']);
 }
 gulp.task('clean', clean);
 
