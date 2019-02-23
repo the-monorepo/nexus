@@ -31,7 +31,7 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 2.0.1 | [`@pshaw/logger`](packages/logger/README.md) | A preformatted, opinionated logger
-1.5.0 | [`@pshaw/winston-formats`](packages/winston-formats/README.md) | A set of Winston formats
+1.5.1 | [`@pshaw/winston-formats`](packages/winston-formats/README.md) | A set of Winston formats
 
 
 ---
