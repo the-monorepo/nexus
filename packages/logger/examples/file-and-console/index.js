@@ -12,4 +12,6 @@ const l = logger()
 
 l.info('test');
 l.error('rawr');
-l.tag('tagged').info('test');
+
+const taggedL = l.child({ tags: 'tagged' });
+taggedL.info('test');
