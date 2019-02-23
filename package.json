@@ -55,7 +55,6 @@
     "gulp-changed": "^3.2.0",
     "gulp-eslint": "^5.0.0",
     "gulp-if": "^2.0.2",
-    "gulp-plumber": "^1.2.1",
     "gulp-prettier": "^2.1.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.4",
