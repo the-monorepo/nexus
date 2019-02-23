@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { relative, resolve } = require('path');
+const { relative, resolve, normalize } = require('path');
 
 const git = require('isomorphic-git');
 const streamfilter = require('streamfilter');
@@ -16,15 +16,9 @@ module.exports = function stagedFilter(options = {}) {
     async (file, enc, cb) => {
       const stagedPaths = await stagedPathsPromise;
 
-      let relPath = relative(file.cwd, file.path);
-
-      // If the path leaves the current working directory, then we need to
-      // resolve the absolute path so that the path can be properly matched
-      // by minimatch (via multimatch)
-      if (/^\.\.[\\/]/.test(relPath)) {
-        relPath = resolve(relPath);
-      }
-      const match = stagedPaths.includes(relPath);
+      const match = stagedPaths.some(
+        stagedPath => relative(stagedPath, file.path) === '',
+      );
 
       cb(!match);
     },
