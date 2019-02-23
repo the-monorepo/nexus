@@ -146,12 +146,12 @@ function copyPipes(stream, l, dir) {
 }
 
 function copyScript() {
-  const l = logger.child({ tags: [chalk.yellow('copy')] });
+  const l = logger.child({ tags: [chalk.yellow('copy'), chalk.blueBright('script')] });
   return copyPipes(packagesSrcMiscStream(), l, 'lib');
 }
 
 function copyEsm() {
-  const l = logger.child({ tags: [chalk.yellow('copy')] });
+  const l = logger.child({ tags: [chalk.yellow('copy'), chalk.cyanBright('esm')] });
   return copyPipes(packagesSrcMiscStream(), l, 'esm');
 }
 
@@ -174,14 +174,14 @@ function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
 }
 
 function transpileScript() {
-  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.cyan('script')] });
+  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.blueBright('script')] });
   return transpilePipes(packagesSrcCodeStream(), undefined, l, 'Transpiling', 'lib').pipe(
     gulp.dest('.'),
   );
 }
 
 function transpileEsm() {
-  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.cyan('esm')] });
+  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.cyanBright('esm')] });
   return transpilePipes(
     packagesSrcCodeStream(),
     {
