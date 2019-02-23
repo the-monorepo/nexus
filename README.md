@@ -14,6 +14,12 @@ Version | Package | Description
 1.0.0-alpha.1 | [`gulp-staged`](build-packages/gulp-staged/README.md) | A gulp plugin that filters out unstaged files from streams
 2.2.0 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 
+### Logging
+Version | Package | Description
+--- | --- | ---
+2.0.1 | [`@pshaw/logger`](packages/logger/README.md) | A preformatted, opinionated logger
+1.5.1 | [`@pshaw/winston-formats`](packages/winston-formats/README.md) | A set of Winston formats
+
 ### ESLint
 Version | Package | Description
 --- | --- | ---
@@ -26,12 +32,6 @@ Version | Package | Description
 1.4.0 | [`@pshaw/eslint-config-core`](packages/eslint-config-core/README.md) | A pratical style preset for ESLint
 1.4.0 | [`@pshaw/eslint-config-react`](packages/eslint-config-react/README.md) | A pratical React style preset for ESLint
 1.4.0 | [`@pshaw/eslint-config-typescript`](packages/eslint-config-typescript/README.md) | A pratical Typescript style preset for ESLint
-
-### Logging
-Version | Package | Description
---- | --- | ---
-2.0.1 | [`@pshaw/logger`](packages/logger/README.md) | A preformatted, opinionated logger
-1.5.1 | [`@pshaw/winston-formats`](packages/winston-formats/README.md) | A set of Winston formats
 
 
 ---
