@@ -1564,10 +1564,10 @@
     universal-user-agent "^2.0.0"
     url-template "^2.0.8"
 
-"@pshaw/winston-formats@npm:@pshaw/winston-formats@1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@pshaw/winston-formats/-/winston-formats-1.5.0.tgz#fb82512422e254cc153eda23beb615d4d96b470d"
-  integrity sha512-xMfeTrbOQbFWrGSNm1q0of9m8ojPQxqPyU0zruijleFd2A6JJ/oIxPp5kR7CVqkTdt4aKHmERaQhc8mAWIBZjQ==
+"@pshaw/winston-formats@npm:@pshaw/winston-formats@1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@pshaw/winston-formats/-/winston-formats-1.5.1.tgz#dceb29ad27c5b4f6cdc953663e5f172160691779"
+  integrity sha512-XeoLP2uZYV2HdHj4UQDd0hFHiHOQk8feUGTwIn2PL/r6fchdhWMDyHJTd+/ScfMpZxO7hw/JhEdJba1zsrTLtg==
   dependencies:
     chalk "^2.4.2"
     moment "^2.22.1"
@@ -3506,10 +3506,10 @@ buffer@^4.3.0:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-"build-pshaw-logger@npm:@pshaw/logger@1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@pshaw/logger/-/logger-1.4.1.tgz#acb9701307b69bc1107c64c661f8009db50d551a"
-  integrity sha512-U5qXpd4dlXsQ4MBh6o0roAvZjrJd2ikhMj/8kAbA+ABni6DP46K6LT4japterDZiT814QJwlP/4LXWQsSnAXRw==
+"build-pshaw-logger@npm:@pshaw/logger@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@pshaw/logger/-/logger-2.0.1.tgz#4e335308512bd2d250a8599dbd8eb12067659a59"
+  integrity sha512-lP4QTAT63F0iMWLetq4iumIu8E8A6guR0WhXNDaJ6rp51Qb/Cu5QlS8OmLZpmWLHFMB1PJkTtXXxbKQGS3zd4A==
 
 builtin-status-codes@^3.0.0:
   version "3.0.0"
