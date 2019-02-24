@@ -27,7 +27,7 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 2.0.2 | [`@pshaw/logger`](packages/logger/README.md) | A preformatted, opinionated logger
-1.5.2 | [`@pshaw/winston-formats`](packages/winston-formats/README.md) | A set of Winston formats
+1.5.2 | [`@pshaw/winston-formats`](build-packages/winston-formats/README.md) | A set of Winston formats
 
 ### ESLint
 Version | Package | Description

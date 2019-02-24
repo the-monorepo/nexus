@@ -11,7 +11,7 @@ module.exports = {
       },
       {
         category: 'Logging',
-        test: './packages/{logger,winston-formats}',
+        test: './{build-packages,packages}/{winston-formats,logger}',
       },
       {
         category: 'ESLint',
