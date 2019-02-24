@@ -5,11 +5,11 @@ Tries to save some time by providing basic build configurations
 ## Installation
 
 ```bash
-npm install --save @pshaw/build-util
+npm install --save-dev @pshaw/build-util
 ```
 or
 ```bash
-yarn add @pshaw/build-util
+yarn add --dev @pshaw/build-util
 ```
 
 ---
