@@ -83,7 +83,7 @@ function packagesSrcMiscStream(options) {
 
 function packagesSrcCodeStream(options) {
   return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), {
-    base: '.',
+    base: `.`,
     ...options,
   });
 }
@@ -114,7 +114,7 @@ async function clean() {
   const del = require('del');
   await del(globBuildOutputFromPackagesDirName(packagesDirName));
   await del(globBuildOutputFromPackagesDirName(buildPackagesDirName));
-  await del(['./README.md', './packages/*/README.md']);
+  await del(['./README.md', './{build-packages,packages}/*/README.md']);
 }
 gulp.task('clean', clean);
 
@@ -158,6 +158,7 @@ function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
         return filePath;
       }),
     )
+    .pipe(sourcemaps.mapSources(filePath => filePath.replace(/.*\/src\//g, '../src/')))
     .pipe(sourcemaps.write('.'));
 }
 
