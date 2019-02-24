@@ -282,17 +282,22 @@ function formatStaged() {
 }
 gulp.task('format-staged', formatStaged);
 
-function checkTypes() {
+let checkerTypes = () => {
   const gulpTypescript = require('gulp-typescript');
-
   const tsProject = gulpTypescript.createProject('tsconfig.json');
-  const stream = packagesSrcCodeStream();
-  return stream.pipe(tsProject(gulpTypescript.reporter.fullReporter()));
-}
-checkTypes.description =
+
+  checkerTypes = () => {
+    const stream = packagesSrcCodeStream();
+    return stream.pipe(tsProject(gulpTypescript.reporter.fullReporter()));
+  };
+  return checkerTypes();
+};
+checkerTypes.name = 'checkerTypes';
+checkerTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
   'serious errors in the code, such as invalid syntax or the use of incorrect types.';
-gulp.task('checker:types', checkTypes);
+
+gulp.task('checker:types', checkerTypes);
 
 async function testNoBuild() {
   const jest = require('jest-cli/build/cli');

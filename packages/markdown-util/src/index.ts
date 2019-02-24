@@ -1,6 +1,9 @@
-import { safeLoad } from 'js-yaml';
 import { readFile } from 'mz/fs';
 import { extname, join } from 'path';
+import { safeLoad } from 'js-yaml';
+/**
+ * Map from extensions to language info
+ */
 let extMap = () => {
   const readLanguages = async () => {
     const languagesContents = await readFile(join(__dirname, 'languages.yml'));
