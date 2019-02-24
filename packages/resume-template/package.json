@@ -9,6 +9,7 @@
     "url": "https://github.com/PatrickShaw/monorepo.git",
     "directory": "packages/resume-template"
   },
+  "files": ["lib", "src", "esm"],
   "publishConfig": {
     "access": "public"
   },

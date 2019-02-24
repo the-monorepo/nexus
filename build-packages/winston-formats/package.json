@@ -3,6 +3,7 @@
   "description": "A set of Winston formats",
   "version": "1.5.2",
   "main": "./src/index.js",
+  "files": ["lib", "src", "esm"],
   "keywords": [
     "winston",
     "formats"
