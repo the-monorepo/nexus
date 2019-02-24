@@ -1,14 +1,13 @@
 function settings() {
   return {
-    testMatch: ['<rootDir>/test/?(**/)?(*.)test.(t|j)s?(x)'],
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-    testPathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/'],
+    testMatch: [
+      '<rootDir>/test/**/*.test.(j|t)s?(x)',
+      '<rootDir>/test/**/test.(j|t)s?(x)',
+    ],
+    testPathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/', '/esm/'],
     collectCoverage: true,
     resetMocks: true,
     testURL: 'http://localhost/',
-    transform: {
-      '^.+\\.[jt]sx?$': 'babel-jest',
-    },
   };
 }
 module.exports = { settings };
