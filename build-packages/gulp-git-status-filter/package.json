@@ -19,5 +19,6 @@
   "dependencies": {
     "isomorphic-git": "^0.51.12",
     "streamfilter": "2"
-  }
+  },
+  "gitHead": "1701ee770b28b5672c0f15c9a856b87ec3c82bc1"
 }
