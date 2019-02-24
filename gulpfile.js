@@ -14,6 +14,7 @@ const rename = require('gulp-rename');
 const through = require('through2');
 
 const packagesDirName = 'packages';
+const buildPackagesDirName = 'build-packages';
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -112,6 +113,7 @@ function simplePipeLogger(l, verb) {
 async function clean() {
   const del = require('del');
   await del(globBuildOutputFromPackagesDirName(packagesDirName));
+  await del(globBuildOutputFromPackagesDirName(buildPackagesDirName));
   await del(['./README.md', './packages/*/README.md']);
 }
 gulp.task('clean', clean);
