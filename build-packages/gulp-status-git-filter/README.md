@@ -5,11 +5,11 @@ A gulp plugin that filters out files based off their git status
 ## Installation
 
 ```bash
-npm install --save gulp-status-git-filter@1.0.0-alpha.4
+npm install --save-dev gulp-status-git-filter@1.0.0-alpha.4
 ```
 or
 ```bash
-yarn add gulp-status-git-filter@1.0.0-alpha.4
+yarn add --dev gulp-status-git-filter@1.0.0-alpha.4
 ```
 
 ---
