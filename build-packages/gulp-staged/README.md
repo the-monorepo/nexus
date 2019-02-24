@@ -5,11 +5,11 @@ A gulp plugin that filters out unstaged files from streams
 ## Installation
 
 ```bash
-npm install --save gulp-staged@1.0.0-alpha.3
+npm install --save gulp-staged@1.0.0-alpha.4
 ```
 or
 ```bash
-yarn add gulp-staged@1.0.0-alpha.3
+yarn add gulp-staged@1.0.0-alpha.4
 ```
 
 ---
