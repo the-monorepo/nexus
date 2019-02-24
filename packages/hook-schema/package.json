@@ -1,6 +1,6 @@
 {
   "name": "hook-schema",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A package for adding no operation (noop) hooks to incomplete hook objects",
   "keywords": [
     "hooks",
