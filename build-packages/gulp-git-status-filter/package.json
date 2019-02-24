@@ -1,11 +1,11 @@
 {
   "version": "1.0.0-alpha.1",
-  "name": "gulp-staged",
-  "description": "A gulp plugin that filters out unstaged files from streams",
+  "name": "gulp-git-status-filter",
+  "description": "A gulp plugin that filters out files based off their git status",
   "keywords": [
     "gulp",
     "git",
-    "staged",
+    "status",
     "plugin",
     "util",
     "build"
@@ -16,5 +16,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {}
+  "dependencies": {
+    "isomorphic-git": "^0.51.12",
+    "streamfilter": "2"
+  }
 }
