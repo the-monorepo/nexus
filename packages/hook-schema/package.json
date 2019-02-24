@@ -17,6 +17,7 @@
     "url": "https://github.com/PatrickShaw/monorepo.git",
     "directory": "packages/hook-schema"
   },
+  "files": ["lib", "src", "esm"],
   "publishConfig": {
     "access": "public"
   },
