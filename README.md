@@ -11,6 +11,7 @@ Version | Package | Description
 1.4.0 | [`@pshaw/markdown-util`](packages/markdown-util/README.md) | A helper package for writing markdown files
 1.1.0 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
 3.1.0 | [`@pshaw/writeme`](packages/writeme/README.md) | A readme generator
+1.0.0-alpha.1 | [`gulp-git-status-filter`](build-packages/gulp-git-status-filter/README.md) | A gulp plugin that filters out files based off their git status
 1.0.0-alpha.1 | [`gulp-staged`](build-packages/gulp-staged/README.md) | A gulp plugin that filters out unstaged files from streams
 2.2.0 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 
