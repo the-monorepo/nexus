@@ -76,9 +76,6 @@
     "webpack-cli": "^3.2.3",
     "winston": "^3.2.1"
   },
-  "resolutions": {
-    "build-pshaw-logger/@pshaw/winston-formats": "npm:@pshaw/winston-formats@1.5.1"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "gulp precommit && git add ."

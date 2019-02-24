@@ -2,9 +2,7 @@
   "name": "@pshaw/winston-formats",
   "description": "A set of Winston formats",
   "version": "1.5.2",
-  "main": "./lib/index.js",
-  "module": "./src/index.js",
-  "types": "./src/index.ts",
+  "main": "./src/index.js",
   "keywords": [
     "winston",
     "formats"
@@ -15,7 +13,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/winston-formats"
+    "directory": "build-packages/winston-formats"
   },
   "publishConfig": {
     "access": "public"

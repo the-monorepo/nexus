@@ -1,11 +1,11 @@
-import util from 'util';
+const util = require('util');
 
-import chalk from 'chalk';
-import moment from 'moment';
-import { SPLAT } from 'triple-beam';
-import { format } from 'winston';
+const chalk = require('chalk');
+const moment = require('moment');
+const { SPLAT } = require('triple-beam');
+const { format } = require('winston');
 
-export const errors = format(info => {
+module.exports.errors = format(info => {
   if (info instanceof Error) {
     /*
       TODO: Winston 3.0.0 removes .message for errors for some reason.
@@ -21,9 +21,9 @@ export const errors = format(info => {
   return info;
 });
 
-export const objects = format((info, options) => {
+module.exports.objects = format((info, options) => {
   // TODO: Remove the any type when winston types gets fixed
-  const message: any = info.message;
+  const message = info.message;
   if (
     !(info instanceof Error) &&
     (message instanceof Object || Array.isArray(info.message))
@@ -34,7 +34,7 @@ export const objects = format((info, options) => {
 });
 
 // Adds a timestamp to the logger information
-export const timestamp = format(
+module.exports.timestamp = format(
   (info, { format: timestampFormat = 'YYYY-MM-DD HH:mm:ss' }) => {
     info.timestamp = moment(new Date()).format(timestampFormat);
     return info;
@@ -42,20 +42,20 @@ export const timestamp = format(
 );
 
 // Aligns all the information before the message section of the log
-export const align = format(info => {
+module.exports.align = format(info => {
   const messageIndentation = 8;
   info.levelPadding = ' '.repeat(messageIndentation - info.level.length);
   return info;
 });
 
 // Colorizes/formats javascript objects and timestamps
-export const colorize = format(info => {
+module.exports.colorize = format(info => {
   info.timestamp = chalk.gray(info.timestamp);
   return info;
 });
 
 // Specifies the order in which all the information is printed out
-export const printer = format.printf(info => {
+module.exports.printer = format.printf(info => {
   const timestampString = info.timestamp;
   const splat = info[SPLAT];
   const splatList = splat
