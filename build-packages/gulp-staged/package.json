@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "name": "gulp-staged",
   "description": "A gulp plugin that filters out unstaged files from streams",
   "keywords": [
@@ -23,6 +23,6 @@
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
   "dependencies": {
-    "gulp-status-git-filter": "^1.0.0-alpha.3"
+    "gulp-status-git-filter": "^1.0.0-alpha.4"
   }
 }
