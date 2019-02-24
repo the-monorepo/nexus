@@ -7,7 +7,7 @@
     "writeme",
     "util"
   ],
-  "files": [""],
+  "files": ["lib", "src", "esm"],
   "version": "3.1.1",
   "main": "./lib/index.js",
   "module": "./src/index.js",
