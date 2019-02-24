@@ -11,10 +11,15 @@
   "types": "./src/index.ts",
   "license": "MIT",
   "private": false,
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "packages/markdown-util"
+  },
   "publishConfig": {
     "access": "public"
   },
-  "sideEffects": false,
   "dependencies": {
     "js-yaml": "^3.12.1",
     "mz": "^2.7.0"
