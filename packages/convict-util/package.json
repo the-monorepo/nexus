@@ -6,7 +6,7 @@
     "convict",
     "util"
   ],
-  "version": "1.4.0",
+  "version": "1.4.1",
   "main": "./lib/index.js",
   "module": "./src/index.js",
   "types": "./src/index.ts",
