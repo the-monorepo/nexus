@@ -17,6 +17,11 @@
   "license": "MIT",
   "private": false,
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "packages/eslint-config-core"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -5,6 +5,11 @@
   "main": "./src/index.js",
   "private": false,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "build-packages/build-util"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -4,6 +4,11 @@
   "description": "A template you can use to generate resumes",
   "license": "MIT",
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "packages/resume-template"
+  },
   "publishConfig": {
     "access": "public"
   },
