@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "name": "gulp-git-status-filter",
   "description": "A gulp plugin that filters out files based off their git status",
   "keywords": [
