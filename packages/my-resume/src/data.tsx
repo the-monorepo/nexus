@@ -104,7 +104,7 @@ export const work = [
       'I built social media sentiment analysis models with TensorFlow and analytics dashboards using React, Node and TypeScript. ' +
       'I also ported JQuery+Handlebars components to React for ANZ.com.',
     startDate: new Date(2017, 5),
-    endDate: new Date(2017, 11),
+    endDate: new Date(2017, 10),
   },
   {
     company: 'Rundl',
