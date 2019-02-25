@@ -27,7 +27,6 @@ export const technicalSkills = [
       'Wireshark',
       'MATLAB',
       '.NET',
-      'WPF',
     ],
   },
   {
@@ -90,7 +89,7 @@ export const work = [
     job: 'Intern developer',
     location: 'Sydney',
     description:
-      'I built a templating service that all Atlassian products use to create commerce related emails & PDFs. ' +
+      'I built a microservice that all Atlassian products use to create commerce related emails & PDFs. ' +
       'I also improved an entitlement data warehousing process from being a ~4 hour batch process to running in real-time.',
     technologies: ['Node', 'Spring', 'React'],
     startDate: new Date(2017, 10),
