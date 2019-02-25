@@ -28,7 +28,8 @@ let extMap = () => {
 
 async function extToCodeBlockTag(ext: string) {
   const map = await extMap();
-  const tag = map.get(ext).ace_mode;
+  const languageInfo = map.get(ext);
+  const tag = languageInfo ? languageInfo.ace_mode : null;
   return tag ? tag : '';
 }
 
