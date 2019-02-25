@@ -1,23 +1,18 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { readCodeBlock } from '../../src';
+import { safeLoad } from 'js-yaml';
 
-jest.mock('js-yaml', () => {
-  return {
+jest
+  .mock('mz/fs', () => ({
+    readFile: async () => 'test',
+  }))
+  .mock('js-yaml', () => ({
     safeLoad: jest.fn(),
-  };
-});
-jest.mock('mz/fs', () => {
-  return {
-    readFile: jest.fn(),
-  };
-});
+  }));
 
 describe('readCodeBlock', () => {
   it('typescript', async () => {
-    const fs = require('mz/fs');
-    fs.readFile.mockReturnValue(Promise.resolve('test'));
-    const jsYaml = require('js-yaml');
-    jsYaml.safeLoad.mockReturnValue({
+    safeLoad.mockReturnValue({
       TypeScript: {
         type: 'programming',
         color: '#2b7489',
@@ -31,9 +26,12 @@ describe('readCodeBlock', () => {
         language_id: 378,
       },
     });
+    expect(await readCodeBlock('something.ts')).toBe('```typescript\ntest\n```\n');
 
-    await expect(readCodeBlock('something.ts')).resolves.toBe(
-      '```typescript\ntest\n```\n',
-    );
+    expect(await readCodeBlock('something.tsx')).toBe('```typescript\ntest\n```\n');
+
+    expect(await readCodeBlock('something.js')).toBe('```\ntest\n```\n');
+
+    expect(await readCodeBlock('something')).toBe('```\ntest\n```\n');
   });
 });
