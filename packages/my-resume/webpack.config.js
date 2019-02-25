@@ -38,7 +38,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: `Patrick Shaw`,
+      title: `Patrick Shaw - Resume`,
       inject: false,
       template: HtmlWebpackTemplate,
       appMountId: 'root',
