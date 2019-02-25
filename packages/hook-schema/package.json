@@ -1,6 +1,6 @@
 {
   "name": "hook-schema",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "A package for adding no operation (noop) hooks to incomplete hook objects",
   "keywords": [
     "hooks",
@@ -17,7 +17,11 @@
     "url": "https://github.com/PatrickShaw/monorepo.git",
     "directory": "packages/hook-schema"
   },
-  "files": ["lib", "src", "esm"],
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
   "publishConfig": {
     "access": "public"
   },
