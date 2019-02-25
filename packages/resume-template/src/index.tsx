@@ -30,12 +30,6 @@ export function createResume() {
         '*': {
           padding: 0,
           margin: 0,
-          'margin-block-start': 0,
-          'margin-block-end': 0,
-        },
-        a: {
-          color: 'inherit' /* blue colors for links too */,
-          'text-decoration': 'inherit' /* no underline */,
         },
       } as any,
     })

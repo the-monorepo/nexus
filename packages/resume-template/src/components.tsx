@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Typography, withStyles } from '@material-ui/core';
+import { Typography, Link, withStyles } from '@material-ui/core';
 import classNames from 'classnames';
 import { format as formatDate } from 'date-fns/esm/index';
 import * as React from 'react';
@@ -7,29 +7,7 @@ import envelope from './envelope';
 import github from './github';
 import linkedin from './linkedin';
 
-const Contact = withStyles(
-  theme => ({
-    contact: {
-      color: theme.palette.getContrastText(theme.palette.primary.main),
-    },
-    icon: {
-      width: '1em',
-      height: '1em',
-      verticalAlign: 'middle',
-      marginRight: '0.5em',
-    },
-  }),
-  { withTheme: true },
-)(({ children, icon, classes, ...other }) => (
-  <>
-    <EntryText className={classes.contact} {...other}>
-      <img {...icon} aria-hidden className={classes.icon} />
-      {children}
-    </EntryText>
-  </>
-));
-
-const ResumeLink = withStyles({
+const ResumeLinkText = withStyles({
   printLink: {
     display: 'none',
   },
@@ -41,14 +19,41 @@ const ResumeLink = withStyles({
       display: 'inline-block',
     },
   },
-})(({ title, children, classes, printAlt, ...other }) => (
+})(({ children, classes, ...other }) => (
   <>
-    <a {...other} className={classes.webLink}>
+    <span {...other} className={classes.webLink}>
       {children}
-    </a>
-    <a {...other} className={classes.printLink}>
+    </span>
+    {/*
+      People print resumes and most viewing on a computer don't expect links 
+      so have to show the link as text
+    */}
+    <span {...other} className={classes.printLink}>
       {other.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
-    </a>
+    </span>
+  </>
+));
+
+const Contact = withStyles(
+  theme => ({
+    contact: {
+      color: theme.palette.getContrastText(theme.palette.primary.main),
+      display: 'block',
+    },
+    icon: {
+      width: '1em',
+      height: '1em',
+      verticalAlign: 'middle',
+      marginRight: '0.5em',
+    },
+  }),
+  { withTheme: true },
+)(({ children, icon, classes, href, ...other }) => (
+  <>
+    <EntryLink className={classes.contact} href={href} {...other}>
+      <img {...icon} aria-hidden className={classes.icon} />
+      <ResumeLinkText href={href}>{children}</ResumeLinkText>
+    </EntryLink>
   </>
 ));
 
@@ -87,22 +92,14 @@ const Header = withStyles(
           <a href={data.details.website}>{data.details.website}</a>
         </Contact>
       */}
-      <Contact icon={{ src: envelope }}>
-        {/*
-          People print resumes and most viewing on a computer don't expect links 
-          so have to show the link as text
-        */}
-        <ResumeLink href={`mailto:${data.details.email}`} title="Email link">
-          Email
-        </ResumeLink>
+      <Contact icon={{ src: envelope }} href={`mailto:${data.details.email}`}>
+        Email
       </Contact>
-      <Contact icon={{ src: linkedin }}>
-        <ResumeLink href={data.details.linkedin} title="LinkedIn link">
-          LinkedIn
-        </ResumeLink>
+      <Contact icon={{ src: linkedin }} href={data.details.linkedin}>
+        LinkedIn
       </Contact>
-      <Contact icon={{ src: github }} title="GitHub link">
-        <ResumeLink href={data.details.github}>Github</ResumeLink>
+      <Contact icon={{ src: github }} href={data.details.github}>
+        Github
       </Contact>
     </section>
   </header>
@@ -234,6 +231,12 @@ const EntryHeading = ({ children, ...other }) => (
   <Typography variant="subtitle1" component="h1" {...other}>
     {children}
   </Typography>
+);
+
+const EntryLink = ({ children, ...other }) => (
+  <Link variant="caption" color="textSecondary" {...other}>
+    {children}
+  </Link>
 );
 const EntryText = ({ children, ...other }) => (
   <Typography variant="caption" color="textSecondary" {...other}>
