@@ -9,6 +9,7 @@
     "directory": "packages/my-resume"
   },
   "scripts": {
+    "build": "webpack --mode production",
     "start": "yarn watch",
     "watch": "webpack-dev-server --watch --mode development"
   },

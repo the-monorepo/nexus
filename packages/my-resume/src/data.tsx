@@ -70,10 +70,11 @@ export const work = [
     job: 'Intern developer',
     location: 'Sydney',
     description:
-      'I reduced the build time of a microservice from ~14 mins to ~4 mins. ' +
-      "I added support for quotes to the templating service built in my previous internship. Currently, I am adding analytics support to Atlassian's billing web app.",
+      "I added analytics support to Atlassian's billing platform and " +
+      'the ability to generate financial quotes to the service built in my previous internship. ' +
+      'I also reduced the build time of a microservice from ~14 mins to ~4 mins.',
     startDate: new Date(2018, 10),
-    endDate: null,
+    endDate: new Date(2019, 1),
   },
   {
     company: 'Monash University',
@@ -89,8 +90,8 @@ export const work = [
     job: 'Intern developer',
     location: 'Sydney',
     description:
-      'I built a templating service that all Atlassian products use to create commerce related emails & PDFs. \n' +
-      'I also improved a data warehousing process from being a ~4 hour batch process to running in real-time.',
+      'I built a templating service that all Atlassian products use to create commerce related emails & PDFs. ' +
+      'I also improved an entitlement data warehousing process from being a ~4 hour batch process to running in real-time.',
     technologies: ['Node', 'Spring', 'React'],
     startDate: new Date(2017, 10),
     endDate: new Date(2018, 1),
