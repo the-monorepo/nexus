@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "name": "gulp-status-git-filter",
   "description": "A gulp plugin that filters out files based off their git status",
   "keywords": [
@@ -13,7 +13,11 @@
   "main": "./src/index.js",
   "license": "MIT",
   "private": false,
-  "files": ["lib", "src", "esm"],
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",

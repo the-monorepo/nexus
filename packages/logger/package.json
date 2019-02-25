@@ -4,7 +4,7 @@
   "keywords": [
     "logger"
   ],
-  "version": "2.0.2",
+  "version": "2.0.3",
   "main": "./lib/index.js",
   "module": "./src/index.js",
   "types": "./src/index.ts",
@@ -16,7 +16,11 @@
     "url": "https://github.com/PatrickShaw/monorepo.git",
     "directory": "packages/logger"
   },
-  "files": ["lib", "src", "esm"],
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
   "publishConfig": {
     "access": "public"
   },
