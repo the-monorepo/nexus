@@ -1,6 +1,6 @@
 {
   "name": "@pshaw/my-resume",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "My resume",
   "private": true,
   "repository": {
@@ -14,7 +14,7 @@
     "watch": "webpack-dev-server --watch --mode development"
   },
   "dependencies": {
-    "@pshaw/resume-template": "^1.1.1",
+    "@pshaw/resume-template": "^1.1.2",
     "react": "^16.8.2",
     "react-dom": "^16.8.2"
   }

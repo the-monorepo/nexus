@@ -7,8 +7,12 @@
     "writeme",
     "util"
   ],
-  "files": ["lib", "src", "esm"],
-  "version": "3.1.1",
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "version": "3.1.2",
   "main": "./lib/index.js",
   "module": "./src/index.js",
   "types": "./src/index.ts",
@@ -26,7 +30,7 @@
   "dependencies": {
     "fs-extra": "^7.0.1",
     "globby": "^9.0.0",
-    "hook-schema": "^2.2.1",
+    "hook-schema": "^2.2.2",
     "mz": "^2.7.0"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
