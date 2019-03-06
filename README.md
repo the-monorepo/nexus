@@ -8,7 +8,6 @@ Version | Package | Description
 --- | --- | ---
 1.4.2 | [`@pshaw/convict-util`](packages/convict-util/README.md) | A helper package for reading configs in using convict
 1.1.2 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
-3.1.2 | [`@writeme/core`](packages/writeme-core/README.md) | A readme generator
 2.2.2 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 
 ### Build tooling
@@ -22,6 +21,7 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.4.2 | [`@pshaw/markdown-util`](packages/markdown-util/README.md) | A helper package for writing markdown files
+3.1.2 | [`@writeme/core`](packages/writeme-core/README.md) | A readme generator
 
 ### Logging
 Version | Package | Description
@@ -32,15 +32,15 @@ Version | Package | Description
 ### ESLint
 Version | Package | Description
 --- | --- | ---
-1.4.1 | [`@pshaw/tslint-preset-core`](packages/tslint-preset-core/README.md) | A pratical style preset for TSLint
-1.4.1 | [`@pshaw/tslint-preset-react`](packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
+1.4.1 | [`@pshaw/tslint-preset-core`](build-packages/tslint-preset-core/README.md) | A pratical style preset for TSLint
+1.4.1 | [`@pshaw/tslint-preset-react`](build-packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
 
 ### TSLint
 Version | Package | Description
 --- | --- | ---
-1.4.1 | [`@pshaw/eslint-config-core`](packages/eslint-config-core/README.md) | A pratical style preset for ESLint
-1.4.1 | [`@pshaw/eslint-config-react`](packages/eslint-config-react/README.md) | A pratical React style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-typescript`](packages/eslint-config-typescript/README.md) | A pratical Typescript style preset for ESLint
+1.4.1 | [`@pshaw/eslint-config-core`](build-packages/eslint-config-core/README.md) | A pratical style preset for ESLint
+1.4.1 | [`@pshaw/eslint-config-react`](build-packages/eslint-config-react/README.md) | A pratical React style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-typescript`](build-packages/eslint-config-typescript/README.md) | A pratical Typescript style preset for ESLint
 
 
 ---

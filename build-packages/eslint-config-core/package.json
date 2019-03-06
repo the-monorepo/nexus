@@ -10,7 +10,7 @@
     "preset"
   ],
   "version": "1.4.1",
-  "main": "index.js",
+  "main": "./src/index.js",
   "files": [
     "index.js"
   ],
@@ -20,7 +20,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/eslint-config-core"
+    "directory": "build-packages/eslint-config-core"
   },
   "publishConfig": {
     "access": "public"
