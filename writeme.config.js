@@ -7,7 +7,7 @@ module.exports = {
       },
       {
         category: 'Documentation',
-        test: './packages/{writeme,markdown-util}',
+        test: './{build-packages,packages}/{writeme-*,markdown-util}',
       },
       {
         category: 'Logging',
@@ -15,11 +15,11 @@ module.exports = {
       },
       {
         category: 'ESLint',
-        test: './packages/tslint*',
+        test: './{build-packages,packages}/tslint*',
       },
       {
         category: 'TSLint',
-        test: './packages/eslint*',
+        test: './{build-packages,packages}/eslint*',
       },
     ],
   },
