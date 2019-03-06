@@ -1,6 +1,6 @@
 module.exports = api => {
   const env = api.env();
-  const esm = env === 'ESM';
+  const esm = env === 'esm';
 
   return {
     presets: [
