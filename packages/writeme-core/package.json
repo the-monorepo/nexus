@@ -1,5 +1,5 @@
 {
-  "name": "@pshaw/writeme",
+  "name": "@writeme/core",
   "description": "A readme generator",
   "keywords": [
     "build",
@@ -21,7 +21,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/writeme"
+    "directory": "packages/writeme-core"
   },
   "publishConfig": {
     "access": "public"

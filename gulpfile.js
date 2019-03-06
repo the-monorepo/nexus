@@ -215,7 +215,7 @@ const transpile = gulp.parallel(transpileScript, transpileEsm);
 gulp.task('transpile', transpile);
 
 async function writeme() {
-  const { writeReadmeFromPackageDir } = require('@pshaw/writeme');
+  const { writeReadmeFromPackageDir } = require('@writeme/core');
   const l = logger.child({ tags: [chalk.green('writeme')] });
   await writeReadmeFromPackageDir(__dirname, {
     before: {
