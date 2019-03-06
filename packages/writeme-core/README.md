@@ -1,15 +1,15 @@
-# Writeme
+# Core
 
 A readme generator
 
 ## Installation
 
 ```bash
-npm install --save-dev @pshaw/writeme
+npm install --save-dev @writeme/core
 ```
 or
 ```bash
-yarn add --dev @pshaw/writeme
+yarn add --dev @writeme/core
 ```
 
 ## Examples

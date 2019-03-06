@@ -8,6 +8,7 @@ Version | Package | Description
 --- | --- | ---
 1.4.2 | [`@pshaw/convict-util`](packages/convict-util/README.md) | A helper package for reading configs in using convict
 1.1.2 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
+3.1.2 | [`@writeme/core`](packages/writeme-core/README.md) | A readme generator
 2.2.2 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 
 ### Build tooling
@@ -21,7 +22,6 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.4.2 | [`@pshaw/markdown-util`](packages/markdown-util/README.md) | A helper package for writing markdown files
-3.1.2 | [`@pshaw/writeme`](packages/writeme/README.md) | A readme generator
 
 ### Logging
 Version | Package | Description
