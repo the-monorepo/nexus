@@ -20,7 +20,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/tslint-preset-core"
+    "directory": "build-packages/tslint-preset-core"
   },
   "publishConfig": {
     "access": "public"
