@@ -143,13 +143,14 @@ function copyEsm() {
 
 const copy = gulp.parallel(copyScript, copyEsm);
 
-function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
+function transpilePipes(stream, babelOptions, dir, chalkFn) {
   const sourcemaps = require('gulp-sourcemaps');
   const babel = require('gulp-babel');
+  const l = logger.child({ tags: [chalk.blue('transpile'), chalkFn(dir)] });
 
   return stream
     .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
-    .pipe(simplePipeLogger(l, loggerVerb))
+    .pipe(simplePipeLogger(l, 'Transpiling'))
     .pipe(sourcemaps.init())
     .pipe(babel(babelOptions))
     .pipe(
@@ -163,22 +164,19 @@ function transpilePipes(stream, babelOptions, l, loggerVerb, dir) {
 }
 
 function transpileScript() {
-  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.blueBright('script')] });
-  return transpilePipes(packagesSrcCodeStream(), undefined, l, 'Transpiling', 'lib').pipe(
+  return transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright).pipe(
     gulp.dest('.'),
   );
 }
 
 function transpileEsm() {
-  const l = logger.child({ tags: [chalk.blue('transpile'), chalk.cyanBright('esm')] });
   return transpilePipes(
     packagesSrcCodeStream(),
     {
-      envName: 'ESM',
+      envName: 'esm',
     },
-    l,
-    'Transpiling',
     'esm',
+    chalk.cyanBright,
   ).pipe(gulp.dest('.'));
 }
 
