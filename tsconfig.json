@@ -18,7 +18,8 @@
     "node_modules", 
     "**/node_modules",
     "build",
-    "lib", 
+    "lib",
+    "esm", 
     "dist"
   ]
 }
