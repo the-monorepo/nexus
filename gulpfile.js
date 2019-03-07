@@ -326,6 +326,8 @@ gulp.task('precommit', precommit);
 const prepublish = gulp.series(
   gulp.parallel(clean, format),
   gulp.parallel(transpile, copy),
-  gulp.parallel(testNoBuild, writeme),
+  gulp.parallel(checkerTypes, testNoBuild, writeme),
 );
 gulp.task('prepublish', prepublish);
+
+gulp.task('ci-test', prepublish);

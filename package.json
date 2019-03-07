@@ -14,13 +14,14 @@
   },
   "scripts": {
     "format": "gulp format",
+    "format-staged": "gulp format-staged",
     "test": "gulp test",
     "clean": "gulp clean",
     "build": "gulp build",
     "watch": "gulp watch",
     "writeme": "gulp writeme",
     "prepublish": "gulp prepublish",
-    "ci-test": "gulp test"
+    "ci-test": "gulp ci-test"
   },
   "keywords": [
     "typescript"
