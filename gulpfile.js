@@ -132,7 +132,7 @@ function copyPipes(stream, l, dir) {
 }
 
 function copyScript() {
-  const l = logger.child({ tags: [chalk.yellow('copy'), chalk.blueBright('script')] });
+  const l = logger.child({ tags: [chalk.yellow('copy'), chalk.blueBright('lib')] });
   return copyPipes(packagesSrcMiscStream(), l, 'lib');
 }
 
@@ -309,7 +309,7 @@ async function testNoBuild() {
     }
   } catch (err) {
     const PluginError = require('plugin-error');
-    throw new PluginError('Jest', err);
+    throw new PluginError('Jest', err, { showStack: true });
   }
 }
 gulp.task('test-no-build', testNoBuild);

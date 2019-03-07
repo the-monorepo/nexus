@@ -16,7 +16,6 @@ module.exports = api => {
       ],
       '@babel/preset-typescript',
     ],
-    plugins: env === 'test' ? ['babel-plugin-istanbul'] : [],
     overrides: [
       {
         test: ['./packages/my-resume', './packages/resume-template'],
