@@ -24,23 +24,20 @@ const ResumeLinkText = withStyles({
       display: 'inline-block',
     },
   },
-})(
-  ({ children, classes, ...other }) =>
-    (
-      <>
-        <span {...other} className={classes.webLink}>
-          {children}
-        </span>
-        {/*
+})((({ children, classes, ...other }) => (
+  <>
+    <span {...other} className={classes.webLink}>
+      {children}
+    </span>
+    {/*
       People print resumes and most viewing on a computer don't expect links 
       so have to show the link as text
     */}
-        <span {...other} className={classes.printLink}>
-          {other.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
-        </span>
-      </>
-    ) as SFC<ResumeLinkTextProps>,
-);
+    <span {...other} className={classes.printLink}>
+      {other.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
+    </span>
+  </>
+)) as SFC<ResumeLinkTextProps>);
 
 type ContactProps = {
   icon: {
@@ -65,20 +62,17 @@ const Contact = withStyles(
     },
   }),
   { withTheme: true },
-)(
-  ({ children, icon, classes, href, ...other }) =>
-    (
-      <>
-        <EntryLink className={classes.contact} href={href} {...other}>
-          <img {...icon} aria-hidden className={classes.icon} />
-          <ResumeLinkText href={href}>{children}</ResumeLinkText>
-        </EntryLink>
-      </>
-    ) as SFC<ContactProps>,
-);
+)((({ children, icon, classes, href, ...other }) => (
+  <>
+    <EntryLink className={classes.contact} href={href} {...other}>
+      <img {...icon} aria-hidden className={classes.icon} />
+      <ResumeLinkText href={href}>{children}</ResumeLinkText>
+    </EntryLink>
+  </>
+)) as SFC<ContactProps>);
 
 type HeaderProps = {
-  otherClasses: any[];
+  otherClasses: any;
   data: {
     details: any;
   };
@@ -103,37 +97,34 @@ const Header = withStyles(
     },
   }),
   { withTheme: true },
-)(
-  ({ classes, otherClasses, children, data }) =>
-    (
-      <header className={classNames(classes.header, otherClasses.header)}>
-        <div className={classes.headingContainer}>
-          <Typography
-            variant="h3"
-            className={classNames(classes.heading, otherClasses.heading)}
-          >
-            {children}
-          </Typography>
-        </div>
-        <section>
-          {/*
+)((({ classes, otherClasses, children, data }) => (
+  <header className={classNames(classes.header, otherClasses.header)}>
+    <div className={classes.headingContainer}>
+      <Typography
+        variant="h3"
+        className={classNames(classes.heading, otherClasses.heading)}
+      >
+        {children}
+      </Typography>
+    </div>
+    <section>
+      {/*
         <Contact>
           <a href={data.details.website}>{data.details.website}</a>
         </Contact>
       */}
-          <Contact icon={{ src: envelope }} href={`mailto:${data.details.email}`}>
-            Email
-          </Contact>
-          <Contact icon={{ src: linkedin }} href={data.details.linkedin}>
-            LinkedIn
-          </Contact>
-          <Contact icon={{ src: github }} href={data.details.github}>
-            Github
-          </Contact>
-        </section>
-      </header>
-    ) as SFC<HeaderProps>,
-);
+      <Contact icon={{ src: envelope }} href={`mailto:${data.details.email}`}>
+        Email
+      </Contact>
+      <Contact icon={{ src: linkedin }} href={data.details.linkedin}>
+        LinkedIn
+      </Contact>
+      <Contact icon={{ src: github }} href={data.details.github}>
+        Github
+      </Contact>
+    </section>
+  </header>
+)) as SFC<HeaderProps>);
 
 type EntryTopicProps = {
   [s: string]: any;
@@ -147,18 +138,15 @@ const EntryTopic = withStyles({
       // },<
     },
   },
-})(
-  ({ children, classes, ...other }) =>
-    (
-      <Topic otherClasses={{ container: classes.entryTopic }} {...other}>
-        {children}
-      </Topic>
-    ) as SFC<EntryTopicProps>,
-);
+})((({ children, classes, ...other }) => (
+  <Topic otherClasses={{ container: classes.entryTopic }} {...other}>
+    {children}
+  </Topic>
+)) as SFC<EntryTopicProps>);
 
 type TopicProps = {
   heading: any;
-  otherClasses: any[];
+  otherClasses: any;
   [s: string]: any;
   classes: any;
 };
@@ -175,24 +163,27 @@ const Topic = withStyles(
   },*/
   }),
   { withTheme: true },
-)(
-  ({ heading, children, classes, otherClasses = { container: undefined }, ...other }) =>
-    (
-      <section className={otherClasses.container}>
-        <Typography
-          variant="subtitle2"
-          color="primary"
-          component="h1"
-          // color="secondary"
-          className={classes.heading}
-          {...other}
-        >
-          {heading}
-        </Typography>
-        {children}
-      </section>
-    ) as SFC<TopicProps>,
-);
+)((({
+  heading,
+  children,
+  classes,
+  otherClasses = { container: undefined },
+  ...other
+}) => (
+  <section className={otherClasses.container}>
+    <Typography
+      variant="subtitle2"
+      color="primary"
+      component="h1"
+      // color="textSecondary"
+      className={classes.heading}
+      {...other}
+    >
+      {heading}
+    </Typography>
+    {children}
+  </section>
+)) as SFC<TopicProps>);
 
 type EntryProps = {
   leftHeading?: string;
@@ -218,48 +209,46 @@ const Entry = withStyles(
     },
   }),
   { withTheme: true },
-)<EntryProps>(
-  ({
-    leftHeading,
-    description,
-    startDate,
-    endDate,
-    rightHeading,
-    keyPoints,
-    classes,
-    subtext,
-    dateFormat = 'MMM YYYY',
-    children,
-  }) => (
-    <section>
-      {leftHeading ? (
-        <EntryHeading
-          component="h1"
-          className={classNames(classes.entryHeading, classes.leftHeading)}
-        >
-          {leftHeading} /&nbsp;
-        </EntryHeading>
-      ) : null}
-      <EntryHeading component="h2" className={classes.entryHeading}>
-        {rightHeading}
+)((({
+  leftHeading,
+  description,
+  startDate,
+  endDate,
+  rightHeading,
+  keyPoints,
+  classes,
+  subtext,
+  dateFormat = 'MMM YYYY',
+  children,
+}) => (
+  <section>
+    {leftHeading ? (
+      <EntryHeading
+        component="h1"
+        className={classNames(classes.entryHeading, classes.leftHeading)}
+      >
+        {leftHeading} /&nbsp;
       </EntryHeading>
-      {/*TODO: Subtext won't appear if no date*/}
-      {startDate || endDate ? (
-        <EntryText component="p" variant="caption" className={classes.subtext}>
-          <DateRange start={startDate} end={endDate} format={dateFormat} />
-          {subtext ? `, ${subtext}` : null}
-        </EntryText>
-      ) : null}
-      {children}
-      {description ? (
-        <EntryText component="p" color="secondary">
-          {description.replace(/\.?\s*$/, '.')}
-        </EntryText>
-      ) : null}
-      <KeyPoints component="p" color="secondary" keyPoints={keyPoints} />
-    </section>
-  ),
-);
+    ) : null}
+    <EntryHeading component="h2" className={classes.entryHeading}>
+      {rightHeading}
+    </EntryHeading>
+    {/*TODO: Subtext won't appear if no date*/}
+    {startDate || endDate ? (
+      <EntryText component="p" variant="caption" className={classes.subtext}>
+        <DateRange start={startDate} end={endDate} format={dateFormat} />
+        {subtext ? `, ${subtext}` : null}
+      </EntryText>
+    ) : null}
+    {children}
+    {description ? (
+      <EntryText component="p" color="textSecondary">
+        {description.replace(/\.?\s*$/, '.')}
+      </EntryText>
+    ) : null}
+    <KeyPoints component="p" color="textSecondary" keyPoints={keyPoints} />
+  </section>
+)) as SFC<EntryProps>);
 
 type Grade = {
   gpa: number;
@@ -327,7 +316,7 @@ type EntryTextProps = {
   [s: string]: any;
 };
 const EntryText: SFC<EntryTextProps> = ({ children, ...other }) => (
-  <Typography variant="caption" color="secondary" {...other}>
+  <Typography variant="caption" color="textSecondary" {...other}>
     {children}
   </Typography>
 );
@@ -343,14 +332,11 @@ const ListLabel = withStyles(
     },
   }),
   { withTheme: true },
-)(
-  ({ children, classes, ...other }) =>
-    (
-      <EntryText className={classes.label} color="textPrimary" {...other}>
-        {children}
-      </EntryText>
-    ) as SFC<ListLabelProps>,
-);
+)((({ children, classes, ...other }) => (
+  <EntryText className={classes.label} color="textPrimary" {...other}>
+    {children}
+  </EntryText>
+)) as SFC<ListLabelProps>);
 
 type LabeledListProps = {
   [s: string]: any;
@@ -364,23 +350,20 @@ const LabeledList = withStyles({
       },
     },
   },
-})(
-  ({ classes, ...other }) =>
-    (
-      <div className={classes.list}>
-        {other.items.map(({ label, items }, index) => (
-          <p key={index}>
-            <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
-              {label}:
-            </ListLabel>{' '}
-            <EntryText component="span" style={{ display: 'inline' }} paragraph={false}>
-              {skillsSentence(items)}
-            </EntryText>
-          </p>
-        ))}
-      </div>
-    ) as SFC<LabeledListProps>,
-);
+})((({ classes, ...other }) => (
+  <div className={classes.list}>
+    {other.items.map(({ label, items }, index) => (
+      <p key={index}>
+        <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
+          {label}:
+        </ListLabel>{' '}
+        <EntryText component="span" style={{ display: 'inline' }} paragraph={false}>
+          {skillsSentence(items)}
+        </EntryText>
+      </p>
+    ))}
+  </div>
+)) as SFC<LabeledListProps>);
 
 const Ul = withStyles({
   list: {
@@ -401,7 +384,7 @@ const KeyPointItem: SFC<KeyPointItemProps> = ({ children, ...other }) => (
 );
 type KeyPoint = string;
 type KeyPointsProps = {
-  keyPoints: KeyPoint[];
+  keyPoints?: KeyPoint[];
   [s: string]: any;
 };
 const KeyPoints: SFC<KeyPointsProps> = ({ keyPoints, ...other }) =>
@@ -459,7 +442,7 @@ const skillsSentence = skills => itemsString(skills);
 
 type Project = {
   name: string;
-  types: string[];
+  types?: string[];
 };
 type ProjectEntryProps = {
   [s: string]: any;
@@ -482,27 +465,19 @@ const HackathonEntry = withStyles({
   prize: {
     marginBottom: '12px',
   },
-})(
-  ({ hack, event, prize, technologies, classes, ...other }) =>
-    (
-      <Entry
-        leftHeading={event}
-        rightHeading={hack}
-        {...other}
-        startDate={undefined}
-        endDate={undefined}
-      >
-        <Typography
-          component="p"
-          variant="caption"
-          fontWeight="medium"
-          className={classes.prize}
-        >
-          <em>{prize}</em>
-        </Typography>
-      </Entry>
-    ) as SFC<HackathonEntryProps>,
-);
+})((({ hack, event, prize, technologies, classes, ...other }) => (
+  <Entry
+    leftHeading={event}
+    rightHeading={hack}
+    {...other}
+    startDate={undefined}
+    endDate={undefined}
+  >
+    <Typography component="p" variant="caption" className={classes.prize}>
+      <em>{prize}</em>
+    </Typography>
+  </Entry>
+)) as SFC<HackathonEntryProps>);
 
 type EntryData = any;
 type EntryMapperProps = {
@@ -512,13 +487,11 @@ type EntryMapperProps = {
 const EntryMapper: SFC<EntryMapperProps> = ({ Component, data }) =>
   data.map((item, index) => <Component {...item} key={index} />);
 
-type ResumeData = {
-  [s: string]: any;
-};
+type ResumeData = any;
 type PageProps = {
   data: ResumeData;
-  [s: string]: any;
   classes: any;
+  [s: string]: any;
 };
 export const Page = withStyles({
   pageGrid: {
@@ -554,39 +527,36 @@ export const Page = withStyles({
     justifyContent: 'space-between',
     flexDirection: 'column',
   },
-})(
-  ({ classes, data }) =>
-    (
-      <div className={classNames(classes.pageContainer, classes.pageGrid)}>
-        <Header
-          details={data.details}
-          otherClasses={{
-            header: classNames(classes.header, classes.pageGrid),
-          }}
-          data={data}
-        >
-          {data.details.name}
-        </Header>
-        <main className={classes.main}>
-          <EntryTopic heading="Experience">
-            <EntryMapper Component={ExperienceEntry} data={data.work} />
-          </EntryTopic>
-          <EntryTopic heading="Projects">
-            <EntryMapper Component={ProjectEntry} data={data.projects} />
-          </EntryTopic>
-        </main>
-        <aside className={classes.aside}>
-          <EntryTopic heading="Education">
-            <EntryMapper Component={EducationEntry} data={data.education} />
-          </EntryTopic>
-          <EntryTopic heading="Hackathons">
-            <EntryMapper Component={HackathonEntry} data={data.hackathons} />
-          </EntryTopic>
-          <EntryTopic heading="Technical skills">
-            <LabeledList items={data.technicalSkills} />
-          </EntryTopic>
-        </aside>
-        <div className={classes.margin} />
-      </div>
-    ) as SFC<PageProps>,
-);
+})((({ classes, data }) => (
+  <div className={classNames(classes.pageContainer, classes.pageGrid)}>
+    <Header
+      details={data.details}
+      otherClasses={{
+        header: classNames(classes.header, classes.pageGrid),
+      }}
+      data={data}
+    >
+      {data.details.name}
+    </Header>
+    <main className={classes.main}>
+      <EntryTopic heading="Experience">
+        <EntryMapper Component={ExperienceEntry} data={data.work} />
+      </EntryTopic>
+      <EntryTopic heading="Projects">
+        <EntryMapper Component={ProjectEntry} data={data.projects} />
+      </EntryTopic>
+    </main>
+    <aside className={classes.aside}>
+      <EntryTopic heading="Education">
+        <EntryMapper Component={EducationEntry} data={data.education} />
+      </EntryTopic>
+      <EntryTopic heading="Hackathons">
+        <EntryMapper Component={HackathonEntry} data={data.hackathons} />
+      </EntryTopic>
+      <EntryTopic heading="Technical skills">
+        <LabeledList items={data.technicalSkills} />
+      </EntryTopic>
+    </aside>
+    <div className={classes.margin} />
+  </div>
+)) as SFC<PageProps>);
