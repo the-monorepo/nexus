@@ -15,6 +15,7 @@
     "baseUrl": "./",
   },
   "exclude": [
+    "packages/resume-template",
     "node_modules", 
     "**/node_modules",
     "build",
