@@ -283,22 +283,30 @@ function formatStaged() {
 }
 gulp.task('format-staged', formatStaged);
 
-let checkerTypes = () => {
+let withTypeCheckPipes = stream => {
+  const typescript = require('typescript');
   const gulpTypescript = require('gulp-typescript');
-  const tsProject = gulpTypescript.createProject('tsconfig.json');
+  const tsProject = gulpTypescript.createProject('tsconfig.json', { typescript });
 
-  checkerTypes = () => {
-    const stream = packagesSrcCodeStream();
-    return stream.pipe(tsProject(gulpTypescript.reporter.fullReporter()));
+  withTypeCheckPipes = stream => {
+    return stream.pipe(tsProject(gulpTypescript.reporter.defaultReporter()));
   };
-  return checkerTypes();
+
+  return withTypeCheckPipes(stream);
 };
-checkerTypes.name = 'checkerTypes';
-checkerTypes.description =
+
+function checkTypes() {
+  return withTypeCheckPipes(packagesSrcCodeStream());
+}
+checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
   'serious errors in the code, such as invalid syntax or the use of incorrect types.';
+gulp.task('check-types', checkTypes);
 
-gulp.task('checker:types', checkerTypes);
+function checkTypesStaged() {
+  return withTypeCheckPipes(packagesSrcCodeStream().staged());
+}
+gulp.task('check-types-staged', checkTypesStaged);
 
 async function testNoBuild() {
   const jest = require('jest-cli/build/cli');
@@ -319,14 +327,14 @@ gulp.task('test', test);
 
 const precommit = gulp.series(
   gulp.parallel(gulp.series(formatStaged, transpile), copy),
-  gulp.parallel(testNoBuild, writeme),
+  gulp.parallel(checkTypes, testNoBuild, writeme),
 );
 gulp.task('precommit', precommit);
 
 const prepublish = gulp.series(
   gulp.parallel(clean, format),
   gulp.parallel(transpile, copy),
-  gulp.parallel(checkerTypes, testNoBuild, writeme),
+  gulp.parallel(checkTypes, testNoBuild, writeme),
 );
 gulp.task('prepublish', prepublish);
 

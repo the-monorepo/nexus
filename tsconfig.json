@@ -6,21 +6,19 @@
     "target": "esnext",
     "module": "commonjs",
     "strict": true,
-    "allowJs": false,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
+    "experimentalDecorators": false,
     "esModuleInterop": true,
     "noImplicitAny": false,
     "jsx": "preserve",
-    "baseUrl": "./",
   },
   "exclude": [
-    "packages/resume-template",
     "node_modules", 
     "**/node_modules",
-    "build",
-    "lib",
-    "esm", 
-    "dist"
+    "**/build",
+    "**/lib",
+    "**/esm", 
+    "**/dist"
   ]
 }

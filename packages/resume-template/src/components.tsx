@@ -1,16 +1,16 @@
 /* eslint-disable */
-import { Typography, Link, withStyles } from '@material-ui/core';
+/// <reference path="custom.d.ts" />
+import { Typography, Link, withStyles, WithStyles } from '@material-ui/core';
 import classNames from 'classnames';
 import { format as formatDate } from 'date-fns/esm/index';
 import * as React from 'react';
 import { SFC } from 'react';
-import envelope from './envelope';
-import github from './github';
-import linkedin from './linkedin';
+import envelope from './envelope.svg';
+import github from './github.svg';
+import linkedin from './linkedin.svg';
 
 type ResumeLinkTextProps = {
   [s: string]: any;
-  classes: any;
 };
 const ResumeLinkText = withStyles({
   printLink: {
@@ -37,7 +37,7 @@ const ResumeLinkText = withStyles({
       {other.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
     </span>
   </>
-)) as SFC<ResumeLinkTextProps>);
+)) as SFC<ResumeLinkTextProps & WithStyles<any>>);
 
 type ContactProps = {
   icon: {
@@ -46,7 +46,6 @@ type ContactProps = {
   };
   href: string;
   [s: string]: any;
-  classes: any;
 };
 const Contact = withStyles(
   theme => ({
@@ -69,14 +68,13 @@ const Contact = withStyles(
       <ResumeLinkText href={href}>{children}</ResumeLinkText>
     </EntryLink>
   </>
-)) as SFC<ContactProps>);
+)) as SFC<ContactProps & WithStyles<any>>);
 
 type HeaderProps = {
   otherClasses: any;
   data: {
     details: any;
   };
-  classes: any;
 };
 const Header = withStyles(
   theme => ({
@@ -124,11 +122,10 @@ const Header = withStyles(
       </Contact>
     </section>
   </header>
-)) as SFC<HeaderProps>);
+)) as SFC<HeaderProps & WithStyles<any>>);
 
 type EntryTopicProps = {
   [s: string]: any;
-  classes: any;
 };
 const EntryTopic = withStyles({
   entryTopic: {
@@ -142,13 +139,12 @@ const EntryTopic = withStyles({
   <Topic otherClasses={{ container: classes.entryTopic }} {...other}>
     {children}
   </Topic>
-)) as SFC<EntryTopicProps>);
+)) as SFC<EntryTopicProps & WithStyles<any>>);
 
 type TopicProps = {
   heading: any;
   otherClasses: any;
   [s: string]: any;
-  classes: any;
 };
 const Topic = withStyles(
   theme => ({
@@ -183,7 +179,7 @@ const Topic = withStyles(
     </Typography>
     {children}
   </section>
-)) as SFC<TopicProps>);
+)) as SFC<TopicProps & WithStyles<any>>);
 
 type EntryProps = {
   leftHeading?: string;
@@ -194,7 +190,6 @@ type EntryProps = {
   keyPoints?: string[];
   subtext?: string;
   dateFormat?: string;
-  classes: any;
 };
 const Entry = withStyles(
   theme => ({
@@ -248,7 +243,7 @@ const Entry = withStyles(
     ) : null}
     <KeyPoints component="p" color="textSecondary" keyPoints={keyPoints} />
   </section>
-)) as SFC<EntryProps>);
+)) as SFC<EntryProps & WithStyles<any>>);
 
 type Grade = {
   gpa: number;
@@ -323,7 +318,6 @@ const EntryText: SFC<EntryTextProps> = ({ children, ...other }) => (
 
 type ListLabelProps = {
   [s: string]: any;
-  classes: any;
 };
 const ListLabel = withStyles(
   theme => ({
@@ -336,11 +330,10 @@ const ListLabel = withStyles(
   <EntryText className={classes.label} color="textPrimary" {...other}>
     {children}
   </EntryText>
-)) as SFC<ListLabelProps>);
+)) as SFC<ListLabelProps & WithStyles<any>>);
 
 type LabeledListProps = {
   [s: string]: any;
-  classes: any;
 };
 const LabeledList = withStyles({
   list: {
@@ -363,7 +356,7 @@ const LabeledList = withStyles({
       </p>
     ))}
   </div>
-)) as SFC<LabeledListProps>);
+)) as SFC<LabeledListProps & WithStyles<any>>);
 
 const Ul = withStyles({
   list: {
@@ -459,7 +452,6 @@ type Hackathon = {
 };
 type HackathonEntryProps = {
   [s: string]: any;
-  classes: any;
 } & Hackathon;
 const HackathonEntry = withStyles({
   prize: {
@@ -477,7 +469,7 @@ const HackathonEntry = withStyles({
       <em>{prize}</em>
     </Typography>
   </Entry>
-)) as SFC<HackathonEntryProps>);
+)) as SFC<HackathonEntryProps & WithStyles<any>>);
 
 type EntryData = any;
 type EntryMapperProps = {
@@ -490,7 +482,6 @@ const EntryMapper: SFC<EntryMapperProps> = ({ Component, data }) =>
 type ResumeData = any;
 type PageProps = {
   data: ResumeData;
-  classes: any;
   [s: string]: any;
 };
 export const Page = withStyles({
@@ -530,7 +521,6 @@ export const Page = withStyles({
 })((({ classes, data }) => (
   <div className={classNames(classes.pageContainer, classes.pageGrid)}>
     <Header
-      details={data.details}
       otherClasses={{
         header: classNames(classes.header, classes.pageGrid),
       }}
@@ -559,4 +549,4 @@ export const Page = withStyles({
     </aside>
     <div className={classes.margin} />
   </div>
-)) as SFC<PageProps>);
+)) as SFC<PageProps & WithStyles<any>>);
