@@ -1,7 +1,7 @@
 {
   "name": "@pshaw/build-util",
   "description": "Tries to save some time by providing basic build configurations",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "main": "./src/index.js",
   "files": [
     "lib",

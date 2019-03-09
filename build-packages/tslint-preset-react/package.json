@@ -1,7 +1,7 @@
 {
   "name": "@pshaw/tslint-preset-react",
   "description": "A pratical React style preset for TSLint",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "main": "tslint.json",
   "files": [
     "tslint.json"
