@@ -1,4 +1,4 @@
-# Core
+# Writeme Core
 
 A readme generator
 
