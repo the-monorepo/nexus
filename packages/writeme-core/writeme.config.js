@@ -7,6 +7,7 @@ module.exports = async () => {
   );
   const examples = example;
   return {
+    title: 'Writeme Core',
     isDevPackage: true,
     sections: {
       examples,
