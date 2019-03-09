@@ -1,4 +1,4 @@
-export type HookCallback<P extends any[] = any[], T = any> = (...params: P) => Promise<T>;
+export type HookCallback<P extends any[] = any[], T = any> = (...params: P) => T;
 export type HookCallbackFactory<P extends any[] = any[], T = any> = () => HookCallback<
   P,
   T
@@ -48,6 +48,7 @@ export interface HookOptions<K extends HookSchema, O extends HookSchema> {
 }
 
 export type HookOptionsOf<T extends any> = Parameters<T['withHooks']>[0];
+export type CompleteHookOptionsOf<T extends any> = ReturnType<T['withHooks']>;
 
 export function defaultHook(): HookCallback {
   return async () => {};

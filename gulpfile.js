@@ -304,7 +304,7 @@ checkTypes.description =
 gulp.task('check-types', checkTypes);
 
 function checkTypesStaged() {
-  return withTypeCheckPipes(packagesSrcCodeStream().staged());
+  return withTypeCheckPipes(packagesSrcCodeStream().pipe(staged()));
 }
 gulp.task('check-types-staged', checkTypesStaged);
 
@@ -327,7 +327,7 @@ gulp.task('test', test);
 
 const precommit = gulp.series(
   gulp.parallel(gulp.series(formatStaged, transpile), copy),
-  gulp.parallel(checkTypes, testNoBuild, writeme),
+  gulp.parallel(checkTypesStaged, testNoBuild, writeme),
 );
 gulp.task('precommit', precommit);
 
