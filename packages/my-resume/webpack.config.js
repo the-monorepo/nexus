@@ -24,10 +24,6 @@ module.exports = {
           },
         ],
       },
-      {
-        test: /\.svg$/,
-        use: [{ loader: 'file-loader' }],
-      },
     ],
   },
   entry: join(__dirname, 'src/index.tsx'),
