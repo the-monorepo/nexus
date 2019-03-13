@@ -508,12 +508,14 @@ export const Page = withStyles({
     },
   },
   main: {
+    marginTop: '10px',
     gridColumn: 2,
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'column',
   },
   aside: {
+    marginTop: '10px',
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'column',

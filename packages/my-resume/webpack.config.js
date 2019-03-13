@@ -9,10 +9,18 @@ module.exports = {
   name: 'Resume',
   target: 'web',
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.svg'],
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
   },
   module: {
     rules: [
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
+      },
       {
         test: /\.[jt]sx?$/,
         use: [
