@@ -50,7 +50,7 @@ export const education = [
       wam: 80.06,
     },
     description: 'Expected to graduate in November 2019',
-    startDate: new Date(2019, 10),
+    startDate: new Date(2015, 2),
     endDate: null,
   },
   /*{
