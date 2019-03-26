@@ -1,9 +1,7 @@
-import './jsx';
+import { Page } from './components';
 
 export function createResume() {
-  return (
-    <div>
-      Test
-    </div>
+  return ({ data }) => (
+    <Page data={data} />
   );
 }
