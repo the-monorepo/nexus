@@ -3,7 +3,6 @@
 import { Typography, Link, withStyles, WithStyles } from '@material-ui/core';
 import classNames from 'classnames';
 import { format as formatDate } from 'date-fns/esm/index';
-import * as React from 'react';
 import { SFC } from 'react';
 import envelope from './envelope.svg';
 import github from './github.svg';
@@ -24,8 +23,10 @@ const ResumeLinkText = withStyles({
       display: 'inline-block',
     },
   },
-})((({ children, classes, ...other }) => (
+})((({ children, classes, href, ...other }) => (
   <>
+  {console.warn(href)}
+  {console.warn('awr', children)}
     <span {...other} className={classes.webLink}>
       {children}
     </span>
@@ -34,10 +35,35 @@ const ResumeLinkText = withStyles({
       so have to show the link as text
     */}
     <span {...other} className={classes.printLink}>
-      {other.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
+      {href.replace(/^(https?:\/\/(www\.)?|mailto:)/, '')}
     </span>
   </>
 )) as SFC<ResumeLinkTextProps & WithStyles<any>>);
+(() => {
+  const template = document.createElement('template');
+
+  const webLink = document.createElement('span');
+  webLink.className = 'web-link';
+
+  const printLink = document.createElement('span');
+  printLink.className = '';  
+  template.appendChild(webLink);
+  template.appendChild(printLink);
+
+  document.head.appendChild(template);
+})();
+class ResumeLinkTextElement extends HTMLElement {
+  constructor() {
+    super();
+    // const template = document.querySelector('#page-template') as HTMLTemplateElement;
+    const shadowRoot = this.attachShadow({ mode: 'open' });
+    console.log('rawrrawr', this.innerText);
+    console.log('ooooooo', this.getAttribute('children'));
+    //ReactDOM.render(<ResumeLinkText href={this.getAttribute('href')}><slot/></ResumeLinkText>, shadowRoot);
+    //shadowRoot.appendChild(template!.content.cloneNode(true));
+  }
+}
+window.customElements.define('x-resume-link', ResumeLinkTextElement);
 
 type ContactProps = {
   icon: {
@@ -65,7 +91,7 @@ const Contact = withStyles(
   <>
     <EntryLink className={classes.contact} href={href} {...other}>
       <img {...icon} aria-hidden className={classes.icon} />
-      <ResumeLinkText href={href}>{children}</ResumeLinkText>
+      <ResumeLinkText href={href}>Test</ResumeLinkText>
     </EntryLink>
   </>
 )) as SFC<ContactProps & WithStyles<any>>);
@@ -470,6 +496,19 @@ const HackathonEntry = withStyles({
     </Typography>
   </Entry>
 )) as SFC<HackathonEntryProps & WithStyles<any>>);
+/*
+class HackathonElement extends HTMLElement {
+  constructor() {
+    super();
+    // const template = document.querySelector('#page-template') as HTMLTemplateElement;
+    const shadowRoot = this.attachShadow({ mode: 'open' });
+    console.log(this.dataset)
+    ReactDOM.render(<HackathonEntry {...this.dataset}/>, shadowRoot, null);
+    //shadowRoot.appendChild(template!.content.cloneNode(true));
+  }
+}
+window.customElements.define('x-hackathon', HackathonElement);
+*/
 
 type EntryData = any;
 type EntryMapperProps = {
@@ -543,7 +582,7 @@ export const Page = withStyles({
         <EntryMapper Component={EducationEntry} data={data.education} />
       </EntryTopic>
       <EntryTopic heading="Hackathons">
-        <EntryMapper Component={HackathonEntry} data={data.hackathons} />
+        <EntryMapper Component={HackathonEntry} data={data.hackathons} />  
       </EntryTopic>
       <EntryTopic heading="Technical skills">
         <LabeledList items={data.technicalSkills} />
