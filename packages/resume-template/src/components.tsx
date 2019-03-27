@@ -14,38 +14,36 @@ const theme = {
   palette: {
     primary: {
       // TODO
-      main: '#FF0000'
+      main: '#FF0000',
     },
     // TODO
-    getContrastText: () => '#000000'
-  }
-}
+    getContrastText: () => '#000000',
+  },
+};
 
-const Typography = ({ children }: any) => (
-  <p>{children}</p>
-);
+const Typography = ({ children }: any) => <p>{children}</p>;
 
-const Link = (props) => (
-  <Typography {...props}/>
-);
+const Link = props => <Typography {...props} />;
 
 type ResumeLinkTextProps = {
   [s: string]: any;
 };
 (() => {
-  const { classes } = jss.createStyleSheet({
-    printLink: {
-      display: 'none',
-    },
-    '@media print': {
-      webLink: {
+  const { classes } = jss
+    .createStyleSheet({
+      printLink: {
         display: 'none',
       },
-      printLink: {
-        display: 'inline-block',
+      '@media print': {
+        webLink: {
+          display: 'none',
+        },
+        printLink: {
+          display: 'inline-block',
+        },
       },
-    },
-  }).attach();
+    })
+    .attach();
 
   class ResumeLinkTextElement extends HTMLElement {
     constructor() {
@@ -66,21 +64,21 @@ type ResumeLinkTextProps = {
               }
             }
           `}</style>
-          <span {...other} class='webLink'>
-            <slot/>
+          <span class="webLink">
+            <slot />
           </span>
           {/*
             People print resumes and most viewing on a computer don't expect links 
             so have to show the link as text
           */}
-          <span {...other} class='printLink'>
+          <span class="printLink">
             {this.dataset.url.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
           </span>
-        </>
+        </>,
       );
     }
   }
-  window.customElements.define('x-resume-link', ResumeLinkTextElement);  
+  window.customElements.define('x-resume-link', ResumeLinkTextElement);
 })();
 
 type ContactProps = {
@@ -92,29 +90,31 @@ type ContactProps = {
   [s: string]: any;
 };
 const Contact = (() => {
-  const { classes } = jss.createStyleSheet({
-    contact: {
-      color: theme.palette.getContrastText(theme.palette.primary.main),
-      display: 'block',
-    },
-    icon: {
-      width: '1em',
-      height: '1em',
-      verticalAlign: 'middle',
-      marginRight: '0.5em',
-    },
-  }).attach();
+  const { classes } = jss
+    .createStyleSheet({
+      contact: {
+        color: theme.palette.getContrastText(theme.palette.primary.main),
+        display: 'block',
+      },
+      icon: {
+        width: '1em',
+        height: '1em',
+        verticalAlign: 'middle',
+        marginRight: '0.5em',
+      },
+    })
+    .attach();
 
-  return ((({ children, icon, href, ...other }: any) => (
+  return ({ children, icon, href, ...other }: any) => (
     <>
       {console.warn('HERES A ATHIONG', children)}
       <EntryLink class={classes.contact} href={href} {...other}>
         <img {...icon} aria-hidden class={classes.icon} />
-        <x-resume-link>{children}</x-resume-link>
+        <x-resume-link url={href}>{children}</x-resume-link>
       </EntryLink>
     </>
-  )) );
-})()
+  );
+})();
 
 type HeaderProps = {
   otherClasses: any;
@@ -123,24 +123,26 @@ type HeaderProps = {
   };
 };
 const Header = (() => {
-  const { classes } = jss.createStyleSheet({
-    header: {
-      background: theme.palette.primary.main,
-    },
-    heading: {
-      color: theme.palette.getContrastText(theme.palette.primary.main),
-    },
-    headingContainer: {
-      gridColumn: '2',
-      flexDirection: 'row',
-      alignItems: 'center',
-      display: 'flex',
-    },
-    contact: {
-      gridColumn: '3',
-    },
-  }).attach();
-  return ((({ otherClasses, children, data }) => (
+  const { classes } = jss
+    .createStyleSheet({
+      header: {
+        background: theme.palette.primary.main,
+      },
+      heading: {
+        color: theme.palette.getContrastText(theme.palette.primary.main),
+      },
+      headingContainer: {
+        gridColumn: '2',
+        flexDirection: 'row',
+        alignItems: 'center',
+        display: 'flex',
+      },
+      contact: {
+        gridColumn: '3',
+      },
+    })
+    .attach();
+  return ({ otherClasses, children, data }) => (
     <header class={classNames(classes.header, otherClasses.header)}>
       <div class={classes.headingContainer}>
         <Typography
@@ -167,27 +169,29 @@ const Header = (() => {
         </Contact>
       </section>
     </header>
-  )) )
+  );
 })();
 
 type EntryTopicProps = {
   [s: string]: any;
 };
 const EntryTopic = (() => {
-  const { classes } = jss.createStyleSheet({
-    entryTopic: {
-      '&>*': {
-        // '&:not(:last-child)': {
-        marginBottom: '24px',
-        // },<
+  const { classes } = jss
+    .createStyleSheet({
+      entryTopic: {
+        '&>*': {
+          // '&:not(:last-child)': {
+          marginBottom: '24px',
+          // },<
+        },
       },
-    },
-  }).attach();
-  return ((({ children, ...other }) => (
+    })
+    .attach();
+  return ({ children, ...other }) => (
     <Topic otherClasses={{ container: classes.entryTopic }} {...other}>
       {children}
     </Topic>
-  )) )
+  );
 })();
 
 type TopicProps = {
@@ -196,37 +200,34 @@ type TopicProps = {
   [s: string]: any;
 };
 const Topic = (() => {
-  const { classes } = jss.createStyleSheet({
-    heading: {
-      fontWeight: theme.typography.fontWeightMedium,
-    },
-    /*'@media print': {
+  const { classes } = jss
+    .createStyleSheet({
+      heading: {
+        fontWeight: theme.typography.fontWeightMedium,
+      },
+      /*'@media print': {
       container: {
         pageBreakInside: 'avoid',
         breakInside: 'avoid',
       },
     },*/
-  }).attach();
-  return ((({
-    heading,
-    children,
-    otherClasses = { container: undefined },
-    ...other
-  }) => (
-  <section class={otherClasses.container}>
-    <Typography
-      variant="subtitle2"
-      color="primary"
-      component="h1"
-      // color="textSecondary"
-      class={classes.heading}
-      {...other}
-    >
-      {heading}
-    </Typography>
-    {children}
-  </section>
-)) )
+    })
+    .attach();
+  return ({ heading, children, otherClasses = { container: undefined }, ...other }) => (
+    <section class={otherClasses.container}>
+      <Typography
+        variant="subtitle2"
+        color="primary"
+        component="h1"
+        // color="textSecondary"
+        class={classes.heading}
+        {...other}
+      >
+        {heading}
+      </Typography>
+      {children}
+    </section>
+  );
 })();
 
 type EntryProps = {
@@ -240,18 +241,20 @@ type EntryProps = {
   dateFormat?: string;
 };
 const Entry = (() => {
-  const { classes } = jss.createStyleSheet({
-    subtext: {
-      marginBottom: '12px',
-    },
-    entryHeading: {
-      display: 'inline-block',
-    },
-    leftHeading: {
-      fontWeight: theme.typography.fontWeightMedium,
-    },
-  }).attach();
-  return ((({
+  const { classes } = jss
+    .createStyleSheet({
+      subtext: {
+        marginBottom: '12px',
+      },
+      entryHeading: {
+        display: 'inline-block',
+      },
+      leftHeading: {
+        fontWeight: theme.typography.fontWeightMedium,
+      },
+    })
+    .attach();
+  return ({
     leftHeading,
     description,
     startDate,
@@ -289,7 +292,7 @@ const Entry = (() => {
       ) : null}
       <KeyPoints component="p" color="textSecondary" keyPoints={keyPoints} />
     </section>
-  )));
+  );
 })();
 
 type Grade = {
@@ -302,12 +305,7 @@ type Education = {
   grade: Grade;
 };
 type EducationEntryProps = { [s: string]: any } & Education;
-const EducationEntry = ({
-  school,
-  grade,
-  course,
-  ...other
-}) => (
+const EducationEntry = ({ school, grade, course, ...other }) => (
   <Entry
     leftHeading={school}
     rightHeading={course}
@@ -368,32 +366,36 @@ type ListLabelProps = {
   [s: string]: any;
 };
 const ListLabel = (() => {
-  const { classes } = jss.createStyleSheet({
-    label: {
-      fontWeight: theme.typography.fontWeightMedium,
-    },
-  }).attach();
-  return (({ children, ...other }) => (
+  const { classes } = jss
+    .createStyleSheet({
+      label: {
+        fontWeight: theme.typography.fontWeightMedium,
+      },
+    })
+    .attach();
+  return ({ children, ...other }) => (
     <EntryText class={classes.label} color="textPrimary" {...other}>
       {children}
     </EntryText>
-  )) ;
+  );
 })();
 
 type LabeledListProps = {
   [s: string]: any;
 };
 const LabeledList = (() => {
-  const { classes } = jss.createStyleSheet({
-    list: {
-      '&>*': {
-        '&:not(:last-child)': {
-          marginBottom: '12px',
+  const { classes } = jss
+    .createStyleSheet({
+      list: {
+        '&>*': {
+          '&:not(:last-child)': {
+            marginBottom: '12px',
+          },
         },
       },
-    },
-  }).attach();
-  return (({ ...other }) => (
+    })
+    .attach();
+  return ({ ...other }) => (
     <div class={classes.list}>
       {other.items.map(({ label, items }, index) => (
         <p key={index}>
@@ -406,19 +408,21 @@ const LabeledList = (() => {
         </p>
       ))}
     </div>
-  )) ;
+  );
 })();
 
 const Ul = (() => {
-  const { classes } = jss.createStyleSheet({
-    list: {
-      listStylePosition: 'inside',
-      paddingLeft: 0,
-      marginBlockStart: '0em',
-      marginBlockEnd: '0em',
-    },
-  }).attach();
-  return (({ children, classes }: any) => <ul class={classes.list}>{children}</ul>);
+  const { classes } = jss
+    .createStyleSheet({
+      list: {
+        listStylePosition: 'inside',
+        paddingLeft: 0,
+        marginBlockStart: '0em',
+        marginBlockEnd: '0em',
+      },
+    })
+    .attach();
+  return ({ children, classes }: any) => <ul class={classes.list}>{children}</ul>;
 })();
 
 type KeyPointItemProps = {
@@ -458,12 +462,9 @@ type Experience = {
 type ExperienceEntryProps = {
   [s: string]: any;
 } & Experience;
-const ExperienceEntry = ({
-  company,
-  job,
-  location,
-  ...other
-}) => <Entry leftHeading={company} rightHeading={job} subtext={location} {...other} />;
+const ExperienceEntry = ({ company, job, location, ...other }) => (
+  <Entry leftHeading={company} rightHeading={job} subtext={location} {...other} />
+);
 
 type Volunteering = {
   organization: string;
@@ -472,11 +473,9 @@ type Volunteering = {
 type VolunteeringEntryProps = {
   [s: string]: any;
 } & Volunteering;
-const VolunteeringExperience = ({
-  organization,
-  role,
-  ...other
-}) => <Entry leftHeading={organization} rightHeading={role} {...other} />;
+const VolunteeringExperience = ({ organization, role, ...other }) => (
+  <Entry leftHeading={organization} rightHeading={role} {...other} />
+);
 const listSentence = items =>
   [items.slice(0, -1).join(', '), items.slice(-1)[0]].join(
     items.length < 2 ? '' : ' and ',
@@ -508,12 +507,14 @@ type HackathonEntryProps = {
   [s: string]: any;
 } & Hackathon;
 const HackathonEntry = (() => {
-  const { classes } = jss.createStyleSheet({
-    prize: {
-      marginBottom: '12px',
-    },
-  }).attach();
-  return (({ hack, event, prize, technologies, ...other }) => (
+  const { classes } = jss
+    .createStyleSheet({
+      prize: {
+        marginBottom: '12px',
+      },
+    })
+    .attach();
+  return ({ hack, event, prize, technologies, ...other }) => (
     <Entry
       leftHeading={event}
       rightHeading={hack}
@@ -525,7 +526,7 @@ const HackathonEntry = (() => {
         <em>{prize}</em>
       </Typography>
     </Entry>
-  )) ;
+  );
 })();
 /*
 class HackathonElement extends HTMLElement {
@@ -555,44 +556,46 @@ type PageProps = {
   [s: string]: any;
 };
 export const Page = (() => {
-  const { classes } = jss.createStyleSheet({
-    pageGrid: {
-      display: 'grid',
-      // gridAutoColumns: 'auto',
-      gridTemplateColumns:
-        'minmax(24px, 1fr) minmax(392px, 444px) minmax(252px, 300px) minmax(24px, 1fr)',
-      gridGap: '24px',
-    },
-    margin: {
-      visibility: 'hidden',
-    },
-    header: {
-      gridColumn: 'span 4',
-      paddingTop: '32px',
-      paddingBottom: '32px',
-    },
-    topicEntries: {
-      '&>*': {
-        // '&:not(:last-child)': {
-        marginBottom: '24px',
-        // },
+  const { classes } = jss
+    .createStyleSheet({
+      pageGrid: {
+        display: 'grid',
+        // gridAutoColumns: 'auto',
+        gridTemplateColumns:
+          'minmax(24px, 1fr) minmax(392px, 444px) minmax(252px, 300px) minmax(24px, 1fr)',
+        gridGap: '24px',
       },
-    },
-    main: {
-      marginTop: '10px',
-      gridColumn: 2,
-      display: 'flex',
-      justifyContent: 'space-between',
-      flexDirection: 'column',
-    },
-    aside: {
-      marginTop: '10px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      flexDirection: 'column',
-    },
-  }).attach();
-  return (({ data }) => (
+      margin: {
+        visibility: 'hidden',
+      },
+      header: {
+        gridColumn: 'span 4',
+        paddingTop: '32px',
+        paddingBottom: '32px',
+      },
+      topicEntries: {
+        '&>*': {
+          // '&:not(:last-child)': {
+          marginBottom: '24px',
+          // },
+        },
+      },
+      main: {
+        marginTop: '10px',
+        gridColumn: 2,
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+      },
+      aside: {
+        marginTop: '10px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+      },
+    })
+    .attach();
+  return ({ data }) => (
     <div class={classNames(classes.pageContainer, classes.pageGrid)}>
       <Header
         otherClasses={{
@@ -615,7 +618,7 @@ export const Page = (() => {
           <EntryMapper Component={EducationEntry} data={data.education} />
         </EntryTopic>
         <EntryTopic heading="Hackathons">
-          <EntryMapper Component={HackathonEntry} data={data.hackathons} />  
+          <EntryMapper Component={HackathonEntry} data={data.hackathons} />
         </EntryTopic>
         <EntryTopic heading="Technical skills">
           <LabeledList items={data.technicalSkills} />
@@ -623,5 +626,5 @@ export const Page = (() => {
       </aside>
       <div class={classes.margin} />
     </div>
-  )) ;
+  );
 })();
