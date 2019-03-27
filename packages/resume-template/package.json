@@ -29,6 +29,7 @@
     "classnames": "^2.2.6",
     "date-fns": "^2.0.0-alpha.27",
     "jss": "^9.8.7",
+    "jss-plugin-camel-case": "^10.0.0-alpha.7",
     "react": "^16.8.2",
     "react-jss": "^8.6.1"
   },
