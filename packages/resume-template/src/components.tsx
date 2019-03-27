@@ -32,7 +32,7 @@ const Link = (props) => (
 type ResumeLinkTextProps = {
   [s: string]: any;
 };
-const ResumeLinkText = (() => {
+(() => {
   const { classes } = jss.createStyleSheet({
     printLink: {
       display: 'none',
@@ -46,22 +46,41 @@ const ResumeLinkText = (() => {
       },
     },
   }).attach();
-  return (({ children, href, ...other }: any) => (
-    <>
-    {console.warn(href)}
-    {console.warn('awr', children)}
-      <span {...other} class={classes.webLink}>
-        {children}
-      </span>
-      {/*
-        People print resumes and most viewing on a computer don't expect links 
-        so have to show the link as text
-      */}
-      <span {...other} class={classes.printLink}>
-        {href.replace(/^(https?:\/\/(www\.)?|mailto:)/, '')}
-      </span>
-    </>
-  )) ;
+
+  class ResumeLinkTextElement extends HTMLElement {
+    constructor() {
+      super();
+      const shadow = this.attachShadow({ mode: 'open' });
+      shadow.appendChild(
+        <>
+          <style>{`
+            .printLink {
+              display: 'none';
+            }
+            @media print {
+              .webLink {
+                display: 'none';
+              }
+              .printLink {
+                display: 'inline-block'
+              }
+            }
+          `}</style>
+          <span {...other} class='webLink'>
+            <slot/>
+          </span>
+          {/*
+            People print resumes and most viewing on a computer don't expect links 
+            so have to show the link as text
+          */}
+          <span {...other} class='printLink'>
+            {this.dataset.url.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
+          </span>
+        </>
+      );
+    }
+  }
+  window.customElements.define('x-resume-link', ResumeLinkTextElement);  
 })();
 
 type ContactProps = {
@@ -85,11 +104,13 @@ const Contact = (() => {
       marginRight: '0.5em',
     },
   }).attach();
+
   return ((({ children, icon, href, ...other }: any) => (
     <>
+      {console.warn('HERES A ATHIONG', children)}
       <EntryLink class={classes.contact} href={href} {...other}>
         <img {...icon} aria-hidden class={classes.icon} />
-        <ResumeLinkText href={href}>Test</ResumeLinkText>
+        <x-resume-link>{children}</x-resume-link>
       </EntryLink>
     </>
   )) );
@@ -329,6 +350,7 @@ type EntryLinkProps = {
 };
 const EntryLink = ({ children, ...other }) => (
   <Link variant="caption" color="secondary" {...other}>
+    {console.error('BLEH', children)}
     {children}
   </Link>
 );
