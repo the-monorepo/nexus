@@ -50,14 +50,14 @@ const ResumeLinkText = (() => {
     <>
     {console.warn(href)}
     {console.warn('awr', children)}
-      <span {...other} className={classes.webLink}>
+      <span {...other} class={classes.webLink}>
         {children}
       </span>
       {/*
         People print resumes and most viewing on a computer don't expect links 
         so have to show the link as text
       */}
-      <span {...other} className={classes.printLink}>
+      <span {...other} class={classes.printLink}>
         {href.replace(/^(https?:\/\/(www\.)?|mailto:)/, '')}
       </span>
     </>
@@ -73,7 +73,7 @@ type ContactProps = {
   [s: string]: any;
 };
 const Contact = (() => {
-  const { classes } = jss.createStyleSheet(theme => ({
+  const { classes } = jss.createStyleSheet({
     contact: {
       color: theme.palette.getContrastText(theme.palette.primary.main),
       display: 'block',
@@ -84,11 +84,11 @@ const Contact = (() => {
       verticalAlign: 'middle',
       marginRight: '0.5em',
     },
-  })).attach();
+  }).attach();
   return ((({ children, icon, href, ...other }: any) => (
     <>
-      <EntryLink className={classes.contact} href={href} {...other}>
-        <img {...icon} aria-hidden className={classes.icon} />
+      <EntryLink class={classes.contact} href={href} {...other}>
+        <img {...icon} aria-hidden class={classes.icon} />
         <ResumeLinkText href={href}>Test</ResumeLinkText>
       </EntryLink>
     </>
@@ -120,11 +120,11 @@ const Header = (() => {
     },
   }).attach();
   return ((({ otherClasses, children, data }) => (
-    <header className={classNames(classes.header, otherClasses.header)}>
-      <div className={classes.headingContainer}>
+    <header class={classNames(classes.header, otherClasses.header)}>
+      <div class={classes.headingContainer}>
         <Typography
           variant="h3"
-          className={classNames(classes.heading, otherClasses.heading)}
+          class={classNames(classes.heading, otherClasses.heading)}
         >
           {children}
         </Typography>
@@ -192,13 +192,13 @@ const Topic = (() => {
     otherClasses = { container: undefined },
     ...other
   }) => (
-  <section className={otherClasses.container}>
+  <section class={otherClasses.container}>
     <Typography
       variant="subtitle2"
       color="primary"
       component="h1"
       // color="textSecondary"
-      className={classes.heading}
+      class={classes.heading}
       {...other}
     >
       {heading}
@@ -245,17 +245,17 @@ const Entry = (() => {
       {leftHeading ? (
         <EntryHeading
           component="h1"
-          className={classNames(classes.entryHeading, classes.leftHeading)}
+          class={classNames(classes.entryHeading, classes.leftHeading)}
         >
           {leftHeading} /&nbsp;
         </EntryHeading>
       ) : null}
-      <EntryHeading component="h2" className={classes.entryHeading}>
+      <EntryHeading component="h2" class={classes.entryHeading}>
         {rightHeading}
       </EntryHeading>
       {/*TODO: Subtext won't appear if no date*/}
       {startDate || endDate ? (
-        <EntryText component="p" variant="caption" className={classes.subtext}>
+        <EntryText component="p" variant="caption" class={classes.subtext}>
           <DateRange start={startDate} end={endDate} format={dateFormat} />
           {subtext ? `, ${subtext}` : null}
         </EntryText>
@@ -352,7 +352,7 @@ const ListLabel = (() => {
     },
   }).attach();
   return (({ children, ...other }) => (
-    <EntryText className={classes.label} color="textPrimary" {...other}>
+    <EntryText class={classes.label} color="textPrimary" {...other}>
       {children}
     </EntryText>
   )) ;
@@ -372,7 +372,7 @@ const LabeledList = (() => {
     },
   }).attach();
   return (({ ...other }) => (
-    <div className={classes.list}>
+    <div class={classes.list}>
       {other.items.map(({ label, items }, index) => (
         <p key={index}>
           <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
@@ -396,7 +396,7 @@ const Ul = (() => {
       marginBlockEnd: '0em',
     },
   }).attach();
-  return (({ children, classes }: any) => <ul className={classes.list}>{children}</ul>);
+  return (({ children, classes }: any) => <ul class={classes.list}>{children}</ul>);
 })();
 
 type KeyPointItemProps = {
@@ -499,7 +499,7 @@ const HackathonEntry = (() => {
       startDate={undefined}
       endDate={undefined}
     >
-      <Typography component="p" variant="caption" className={classes.prize}>
+      <Typography component="p" variant="caption" class={classes.prize}>
         <em>{prize}</em>
       </Typography>
     </Entry>
@@ -569,9 +569,9 @@ export const Page = (() => {
       justifyContent: 'space-between',
       flexDirection: 'column',
     },
-  });
+  }).attach();
   return (({ data }) => (
-    <div className={classNames(classes.pageContainer, classes.pageGrid)}>
+    <div class={classNames(classes.pageContainer, classes.pageGrid)}>
       <Header
         otherClasses={{
           header: classNames(classes.header, classes.pageGrid),
@@ -580,7 +580,7 @@ export const Page = (() => {
       >
         {data.details.name}
       </Header>
-      <main className={classes.main}>
+      <main class={classes.main}>
         <EntryTopic heading="Experience">
           <EntryMapper Component={ExperienceEntry} data={data.work} />
         </EntryTopic>
@@ -588,7 +588,7 @@ export const Page = (() => {
           <EntryMapper Component={ProjectEntry} data={data.projects} />
         </EntryTopic>
       </main>
-      <aside className={classes.aside}>
+      <aside class={classes.aside}>
         <EntryTopic heading="Education">
           <EntryMapper Component={EducationEntry} data={data.education} />
         </EntryTopic>
@@ -599,7 +599,7 @@ export const Page = (() => {
           <LabeledList items={data.technicalSkills} />
         </EntryTopic>
       </aside>
-      <div className={classes.margin} />
+      <div class={classes.margin} />
     </div>
   )) ;
 })();
