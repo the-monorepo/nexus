@@ -6,7 +6,6 @@ import jss from 'jss';
 import envelope from './envelope.svg';
 import github from './github.svg';
 import linkedin from './linkedin.svg';
-
 const theme = {
   typography: {
     fontWeightMedium: 500,
@@ -46,35 +45,37 @@ type ResumeLinkTextProps = {
     .attach();
 
   class ResumeLinkTextElement extends HTMLElement {
-    constructor() {
-      super();
-      const shadow = this.attachShadow({ mode: 'open' });
-      shadow.appendChild(
+    connectedCallback() {
+      const href = this.getAttribute('href');
+ 
+      console.warn('RAWRAWRWR', href);
+    
+      this.attachShadow({ mode: 'open' }).appendChild(
         <>
           <style>{`
             .printLink {
-              display: 'none';
+              display: none;
             }
             @media print {
               .webLink {
-                display: 'none';
+                display: none;
               }
               .printLink {
-                display: 'inline-block'
+                display: inline-block;
               }
             }
           `}</style>
-          <span class="webLink">
+          <span class='webLink'>
             <slot />
           </span>
           {/*
-            People print resumes and most viewing on a computer don't expect links 
+            People who print the resume can't click on the link, obviously, 
             so have to show the link as text
-          */}
-          <span class="printLink">
-            {this.dataset.url.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
+          */}          
+          <span class='printLink'>
+            {href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
           </span>
-        </>,
+        </>
       );
     }
   }
@@ -110,7 +111,7 @@ const Contact = (() => {
       {console.warn('HERES A ATHIONG', children)}
       <EntryLink class={classes.contact} href={href} {...other}>
         <img {...icon} aria-hidden class={classes.icon} />
-        <x-resume-link url={href}>{children}</x-resume-link>
+        <x-resume-link href={href}>{children}</x-resume-link>
       </EntryLink>
     </>
   );
