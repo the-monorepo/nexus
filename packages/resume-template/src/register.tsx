@@ -1,26 +1,34 @@
-window.Fragment = function Fragment(children) {
+window.Fragment = function Fragment({children}) {
   const fragment = document.createDocumentFragment();
+  console.log(children);
   if (!!children) {
-    children.filter(child => !!child).forEach(child => fragment.appendChild(child));
+    addChildren(fragment, children);
   }
   return fragment;
 }
 
 function addChildren(element, children) {
-  children.filter(child => !!child).forEach(child => {
-    if (typeof child === 'string') {
-      element.appendChild(document.createTextNode(child));
-    } else if (Array.isArray(child)) {
+  children.filter(child => !!child).forEach(component => {
+    const child = typeof component === 'function' ? component() : component;
+    if (Array.isArray(child)) {
       addChildren(element, child);
     } else {
-      element.appendChild(child);
+      element.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
     }
   })
 }
 
 window.dom = function dom(component, attributes, ...children) {
+  if (!!attributes && !!attributes.children) {
+    children = attributes.children;
+  }
+  console.warn('children', children);
+  console.log(attributes);
   // Figure out component
-  const tag = typeof component === 'function' ? component(attributes) : component;
+  if (typeof component === 'function') {
+    return component({ ...attributes, children });    
+  } 
+  const tag = component;
 
   // Create the component
   const element = (() => {
@@ -42,4 +50,5 @@ window.dom = function dom(component, attributes, ...children) {
   addChildren(element, children);
 
   return element;
+
 }
