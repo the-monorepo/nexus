@@ -25,15 +25,17 @@ window.dom = function dom(component, attributes, ...children) {
   //console.warn('children', children);
   //console.log(attributes);
   // Figure out component
-  if (typeof component === 'function') {
+  if ((typeof component === 'function') && !(component.prototype instanceof HTMLElement)) {
     return component({ ...attributes, children });    
   } 
   const tag = component;
 
   // Create the component
   const element = (() => {
-    if (typeof tag === 'string') {
-      const newElement = document.createElement(tag);
+    if (typeof tag === 'string' || (tag.prototype instanceof HTMLElement)) {
+      console.log('tag', tag);
+      const newElement = typeof tag === 'string' ? document.createElement(tag) : new tag();
+      console.log('created element', newElement);
       // Set props
       if (attributes) {
         Object.keys(attributes)
