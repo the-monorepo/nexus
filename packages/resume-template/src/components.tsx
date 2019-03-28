@@ -27,7 +27,7 @@ const Link = props => <Typography {...props} />;
 type ResumeLinkTextProps = {
   [s: string]: any;
 };
-class ResumeLinkTextElement extends HTMLElement {
+class ResumeLinkText extends HTMLElement {
   connectedCallback() {     
     this.attachShadow({ mode: 'open' }).appendChild(
       <>
@@ -58,7 +58,7 @@ class ResumeLinkTextElement extends HTMLElement {
     );
   }
 }
-window.customElements.define('x-resume-link', ResumeLinkTextElement);
+window.customElements.define('x-resume-link', ResumeLinkText);
 
 type ContactProps = {
   icon: {
@@ -68,7 +68,7 @@ type ContactProps = {
   href: string;
   [s: string]: any;
 };
-class ContactElement extends HTMLElement {
+class Contact extends HTMLElement {
   connectedCallback() {
     const color = theme.palette.getContrastText(theme.palette.primary.main);
     console.warn('EEEEEEEEEEEE', this.icon)
@@ -88,16 +88,16 @@ class ContactElement extends HTMLElement {
             margin-right: 0.5em;
           }
           `}</style>
-          <x-entry-link className='contact' href={this.href}>
+          <EntryLink className='contact' href={this.href}>
             <img {...this.icon} aria-hidden className='icon' />
-            <x-resume-link href={this.href}><slot/></x-resume-link>
-          </x-entry-link>
+            <ResumeLinkText href={this.href}><slot/></ResumeLinkText>
+          </EntryLink>
         </>
       );
   }
 }
 
-window.customElements.define('x-contact', ContactElement); 
+window.customElements.define('x-contact', Contact); 
 
 type HeaderProps = {
   otherClasses: any;
@@ -113,7 +113,7 @@ const pageGridRule = `
   grid-gap: 24px;
 }
 `
-class HeaderElement extends HTMLElement {
+class Header extends HTMLElement {
   connectedCallback() {
     const color = theme.palette.getContrastText(theme.palette.primary.main);
     this.attachShadow({ mode: 'open' })
@@ -155,29 +155,29 @@ class HeaderElement extends HTMLElement {
                   <a href={data.details.website}>{data.details.website}</a>
                 </Contact>
               */}
-              <x-contact icon={{ src: envelope }} href={`mailto:${this.data.details.email}`}>
+              <Contact icon={{ src: envelope }} href={`mailto:${this.data.details.email}`}>
                 Email
-              </x-contact>
-              <x-contact icon={{ src: linkedin }} href={this.data.details.linkedin}>
+              </Contact>
+              <Contact icon={{ src: linkedin }} href={this.data.details.linkedin}>
                 LinkedIn
-              </x-contact>
-              <x-contact icon={{ src: github }} href={this.data.details.github}>
+              </Contact>
+              <Contact icon={{ src: github }} href={this.data.details.github}>
                 Github
-              </x-contact>
+              </Contact>
             </section>
             </header>
           </>
         );
   }
 }
-window.customElements.define('x-header', HeaderElement)
+window.customElements.define('x-header', Header)
 
 type TopicProps = {
   heading: any;
   otherClasses: any;
   [s: string]: any;
 };
-class TopicElement extends HTMLElement {
+class Topic extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -203,12 +203,12 @@ class TopicElement extends HTMLElement {
       )
   }
 }
-window.customElements.define('x-topic', TopicElement);
+window.customElements.define('x-topic', Topic);
 
 type EntryTopicProps = {
   [s: string]: any;
 };
-class EntryTopicElement extends HTMLElement {
+class EntryTopic extends HTMLElement {
   connectedCallback() {
     // TODO: Get rid of the !important at some point :P
     this.attachShadow({ mode: 'open' })
@@ -219,14 +219,14 @@ class EntryTopicElement extends HTMLElement {
               margin-bottom: 24px !important;
             }
           `}</style>
-          <x-topic className='entryTopic' heading={this.heading}>
+          <Topic className='entryTopic' heading={this.heading}>
             <slot />
-          </x-topic>  
+          </Topic>  
         </>
       )    
   }
 }
-window.customElements.define('x-entry-topic', EntryTopicElement);
+window.customElements.define('x-entry-topic', EntryTopic);
 
 type EntryProps = {
   leftHeading?: string;
@@ -239,7 +239,7 @@ type EntryProps = {
   dateFormat?: string;
 };
 
-class EntryElement extends HTMLElement {
+class Entry extends HTMLElement {
   private _dateFormat?: string;
   set dateFormat(value) {
     this._dateFormat = value;
@@ -265,36 +265,36 @@ class EntryElement extends HTMLElement {
           `}</style>
             <section>
             {this.leftHeading ? (
-              <x-entry-heading
+              <EntryHeading
                 component="h1"
                 className='entryHeading leftHeading'
               >
                 {this.leftHeading} /&nbsp;
-              </x-entry-heading>
+              </EntryHeading>
             ) : null}
-            <x-entry-heading component="h2" className='entryHeading'>
+            <EntryHeading component="h2" className='entryHeading'>
               {this.rightHeading}
-            </x-entry-heading>
+            </EntryHeading>
             {/*TODO: Subtext won't appear if no date*/}
             {this.startDate || this.endDate ? (
-              <x-entry-text component="p" variant="caption" className='subtext'>
-                <x-date-range start={this.startDate} end={this.endDate} format={this.dateFormat} />
+              <EntryText component="p" variant="caption" className='subtext'>
+                <DateRange start={this.startDate} end={this.endDate} format={this.dateFormat} />
                 {this.subtext ? `, ${this.subtext}` : null}
-              </x-entry-text>
+              </EntryText>
             ) : null}
             <slot/>
             {this.description ? (
-              <x-entry-text component="p" color="textSecondary">
+              <EntryText component="p" color="textSecondary">
                 {this.description.replace(/\.?\s*$/, '.')}
-              </x-entry-text>
+              </EntryText>
             ) : null}
-            <x-key-points component="p" color="textSecondary" keyPoints={this.keyPoints} />
+            <KeyPoints component="p" color="textSecondary" keyPoints={this.keyPoints} />
           </section>
         </>
       )
   }
 }
-window.customElements.define('x-entry', EntryElement)
+window.customElements.define('x-entry', Entry)
 
 type Grade = {
   gpa: number;
@@ -306,11 +306,11 @@ type Education = {
   grade: Grade;
 };
 type EducationEntryProps = { [s: string]: any } & Education;
-class EducationElement extends HTMLElement {
+class EducationEntry extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
-        <x-entry
+        <Entry
           leftHeading={this.school}
           rightHeading={this.course}
           subtext={`GPA: ${this.grade.gpa}, WAM: ${this.grade.wam}`}
@@ -319,14 +319,14 @@ class EducationElement extends HTMLElement {
       );
   }
 }
-window.customElements.define('x-education', EducationElement);
+window.customElements.define('x-education', EducationEntry);
 
 type DateRangeProps = {
   start?: Date;
   end?: Date;
   format?: string;
 };
-class DateRangeElement extends HTMLElement {
+class DateRange extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open'})
       .appendChild(
@@ -345,12 +345,12 @@ class DateRangeElement extends HTMLElement {
       );
   }
 }
-window.customElements.define('x-date-range', DateRangeElement);
+window.customElements.define('x-date-range', DateRange);
 
 type EntryHeadingProps = {
   [s: string]: any;
 };
-class EntryHeadingElement extends HTMLElement {
+class EntryHeading extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -360,12 +360,12 @@ class EntryHeadingElement extends HTMLElement {
       );
   }
 }
-window.customElements.define('x-entry-heading', EntryHeadingElement);
+window.customElements.define('x-entry-heading', EntryHeading);
 
 type EntryLinkProps = {
   [s: string]: any;
 };
-class EntryLinkElement extends HTMLElement {
+class EntryLink extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -376,12 +376,12 @@ class EntryLinkElement extends HTMLElement {
   }
 }
 
-window.customElements.define('x-entry-link', EntryLinkElement);
+window.customElements.define('x-entry-link', EntryLink);
 
 type EntryTextProps = {
   [s: string]: any;
 };
-class EntryTextElement extends HTMLElement {
+class EntryText extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -391,12 +391,12 @@ class EntryTextElement extends HTMLElement {
     );
   }
 }
-window.customElements.define('x-entry-text', EntryTextElement);
+window.customElements.define('x-entry-text', EntryText);
 
 type ListLabelProps = {
   [s: string]: any;
 };
-class ListLabelElement extends HTMLElement {
+class ListLabel extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -406,19 +406,19 @@ class ListLabelElement extends HTMLElement {
               font-weight: ${theme.typography.fontWeightMedium};
             }
           `}</style>
-          <x-entry-text className='label' color="textPrimary" {...this}>
+          <EntryText className='label' color="textPrimary" {...this}>
             <slot/>
-          </x-entry-text>  
+          </EntryText>  
         </>
       );
   }
 }
-window.customElements.define('x-list-label', ListLabelElement);
+window.customElements.define('x-list-label', ListLabel);
 
 type LabeledListProps = {
   [s: string]: any;
 };
-class LabeledListElement extends HTMLElement {
+class LabeledList extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -432,12 +432,12 @@ class LabeledListElement extends HTMLElement {
           <div className='list'>
           {this.items.map(({ label, items }) => (
             <p>
-              <x-list-label component="span" style={{ display: 'inline' }} paragraph={false}>
+              <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
                 {label}:
-              </x-list-label>{' '}
-              <x-entry-text component="span" style={{ display: 'inline' }} paragraph={false}>
+              </ListLabel>{' '}
+              <EntryText component="span" style={{ display: 'inline' }} paragraph={false}>
                 {skillsSentence(items)}
-              </x-entry-text>
+              </EntryText>
             </p>
           ))}
         </div>
@@ -446,7 +446,7 @@ class LabeledListElement extends HTMLElement {
       )
   }
 }
-window.customElements.define('x-labeled-list', LabeledListElement);
+window.customElements.define('x-labeled-list', LabeledList);
 
 const Ul = (() => {
   const { classes } = jss
@@ -465,23 +465,23 @@ const Ul = (() => {
 type KeyPointItemProps = {
   [s: string]: any;
 };
-class KeyPointElement extends HTMLElement {
+class KeyPoint extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
-        <x-entry-text component="span" {...this}>
+        <EntryText component="span" {...this}>
           <slot/>
-        </x-entry-text>    
+        </EntryText>    
       );
   }
 }
-window.customElements.define('x-key-point', KeyPointElement);
+window.customElements.define('x-key-point', KeyPoint);
 type KeyPoint = string;
 type KeyPointsProps = {
   keyPoints?: KeyPoint[];
   [s: string]: any;
 };
-class KeyPointsElement extends HTMLElement {
+class KeyPoints extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -489,14 +489,14 @@ class KeyPointsElement extends HTMLElement {
           {
             this.keyPoints && this.keyPoints.length > 0 ? <>
               {this.keyPoints.slice(0, -1).map((keyPoint, index) => (
-                <x-key-point {...this} key={index}>
+                <KeyPoint {...this} key={index}>
                   {keyPoint}
-                </x-key-point>
+                </KeyPoint>
               ))}
               {
-                <x-key-point {...this} gutterBottom>
+                <KeyPoint {...this} gutterBottom>
                   {this.keyPoints[this.keyPoints.length - 1]}
-                </x-key-point>
+                </KeyPoint>
               }
             </> : null
           }
@@ -504,7 +504,7 @@ class KeyPointsElement extends HTMLElement {
       );
   }
 }
-window.customElements.define('x-key-points', KeyPointsElement);
+window.customElements.define('x-key-points', KeyPoints);
 type Experience = {
   company: string;
   job: string;
@@ -513,15 +513,15 @@ type Experience = {
 type ExperienceEntryProps = {
   [s: string]: any;
 } & Experience;
-class ExperienceElement extends HTMLElement {
+class ExperienceEntry extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
-        <x-entry leftHeading={this.company} rightHeading={this.job} subtext={this.location} {...this} />
+        <Entry leftHeading={this.company} rightHeading={this.job} subtext={this.location} {...this} />
       )
   }
 }
-window.customElements.define('x-experience', ExperienceElement);
+window.customElements.define('x-experience', ExperienceEntry);
 
 type Volunteering = {
   organization: string;
@@ -531,7 +531,7 @@ type VolunteeringEntryProps = {
   [s: string]: any;
 } & Volunteering;
 const VolunteeringExperience = ({ organization, role, ...other }) => (
-  <x-entry leftHeading={organization} rightHeading={role} {...other} />
+  <Entry leftHeading={organization} rightHeading={role} {...other} />
 );
 const listSentence = items =>
   [items.slice(0, -1).join(', '), items.slice(-1)[0]].join(
@@ -550,15 +550,15 @@ type Project = {
 type ProjectEntryProps = {
   [s: string]: any;
 } & Project;
-class ProjectElement extends HTMLElement {
+class ProjectEntry extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
-        <x-entry rightHeading={this.name} {...this} startDate={undefined} endDate={undefined} />        
+        <Entry rightHeading={this.name} {...this} startDate={undefined} endDate={undefined} />        
       );
   }
 }
-window.customElements.define('x-project', ProjectElement);
+window.customElements.define('x-project', ProjectEntry);
 
 type Hackathon = {
   hack?: string;
@@ -569,7 +569,7 @@ type Hackathon = {
 type HackathonEntryProps = {
   [s: string]: any;
 } & Hackathon;
-class HackathonElement extends HTMLElement {  
+class HackathonEntry extends HTMLElement {  
   connectedCallback() {
     this.attachShadow({ mode: 'open' }).appendChild(
       <>
@@ -578,7 +578,7 @@ class HackathonElement extends HTMLElement {
             margin-bottom: 12px;
           }
         `}</style>
-          <x-entry
+          <Entry
             {...this}
             leftHeading={this.event}
             rightHeading={this.hack}
@@ -588,27 +588,26 @@ class HackathonElement extends HTMLElement {
       <Typography component="p" variant="caption" className='prize'>
         <em>{this.prize}</em>
       </Typography>
-    </x-entry>
+    </Entry>
       </>
     );
   }
 }
-window.customElements.define('x-hackathon', HackathonElement);
+window.customElements.define('x-hackathon', HackathonEntry);
 
 type EntryData = any;
 type EntryMapperProps = {
   data: EntryData;
   [s: string]: any;
 };
-const EntryMapper = ({ Component, data }) => data.map((item, index) => <Component {...item} key={index}/>);
-class EntryMapperElement extends HTMLElement {
+class EntryMapper extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' }).appendChild(<>
       {this.data.map((item) => <this.Component {...item} />)}
     </>); 
   }
 }
-window.customElements.define('x-entry-mapper', EntryMapperElement);
+window.customElements.define('x-entry-mapper', EntryMapper);
 
 type ResumeData = any;
 type PageProps = {
@@ -655,30 +654,30 @@ export const Page = (() => {
     .attach();
   return ({ data }) => (
     <div className={classNames(classes.pageContainer, classes.pageGrid)}>
-      <x-header
+      <Header
         className={classes.header}
         data={data}
       >
         {data.details.name}
-      </x-header>
+      </Header>
       <main className={classes.main}>
-        <x-entry-topic heading="Experience">
-          <x-entry-mapper Component={'x-experience'} data={data.work} />
-        </x-entry-topic>
-        <x-entry-topic heading="Projects">
-          <x-entry-mapper Component={'x-project'} data={data.projects} />
-        </x-entry-topic>
+        <EntryTopic heading="Experience">
+          <EntryMapper Component={ExperienceEntry} data={data.work} />
+        </EntryTopic>
+        <EntryTopic heading="Projects">
+          <EntryMapper Component={ProjectEntry} data={data.projects} />
+        </EntryTopic>
       </main>
       <aside className={classes.aside}>
-        <x-entry-topic heading="Education">
-          <x-entry-mapper Component={'x-education'} data={data.education} />
-        </x-entry-topic>
-        <x-entry-topic heading="Hackathons">
-          <x-entry-mapper Component={'x-hackathon'} data={data.hackathons} />
-        </x-entry-topic>
-        <x-entry-topic heading="Technical skills">
-          <x-labeled-list items={data.technicalSkills} />
-        </x-entry-topic>
+        <EntryTopic heading="Education">
+          <EntryMapper Component={EducationEntry} data={data.education} />
+        </EntryTopic>
+        <EntryTopic heading="Hackathons">
+          <EntryMapper Component={HackathonEntry} data={data.hackathons} />
+        </EntryTopic>
+        <EntryTopic heading="Technical skills">
+          <LabeledList items={data.technicalSkills} />
+        </EntryTopic>
       </aside>
     </div>
   );
