@@ -1,6 +1,6 @@
 window.Fragment = function Fragment({children}) {
   const fragment = document.createDocumentFragment();
-  console.log(children);
+  //console.log(children);
   if (!!children) {
     addChildren(fragment, children);
   }
@@ -22,8 +22,8 @@ window.dom = function dom(component, attributes, ...children) {
   if (!!attributes && !!attributes.children) {
     children = attributes.children;
   }
-  console.warn('children', children);
-  console.log(attributes);
+  //console.warn('children', children);
+  //console.log(attributes);
   // Figure out component
   if (typeof component === 'function') {
     return component({ ...attributes, children });    
@@ -37,7 +37,9 @@ window.dom = function dom(component, attributes, ...children) {
       // Set props
       if (attributes) {
         Object.keys(attributes)
-        .forEach(key => newElement.setAttribute(key, attributes[key]));
+          .forEach(key => {
+            newElement[key] = attributes[key]
+          });
       }
       return newElement;
     } else {
