@@ -16,7 +16,7 @@ const theme = {
       main: '#FF0000',
     },
     // TODO
-    getContrastText: () => '#000000',
+    getContrastText: (x) => '#000000',
   },
 };
 
@@ -24,10 +24,8 @@ const Typography = ({ children }: any) => <p>{children}</p>;
 
 const Link = props => <Typography {...props} />;
 
-type ResumeLinkTextProps = {
-  [s: string]: any;
-};
 class ResumeLinkText extends HTMLElement {
+  private href;
   connectedCallback() {     
     this.attachShadow({ mode: 'open' }).appendChild(
       <>
@@ -71,7 +69,6 @@ type ContactProps = {
 class Contact extends HTMLElement {
   connectedCallback() {
     const color = theme.palette.getContrastText(theme.palette.primary.main);
-    console.warn('EEEEEEEEEEEE', this.icon)
     this.attachShadow({ mode: 'open' })
       .appendChild(
         <>
@@ -415,10 +412,8 @@ class ListLabel extends HTMLElement {
 }
 window.customElements.define('x-list-label', ListLabel);
 
-type LabeledListProps = {
-  [s: string]: any;
-};
 class LabeledList extends HTMLElement {
+  private items;
   connectedCallback() {
     this.attachShadow({ mode: 'open' })
       .appendChild(
@@ -614,71 +609,72 @@ type PageProps = {
   data: ResumeData;
   [s: string]: any;
 };
-export const Page = (() => {
-  const { classes } = jss
-    .createStyleSheet({
-      pageGrid: {
-        display: 'grid',
-        // gridAutoColumns: 'auto',
-        gridTemplateColumns:
-          'minmax(24px, 1fr) minmax(392px, 444px) minmax(252px, 300px) minmax(24px, 1fr)',
-        gridGap: '24px',
-      },
-      margin: {
-        visibility: 'hidden',
-      },
-      header: {
-        gridColumn: 'span 4',
-      },
-      topicEntries: {
-        '&>*': {
-          // '&:not(:last-child)': {
-          marginBottom: '24px',
-          // },
-        },
-      },
-      main: {
-        marginTop: '10px',
-        gridColumn: 2,
-        display: 'flex',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-      },
-      aside: {
-        marginTop: '10px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-      },
-    })
-    .attach();
-  return ({ data }) => (
-    <div className={classNames(classes.pageContainer, classes.pageGrid)}>
-      <Header
-        className={classes.header}
-        data={data}
-      >
-        {data.details.name}
-      </Header>
-      <main className={classes.main}>
-        <EntryTopic heading="Experience">
-          <EntryMapper Component={ExperienceEntry} data={data.work} />
-        </EntryTopic>
-        <EntryTopic heading="Projects">
-          <EntryMapper Component={ProjectEntry} data={data.projects} />
-        </EntryTopic>
-      </main>
-      <aside className={classes.aside}>
-        <EntryTopic heading="Education">
-          <EntryMapper Component={EducationEntry} data={data.education} />
-        </EntryTopic>
-        <EntryTopic heading="Hackathons">
-          <EntryMapper Component={HackathonEntry} data={data.hackathons} />
-        </EntryTopic>
-        <EntryTopic heading="Technical skills">
-          <LabeledList items={data.technicalSkills} />
-        </EntryTopic>
-      </aside>
-    </div>
-  );
-})();
+
+export class Resume extends HTMLElement {
+  connectedCallback() {
+    this.attachShadow({ mode: 'open' })
+      .appendChild(
+        <>
+          <style>{`
+          .pageGrid {
+            display: grid;
+            // gridAutoColumns: auto;
+            grid-template-columns:
+              minmax(24px, 1fr) minmax(392px, 444px) minmax(252px, 300px) minmax(24px, 1fr);
+            grid-gap: 24px;
+          }
+          .margin {
+            visibility: hidden;
+          }
+          .header {
+            grid-column: span 4;
+          }
+          .topicEntries>* {
+            margin-bottom: 24px;
+          }
+          .main {
+            margin-top: 10px;
+            grid-column: 2;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+          }
+          .aside {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+          }
+          `}</style>
+        <div className='pageGrid'>
+        <Header
+          className='header'
+          data={this.data}
+        >
+          {this.data.details.name}
+        </Header>
+        <main className='main'>
+          <EntryTopic heading="Experience">
+            <EntryMapper Component={ExperienceEntry} data={this.data.work} />
+          </EntryTopic>
+          <EntryTopic heading="Projects">
+            <EntryMapper Component={ProjectEntry} data={this.data.projects} />
+          </EntryTopic>
+        </main>
+        <aside className='aside'>
+          <EntryTopic heading="Education">
+            <EntryMapper Component={EducationEntry} data={this.data.education} />
+          </EntryTopic>
+          <EntryTopic heading="Hackathons">
+            <EntryMapper Component={HackathonEntry} data={this.data.hackathons} />
+          </EntryTopic>
+          <EntryTopic heading="Technical skills">
+            <LabeledList items={this.data.technicalSkills} />
+          </EntryTopic>
+        </aside>
+      </div>  
+      </>
+      );     
+  }
+}
+window.customElements.define('x-resume', Resume);
