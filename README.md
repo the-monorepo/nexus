@@ -8,6 +8,7 @@ Version | Package | Description
 --- | --- | ---
 1.4.3 | [`@pshaw/convict-util`](packages/convict-util/README.md) | A helper package for reading configs in using convict
 1.1.3 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
+1.0.0-alpha.0 | [`babel-plugin-transform-mobx-jsx`](packages/babel-plugin-transform-mobx-jsx/README.md) | Convert JSX into MobXElement renderables
 2.2.3 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 
 ### Build tooling
