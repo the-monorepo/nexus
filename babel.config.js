@@ -18,10 +18,13 @@ module.exports = api => {
     ],
     overrides: [
       {
-        test: ['./packages/my-resume', './packages/resume-template'],
+        test: ['./packages/my-resume', './packages/resume-template', './test.js', './ast.js'],
         plugins: [
           '@babel/plugin-syntax-jsx',
-          ['@babel/plugin-transform-react-jsx', { pragma: 'dom', pragmaFrag: 'Fragment' }],
+          [
+            'babel-plugin-transform-mobx-jsx',
+            { pragma: 'dom', pragmaFrag: 'domFragment' },
+          ],
         ],
         presets: [
           [
