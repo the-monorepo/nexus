@@ -1,14 +1,13 @@
 /* eslint-disable */
 /// <reference path="custom.d.ts" />
-import classNames from 'classnames';
+import classNames from 'classnames';  
 import { format as formatDate } from 'date-fns/esm/index';
 import jss from 'jss';
 import envelope from './envelope.svg';
 import github from './github.svg';
 import linkedin from './linkedin.svg';
-import { render } from './render';
-
-const BabelTest = ({ something }) => <div className={something} />;
+import * as mbx from 'mobx-dom';
+import { MobxElement } from 'mobx-dom';
 
 const theme = {
   typography: {
@@ -28,10 +27,10 @@ const Typography = ({ children }: any) => <p>{children}</p>;
 
 const Link = props => <Typography {...props} />;
 
-class ResumeLinkText extends HTMLElement {
+class ResumeLinkText extends MobxElement {
   private href;
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+  render() {
+    return (
       <>
         <style>{`
           .printLink {
@@ -56,7 +55,7 @@ class ResumeLinkText extends HTMLElement {
         <span className="printLink">
           {this.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
         </span>
-      </>,
+      </>
     );
   }
 }
@@ -70,12 +69,11 @@ type ContactProps = {
   href: string;
   [s: string]: any;
 };
-class Contact extends HTMLElement {
-  connectedCallback() {
+class Contact extends MobxElement {
+  render() {
     const color = theme.palette.getContrastText(theme.palette.primary.main);
-    this.attachShadow({ mode: 'open' }).appendChild(
+    return (
       <>
-        {console.warn('RAWRAWRAWR', this.icon)}
         <style>{`
           .contact {
             color: ${color};
@@ -90,11 +88,11 @@ class Contact extends HTMLElement {
           `}</style>
         <EntryLink className="contact" href={this.href}>
           <img {...this.icon} aria-hidden className="icon" />
-          <ResumeLinkText href={this.href}>
+          <ResumeLinkText href={this.href}> 
             <slot />
           </ResumeLinkText>
         </EntryLink>
-      </>,
+      </>
     );
   }
 }
@@ -115,10 +113,10 @@ const pageGridRule = `
   grid-gap: 24px;
 }
 `;
-class Header extends HTMLElement {
-  connectedCallback() {
+class Header extends MobxElement {
+  render() {
     const color = theme.palette.getContrastText(theme.palette.primary.main);
-    this.attachShadow({ mode: 'open' }).appendChild(
+    return (
       <>
         <style>
           {`
@@ -165,7 +163,7 @@ class Header extends HTMLElement {
             </Contact>
           </section>
         </header>
-      </>,
+      </>
     );
   }
 }
@@ -176,9 +174,9 @@ type TopicProps = {
   otherClasses: any;
   [s: string]: any;
 };
-class Topic extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class Topic extends MobxElement {
+  render() {
+    return (
       <>
         <style>{`
             .heading {
@@ -197,7 +195,7 @@ class Topic extends HTMLElement {
           </Typography>
           <slot />
         </section>
-      </>,
+      </>
     );
   }
 }
@@ -206,10 +204,10 @@ window.customElements.define('x-topic', Topic);
 type EntryTopicProps = {
   [s: string]: any;
 };
-class EntryTopic extends HTMLElement {
-  connectedCallback() {
+class EntryTopic extends MobxElement {
+  render() {
     // TODO: Get rid of the !important at some point :P
-    this.attachShadow({ mode: 'open' }).appendChild(
+    return (
       <>
         <style>{`
             ::slotted(*) {
@@ -219,7 +217,7 @@ class EntryTopic extends HTMLElement {
         <Topic className="entryTopic" heading={this.heading}>
           <slot />
         </Topic>
-      </>,
+      </>
     );
   }
 }
@@ -236,7 +234,7 @@ type EntryProps = {
   dateFormat?: string;
 };
 
-class Entry extends HTMLElement {
+class Entry extends MobxElement {
   private _dateFormat?: string;
   set dateFormat(value) {
     this._dateFormat = value;
@@ -245,8 +243,8 @@ class Entry extends HTMLElement {
     return this._dateFormat || 'MMM YYYY';
   }
 
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+  render() {
+    return (
       <>
         <style>{`
                 .subtext {
@@ -287,7 +285,7 @@ class Entry extends HTMLElement {
           ) : null}
           <KeyPoints component="p" color="textSecondary" keyPoints={this.keyPoints} />
         </section>
-      </>,
+      </>
     );
   }
 }
@@ -303,15 +301,15 @@ type Education = {
   grade: Grade;
 };
 type EducationEntryProps = { [s: string]: any } & Education;
-class EducationEntry extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class EducationEntry extends MobxElement {
+  render() {
+    return (
       <Entry
         leftHeading={this.school}
         rightHeading={this.course}
         subtext={`GPA: ${this.grade.gpa}, WAM: ${this.grade.wam}`}
         {...this}
-      />,
+      />
     );
   }
 }
@@ -322,9 +320,9 @@ type DateRangeProps = {
   end?: Date;
   format?: string;
 };
-class DateRange extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class DateRange extends MobxElement {
+  render() {
+    return (
       <>
         {formatDate(this.start, this.format, { awareOfUnicodeTokens: true })}
         {this.end !== undefined ? (
@@ -336,7 +334,7 @@ class DateRange extends HTMLElement {
               : formatDate(this.end, this.format, { awareOfUnicodeTokens: true })}
           </>
         ) : null}
-      </>,
+      </>
     );
   }
 }
@@ -345,12 +343,12 @@ window.customElements.define('x-date-range', DateRange);
 type EntryHeadingProps = {
   [s: string]: any;
 };
-class EntryHeading extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class EntryHeading extends MobxElement {
+  render() {
+    return (
       <Typography variant="subtitle1" component="h1" {...this}>
         <slot />
-      </Typography>,
+      </Typography>
     );
   }
 }
@@ -359,12 +357,12 @@ window.customElements.define('x-entry-heading', EntryHeading);
 type EntryLinkProps = {
   [s: string]: any;
 };
-class EntryLink extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class EntryLink extends MobxElement {
+  render() {
+    return (
       <Link variant="caption" color="secondary" {...this}>
         <slot />
-      </Link>,
+      </Link>
     );
   }
 }
@@ -374,12 +372,12 @@ window.customElements.define('x-entry-link', EntryLink);
 type EntryTextProps = {
   [s: string]: any;
 };
-class EntryText extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class EntryText extends MobxElement {
+  render() {
+    return (
       <Typography variant="caption" color="textSecondary" {...this}>
         <slot />
-      </Typography>,
+      </Typography>
     );
   }
 }
@@ -388,9 +386,9 @@ window.customElements.define('x-entry-text', EntryText);
 type ListLabelProps = {
   [s: string]: any;
 };
-class ListLabel extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class ListLabel extends MobxElement {
+  render() {
+    return (
       <>
         <style>{`
             .label {
@@ -400,16 +398,16 @@ class ListLabel extends HTMLElement {
         <EntryText className="label" color="textPrimary" {...this}>
           <slot />
         </EntryText>
-      </>,
+      </>
     );
   }
 }
 window.customElements.define('x-list-label', ListLabel);
 
-class LabeledList extends HTMLElement {
+class LabeledList extends MobxElement {
   private items;
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+  render() {
+    return (
       <>
         <style>
           {`
@@ -430,7 +428,7 @@ class LabeledList extends HTMLElement {
             </p>
           ))}
         </div>
-      </>,
+      </>
     );
   }
 }
@@ -453,12 +451,12 @@ const Ul = (() => {
 type KeyPointItemProps = {
   [s: string]: any;
 };
-class KeyPoint extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class KeyPoint extends MobxElement {
+  render() {
+    return (
       <EntryText component="span" {...this}>
         <slot />
-      </EntryText>,
+      </EntryText>
     );
   }
 }
@@ -468,9 +466,9 @@ type KeyPointsProps = {
   keyPoints?: KeyPoint[];
   [s: string]: any;
 };
-class KeyPoints extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class KeyPoints extends MobxElement {
+  render() {
+    return (
       <>
         {this.keyPoints && this.keyPoints.length > 0 ? (
           <>
@@ -486,7 +484,7 @@ class KeyPoints extends HTMLElement {
             }
           </>
         ) : null}
-      </>,
+      </>
     );
   }
 }
@@ -499,15 +497,15 @@ type Experience = {
 type ExperienceEntryProps = {
   [s: string]: any;
 } & Experience;
-class ExperienceEntry extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class ExperienceEntry extends MobxElement {
+  render() {
+    return (
       <Entry
         leftHeading={this.company}
         rightHeading={this.job}
         subtext={this.location}
         {...this}
-      />,
+      />
     );
   }
 }
@@ -540,15 +538,15 @@ type Project = {
 type ProjectEntryProps = {
   [s: string]: any;
 } & Project;
-class ProjectEntry extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class ProjectEntry extends MobxElement {
+  render() {
+    return (
       <Entry
         rightHeading={this.name}
         {...this}
         startDate={undefined}
         endDate={undefined}
-      />,
+      />
     );
   }
 }
@@ -563,9 +561,9 @@ type Hackathon = {
 type HackathonEntryProps = {
   [s: string]: any;
 } & Hackathon;
-class HackathonEntry extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class HackathonEntry extends MobxElement {
+  render() {
+    return (
       <>
         <style>{`
           .prize {
@@ -583,7 +581,7 @@ class HackathonEntry extends HTMLElement {
             <em>{this.prize}</em>
           </Typography>
         </Entry>
-      </>,
+      </>
     );
   }
 }
@@ -594,14 +592,14 @@ type EntryMapperProps = {
   data: EntryData;
   [s: string]: any;
 };
-class EntryMapper extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class EntryMapper extends MobxElement {
+  render() {
+    return (
       <>
         {this.data.map(item => (
           <this.Component {...item} />
         ))}
-      </>,
+      </>
     );
   }
 }
@@ -613,9 +611,9 @@ type PageProps = {
   [s: string]: any;
 };
 
-class Resume extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' }).appendChild(
+class Resume extends MobxElement {
+  render() {
+    return (
       <>
         <style>{`
           .pageGrid {
@@ -672,37 +670,10 @@ class Resume extends HTMLElement {
             </EntryTopic>
           </aside>
         </div>
-      </>,
+      </>
     );
   }
 }
 window.customElements.define('x-resume', Resume);
 
-const { observable, computed, decorate, autorun } = require('mobx');
-const rawr = observable({
-  count: 0,
-});
-setInterval(() => {
-  rawr.count++;
-}, 34);
-
-abstract class MbxElement extends HTMLElement {
-  constructor() {
-    super();
-    const shadow = this.attachShadow({ mode: 'open' });
-    render(shadow, this.render());
-  }
-}
-
-decorate(MbxElement, {
-  render: computed,
-});
-
-class Rawr extends MbxElement {
-  render() {
-    return <div>Hello {rawr.count}</div>;
-  }
-}
-window.customElements.define('x-rawr', Rawr);
-
-export { Rawr as Resume };
+export { Resume };
