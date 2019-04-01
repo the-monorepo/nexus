@@ -1,10 +1,28 @@
-import { reaction, decorate, action, computed, observable } from 'mobx';
+import { reaction, decorate, action, computed, observable, isObservableArray } from 'mobx';
 const PROPS = Symbol('props');
 const assignAttribute = action((element, key, value) => {
   element[key] = value;
   if (element[PROPS]) {
     element[PROPS][key] = value;
   }
+});
+
+export const map = action((arr, mapFn) => {
+  if(isObservableArray(arr)) {
+    const result = observable.array(arr);
+    arr.observe(changeData => {
+      switch(changeData.type) {
+        case 'splice':
+          result.spliceWithArray(changeData.index, changeData.removedCount, changeData.added.map((value, index) => mapFn(value, index + changeData.index)));
+          break;
+        case 'update':
+          result.splice(changeData.index, 1, mapFn(changeData.newValue, changeData.index));
+          break;
+      }
+    }, true);
+    return result;
+  }
+  return arr.map(mapFn);
 });
 
 function assignAttributes(element, attributes) {
@@ -31,13 +49,19 @@ function removeChildren(element, childOrChildren) {
     return;
   }
   if (typeof childOrChildren === 'function') {
+    childOrChildren();
+    return;
+  }
+  if (isObservableArray(childOrChildren)) {
     return;
   }
   if (Array.isArray(childOrChildren)) {
-    return childOrChildren.map(child => removeChildren(element, child));
+    childOrChildren.map(child => removeChildren(element, child));
+    return;
   }
   if (childOrChildren instanceof Node) {
     element.removeChild(childOrChildren);
+    return;
   }
 }
 
@@ -62,6 +86,18 @@ function addChildren(element, childOrChildren, before) {
     return newElement;
   }
 
+  if(isObservableArray(childOrChildren)) {
+    const arr = childOrChildren;
+    return arr.observe(changeData => {
+      switch(changeData.type) {
+        case 'splice':
+          removeChildren(element, changeData.removed);
+          addChildren(element, changeData.added, element.children[changeData.index]);
+          break;
+      }
+    }, true);
+  }
+
   if (Array.isArray(childOrChildren)) {
     return childOrChildren.map(child => addChildren(element, child, before));
   }
@@ -84,6 +120,7 @@ function addChildren(element, childOrChildren, before) {
 
     const childElementResult = (() => {
       if (typeof component === 'string') {
+        console.log('rendered');
         const newElement = document.createElement(component);
         assignAttributes(newElement, attributes);
         addChildren(newElement, children, null);
