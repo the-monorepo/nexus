@@ -1,3 +1,4 @@
+import * as mbx from 'mobx-dom';
 import './jss-register';
 import { Resume } from './components';
 
