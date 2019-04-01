@@ -53,7 +53,7 @@ class ResumeLinkText extends MobxElement {
           so have to show the link as text
         */}
         <span className="printLink">
-          {this.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
+          {this.props.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
         </span>
       </>
     );
@@ -86,9 +86,9 @@ class Contact extends MobxElement {
             margin-right: 0.5em;
           }
           `}</style>
-        <EntryLink className="contact" href={this.href}>
-          <img {...this.icon} aria-hidden className="icon" />
-          <ResumeLinkText href={this.href}> 
+        <EntryLink className="contact" href={this.props.href}>
+          <img {...this.props.icon} aria-hidden className="icon" />
+          <ResumeLinkText href={this.props.href}> 
             <slot />
           </ResumeLinkText>
         </EntryLink>
@@ -152,13 +152,13 @@ class Header extends MobxElement {
                   <a href={data.details.website}>{data.details.website}</a>
                 </Contact>
               */}
-            <Contact icon={{ src: envelope }} href={`mailto:${this.data.details.email}`}>
+            <Contact icon={{ src: envelope }} href={`mailto:${this.props.data.details.email}`}>
               Email
             </Contact>
-            <Contact icon={{ src: linkedin }} href={this.data.details.linkedin}>
+            <Contact icon={{ src: linkedin }} href={this.props.data.details.linkedin}>
               LinkedIn
             </Contact>
-            <Contact icon={{ src: github }} href={this.data.details.github}>
+            <Contact icon={{ src: github }} href={this.props.data.details.github}>
               Github
             </Contact>
           </section>
@@ -191,7 +191,7 @@ class Topic extends MobxElement {
             // color="textSecondary"
             className="heading"
           >
-            {this.heading}
+            {this.props.heading}
           </Typography>
           <slot />
         </section>
@@ -214,7 +214,7 @@ class EntryTopic extends MobxElement {
               margin-bottom: 24px !important;
             }
           `}</style>
-        <Topic className="entryTopic" heading={this.heading}>
+        <Topic className="entryTopic" heading={this.props.heading}>
           <slot />
         </Topic>
       </>
@@ -235,15 +235,8 @@ type EntryProps = {
 };
 
 class Entry extends MobxElement {
-  private _dateFormat?: string;
-  set dateFormat(value) {
-    this._dateFormat = value;
-  }
-  get dateFormat() {
-    return this._dateFormat || 'MMM YYYY';
-  }
-
   render() {
+    const dateFormat = this.props.dateFormat ? this.props.dateFormat : 'MMM YYYY';
     return (
       <>
         <style>{`
@@ -258,32 +251,32 @@ class Entry extends MobxElement {
                 }
           `}</style>
         <section>
-          {this.leftHeading ? (
+          {this.props.leftHeading ? (
             <EntryHeading component="h1" className="entryHeading leftHeading">
-              {this.leftHeading} /&nbsp;
+              {this.props.leftHeading} /&nbsp;
             </EntryHeading>
           ) : null}
           <EntryHeading component="h2" className="entryHeading">
-            {this.rightHeading}
+            {this.props.rightHeading}
           </EntryHeading>
           {/*TODO: Subtext won't appear if no date*/}
-          {this.startDate || this.endDate ? (
+          {this.props.startDate || this.props.endDate ? (
             <EntryText component="p" variant="caption" className="subtext">
               <DateRange
-                start={this.startDate}
-                end={this.endDate}
-                format={this.dateFormat}
+                start={this.props.startDate}
+                end={this.props.endDate}
+                format={dateFormat}
               />
-              {this.subtext ? `, ${this.subtext}` : null}
+              {this.props.subtext ? `, ${this.props.subtext}` : null}
             </EntryText>
           ) : null}
           <slot />
-          {this.description ? (
+          {this.props.description ? (
             <EntryText component="p" color="textSecondary">
-              {this.description.replace(/\.?\s*$/, '.')}
+              {this.props.description.replace(/\.?\s*$/, '.')}
             </EntryText>
           ) : null}
-          <KeyPoints component="p" color="textSecondary" keyPoints={this.keyPoints} />
+          <KeyPoints component="p" color="textSecondary" keyPoints={this.props.keyPoints} />
         </section>
       </>
     );
@@ -305,10 +298,10 @@ class EducationEntry extends MobxElement {
   render() {
     return (
       <Entry
-        leftHeading={this.school}
-        rightHeading={this.course}
-        subtext={`GPA: ${this.grade.gpa}, WAM: ${this.grade.wam}`}
-        {...this}
+        leftHeading={this.props.school}
+        rightHeading={this.props.course}
+        subtext={`GPA: ${this.props.grade.gpa}, WAM: ${this.props.grade.wam}`}
+        {...this.props}
       />
     );
   }
@@ -324,14 +317,14 @@ class DateRange extends MobxElement {
   render() {
     return (
       <>
-        {formatDate(this.start, this.format, { awareOfUnicodeTokens: true })}
-        {this.end !== undefined ? (
+        {formatDate(this.props.start, this.props.format, { awareOfUnicodeTokens: true })}
+        {this.props.end !== undefined ? (
           <>
             {' '}
             <span aria-label="to">-</span>{' '}
-            {this.end === null
+            {this.props.end === null
               ? 'Current'
-              : formatDate(this.end, this.format, { awareOfUnicodeTokens: true })}
+              : formatDate(this.props.end, this.props.format, { awareOfUnicodeTokens: true })}
           </>
         ) : null}
       </>
@@ -346,7 +339,7 @@ type EntryHeadingProps = {
 class EntryHeading extends MobxElement {
   render() {
     return (
-      <Typography variant="subtitle1" component="h1" {...this}>
+      <Typography variant="subtitle1" component="h1" {...this.props}>
         <slot />
       </Typography>
     );
@@ -360,7 +353,7 @@ type EntryLinkProps = {
 class EntryLink extends MobxElement {
   render() {
     return (
-      <Link variant="caption" color="secondary" {...this}>
+      <Link variant="caption" color="secondary" {...this.props}>
         <slot />
       </Link>
     );
@@ -375,7 +368,7 @@ type EntryTextProps = {
 class EntryText extends MobxElement {
   render() {
     return (
-      <Typography variant="caption" color="textSecondary" {...this}>
+      <Typography variant="caption" color="textSecondary" {...this.props}>
         <slot />
       </Typography>
     );
@@ -395,7 +388,7 @@ class ListLabel extends MobxElement {
               font-weight: ${theme.typography.fontWeightMedium};
             }
           `}</style>
-        <EntryText className="label" color="textPrimary" {...this}>
+        <EntryText className="label" color="textPrimary" {...this.props}>
           <slot />
         </EntryText>
       </>
@@ -417,7 +410,7 @@ class LabeledList extends MobxElement {
           `}
         </style>
         <div className="list">
-          {this.items.map(({ label, items }) => (
+          {this.props.items.map(({ label, items }) => (
             <p>
               <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
                 {label}:
@@ -434,27 +427,13 @@ class LabeledList extends MobxElement {
 }
 window.customElements.define('x-labeled-list', LabeledList);
 
-const Ul = (() => {
-  const { classes } = jss
-    .createStyleSheet({
-      list: {
-        listStylePosition: 'inside',
-        paddingLeft: 0,
-        marginBlockStart: '0em',
-        marginBlockEnd: '0em',
-      },
-    })
-    .attach();
-  return ({ children, classes }: any) => <ul className={classes.list}>{children}</ul>;
-})();
-
 type KeyPointItemProps = {
   [s: string]: any;
 };
 class KeyPoint extends MobxElement {
   render() {
     return (
-      <EntryText component="span" {...this}>
+      <EntryText component="span" {...this.props}>
         <slot />
       </EntryText>
     );
@@ -470,16 +449,16 @@ class KeyPoints extends MobxElement {
   render() {
     return (
       <>
-        {this.keyPoints && this.keyPoints.length > 0 ? (
+        {this.props.keyPoints && this.props.keyPoints.length > 0 ? (
           <>
-            {this.keyPoints.slice(0, -1).map((keyPoint, index) => (
-              <KeyPoint {...this} key={index}>
+            {this.props.keyPoints.slice(0, -1).map((keyPoint, index) => (
+              <KeyPoint {...this.props} key={index}>
                 {keyPoint}
               </KeyPoint>
             ))}
             {
-              <KeyPoint {...this} gutterBottom>
-                {this.keyPoints[this.keyPoints.length - 1]}
+              <KeyPoint {...this.props} gutterBottom>
+                {this.props.keyPoints[this.props.keyPoints.length - 1]}
               </KeyPoint>
             }
           </>
@@ -501,11 +480,11 @@ class ExperienceEntry extends MobxElement {
   render() {
     return (
       <Entry
-        leftHeading={this.company}
-        rightHeading={this.job}
-        subtext={this.location}
-        {...this}
-      />
+        leftHeading={this.props.company}
+        rightHeading={this.props.job}
+        subtext={this.props.location}
+        {...this.props}
+      ><slot/></Entry>
     );
   }
 }
@@ -542,8 +521,8 @@ class ProjectEntry extends MobxElement {
   render() {
     return (
       <Entry
-        rightHeading={this.name}
-        {...this}
+        rightHeading={this.props.name}
+        {...this.props}
         startDate={undefined}
         endDate={undefined}
       />
@@ -571,14 +550,14 @@ class HackathonEntry extends MobxElement {
           }
         `}</style>
         <Entry
-          {...this}
-          leftHeading={this.event}
-          rightHeading={this.hack}
+          {...this.props}
+          leftHeading={this.props.event}
+          rightHeading={this.props.hack}
           startDate={undefined}
           endDate={undefined}
         >
           <Typography component="p" variant="caption" className="prize">
-            <em>{this.prize}</em>
+            <em>{this.props.prize}</em>
           </Typography>
         </Entry>
       </>
@@ -594,13 +573,9 @@ type EntryMapperProps = {
 };
 class EntryMapper extends MobxElement {
   render() {
-    return (
-      <>
-        {this.data.map(item => (
-          <this.Component {...item} />
-        ))}
-      </>
-    );
+    return this.props.data.map(item => (
+      <this.props.Component {...item} />
+    ));
   }
 }
 window.customElements.define('x-entry-mapper', EntryMapper);
@@ -647,26 +622,26 @@ class Resume extends MobxElement {
           }
           `}</style>
         <div className="pageGrid">
-          <Header className="header" data={this.data}>
-            {this.data.details.name}
+          <Header className="header" data={this.props.data}>
+            {this.props.data.details.name}
           </Header>
           <main className="main">
             <EntryTopic heading="Experience">
-              <EntryMapper Component={ExperienceEntry} data={this.data.work} />
+              <EntryMapper Component={ExperienceEntry} data={this.props.data.work} />
             </EntryTopic>
             <EntryTopic heading="Projects">
-              <EntryMapper Component={ProjectEntry} data={this.data.projects} />
+              <EntryMapper Component={ProjectEntry} data={this.props.data.projects} />
             </EntryTopic>
           </main>
           <aside className="aside">
             <EntryTopic heading="Education">
-              <EntryMapper Component={EducationEntry} data={this.data.education} />
+              <EntryMapper Component={EducationEntry} data={this.props.data.education} />
             </EntryTopic>
             <EntryTopic heading="Hackathons">
-              <EntryMapper Component={HackathonEntry} data={this.data.hackathons} />
+              <EntryMapper Component={HackathonEntry} data={this.props.data.hackathons} />
             </EntryTopic>
             <EntryTopic heading="Technical skills">
-              <LabeledList items={this.data.technicalSkills} />
+              <LabeledList items={this.props.data.technicalSkills} />
             </EntryTopic>
           </aside>
         </div>

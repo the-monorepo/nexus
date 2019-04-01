@@ -1,18 +1,24 @@
-import { autorun, reaction, decorate, computed } from 'mobx';
+import { reaction, decorate, action, computed, observable } from 'mobx';
+const PROPS = Symbol('props');
+const assignAttribute = action((element, key, value) => {
+  element[key] = value;
+  if (element[PROPS]) {
+    element[PROPS][key] = value;
+  }
+});
 
 function assignAttributes(element, attributes) {
   if (!attributes) {
     return;
   }
-  Object.keys(attributes).forEach(key => {
+  Object.keys(attributes).forEach(key => { 
     const attributeValue = attributes[key];
     if (typeof attributeValue === 'function') {
-      element[key] = attributes[key]();
-      autorun(() => {
-        element[key] = attributes[key]();
-      });
+      reaction(attributeValue, action((value) => {
+        assignAttribute(element, key, value);
+      }), { fireImmediately: true });
     } else {
-      element[key] = attributes[key];
+      assignAttribute(element, key, attributeValue);
     }
   });
 }
@@ -72,9 +78,9 @@ function addChildren(element, childOrChildren, before) {
     }, { fireImmediately: true });
   } else {
 
-    const { component, attributes, children: jsxChildren } = childOrChildren;
-
-    const children = attributes && attributes.children ? attributes.children : jsxChildren;
+    const component = childOrChildren.component;
+    const attributes = childOrChildren.attributes;
+    const children = attributes && attributes.children ? attributes.children : childOrChildren.children;
 
     const childElementResult = (() => {
       if (typeof component === 'string') {
@@ -106,6 +112,11 @@ export abstract class MobxElement extends HTMLElement {
     super();
     this.hasInitialized = false;
     this.shadow = this.attachShadow({ mode: 'open' });
+    this[PROPS] = observable({});
+  }
+
+  public get props() {
+    return this[PROPS];
   }
 
   connectedCallback() {
@@ -132,5 +143,5 @@ export function Fragment({ children }) {
 }
 
 export function createElement(component, attributes, ...children) {
-  return { component, attributes, children};
+  return { component, attributes, children };
 }
