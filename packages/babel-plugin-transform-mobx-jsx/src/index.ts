@@ -13,8 +13,8 @@ export default declare((api, options) => {
   const THROW_IF_NAMESPACE =
     options.throwIfNamespace === undefined ? true : !!options.throwIfNamespace;
 
-  const PRAGMA_DEFAULT = options.pragma || 'React.createElement';
-  const PRAGMA_FRAG_DEFAULT = options.pragmaFrag || 'React.Fragment';
+  const PRAGMA_DEFAULT = options.pragma || 'mbx.createElement';
+  const PRAGMA_FRAG_DEFAULT = options.pragmaFrag || 'mbx.Fragment';
 
   const JSX_ANNOTATION_REGEX = /\*?\s*@jsx\s+([^\s]+)/;
   const JSX_FRAG_ANNOTATION_REGEX = /\*?\s*@jsxFrag\s+([^\s]+)/;
@@ -97,9 +97,12 @@ export default declare((api, options) => {
 
   visitor.JSXExpressionContainer = function(path) {
     if (t.isExpression(path.node.expression)) {
-      path.node.expression = t.arrowFunctionExpression([], t.blockStatement([t.returnStatement(path.node.expression)]));
+      path.node.expression = t.arrowFunctionExpression(
+        [],
+        t.blockStatement([t.returnStatement(path.node.expression)]),
+      );
     }
-  }
+  };
 
   return {
     name: 'transform-react-jsx',

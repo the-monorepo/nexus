@@ -14,17 +14,20 @@ module.exports = api => {
           },
         },
       ],
-      '@babel/preset-typescript',
+      ['@babel/preset-typescript', {
+        jsxPragma: 'mbx'
+      }],
     ],
     overrides: [
       {
-        test: ['./packages/my-resume', './packages/resume-template', './test.js', './ast.js'],
+        test: [
+          './packages/my-resume',
+          './packages/resume-template',
+          './packages/mobx-dom',
+        ],
         plugins: [
           '@babel/plugin-syntax-jsx',
-          [
-            'babel-plugin-transform-mobx-jsx',
-            { pragma: 'dom', pragmaFrag: 'domFragment' },
-          ],
+          'babel-plugin-transform-mobx-jsx',
         ],
         presets: [
           [

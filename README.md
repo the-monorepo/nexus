@@ -11,6 +11,11 @@ Version | Package | Description
 1.0.0-alpha.0 | [`babel-plugin-transform-mobx-jsx`](packages/babel-plugin-transform-mobx-jsx/README.md) | Convert JSX into MobXElement renderables
 2.2.3 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 
+### UI
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.0 | [`mobx-dom`](packages/mobx-dom/README.md) | Create interactive UIs with seamless state management using MobX
+
 ### Build tooling
 Version | Package | Description
 --- | --- | ---
