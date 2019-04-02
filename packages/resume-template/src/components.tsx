@@ -1,6 +1,6 @@
 /* eslint-disable */
 /// <reference path="custom.d.ts" />
-import classNames from 'classnames';  
+import classNames from 'classnames';
 import { format as formatDate } from 'date-fns/esm/index';
 import jss from 'jss';
 import envelope from './envelope.svg';
@@ -88,7 +88,7 @@ class Contact extends MobxElement {
           `}</style>
         <EntryLink className="contact" href={this.props.href}>
           <img {...this.props.icon} aria-hidden className="icon" />
-          <ResumeLinkText href={this.props.href}> 
+          <ResumeLinkText href={this.props.href}>
             <slot />
           </ResumeLinkText>
         </EntryLink>
@@ -152,7 +152,10 @@ class Header extends MobxElement {
                   <a href={data.details.website}>{data.details.website}</a>
                 </Contact>
               */}
-            <Contact icon={{ src: envelope }} href={`mailto:${this.props.data.details.email}`}>
+            <Contact
+              icon={{ src: envelope }}
+              href={`mailto:${this.props.data.details.email}`}
+            >
               Email
             </Contact>
             <Contact icon={{ src: linkedin }} href={this.props.data.details.linkedin}>
@@ -276,7 +279,11 @@ class Entry extends MobxElement {
               {this.props.description.replace(/\.?\s*$/, '.')}
             </EntryText>
           ) : null}
-          <KeyPoints component="p" color="textSecondary" keyPoints={this.props.keyPoints} />
+          <KeyPoints
+            component="p"
+            color="textSecondary"
+            keyPoints={this.props.keyPoints}
+          />
         </section>
       </>
     );
@@ -324,7 +331,9 @@ class DateRange extends MobxElement {
             <span aria-label="to">-</span>{' '}
             {this.props.end === null
               ? 'Current'
-              : formatDate(this.props.end, this.props.format, { awareOfUnicodeTokens: true })}
+              : formatDate(this.props.end, this.props.format, {
+                  awareOfUnicodeTokens: true,
+                })}
           </>
         ) : null}
       </>
@@ -484,7 +493,9 @@ class ExperienceEntry extends MobxElement {
         rightHeading={this.props.job}
         subtext={this.props.location}
         {...this.props}
-      ><slot/></Entry>
+      >
+        <slot />
+      </Entry>
     );
   }
 }
@@ -573,9 +584,7 @@ type EntryMapperProps = {
 };
 class EntryMapper extends MobxElement {
   render() {
-    return this.props.data.map(item => (
-      <this.props.Component {...item} />
-    ));
+    return this.props.data.map(item => <this.props.Component {...item} />);
   }
 }
 window.customElements.define('x-entry-mapper', EntryMapper);

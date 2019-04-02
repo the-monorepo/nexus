@@ -9,8 +9,7 @@ import * as mbx from 'mobx-dom';
 import { map, MobxElement } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 
-
-/*const store = observable({
+const store = observable({
   arr: observable.array([])
 });
 setInterval(action(() => {
@@ -40,42 +39,54 @@ class Test extends MobxElement {
   render() {
     return <>
       <div>This should be at the top</div>
-      {map(store.arr, (inner) => <div>{map(inner, (v) => <span style={{ width: '10px', height: '10px', color: v === 0 ? 'red' : 'green' }}></span>)}</div>)}
+      {map(store.arr, (inner) => <div>{map(inner, (v) => <div style={{ width: '10px', height: '10px', background: v === 0 ? 'red' : 'green', display: 'inline-block' }}></div>)}</div>)}
       <div>This should be at the bottom</div>
     </>;
 
   }
 }
 
-window.customElements.define('x-test', Test);*/
-
+window.customElements.define('x-test', Test);
+/*
 let i = 0;
 const store = observable({
-  arr: observable.array([])
+  arr: [[1, 2, 3]],
 });
 setInterval(action(() => {
   if(i < 2) {
-    store.arr.push(i);
+    store.arr[1].push(i);
   } else {
-    store.arr.pop();
+    store.arr[1].pop();
   }
   console.warn('update', store.arr.length);
   i++;
   i %= 4;
 }), 1000);
-class Test extends MobxElement {  
-  render() {
-    return <>
-      <div>This should be at the top</div>
-      {map(store.arr, (inner) => <div>{inner}</div>)}
-      <div>This should be at the bottom</div>
-    </>;
 
+/*
+class Test extends MobxElement {
+  render() {
+    return (
+      <>
+        <div>This should be at the top</div>
+        {map(store.arr, inner => (
+          <div>
+            {map(inner, v => (
+              <div
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  background: v === 0 ? 'red' : 'green',
+                }}
+              />
+            ))}
+          </div>
+        ))}
+        <div>This should be at the bottom</div>
+      </>
+    );
   }
 }
-window.customElements.define('x-test', Test);
+window.customElements.define('x-test', Test);*/
 
-mbx.render(
-  document.getElementById('root'),
-  <Test />
-);
+mbx.render(document.getElementById('root'), <Test />);
