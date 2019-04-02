@@ -1,43 +1,79 @@
-import { reaction, decorate, action, computed, observable, isObservableArray } from 'mobx';
-const PROPS = Symbol('props');
-const assignAttribute = action((element, key, value) => {
-  element[key] = value;
-  if (element[PROPS]) {
-    element[PROPS][key] = value;
-  }
-});
+import {
+  reaction,
+  decorate,
+  action,
+  computed,
+  observable,
+  isObservableArray,
+  toJS,
+} from 'mobx';
 
-export const map = action((arr, mapFn) => {
-  if(isObservableArray(arr)) {
-    const result = observable.array(arr);
-    arr.observe(changeData => {
-      switch(changeData.type) {
-        case 'splice':
-          result.spliceWithArray(changeData.index, changeData.removedCount, changeData.added.map((value, index) => mapFn(value, index + changeData.index)));
-          break;
-        case 'update':
-          result.splice(changeData.index, 1, mapFn(changeData.newValue, changeData.index));
-          break;
-      }
-    }, true);
+export const map = (arr, mapFn) => {
+  if (isObservableArray(arr)) {
+    const result = observable.array();
+    arr.observe(
+      action(changeData => {
+        switch (changeData.type) {
+          case 'splice':
+            result.splice(
+              changeData.index,
+              changeData.removedCount,
+              ...changeData.added.map((value, index) =>
+                mapFn(value, index + changeData.index),
+              ),
+            );
+            break;
+          case 'update':
+            result.splice(
+              changeData.index,
+              1,
+              mapFn(changeData.newValue, changeData.index),
+            );
+            break;
+        }
+      }),
+      true,
+    );
     return result;
   }
   return arr.map(mapFn);
+};
+
+const PROPS = Symbol('props');
+const assignAttribute = action((element, key, value) => {
+  if(key === 'style') {
+    Object.keys(value).forEach(key => {
+      element.style[key] = value[key];
+    })
+  } else {
+    element[key] = value;
+    if (element[PROPS]) {
+      element[PROPS][key] = value;
+    }  
+  }
 });
+
+function applyAttribute(element, attributes, key) {
+  const attributeValue = attributes[key];
+  if (typeof attributeValue === 'function') {
+    reaction(
+      attributeValue,
+      action(value => {
+        assignAttribute(element, key, value);
+      }),
+      { fireImmediately: true },
+    );
+  } else {
+    assignAttribute(element, key, attributeValue);
+  }  
+}
 
 function assignAttributes(element, attributes) {
   if (!attributes) {
     return;
   }
-  Object.keys(attributes).forEach(key => { 
-    const attributeValue = attributes[key];
-    if (typeof attributeValue === 'function') {
-      reaction(attributeValue, action((value) => {
-        assignAttribute(element, key, value);
-      }), { fireImmediately: true });
-    } else {
-      assignAttribute(element, key, attributeValue);
-    }
+  Object.keys(attributes).forEach(key => {
+    applyAttribute(element, attributes, key);
   });
 }
 
@@ -65,62 +101,59 @@ function removeChildren(element, childOrChildren) {
 
 function addChildren(element, childOrChildren, before) {
   if (childOrChildren === undefined) {
-    return;
-  }
-
-  if (childOrChildren === null) {
-    return;
-  }
-
-  if (childOrChildren instanceof Node) {
+    return undefined;
+  } else if (childOrChildren === null) {
+    return null;
+  } else if (childOrChildren instanceof Node) {
     const newElement = childOrChildren;
     element.insertBefore(newElement, before);
     return newElement;
-  }
-
-  if (['string', 'boolean', 'number'].includes(typeof childOrChildren)) {
+  } else if (['string', 'boolean', 'number'].includes(typeof childOrChildren)) {
     const newElement = document.createTextNode(childOrChildren.toString());
     element.insertBefore(newElement, before);
     return newElement;
-  }
-
-  if(isObservableArray(childOrChildren)) {
+  } else if (isObservableArray(childOrChildren)) {
     // TODO: Gotta make this work to make things efficient
     const childElements = [];
     return {
-      dispose: childOrChildren.observe((changeData) => {
+      dispose: childOrChildren.observe(changeData => {
         if (changeData.type === 'splice') {
-          console.log(childElements);
-          console.log('result', changeData);
-          const elementToAddBefore = changeData.index < childElements.length ? childElements[changeData.index] : before;
-          const addedElements = changeData.added.map(child => addChildren(element, child, elementToAddBefore));
-          const removed = childElements.splice(changeData.index, changeData.removedCount, ...addedElements);
+          const elementToAddBefore =
+            changeData.index < childElements.length
+              ? childElements[changeData.index]
+              : before;
+          const addedElements = changeData.added.map(child =>
+            addChildren(element, child, elementToAddBefore),
+          );
+          const removed = childElements.splice(
+            changeData.index,
+            changeData.removedCount,
+            ...addedElements,
+          );
           removeChildren(element, removed);
         }
       }, true),
       array: childElements,
     };
-  }
-
-  if (Array.isArray(childOrChildren)) {
+  } else if (Array.isArray(childOrChildren)) {
     return childOrChildren.map(child => addChildren(element, child, before));
-  }
-
-  const child = childOrChildren;
-
-  if (typeof child === 'function') {
+  } else if (typeof childOrChildren === 'function') {
     let previous;
     const positionMarkerElement = document.createComment('');
     element.appendChild(positionMarkerElement);
-    reaction(child, next => {
-      removeChildren(element, previous);
-      previous = addChildren(element, next, positionMarkerElement);
-    }, { fireImmediately: true });
+    reaction(
+      childOrChildren,
+      next => {
+        removeChildren(element, previous);
+        previous = addChildren(element, next, positionMarkerElement);
+      },
+      { fireImmediately: true },
+    );
   } else {
-
     const component = childOrChildren.component;
     const attributes = childOrChildren.attributes;
-    const children = attributes && attributes.children ? attributes.children : childOrChildren.children;
+    const children =
+      attributes && attributes.children ? attributes.children : childOrChildren.children;
 
     const childElementResult = (() => {
       if (typeof component === 'string') {
@@ -168,15 +201,14 @@ export abstract class MobxElement extends HTMLElement {
   private initialize() {
     if (!this.hasInitialized) {
       this.hasInitialized = true;
-      render(this.shadow, this.render());  
+      render(this.shadow, this.render());
     }
   }
 }
 
 decorate(MobxElement, {
   render: computed,
-})
-
+});
 
 export function Fragment({ children }) {
   return children;

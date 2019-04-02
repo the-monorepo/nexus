@@ -14,9 +14,12 @@ module.exports = api => {
           },
         },
       ],
-      ['@babel/preset-typescript', {
-        jsxPragma: 'mbx'
-      }],
+      [
+        '@babel/preset-typescript',
+        {
+          jsxPragma: 'mbx',
+        },
+      ],
     ],
     overrides: [
       {
@@ -25,10 +28,7 @@ module.exports = api => {
           './packages/resume-template',
           './packages/mobx-dom',
         ],
-        plugins: [
-          '@babel/plugin-syntax-jsx',
-          'babel-plugin-transform-mobx-jsx',
-        ],
+        plugins: ['@babel/plugin-syntax-jsx', 'babel-plugin-transform-mobx-jsx'],
         presets: [
           [
             '@babel/preset-env',
