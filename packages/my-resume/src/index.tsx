@@ -9,8 +9,8 @@ import * as mbx from 'mobx-dom';
 import { map, MobxElement } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 
-/*
-const store = observable({
+
+/*const store = observable({
   arr: observable.array([])
 });
 setInterval(action(() => {
@@ -46,19 +46,22 @@ class Test extends MobxElement {
 
   }
 }
-*/
+
+window.customElements.define('x-test', Test);*/
+
 let i = 0;
 const store = observable({
   arr: observable.array([])
 });
 setInterval(action(() => {
-  if(i % 2 === 0) {
+  if(i < 2) {
     store.arr.push(i);
   } else {
     store.arr.pop();
   }
-  console.warn('update');
+  console.warn('update', store.arr.length);
   i++;
+  i %= 4;
 }), 1000);
 class Test extends MobxElement {  
   render() {
