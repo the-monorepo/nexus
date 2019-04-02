@@ -93,7 +93,7 @@ function addChildren(element, childOrChildren, before) {
           console.log(childElements);
           console.log('result', changeData);
           const elementToAddBefore = changeData.index < childElements.length ? childElements[changeData.index] : before;
-          const addedElements = childOrChildren.map(child => addChildren(element, child, elementToAddBefore));
+          const addedElements = changeData.added.map(child => addChildren(element, child, elementToAddBefore));
           const removed = childElements.splice(changeData.index, changeData.removedCount, ...addedElements);
           removeChildren(element, removed);
         }
