@@ -48,19 +48,17 @@ function removeChildren(element, childOrChildren) {
   if (childOrChildren === null) {
     return;
   }
-  if (typeof childOrChildren === 'function') {
-    childOrChildren();
-    return;
-  }
-  if (isObservableArray(childOrChildren)) {
-    return;
-  }
   if (Array.isArray(childOrChildren)) {
     childOrChildren.map(child => removeChildren(element, child));
     return;
   }
   if (childOrChildren instanceof Node) {
     element.removeChild(childOrChildren);
+    return;
+  }
+  if (childOrChildren.array) {
+    childOrChildren.dispose();
+    removeChildren(element, childOrChildren.array);
     return;
   }
 }
@@ -87,15 +85,21 @@ function addChildren(element, childOrChildren, before) {
   }
 
   if(isObservableArray(childOrChildren)) {
-    const arr = childOrChildren;
-    return arr.observe(changeData => {
-      switch(changeData.type) {
-        case 'splice':
-          removeChildren(element, changeData.removed);
-          addChildren(element, changeData.added, element.children[changeData.index]);
-          break;
-      }
-    }, true);
+    // TODO: Gotta make this work to make things efficient
+    const childElements = [];
+    return {
+      dispose: childOrChildren.observe((changeData) => {
+        if (changeData.type === 'splice') {
+          console.log(childElements);
+          console.log('result', changeData);
+          const elementToAddBefore = changeData.index < childElements.length ? childElements[changeData.index] : before;
+          const addedElements = childOrChildren.map(child => addChildren(element, child, elementToAddBefore));
+          const removed = childElements.splice(changeData.index, changeData.removedCount, ...addedElements);
+          removeChildren(element, removed);
+        }
+      }, true),
+      array: childElements,
+    };
   }
 
   if (Array.isArray(childOrChildren)) {
@@ -120,7 +124,6 @@ function addChildren(element, childOrChildren, before) {
 
     const childElementResult = (() => {
       if (typeof component === 'string') {
-        console.log('rendered');
         const newElement = document.createElement(component);
         assignAttributes(newElement, attributes);
         addChildren(newElement, children, null);
