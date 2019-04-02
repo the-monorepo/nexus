@@ -41,15 +41,15 @@ export const map = (arr, mapFn) => {
 
 const PROPS = Symbol('props');
 const assignAttribute = action((element, key, value) => {
-  if(key === 'style') {
+  if (key === 'style') {
     Object.keys(value).forEach(key => {
       element.style[key] = value[key];
-    })
+    });
   } else {
     element[key] = value;
     if (element[PROPS]) {
       element[PROPS][key] = value;
-    }  
+    }
   }
 });
 
@@ -65,7 +65,7 @@ function applyAttribute(element, attributes, key) {
     );
   } else {
     assignAttribute(element, key, attributeValue);
-  }  
+  }
 }
 
 function assignAttributes(element, attributes) {
@@ -77,7 +77,7 @@ function assignAttributes(element, attributes) {
   });
 }
 
-function removeChildren(element, childOrChildren) {
+function removeChildren(childOrChildren) {
   if (childOrChildren === undefined) {
     return;
   }
@@ -85,16 +85,18 @@ function removeChildren(element, childOrChildren) {
     return;
   }
   if (Array.isArray(childOrChildren)) {
-    childOrChildren.map(child => removeChildren(element, child));
+    childOrChildren.map(child => removeChildren(child));
     return;
   }
   if (childOrChildren instanceof Node) {
-    element.removeChild(childOrChildren);
+    if (childOrChildren.parentNode !== null) {
+      childOrChildren.parentNode.removeChild(childOrChildren);
+    }
     return;
   }
   if (childOrChildren.array) {
     childOrChildren.dispose();
-    removeChildren(element, childOrChildren.array);
+    removeChildren(childOrChildren.array);
     return;
   }
 }
@@ -113,7 +115,6 @@ function addChildren(element, childOrChildren, before) {
     element.insertBefore(newElement, before);
     return newElement;
   } else if (isObservableArray(childOrChildren)) {
-    // TODO: Gotta make this work to make things efficient
     const childElements = [];
     return {
       dispose: childOrChildren.observe(changeData => {
@@ -122,21 +123,31 @@ function addChildren(element, childOrChildren, before) {
             changeData.index < childElements.length
               ? childElements[changeData.index]
               : before;
+          const parentToAddTo = elementToAddBefore
+            ? elementToAddBefore.parentNode
+            : element;
+          const fragment = document.createDocumentFragment();
           const addedElements = changeData.added.map(child =>
-            addChildren(element, child, elementToAddBefore),
+            addChildren(fragment, child, undefined),
           );
+          parentToAddTo.insertBefore(fragment, elementToAddBefore);
           const removed = childElements.splice(
             changeData.index,
             changeData.removedCount,
             ...addedElements,
           );
-          removeChildren(element, removed);
+          removeChildren(removed);
         }
       }, true),
       array: childElements,
     };
   } else if (Array.isArray(childOrChildren)) {
-    return childOrChildren.map(child => addChildren(element, child, before));
+    const fragment = document.createDocumentFragment();
+    const addedChildren = childOrChildren.map(child =>
+      addChildren(fragment, child, undefined),
+    );
+    element.insertBefore(fragment, before);
+    return addedChildren;
   } else if (typeof childOrChildren === 'function') {
     let previous;
     const positionMarkerElement = document.createComment('');
@@ -144,8 +155,10 @@ function addChildren(element, childOrChildren, before) {
     reaction(
       childOrChildren,
       next => {
-        removeChildren(element, previous);
-        previous = addChildren(element, next, positionMarkerElement);
+        removeChildren(previous);
+        const fragment = document.createDocumentFragment();
+        previous = addChildren(fragment, next, null);
+        positionMarkerElement.parentNode.insertBefore(fragment, positionMarkerElement);
       },
       { fireImmediately: true },
     );
@@ -167,7 +180,6 @@ function addChildren(element, childOrChildren, before) {
         addChildren(newElement, children, null);
         return newElement;
       } else {
-        // TODO: This needs to be computed
         return component({ attributes, children });
       }
     })();
@@ -217,3 +229,5 @@ export function Fragment({ children }) {
 export function createElement(component, attributes, ...children) {
   return { component, attributes, children };
 }
+
+
