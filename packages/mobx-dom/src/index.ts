@@ -77,121 +77,6 @@ function assignAttributes(element, attributes) {
   });
 }
 
-function removeChildren(childOrChildren) {
-  if (childOrChildren === undefined) {
-    return;
-  }
-  if (childOrChildren === null) {
-    return;
-  }
-  if (Array.isArray(childOrChildren)) {
-    childOrChildren.map(child => removeChildren(child));
-    return;
-  }
-  if (childOrChildren instanceof Node) {
-    if (childOrChildren.parentNode !== null) {
-      childOrChildren.parentNode.removeChild(childOrChildren);
-    }
-    return;
-  }
-  if (childOrChildren.array) {
-    childOrChildren.dispose();
-    removeChildren(childOrChildren.array);
-    return;
-  }
-}
-
-function addChildren(element, childOrChildren, before) {
-  if (childOrChildren === undefined) {
-    return undefined;
-  } else if (childOrChildren === null) {
-    return null;
-  } else if (childOrChildren instanceof Node) {
-    const newElement = childOrChildren;
-    element.insertBefore(newElement, before);
-    return newElement;
-  } else if (['string', 'boolean', 'number'].includes(typeof childOrChildren)) {
-    const newElement = document.createTextNode(childOrChildren.toString());
-    element.insertBefore(newElement, before);
-    return newElement;
-  } else if (isObservableArray(childOrChildren)) {
-    const childElements = [];
-    return {
-      dispose: childOrChildren.observe(changeData => {
-        if (changeData.type === 'splice') {
-          const elementToAddBefore =
-            changeData.index < childElements.length
-              ? childElements[changeData.index]
-              : before;
-          const parentToAddTo = elementToAddBefore
-            ? elementToAddBefore.parentNode
-            : element;
-          const fragment = document.createDocumentFragment();
-          const addedElements = changeData.added.map(child =>
-            addChildren(fragment, child, undefined),
-          );
-          parentToAddTo.insertBefore(fragment, elementToAddBefore);
-          const removed = childElements.splice(
-            changeData.index,
-            changeData.removedCount,
-            ...addedElements,
-          );
-          removeChildren(removed);
-        }
-      }, true),
-      array: childElements,
-    };
-  } else if (Array.isArray(childOrChildren)) {
-    const fragment = document.createDocumentFragment();
-    const addedChildren = childOrChildren.map(child =>
-      addChildren(fragment, child, undefined),
-    );
-    element.insertBefore(fragment, before);
-    return addedChildren;
-  } else if (typeof childOrChildren === 'function') {
-    let previous;
-    const positionMarkerElement = document.createComment('');
-    element.appendChild(positionMarkerElement);
-    reaction(
-      childOrChildren,
-      next => {
-        removeChildren(previous);
-        const fragment = document.createDocumentFragment();
-        previous = addChildren(fragment, next, null);
-        positionMarkerElement.parentNode.insertBefore(fragment, positionMarkerElement);
-      },
-      { fireImmediately: true },
-    );
-  } else {
-    const component = childOrChildren.component;
-    const attributes = childOrChildren.attributes;
-    const children =
-      attributes && attributes.children ? attributes.children : childOrChildren.children;
-
-    const childElementResult = (() => {
-      if (typeof component === 'string') {
-        const newElement = document.createElement(component);
-        assignAttributes(newElement, attributes);
-        addChildren(newElement, children, null);
-        return newElement;
-      } else if (component.prototype instanceof Node) {
-        const newElement = new component();
-        assignAttributes(newElement, attributes);
-        addChildren(newElement, children, null);
-        return newElement;
-      } else {
-        return component({ attributes, children });
-      }
-    })();
-
-    return addChildren(element, childElementResult, before);
-  }
-}
-
-export function render(element, renderInfo) {
-  return addChildren(element, renderInfo, null);
-}
-
 export abstract class MobxElement extends HTMLElement {
   constructor() {
     super();
@@ -218,16 +103,133 @@ export abstract class MobxElement extends HTMLElement {
   }
 }
 
-decorate(MobxElement, {
-  render: computed,
-});
+const textNodeTypes = new Set(['string', 'boolean', 'number']);
+function compileTemplate(renderInfo, template = document.createElement('template')) {
+  if (Array.isArray(renderInfo)) {
+    for(const item of renderInfo) {
+      compileTemplate(item, template);
+    }
+  } else if(textNodeTypes.has(typeof renderInfo)) {
+    template.content.appendChild(document.createTextNode(renderInfo));
+  } else {
+    console.log('compileTemplate', renderInfo);
+    template.content.appendChild(renderInfo.element);
+  }
+  return template;
+}
+
+export function render(parent, renderInfo, before) {
+  if(textNodeTypes.has(typeof renderInfo)) {
+    const child = document.createTextNode(renderInfo);
+    parent.insertBefore(child, before);
+    return () => {
+      child.parentNode.removeChild(child);
+    };
+  }
+
+  const template = compileTemplate(renderInfo);
+  const fragment = document.importNode(template.content, true);
+  const unmountFns = (() => {
+    if (Array.isArray(renderInfo)) {
+      return renderInfo.map(item => render(fragment, item, undefined));
+    } else {
+      const dynamicInfo = renderInfo.dynamic(0).map((dynamicSegment) => ({
+        element: dynamicSegment.getElement(fragment),
+        callback: dynamicSegment.callback,
+      }));
+      return dynamicInfo
+        .map(({ callback, element }) => callback(element))
+        .filter((unmountFn) => unmountFn !== undefined);
+    }
+  })();
+  console.warn('unmountfns', unmountFns);
+  parent.insertBefore(fragment, before);
+  return () => unmountFns.forEach(unmountFn => unmountFn());
+}
+
+function parentClient(parent) {
+  let i = 0;
+  return {
+    appendChild(element) {
+      i++;
+      return parent.appendChild(element);
+    },
+    get length() {
+      return i;
+    }
+  }
+}
+
+function addStaticElements(parentClient, children, dynamic) {
+  for(const child of children) {
+    if (Array.isArray(child) && isObservableArray(child)) {
+      addStaticElements(parentClient, children, dynamic);
+    } else {
+      if (typeof child === 'function') {
+        const positionMarker = document.createComment('');
+        const positionMarkerIndex = parentClient.length;
+        parentClient.appendChild(positionMarker);
+        let previous;
+        dynamic.push({
+          getElement: (clonedParent) => clonedParent.children[positionMarkerIndex],
+          callback: (clonedPositionMarker) => {
+            let previousUnmountFn = () => {};
+            const reactionDisposer = reaction(
+              child,
+              next => {
+                console.log('re-render');
+                previousUnmountFn();
+                previousUnmountFn = render(clonedPositionMarker.parentNode, next, clonedPositionMarker);
+              },
+              { fireImmediately: true },
+            );
+            return () => {
+              reactionDisposer();
+              previousUnmountFn();
+              clonedPositionMarker.parentNode.removeChild(clonedPositionMarker);
+            };
+          }
+        });
+      } else if (textNodeTypes.has(typeof child)) {
+        const element = document.createTextNode(child.toString());
+        parent.appendChild(element);
+      } else {
+        for(const element of child.elements) {
+          parent.appendChild(element);
+        }
+        dynamic.push(...child.dynamic);
+        // TODO: Wrap dynamic functions
+      }
+    }
+  }
+}
 
 export function Fragment({ children }) {
   return children;
 }
 
 export function createElement(component, attributes, ...children) {
-  return { component, attributes, children };
+  const dynamic = [];
+  if (typeof component === 'string' || component.prototype instanceof Node) {
+    const element = component.prototype instanceof Node ? new component() : document.createElement(component);
+    addStaticElements(parentClient(element), children, dynamic);
+    console.log('creating', element);
+    return { 
+      element,
+      dynamic(index) {
+        return dynamic.concat({
+          getElement: (parent) => parent.children[index],
+          callback: (clonedElement) => {
+            // TODO: Some attributes can be static
+            assignAttributes(clonedElement, attributes);
+            return () => {
+              clonedElement.parentNode.removeChild(clonedElement);
+            }
+          }
+        });
+      }
+    };
+  } else {
+    return component({ children, ...attributes });
+  } 
 }
-
-
