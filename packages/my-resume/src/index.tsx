@@ -9,33 +9,33 @@ import * as mbx from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 <div>
-  <>
-    Lol
-  </>
-</div>
+  <>Lol</>
+</div>;
 const store = observable({
   obj: {
     className: '1',
-    text: 'a'
+    text: 'a',
   },
 });
-setInterval(action(() => {
-  //store.obj.className = store.obj.className === '1' ? '2' : '1';
-  //store.obj.className = store.obj.className === '1' ? '2' : '1';
-  store.obj.text = store.obj.text === 'a' ? 'b' : 'a';
-  console.log('update');  
-}), 500);
+setInterval(
+  action(() => {
+    //store.obj.className = store.obj.className === '1' ? '2' : '1';
+    //store.obj.className = store.obj.className === '1' ? '2' : '1';
+    store.obj.text = store.obj.text === 'a' ? 'b' : 'a';
+    console.log('update');
+  }),
+  500,
+);
 
-class Test extends MobxElement {
-  render() {
-    return <>
-      <div className={store.obj.className && console.log('rendered')}>{store.obj.text}</div>
-    </>;
-  }
-}
+class Test extends MobxElement { }
+Test.template = <>
+  <div className={store.obj.className && console.log('rendered')}>
+    {store.obj.text}
+  </div>
+</>
 
 window.customElements.define('x-test', Test);
-mbx.render(document.getElementById('root'), <Test />);
+mbx.render(document.getElementById('root'), <Test obj={store.obj} />);
 
 /*
 import * as React from 'react';
