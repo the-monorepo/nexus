@@ -104,20 +104,6 @@ export abstract class MobxElement extends HTMLElement {
 }
 
 const textNodeTypes = new Set(['string', 'boolean', 'number']);
-function compileTemplate(renderInfo, template = document.createElement('template')) {
-  if (Array.isArray(renderInfo)) {
-    for(const item of renderInfo) {
-      compileTemplate(item, template);
-    }
-  } else if(textNodeTypes.has(typeof renderInfo)) {
-    template.content.appendChild(document.createTextNode(renderInfo));
-  } else {
-    console.log('compileTemplate', renderInfo);
-    template.content.appendChild(renderInfo.element);
-  }
-  return template;
-}
-
 export function render(parent, renderInfo, before) {
   if(textNodeTypes.has(typeof renderInfo)) {
     const child = document.createTextNode(renderInfo);
@@ -126,9 +112,7 @@ export function render(parent, renderInfo, before) {
       child.parentNode.removeChild(child);
     };
   }
-
-  const template = compileTemplate(renderInfo);
-  const fragment = document.importNode(template.content, true);
+  const fragment = document.importNode(renderInfo.template.content, true);
   const unmountFns = (() => {
     if (Array.isArray(renderInfo)) {
       return renderInfo.map(item => render(fragment, item, undefined));
@@ -147,11 +131,15 @@ export function render(parent, renderInfo, before) {
   return () => unmountFns.forEach(unmountFn => unmountFn());
 }
 
-function parentClient(parent) {
+function createParentNodeClient(parent) {
   let i = 0;
   return {
     appendChild(element) {
       i++;
+      return parent.appendChild(element);
+    },
+    appendFragment(element) {
+      i += element.children.length;
       return parent.appendChild(element);
     },
     get length() {
@@ -192,30 +180,64 @@ function addStaticElements(parentClient, children, dynamic) {
         });
       } else if (textNodeTypes.has(typeof child)) {
         const element = document.createTextNode(child.toString());
-        parent.appendChild(element);
+        parentClient.appendChild(element);
       } else {
-        for(const element of child.elements) {
-          parent.appendChild(element);
+        if (child.element) {
+          let index = parentClient.length;
+          parentClient.appendChild(child.element);
+          dynamic.push(...child.dynamic(index));
+        } else if(child.fragment) {
+          parentClient.appendFragment(child.fragment);
+          dynamic.push(...child.dynamic());
         }
-        dynamic.push(...child.dynamic);
-        // TODO: Wrap dynamic functions
       }
     }
   }
 }
 
+function createTemplateFromElement(element) {
+  const template = document.createElement('template');
+  template.content.appendChild(element);
+  return template;
+}
+
 export function Fragment({ children }) {
-  return children;
+  let lazyTemplate;
+  const fragment = document.createDocumentFragment();
+  const dynamic = [];
+  addStaticElements(createParentNodeClient(fragment), children, dynamic);
+
+  return {
+    fragment,
+    get template() {
+      if (lazyTemplate) {
+        return lazyTemplate;
+      }
+      lazyTemplate = createTemplateFromElement(fragment);  
+      return lazyTemplate;    
+    },
+    dynamic() {
+      return dynamic;
+    }
+  }
 }
 
 export function createElement(component, attributes, ...children) {
   const dynamic = [];
   if (typeof component === 'string' || component.prototype instanceof Node) {
     const element = component.prototype instanceof Node ? new component() : document.createElement(component);
-    addStaticElements(parentClient(element), children, dynamic);
+    let lazyTemplate;
+    addStaticElements(createParentNodeClient(element), children, dynamic);
     console.log('creating', element);
     return { 
       element,
+      get template() {
+        if (lazyTemplate) {
+          return lazyTemplate;
+        }
+        lazyTemplate = createTemplateFromElement(element);      
+        return lazyTemplate;
+      },
       dynamic(index) {
         return dynamic.concat({
           getElement: (parent) => parent.children[index],
