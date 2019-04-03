@@ -8,7 +8,11 @@ mbx.render(rootElement, <Resume data={data} />);*/
 import * as mbx from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
-
+<div>
+  <>
+    Lol
+  </>
+</div>
 const store = observable({
   obj: {
     className: '1',
