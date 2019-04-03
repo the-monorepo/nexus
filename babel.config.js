@@ -28,7 +28,11 @@ module.exports = api => {
           './packages/resume-template',
           './packages/mobx-dom',
         ],
-        plugins: ['@babel/plugin-syntax-jsx', 'babel-plugin-transform-mobx-jsx'],
+        plugins: [
+          '@babel/plugin-syntax-jsx',
+          'babel-plugin-transform-mobx-jsx',
+          '@babel/plugin-proposal-class-properties',
+        ],
         presets: [
           [
             '@babel/preset-env',
