@@ -110,11 +110,9 @@ export function render(parent, renderInfo, before) {
   if (textNodeTypes.has(typeof renderInfo)) {
     const child = document.createTextNode(renderInfo);
     parent.insertBefore(child, before);
-    console.log('inserted', child);
     return {
       removeChildren: () => {
-        console.log('removed child', child);
-        child.parentNode.removeChild(child)
+        child.parentNode.removeChild(child);
       },
       disposeReactions: () => {},
     };
@@ -123,8 +121,8 @@ export function render(parent, renderInfo, before) {
     const unmountObjs = renderInfo.map(item => render(fragment, item, undefined));
     parent.insertBefore(fragment, before);
     return {
-      removeChildren: wrapCallbacks(unmountObjs, (obj) => obj.removeChildren),
-      disposeReactions: wrapCallbacks(unmountObjs, (obj) => obj.disposeReactions),
+      removeChildren: wrapCallbacks(unmountObjs, obj => obj.removeChildren),
+      disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
     };
   } else {
     renderInfo = renderInfo.renderInfo;
@@ -135,12 +133,12 @@ export function render(parent, renderInfo, before) {
       element: dynamicSegment.getElement(fragment),
       callback: dynamicSegment.callback,
     }));
-    const unmountObjs = dynamicInfo
-      .map(({ callback, element }) => callback(element));
+    const unmountObjs = dynamicInfo.map(({ callback, element }) => callback(element));
     parent.insertBefore(fragment, before);
     return {
-      removeChildren: () => elements.forEach(element => element.parentNode.removeChild(element)),
-      disposeReactions: wrapCallbacks(unmountObjs, (obj) => obj.disposeReactions),
+      removeChildren: () =>
+        elements.forEach(element => element.parentNode.removeChild(element)),
+      disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
     };
   }
 }
@@ -169,14 +167,11 @@ function addStaticElements(parentClient, children, dynamic) {
     } else if (typeof child === 'function') {
       const positionMarker = document.createComment('');
       const positionMarkerIndex = parentClient.length;
-      console.log('marker index', positionMarkerIndex)
       parentClient.appendChild(positionMarker);
       let previous;
       dynamic.push({
         getElement: clonedParent => {
-          console.log('children', clonedParent.childNodes);
           const e = clonedParent.childNodes[positionMarkerIndex];
-          console.log('position marker received-expected', e, positionMarker, clonedParent);
           return e;
         },
         callback: clonedPositionMarker => {
@@ -187,7 +182,6 @@ function addStaticElements(parentClient, children, dynamic) {
           const reactionDisposer = reaction(
             child,
             next => {
-              console.log('re-render', next);
               unmountObj.disposeReactions();
               unmountObj.removeChildren();
               unmountObj = render(
@@ -206,8 +200,8 @@ function addStaticElements(parentClient, children, dynamic) {
             removeChildren: () => {
               unmountObj.removeChildren();
               clonedPositionMarker.parentNode.removeChild(clonedPositionMarker);
-            }
-          }
+            },
+          };
         },
       });
     } else if (textNodeTypes.has(typeof child)) {
@@ -235,11 +229,16 @@ function lazyTemplateFactory(element, getDynamic) {
     if (lazyTemplate) {
       return lazyTemplate;
     }
-    console.log('element template', element);
     lazyTemplate = document.createElement('template');
     lazyTemplate.content.appendChild(element);
-    return { template: lazyTemplate, get dynamic() { return getDynamic(); } };      
-  }
+    console.log('new template', lazyTemplate);
+    return {
+      template: lazyTemplate,
+      get dynamic() {
+        return getDynamic();
+      },
+    };
+  };
 }
 
 export function Fragment({ children }) {
@@ -259,9 +258,9 @@ export function Fragment({ children }) {
         template: lazyTemplateFactory(fragment, getDynamic),
         dynamic: getDynamic,
       };
-      return lazyData;  
-    }
-  }
+      return lazyData;
+    },
+  };
 }
 
 export function createElement(component, attributes, ...children) {
@@ -274,35 +273,30 @@ export function createElement(component, attributes, ...children) {
         }
         let lazyTemplate;
         const dynamic = [];
-        const element = component.prototype instanceof Node
-          ? new component()
-          : document.createElement(component);
-        addStaticElements(createParentNodeClient(element), children, dynamic);  
+        const element =
+          component.prototype instanceof Node
+            ? new component()
+            : document.createElement(component);
+        addStaticElements(createParentNodeClient(element), children, dynamic);
         function getDynamic(index) {
-          return dynamic.map(item => ({
-            ...item,
-            getElement: parent => {
-              const e = item.getElement(parent.childNodes[index]);
-              console.log('wrapped', index, e, "??", parent);
-              return e;
-            }
-          })).concat({
-            getElement: parent => {
-              const e = parent.childNodes[index];
-              console.log('createElement received-expected', e, element, parent);
-              return e;
-            },
-            callback: clonedElement => {
-              // TODO: Some attributes can be static
-              assignAttributes(clonedElement, attributes);
-              return {
-                disposeReactions: () => {},
-                removeChildren: () => {
-                  clonedElement.parentNode.removeChild(clonedElement);
-                }
-              };
-            },
-          });
+          return dynamic
+            .map(item => ({
+              ...item,
+              getElement: parent => item.getElement(parent.childNodes[index]),
+            }))
+            .concat({
+              getElement: parent => parent.childNodes[index],
+              callback: clonedElement => {
+                // TODO: Some attributes can be static
+                assignAttributes(clonedElement, attributes);
+                return {
+                  disposeReactions: () => {},
+                  removeChildren: () => {
+                    clonedElement.parentNode.removeChild(clonedElement);
+                  },
+                };
+              },
+            });
         }
         lazyData = {
           dynamic,
@@ -310,10 +304,10 @@ export function createElement(component, attributes, ...children) {
           template: lazyTemplateFactory(element, () => getDynamic(0)),
           dynamic(index) {
             return getDynamic(index);
-          },  
-        }
+          },
+        };
         return lazyData;
-      }
+      },
     };
   } else {
     return component({ children, ...attributes });
