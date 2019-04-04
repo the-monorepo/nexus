@@ -8,7 +8,7 @@ import * as mbx from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 const store = observable({
-  arr: []
+  arr: [],
 });
 let i = 0;
 setInterval(
@@ -23,11 +23,13 @@ setInterval(
 class Test extends MobxElement {
   static get render() {
     return (
-        <>
-          {store.arr.map(v => <div>{v}</div>)}
-        </>
+      <>
+        {store.arr.map(v => (
+          <div>{v}</div>
+        ))}
+      </>
     );
-  };
+  }
 }
 
 window.customElements.define('x-test', Test);
