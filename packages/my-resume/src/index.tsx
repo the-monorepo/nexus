@@ -4,7 +4,36 @@ import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
 mbx.render(rootElement, <Resume data={data} />);*/
+import * as mbx from 'mobx-dom';
+import { MobxElement, map } from 'mobx-dom';
+import { observable, action, autorun, isObservableArray } from 'mobx';
+const store = observable({
+  arr: []
+});
+let i = 0;
+setInterval(
+  action(() => {
+    //store.obj.className = store.obj.className === '1' ? '2' : '1';
+    //store.obj.className = store.obj.className === '1' ? '2' : '1';
+    store.arr.push(i++);
+  }),
+  500,
+);
 
+class Test extends MobxElement {
+  static get render() {
+    return (
+        <>
+          {store.arr.map(v => <div>{v}</div>)}
+        </>
+    );
+  };
+}
+
+window.customElements.define('x-test', Test);
+mbx.render(document.getElementById('root'), <Test obj={store.obj} />);
+
+/*No double assignment of props
 import * as mbx from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
@@ -27,16 +56,21 @@ setInterval(
   500,
 );
 
-class Test extends MobxElement { }
-Test.template = <>
-  <div className={store.obj.className && console.log('rendered')}>
-    {store.obj.text}
-  </div>
-</>
+class Test extends MobxElement {
+  render() {
+    return (
+      <>
+        <div className={this.props.obj.className && console.log('rendered')}>
+          {this.props.obj.text}
+        </div>
+      </>
+    );
+  }
+}
 
 window.customElements.define('x-test', Test);
 mbx.render(document.getElementById('root'), <Test obj={store.obj} />);
-
+*/
 /*
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
