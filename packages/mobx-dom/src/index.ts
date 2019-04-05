@@ -96,16 +96,16 @@ export function render(parent, renderInfo, before): DynamicCallbacks {
           changeData.removedCount,
           ...addedElements,
         );
-        removed.forEach(removedItem => {
-          if (removedItem) {
-            if (removedItem.disposeReactions) {
-              removedItem.disposeReactions();
+        for(const unmountObj of removed) {
+          if (unmountObj) {
+            if (unmountObj.disposeReactions) {
+              unmountObj.disposeReactions();
             }
-            if (removedItem.removeChildren) {
-              removedItem.removeChildren();
+            if (unmountObj.removeChildren) {
+              unmountObj.removeChildren();
             }
           }
-        })
+        }
       }
     }, true);
     const diposeChildrenReactions = wrapCallbacks(childElements, (obj) => obj.disposeReactions);
@@ -183,8 +183,7 @@ function addStaticElements(parentClient, children, dynamic) {
       let previous;
       dynamic.push({
         getElement: clonedParent => {
-          const e = clonedParent.childNodes[positionMarkerIndex];
-          return e;
+          return clonedParent.childNodes[positionMarkerIndex];
         },
         callback(clonedPositionMarker) {
           let unmountObj;
@@ -308,45 +307,49 @@ export function createElement(component, attributes, ...children) {
             ? new component()
             : document.createElement(component);
         addStaticElements(createParentNodeClient(element), children, dynamic);
+        let addedAttributeComputation = false;
         function getDynamic(index) {
-          return [{
-            getElement: parent => parent.childNodes[index],
-            callback(clonedElement) {
-              const clonedElementCallbacks = {
-                firstElement: () => clonedElement,
-                removeChildren: () => {
-                  clonedElement.parentNode.removeChild(clonedElement);
-                },
-              };
-              if (attributes) {
-                const disposals = Object.keys(attributes).map(key => {
-                  const attributeValue = attributes[key];
-                  if (typeof attributeValue === 'function') {
-                    const boundAttributeAssignment = attributeValue.bind(this);
-                    return reaction(
-                      boundAttributeAssignment,
-                      action(value => {
-                        assignAttribute(clonedElement, key, value);
-                      }),
-                      { fireImmediately: true },
-                    );
-                  } else {
-                    assignAttribute(clonedElement, key, attributeValue);
-                    return () => {};
+          if (!addedAttributeComputation) {
+            addedAttributeComputation = true;
+            for(const item of dynamic) {
+              const oldGetElement = item.getElement;
+              item.getElement = parent => oldGetElement(parent.childNodes[index]);
+            }
+            dynamic.unshift({
+              getElement: parent => parent.childNodes[index],
+              callback(clonedElement) {
+                const clonedElementCallbacks = {
+                  firstElement: () => clonedElement,
+                  removeChildren: () => {
+                    clonedElement.parentNode.removeChild(clonedElement);
+                  },
+                };
+                if (attributes) {
+                  const disposals = [];
+                  for(const key of Object.keys(attributes)) {
+                    const attributeValue = attributes[key];
+                    if (typeof attributeValue === 'function') {
+                      const boundAttributeAssignment = attributeValue.bind(this);
+                      disposals.push(reaction(
+                        boundAttributeAssignment,
+                        action(value => {
+                          assignAttribute(clonedElement, key, value);
+                        }),
+                        { fireImmediately: true },
+                      ));
+                    } else {
+                      assignAttribute(clonedElement, key, attributeValue);
+                    }
                   }
-                });
-                clonedElementCallbacks.disposeReactions = () => disposals.forEach(dispose => dispose());
-              }
-              return clonedElementCallbacks;
-            },
-          }].concat(
-            dynamic.map(item => ({
-              ...item,
-              getElement: parent => item.getElement(parent.childNodes[index]),
-            })));
+                  clonedElementCallbacks.disposeReactions = () => disposals.forEach(dispose => dispose());
+                }
+                return clonedElementCallbacks;
+              },
+            });
+          }
+          return dynamic;
         }
         lazyData = {
-          dynamic,
           element,
           template: lazyTemplateFactory(element, () => getDynamic(0)),
           dynamic(index) {
