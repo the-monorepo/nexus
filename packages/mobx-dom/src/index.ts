@@ -62,7 +62,18 @@ type DynamicCallbacks = {
   removeChildren?: () => void,
   disposeReactions?: () => void,
 }
-export function render(parent, renderInfo, before): DynamicCallbacks {
+
+function getSingleUseElementInfo(renderInfo) {
+  return renderInfo;
+}
+
+function getTemplateElementInfo(renderInfo) {
+  const templateInfo = renderInfo.template();
+  const element = document.importNode(templateInfo.template.content, true);
+  return { element, dynamic: templateInfo.dynamic };
+}
+
+export function render(parent, renderInfo, before, getElementInfo = getTemplateElementInfo): DynamicCallbacks {
   console.log('this', this);
   if (renderInfo === undefined || renderInfo === null) {
     return;
@@ -119,7 +130,7 @@ export function render(parent, renderInfo, before): DynamicCallbacks {
     }
   } else if (Array.isArray(renderInfo)) {
     const fragment = document.createDocumentFragment();
-    const unmountObjs = renderInfo.map(item => render(fragment, item, undefined));
+    const unmountObjs = renderInfo.map(item => render(fragment, item, undefined, getSingleUseElementInfo));
     parent.insertBefore(fragment, before);
     return {
       firstElement: () => {
@@ -135,23 +146,27 @@ export function render(parent, renderInfo, before): DynamicCallbacks {
       disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
     };
   } else {
-    renderInfo = renderInfo.renderInfo;
-    const templateInfo = renderInfo.template();
-    const fragment = document.importNode(templateInfo.template.content, true);
-    const elements = Array.from(fragment.children);
-    const dynamicInfo = templateInfo.dynamic.map(dynamicSegment => ({
-      element: dynamicSegment.getElement(fragment),
+    const elementInfo = getElementInfo(renderInfo.renderInfo);
+    const dynamicInfo = elementInfo.dynamic.map(dynamicSegment => ({
+      element: dynamicSegment.getElement(elementInfo.element),
       callback: dynamicSegment.callback,
     }));
     const unmountObjs = dynamicInfo.map(({ callback, element }) => callback.bind(this)(element));
     console.log('unmountObjs', unmountObjs);
-    parent.insertBefore(fragment, before);
+    parent.insertBefore(elementInfo.element, before);
     return {
       firstElement: () => {
-        return elements.length > 0 ? elements[0] : null;
+        for (const obj of unmountObjs) {
+          if (obj.firstElement) {
+            const potentialFirstElement = obj.firstElement();
+            if (potentialFirstElement) {
+              return potentialFirstElement;
+            }  
+          }
+        }
+        return null;
       },
-      removeChildren: () =>
-        elements.forEach(element => element.parentNode.removeChild(element)),
+      removeChildren: wrapCallbacks(unmountObjs, obj => obj.removeChildren),
       disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
     };
   }
@@ -204,6 +219,7 @@ function addStaticElements(parentClient, children, dynamic) {
                 clonedPositionMarker.parentNode,
                 next,
                 clonedPositionMarker,
+                getSingleUseElementInfo
               );
             },
             { fireImmediately: true },
