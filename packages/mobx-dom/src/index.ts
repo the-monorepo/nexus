@@ -40,29 +40,32 @@ export abstract class MobxElement extends HTMLElement {
 
   disconnectedCallback() {
     // TODO: Maybe just dispose of reactions and recreate them on connectedCallback
-    this.unmountObj.disposeReactions();
-    this.unmountObj.removeChildren();
+    if (this.unmountObj) {
+      if(this.unmountObj.disposeReactions) {
+        this.unmountObj.disposeReactions();
+      }
+      if (this.unmountObj.removeChildren) {
+        this.unmountObj.removeChildren();
+      }
+    }
   } 
 }
 
 function wrapCallbacks(objs, getCallback) {
-  return () => objs.forEach(obj => getCallback(obj)());
+  const filteredCallbacks = objs.filter(obj => !!obj).map(getCallback).filter(callback => !!callback);
+  return () => filteredCallbacks.forEach(callback => callback());
 }
 
 const textNodeTypes = new Set(['string', 'boolean', 'number']);
 type DynamicCallbacks = {
-  firstElement: () => any,
-  removeChildren: () => void,
-  disposeReactions: () => void,
+  firstElement?: () => any,
+  removeChildren?: () => void,
+  disposeReactions?: () => void,
 }
 export function render(parent, renderInfo, before): DynamicCallbacks {
   console.log('this', this);
   if (renderInfo === undefined || renderInfo === null) {
-    return {
-      firstElement: () => {},
-      removeChildren: () => {},
-      disposeReactions: () => {},
-    };
+    return;
   } else if (textNodeTypes.has(typeof renderInfo)) {
     const child = document.createTextNode(renderInfo);
     parent.insertBefore(child, before);
@@ -71,7 +74,6 @@ export function render(parent, renderInfo, before): DynamicCallbacks {
       removeChildren: () => {
         child.parentNode.removeChild(child);
       },
-      disposeReactions: () => {},
     };
   } else if(isObservableArray(renderInfo)) {
     const childElements = [];
@@ -95,15 +97,22 @@ export function render(parent, renderInfo, before): DynamicCallbacks {
           ...addedElements,
         );
         removed.forEach(removedItem => {
-          removedItem.disposeReactions();
-          removedItem.removeChildren();
+          if (removedItem) {
+            if (removedItem.disposeReactions) {
+              removedItem.disposeReactions();
+            }
+            if (removedItem.removeChildren) {
+              removedItem.removeChildren();
+            }
+          }
         })
       }
     }, true);
+    const diposeChildrenReactions = wrapCallbacks(childElements, (obj) => obj.disposeReactions);
     return {
       firstElement: () => childElements.length > 0 ? childElements[0].firstElement() : before,
       disposeReactions: () => {
-        dispose();
+        diposeChildrenReactions();
         wrapCallbacks(childElements, (obj) => obj.disposeReactions)();
       },
       removeChildren: wrapCallbacks(childElements, (obj) => obj.removeChildren),
@@ -178,18 +187,20 @@ function addStaticElements(parentClient, children, dynamic) {
           return e;
         },
         callback(clonedPositionMarker) {
-          let unmountObj = {
-            disposeReactions: () => {},
-            removeChildren: () => {},
-            firstElement: () => {}
-          };
+          let unmountObj;
           const boundRender = render.bind(this);
           const boundChild = child.bind(this)
           const reactionDisposer = reaction(
             boundChild,
             next => {
-              unmountObj.disposeReactions();
-              unmountObj.removeChildren();
+              if(unmountObj) {
+                if (unmountObj.disposeReactions) {
+                  unmountObj.disposeReactions();
+                }
+                if (unmountObj.removeChildren()) {
+                  return unmountObj.removeChildren();
+                }  
+              }
               unmountObj = boundRender(
                 clonedPositionMarker.parentNode,
                 next,
@@ -200,15 +211,24 @@ function addStaticElements(parentClient, children, dynamic) {
           );
           return {
             firstElement: () => {
-              const potentialFirstElement = unmountObj.firstElement();
-              return !!potentialFirstElement ? potentialFirstElement : positionMarker;
+              if (unmountObj) {
+                const potentialFirstElement = unmountObj.firstElement();
+                if(potentialFirstElement) {
+                  return potentialFirstElement;
+                }
+              }
+              return positionMarker;
             },
             disposeReactions: () => {
               reactionDisposer();
-              unmountObj.disposeReactions();
+              if (unmountObj && unmountObj.disposeReactions) {
+                unmountObj.disposeReactions();
+              }
             },
             removeChildren: () => {
-              unmountObj.removeChildren();
+              if (unmountObj && unmountObj.removeChildren) {
+                unmountObj.removeChildren();
+              }
               clonedPositionMarker.parentNode.removeChild(clonedPositionMarker);
             },
           };
@@ -294,7 +314,6 @@ export function createElement(component, attributes, ...children) {
             callback(clonedElement) {
               const clonedElementCallbacks = {
                 firstElement: () => clonedElement,
-                disposeReactions: () => {},
                 removeChildren: () => {
                   clonedElement.parentNode.removeChild(clonedElement);
                 },
