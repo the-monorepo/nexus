@@ -97,7 +97,8 @@ export default declare((api, options) => {
 
   visitor.JSXExpressionContainer = function(path) {
     if (t.isExpression(path.node.expression)) {
-      path.node.expression = t.arrowFunctionExpression(
+      path.node.expression = t.functionExpression(
+        null,
         [],
         t.blockStatement([t.returnStatement(path.node.expression)]),
       );

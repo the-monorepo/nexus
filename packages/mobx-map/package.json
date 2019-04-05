@@ -1,0 +1,23 @@
+{
+  "name": "mobx-map",
+  "version": "1.0.0-alpha.0",
+  "description": "Utility for mapping one MobX observable array to another",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "packages/mobx-map"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}
