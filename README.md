@@ -15,6 +15,7 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.0.0-alpha.0 | [`mobx-dom`](packages/mobx-dom/README.md) | Create interactive UIs with seamless state management using MobX
+1.0.0-alpha.0 | [`mobx-map`](packages/mobx-map/README.md) | Utility for mapping one MobX observable array to another
 
 ### Build tooling
 Version | Package | Description

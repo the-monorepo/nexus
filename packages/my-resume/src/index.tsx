@@ -4,37 +4,11 @@ import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
 mbx.render(rootElement, <Resume data={data} />);*/
+
 import * as mbx from 'mobx-dom';
-import { MobxElement, map } from 'mobx-dom';
+import map from 'mobx-map';
+import { MobxElement } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
-const store = observable({
-  arr: [],
-});
-let i = 0;
-setInterval(
-  action(() => {
-    //store.obj.className = store.obj.className === '1' ? '2' : '1';
-    //store.obj.className = store.obj.className === '1' ? '2' : '1';
-    store.arr.push(i++);
-  }),
-  500,
-);
-
-class Test extends MobxElement {
-  static get render() {
-    return (
-      <>
-        {store.arr.map(v => (
-          <div>{v}</div>
-        ))}
-      </>
-    );
-  }
-}
-
-window.customElements.define('x-test', Test);
-mbx.render(document.getElementById('root'), <Test obj={store.obj} />);
-
 /*No double assignment of props
 import * as mbx from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
@@ -120,10 +94,11 @@ class Test extends React.Component {
     );
   }
 }
-ReactDOM.render(<Test/>, document.getElementById('root'));*/
-/*
-import * as mbx from 'mobx-dom';
-import { MobxElement, map } from 'mobx-dom';
+ReactDOM.render(<Test/>, document.getElementById('root'));
+*/
+/*import * as mbx from 'mobx-dom';
+import { MobxElement } from 'mobx-dom';
+import map from 'mobx-map';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 const store = observable({
   arr: observable.array([]),
@@ -150,115 +125,128 @@ setInterval(
       }
     });
   }),
-);
-class Test extends MobxElement {
-  render() {
-    return (
-      <>
-        <div>This should be at the top</div>
-        {map(store.arr, inner => (
-          <div>
-            {map(inner, v => (
-              <div
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  background: ['red', 'green', 'blue'][Math.round(Math.random() * 2)],
-                  display: 'inline-block',
-                }}
-              />
-            ))}
-          </div>
-        ))}
-        <div>This should be at the bottom</div>
-      </>
-    );
-  }
-}
-
-window.customElements.define('x-test', Test);
-mbx.render(document.getElementById('root'), <Test />);*/
-
-/*import * as mbx from 'mobx-dom';
-import { map, MobxElement } from 'mobx-dom';
-import { observable, action, autorun, isObservableArray } from 'mobx';
+);*/
+/*
 
 const store = observable({
-  arr: observable.array([])
+  arr: observable.array([[]])
 });
-setInterval(action(() => {
-  const add = Math.round(Math.random()) === 0;
-  if (add) {
-    store.arr.push(observable.array());
-  } else {
-    if(store.arr.length > 0) {
-      store.arr.pop();
-    }
-  }
-  store.arr.forEach((inner) => {
-    const append = Math.round(Math.random()) === 0;
-    if (append) {
-      inner.push(0);
+
+setInterval(
+  action(() => {
+    const add = Math.round(Math.random()) === 0;
+    if (add) {
+      store.arr.push(observable.array([]));
     } else {
-      if(inner.length > 0) {
-        const index = Math.floor(Math.random()) * inner.length;
-        inner.splice(index, 1);
+      if (store.arr.length > 0) {
+        store.arr.pop();
       }
     }
-  });
-}));
-class Test extends MobxElement {  
-  render() {
-    return <>
-      <div>This should be at the top</div>
-      {map(store.arr, (inner) => <div>{map(inner, (v) => <div style={{ width: '10px', height: '10px', background: ['red', 'green', 'blue'][Math.round(Math.random() * 2)], display: 'inline-block' }}></div>)}</div>)}
-      <div>This should be at the bottom</div>
-    </>;
+    store.arr.forEach(inner => {
+      const append = Math.round(Math.random()) === 0;
+      if (append) {
+        inner.splice(Math.round(Math.random()) * inner.length, 0, 0);
+      } else {
+        if (inner.length > 0) {
+          const index = Math.floor(Math.random()) * inner.length;
+          inner.splice(index, 1);
+        }
+      }
+    });
+  }),
+);
+class Block extends MobxElement {}
+Block.template = (
+  <div
+    style={{
+      width: '10px',
+      height: '10px',
+      background: ['red', 'green', 'blue'][Math.round(Math.random() * 2)],
+      display: 'inline-block',
+    }}
+  />
+);
+window.customElements.define('x-block', Block);
 
-  }
-}
+class Row extends MobxElement { }
+Row.template = (
+  <div>
+    {map(this.props.row, block => (
+      <Block/>
+    ))}
+  </div>
+)
+window.customElements.define('x-row', Row);
 
-window.customElements.define('x-test', Test);*/
-/*
+class Test extends MobxElement { }
+Test.template = (
+  <>
+    <div>This should be at the top</div>
+    {map(this.props.arr, row => (<Row row={row}/>))}
+    <div>This should be at the bottom</div>
+  </>
+);
+window.customElements.define('x-test', Test);
+mbx.render(document.getElementById('root'), <Test arr={store.arr}/>);
+*/
+
 let i = 0;
 const store = observable({
-  arr: [[1, 2, 3]],
+  arr: [[1, 2, 3], []],
 });
-setInterval(action(() => {
+const tick = action(() => {
   if(i < 2) {
+    console.log('push');
     store.arr[1].push(i);
   } else {
+    console.log('pop                                                                                                            ');
     store.arr[1].pop();
   }
-  console.warn('update', store.arr.length);
+  console.warn('update', store.arr[1].length);
   i++;
   i %= 4;
-}), 1000);
+});
+setInterval(tick, 1000);
 
-/*
-class Test extends MobxElement {
-  render() {
-    return (
-      <>
-        <div>This should be at the top</div>
-        {map(store.arr, inner => (
-          <div>
-            {map(inner, v => (
-              <div
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  background: v === 0 ? 'red' : 'green',
-                }}
-              />
-            ))}
-          </div>
-        ))}
-        <div>This should be at the bottom</div>
-      </>
-    );
-  }
-}
+class Block extends MobxElement {}
+Block.template = (
+  <>
+    {console.log('block')}
+    <div
+      style={{
+        width: '10px',
+        height: '10px',
+        background: ['red', 'green', 'blue'][Math.round(Math.random() * 2)],
+        display: 'inline-block',
+      }}
+    />
+  </>
+);
+window.customElements.define('x-block', Block);
+
+class Row extends MobxElement { }
+Row.template = (
+  <div>
+    {console.log('row')}
+    {
+      map(this.props.row, block => (
+        <Block/>
+      ))
+    }
+  </div>
+)
+window.customElements.define('x-row', Row);
+
+class Test extends MobxElement {}
+Test.template = (
+  <>
+    <div>This should be at the top</div>
+    {map(store.arr, inner => (
+      <Row row={inner}/>
+    ))}
+    <div>This should be at the bottom</div>
+  </>
+);
 window.customElements.define('x-test', Test);
 mbx.render(document.getElementById('root'), <Test />);
-*/
+
