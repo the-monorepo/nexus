@@ -23,6 +23,15 @@ module.exports = {
       },
       {
         test: /\.[jt]sx?$/,
+        enforce: "pre",
+        use: [
+          {
+            loader: 'source-map-loader',
+          }
+        ]
+      },
+      {
+        test: /\.[jt]sx?$/,
         use: [
           {
             loader: 'babel-loader',

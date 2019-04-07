@@ -22,8 +22,10 @@ const assignAttribute = action((element, key, value) => {
     }
   }
 });
-
 export abstract class MobxElement extends HTMLElement {
+  private readonly shadow;
+  private unmountObj;
+  public static template: any;
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: 'open' });
@@ -64,42 +66,59 @@ type DynamicCallbacks = {
 }
 
 function getSingleUseElementInfo(renderInfo) {
-  return renderInfo;
+  if (renderInfo.used) {
+    throw new Error('renderInfo already used');
+  }
+  renderInfo.used = true;
+  const element = renderInfo.element ? renderInfo.element : renderInfo.fragment;
+  const result = {
+    element,
+    getChildElement: () => element,
+    dynamic: renderInfo.dynamic(0)
+  }
+  return result;
 }
 
 function getTemplateElementInfo(renderInfo) {
   const templateInfo = renderInfo.template();
   const element = document.importNode(templateInfo.template.content, true);
-  return { element, dynamic: templateInfo.dynamic };
+  return { element, getChildElement: (childGetElement) => childGetElement(element), dynamic: templateInfo.dynamic };
 }
 
-export function render(parent, renderInfo, before, getElementInfo = getTemplateElementInfo): DynamicCallbacks {
-  console.log('this', this);
+export function render(parent, renderInfo, before?, getElementInfo = getTemplateElementInfo): DynamicCallbacks | undefined {
   if (renderInfo === undefined || renderInfo === null) {
-    return;
+    return undefined;
   } else if (textNodeTypes.has(typeof renderInfo)) {
     const child = document.createTextNode(renderInfo);
     parent.insertBefore(child, before);
     return {
       firstElement: () => child,
       removeChildren: () => {
-        child.parentNode.removeChild(child);
+        child.remove();
       },
     };
   } else if(isObservableArray(renderInfo)) {
-    const childElements = [];
+    const childElements: (DynamicCallbacks | undefined)[] = [];
     const dispose = renderInfo.observe(changeData => {
       if (changeData.type === 'splice') {
-        const elementToAddBefore =
-          changeData.index < childElements.length
-            ? childElements[changeData.index].firstElement()
-            : before;
+        const elementToAddBefore = (() => {
+          let index = changeData.index;
+          while(index < childElements.length) {
+            const unmountObj = childElements[changeData.index];
+            if (unmountObj && unmountObj.firstElement) {
+              return unmountObj.firstElement();
+            } else {
+              return before;
+            }            
+          }
+          return before;
+        })();
         const parentToAddTo = elementToAddBefore
           ? elementToAddBefore.parentNode
           : parent;
         const fragment = document.createDocumentFragment();
         const addedElements = changeData.added.map(child =>
-          render.bind(this)(fragment, child),
+          render.bind(this)(fragment, child, undefined, getSingleUseElementInfo),
         );
         parentToAddTo.insertBefore(fragment, elementToAddBefore);
         const removed = childElements.splice(
@@ -119,11 +138,22 @@ export function render(parent, renderInfo, before, getElementInfo = getTemplateE
         }
       }
     }, true);
-    const diposeChildrenReactions = wrapCallbacks(childElements, (obj) => obj.disposeReactions);
     return {
-      firstElement: () => childElements.length > 0 ? childElements[0].firstElement() : before,
+      firstElement: () => {
+        for(const childElement of childElements) {
+          if (childElement) {
+            if(childElement.firstElement) {
+              const potentialFirstElement = childElement.firstElement();
+              if(potentialFirstElement) {
+                return potentialFirstElement;
+              }
+            }  
+          }
+        }
+        return before;
+      },
       disposeReactions: () => {
-        diposeChildrenReactions();
+        dispose();
         wrapCallbacks(childElements, (obj) => obj.disposeReactions)();
       },
       removeChildren: wrapCallbacks(childElements, (obj) => obj.removeChildren),
@@ -135,9 +165,11 @@ export function render(parent, renderInfo, before, getElementInfo = getTemplateE
     return {
       firstElement: () => {
         for(const obj of unmountObjs) {
-          const potentialFirstElement = obj.firstElement;
-          if(!!potentialFirstElement) {
-            return potentialFirstElement;
+          if (obj) {
+            const potentialFirstElement = obj.firstElement;
+            if(!!potentialFirstElement) {
+              return potentialFirstElement;
+            }  
           }
         }
         return undefined;    
@@ -148,11 +180,11 @@ export function render(parent, renderInfo, before, getElementInfo = getTemplateE
   } else {
     const elementInfo = getElementInfo(renderInfo.renderInfo);
     const dynamicInfo = elementInfo.dynamic.map(dynamicSegment => ({
-      element: dynamicSegment.getElement(elementInfo.element),
+      element: elementInfo.getChildElement(dynamicSegment.getElement),
       callback: dynamicSegment.callback,
     }));
     const unmountObjs = dynamicInfo.map(({ callback, element }) => callback.bind(this)(element));
-    console.log('unmountObjs', unmountObjs);
+
     parent.insertBefore(elementInfo.element, before);
     return {
       firstElement: () => {
@@ -195,7 +227,6 @@ function addStaticElements(parentClient, children, dynamic) {
       const positionMarker = document.createComment('');
       const positionMarkerIndex = parentClient.length;
       parentClient.appendChild(positionMarker);
-      let previous;
       dynamic.push({
         getElement: clonedParent => {
           return clonedParent.childNodes[positionMarkerIndex];
@@ -203,7 +234,7 @@ function addStaticElements(parentClient, children, dynamic) {
         callback(clonedPositionMarker) {
           let unmountObj;
           const boundRender = render.bind(this);
-          const boundChild = child.bind(this)
+          const boundChild = child.bind(this);
           const reactionDisposer = reaction(
             boundChild,
             next => {
@@ -244,7 +275,7 @@ function addStaticElements(parentClient, children, dynamic) {
               if (unmountObj && unmountObj.removeChildren) {
                 unmountObj.removeChildren();
               }
-              clonedPositionMarker.parentNode.removeChild(clonedPositionMarker);
+              clonedPositionMarker.remove();
             },
           };
         },
@@ -316,8 +347,7 @@ export function createElement(component, attributes, ...children) {
         if (lazyData) {
           return lazyData;
         }
-        let lazyTemplate;
-        const dynamic = [];
+        const dynamic: any[] = [];
         const element =
           component.prototype instanceof Node
             ? new component()
@@ -328,16 +358,30 @@ export function createElement(component, attributes, ...children) {
           if (!addedAttributeComputation) {
             addedAttributeComputation = true;
             for(const item of dynamic) {
+              if (!item.getElement) {
+                continue;
+              }
               const oldGetElement = item.getElement;
-              item.getElement = parent => oldGetElement(parent.childNodes[index]);
+              item.getElement = parent => {
+                const clonedElement = oldGetElement(parent.childNodes[index]);
+                if (!clonedElement) {
+                  throw new Error('Invalid cloned element');
+                }
+                return clonedElement;
+              };
             }
             dynamic.unshift({
-              getElement: parent => parent.childNodes[index],
+              getElement: parent => {
+                return parent.childNodes[index]
+              },
               callback(clonedElement) {
+                if (!clonedElement) {
+                  throw new Error('Invalid clonedElement');
+                }
                 const clonedElementCallbacks = {
                   firstElement: () => clonedElement,
                   removeChildren: () => {
-                    clonedElement.parentNode.removeChild(clonedElement);
+                    clonedElement.remove();
                   },
                 };
                 if (attributes) {
