@@ -37,7 +37,7 @@ export abstract class MobxElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.unmountObj = render.bind(this)(this.shadow, this.constructor.template);
+    this.unmountObj = render(this.shadow, this.constructor.template, undefined, this);
   }
 
   disconnectedCallback() {
@@ -66,26 +66,24 @@ type DynamicCallbacks = {
 }
 
 function getSingleUseElementInfo(renderInfo) {
-  if (renderInfo.used) {
-    throw new Error('renderInfo already used');
-  }
-  renderInfo.used = true;
   const element = renderInfo.element ? renderInfo.element : renderInfo.fragment;
   const result = {
     element,
-    getChildElement: () => element,
-    dynamic: renderInfo.dynamic(0)
+    dynamic: renderInfo.dynamic,
   }
   return result;
 }
 
 function getTemplateElementInfo(renderInfo) {
-  const templateInfo = renderInfo.template();
-  const element = document.importNode(templateInfo.template.content, true);
-  return { element, getChildElement: (childGetElement) => childGetElement(element), dynamic: templateInfo.dynamic };
+  const template = renderInfo.template();
+  const templateContent = document.importNode(template.content, true);
+  return { 
+    element: templateContent.childNodes[0], 
+    dynamic: renderInfo.dynamic,
+  };
 }
 
-export function render(parent, renderInfo, before?, getElementInfo = getTemplateElementInfo): DynamicCallbacks | undefined {
+export function render(parent, renderInfo, before?, thisArg?, getElementInfo = getTemplateElementInfo): DynamicCallbacks | undefined {
   if (renderInfo === undefined || renderInfo === null) {
     return undefined;
   } else if (textNodeTypes.has(typeof renderInfo)) {
@@ -118,7 +116,7 @@ export function render(parent, renderInfo, before?, getElementInfo = getTemplate
           : parent;
         const fragment = document.createDocumentFragment();
         const addedElements = changeData.added.map(child =>
-          render.bind(this)(fragment, child, undefined, getSingleUseElementInfo),
+          render(fragment, child, undefined, thisArg, getSingleUseElementInfo),
         );
         parentToAddTo.insertBefore(fragment, elementToAddBefore);
         const removed = childElements.splice(
@@ -160,7 +158,7 @@ export function render(parent, renderInfo, before?, getElementInfo = getTemplate
     }
   } else if (Array.isArray(renderInfo)) {
     const fragment = document.createDocumentFragment();
-    const unmountObjs = renderInfo.map(item => render(fragment, item, undefined, getSingleUseElementInfo));
+    const unmountObjs = renderInfo.map(item => render(fragment, item, undefined, thisArg, getSingleUseElementInfo));
     parent.insertBefore(fragment, before);
     return {
       firstElement: () => {
@@ -179,28 +177,9 @@ export function render(parent, renderInfo, before?, getElementInfo = getTemplate
     };
   } else {
     const elementInfo = getElementInfo(renderInfo.renderInfo);
-    const dynamicInfo = elementInfo.dynamic.map(dynamicSegment => ({
-      element: elementInfo.getChildElement(dynamicSegment.getElement),
-      callback: dynamicSegment.callback,
-    }));
-    const unmountObjs = dynamicInfo.map(({ callback, element }) => callback.bind(this)(element));
-
+    const unmountObj = elementInfo.dynamic(elementInfo.element, thisArg);
     parent.insertBefore(elementInfo.element, before);
-    return {
-      firstElement: () => {
-        for (const obj of unmountObjs) {
-          if (obj.firstElement) {
-            const potentialFirstElement = obj.firstElement();
-            if (potentialFirstElement) {
-              return potentialFirstElement;
-            }  
-          }
-        }
-        return null;
-      },
-      removeChildren: wrapCallbacks(unmountObjs, obj => obj.removeChildren),
-      disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
-    };
+    return unmountObj;
   }
 }
 
@@ -225,60 +204,54 @@ function addStaticElements(parentClient, children, dynamic) {
   for (const child of children) {
     if (typeof child === 'function') {
       const positionMarker = document.createComment('');
-      const positionMarkerIndex = parentClient.length;
       parentClient.appendChild(positionMarker);
-      dynamic.push({
-        getElement: clonedParent => {
-          return clonedParent.childNodes[positionMarkerIndex];
-        },
-        callback(clonedPositionMarker) {
-          let unmountObj;
-          const boundRender = render.bind(this);
-          const boundChild = child.bind(this);
-          const reactionDisposer = reaction(
-            boundChild,
-            next => {
-              if(unmountObj) {
-                if (unmountObj.disposeReactions) {
-                  unmountObj.disposeReactions();
-                }
-                if (unmountObj.removeChildren()) {
-                  return unmountObj.removeChildren();
-                }  
-              }
-              unmountObj = boundRender(
-                clonedPositionMarker.parentNode,
-                next,
-                clonedPositionMarker,
-                getSingleUseElementInfo
-              );
-            },
-            { fireImmediately: true },
-          );
-          return {
-            firstElement: () => {
-              if (unmountObj) {
-                const potentialFirstElement = unmountObj.firstElement();
-                if(potentialFirstElement) {
-                  return potentialFirstElement;
-                }
-              }
-              return positionMarker;
-            },
-            disposeReactions: () => {
-              reactionDisposer();
-              if (unmountObj && unmountObj.disposeReactions) {
+      dynamic.push((clonedPositionMarker, thisArg) => {        
+        let unmountObj;
+        const boundChild = child.bind(thisArg);
+        const reactionDisposer = reaction(
+          boundChild,
+          next => {
+            if(unmountObj) {
+              if (unmountObj.disposeReactions) {
                 unmountObj.disposeReactions();
               }
-            },
-            removeChildren: () => {
-              if (unmountObj && unmountObj.removeChildren) {
-                unmountObj.removeChildren();
+              if (unmountObj.removeChildren()) {
+                return unmountObj.removeChildren();
+              }  
+            }
+            unmountObj = render(
+              clonedPositionMarker.parentNode,
+              next,
+              clonedPositionMarker,
+              thisArg,
+              getSingleUseElementInfo
+            );
+          },
+          { fireImmediately: true },
+        );
+        return {
+          firstElement: () => {
+            if (unmountObj && unmountObj.firstElement) {
+              const potentialFirstElement = unmountObj.firstElement();
+              if(potentialFirstElement) {
+                return potentialFirstElement;
               }
-              clonedPositionMarker.remove();
-            },
-          };
-        },
+            }
+            return clonedPositionMarker;
+          },
+          disposeReactions: () => {
+            reactionDisposer();
+            if (unmountObj && unmountObj.disposeReactions) {
+              unmountObj.disposeReactions();
+            }
+          },
+          removeChildren: () => {
+            if (unmountObj && unmountObj.removeChildren) {
+              unmountObj.removeChildren();
+            }
+            clonedPositionMarker.remove();
+          },
+        };
       });
     } else if (textNodeTypes.has(typeof child)) {
       const element = document.createTextNode(child.toString());
@@ -293,13 +266,13 @@ function addStaticElements(parentClient, children, dynamic) {
       } else {
         throw new Error('Invalid child type');
       }
-      const childDynamic = renderInfo.dynamic(index);
-      dynamic.push(...childDynamic);
+      const childDynamic = (clonedParent, thisArg) => renderInfo.dynamic(clonedParent.childNodes[index], thisArg);
+      dynamic.push(childDynamic);
     }
   }
 }
 
-function lazyTemplateFactory(element, getDynamic) {
+function lazyTemplateFactory(element) {
   let lazyTemplate;
   return () => {
     if (lazyTemplate) {
@@ -307,12 +280,7 @@ function lazyTemplateFactory(element, getDynamic) {
     }
     const template = document.createElement('template');
     template.content.appendChild(element);
-    lazyTemplate = {
-      template,
-      get dynamic() {
-        return getDynamic();
-      },
-    };
+    lazyTemplate = template;
     return lazyTemplate;
   };
 }
@@ -324,15 +292,28 @@ export function Fragment({ children }) {
       if (lazyData) {
         return lazyData;
       }
-      let lazyTemplate;
       const fragment = document.createDocumentFragment();
-      const dynamic = [];
+      const dynamic: any[] = [];
       addStaticElements(createParentNodeClient(fragment), children, dynamic);
-      const getDynamic = () => dynamic;
       lazyData = {
         fragment,
-        template: lazyTemplateFactory(fragment, getDynamic),
-        dynamic: getDynamic,
+        template: lazyTemplateFactory(fragment),
+        dynamic(clonedElement, thisArg) {
+          const itemsCallbacks = dynamic.map(item => item(clonedElement, thisArg)).filter(callback => !!callback);
+          return {
+            firstElement: () => {
+              for(const itemCallbacks of itemsCallbacks) {
+                if (itemCallbacks.firstElement) {
+                  const potentialFirstElement = itemCallbacks.firstElement();
+                  return potentialFirstElement;
+                }
+              }
+              return null;
+            },
+            disposeReactions: wrapCallbacks(itemsCallbacks, (obj) => obj.disposeReactions),
+            removeChildren: wrapCallbacks(itemsCallbacks, (obj) => obj.removeChildren),
+          }
+        }
       };
       return lazyData;
     },
@@ -353,67 +334,43 @@ export function createElement(component, attributes, ...children) {
             ? new component()
             : document.createElement(component);
         addStaticElements(createParentNodeClient(element), children, dynamic);
-        let addedAttributeComputation = false;
-        function getDynamic(index) {
-          if (!addedAttributeComputation) {
-            addedAttributeComputation = true;
-            for(const item of dynamic) {
-              if (!item.getElement) {
-                continue;
-              }
-              const oldGetElement = item.getElement;
-              item.getElement = parent => {
-                const clonedElement = oldGetElement(parent.childNodes[index]);
-                if (!clonedElement) {
-                  throw new Error('Invalid cloned element');
-                }
-                return clonedElement;
-              };
-            }
-            dynamic.unshift({
-              getElement: parent => {
-                return parent.childNodes[index]
-              },
-              callback(clonedElement) {
-                if (!clonedElement) {
-                  throw new Error('Invalid clonedElement');
-                }
-                const clonedElementCallbacks = {
-                  firstElement: () => clonedElement,
-                  removeChildren: () => {
-                    clonedElement.remove();
-                  },
-                };
-                if (attributes) {
-                  const disposals = [];
-                  for(const key of Object.keys(attributes)) {
-                    const attributeValue = attributes[key];
-                    if (typeof attributeValue === 'function') {
-                      const boundAttributeAssignment = attributeValue.bind(this);
-                      disposals.push(reaction(
-                        boundAttributeAssignment,
-                        action(value => {
-                          assignAttribute(clonedElement, key, value);
-                        }),
-                        { fireImmediately: true },
-                      ));
-                    } else {
-                      assignAttribute(clonedElement, key, attributeValue);
-                    }
-                  }
-                  clonedElementCallbacks.disposeReactions = () => disposals.forEach(dispose => dispose());
-                }
-                return clonedElementCallbacks;
-              },
-            });
-          }
-          return dynamic;
-        }
         lazyData = {
           element,
-          template: lazyTemplateFactory(element, () => getDynamic(0)),
-          dynamic(index) {
-            return getDynamic(index);
+          template: lazyTemplateFactory(element),
+          dynamic(clonedElement, thisArg) {
+            const disposals: any[] = [];
+            if (attributes) {
+              for(const key of Object.keys(attributes)) {
+                const attributeValue = attributes[key];
+                if (typeof attributeValue === 'function') {
+                  const boundAttributeValue = attributeValue.bind(thisArg);
+                  disposals.push(reaction(
+                    boundAttributeValue,
+                    action(value => {
+                      assignAttribute(clonedElement, key, value)
+                    }),
+                    { fireImmediately: true },
+                  ));
+                } else {
+                  assignAttribute(clonedElement, key, attributeValue);
+                }
+              }
+            }
+            const itemsCallbacks = dynamic.map(item => item(clonedElement, thisArg)).filter(callback => !!callback);
+            return {
+              disposeReactions: () => {
+                disposals.forEach(dispose => dispose());
+                for(const itemCallbacks of itemsCallbacks) {
+                  if (itemCallbacks.disposeReactions) {
+                    itemCallbacks.disposeReactions();
+                  }
+                }
+              },
+              firstElement: () => clonedElement,
+              removeChildren: () => {
+                clonedElement.remove();
+              },
+            };
           },
         };
         return lazyData;
