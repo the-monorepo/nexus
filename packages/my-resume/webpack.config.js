@@ -23,12 +23,12 @@ module.exports = {
       },
       {
         test: /\.[jt]sx?$/,
-        enforce: "pre",
+        enforce: 'pre',
         use: [
           {
             loader: 'source-map-loader',
-          }
-        ]
+          },
+        ],
       },
       {
         test: /\.[jt]sx?$/,

@@ -185,7 +185,7 @@ Test.template = (
   </>
 );
 window.customElements.define('x-test', Test);
-mbx.render(document.getElementById('root'), <Test arr={store.arr}/>);
+mbx.render(document.getElementById('root'), <Test bleh='rawr' arr={store.arr}/>);
 setInterval(tick);
 /*
 let i = 0;
