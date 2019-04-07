@@ -21,6 +21,7 @@
     "react-dom": "^16.8.2"
   },
   "devDependencies": {
-    "puppeteer": "^1.13.0"
+    "puppeteer": "^1.13.0",
+    "source-map-loader": "^0.2.4"
   }
 }

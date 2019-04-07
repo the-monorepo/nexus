@@ -126,35 +126,33 @@ setInterval(
     });
   }),
 );*/
-/*
+
 
 const store = observable({
-  arr: observable.array([[]])
+  arr: observable.array([[]] as number[][])
 });
 
-setInterval(
-  action(() => {
-    const add = Math.round(Math.random()) === 0;
-    if (add) {
-      store.arr.push(observable.array([]));
+const tick = action(() => {
+  const add = Math.round(Math.random()) === 0;
+  if (add) {
+    store.arr.push(observable.array([]));
+  } else {
+    if (store.arr.length > 0) {
+      store.arr.pop();
+    }
+  }
+  store.arr.forEach(inner => {
+    const append = Math.round(Math.random()) === 0;
+    if (append) {
+      inner.splice(Math.round(Math.random()) * inner.length, 0, 0);
     } else {
-      if (store.arr.length > 0) {
-        store.arr.pop();
+      if (inner.length > 0) {
+        const index = Math.floor(Math.random()) * inner.length;
+        inner.splice(index, 1);
       }
     }
-    store.arr.forEach(inner => {
-      const append = Math.round(Math.random()) === 0;
-      if (append) {
-        inner.splice(Math.round(Math.random()) * inner.length, 0, 0);
-      } else {
-        if (inner.length > 0) {
-          const index = Math.floor(Math.random()) * inner.length;
-          inner.splice(index, 1);
-        }
-      }
-    });
-  }),
-);
+  });
+});
 class Block extends MobxElement {}
 Block.template = (
   <div
@@ -171,7 +169,7 @@ window.customElements.define('x-block', Block);
 class Row extends MobxElement { }
 Row.template = (
   <div>
-    {map(this.props.row, block => (
+    {map(this.props.row, () => (
       <Block/>
     ))}
   </div>
@@ -188,8 +186,8 @@ Test.template = (
 );
 window.customElements.define('x-test', Test);
 mbx.render(document.getElementById('root'), <Test arr={store.arr}/>);
-*/
-
+setInterval(tick);
+/*
 let i = 0;
 const store = observable({
   arr: [[1, 2, 3], []],
@@ -199,7 +197,7 @@ const tick = action(() => {
     console.log('push');
     store.arr[1].push(i);
   } else {
-    console.log('pop                                                                                                            ');
+    console.log('pop');
     store.arr[1].pop();
   }
   console.warn('update', store.arr[1].length);
@@ -211,7 +209,6 @@ setInterval(tick, 1000);
 class Block extends MobxElement {}
 Block.template = (
   <>
-    {console.log('block')}
     <div
       style={{
         width: '10px',
@@ -227,7 +224,6 @@ window.customElements.define('x-block', Block);
 class Row extends MobxElement { }
 Row.template = (
   <div>
-    {console.log('row')}
     {
       map(this.props.row, block => (
         <Block/>
@@ -250,3 +246,4 @@ Test.template = (
 window.customElements.define('x-test', Test);
 mbx.render(document.getElementById('root'), <Test />);
 
+*/
