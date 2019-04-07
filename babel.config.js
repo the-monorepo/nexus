@@ -32,6 +32,7 @@ module.exports = api => {
           '@babel/plugin-syntax-jsx',
           'babel-plugin-transform-mobx-jsx',
           '@babel/plugin-proposal-class-properties',
+          '@babel/plugin-transform-strict-mode',
         ],
         presets: [
           [
