@@ -28,4 +28,4 @@ export default function map(arr, mapFn) {
     return result;
   }
   return arr.map(mapFn);
-};
+}

@@ -127,9 +127,8 @@ setInterval(
   }),
 );*/
 
-
 const store = observable({
-  arr: observable.array([[]] as number[][])
+  arr: observable.array([[]] as number[][]),
 });
 
 const tick = action(() => {
@@ -166,26 +165,26 @@ Block.template = (
 );
 window.customElements.define('x-block', Block);
 
-class Row extends MobxElement { }
+class Row extends MobxElement {}
 Row.template = (
   <div>
     {map(this.props.row, () => (
-      <Block/>
+      <Block />
     ))}
   </div>
-)
+);
 window.customElements.define('x-row', Row);
 
-class Test extends MobxElement { }
+class Test extends MobxElement {}
 Test.template = (
   <>
     <div>This should be at the top</div>
-    {map(this.props.arr, row => (<Row row={row}/>))}
+    {map(this.props.arr, (row) => <Row row={row}/>)}
     <div>This should be at the bottom</div>
   </>
 );
 window.customElements.define('x-test', Test);
-mbx.render(document.getElementById('root'), <Test bleh='rawr' arr={store.arr}/>);
+mbx.render(document.getElementById('root'), <Test bleh="rawr" arr={store.arr} />);
 setInterval(tick);
 /*
 let i = 0;

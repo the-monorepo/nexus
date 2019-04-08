@@ -43,26 +43,29 @@ export abstract class MobxElement extends HTMLElement {
   disconnectedCallback() {
     // TODO: Maybe just dispose of reactions and recreate them on connectedCallback
     if (this.unmountObj) {
-      if(this.unmountObj.disposeReactions) {
+      if (this.unmountObj.disposeReactions) {
         this.unmountObj.disposeReactions();
       }
       if (this.unmountObj.removeChildren) {
         this.unmountObj.removeChildren();
       }
     }
-  } 
+  }
 }
 
 function wrapCallbacks(objs, getCallback) {
-  const filteredCallbacks = objs.filter(obj => !!obj).map(getCallback).filter(callback => !!callback);
+  const filteredCallbacks = objs
+    .filter(obj => !!obj)
+    .map(getCallback)
+    .filter(callback => !!callback);
   return () => filteredCallbacks.forEach(callback => callback());
 }
 
 const textNodeTypes = new Set(['string', 'boolean', 'number']);
-type DynamicCallbacks = {
-  firstElement?: () => any,
-  removeChildren?: () => void,
-  disposeReactions?: () => void,
+interface DynamicCallbacks {
+  firstElement?: () => any;
+  removeChildren?: () => void;
+  disposeReactions?: () => void;
 }
 
 function getSingleUseElementInfo(renderInfo) {
@@ -70,20 +73,27 @@ function getSingleUseElementInfo(renderInfo) {
   const result = {
     element,
     dynamic: renderInfo.dynamic,
-  }
+  };
   return result;
 }
-
+  
 function getTemplateElementInfo(renderInfo) {
-  const template = renderInfo.template();
+  const templateInfo = renderInfo.template();
+  const template = templateInfo.template;
   const templateContent = document.importNode(template.content, true);
-  return { 
-    element: templateContent.childNodes[0], 
-    dynamic: renderInfo.dynamic,
+  return {
+    element: templateContent,
+    dynamic: templateInfo.dynamic,
   };
 }
 
-export function render(parent, renderInfo, before?, thisArg?, getElementInfo = getTemplateElementInfo): DynamicCallbacks | undefined {
+export function render(
+  parent,
+  renderInfo,
+  before?,
+  thisArg?,
+  getElementInfo = getTemplateElementInfo,
+): DynamicCallbacks | undefined {
   if (renderInfo === undefined || renderInfo === null) {
     return undefined;
   } else if (textNodeTypes.has(typeof renderInfo)) {
@@ -95,25 +105,23 @@ export function render(parent, renderInfo, before?, thisArg?, getElementInfo = g
         child.remove();
       },
     };
-  } else if(isObservableArray(renderInfo)) {
+  } else if (isObservableArray(renderInfo)) {
     const childElements: (DynamicCallbacks | undefined)[] = [];
     const dispose = renderInfo.observe(changeData => {
       if (changeData.type === 'splice') {
         const elementToAddBefore = (() => {
           let index = changeData.index;
-          while(index < childElements.length) {
+          while (index < childElements.length) {
             const unmountObj = childElements[changeData.index];
             if (unmountObj && unmountObj.firstElement) {
               return unmountObj.firstElement();
             } else {
               return before;
-            }            
+            }
           }
           return before;
         })();
-        const parentToAddTo = elementToAddBefore
-          ? elementToAddBefore.parentNode
-          : parent;
+        const parentToAddTo = elementToAddBefore ? elementToAddBefore.parentNode : parent;
         const fragment = document.createDocumentFragment();
         const addedElements = changeData.added.map(child =>
           render(fragment, child, undefined, thisArg, getSingleUseElementInfo),
@@ -124,7 +132,7 @@ export function render(parent, renderInfo, before?, thisArg?, getElementInfo = g
           changeData.removedCount,
           ...addedElements,
         );
-        for(const unmountObj of removed) {
+        for (const unmountObj of removed) {
           if (unmountObj) {
             if (unmountObj.disposeReactions) {
               unmountObj.disposeReactions();
@@ -138,39 +146,41 @@ export function render(parent, renderInfo, before?, thisArg?, getElementInfo = g
     }, true);
     return {
       firstElement: () => {
-        for(const childElement of childElements) {
+        for (const childElement of childElements) {
           if (childElement) {
-            if(childElement.firstElement) {
+            if (childElement.firstElement) {
               const potentialFirstElement = childElement.firstElement();
-              if(potentialFirstElement) {
+              if (potentialFirstElement) {
                 return potentialFirstElement;
               }
-            }  
+            }
           }
         }
         return before;
       },
       disposeReactions: () => {
         dispose();
-        wrapCallbacks(childElements, (obj) => obj.disposeReactions)();
+        wrapCallbacks(childElements, obj => obj.disposeReactions)();
       },
-      removeChildren: wrapCallbacks(childElements, (obj) => obj.removeChildren),
-    }
+      removeChildren: wrapCallbacks(childElements, obj => obj.removeChildren),
+    };
   } else if (Array.isArray(renderInfo)) {
     const fragment = document.createDocumentFragment();
-    const unmountObjs = renderInfo.map(item => render(fragment, item, undefined, thisArg, getSingleUseElementInfo));
+    const unmountObjs = renderInfo.map(item =>
+      render(fragment, item, undefined, thisArg, getSingleUseElementInfo),
+    );
     parent.insertBefore(fragment, before);
     return {
       firstElement: () => {
-        for(const obj of unmountObjs) {
+        for (const obj of unmountObjs) {
           if (obj) {
             const potentialFirstElement = obj.firstElement;
-            if(!!potentialFirstElement) {
+            if (potentialFirstElement) {
               return potentialFirstElement;
-            }  
+            }
           }
         }
-        return undefined;    
+        return undefined;
       },
       removeChildren: wrapCallbacks(unmountObjs, obj => obj.removeChildren),
       disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
@@ -204,27 +214,29 @@ function addStaticElements(parentClient, children, dynamic) {
   for (const child of children) {
     if (typeof child === 'function') {
       const positionMarker = document.createComment('');
+      const index = parentClient.length;
       parentClient.appendChild(positionMarker);
-      dynamic.push((clonedPositionMarker, thisArg) => {        
+      dynamic.push((clonedParent, thisArg) => {
+        const clonedPositionMarker = clonedParent.childNodes[index];
         let unmountObj;
         const boundChild = child.bind(thisArg);
         const reactionDisposer = reaction(
           boundChild,
           next => {
-            if(unmountObj) {
+            if (unmountObj) {
               if (unmountObj.disposeReactions) {
                 unmountObj.disposeReactions();
               }
               if (unmountObj.removeChildren()) {
                 return unmountObj.removeChildren();
-              }  
+              }
             }
             unmountObj = render(
               clonedPositionMarker.parentNode,
               next,
               clonedPositionMarker,
               thisArg,
-              getSingleUseElementInfo
+              getSingleUseElementInfo,
             );
           },
           { fireImmediately: true },
@@ -233,7 +245,7 @@ function addStaticElements(parentClient, children, dynamic) {
           firstElement: () => {
             if (unmountObj && unmountObj.firstElement) {
               const potentialFirstElement = unmountObj.firstElement();
-              if(potentialFirstElement) {
+              if (potentialFirstElement) {
                 return potentialFirstElement;
               }
             }
@@ -266,13 +278,14 @@ function addStaticElements(parentClient, children, dynamic) {
       } else {
         throw new Error('Invalid child type');
       }
-      const childDynamic = (clonedParent, thisArg) => renderInfo.dynamic(clonedParent.childNodes[index], thisArg);
+      const childDynamic = (clonedParent, thisArg) =>
+        renderInfo.dynamic(clonedParent.childNodes[index], thisArg);
       dynamic.push(childDynamic);
     }
   }
 }
 
-function lazyTemplateFactory(element) {
+function lazyTemplateFactory(element, dynamic, getCallbackElement) {
   let lazyTemplate;
   return () => {
     if (lazyTemplate) {
@@ -280,7 +293,7 @@ function lazyTemplateFactory(element) {
     }
     const template = document.createElement('template');
     template.content.appendChild(element);
-    lazyTemplate = template;
+    lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamic(getCallbackElement(templateContent), thisArg) };
     return lazyTemplate;
   };
 }
@@ -293,16 +306,15 @@ export function Fragment({ children }) {
         return lazyData;
       }
       const fragment = document.createDocumentFragment();
-      const dynamic: any[] = [];
-      addStaticElements(createParentNodeClient(fragment), children, dynamic);
-      lazyData = {
-        fragment,
-        template: lazyTemplateFactory(fragment),
-        dynamic(clonedElement, thisArg) {
-          const itemsCallbacks = dynamic.map(item => item(clonedElement, thisArg)).filter(callback => !!callback);
+      const childObserveFns: any[] = [];
+      addStaticElements(createParentNodeClient(fragment), children, childObserveFns);
+      const dynamic = (clonedElement, thisArg) => {
+          const itemsCallbacks = childObserveFns
+            .map(item => item(clonedElement, thisArg))
+            .filter(callback => !!callback);
           return {
             firstElement: () => {
-              for(const itemCallbacks of itemsCallbacks) {
+              for (const itemCallbacks of itemsCallbacks) {
                 if (itemCallbacks.firstElement) {
                   const potentialFirstElement = itemCallbacks.firstElement();
                   return potentialFirstElement;
@@ -310,10 +322,14 @@ export function Fragment({ children }) {
               }
               return null;
             },
-            disposeReactions: wrapCallbacks(itemsCallbacks, (obj) => obj.disposeReactions),
-            removeChildren: wrapCallbacks(itemsCallbacks, (obj) => obj.removeChildren),
-          }
-        }
+            disposeReactions: wrapCallbacks(itemsCallbacks, obj => obj.disposeReactions),
+            removeChildren: wrapCallbacks(itemsCallbacks, obj => obj.removeChildren),
+          };
+        },
+      lazyData = {
+        fragment,
+        template: lazyTemplateFactory(fragment, dynamic, (templateContent) => templateContent),
+        dynamic
       };
       return lazyData;
     },
@@ -328,50 +344,55 @@ export function createElement(component, attributes, ...children) {
         if (lazyData) {
           return lazyData;
         }
-        const dynamic: any[] = [];
+        const childObserveFns: any[] = [];
         const element =
           component.prototype instanceof Node
             ? new component()
             : document.createElement(component);
-        addStaticElements(createParentNodeClient(element), children, dynamic);
-        lazyData = {
-          element,
-          template: lazyTemplateFactory(element),
-          dynamic(clonedElement, thisArg) {
-            const disposals: any[] = [];
-            if (attributes) {
-              for(const key of Object.keys(attributes)) {
-                const attributeValue = attributes[key];
-                if (typeof attributeValue === 'function') {
-                  const boundAttributeValue = attributeValue.bind(thisArg);
-                  disposals.push(reaction(
+        addStaticElements(createParentNodeClient(element), children, childObserveFns);
+        const dynamic = (clonedElement, thisArg) => {
+          const disposals: any[] = [];
+          if (attributes) {
+            for (const key of Object.keys(attributes)) {
+              const attributeValue = attributes[key];
+              if (typeof attributeValue === 'function') {
+                const boundAttributeValue = attributeValue.bind(thisArg);
+                disposals.push(
+                  reaction(
                     boundAttributeValue,
                     action(value => {
-                      assignAttribute(clonedElement, key, value)
+                      assignAttribute(clonedElement, key, value);
                     }),
                     { fireImmediately: true },
-                  ));
-                } else {
-                  assignAttribute(clonedElement, key, attributeValue);
-                }
+                  ),
+                );
+              } else {
+                assignAttribute(clonedElement, key, attributeValue);
               }
             }
-            const itemsCallbacks = dynamic.map(item => item(clonedElement, thisArg)).filter(callback => !!callback);
-            return {
-              disposeReactions: () => {
-                disposals.forEach(dispose => dispose());
-                for(const itemCallbacks of itemsCallbacks) {
-                  if (itemCallbacks.disposeReactions) {
-                    itemCallbacks.disposeReactions();
-                  }
+          }
+          const itemsCallbacks = childObserveFns
+            .map(item => item(clonedElement, thisArg))
+            .filter(callback => !!callback);
+          return {
+            disposeReactions: () => {
+              disposals.forEach(dispose => dispose());
+              for (const itemCallbacks of itemsCallbacks) {
+                if (itemCallbacks.disposeReactions) {
+                  itemCallbacks.disposeReactions();
                 }
-              },
-              firstElement: () => clonedElement,
-              removeChildren: () => {
-                clonedElement.remove();
-              },
-            };
-          },
+              }
+            },
+            firstElement: () => clonedElement,
+            removeChildren: () => {
+              clonedElement.remove();
+            },
+          };
+        }
+        lazyData = {
+          element,
+          template: lazyTemplateFactory(element, dynamic, templateContent => templateContent.childNodes[0]),
+          dynamic,
         };
         return lazyData;
       },
