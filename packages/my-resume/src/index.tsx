@@ -9,6 +9,7 @@ import * as mbx from 'mobx-dom';
 import map from 'mobx-map';
 import { MobxElement } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
+import { render } from 'mobx-dom/src';
 /*No double assignment of props
 import * as mbx from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
@@ -126,7 +127,7 @@ setInterval(
     });
   }),
 );*/
-
+/*
 const store = observable({
   arr: observable.array([[]] as number[][]),
 });
@@ -186,6 +187,12 @@ Test.template = (
 window.customElements.define('x-test', Test);
 mbx.render(document.getElementById('root'), <Test bleh="rawr" arr={store.arr} />);
 setInterval(tick);
+*/
+const Inner = ({ test }) => <div>{test}</div>;
+const Outer = ({ value }) => <div><Inner test={value}/></div>;
+
+render(document.getElementById('root'), <Outer value='rawrawr'/>);
+
 /*
 let i = 0;
 const store = observable({

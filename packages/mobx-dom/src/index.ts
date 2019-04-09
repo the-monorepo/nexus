@@ -337,7 +337,8 @@ export function Fragment({ children }) {
 }
 
 export function createElement(component, attributes, ...children) {
-  if (typeof component === 'string' || component.prototype instanceof Node) {
+  if(component.component) {
+  } else if (typeof component === 'string' || component.prototype instanceof Node) {
     let lazyData;
     return {
       get renderInfo() {
@@ -398,6 +399,17 @@ export function createElement(component, attributes, ...children) {
       },
     };
   } else {
-    return component({ children, ...attributes });
+    const unwrappedAttributes = 
+      Object.keys(attributes).reduce((obj, key) => {
+        if (typeof attributes[key] === 'function') {
+          obj[key] = attributes[key]();
+        } else {
+          obj[key] = attributes[key];
+        }
+        return obj;
+      }, {});
+    const unwrappedChildren = children.map(child => typeof child === 'function' ? child : child);
+    const result = component({ children: unwrappedChildren, ...unwrappedAttributes });
+    return result;
   }
 }
