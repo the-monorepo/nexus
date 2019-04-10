@@ -76,23 +76,12 @@ function getSingleUseElementInfo(renderInfo) {
   };
   return result;
 }
-  
-function getTemplateElementInfo(renderInfo) {
-  const templateInfo = renderInfo.template();
-  const template = templateInfo.template;
-  const templateContent = document.importNode(template.content, true);
-  return {
-    element: templateContent,
-    dynamic: templateInfo.dynamic,
-  };
-}
 
 export function render(
   parent,
   renderInfo,
   before?,
   thisArg?,
-  getElementInfo = getTemplateElementInfo,
 ): DynamicCallbacks | undefined {
   if (renderInfo === undefined || renderInfo === null) {
     return undefined;
@@ -124,7 +113,7 @@ export function render(
         const parentToAddTo = elementToAddBefore ? elementToAddBefore.parentNode : parent;
         const fragment = document.createDocumentFragment();
         const addedElements = changeData.added.map(child =>
-          render(fragment, child, undefined, thisArg, getSingleUseElementInfo),
+          render(fragment, child, undefined, thisArg),
         );
         parentToAddTo.insertBefore(fragment, elementToAddBefore);
         const removed = childElements.splice(
@@ -167,7 +156,7 @@ export function render(
   } else if (Array.isArray(renderInfo)) {
     const fragment = document.createDocumentFragment();
     const unmountObjs = renderInfo.map(item =>
-      render(fragment, item, undefined, thisArg, getSingleUseElementInfo),
+      render(fragment, item, undefined, thisArg),
     );
     parent.insertBefore(fragment, before);
     return {
@@ -186,7 +175,7 @@ export function render(
       disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
     };
   } else {
-    const elementInfo = getElementInfo(renderInfo.renderInfo);
+    const elementInfo = getSingleUseElementInfo(renderInfo.renderInfo);
     const unmountObj = elementInfo.dynamic(elementInfo.element, thisArg);
     parent.insertBefore(elementInfo.element, before);
     return unmountObj;
@@ -236,7 +225,6 @@ function addStaticElements(parentClient, children, dynamic) {
               next,
               clonedPositionMarker,
               thisArg,
-              getSingleUseElementInfo,
             );
           },
           { fireImmediately: true },
@@ -278,8 +266,9 @@ function addStaticElements(parentClient, children, dynamic) {
       } else {
         throw new Error('Invalid child type');
       }
-      const childDynamic = (clonedParent, thisArg) =>
-        renderInfo.dynamic(clonedParent.childNodes[index], thisArg);
+      const childDynamic = (clonedParent, thisArg) => {
+        return renderInfo.dynamic(clonedParent.childNodes[index], thisArg);
+      }
       dynamic.push(childDynamic);
     }
   }
@@ -287,13 +276,13 @@ function addStaticElements(parentClient, children, dynamic) {
 
 function lazyTemplateFactory(element, dynamic, getCallbackElement) {
   let lazyTemplate;
-  return () => {
+  return (dynamicOverride = dynamic) => {
     if (lazyTemplate) {
       return lazyTemplate;
     }
     const template = document.createElement('template');
     template.content.appendChild(element);
-    lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamic(getCallbackElement(templateContent), thisArg) };
+    lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamicOverride(getCallbackElement(templateContent), thisArg) };
     return lazyTemplate;
   };
 }
@@ -325,10 +314,12 @@ export function Fragment({ children }) {
             disposeReactions: wrapCallbacks(itemsCallbacks, obj => obj.disposeReactions),
             removeChildren: wrapCallbacks(itemsCallbacks, obj => obj.removeChildren),
           };
-        },
+        };
+      const getElementFromTemplate = (templateContent) => templateContent;
       lazyData = {
+        getElementFromTemplate,
         fragment,
-        template: lazyTemplateFactory(fragment, dynamic, (templateContent) => templateContent),
+        template: lazyTemplateFactory(fragment, dynamic, getElementFromTemplate),
         dynamic
       };
       return lazyData;
@@ -337,7 +328,59 @@ export function Fragment({ children }) {
 }
 
 export function createElement(component, attributes, ...children) {
-  if(component.component) {
+  if(Object.getOwnPropertyDescriptor(component, 'renderInfo')) {
+    let lazyData;
+    return {
+      get renderInfo() {
+        if(lazyData) {
+          return lazyData;
+        }
+
+        const dynamic = (clonedParent, thisArg) => {   
+          const wrappedChildren = children.map(child => {
+            if (typeof child === 'function') {
+              return child.bind(thisArg);
+            }
+            return child;
+          });
+
+          const props: any = { children: wrappedChildren };
+          const thisReplacement = {
+            props
+          };
+          
+          if(attributes) {
+            for (const key of Object.keys(attributes)) {
+              const attribute = attributes[key];
+              if (typeof attribute === 'function') {
+                const boundAttribute = attribute.bind(thisArg);
+                Object.defineProperty(props, key, { get() { 
+                  const a = boundAttribute();
+                  return a;
+                }})
+              } else {
+                props[key] = attributes[key];
+              } 
+            }
+          }
+          const clonedElement = this.renderInfo.getElementFromTemplate(clonedParent);
+          return component.renderInfo.dynamic(
+            clonedElement, 
+            thisReplacement            
+          )
+        };
+
+        const getTemplate = () => component.renderInfo.template(dynamic);
+
+        lazyData = {
+          getElementFromTemplate: component.renderInfo.getElementFromTemplate, 
+          get fragment() { return document.importNode(component.renderInfo.template().template.content, true) },
+          template: getTemplate,
+          dynamic,
+        };
+        return lazyData;
+      }
+    };
   } else if (typeof component === 'string' || component.prototype instanceof Node) {
     let lazyData;
     return {
@@ -373,7 +416,9 @@ export function createElement(component, attributes, ...children) {
             }
           }
           const itemsCallbacks = childObserveFns
-            .map(item => item(clonedElement, thisArg))
+            .map(item => {
+              return item(clonedElement, thisArg);
+            })
             .filter(callback => !!callback);
           return {
             disposeReactions: () => {
@@ -390,16 +435,18 @@ export function createElement(component, attributes, ...children) {
             },
           };
         }
+        const getElementFromTemplate = templateContent => templateContent.childNodes[0];
         lazyData = {
           element,
-          template: lazyTemplateFactory(element, dynamic, templateContent => templateContent.childNodes[0]),
+          getElementFromTemplate,
+          template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
           dynamic,
         };
         return lazyData;
       },
     };
   } else {
-    const unwrappedAttributes = 
+    const unwrappedAttributes = attributes ? 
       Object.keys(attributes).reduce((obj, key) => {
         if (typeof attributes[key] === 'function') {
           obj[key] = attributes[key]();
@@ -407,7 +454,7 @@ export function createElement(component, attributes, ...children) {
           obj[key] = attributes[key];
         }
         return obj;
-      }, {});
+      }, {}) : attributes;
     const unwrappedChildren = children.map(child => typeof child === 'function' ? child : child);
     const result = component({ children: unwrappedChildren, ...unwrappedAttributes });
     return result;
