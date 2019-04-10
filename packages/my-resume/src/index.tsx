@@ -127,8 +127,16 @@ setInterval(
     });
   }),
 );*/
-/*
-const store = observable({
+const InnerComponent = <p>{this.props.text}</p>;
+const OuterComponent = (
+  <div>
+    Below is an inner component:
+    <InnerComponent text={this.props.text}/>
+  </div>
+);
+render(document.getElementById('root'), OuterComponent);
+
+/*const store = observable({
   arr: observable.array([[]] as number[][]),
 });
 
@@ -153,8 +161,7 @@ const tick = action(() => {
     }
   });
 });
-class Block extends MobxElement {}
-Block.template = (
+const Block = (
   <div
     style={{
       width: '10px',
@@ -164,35 +171,55 @@ Block.template = (
     }}
   />
 );
-window.customElements.define('x-block', Block);
 
-class Row extends MobxElement {}
-Row.template = (
+const Row = (
   <div>
     {map(this.props.row, () => (
       <Block />
     ))}
   </div>
 );
-window.customElements.define('x-row', Row);
 
-class Test extends MobxElement {}
-Test.template = (
+const Test = (
   <>
     <div>This should be at the top</div>
     {map(this.props.arr, (row) => <Row row={row}/>)}
     <div>This should be at the bottom</div>
   </>
 );
-window.customElements.define('x-test', Test);
 mbx.render(document.getElementById('root'), <Test bleh="rawr" arr={store.arr} />);
-setInterval(tick);
+setInterval(tick);*/
+/*const Rawr = <p className="rawr">
+  <div className="test"/>
+  <div className="test2"/>
+</p>
+const Outer = <div><span>{<Rawr/>}</span></div>;
+mbx.render(document.getElementById('root'), <Outer/>, undefined, { root: true });
+
+/*
+console.warn('Create outer');
+const Inner = <p>
+  <div className="tawr"/>
+  <div className="raweraewrr"/>
+</p>
+const Outer = (
+  <div className='rawr'>
+    <Inner />
+  </div>
+);
+console.warn('use outer');
+const Root = (
+  <div>
+    <Outer value='1111'/>
+    <Outer value='2222'/>
+    <Outer value='3333'/>
+    <Outer value='4444'/>
+  </div>
+);
+console.log(Root);
+console.warn('use and render')
+render(document.getElementById('root'), Root, undefined, { thisIsRoot: true });
 */
-const Inner = ({ test }) => <div>{test}</div>;
-const Outer = ({ value }) => <div><Inner test={value}/></div>;
-
-render(document.getElementById('root'), <Outer value='rawrawr'/>);
-
 /*
 let i = 0;
 const store = observable({
