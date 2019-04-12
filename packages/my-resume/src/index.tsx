@@ -127,14 +127,15 @@ setInterval(
     });
   }),
 );*/
-const InnerComponent = <p>{this.props.text}</p>;
 const OuterComponent = (
-  <div>
-    Below is an inner component:
-    <InnerComponent text={this.props.text}/>
+  <div className="heres" href="a" aria-label="of attributes" style={{ display: 'display'}}>
+    <span>Only</span>
+    <p>nodes</p>
+    <span>get</span>
+    <div>Copied onto the template :(</div>
   </div>
 );
-render(document.getElementById('root'), OuterComponent);
+render(document.getElementById('root'), <OuterComponent/>);
 
 /*const store = observable({
   arr: observable.array([[]] as number[][]),

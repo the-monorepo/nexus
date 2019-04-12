@@ -37,10 +37,6 @@ module.exports = api => {
         presets: [
           [
             '@babel/preset-env',
-            {
-              modules: esm ? false : undefined,
-              targets: { esmodules: esm },
-            },
           ],
         ],
       },
