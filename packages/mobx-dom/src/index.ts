@@ -49,15 +49,6 @@ interface DynamicCallbacks {
   disposeReactions?: () => void;
 }
 
-function getSingleUseElementInfo(renderInfo) {
-  const element = renderInfo.element ? renderInfo.element : renderInfo.fragment;
-  const result = {
-    element,
-    dynamic: renderInfo.dynamic,
-  };
-  return result;
-}
-
 export function render(
   parent,
   renderInfo,
@@ -76,7 +67,7 @@ export function render(
       },
     };
   } else if (isObservableArray(renderInfo)) {
-    const childElements: (DynamicCallbacks | undefined)[] = [];
+    const childElements: (DynamicCallbacks | undefined)[] = new Array(renderInfo.length);
     const dispose = renderInfo.observe(changeData => {
       if (changeData.type === 'splice') {
         const elementToAddBefore = (() => {
@@ -156,19 +147,20 @@ export function render(
       disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
     };
   } else {
-    const elementInfo = getSingleUseElementInfo(renderInfo.renderInfo());
-    const unmountObj = elementInfo.dynamic(elementInfo.element, thisArg);
-    parent.insertBefore(elementInfo.element, before);
+    const info = renderInfo.renderInfo();
+    const element = info.element;
+    const unmountObj = info.dynamic(element, thisArg);
+    parent.insertBefore(element, before);
     return unmountObj;
   }
 }
 
-function addStaticElements(parentClient, children, dynamic) {
+function addStaticElements(parent, children, dynamic) {
   for (const child of children) {
     if (typeof child === 'function') {
       const positionMarker = document.createComment('');
-      const index = parentClient.length;
-      parentClient.appendChild(positionMarker);
+      const index = parent.childNodes.length;
+      parent.appendChild(positionMarker);
       dynamic.push((clonedParent, thisArg) => {
         const clonedPositionMarker = clonedParent.childNodes[index];
         let unmountObj;
@@ -219,17 +211,11 @@ function addStaticElements(parentClient, children, dynamic) {
       });
     } else if (textNodeTypes.has(typeof child)) {
       const element = document.createTextNode(child.toString());
-      parentClient.appendChild(element);
+      parent.appendChild(element);
     } else {
       const renderInfo = child.renderInfo();
-      let index = parentClient.length;
-      if (renderInfo.element) {
-        parentClient.appendChild(renderInfo.element);
-      } else if (renderInfo.fragment) {
-        parentClient.appendFragment(renderInfo.fragment);
-      } else {
-        throw new Error('Invalid child type');
-      }
+      let index = parent.childNodes.length;
+      parent.appendChild(renderInfo.element);
       const childDynamic = (clonedParent, thisArg) => {
         return renderInfo.dynamic(clonedParent.childNodes[index], thisArg);
       }
@@ -246,6 +232,7 @@ function lazyTemplateFactory(element, dynamic, getCallbackElement) {
     }
     const template = document.createElement('template');
     template.content.appendChild(element);
+    document.body.appendChild(template);
     lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamicOverride(getCallbackElement(templateContent), thisArg) };
     return lazyTemplate;
   };
@@ -258,9 +245,9 @@ export function Fragment({ children }) {
       if (lazyData) {
         return lazyData;
       }
-      const fragment = document.createDocumentFragment();
+      const element = document.createDocumentFragment();
       const childObserveFns: any[] = [];
-      addStaticElements(fragment, children, childObserveFns);
+      addStaticElements(element, children, childObserveFns);
       const dynamic = (clonedElement, thisArg) => {
           const itemsCallbacks = childObserveFns
             .map(item => item(clonedElement, thisArg))
@@ -282,8 +269,8 @@ export function Fragment({ children }) {
       const getElementFromTemplate = (templateContent) => templateContent;
       lazyData = {
         getElementFromTemplate,
-        fragment,
-        template: lazyTemplateFactory(fragment, dynamic, getElementFromTemplate),
+        element,
+        template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
         dynamic
       };
       return lazyData;
@@ -409,7 +396,7 @@ function initDynamicSettersForElement(
         element.addEventListener(name, listener);
         return () => element.removeEventListener(name, listener);
       } else {
-        element.addEventListener(name, listener);
+        element.addEventListener(name, listener.handleEvent, listener);
         return () => element.removeEventListener(name, listener.handleEvent, listener);
       }
     }
@@ -478,7 +465,7 @@ export function createElement(component, jsxAttributeObj = {}, ...children) {
 
         lazyData = {
           getElementFromTemplate: renderInfo.getElementFromTemplate, 
-          get fragment() { return document.importNode(renderInfo.template().template.content, true) },
+          get element() { return document.importNode(renderInfo.template().template.content, true) },
           template: getTemplate,
           dynamic,
         };
