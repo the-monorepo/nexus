@@ -128,12 +128,9 @@ setInterval(
   }),
 );*/
 const OuterComponent = (
-  <div className="heres" href="a" aria-label="of attributes" style={{ display: 'display'}}>
-    <span>Only</span>
-    <p>nodes</p>
-    <span>get</span>
-    <div>Copied onto the template :(</div>
-  </div>
+  <button $$click={() => console.log('test')}>
+    Only
+  </button>
 );
 render(document.getElementById('root'), <OuterComponent/>);
 
