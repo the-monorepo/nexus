@@ -8,20 +8,6 @@ import {
   toJS,
 } from 'mobx';
 
-const PROPS = Symbol('props');
-const assignAttribute = action((element, key, value) => {
-  if (key === 'style') {
-    // TODO: There's go to be a better way to do this
-    Object.keys(value).forEach(key => {
-      element.style[key] = value[key];
-    });
-  } else {
-    element[key] = value;
-    if (element[PROPS]) {
-      element[PROPS][key] = value;
-    }
-  }
-});
 export abstract class MobxElement extends HTMLElement {
   private readonly shadow;
   private unmountObj;
@@ -29,12 +15,7 @@ export abstract class MobxElement extends HTMLElement {
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: 'open' });
-    this[PROPS] = observable({});
   }
-
-  public get props() {
-    return this[PROPS];
-  }x
 
   connectedCallback() {
     this.unmountObj = render(this.shadow, this.constructor.template, undefined, this);
@@ -282,7 +263,6 @@ function lazyTemplateFactory(element, dynamic, getCallbackElement) {
     }
     const template = document.createElement('template');
     template.content.appendChild(element);
-    document.body.appendChild(template);
     lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamicOverride(getCallbackElement(templateContent), thisArg) };
     return lazyTemplate;
   };
@@ -328,7 +308,152 @@ export function Fragment({ children }) {
   };
 }
 
-export function createElement(component, attributes, ...children) {
+const ATTR_TYPE = 0;
+const PROP_TYPE = 1;
+const EVENT_TYPE = 2;
+
+// TODO: Transpile this in babel
+function extractFieldInfo(jsxAttributeObj) {
+  const dynamicFields: any[] = [];
+  const staticAttrs = {};
+  const staticProps = {};
+  for (const name in jsxAttributeObj) {
+    const value = jsxAttributeObj[name];
+    const cleanedName = name.replace(/^\$?\$?/, '');
+    if(name.match(/^\$\$/)) {
+      // Events are always dynamic since they have to be wrapped in {} anyway
+      dynamicFields.push({
+        type: EVENT_TYPE,
+        name: cleanedName,
+        callback: value
+      });
+    } else {
+      const isDynamic = typeof value === 'function';
+      if (name.match(/^\$/)) {
+        const field = { type: PROP_TYPE, name: cleanedName, callback: value };
+        if (isDynamic) {
+          dynamicFields.push(field);
+        } else {
+          staticProps[name] = value;
+        }
+      } else {
+        const field = { type: ATTR_TYPE, name: cleanedName, callback: value };
+        if (isDynamic) {
+          dynamicFields.push(field);
+        } else {
+          staticAttrs[name] = value;
+        }
+      }
+    }
+  }
+  return {
+    dynamicFields,
+    staticProps,
+    staticAttrs,
+  }
+}
+
+function addStaticAttributes(element, attributes) {
+  for(const name in attributes) {
+    element.setAttribute(name, attributes[name]);
+  }
+}
+
+function initDynamicSetter(thisArg, dynamicValue, updateCallback) {
+  const boundDynamicValue = dynamicValue.bind(thisArg);  
+  const actionedUpdateCallback = action(updateCallback);
+
+  let previousUnmount;
+  
+  const dispose = reaction(
+    boundDynamicValue,
+    (next) => {
+      if (previousUnmount) {
+        previousUnmount();
+      }
+      previousUnmount = actionedUpdateCallback(next);
+    }, 
+    { fireImmediately: true }
+  );
+  
+  return () => {
+    dispose();
+    if (previousUnmount) {
+      previousUnmount();
+    }
+  }
+}
+
+function initDynamicSetters(
+  thisArg,
+  dynamicFieldInfos,
+  mountFactories,
+) {
+  const disposals: any[] = [];
+  for(const { type, name, callback } of dynamicFieldInfos) {
+    const wrappedCallback = callback.bind(thisArg);
+    const disposal = (() => {
+      switch(type) {
+        case ATTR_TYPE:
+          return initDynamicSetter(thisArg, wrappedCallback, (value) => mountFactories.attrs(name, value));
+        case PROP_TYPE:
+          return initDynamicSetter(thisArg, wrappedCallback, (value) => mountFactories.props(name, value));
+        case EVENT_TYPE:
+          return initDynamicSetter(thisArg, wrappedCallback, (value) => mountFactories.listeners(name, value));
+        default: 
+          throw new Error(`Unexpected field type ${type} for name ${name}`);
+      }
+    })();
+    disposals.push(disposal);
+  }
+  return () => disposals.forEach(disposal => disposal());
+}
+
+function initDynamicSettersForElement(
+  element,
+  thisArg,
+  dynamicFieldInfos,
+) {
+  return initDynamicSetters(thisArg, dynamicFieldInfos, {
+    attrs: (name, value) => {
+      element.setAttribute(name, value);
+    },
+    props: (name, value) => {
+      element[name] = value;
+    },
+    listeners: (name, listener) => {
+      if (typeof listener === 'function') {
+        element.addEventListener(name, listener);
+        return () => element.removeEventListener(name, listener);
+      } else {
+        element.addEventListener(name, listener);
+        return () => element.removeEventListener(name, listener.handleEvent, listener);
+      }
+    }
+  });
+}
+
+function initDynamicSettersForStaticComponentObject(object, thisArg, dynamicFieldInfos) {
+  for (const { type, name, callback } of dynamicFieldInfos) {
+    const boundCallback = callback.bind(thisArg);
+    const innerFieldObj = (() => {
+      switch(type) {
+        case ATTR_TYPE:
+          return object.attrs;
+        case EVENT_TYPE:
+          return object.listeners;
+        case PROP_TYPE:
+          return object.props;
+        default:
+          throw new Error('Invalid type');
+      }
+    })();
+    Object.defineProperty(innerFieldObj, name, { get() { return boundCallback() } })
+  }
+}
+
+export function createElement(component, jsxAttributeObj = {}, ...children) {
+  const { staticAttrs, staticProps, dynamicFields } = extractFieldInfo(jsxAttributeObj);
   if(component.renderInfo) {
     let lazyData;
     return {
@@ -336,9 +461,8 @@ export function createElement(component, attributes, ...children) {
         if(lazyData) {
           return lazyData;
         }
-
         const renderInfo = component.renderInfo();
-
+        
         const dynamic = (clonedParent, thisArg) => {   
           const wrappedChildren = children.map(child => {
             if (typeof child === 'function') {
@@ -347,25 +471,19 @@ export function createElement(component, attributes, ...children) {
             return child;
           });
 
-          const props: any = { children: wrappedChildren };
-          const thisReplacement = {
-            props
-          };
+          const props: any = Object.create(staticProps);
+          const attrs: any = Object.create(staticAttrs);
+          const listeners: any = {};
           
-          if(attributes) {
-            for (const key of Object.keys(attributes)) {
-              const attribute = attributes[key];
-              if (typeof attribute === 'function') {
-                const boundAttribute = attribute.bind(thisArg);
-                Object.defineProperty(props, key, { get() { 
-                  const a = boundAttribute();
-                  return a;
-                }})
-              } else {
-                props[key] = attributes[key];
-              } 
-            }
-          }
+          const thisReplacement = {
+            children: wrappedChildren,
+            props: props,
+            attrs: attrs,
+            listeners: listeners
+          };
+
+          initDynamicSettersForStaticComponentObject(thisReplacement, thisArg, dynamicFields);
+
           const clonedElement = renderInfo.getElementFromTemplate(clonedParent);
           return renderInfo.dynamic(
             clonedElement, 
@@ -396,28 +514,17 @@ export function createElement(component, attributes, ...children) {
           component.prototype instanceof Node
             ? new component()
             : document.createElement(component);
+        addStaticAttributes(element, staticAttrs);
         addStaticElements(createParentNodeClient(element), children, childObserveFns);
         const dynamic = (clonedElement, thisArg) => {
-          const disposals: any[] = [];
-          if (attributes) {
-            for (const key of Object.keys(attributes)) {
-              const attributeValue = attributes[key];
-              if (typeof attributeValue === 'function') {
-                const boundAttributeValue = attributeValue.bind(thisArg);
-                disposals.push(
-                  reaction(
-                    boundAttributeValue,
-                    action(value => {
-                      assignAttribute(clonedElement, key, value);
-                    }),
-                    { fireImmediately: true },
-                  ),
-                );
-              } else {
-                assignAttribute(clonedElement, key, attributeValue);
-              }
-            }
+          for(const name in staticProps) {
+            clonedElement[name] = staticProps[name];
           }
+          const unmountSetters = initDynamicSettersForElement(
+            clonedElement,
+            thisArg,
+            dynamicFields,
+          );
           const itemsCallbacks = childObserveFns
             .map(item => {
               return item(clonedElement, thisArg);
@@ -425,7 +532,7 @@ export function createElement(component, attributes, ...children) {
             .filter(callback => !!callback);
           return {
             disposeReactions: () => {
-              disposals.forEach(dispose => dispose());
+              unmountSetters();
               for (const itemCallbacks of itemsCallbacks) {
                 if (itemCallbacks.disposeReactions) {
                   itemCallbacks.disposeReactions();
@@ -449,15 +556,16 @@ export function createElement(component, attributes, ...children) {
       },
     };
   } else {
-    const unwrappedAttributes = attributes ? 
-      Object.keys(attributes).reduce((obj, key) => {
-        if (typeof attributes[key] === 'function') {
-          obj[key] = attributes[key]();
+    const unwrappedAttributes = jsxAttributeObj ? 
+      Object.keys(jsxAttributeObj).reduce((obj, key) => {
+        if (typeof jsxAttributeObj[key] === 'function') {
+          obj[key] = jsxAttributeObj[key]();
         } else {
-          obj[key] = attributes[key];
+          obj[key] = jsxAttributeObj[key];
         }
         return obj;
-      }, {}) : attributes;
+      }, {}) : jsxAttributeObj;
+    
     const unwrappedChildren = children.map(child => typeof child === 'function' ? child : child);
     const result = component({ children: unwrappedChildren, ...unwrappedAttributes });
     return result;
