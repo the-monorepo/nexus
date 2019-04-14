@@ -7,6 +7,7 @@ import { declare } from '@babel/helper-plugin-utils';
 import jsx from '@babel/plugin-syntax-jsx';
 import helper from '@babel/helper-builder-react-jsx';
 import { types as t } from '@babel/core';
+
 export default declare((api, options) => {
   api.assertVersion(7);
 
@@ -88,6 +89,10 @@ export default declare((api, options) => {
       }
     },
   };
+
+  visitor.JSXElement = function(path) {
+    
+  }
 
   visitor.JSXAttribute = function(path) {
     if (t.isJSXElement(path.node.value)) {
