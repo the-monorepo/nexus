@@ -163,23 +163,6 @@ export function render(
   }
 }
 
-function createParentNodeClient(parent) {
-  let i = 0;
-  return {
-    appendChild(element) {
-      i++;
-      return parent.appendChild(element);
-    },
-    appendFragment(element) {
-      i += element.children.length;
-      return parent.appendChild(element);
-    },
-    get length() {
-      return i;
-    },
-  };
-}
-
 function addStaticElements(parentClient, children, dynamic) {
   for (const child of children) {
     if (typeof child === 'function') {
@@ -277,7 +260,7 @@ export function Fragment({ children }) {
       }
       const fragment = document.createDocumentFragment();
       const childObserveFns: any[] = [];
-      addStaticElements(createParentNodeClient(fragment), children, childObserveFns);
+      addStaticElements(fragment, children, childObserveFns);
       const dynamic = (clonedElement, thisArg) => {
           const itemsCallbacks = childObserveFns
             .map(item => item(clonedElement, thisArg))
@@ -515,7 +498,7 @@ export function createElement(component, jsxAttributeObj = {}, ...children) {
             ? new component()
             : document.createElement(component);
         addStaticAttributes(element, staticAttrs);
-        addStaticElements(createParentNodeClient(element), children, childObserveFns);
+        addStaticElements(element, children, childObserveFns);
         const dynamic = (clonedElement, thisArg) => {
           for(const name in staticProps) {
             clonedElement[name] = staticProps[name];
