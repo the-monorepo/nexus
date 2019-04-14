@@ -67,7 +67,7 @@ export function render(
       },
     };
   } else if (isObservableArray(renderInfo)) {
-    const childElements: (DynamicCallbacks | undefined)[] = new Array(renderInfo.length);
+    const childElements: (DynamicCallbacks | undefined)[] = [];
     const dispose = renderInfo.observe(changeData => {
       if (changeData.type === 'splice') {
         const elementToAddBefore = (() => {
@@ -147,7 +147,7 @@ export function render(
       disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
     };
   } else {
-    const info = renderInfo.renderInfo();
+    const info = renderInfo.renderInfo;
     const element = info.element;
     const unmountObj = info.dynamic(element, thisArg);
     parent.insertBefore(element, before);
@@ -213,7 +213,7 @@ function addStaticElements(parent, children, dynamic) {
       const element = document.createTextNode(child.toString());
       parent.appendChild(element);
     } else {
-      const renderInfo = child.renderInfo();
+      const renderInfo = child.renderInfo;
       let index = parent.childNodes.length;
       parent.appendChild(renderInfo.element);
       const childDynamic = (clonedParent, thisArg) => {
@@ -232,49 +232,41 @@ function lazyTemplateFactory(element, dynamic, getCallbackElement) {
     }
     const template = document.createElement('template');
     template.content.appendChild(element);
-    document.body.appendChild(template);
     lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamicOverride(getCallbackElement(templateContent), thisArg) };
     return lazyTemplate;
   };
 }
 
 export function Fragment({ children }) {
-  let lazyData;
-  return {
-    renderInfo: () => {
-      if (lazyData) {
-        return lazyData;
-      }
-      const element = document.createDocumentFragment();
-      const childObserveFns: any[] = [];
-      addStaticElements(element, children, childObserveFns);
-      const dynamic = (clonedElement, thisArg) => {
-          const itemsCallbacks = childObserveFns
-            .map(item => item(clonedElement, thisArg))
-            .filter(callback => !!callback);
-          return {
-            firstElement: () => {
-              for (const itemCallbacks of itemsCallbacks) {
-                if (itemCallbacks.firstElement) {
-                  const potentialFirstElement = itemCallbacks.firstElement();
-                  return potentialFirstElement;
-                }
-              }
-              return null;
-            },
-            disposeReactions: wrapCallbacks(itemsCallbacks, obj => obj.disposeReactions),
-            removeChildren: wrapCallbacks(itemsCallbacks, obj => obj.removeChildren),
-          };
-        };
-      const getElementFromTemplate = (templateContent) => templateContent;
-      lazyData = {
-        getElementFromTemplate,
-        element,
-        template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
-        dynamic
+  const element = document.createDocumentFragment();
+  const childObserveFns: any[] = [];
+  addStaticElements(element, children, childObserveFns);
+  const dynamic = (clonedElement, thisArg) => {
+      const itemsCallbacks = childObserveFns
+        .map(item => item(clonedElement, thisArg))
+        .filter(callback => !!callback);
+      return {
+        firstElement: () => {
+          for (const itemCallbacks of itemsCallbacks) {
+            if (itemCallbacks.firstElement) {
+              const potentialFirstElement = itemCallbacks.firstElement();
+              return potentialFirstElement;
+            }
+          }
+          return null;
+        },
+        disposeReactions: wrapCallbacks(itemsCallbacks, obj => obj.disposeReactions),
+        removeChildren: wrapCallbacks(itemsCallbacks, obj => obj.removeChildren),
       };
-      return lazyData;
-    },
+    };
+  const getElementFromTemplate = (templateContent) => templateContent;
+  return {
+    renderInfo: {
+      getElementFromTemplate,
+      element,
+      template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
+      dynamic
+    }
   };
 }
 
@@ -424,106 +416,91 @@ function initDynamicSettersForStaticComponentObject(object, thisArg, dynamicFiel
 
 export function createElement(component, jsxAttributeObj = {}, ...children) {
   const { staticAttrs, staticProps, dynamicFields } = extractFieldInfo(jsxAttributeObj);
-  if(component.renderInfo) {
-    let lazyData;
-    return {
-      renderInfo: () => {
-        if(lazyData) {
-          return lazyData;
-        }
-        const renderInfo = component.renderInfo();
+  if(component.renderInfo) {    
+    const componentRenderInfo = component.renderInfo;
         
-        const dynamic = (clonedParent, thisArg) => {   
-          const wrappedChildren = children.map(child => {
-            if (typeof child === 'function') {
-              return child.bind(thisArg);
-            }
-            return child;
-          });
+    const dynamic = (clonedParent, thisArg) => {   
+      const wrappedChildren = children.map(child => {
+        if (typeof child === 'function') {
+          return child.bind(thisArg);
+        }
+        return child;
+      });
 
-          const props: any = Object.create(staticProps);
-          const attrs: any = Object.create(staticAttrs);
-          const listeners: any = {};
-          
-          const thisReplacement = {
-            children: wrappedChildren,
-            props: props,
-            attrs: attrs,
-            listeners: listeners
-          };
+      const props: any = Object.create(staticProps);
+      const attrs: any = Object.create(staticAttrs);
+      const listeners: any = {};
+      
+      const thisReplacement = {
+        children: wrappedChildren,
+        props: props,
+        attrs: attrs,
+        listeners: listeners
+      };
 
-          initDynamicSettersForStaticComponentObject(thisReplacement, thisArg, dynamicFields);
+      initDynamicSettersForStaticComponentObject(thisReplacement, thisArg, dynamicFields);
 
-          const clonedElement = renderInfo.getElementFromTemplate(clonedParent);
-          return renderInfo.dynamic(
-            clonedElement, 
-            thisReplacement            
-          )
-        };
+      const clonedElement = componentRenderInfo.getElementFromTemplate(clonedParent);
+      return componentRenderInfo.dynamic(
+        clonedElement, 
+        thisReplacement            
+      )
+    };
 
-        const getTemplate = () => renderInfo.template(dynamic);
-
-        lazyData = {
-          getElementFromTemplate: renderInfo.getElementFromTemplate, 
-          get element() { return document.importNode(renderInfo.template().template.content, true) },
-          template: getTemplate,
-          dynamic,
-        };
-        return lazyData;
+    const getTemplate = () => componentRenderInfo.template(dynamic);
+    return {
+      renderInfo: {
+        getElementFromTemplate: componentRenderInfo.getElementFromTemplate, 
+        get element() { return document.importNode(componentRenderInfo.template().template.content, true) },
+        template: getTemplate,
+        dynamic,
       }
     };
   } else if (typeof component === 'string' || component.prototype instanceof Node) {
-    let lazyData;
-    return {
-      renderInfo: () => {
-        if (lazyData) {
-          return lazyData;
-        }
-        const childObserveFns: any[] = [];
-        const element =
-          component.prototype instanceof Node
-            ? new component()
-            : document.createElement(component);
-        addStaticAttributes(element, staticAttrs);
-        addStaticElements(element, children, childObserveFns);
-        const dynamic = (clonedElement, thisArg) => {
-          for(const name in staticProps) {
-            clonedElement[name] = staticProps[name];
+    const childObserveFns: any[] = [];
+    const element =
+      component.prototype instanceof Node
+        ? new component()
+        : document.createElement(component);
+    addStaticAttributes(element, staticAttrs);
+    addStaticElements(element, children, childObserveFns);
+    const dynamic = (clonedElement, thisArg) => {
+      for(const name in staticProps) {
+        clonedElement[name] = staticProps[name];
+      }
+      const unmountSetters = initDynamicSettersForElement(
+        clonedElement,
+        thisArg,
+        dynamicFields,
+      );
+      const itemsCallbacks = childObserveFns
+        .map(item => {
+          return item(clonedElement, thisArg);
+        })
+        .filter(callback => !!callback);
+      return {
+        disposeReactions: () => {
+          unmountSetters();
+          for (const itemCallbacks of itemsCallbacks) {
+            if (itemCallbacks.disposeReactions) {
+              itemCallbacks.disposeReactions();
+            }
           }
-          const unmountSetters = initDynamicSettersForElement(
-            clonedElement,
-            thisArg,
-            dynamicFields,
-          );
-          const itemsCallbacks = childObserveFns
-            .map(item => {
-              return item(clonedElement, thisArg);
-            })
-            .filter(callback => !!callback);
-          return {
-            disposeReactions: () => {
-              unmountSetters();
-              for (const itemCallbacks of itemsCallbacks) {
-                if (itemCallbacks.disposeReactions) {
-                  itemCallbacks.disposeReactions();
-                }
-              }
-            },
-            firstElement: () => clonedElement,
-            removeChildren: () => {
-              clonedElement.remove();
-            },
-          };
-        }
-        const getElementFromTemplate = templateContent => templateContent.childNodes[0];
-        lazyData = {
-          element,
-          getElementFromTemplate,
-          template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
-          dynamic,
-        };
-        return lazyData;
-      },
+        },
+        firstElement: () => clonedElement,
+        removeChildren: () => {
+          clonedElement.remove();
+        },
+      };
+    }
+    const getElementFromTemplate = templateContent => templateContent.childNodes[0];
+    return {
+      renderInfo: {
+        element,
+        getElementFromTemplate,
+        template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
+        dynamic,  
+      }
     };
   } else {
     const unwrappedAttributes = jsxAttributeObj ? 
