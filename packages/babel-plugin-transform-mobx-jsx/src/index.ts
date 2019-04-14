@@ -90,10 +90,6 @@ export default declare((api, options) => {
     },
   };
 
-  visitor.JSXElement = function(path) {
-    
-  }
-
   visitor.JSXAttribute = function(path) {
     if (t.isJSXElement(path.node.value)) {
       path.node.value = t.jsxExpressionContainer(path.node.value);

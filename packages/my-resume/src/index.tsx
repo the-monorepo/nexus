@@ -127,9 +127,13 @@ setInterval(
     });
   }),
 );*/
+const store = observable({
+  i: 0,
+})
+setInterval(action(() => store.i++), 1000)
 const OuterComponent = (
-  <button $$click={() => console.log('test')}>
-    Only
+  <button $$click={() => console.log('clicked')}>
+    Hello {store.i}
   </button>
 );
 render(document.getElementById('root'), <OuterComponent/>);
