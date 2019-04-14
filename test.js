@@ -1,0 +1,2 @@
+const test = '';
+<div $$test/>;
