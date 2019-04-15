@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body id="test">
+    <h1 id="1">1</h1>
+    <h2 id="2">2</h2>
+    <h3 id="3">3</h3>
+    <h4 id="4">4</h4>
+    <template id="template">
+      <div>My name is Patrick</div>
+    </template>
+    <template id="template2">
+      <span>Test</span>
+    </template>
+    <script>
+      const test = document.getElementById('test');
+      const h1 = document.getElementById('1');
+      const h2 = document.getElementById("2");
+      const h3 = document.getElementById('3');
+      const h4 = document.getElementById("4");
+      const range = document.createRange();
+      test.removeChild(h1);
+      test.insertBefore(document.createTextNode('before h3'), h3);
+      range.setStartBefore(h2);
+      range.setEndAfter(h2);
+      test.insertBefore(document.createTextNode('before h2'), h2);
+      const range2 = document.createRange();
+      range2.setStartBefore(h3);
+      range2.setEndAfter(h3);
+      range2.deleteContents();
+      range.deleteContents();
+      range2.insertNode(document.createElement('span'));
+      range.insertNode(document.createElement('figure'));
+      test.appendChild(document.createElement('h5'))
+      //range.deleteContents();
+      //const myTemplate = document.getElementById('template');
+      //const myTemplate2 = document.getElementById('template2');
+      //setTimeout(() => range.deleteContents(), 1000)      
+      console.log(range);
+    </script>
+  </body>
+</html>
