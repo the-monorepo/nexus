@@ -27,25 +27,17 @@ export abstract class MobxElement extends HTMLElement {
       if (this.unmountObj.disposeReactions) {
         this.unmountObj.disposeReactions();
       }
-      if (this.unmountObj.removeChildren) {
-        this.unmountObj.removeChildren();
+      // TODO: If you've manually added some, this will delete those too which is bad
+      while(this.hasChildNodes()) {
+        this.removeChild(this.firstChild)
       }
     }
   }
 }
 
-function wrapCallbacks(objs, getCallback) {
-  const filteredCallbacks = objs
-    .filter(obj => !!obj)
-    .map(getCallback)
-    .filter(callback => !!callback);
-  return () => filteredCallbacks.forEach(callback => callback());
-}
-
 const textNodeTypes = new Set(['string', 'boolean', 'number']);
-interface DynamicCallbacks {
-  firstElement?: () => any;
-  removeChildren?: () => void;
+type DynamicCallbacks = {
+  firstElement: Node;
   disposeReactions?: () => void;
 }
 
@@ -61,90 +53,71 @@ export function render(
     const child = document.createTextNode(renderInfo);
     parent.insertBefore(child, before);
     return {
-      firstElement: () => child,
-      removeChildren: () => {
-        child.remove();
-      },
+      firstElement: child,
     };
   } else if (isObservableArray(renderInfo)) {
-    const childElements: (DynamicCallbacks | undefined)[] = [];
+    const firstMarker = document.createComment('');
+    parent.insertBefore(firstMarker, before);
+    const childElements: DynamicCallbacks[] = [];
     const dispose = renderInfo.observe(changeData => {
       if (changeData.type === 'splice') {
-        const elementToAddBefore = (() => {
-          let index = changeData.index;
-          while (index < childElements.length) {
-            const unmountObj = childElements[changeData.index];
-            if (unmountObj && unmountObj.firstElement) {
-              return unmountObj.firstElement();
-            } else {
-              return before;
-            }
+        if (changeData.removedCount > 0) {
+          const stopIndex = changeData.index + changeData.removedCount;
+          const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstElement : before;
+          let currentElement = childElements[changeData.index].firstElement;
+          while(currentElement !== stopElement) {
+            const nextSibling = currentElement.nextSibling;
+            currentElement.parentNode.removeChild(currentElement);
+            currentElement = nextSibling;
           }
-          return before;
-        })();
-        const parentToAddTo = elementToAddBefore ? elementToAddBefore.parentNode : parent;
-        const fragment = document.createDocumentFragment();
-        const addedElements = changeData.added.map(child =>
-          render(fragment, child, undefined, thisArg),
-        );
-        parentToAddTo.insertBefore(fragment, elementToAddBefore);
-        const removed = childElements.splice(
-          changeData.index,
-          changeData.removedCount,
-          ...addedElements,
-        );
-        for (const unmountObj of removed) {
-          if (unmountObj) {
-            if (unmountObj.disposeReactions) {
-              unmountObj.disposeReactions();
-            }
-            if (unmountObj.removeChildren) {
-              unmountObj.removeChildren();
-            }
+        }
+
+        let addedChildElements = [];
+        if (changeData.addedCount > 0) {
+          const fragment = document.createDocumentFragment();
+
+          addedChildElements = changeData.added.map((childInfo) => {
+            const data = render(fragment, childInfo, undefined, thisArg);
+            const firstElement = data ? data.firstElement : fragment.appendChild(document.createComment(''));
+            return { disposeReactions: data.disposeReactions, firstElement }
+          }).filter(data => !!data);
+          const elementToAddBefore = changeData.index < childElements.length ? childElements[changeData.index].firstElement : before;
+          const parentToAddTo = elementToAddBefore ? elementToAddBefore.parentNode : parent;
+          parentToAddTo.insertBefore(fragment, elementToAddBefore);
+        }
+        
+        const removed = childElements.splice(changeData.index, changeData.removedCount, ...addedChildElements);
+        for (const removedChildInfo of removed) {
+          if (removedChildInfo && removedChildInfo.disposeReactions) {
+            removedChildInfo.disposeReactions();
           }
         }
       }
     }, true);
-    return {
-      firstElement: () => {
-        for (const childElement of childElements) {
-          if (childElement) {
-            if (childElement.firstElement) {
-              const potentialFirstElement = childElement.firstElement();
-              if (potentialFirstElement) {
-                return potentialFirstElement;
-              }
-            }
-          }
-        }
-        return before;
-      },
+    return { 
       disposeReactions: () => {
         dispose();
-        wrapCallbacks(childElements, obj => obj.disposeReactions)();
+        for(const childInfo of childElements) {
+          childInfo.disposeReactions();
+        }
       },
-      removeChildren: wrapCallbacks(childElements, obj => obj.removeChildren),
+      firstElement: firstMarker,
     };
-  } else if (Array.isArray(renderInfo)) {
+  } else if (Array.isArray(renderInfo) && renderInfo.length > 0) {
     const fragment = document.createDocumentFragment();
     const unmountObjs = renderInfo.map(item =>
       render(fragment, item, undefined, thisArg),
     );
+    const firstElement = fragment.children[0];
     parent.insertBefore(fragment, before);
     return {
-      firstElement: () => {
-        for (const obj of unmountObjs) {
-          if (obj) {
-            const potentialFirstElement = obj.firstElement;
-            if (potentialFirstElement) {
-              return potentialFirstElement;
-            }
+      disposeReactions: () => unmountObjs
+        .forEach(data => {
+          if (data && data.disposeReactions) {
+            data.disposeReactions();
           }
-        }
-        return undefined;
-      },
-      removeChildren: wrapCallbacks(unmountObjs, obj => obj.removeChildren),
-      disposeReactions: wrapCallbacks(unmountObjs, obj => obj.disposeReactions),
+        }),
+      firstElement
     };
   } else {
     const info = renderInfo.renderInfo;
@@ -155,59 +128,47 @@ export function render(
   }
 }
 
-function addStaticElements(parent, children, dynamic) {
+function addStaticElements(parent, children, dynamic: ((...args) => DynamicCallbacks | undefined)[]) {
   for (const child of children) {
     if (typeof child === 'function') {
-      const positionMarker = document.createComment('');
-      const index = parent.childNodes.length;
-      parent.appendChild(positionMarker);
+      const markerIndex = parent.childNodes.length;
+      parent.appendChild(document.createComment(''));
+      parent.appendChild(document.createComment(''));
       dynamic.push((clonedParent, thisArg) => {
-        const clonedPositionMarker = clonedParent.childNodes[index];
+        const beforeMarker = clonedParent.childNodes[markerIndex];
+        const afterMarker = beforeMarker.nextSibling;
         let unmountObj;
         const boundChild = child.bind(thisArg);
         const reactionDisposer = reaction(
           boundChild,
           next => {
-            if (unmountObj) {
-              if (unmountObj.disposeReactions) {
+            let currentElement = beforeMarker.nextSibling;
+            while(!currentElement.isSameNode(afterMarker)) {
+              const nextElement = currentElement.nextSibling;
+              clonedParent.removeChild(currentElement);
+              currentElement = nextElement;
+            }
+            if (unmountObj && unmountObj.disposeReactions) {
                 unmountObj.disposeReactions();
-              }
-              if (unmountObj.removeChildren()) {
-                return unmountObj.removeChildren();
-              }
             }
             unmountObj = render(
-              clonedPositionMarker.parentNode,
+              clonedParent,
               next,
-              clonedPositionMarker,
+              afterMarker,
               thisArg,
             );
           },
           { fireImmediately: true },
         );
         return {
-          firstElement: () => {
-            if (unmountObj && unmountObj.firstElement) {
-              const potentialFirstElement = unmountObj.firstElement();
-              if (potentialFirstElement) {
-                return potentialFirstElement;
-              }
-            }
-            return clonedPositionMarker;
-          },
           disposeReactions: () => {
             reactionDisposer();
             if (unmountObj && unmountObj.disposeReactions) {
               unmountObj.disposeReactions();
             }
           },
-          removeChildren: () => {
-            if (unmountObj && unmountObj.removeChildren) {
-              unmountObj.removeChildren();
-            }
-            clonedPositionMarker.remove();
-          },
-        };
+          firstElement: beforeMarker,
+        }
       });
     } else if (textNodeTypes.has(typeof child)) {
       const element = document.createTextNode(child.toString());
@@ -245,18 +206,10 @@ export function Fragment({ children }) {
       const itemsCallbacks = childObserveFns
         .map(item => item(clonedElement, thisArg))
         .filter(callback => !!callback);
-      return {
-        firstElement: () => {
-          for (const itemCallbacks of itemsCallbacks) {
-            if (itemCallbacks.firstElement) {
-              const potentialFirstElement = itemCallbacks.firstElement();
-              return potentialFirstElement;
-            }
-          }
-          return null;
-        },
-        disposeReactions: wrapCallbacks(itemsCallbacks, obj => obj.disposeReactions),
-        removeChildren: wrapCallbacks(itemsCallbacks, obj => obj.removeChildren),
+      return itemsCallbacks.length <= 0 ? undefined : {
+        disposeReactions: itemsCallbacks.filter(callback => !!callback.disposeReactions)
+          .forEach(itemCallbacks => itemCallbacks.disposeReactions()),
+        firstElement: itemsCallbacks[0].firstElement
       };
     };
   const getElementFromTemplate = (templateContent) => templateContent;
@@ -321,17 +274,17 @@ function addStaticAttributes(element, attributes) {
   }
 }
 
-function initDynamicSetter(thisArg, dynamicValue, updateCallback) {
+function initDynamicSetter(thisArg, dynamicValue, updateCallback): DynamicCallbacks['disposeReactions'] {
   const boundDynamicValue = dynamicValue.bind(thisArg);  
   const actionedUpdateCallback = action(updateCallback);
 
-  let previousUnmount;
+  let previousUnmount: DynamicCallbacks;
   
   const dispose = reaction(
     boundDynamicValue,
     (next) => {
-      if (previousUnmount) {
-        previousUnmount();
+      if (previousUnmount && previousUnmount.disposeReactions) {
+        previousUnmount.disposeReactions();
       }
       previousUnmount = actionedUpdateCallback(next);
     }, 
@@ -340,8 +293,8 @@ function initDynamicSetter(thisArg, dynamicValue, updateCallback) {
   
   return () => {
     dispose();
-    if (previousUnmount) {
-      previousUnmount();
+    if (previousUnmount && previousUnmount.disposeReactions) {
+      previousUnmount.disposeReactions();
     }
   }
 }
@@ -350,7 +303,7 @@ function initDynamicSetters(
   thisArg,
   dynamicFieldInfos,
   mountFactories,
-) {
+): DynamicCallbacks['disposeReactions'] {
   const disposals: any[] = [];
   for(const { type, name, callback } of dynamicFieldInfos) {
     const wrappedCallback = callback.bind(thisArg);
@@ -366,8 +319,10 @@ function initDynamicSetters(
           throw new Error(`Unexpected field type ${type} for name ${name}`);
       }
     })();
-    disposals.push(disposal);
-  }
+    if (disposal) {
+      disposals.push(disposal);
+    }
+  }  
   return () => disposals.forEach(disposal => disposal());
 }
 
@@ -457,7 +412,7 @@ export function createElement(component, jsxAttributeObj = {}, ...children) {
       }
     };
   } else if (typeof component === 'string' || component.prototype instanceof Node) {
-    const childObserveFns: any[] = [];
+    const childObserveFns: ((...args) => DynamicCallbacks)[] = [];
     const element =
       component.prototype instanceof Node
         ? new component()
@@ -479,18 +434,15 @@ export function createElement(component, jsxAttributeObj = {}, ...children) {
         })
         .filter(callback => !!callback);
       return {
+        firstElement: clonedElement, 
         disposeReactions: () => {
           unmountSetters();
           for (const itemCallbacks of itemsCallbacks) {
-            if (itemCallbacks.disposeReactions) {
+            if (itemCallbacks && itemCallbacks.disposeReactions) {
               itemCallbacks.disposeReactions();
             }
           }
-        },
-        firstElement: () => clonedElement,
-        removeChildren: () => {
-          clonedElement.remove();
-        },
+        }
       };
     }
     const getElementFromTemplate = templateContent => templateContent.childNodes[0];
