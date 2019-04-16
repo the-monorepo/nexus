@@ -13,30 +13,61 @@
       <span>Test</span>
     </template>
     <script>
-      const test = document.getElementById('test');
-      const h1 = document.getElementById('1');
-      const h2 = document.getElementById("2");
-      const h3 = document.getElementById('3');
-      const h4 = document.getElementById("4");
-      const range = document.createRange();
-      test.removeChild(h1);
-      test.insertBefore(document.createTextNode('before h3'), h3);
-      range.setStartBefore(h2);
-      range.setEndAfter(h2);
-      test.insertBefore(document.createTextNode('before h2'), h2);
-      const range2 = document.createRange();
-      range2.setStartBefore(h3);
-      range2.setEndAfter(h3);
-      range2.deleteContents();
-      range.deleteContents();
-      range2.insertNode(document.createElement('span'));
-      range.insertNode(document.createElement('figure'));
-      test.appendChild(document.createElement('h5'))
-      //range.deleteContents();
-      //const myTemplate = document.getElementById('template');
-      //const myTemplate2 = document.getElementById('template2');
-      //setTimeout(() => range.deleteContents(), 1000)      
-      console.log(range);
+      /**
+       * Basically a linked list that contains only the methods required for holding and adding 
+       * to the child hooks container
+       */
+      
+function childHooksContainer() {
+  let head = null;
+  let tail = null;
+  function node(value) {
+    return {
+      next: null,
+      value
+    }
+  }
+  function handleNoHead(value, callback) {
+    const newNode = node(value);
+    if (head) {
+      callback(newNode);
+    } else {
+      head = newNode;
+      tail = newNode;
+    }
+  }
+  return {
+    unshift(value) {
+      handleNoHead(value, (newNode) => {
+        newNode.next = head;
+        head = newNode;
+      })
+    },
+    push(value) {
+      handleNoHead(value, (newNode) => {
+        tail.next = newNode;
+        tail = newNode;
+      })
+    },
+    [Symbol.iterator]: function * () {
+      let current = head;
+      while(current !== null) {
+        yield current.value;
+        current = current.next;
+      }
+    }
+  }
+}
+      function time(callback) {
+        const start = new Date().getTime();
+        callback();
+        const end = new Date().getTime();
+        console.log('timed', end - start);
+      }
+      const test = childHooksContainer();
+      test.push(1);
+      test.unshift(2);
+      console.log(Array.from(test))
     </script>
   </body>
 </html>
