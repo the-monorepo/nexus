@@ -5,55 +5,59 @@ import {
   computed,
   observable,
   isObservableArray,
-  toJS,
+  IObservableArray,
+  toJS
 } from 'mobx';
+const node = <T>(value: T): ContainerNode<T> => ({
+  value,
+});
 
-type ChildHookNode = {
-  next: ChildHookNode | null;
-  value: (clonedNode: Node, thisArg: any) => (DynamicCallbacks | null | undefined);
+type DynamicSection<T extends Node = Node, This = any> 
+  = ((clonedNode: T, thisArg: This) => (DynamicCallbacks | null));
+
+type ContainerNode<T> = {
+  next?: ContainerNode<T>;
+  value: T;
 }
-/**
- * Basically a linked list that contains only the methods required for holding and adding 
- * to the child hooks container
- */
-function childHooksContainer() {
-  let head: ChildHookNode | null = null;
-  let tail: ChildHookNode | null = null;
-  function node(value): ChildHookNode {
-    return {
-      next: null,
-      value
-    }
-  }
-  function handleNoHead(value, callback) {
+
+
+class ChildHooksContainer<T> implements Iterable<T> {
+  private head?: ContainerNode<T>;
+  private tail?: ContainerNode<T>;
+  private handleNoHead(value: T, callback: (newNode: ContainerNode<T>) => void) {
     const newNode = node(value);
-    if (head) {
+    if (this.head) {
       callback(newNode);
     } else {
-      head = newNode;
-      tail = newNode;
+      this.head = newNode;
+      this.tail = newNode;
     }
   }
-  return {
-    unshift(value) {
-      handleNoHead(value, (newNode) => {
-        newNode.next = head;
-        head = newNode;
-      })
-    },
-    push(value) {
-      handleNoHead(value, (newNode) => {
-        tail!.next = newNode;
-        tail = newNode;
-      })
-    },
-    [Symbol.iterator]: function * () {
-      let current = head;
-      while(current !== null) {
-        yield current.value;
-        current = current.next;
-      }
+
+  public unshift(value) {
+    this.handleNoHead(value, (newNode) => {
+      newNode.next = this.head;
+      this.head = newNode;
+    })
+  }
+
+  public push(value) {
+    this.handleNoHead(value, (newNode) => {
+      this.tail!.next = newNode;
+      this.tail = newNode;
+    })
+  }
+
+  *[Symbol.iterator]() {
+    let current = this.head;
+    while(current) {
+      yield current.value;
+      current = current.next;
     }
+  }
+
+  get isEmpty(): boolean {
+    return this.head === undefined;
   }
 }
 
@@ -67,7 +71,7 @@ export abstract class MobxElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.unmountObj = render(this.shadow, this.constructor.template, undefined, this);
+    this.unmountObj = render(this.shadow, (this.constructor as any).template, undefined, this);
   }
 
   disconnectedCallback() {
@@ -78,7 +82,7 @@ export abstract class MobxElement extends HTMLElement {
       }
       // TODO: If you've manually added some, this will delete those too which is bad
       while(this.hasChildNodes()) {
-        this.removeChild(this.firstChild)
+        this.removeChild(this.firstChild as Node);
       }
     }
   }
@@ -107,22 +111,26 @@ export function render(
     return {
       firstElement: child,
     };
-  } else if (Array.isArray(renderInfo) && renderInfo.length > 0) {
+  } else if (Array.isArray(renderInfo)) {
     const fragment = document.createDocumentFragment();
     const unmountObjs = renderInfo.map(item =>
       render(fragment, item, undefined, thisArg),
     );
-    const firstElement = fragment.children[0];
-    parent.insertBefore(fragment, before);
-    return {
-      disposeReactions: () => unmountObjs
-        .forEach(data => {
-          if (data && data.disposeReactions) {
-            data.disposeReactions();
-          }
-        }),
-      firstElement
-    };
+    if (fragment.children.length > 0) {
+      const firstElement = fragment.children[0];
+      parent.insertBefore(fragment, before);
+      return {
+        disposeReactions: () => unmountObjs
+          .forEach(data => {
+            if (data && data.disposeReactions) {
+              data.disposeReactions();
+            }
+          }),
+        firstElement
+      };  
+    } else {
+      return undefined;
+    }
   } else {
     const info = renderInfo.renderInfo;
     const element = info.element;
@@ -168,7 +176,7 @@ function initFunctionalChild(parent: Node, child) {
   };
 }
   
-function addStaticElements(parent, children, dynamic) {
+function addStaticElements(parent, children, dynamic: ChildHooksContainer<DynamicSection>) {
   for (const child of children) {
     if (typeof child === 'function') {
       const dynamicFn = initFunctionalChild(parent, child);
@@ -188,33 +196,51 @@ function addStaticElements(parent, children, dynamic) {
   }
 }
 
-function lazyTemplateFactory(element, dynamic, getCallbackElement) {
-  let lazyTemplate;
-  return (dynamicOverride = dynamic) => {
-    if (lazyTemplate) {
-      return lazyTemplate;
-    }
+interface TemplateInfo {
+  template: HTMLTemplateElement;
+  dynamic: DynamicSection<HTMLTemplateElement>;
+}
+function lazyTemplateFactory(
+  element: Node,
+  dynamic,
+  getCallbackElement
+): () => TemplateInfo {
+  let getTemplate = (dynamicOverride = dynamic) => {
     const template = document.createElement('template');
     template.content.appendChild(element);
-    lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamicOverride(getCallbackElement(templateContent), thisArg) };
+    const lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamicOverride(getCallbackElement(templateContent), thisArg) };
+    getTemplate = () => lazyTemplate;
     return lazyTemplate;
   };
+  return getTemplate;
 }
 
-export function Fragment({ children }) {
+interface RenderInfo<T extends Node = Node> {
+  readonly element: T,
+  getElementFromTemplate(templateContent: DocumentFragment): Node,
+  template(dynamicOverride?): TemplateInfo;
+  readonly dynamic: DynamicSection<T>,
+}
+
+interface RenderInfoContainer<T extends Node = Node> {
+  renderInfo: RenderInfo<T>;
+}
+
+export function Fragment({ children }): RenderInfoContainer<DocumentFragment> {
   const element = document.createDocumentFragment();
-  const childObserveFns = childHooksContainer();
+  const childObserveFns = new ChildHooksContainer<DynamicSection>();
   addStaticElements(element, children, childObserveFns);
-  const dynamic = (clonedElement, thisArg) => {
-    const itemsCallbacks: any[] = [];
-    for(const itemCallbacks of childObserveFns) {
-      if(itemCallbacks) {
-        itemsCallbacks.push(itemCallbacks(clonedElement, thisArg));
+  const dynamic: DynamicSection<DocumentFragment> = (clonedElement, thisArg): DynamicCallbacks | null  => {
+    const itemsCallbacks: DynamicCallbacks[] = [];
+    for(const dynamicFn of childObserveFns) {
+      const childCallbacks = dynamicFn(clonedElement, thisArg);
+      if (childCallbacks) {
+        itemsCallbacks.push(childCallbacks);
       }
     }
-    return itemsCallbacks.length <= 0 ? undefined : {
-      disposeReactions: itemsCallbacks.filter(callback => !!callback.disposeReactions)
-        .forEach(itemCallbacks => itemCallbacks.disposeReactions()),
+    return itemsCallbacks.length <= 0 ? null : {
+      disposeReactions: () => itemsCallbacks.filter(callback => !!callback.disposeReactions)
+        .forEach(itemCallbacks => itemCallbacks.disposeReactions!()),
       firstElement: itemsCallbacks[0].firstElement
     };
   };
@@ -233,8 +259,23 @@ const ATTR_TYPE = 0;
 const PROP_TYPE = 1;
 const EVENT_TYPE = 2;
 
+type DynamicField = {
+  type: typeof ATTR_TYPE | typeof PROP_TYPE | typeof EVENT_TYPE;
+  name: string;
+  callback: DynamicSection;
+}
+
+type FieldInfo = {
+  dynamicFields: DynamicField[];
+  staticAttrs: {
+    [s: string]: any,
+  },
+  staticProps: {
+    [s: string]: any,
+  }
+}
 // TODO: Transpile this in babel
-function extractFieldInfo(jsxAttributeObj) {
+function extractFieldInfo(jsxAttributeObj): FieldInfo {
   const dynamicFields: any[] = [];
   const staticAttrs = {};
   const staticProps = {};
@@ -309,7 +350,7 @@ function initDynamicSetters(
   thisArg,
   dynamicFieldInfos,
   mountFactories,
-): DynamicCallbacks['disposeReactions'] {
+) {
   const disposals: any[] = [];
   for(const { type, name, callback } of dynamicFieldInfos) {
     const wrappedCallback = callback.bind(thisArg);
@@ -329,7 +370,7 @@ function initDynamicSetters(
       disposals.push(disposal);
     }
   }  
-  return () => disposals.forEach(disposal => disposal());
+  return disposals;
 }
 
 function initDynamicSettersForElement(
@@ -356,110 +397,138 @@ function initDynamicSettersForElement(
   });
 }
 
-function initDynamicSettersForStaticComponentObject(object, thisArg, dynamicFieldInfos) {
-  for (const { type, name, callback } of dynamicFieldInfos) {
-    const boundCallback = callback.bind(thisArg);
-    const innerFieldObj = (() => {
-      switch(type) {
-        case ATTR_TYPE:
-          return object.attrs;
-        case EVENT_TYPE:
-          return object.listeners;
-        case PROP_TYPE:
-          return object.props;
-        default:
-          throw new Error('Invalid type');
+class ElementDynamicCallbacks {
+  constructor(
+    public readonly firstElement: Node,
+    private readonly unmountSetters: (() => void)[],
+    public readonly childDynamicCallbacks: Iterable<DynamicCallbacks>,
+  ) {}
+  disposeReactions() {
+    this.unmountSetters.forEach(unmountSetter => unmountSetter());
+    for (const itemCallbacks of this.childDynamicCallbacks) {
+      if (itemCallbacks.disposeReactions) {
+        itemCallbacks.disposeReactions();
       }
-    })();
-    Object.defineProperty(innerFieldObj, name, { get() { return boundCallback() } })
+    }
   }
 }
 
-export function createElement(component, jsxAttributeObj = {}, ...children) {
-  const { staticAttrs, staticProps, dynamicFields } = extractFieldInfo(jsxAttributeObj);
+class ElementRenderInfo implements RenderInfo {
+  constructor(
+    public readonly element: Node,
+    private readonly fieldInfo: FieldInfo,
+    private readonly dynamicCallbacks: ChildHooksContainer<DynamicSection>,
+  ) {}
+  public readonly template = lazyTemplateFactory(this.element, this.dynamic, this.getElementFromTemplate);
+  
+  getElementFromTemplate(templateContent: DocumentFragment): Node {
+    return templateContent.childNodes[0];
+  }
+
+  dynamic(clonedElement, thisArg) {
+    for(const name in this.fieldInfo.staticProps) {
+      clonedElement[name] = this.fieldInfo.staticProps[name];
+    }
+
+    const unmountSetters = initDynamicSettersForElement(
+      clonedElement,
+      thisArg,
+      this.fieldInfo.dynamicFields,
+    );
+
+    const itemsCallbacks: any[] = [];
+    for(const itemCallbacks of this.dynamicCallbacks) {
+      itemsCallbacks.push(itemCallbacks(clonedElement, thisArg));
+    }  
+
+    return new ElementDynamicCallbacks(
+      clonedElement,
+      unmountSetters,
+      itemsCallbacks
+    );
+  }
+}
+
+class StaticComponentRenderInfo implements RenderInfo {
+  constructor(
+    private readonly children,
+    private readonly staticFields: { [s: string]: any },
+    private readonly dynamicFields: { key, value: () => any }[],
+    private readonly componentRenderInfo: RenderInfo
+  ) {}
+
+  template() {
+    return this.componentRenderInfo.template(this.dynamic);
+  }f
+
+  get element() { 
+    return document.importNode(this.componentRenderInfo.template().template.content, true);
+  }
+
+  getElementFromTemplate(templateContent: DocumentFragment): Node {
+    return this.componentRenderInfo.getElementFromTemplate(templateContent);
+  }
+
+  dynamic(clonedParent, thisArg) {
+    const wrappedChildren = this.children.map(child => {
+      if (typeof child === 'function') {
+        return child.bind(thisArg);
+      }
+      return child;
+    });
+    
+    const props = Object.create(this.staticFields);
+    const thisReplacement = { props };
+    thisReplacement.props.children = thisReplacement.props.children || wrappedChildren;
+
+    for(const {key, value} of this.dynamicFields) {
+      value.bind(thisArg);
+      Object.defineProperty(props, key, { get: value });
+    }
+
+    const clonedElement = this.componentRenderInfo.getElementFromTemplate(clonedParent);
+    return this.componentRenderInfo.dynamic(
+      clonedElement, 
+      thisReplacement            
+    )
+  }
+}
+
+export function createElement(
+  component: any | HTMLElement,
+  jsxAttributeObj: { [s: string]: any } = {},
+  ...children
+): RenderInfoContainer {
   if(component.renderInfo) {    
     const componentRenderInfo = component.renderInfo;
-        
-    const dynamic = (clonedParent, thisArg) => {   
-      const wrappedChildren = children.map(child => {
-        if (typeof child === 'function') {
-          return child.bind(thisArg);
-        }
-        return child;
-      });
-
-      const props: any = Object.create(staticProps);
-      const attrs: any = Object.create(staticAttrs);
-      const listeners: any = {};
-      
-      const thisReplacement = {
-        children: wrappedChildren,
-        props: props,
-        attrs: attrs,
-        listeners: listeners
-      };
-
-      initDynamicSettersForStaticComponentObject(thisReplacement, thisArg, dynamicFields);
-
-      const clonedElement = componentRenderInfo.getElementFromTemplate(clonedParent);
-      return componentRenderInfo.dynamic(
-        clonedElement, 
-        thisReplacement            
-      )
-    };
-
-    const getTemplate = () => componentRenderInfo.template(dynamic);
-    return {
-      renderInfo: {
-        getElementFromTemplate: componentRenderInfo.getElementFromTemplate, 
-        get element() { return document.importNode(componentRenderInfo.template().template.content, true) },
-        template: getTemplate,
-        dynamic,
+    const staticFields = {};
+    const dynamicFields: { key: string, value: () => any }[] = [];
+    for(const key in jsxAttributeObj) {
+      const value = jsxAttributeObj[key];
+      if (typeof value === 'function') {
+        dynamicFields.push({ key, value });
+      } else {
+        staticFields[key] = value;
       }
+    }
+    return {
+      renderInfo: new StaticComponentRenderInfo(children, staticFields, dynamicFields, componentRenderInfo),
     };
   } else if (typeof component === 'string' || component.prototype instanceof Node) {
-    const childObserveFns = childHooksContainer();
+    const fieldInfo = extractFieldInfo(jsxAttributeObj);
+    const childObserveFns = new ChildHooksContainer<DynamicSection>();
     const element =
-      component.prototype instanceof Node
+      component.prototype instanceof HTMLElement
         ? new component()
         : document.createElement(component);
     addStaticElements(element, children, childObserveFns);
-    addStaticAttributes(element, staticAttrs);
-    const dynamic = (clonedElement, thisArg) => {
-      for(const name in staticProps) {
-        clonedElement[name] = staticProps[name];
-      }
-      const unmountSetters = initDynamicSettersForElement(
-        clonedElement,
-        thisArg,
-        dynamicFields,
-      );
-      const itemsCallbacks: any[] = [];
-      for(const itemCallbacks of childObserveFns) {
-        if(itemCallbacks) {
-          itemsCallbacks.push(itemCallbacks(clonedElement, thisArg));
-        }
-      }  
-      return {
-        firstElement: clonedElement, 
-        disposeReactions: () => {
-          unmountSetters();
-          for (const itemCallbacks of itemsCallbacks) {
-            if (itemCallbacks && itemCallbacks.disposeReactions) {
-              itemCallbacks.disposeReactions();
-            }
-          }
-        }
-      };
-    }
-    const getElementFromTemplate = templateContent => templateContent.childNodes[0];
+    addStaticAttributes(element, fieldInfo.staticAttrs);
     return {
-      renderInfo: {
+      renderInfo: new ElementRenderInfo(
         element,
-        getElementFromTemplate,
-        template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
-        dynamic,  
-      }
+        fieldInfo,
+        childObserveFns
+      )
     };
   } else {
     const unwrappedAttributes = jsxAttributeObj ? 
@@ -484,7 +553,7 @@ function removeUntilBefore(startElement, stopElement) {
   }
 }
 
-function removePart(changeData, childElements) {
+function removePart(changeData, childElements, before) {
   const stopIndex = changeData.index + changeData.removedCount; 
   const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstElement : before;
   let currentElement = childElements[changeData.index].firstElement;
@@ -495,28 +564,30 @@ function removePart(changeData, childElements) {
   }
 }
 
-export function repeat(arr, mapFn) {
+export function repeat<T>(arr: IObservableArray<T>, mapFn: (value: T) => RenderInfo) {
   const marker = document.createComment('');
   const dynamic = (firstMarker, thisArg) => {
     const before = firstMarker.nextSibling;
-    const childElements = [];
+    // TODO
+    const childElements: (DynamicCallbacks | any)[] = [];
     const dispose = arr.observe((changeData) => {
       switch(changeData.type) {
         case 'splice': 
           if (changeData.removedCount > 0) {
-            removePart(changeData, childElements);
+            removePart(changeData, childElements, before);
           }
           const removed = childElements.splice(changeData.index, changeData.removedCount);
+          // TODO: Should move this ambove removePart
           for (const removedChildInfo of removed) {
             if (removedChildInfo && removedChildInfo.disposeReactions) {
               removedChildInfo.disposeReactions();
             }
           }
     
-          let addedChildElements = [];
+          let addedChildElements: any[] = [];
           if (changeData.addedCount > 0) {
             const fragment = document.createDocumentFragment();
-    
+
             addedChildElements = changeData.added.map((data) => {
               const dyanmicFn = render(fragment, mapFn(data), undefined, thisArg);
               return dyanmicFn;
@@ -528,11 +599,21 @@ export function repeat(arr, mapFn) {
           childElements.splice(changeData.index, 0, ...addedChildElements);
           break;
         case 'update':
-          const oldValue = changeData.oldValue;
-          if (oldValue && oldValue.disposeReactions) {
-            oldValue.disposeReactions();
+          const toBeRemoved = childElements[changeData.index];
+          if (toBeRemoved && toBeRemoved.disposeReactions) {
+            toBeRemoved.disposeReactions();
           }
-          childElements.splice(changeData.index, 1, changeData.newValue);
+          
+          const stopIndex = changeData.index + 1;
+          const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstElement : before;
+          const startElement = toBeRemoved.firstElement;        
+          removeUntilBefore(startElement, stopElement);
+          childElements.splice(changeData.index, 1);
+          const elementToAddBefore = changeData.index < childElements.length ? childElements[changeData.index].firstElement : before;
+          const dynamicFn = render(firstMarker.parentNode, mapFn(changeData.newValue), elementToAddBefore, thisArg);
+          
+          childElements.splice(changeData.index, 0, dynamicFn);
+          break;
       }
     });
     return {
