@@ -1,73 +1,36 @@
 <!DOCTYPE html>
 <html>
-  <head></head>
-  <body id="test">
-    <h1 id="1">1</h1>
-    <h2 id="2">2</h2>
-    <h3 id="3">3</h3>
-    <h4 id="4">4</h4>
-    <template id="template">
-      <div>My name is Patrick</div>
-    </template>
-    <template id="template2">
-      <span>Test</span>
-    </template>
+  <head>
+    <button id="awesome"/>
+  </head>
+  <body>
     <script>
-      /**
-       * Basically a linked list that contains only the methods required for holding and adding 
-       * to the child hooks container
-       */
-      
-function childHooksContainer() {
-  let head = null;
-  let tail = null;
-  function node(value) {
-    return {
-      next: null,
-      value
-    }
-  }
-  function handleNoHead(value, callback) {
-    const newNode = node(value);
-    if (head) {
-      callback(newNode);
-    } else {
-      head = newNode;
-      tail = newNode;
-    }
-  }
-  return {
-    unshift(value) {
-      handleNoHead(value, (newNode) => {
-        newNode.next = head;
-        head = newNode;
-      })
-    },
-    push(value) {
-      handleNoHead(value, (newNode) => {
-        tail.next = newNode;
-        tail = newNode;
-      })
-    },
-    [Symbol.iterator]: function * () {
-      let current = head;
-      while(current !== null) {
-        yield current.value;
-        current = current.next;
+      const button = document.getElementById('awesome');
+      function test(i) {
+        this.i;
       }
-    }
-  }
-}
-      function time(callback) {
-        const start = new Date().getTime();
-        callback();
-        const end = new Date().getTime();
-        console.log('timed', end - start);
+      test.prototype = {
+        test() {
+          console.log(this.i);
+        }
       }
-      const test = childHooksContainer();
-      test.push(1);
-      test.unshift(2);
-      console.log(Array.from(test))
+      class Test {
+        constructor(i) {
+          this.i = i;
+        }
+        test() {
+          return i;
+        }
+      }
+      const stuff = [];
+      for(let i = 0; i < 100000; i++) {
+        stuff.push(new test(i));
+      }
+      button.onclick = () => {
+        for(const item of stuff) {
+          item.test();
+        }
+      }
     </script>
   </body>
 </html>
