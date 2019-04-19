@@ -111,11 +111,11 @@ function extractHTMLFromJSXElement(jsxElement, dynamicSections) {
       (jsxAttribute) => extractAttributeStringFromJSXAttribute(jsxAttribute, dynamicSections)
     ).filter(string => string !== '')
     .join(' ');
-  return `<${tag}${attributeString !== '' ? ` ${attributeString}` : ''}>${jsxElement.children.map(extractHTML).join('')}</${tag}>`;
+  return `<${tag}${attributeString !== '' ? ` ${attributeString}` : ''}>${jsxElement.children.map(extractHTMLFromNode).join('')}</${tag}>`;
 }
 
 function extractHTMLFromJSXFragment(jsxFragment, dynamicSections) {
-  return jsxFragment.children.map(extractHTML, dynamicSections).join('');
+  return jsxFragment.children.map(extractHTMLFromNode, dynamicSections).join('');
 }
 
 function extractHTMLFromJSXText(jsxText) {
@@ -123,11 +123,26 @@ function extractHTMLFromJSXText(jsxText) {
 }
 
 const HTMLComment = '<!---->';
-function extractHTML(node, dynamicSections) {
+function extractHTMLFromJSXExpressionContainerNode(node, dynamicSections) {
+  const expression = node.expression;
+  // TODO: Function and array literals
+  if (t.isJSXElement(expression) || t.isJSXFragment(expression)) {
+    return extractHTMLFromNode(expression, dynamicSections);
+  } else if (t.isStringLiteral(expression)) {
+    return expression.value;
+  } else if (t.isNumericLiteral(expression) || t.isBooleanLiteral(expression)) {
+    return expression.value.toString();
+  } else {
+    // TODO:
+    return HTMLComment;
+  }
+}
+
+function extractHTMLFromNode(node, dynamicSections) {
   if (t.isJSXElement(node)) {
     return extractHTMLFromJSXElement(node, dynamicSections);
   } else if (t.isJSXExpressionContainer(node)) {
-    return HTMLComment;
+    return extractHTMLFromJSXExpressionContainerNode(node, dynamicSections);
   } else if(t.isJSXFragment(node)) {
     return extractHTMLFromJSXFragment(node, dynamicSections);
   } else if(t.isJSXText(node)) {
@@ -155,6 +170,18 @@ function createTemplate(path, templateHTML) {
   ]);
   program.body.unshift(templateVar, setTemplateHTMLStatement);
   return templateId;
+}
+
+function isRootJSXNode(path) {
+  const parent = path.parent;
+  if (t.isJSXFragment(parent) || t.isJSXElement(parent)) {
+    return false;
+  } else if (t.isJSXExpressionContainer(parent)) {
+    // TODO: Very confusing condition
+    return isRootJSXNode(path.parentPath);
+  } else {
+    return true;
+  }
 }
 
 export default declare((api, options) => {
@@ -240,22 +267,24 @@ export default declare((api, options) => {
   };
 
   visitor.JSXFragment = function(path) {
-    createTemplate(path, extractHTML(path.node, []));
-    path.node = null;
+    if (isRootJSXNode(path)) {
+      createTemplate(path, extractHTMLFromNode(path.node, []));
+    }
   }
 
   visitor.JSXElement = function(path) {
-    createTemplate(path, extractHTML(path.node, []));
-    path.node = null;
+    if (isRootJSXNode(path)) {
+      createTemplate(path, extractHTMLFromNode(path.node, []));
+    }
   }
 
   visitor.JSXExpressionContainer = function(path) {
     if (t.isExpression(path.node.expression)) {
-      path.node.expression = t.functionExpression(
+      /*path.node.expression = t.functionExpression(
         null,
         [],
         t.blockStatement([t.returnStatement(path.node.expression)]),
-      );
+      );*/
     }
   };
 
