@@ -81,7 +81,6 @@ function extractFieldInfo(jsxAttributeObj): FieldInfo {
 
 function extractAttributeStringFromJSXAttribute(attribute, dynamicSections) {
   if (t.isJSXAttribute(attribute)) {
-    console.log(attribute);
     const name = attribute.name.name;
     const value = attribute.value;
     if (t.isJSXExpressionContainer(value)) {
@@ -93,10 +92,11 @@ function extractAttributeStringFromJSXAttribute(attribute, dynamicSections) {
           name,
           expression: value.expression
         });
+        return '';
       }
     }
     if (!attribute.value.type.match(/Literal$/)) {
-      throw new Error(`Expected non-literal type ${value.type}`);
+      throw new Error(`Was expecting a literal type but got ${value.type}`);
     }
     return attributeLiteralToHTMLAttributeString(name, value);
   } else {
@@ -111,11 +111,15 @@ function extractHTMLFromJSXElement(jsxElement, dynamicSections) {
       (jsxAttribute) => extractAttributeStringFromJSXAttribute(jsxAttribute, dynamicSections)
     ).filter(string => string !== '')
     .join(' ');
-  return `<${tag}${attributeString !== '' ? ` ${attributeString}` : ''}>${jsxElement.children.map(extractHTML)}</${tag}>`;
+  return `<${tag}${attributeString !== '' ? ` ${attributeString}` : ''}>${jsxElement.children.map(extractHTML).join('')}</${tag}>`;
 }
 
 function extractHTMLFromJSXFragment(jsxFragment, dynamicSections) {
-  return jsxFragment.children.map(extractHTML, dynamicSections);
+  return jsxFragment.children.map(extractHTML, dynamicSections).join('');
+}
+
+function extractHTMLFromJSXText(jsxText) {
+  return jsxText.value.replace(/(^\s+|\s+$)/g, '');
 }
 
 const HTMLComment = '<!---->';
@@ -126,6 +130,8 @@ function extractHTML(node, dynamicSections) {
     return HTMLComment;
   } else if(t.isJSXFragment(node)) {
     return extractHTMLFromJSXFragment(node, dynamicSections);
+  } else if(t.isJSXText(node)) {
+    return extractHTMLFromJSXText(node);
   } else { 
     throw new Error(`Invalid node type ${node.type}`);
   }
@@ -133,7 +139,7 @@ function extractHTML(node, dynamicSections) {
 
 // Taken from: https://github.com/ryansolid/babel-plugin-jsx-dom-expressions/blob/master/src/index.js
 function createTemplate(path, templateHTML) {
-  const templateId = path.scope.generateUidIdentifier("tmpl$");
+  const templateId = path.scope.generateUidIdentifier("template$");
   const program = path.findParent(t => t.isProgram()).node;
   const createTemplateExpression = t.callExpression(
     t.memberExpression(t.identifier('document'), t.identifier('createElement')), [t.stringLiteral('template')]
@@ -233,16 +239,15 @@ export default declare((api, options) => {
     },
   };
 
-  visitor.JSXElement = function(path) {
-    console.log(path.node);
+  visitor.JSXFragment = function(path) {
     createTemplate(path, extractHTML(path.node, []));
+    path.node = null;
   }
 
-  visitor.JSXAttribute = function(path) {
-    if (t.isJSXElement(path.node.value)) {
-      path.node.value = t.jsxExpressionContainer(path.node.value);
-    }
-  };
+  visitor.JSXElement = function(path) {
+    createTemplate(path, extractHTML(path.node, []));
+    path.node = null;
+  }
 
   visitor.JSXExpressionContainer = function(path) {
     if (t.isExpression(path.node.expression)) {
