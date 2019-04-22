@@ -246,9 +246,11 @@ gulp.task('build', build);
 
 function watch() {
   return gulp.watch(
-    [sourceGlobFromPackagesDirName(packagesDirName)],
+    sourceGlobFromPackagesDirName(packagesDirName),
     { ignoreInitial: false },
-    build,
+    function() {
+      console.log('test')
+    },
   );
 }
 gulp.task('watch', watch);

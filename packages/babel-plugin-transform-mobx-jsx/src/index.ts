@@ -6,6 +6,16 @@ import { declare } from '@babel/helper-plugin-utils';
 import jsx from '@babel/plugin-syntax-jsx';
 import helper from '@babel/helper-builder-react-jsx';
 import { types as t } from '@babel/core';
+
+function constDeclaration(id, expression) {
+  return t.variableDeclaration('const', [
+    t.variableDeclarator(
+      id,
+      expression
+    )
+  ]);
+}
+
 function attributeLiteralToHTMLAttributeString(name: string, literal) {
   if (literal === false) {
     /*
@@ -32,54 +42,39 @@ function attributeLiteralToHTMLAttributeString(name: string, literal) {
 const ATTR_TYPE = 0;
 const PROP_TYPE = 1;
 const EVENT_TYPE = 2;
-type DynamicType = typeof ATTR_TYPE | typeof PROP_TYPE | typeof EVENT_TYPE;
+const SPREAD_TYPE = 3;
+type DynamicType = typeof ATTR_TYPE | typeof PROP_TYPE | typeof EVENT_TYPE | typeof SPREAD_TYPE;
 type DynamicField = {
   type: DynamicType;
   name: string;
   value: any;
 }
 
-function extractFieldInfo(jsxAttributeObj): FieldInfo {
-  const dynamicFields: any[] = [];
-  const staticAttrs = {};
-  const staticProps = {};
-  for (const name in jsxAttributeObj) {
-    const value = jsxAttributeObj[name];
+function wrapInArrowFunctionExpression(expression) {
+  return t.arrowFunctionExpression(
+    [],
+    expression,
+  );
+}
+
+function mbxCallExpression(functionName, args) {
+  return t.callExpression(
+    mbxMemberExpression(functionName),
+    args
+  );
+}
+
+function fieldInfo(name: string | null) {
+  if (name) {
     const cleanedName = name.replace(/^\$?\$?/, '');
-    if(name.match(/^\$\$/)) {
-      // Events are always dynamic since they have to be wrapped in {} anyway
-      dynamicFields.push({
-        type: EVENT_TYPE,
-        name: cleanedName,
-        callback: value
-      });
-    } else {
-      const isDynamic = typeof value === 'function';
-      if (name.match(/^\$/)) {
-        const field = { type: PROP_TYPE, name: cleanedName, callback: value };
-        if (isDynamic) {
-          dynamicFields.push(field);
-        } else {
-          staticProps[name] = value;
-        }
-      } else {
-        const field = { type: ATTR_TYPE, name: cleanedName, callback: value };
-        if (isDynamic) {
-          dynamicFields.push(field);
-        } else {
-          staticAttrs[name] = value;
-        }
-      }
-    }
-  }
-  return {
-    dynamicFields,
-    staticProps,
-    staticAttrs,
+    const type = name.match(/^\$\$/) ? EVENT_TYPE : name.match(/^\$/) ? PROP_TYPE : ATTR_TYPE;
+    return { name: cleanedName, type };  
+  } else {
+    return { type: SPREAD_TYPE };
   }
 }
 
-function extractAttributeStringFromJSXAttribute(attribute, dynamicSections) {
+function extractAttributeStringFromJSXAttribute(attribute, parentClient: ChildClient) {
   if (t.isJSXAttribute(attribute)) {
     const name = attribute.name.name;
     const value = attribute.value;
@@ -88,7 +83,8 @@ function extractAttributeStringFromJSXAttribute(attribute, dynamicSections) {
       if (expression && expression.type.match(/Literal$/)) {
         return attributeLiteralToHTMLAttributeString(name, value.expression);
       } else {
-        dynamicSections.push({
+        console.log('yes', parentClient);
+        parentClient.addAttribute({
           name,
           expression: value.expression
         });
@@ -104,72 +100,256 @@ function extractAttributeStringFromJSXAttribute(attribute, dynamicSections) {
   }
 }
 
-function extractHTMLFromJSXElement(jsxElement, dynamicSections) {
+type DynamicAttribute = {
+  name: string | null;
+  expression: any;
+}
+
+function mbxMemberExpression(field: string) {
+  return t.memberExpression(
+    t.identifier('mbx'),
+    t.identifier(field)
+  );
+}
+
+function attributeExpression(id, attribute: DynamicAttribute) {
+  const { name, type } = fieldInfo(attribute.name);
+  function nonSpreadFieldExpression(methodName) {
+    return t.callExpression(mbxMemberExpression(methodName), [id, t.stringLiteral(name), wrapInArrowFunctionExpression(attribute.expression)]);
+  }
+  switch(type) {
+    case ATTR_TYPE:
+      return nonSpreadFieldExpression('attribute');
+    case PROP_TYPE:
+      return nonSpreadFieldExpression('property');
+    case EVENT_TYPE:
+      return nonSpreadFieldExpression('event');
+    case SPREAD_TYPE:
+      throw new Error('TODO');
+    default:
+      throw new Error(`Unknown type: ${type}`);
+  }
+}
+
+function declarationInfo(scope, parentId, index, name?: string) {
+  const id = scope.generateUidIdentifier(`${name}$`);
+  const declaration = constDeclaration(
+    id, 
+    t.memberExpression(
+      t.memberExpression(
+        parentId,
+        t.identifier('children'),
+      ),
+      t.numericLiteral(index),
+      true
+    ),
+  );
+  return { id, declaration };
+}
+
+interface AbstractClient {
+  declarationStatements(scope, parentId): { [Symbol.iterator]() },
+  reactionExpressions(),
+}
+class DynamicChildClient implements AbstractClient {
+  private parentId;
+  private id;
+  constructor(private readonly index: number, private readonly expression, private readonly name: string = 'marker') {
+    
+  }
+
+  public *declarationStatements(scope, parentId) {
+    const { declaration, id } = declarationInfo(scope, parentId, this.index, this.name);
+    this.id = id;
+    yield declaration;
+    this.parentId = parentId;
+  }
+
+  public *reactionExpressions() {
+    yield t.callExpression(
+      mbxMemberExpression('children'),
+      [
+        this.id,
+        wrapInArrowFunctionExpression(this.expression)
+      ]
+    );
+  }
+}
+
+interface ChildClient extends AbstractClient { 
+  addChildClient(client: AbstractClient);
+  addAttribute(attribute: DynamicAttribute);
+}
+
+class Client implements ChildClient {
+  private id;
+  constructor(
+    private readonly index: number,
+    private readonly name: string = 'element',
+    private readonly childClients: AbstractClient[] = [],
+    private readonly attributes: DynamicAttribute[] = []  
+  ) {
+  }
+  
+  public *declarationStatements(scope, parentId) {
+    if (this.attributes.length > 0 || this.childClients.length > 0) {
+      const { declaration, id } = declarationInfo(scope, parentId, this.index, this.name);
+      yield declaration;
+      this.id = id;
+      for(const client of this.childClients) {
+        for(const statement of client.declarationStatements(scope, this.id)) {
+          yield statement
+        }
+      }  
+    }
+  }
+
+  public *reactionExpressions() {
+    if (this.attributes.length > 0) {
+      const attributeExpressions: any[] = [];
+      for (const attribute of this.attributes) {
+        attributeExpressions.push(attributeExpression(this.id, attribute));
+      }
+      yield t.callExpression(
+        mbxMemberExpression('fields'),
+        [this.id, ...attributeExpressions]
+      );
+    }
+
+    for(const childClient of this.childClients) {
+      for(const expression of childClient.reactionExpressions()) {
+        yield expression;
+      }
+    } 
+  }
+  
+  public addChildClient(client: AbstractClient) {
+    this.childClients.push(client);
+  }
+
+  public addAttribute(attribute: DynamicAttribute) {
+    this.attributes.push(attribute);
+  }
+}
+
+class FragmentClient implements ChildClient {
+  constructor(
+    private readonly childClients: AbstractClient[] = []
+  ) {}
+
+  public *declarationStatements(scope, parentId) {
+    for(const childClient of this.childClients) {
+      for(const statement of childClient.declarationStatements(scope, parentId)) {
+        yield statement;
+      }
+    }
+  }
+
+  public *reactionExpressions() {
+    for(const childClient of this.childClients) {
+      for(const expression of childClient.reactionExpressions()) {
+        yield expression;
+      }
+    }
+  }
+
+  public addAttribute() {
+    throw new Error("You can't have attributes on fragment clients");
+  }
+
+  public addChildClient(client) {
+    this.childClients.push(client);
+  }
+}
+
+type State = {
+  length: number
+};
+
+function extractHTMLFromJSXElement(jsxElement, parentClient: ChildClient, state: State) {
   const jsxOpeningElement = jsxElement.openingElement;
   const tag = jsxOpeningElement.name.name;
+  const client = new Client(state.length, tag);
   const attributeString = jsxOpeningElement.attributes.map(
-      (jsxAttribute) => extractAttributeStringFromJSXAttribute(jsxAttribute, dynamicSections)
+      (jsxAttribute) => extractAttributeStringFromJSXAttribute(jsxAttribute, client)
     ).filter(string => string !== '')
     .join(' ');
-  return `<${tag}${attributeString !== '' ? ` ${attributeString}` : ''}>${jsxElement.children.map(extractHTMLFromNode).join('')}</${tag}>`;
+  const nestedState: State = { length: 0 };
+  const childrenString = jsxElement.children.map((child) => extractHTMLFromNode(child, client, nestedState)).join('');
+  parentClient.addChildClient(client);
+  state.length++;
+  return `<${tag}${attributeString !== '' ? ` ${attributeString}` : ''}>${childrenString}</${tag}>`;
 }
 
-function extractHTMLFromJSXFragment(jsxFragment, dynamicSections) {
-  return jsxFragment.children.map(extractHTMLFromNode, dynamicSections).join('');
+function extractHTMLFromJSXFragment(jsxFragment, parentClient, state: State) {
+  return jsxFragment.children.map((child) => {
+    return extractHTMLFromNode(child, parentClient, state);
+  }).join('');
 }
 
-function extractHTMLFromJSXText(jsxText) {
-  return jsxText.value.replace(/(^\s+|\s+$)/g, '');
+function extractHTMLFromJSXText(jsxText, state: State) {
+  console.log(JSON.stringify(jsxText.value));
+  const html = jsxText.value.replace(/^\s*\n\s*|\s*\n\s*$/g, '');
+  state.length++;
+  return html;
 }
 
 const HTMLComment = '<!---->';
-function extractHTMLFromJSXExpressionContainerNode(node, dynamicSections) {
+function extractHTMLFromJSXExpressionContainerNode(node, parentClient: ChildClient, state: State) {
   const expression = node.expression;
   // TODO: Function and array literals
   if (t.isJSXElement(expression) || t.isJSXFragment(expression)) {
-    return extractHTMLFromNode(expression, dynamicSections);
+    return extractHTMLFromNode(expression, parentClient, state);
   } else if (t.isStringLiteral(expression)) {
     return expression.value;
   } else if (t.isNumericLiteral(expression) || t.isBooleanLiteral(expression)) {
     return expression.value.toString();
   } else {
-    // TODO:
+    parentClient.addChildClient(new DynamicChildClient(state.length, expression));
+    state.length++;
     return HTMLComment;
   }
 }
 
-function extractHTMLFromNode(node, dynamicSections) {
+function extractHTMLFromNode(node, parentClient: ChildClient, state: State) {
   if (t.isJSXElement(node)) {
-    return extractHTMLFromJSXElement(node, dynamicSections);
+    return extractHTMLFromJSXElement(node, parentClient, state);
   } else if (t.isJSXExpressionContainer(node)) {
-    return extractHTMLFromJSXExpressionContainerNode(node, dynamicSections);
+    return extractHTMLFromJSXExpressionContainerNode(node, parentClient, state);
   } else if(t.isJSXFragment(node)) {
-    return extractHTMLFromJSXFragment(node, dynamicSections);
+    return extractHTMLFromJSXFragment(node, parentClient, state);
   } else if(t.isJSXText(node)) {
-    return extractHTMLFromJSXText(node);
-  } else { 
+    return extractHTMLFromJSXText(node, state);
+  } else {
     throw new Error(`Invalid node type ${node.type}`);
   }
 }
 
+function findProgram(path) {
+  return path.findParent(t => t.isProgram()).node;
+}
+
 // Taken from: https://github.com/ryansolid/babel-plugin-jsx-dom-expressions/blob/master/src/index.js
-function createTemplate(path, templateHTML) {
-  const templateId = path.scope.generateUidIdentifier("template$");
-  const program = path.findParent(t => t.isProgram()).node;
-  const createTemplateExpression = t.callExpression(
-    t.memberExpression(t.identifier('document'), t.identifier('createElement')), [t.stringLiteral('template')]
-  );
-  const setTemplateHTMLStatement = t.expressionStatement(
-    t.assignmentExpression('=', t.memberExpression(templateId, t.identifier('innerHTML')), t.stringLiteral(templateHTML))
+function addComponent(componentId, program, templateHTML, componentFactoryName) {
+  const createTemplateExpression = mbxCallExpression(
+    componentFactoryName,
+    [t.stringLiteral(templateHTML)],
   );
   const templateVar = t.variableDeclaration('const', [
     t.variableDeclarator(
-      templateId,
+      componentId,
       createTemplateExpression
     )
   ]);
-  program.body.unshift(templateVar, setTemplateHTMLStatement);
-  return templateId;
+  program.body.unshift(templateVar);
+}
+
+function isElementTag(tag) {
+  return tag[0].toLowerCase() === tag[0];
+}
+
+function generateComponentIdentifier(scope) {
+  return scope.generateUidIdentifier('component$');
 }
 
 function isRootJSXNode(path) {
@@ -226,7 +406,7 @@ export default declare((api, options) => {
   visitor.Program = {
     enter(path, state) {
       const { file } = state;
-
+      //path.unshift(t.memberExpression(t.identifier('swek'), t.identifier(1)));
       let pragma = PRAGMA_DEFAULT;
       let pragmaFrag = PRAGMA_FRAG_DEFAULT;
       let pragmaSet = !!options.pragma;
@@ -268,13 +448,35 @@ export default declare((api, options) => {
 
   visitor.JSXFragment = function(path) {
     if (isRootJSXNode(path)) {
-      createTemplate(path, extractHTMLFromNode(path.node, []));
     }
   }
 
   visitor.JSXElement = function(path) {
     if (isRootJSXNode(path)) {
-      createTemplate(path, extractHTMLFromNode(path.node, []));
+      const program = findProgram(path);
+      const client = new FragmentClient();
+      const componentId = generateComponentIdentifier(path.scope);
+      addComponent(
+        componentId,
+        program,
+        extractHTMLFromNode(path.node, client, { length: 0 }),
+        'elementComponent'
+      );
+      const rootId = path.scope.generateUidIdentifier('root$');
+      path.replaceWithMultiple([
+        constDeclaration(
+          rootId,
+          t.callExpression(
+            t.memberExpression(componentId, t.identifier('create')),
+            []
+          )
+        ),
+        ...client.declarationStatements(path.scope, rootId),
+        t.expressionStatement(t.callExpression(
+          mbxMemberExpression('node'),
+          [...client.reactionExpressions()]
+        ))
+      ]);
     }
   }
 
