@@ -1,5 +1,1 @@
-const Test = ({ awesome, children}) => (
-  <div class={awesome}>
-    Rawr! {children.map((test) => <div rawr={test}/>)}
-  </div>
-);
+const Something = ({ children }) => <div class="yay">{children}</div>;

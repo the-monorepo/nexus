@@ -118,3 +118,52 @@ component('<div>Rawr <!----></div>', ){
 const template$2 = document.createElement('template');
 template$2.innerHTML = 'Hello';
 
+
+
+
+
+
+
+
+
+
+const Something = ({ children }) => <div>{children}</div>;
+
+const component$1 = elementComponent('<div><!----></div>');
+const Something = (props) => {
+  const div$1 = component$1.create();
+  return mbx.dynamicSections(
+    mbx.children(div$1, () => props.children)
+  );
+}
+
+const Rawr = ({ spanMessage1, spanMessage2, spanClass, something }) => (
+  <div>
+    Rawr
+    <Something something={something}>
+      <span class={spanClass}>{spanMessage1}{spanMessage2}</span>
+    </Something>
+  </div>
+);
+
+const component$2 = elementComponent('<div>Rawr<!----></div>');
+const component$3 = elementComponent('<span><!----></span>');
+const Rawr = (props) => {
+  const div$1 = component$2.create();
+  const placeholder$1 = div$1.children[1];
+
+  const root$1 = component$3.create();
+  const span$1 = root$1.children[0];
+  const marker$2 = span$1.children[0];
+  
+  return mbx.dynamicNode(
+    root$1,
+    mbx.subComponent(
+      placeholder$1,
+      Something,
+      root$1,
+      mbx.attribute('something', () => something)
+    ),
+    mbx.children(marker$2, () => props.children)
+  );
+};
