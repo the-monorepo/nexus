@@ -1,0 +1,1 @@
+const Rawr = ({ children }) => <div class="test"><Something>This is a test {children}</Something></div>;
