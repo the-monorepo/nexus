@@ -1,1 +1,0 @@
-const Something = ({ children }) => <div class="yay">{children}</div>;
