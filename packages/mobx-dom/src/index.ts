@@ -3,546 +3,462 @@ import {
   decorate,
   action,
   computed,
+  autorun,
   observable,
   isObservableArray,
   IObservableArray,
-  toJS
+  $mobx,
+  toJS,
+  IReactionDisposer,
+  IReactionPublic,
+  IReactionOptions,
+  IAutorunOptions
 } from 'mobx';
-const node = <T>(value: T): ContainerNode<T> => ({
-  value,
-});
+export type ComponentResult<N extends Node = Node> =  NodeHolder<N> & { reactions?: ComponentReaction[] };
+export type SFC<P extends {} = {}> = (props: P) => ComponentResult;
+export type Component<P = {}> = SFC<P>;
 
-type DynamicSection<T extends Node = Node, This = any> 
-  = ((clonedNode: T, thisArg: This) => (DynamicCallbacks | null));
+export type KeyHolder<S extends string = string> = { key: S };
+export type TypeHolder<T> = { type: T };
+export type NodeHolder<N extends Node = Node> = { node: N};
 
-type ContainerNode<T> = {
-  next?: ContainerNode<T>;
-  value: T;
+export type DataReaction<D> = { callback: () => D };
+export type FieldReaction<D, T> = DataReaction<D> & KeyHolder & TypeHolder<T>;
+
+export type ReactionDataCallback<T = any> = () => T;
+
+export const ATTR_TYPE = 0;
+type AttributeType = typeof ATTR_TYPE;
+
+export const PROP_TYPE = 1;
+type PropertyType = typeof PROP_TYPE;
+
+export const EVENT_TYPE = 2;
+type EventType = typeof EVENT_TYPE;
+
+export const SPREAD_TYPE = 3;
+type SpreadType = typeof SPREAD_TYPE;
+
+export type PropertyResult = any;
+export type PropertyReaction = FieldReaction<PropertyResult, PropertyType>;
+
+export type AttributeResult = any;
+export type AttributeReaction = FieldReaction<AttributeResult, AttributeType>;
+
+export type EventResult = any;
+export type EventReaction = FieldReaction<EventResult, EventType>;
+
+
+export const CHILDREN_TYPE = 0;
+type ChildrenType = typeof CHILDREN_TYPE;
+
+export const SUB_COMPONENT_TYPE = 1;
+type SubComponentType = typeof SUB_COMPONENT_TYPE;
+
+export const NODE_REACTION_TYPE = 2;
+type NodeReactionType = typeof NODE_REACTION_TYPE;
+
+// TODO: ComponentResult needs to be a part of this but at the moment it causes a circular reference
+export type ChildrenResult = Array<any> | string | number | boolean | undefined | null | SFC | any;
+export type ChildrenReaction = NodeHolder & DataReaction<ChildrenResult> & TypeHolder<ChildrenType>;
+
+export type SubComponentResult = any;
+export type GeneralSubComponentFieldReaction<T, D> = TypeHolder<T> & { assignTo: (props) => void };
+export type SubComponentReaction = TypeHolder<SubComponentType> & {
+  node: Node,
+  component: Component,
+  childNode?: Node,
+  reactions: SubComponentFieldReaction<any>[]
+};
+
+export type NodeReaction = PropertyReaction | AttributeReaction | EventReaction;
+
+export type NodeReactions<N extends Element = Element> = TypeHolder<NodeReactionType> & NodeHolder<N> & { reactions: NodeReaction[] };
+
+export type ComponentReaction = NodeReactions | SubComponentReaction | ChildrenReaction;
+
+const STATIC_FIELD_TYPE = 0;
+export type StaticSubComponentFieldType = typeof STATIC_FIELD_TYPE;
+
+const DYNAMIC_FIELD_TYPE = 1;
+export type DynamicSubComponentFieldType = typeof DYNAMIC_FIELD_TYPE;
+
+export type StaticSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<StaticSubComponentFieldType, D> & TypeHolder<StaticSubComponentFieldType>;
+export type DynamicSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<DynamicSubComponentFieldType, () => D> & TypeHolder<DynamicSubComponentFieldType>;
+export type SubComponentFieldReaction<D> = StaticSubComponentFieldReaction<D> | DynamicSubComponentFieldReaction<D>;
+
+export const staticField = <D>(key: string, value: D): StaticSubComponentFieldReaction<D> => {
+  return { type: STATIC_FIELD_TYPE, assignTo: (props) => props[key] = value };
 }
 
+export const dynamicField = <D>(key: string, callback: () => D): DynamicSubComponentFieldReaction<D> => {
+  return { type: DYNAMIC_FIELD_TYPE, assignTo: (props) => props[key] = callback() };
+}
 
-class ChildHooksContainer<T> implements Iterable<T> {
-  private head?: ContainerNode<T>;
-  private tail?: ContainerNode<T>;
-  private handleNoHead(value: T, callback: (newNode: ContainerNode<T>) => void) {
-    const newNode = node(value);
-    if (this.head) {
-      callback(newNode);
-    } else {
-      this.head = newNode;
-      this.tail = newNode;
-    }
-  }
+export const fields = <N extends Element>(node: N, ...reactions: NodeReaction[]): NodeReactions<N> => {
+  return { type: NODE_REACTION_TYPE, node, reactions };
+}
 
-  public unshift(value) {
-    this.handleNoHead(value, (newNode) => {
-      newNode.next = this.head;
-      this.head = newNode;
-    })
-  }
+export const attribute = (key: string, callback: ReactionDataCallback<AttributeResult>): AttributeReaction => {
+  return { type: ATTR_TYPE, key, callback };
+}
 
-  public push(value) {
-    this.handleNoHead(value, (newNode) => {
-      this.tail!.next = newNode;
-      this.tail = newNode;
-    })
-  }
+export const property = (key: string, callback: ReactionDataCallback<PropertyResult>): PropertyReaction => {
+  return { type: PROP_TYPE, key, callback };
+}
 
-  *[Symbol.iterator]() {
-    let current = this.head;
-    while(current) {
-      yield current.value;
-      current = current.next;
-    }
-  }
+export const event = (key: string, callback: ReactionDataCallback<EventResult>): EventReaction => {
+  return { type: EVENT_TYPE, key, callback };
+};
 
-  get isEmpty(): boolean {
-    return this.head === undefined;
+export const children = (node: Node, callback: ReactionDataCallback<ChildrenResult>): ChildrenReaction => {
+  return { type: CHILDREN_TYPE, node, callback };
+}
+
+export const subComponent =(
+  component: Component,
+  node: Node,
+  childNode?: Node,
+  ...reactions: SubComponentFieldReaction<any>[]
+): SubComponentReaction => {
+  return { type: SUB_COMPONENT_TYPE, node, component, childNode, reactions};
+}
+
+export const staticNode = <N extends Node = Node>(node: N): ComponentResult<N> => {
+  return {
+    node
   }
 }
 
-export abstract class MobxElement extends HTMLElement {
-  private readonly shadow;
-  private unmountObj;
-  public static template: any;
-  constructor() {
-    super();
-    this.shadow = this.attachShadow({ mode: 'open' });
-  }
-
-  connectedCallback() {
-    this.unmountObj = render(this.shadow, (this.constructor as any).template, undefined, this);
-  }
-
-  disconnectedCallback() {
-    // TODO: Maybe just dispose of reactions and recreate them on connectedCallback
-    if (this.unmountObj) {
-      if (this.unmountObj.disposeReactions) {
-        this.unmountObj.disposeReactions();
-      }
-      // TODO: If you've manually added some, this will delete those too which is bad
-      while(this.hasChildNodes()) {
-        this.removeChild(this.firstChild as Node);
-      }
-    }
+export const dynamicNode = <N extends Node = Node>(node: N, ...reactions: ComponentReaction[]): ComponentResult<N> => {
+  return {
+    node,
+    reactions,
   }
 }
 
-const textNodeTypes = new Set(['string', 'boolean', 'number']);
-type DynamicCallbacks = {
-  firstElement: Node;
-  disposeReactions?: () => void;
+export const elementTemplate = (html: string) => {
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  return () => document.importNode(template.content.firstChild as Node, true);
 }
 
-export function render(
-  parent,
-  renderInfo,
-  before?,
-  thisArg?,
-): DynamicCallbacks | undefined {
-  if (!parent) {
-    throw new Error('Parent was not defined');
-  }
-  if (renderInfo === undefined || renderInfo === null) {
-    return undefined;
-  } else if (textNodeTypes.has(typeof renderInfo)) {
-    const child = document.createTextNode(renderInfo);
-    parent.insertBefore(child, before);
-    return {
-      firstElement: child,
-    };
-  } else if (Array.isArray(renderInfo)) {
-    const fragment = document.createDocumentFragment();
-    const unmountObjs = renderInfo.map(item =>
-      render(fragment, item, undefined, thisArg),
-    );
-    if (fragment.children.length > 0) {
-      const firstElement = fragment.children[0];
-      parent.insertBefore(fragment, before);
-      return {
-        disposeReactions: () => unmountObjs
-          .forEach(data => {
-            if (data && data.disposeReactions) {
-              data.disposeReactions();
-            }
-          }),
-        firstElement
-      };  
-    } else {
-      return undefined;
-    }
+export type Dispose = () => void;
+export type RenderResult = {
+  dispose?: Dispose,
+  firstNode: Node,
+};
+
+const wrappedAutorun = (
+  view: (r: IReactionPublic) => any,
+  opts?: IAutorunOptions
+): IReactionDisposer | undefined => {
+  const dispose = autorun(view, opts);
+  if (isTrackingSomething(dispose)) {
+    return dispose;
   } else {
-    const info = renderInfo.renderInfo;
-    const element = info.element;
-    const unmountObj = info.dynamic(element, thisArg);
-    parent.insertBefore(element, before);
-    return unmountObj;
-  }
-}
-
-function initFunctionalChild(parent: Node, child) {
-  const markerIndex = parent.childNodes.length;
-  parent.appendChild(document.createComment(''));
-  return (clonedParent, thisArg) => {
-    const beforeMarker = clonedParent.childNodes[markerIndex];
-    const afterMarker = beforeMarker.nextSibling;
-    let unmountObj;
-    const boundChild = child.bind(thisArg);
-    const reactionDisposer = reaction(
-      boundChild,
-      nextRenderInfo => {
-        removeUntilBefore(beforeMarker.nextSibling, afterMarker);
-        if (unmountObj && unmountObj.disposeReactions) {
-            unmountObj.disposeReactions();
-        }
-        unmountObj = render(
-          clonedParent,
-          nextRenderInfo,
-          afterMarker,
-          thisArg,
-        );
-      },
-      { fireImmediately: true }
-    );
-    return {
-      disposeReactions: () => {
-        reactionDisposer();
-        if (unmountObj && unmountObj.disposeReactions) {
-          unmountObj.disposeReactions();
-        }
-      },
-      firstElement: beforeMarker,
-    }
-  };
-}
-  
-function addStaticElements(parent, children, dynamic: ChildHooksContainer<DynamicSection>) {
-  for (const child of children) {
-    if (typeof child === 'function') {
-      const dynamicFn = initFunctionalChild(parent, child);
-      dynamic.unshift(dynamicFn);
-    } else if (textNodeTypes.has(typeof child)) {
-      const element = document.createTextNode(child.toString());
-      parent.appendChild(element);
-    } else {
-      const renderInfo = child.renderInfo;
-      let index = parent.childNodes.length;
-      parent.appendChild(renderInfo.element);
-      const childDynamic = (clonedParent, thisArg) => {
-        return renderInfo.dynamic(clonedParent.childNodes[index], thisArg);
-      }
-      dynamic.unshift(childDynamic);
-    }
-  }
-}
-
-interface TemplateInfo {
-  template: HTMLTemplateElement;
-  dynamic: DynamicSection<HTMLTemplateElement>;
-}
-function lazyTemplateFactory(
-  element: Node,
-  dynamic,
-  getCallbackElement
-): () => TemplateInfo {
-  let getTemplate = (dynamicOverride = dynamic) => {
-    const template = document.createElement('template');
-    template.content.appendChild(element);
-    const lazyTemplate = { template, dynamic: (templateContent, thisArg) => dynamicOverride(getCallbackElement(templateContent), thisArg) };
-    getTemplate = () => lazyTemplate;
-    return lazyTemplate;
-  };
-  return getTemplate;
-}
-
-interface RenderInfo<T extends Node = Node> {
-  readonly element: T,
-  getElementFromTemplate(templateContent: DocumentFragment): Node,
-  template(dynamicOverride?): TemplateInfo;
-  readonly dynamic: DynamicSection<T>,
-}
-
-interface RenderInfoContainer<T extends Node = Node> {
-  renderInfo: RenderInfo<T>;
-}
-
-export function Fragment({ children }): RenderInfoContainer<DocumentFragment> {
-  const element = document.createDocumentFragment();
-  const childObserveFns = new ChildHooksContainer<DynamicSection>();
-  addStaticElements(element, children, childObserveFns);
-  const dynamic: DynamicSection<DocumentFragment> = (clonedElement, thisArg): DynamicCallbacks | null  => {
-    const itemsCallbacks: DynamicCallbacks[] = [];
-    for(const dynamicFn of childObserveFns) {
-      const childCallbacks = dynamicFn(clonedElement, thisArg);
-      if (childCallbacks) {
-        itemsCallbacks.push(childCallbacks);
-      }
-    }
-    return itemsCallbacks.length <= 0 ? null : {
-      disposeReactions: () => itemsCallbacks.filter(callback => !!callback.disposeReactions)
-        .forEach(itemCallbacks => itemCallbacks.disposeReactions!()),
-      firstElement: itemsCallbacks[0].firstElement
-    };
-  };
-  const getElementFromTemplate = (templateContent) => templateContent;
-  return {
-    renderInfo: {
-      getElementFromTemplate,
-      element,
-      template: lazyTemplateFactory(element, dynamic, getElementFromTemplate),
-      dynamic
-    }
-  };
-}
-
-const ATTR_TYPE = 0;
-const PROP_TYPE = 1;
-const EVENT_TYPE = 2;
-
-type DynamicField = {
-  type: typeof ATTR_TYPE | typeof PROP_TYPE | typeof EVENT_TYPE;
-  name: string;
-  callback: DynamicSection;
-}
-
-type FieldInfo = {
-  dynamicFields: DynamicField[];
-  staticAttrs: {
-    [s: string]: any,
-  },
-  staticProps: {
-    [s: string]: any,
-  }
-}
-// TODO: Transpile this in babel
-function extractFieldInfo(jsxAttributeObj): FieldInfo {
-  const dynamicFields: any[] = [];
-  const staticAttrs = {};
-  const staticProps = {};
-  for (const name in jsxAttributeObj) {
-    const value = jsxAttributeObj[name];
-    const cleanedName = name.replace(/^\$?\$?/, '');
-    if(name.match(/^\$\$/)) {
-      // Events are always dynamic since they have to be wrapped in {} anyway
-      dynamicFields.push({
-        type: EVENT_TYPE,
-        name: cleanedName,
-        callback: value
-      });
-    } else {
-      const isDynamic = typeof value === 'function';
-      if (name.match(/^\$/)) {
-        const field = { type: PROP_TYPE, name: cleanedName, callback: value };
-        if (isDynamic) {
-          dynamicFields.push(field);
-        } else {
-          staticProps[name] = value;
-        }
-      } else {
-        const field = { type: ATTR_TYPE, name: cleanedName, callback: value };
-        if (isDynamic) {
-          dynamicFields.push(field);
-        } else {
-          staticAttrs[name] = value;
-        }
-      }
-    }
-  }
-  return {
-    dynamicFields,
-    staticProps,
-    staticAttrs,
-  }
-}
-
-function addStaticAttributes(element, attributes) {
-  for(const name in attributes) {
-    element.setAttribute(name, attributes[name]);
-  }
-}
-
-function initDynamicSetter(thisArg, dynamicValue, updateCallback): DynamicCallbacks['disposeReactions'] {
-  const boundDynamicValue = dynamicValue.bind(thisArg);  
-  const actionedUpdateCallback = action(updateCallback);
-
-  let previousUnmount: DynamicCallbacks;
-  
-  const dispose = reaction(
-    boundDynamicValue,
-    (next) => {
-      if (previousUnmount && previousUnmount.disposeReactions) {
-        previousUnmount.disposeReactions();
-      }
-      previousUnmount = actionedUpdateCallback(next);
-    }, 
-    { fireImmediately: true }
-  );
-  
-  return () => {
     dispose();
-    if (previousUnmount && previousUnmount.disposeReactions) {
-      previousUnmount.disposeReactions();
-    }
-  }
-}
-
-function initDynamicSetters(
-  thisArg,
-  dynamicFieldInfos,
-  mountFactories,
-) {
-  const disposals: any[] = [];
-  for(const { type, name, callback } of dynamicFieldInfos) {
-    const wrappedCallback = callback.bind(thisArg);
-    const disposal = (() => {
-      switch(type) {
-        case ATTR_TYPE:
-          return initDynamicSetter(thisArg, wrappedCallback, (value) => mountFactories.attrs(name, value));
-        case PROP_TYPE:
-          return initDynamicSetter(thisArg, wrappedCallback, (value) => mountFactories.props(name, value));
-        case EVENT_TYPE:
-          return initDynamicSetter(thisArg, wrappedCallback, (value) => mountFactories.listeners(name, value));
-        default: 
-          throw new Error(`Unexpected field type ${type} for name ${name}`);
-      }
-    })();
-    if (disposal) {
-      disposals.push(disposal);
-    }
+    return undefined;
   }  
-  return disposals;
 }
 
-function initDynamicSettersForElement(
-  element,
-  thisArg,
-  dynamicFieldInfos,
-) {
-  return initDynamicSetters(thisArg, dynamicFieldInfos, {
-    attrs: (name, value) => {
-      element.setAttribute(name, value);
-    },
-    props: (name, value) => {
-      element[name] = value;
-    },
-    listeners: (name, listener) => {
-      if (typeof listener === 'function') {
-        element.addEventListener(name, listener);
-        return () => element.removeEventListener(name, listener);
-      } else {
-        element.addEventListener(name, listener.handleEvent, listener);
-        return () => element.removeEventListener(name, listener.handleEvent, listener);
-      }
-    }
-  });
-}
-
-class ElementDynamicCallbacks {
-  constructor(
-    public readonly firstElement: Node,
-    private readonly unmountSetters: (() => void)[],
-    public readonly childDynamicCallbacks: Iterable<DynamicCallbacks>,
-  ) {}
-  disposeReactions() {
-    this.unmountSetters.forEach(unmountSetter => unmountSetter());
-    for (const itemCallbacks of this.childDynamicCallbacks) {
-      if (itemCallbacks.disposeReactions) {
-        itemCallbacks.disposeReactions();
-      }
-    }
-  }
-}
-
-class ElementRenderInfo implements RenderInfo {
-  constructor(
-    public readonly element: Node,
-    private readonly fieldInfo: FieldInfo,
-    private readonly dynamicCallbacks: ChildHooksContainer<DynamicSection>,
-  ) {}
-  public readonly template = lazyTemplateFactory(this.element, this.dynamic, this.getElementFromTemplate);
-  
-  getElementFromTemplate(templateContent: DocumentFragment): Node {
-    return templateContent.childNodes[0];
-  }
-
-  dynamic(clonedElement, thisArg) {
-    for(const name in this.fieldInfo.staticProps) {
-      clonedElement[name] = this.fieldInfo.staticProps[name];
-    }
-
-    const unmountSetters = initDynamicSettersForElement(
-      clonedElement,
-      thisArg,
-      this.fieldInfo.dynamicFields,
-    );
-
-    const itemsCallbacks: any[] = [];
-    for(const itemCallbacks of this.dynamicCallbacks) {
-      itemsCallbacks.push(itemCallbacks(clonedElement, thisArg));
-    }  
-
-    return new ElementDynamicCallbacks(
-      clonedElement,
-      unmountSetters,
-      itemsCallbacks
-    );
-  }
-}
-
-class StaticComponentRenderInfo implements RenderInfo {
-  constructor(
-    private readonly children,
-    private readonly staticFields: { [s: string]: any },
-    private readonly dynamicFields: { key, value: () => any }[],
-    private readonly componentRenderInfo: RenderInfo
-  ) {}
-
-  template() {
-    return this.componentRenderInfo.template(this.dynamic);
-  }f
-
-  get element() { 
-    return document.importNode(this.componentRenderInfo.template().template.content, true);
-  }
-
-  getElementFromTemplate(templateContent: DocumentFragment): Node {
-    return this.componentRenderInfo.getElementFromTemplate(templateContent);
-  }
-
-  dynamic(clonedParent, thisArg) {
-    const wrappedChildren = this.children.map(child => {
-      if (typeof child === 'function') {
-        return child.bind(thisArg);
-      }
-      return child;
-    });
-    
-    const props = Object.create(this.staticFields);
-    const thisReplacement = { props };
-    thisReplacement.props.children = thisReplacement.props.children || wrappedChildren;
-
-    for(const {key, value} of this.dynamicFields) {
-      value.bind(thisArg);
-      Object.defineProperty(props, key, { get: value });
-    }
-
-    const clonedElement = this.componentRenderInfo.getElementFromTemplate(clonedParent);
-    return this.componentRenderInfo.dynamic(
-      clonedElement, 
-      thisReplacement            
-    )
-  }
-}
-
-export function createElement(
-  component: any | HTMLElement,
-  jsxAttributeObj: { [s: string]: any } = {},
-  ...children
-): RenderInfoContainer {
-  if(component.renderInfo) {    
-    const componentRenderInfo = component.renderInfo;
-    const staticFields = {};
-    const dynamicFields: { key: string, value: () => any }[] = [];
-    for(const key in jsxAttributeObj) {
-      const value = jsxAttributeObj[key];
-      if (typeof value === 'function') {
-        dynamicFields.push({ key, value });
-      } else {
-        staticFields[key] = value;
-      }
-    }
-    return {
-      renderInfo: new StaticComponentRenderInfo(children, staticFields, dynamicFields, componentRenderInfo),
-    };
-  } else if (typeof component === 'string' || component.prototype instanceof Node) {
-    const fieldInfo = extractFieldInfo(jsxAttributeObj);
-    const childObserveFns = new ChildHooksContainer<DynamicSection>();
-    const element =
-      component.prototype instanceof HTMLElement
-        ? new component()
-        : document.createElement(component);
-    addStaticElements(element, children, childObserveFns);
-    addStaticAttributes(element, fieldInfo.staticAttrs);
-    return {
-      renderInfo: new ElementRenderInfo(
-        element,
-        fieldInfo,
-        childObserveFns
-      )
-    };
+const wrappedReaction = <T>(
+  expression: (r: IReactionPublic) => T,
+  effect: (arg: T, r: IReactionPublic) => void,
+  opts?: IReactionOptions
+): IReactionDisposer | undefined => {
+  const dispose = reaction(expression, effect, opts);
+  if (isTrackingSomething(dispose)) {
+    return dispose;
   } else {
-    const unwrappedAttributes = jsxAttributeObj ? 
-      Object.keys(jsxAttributeObj).reduce((obj, key) => {
-        if (typeof jsxAttributeObj[key] === 'function') {
-          obj[key] = jsxAttributeObj[key]();
-        } else {
-          obj[key] = jsxAttributeObj[key];
-        }
-        return obj;
-      }, {}) : jsxAttributeObj;
-    return component({ children, ...unwrappedAttributes });
+    dispose();
+    return undefined;
   }
 }
+
+const OBSERVED_ARRAY_TYPE = 0;
+const textNodeTypes = ['string', 'boolean', 'number'];
+function  renderDynamicChildren(
+  result: ChildrenResult,
+  parent: Node,
+  beforeMarker: Node | null = null,
+  nextMarker: Node | null = null
+): RenderResult | null {
+  // TODO: Render functions
+  if (result === undefined || result === null) {
+    return null;
+  } else if (textNodeTypes.includes(typeof result)) {
+    parent.insertBefore(document.createTextNode(result.toString()), nextMarker);
+    return null;
+  } else if(Array.isArray(result)) {
+    const disposals: Dispose[] = [];
+    const fragment = document.createDocumentFragment();
+    for(const item of result) {
+      // TODO: Make sure the undefined, undefined works in all cases
+      const result = renderDynamicChildren(item, fragment, undefined, undefined);
+      if (result && result.dispose) {
+        disposals.push(result.dispose);
+      }
+    }
+    if (disposals.length > 0) {
+      const firstNode = fragment.childNodes[0];      
+      parent.insertBefore(fragment, nextMarker);
+      return {
+        firstNode,
+        dispose: () => {
+          for(const dispose of disposals) {
+            dispose();
+          }
+        }  
+      }
+    }
+    return null;
+  } else if(result.type === OBSERVED_ARRAY_TYPE) {
+    return result.callback(beforeMarker, nextMarker);
+  } else {
+    return renderComponentResult(result, parent);
+  }
+}
+
+function isTrackingSomething(dispose: IReactionDisposer): boolean {
+  return dispose[$mobx].observing.length > 0;
+}
+
+export function initChildReaction(childrenReaction: ChildrenReaction): RenderResult {
+  const beforeMarker = childrenReaction.node;
+  const nextMarker = childrenReaction.node.nextSibling;
+  let innerDispose: Dispose | undefined = (() => {
+    const renderResults = renderDynamicChildren(
+      childrenReaction.callback(),
+      beforeMarker.parentNode as Node,
+      childrenReaction.node,
+      nextMarker as Node
+    );
+    if(renderResults) {
+      return renderResults.dispose;
+    }
+    return undefined;
+  })();
+  const dispose = wrappedReaction(
+    childrenReaction.callback,
+    (renderInfo) => {
+      if (innerDispose) {
+        innerDispose();
+      }
+      let currentElement = beforeMarker.nextSibling;
+      while(currentElement !== nextMarker) {
+        const nextSibling = currentElement!.nextSibling;
+        currentElement!.parentNode!.removeChild(currentElement!);
+        currentElement = nextSibling;
+      }
+      const renderResults = renderDynamicChildren(
+        renderInfo,
+        beforeMarker.parentNode as Node,
+        childrenReaction.node,
+        nextMarker as Node
+      );
+      if(renderResults) {
+        innerDispose = renderResults.dispose;
+      }
+    }
+  );
+  const firstNode = childrenReaction.node;
+  
+  return {
+    firstNode,
+    dispose: () => {
+      if (dispose) {
+        dispose();
+      }
+      if (innerDispose) {
+        innerDispose();
+      }
+    }
+  }
+}
+
+export function initSubComponentReaction(
+  subComponentReaction: SubComponentReaction,
+): RenderResult {
+  const beforeMarker = subComponentReaction.node;
+  const afterMarker = beforeMarker.nextSibling;
+
+  const props = observable({
+    children: subComponentReaction.childNode,
+  });
+  const propDisposals: Dispose[] = [];
+  // TODO: Handle overriding fields
+  for(const propsReaction of subComponentReaction.reactions) {
+    propsReaction.assignTo(props);
+    if (propsReaction.type === DYNAMIC_FIELD_TYPE) {
+      const propDispose = wrappedAutorun(() => propsReaction.assignTo(props));
+      if(propDispose) {
+        propDisposals.push(propDispose);  
+      }
+    }
+  }
+
+  let innerDispose: Dispose | undefined = (() => {
+    const result = renderComponentResult(
+      subComponentReaction.component(props),
+      beforeMarker.parentNode as Node, 
+      afterMarker as Node
+    );
+    if(result) {
+      return result.dispose;
+    }
+    return undefined;
+  })();
+  const dispose = wrappedReaction(
+    () => subComponentReaction.component(props),
+    (renderInfo) => {
+      if (innerDispose) {
+        innerDispose();
+      }
+      removeUntilBefore(subComponentReaction.node.nextSibling, afterMarker);
+      const result = renderComponentResult(
+        renderInfo,
+        beforeMarker.parentNode as Node, 
+        afterMarker as Node
+      );
+      if(result) {
+        innerDispose = result.dispose;
+      }
+    },
+  );
+  const firstNode = subComponentReaction.node;
+  return {
+    firstNode,
+    dispose: () => {
+      if (dispose) {
+        dispose();
+      }
+      if(innerDispose) {
+        innerDispose();
+      }
+      for(const propDispose of propDisposals) {
+        propDispose();
+      }
+    }  
+  }
+}
+
+export const initAttributeReaction = (node: Element, { key, callback }: AttributeReaction): IReactionDisposer | undefined => {
+  node.setAttribute(key, callback());
+  return wrappedReaction(
+    callback,
+    (data) => node.setAttribute(key, data),
+  );
+}
+
+export const initPropertyReaction = (node: Element, { key, callback }: PropertyReaction): IReactionDisposer | undefined => {
+  node[key] = callback();
+  return wrappedReaction(
+    callback,
+    data => node[key] = data,
+  )
+}
+
+export const initEventReaction = (element: Element, { key, callback }: EventReaction): Dispose | undefined => {
+  let removePreviousListener: Dispose = (() => {
+    const listener = callback();
+    if (typeof listener === 'function') {
+      element.addEventListener(key, listener);
+      return () => element.removeEventListener(key, listener);
+    } else {
+      element.addEventListener(key, listener.handleEvent, listener);
+      return () => element.removeEventListener(key, listener.handleEvent, listener);
+    }
+  })();
+  const dispose = wrappedReaction(
+    callback,
+    listener => {
+      removePreviousListener();
+      if (typeof listener === 'function') {
+        element.addEventListener(key, listener);
+        return () => element.removeEventListener(key, listener);
+      } else {
+        element.addEventListener(key, listener.handleEvent, listener);
+        return () => element.removeEventListener(key, listener.handleEvent, listener);
+      }
+    },
+  );
+  if (dispose) {
+    return () => {
+      dispose();
+      removePreviousListener();
+    }
+  }
+  return undefined;
+}
+
+export function *initNodeReactions(nodeReactions: NodeReactions): Iterable<Dispose> {
+  for(const fieldReaction of nodeReactions.reactions) {
+    switch(fieldReaction.type) {
+      case ATTR_TYPE:
+        const attrDispose = initAttributeReaction(nodeReactions.node, fieldReaction as AttributeReaction);
+        if (attrDispose) {
+          yield attrDispose;
+        }
+        break;
+      case PROP_TYPE:
+        const propDispose = initPropertyReaction(nodeReactions.node, fieldReaction as PropertyReaction)
+        if(propDispose) {
+          yield propDispose;
+        }
+        break;
+      case EVENT_TYPE:
+        const eventDispose = initEventReaction(nodeReactions.node, fieldReaction as EventReaction);
+        if (eventDispose) {
+          yield eventDispose;
+        }
+        break;
+    }
+  }
+}
+
+export function renderComponentResult(
+  componentResult: ComponentResult,
+  container: Node,
+  before: Node | null = null,
+): RenderResult {
+  container.insertBefore(componentResult.node, before);
+  const disposals: Dispose[] = [];
+  if (componentResult.reactions) {
+    for(const reaction of componentResult.reactions) {
+      switch(reaction.type) {
+        case CHILDREN_TYPE:
+          const result = initChildReaction(reaction);
+          if(result && result.dispose) {
+            disposals.push(result.dispose);
+          }
+          break;
+        case SUB_COMPONENT_TYPE:
+          const subResult = initSubComponentReaction(reaction);
+          if(subResult && subResult.dispose) {
+            disposals.push(subResult.dispose);
+          }
+          break;
+        case NODE_REACTION_TYPE:
+          disposals.push(...initNodeReactions(reaction));
+          break;
+      }
+    }
+  }
+  return {
+    firstNode: componentResult.node,
+    dispose: () => {
+      for(const dispose of disposals) {
+        dispose();
+      }
+    }
+  };
+}
+
+export const render = (renderInfo: ComponentResult, container: Node): RenderResult => {
+  return renderComponentResult(renderInfo, container, undefined);
+}
+
 
 function removeUntilBefore(startElement, stopElement) {
   let currentElement = startElement;
@@ -553,10 +469,10 @@ function removeUntilBefore(startElement, stopElement) {
   }
 }
 
-function removePart(changeData, childElements, before) {
+function removePart(changeData, childElements: (RenderResult | any)[], before: Node | null) {
   const stopIndex = changeData.index + changeData.removedCount; 
-  const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstElement : before;
-  let currentElement = childElements[changeData.index].firstElement;
+  const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstNode : before;
+  let currentElement = childElements[changeData.index].firstNode;
   while(currentElement !== stopElement) {
     const nextSibling = currentElement.nextSibling;
     currentElement.parentNode.removeChild(currentElement);
@@ -564,74 +480,61 @@ function removePart(changeData, childElements, before) {
   }
 }
 
-export function repeat<T>(arr: IObservableArray<T>, mapFn: (value: T) => RenderInfo) {
-  const marker = document.createComment('');
-  const dynamic = (firstMarker, thisArg) => {
-    const before = firstMarker.nextSibling;
-    // TODO
-    const childElements: (DynamicCallbacks | any)[] = [];
-    const dispose = arr.observe((changeData) => {
-      switch(changeData.type) {
-        case 'splice': 
+export function repeat<T, N extends Node>(arr: IObservableArray<T>, mapFn: (value: T) => ComponentResult<N>) {
+  return {
+    type: OBSERVED_ARRAY_TYPE,
+    callback: (firstMarker, before) => {
+      // TODO: Should be | null
+      const results: (RenderResult)[] = [];
+      const dispose = arr.observe((changeData) => {
+        switch(changeData.type) {
+          case 'splice': 
           if (changeData.removedCount > 0) {
-            removePart(changeData, childElements, before);
+            removePart(changeData, results, before);
           }
-          const removed = childElements.splice(changeData.index, changeData.removedCount);
-          // TODO: Should move this ambove removePart
+          const removed = results.splice(changeData.index, changeData.removedCount);
+          // TODO: Should move this above removePart
           for (const removedChildInfo of removed) {
-            if (removedChildInfo && removedChildInfo.disposeReactions) {
-              removedChildInfo.disposeReactions();
+            if (removedChildInfo && removedChildInfo.dispose) {
+              removedChildInfo.dispose();
             }
           }
     
           let addedChildElements: any[] = [];
           if (changeData.addedCount > 0) {
             const fragment = document.createDocumentFragment();
-
             addedChildElements = changeData.added.map((data) => {
-              const dyanmicFn = render(fragment, mapFn(data), undefined, thisArg);
-              return dyanmicFn;
+              const componentResult = mapFn(data);
+              const renderResult = renderComponentResult(componentResult, fragment, undefined);
+              return renderResult;
             });
-            const elementToAddBefore = changeData.index < childElements.length ? childElements[changeData.index].firstElement : before;
+            // TODO: Remove !.
+            const elementToAddBefore = changeData.index < results.length ? results[changeData.index]!.firstNode : before;
             firstMarker.parentNode.insertBefore(fragment, elementToAddBefore);
           }
           
-          childElements.splice(changeData.index, 0, ...addedChildElements);
+          results.splice(changeData.index, 0, ...addedChildElements);
           break;
         case 'update':
-          const toBeRemoved = childElements[changeData.index];
-          if (toBeRemoved && toBeRemoved.disposeReactions) {
-            toBeRemoved.disposeReactions();
+          const toBeRemoved = results[changeData.index];
+          if (toBeRemoved && toBeRemoved.dispose) {
+            toBeRemoved.dispose();
           }
           
           const stopIndex = changeData.index + 1;
-          const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstElement : before;
-          const startElement = toBeRemoved.firstElement;        
+          // TODO: remove !.
+          const stopElement = stopIndex < results.length ? results[stopIndex]!.firstNode : before;
+          const startElement = toBeRemoved.firstNode;        
           removeUntilBefore(startElement, stopElement);
-          childElements.splice(changeData.index, 1);
-          const elementToAddBefore = changeData.index < childElements.length ? childElements[changeData.index].firstElement : before;
-          const dynamicFn = render(firstMarker.parentNode, mapFn(changeData.newValue), elementToAddBefore, thisArg);
+          results.splice(changeData.index, 1);
+          const elementToAddBefore = changeData.index < results.length ? results[changeData.index].firstNode : before;
+          const dynamicFn = renderComponentResult(mapFn(changeData.newValue), firstMarker.parentNode, elementToAddBefore);
           
-          childElements.splice(changeData.index, 0, dynamicFn);
+          results.splice(changeData.index, 0, dynamicFn);
           break;
-      }
-    });
-    return {
-      disposeReactions: () => {
-        dispose();
-        for(const childInfo of childElements) {
-          if(childInfo && childInfo.disposeReactions) {
-            childInfo.disposeReactions();
-          }
         }
-      }
-    };
-  }
-  return {
-    renderInfo: {
-      template: lazyTemplateFactory(marker, dynamic, (templateContent) => templateContent.childNodes[0]),
-      element: marker,
-      dynamic
+      }, true);    
+      return dispose;
     }
   }
 }
