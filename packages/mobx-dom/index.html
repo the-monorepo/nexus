@@ -1,30 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <button id="awesome"></button>
   </head>
   <body>
+    <style>
+      body {
+        background: #000000;
+      }
+      * {
+        color: #FFFFFF;
+      }
+    </style>
     <script>
-      for(let i = 0; i < 10; i++) {
-        const div = document.createElement('div');
-        div.innerHTML = 'test';
-        document.body.appendChild(div);
-      }
-      const a = performance.now();
-      for(let i = 0; i < 1000000; i++) {
-        const el$0 = document.body.firstChild;
-        const el$1 = el$0.nextSibling;
-        const el$2 = el$1.nextSibling;
-        const el$3 = el$2.nextSibling;
-        const el$4 = el$3.nextSibling;
-        const el$5 = el$4.nextSibling;
-        const el$6 = el$5.nextSibling;
-        //el$6.innerHTML += '!';
-        
-        //const el = document.body.children[6]//.innerHTML += '!';
-      }
-      const b = performance.now();
-      console.log(b - a);
+      const div2 = document.createElement('div');
+      const shadow = div2.attachShadow({ mode: 'open' });
+      shadow.innerHTML = 'rawr!';
+      const shadow2 = div2.attachShadow({ mode: 'open' });
+      shadow2.innerHTML = 'rawr2!';
+      document.body.appendChild(div2);
     </script>
   </body>
 </html>
