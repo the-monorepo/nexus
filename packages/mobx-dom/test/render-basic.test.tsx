@@ -24,20 +24,6 @@ describe('basic rendering', () => {
     render(root, <TestElement/>);
   });
 
-  it.skip('MobxElement constructor', () => {
-    class TestElement extends MobxElement {
-      render() {
-        return <div className="test"/>;
-      }
-    }
-    render(root, <TestElement/>);
-  })
-
-  it('static component', () => {
-    const StaticComponent = <div className="test"/>;
-    render(root, <StaticComponent />)
-  });
-
   it('SFC', () => {
     const SFC = () => <div className="test"/>;
     render(root, <SFC/>)

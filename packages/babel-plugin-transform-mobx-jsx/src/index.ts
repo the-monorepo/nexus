@@ -83,8 +83,8 @@ interface FieldHoldingClient {
   addDynamicField(attribute: DynamicAttribute);
 }
 
-function isLiteral(value) {
-  return value && value.type.match(/Literal$/)
+function isStatic(value) {
+  return value && (value.type.match(/Literal$/) || t.isArrowFunctionExpression(value) || t.isFunctionExpression(value))
 }
 
 function addFieldToClientFromJSXAttribute(
@@ -96,7 +96,7 @@ function addFieldToClientFromJSXAttribute(
     const value = field.value;
     if (t.isJSXExpressionContainer(value)) {
       const expression = value.expression;
-      if (isLiteral(expression)) {
+      if (isStatic(expression)) {
         client.addStaticField({
           name,
           literal: expression
@@ -107,14 +107,14 @@ function addFieldToClientFromJSXAttribute(
           expression
         });
       }
-    }
-    if (!isLiteral(field.value)) {
+    } else if(isStatic(field.value)) {
+      client.addStaticField({
+        name,
+        literal: value
+      });  
+    } else {
       throw new Error(`Was expecting a literal type but got ${value.type}`);
     }
-    client.addStaticField({
-      name,
-      literal: value
-    });
   } else {
     throw new Error(`Unknown type ${field.type}`);
   }
@@ -135,7 +135,7 @@ function mbxMemberExpression(field: string) {
 function fieldExpression(id, attribute: DynamicAttribute) {
   const { name, type } = fieldInfo(attribute.name);
   function nonSpreadFieldExpression(methodName) {
-    return t.callExpression(mbxMemberExpression(methodName), [id, t.stringLiteral(name), wrapInArrowFunctionExpression(attribute.expression)]);
+    return t.callExpression(mbxMemberExpression(methodName), [t.stringLiteral(name), wrapInArrowFunctionExpression(attribute.expression)]);
   }
   switch(type) {
     case ATTR_TYPE:
@@ -158,7 +158,7 @@ function declarationInfo(scope, parentId, index, name: string) {
     t.memberExpression(
       t.memberExpression(
         parentId,
-        t.identifier('children'),
+        t.identifier('childNodes'),
       ),
       t.numericLiteral(index),
       true
@@ -169,7 +169,8 @@ function declarationInfo(scope, parentId, index, name: string) {
 
 interface AbstractClient {
   templateStatements(scope): { [Symbol.iterator]() },
-  declarationStatements(scope, parentId): { [Symbol.iterator]() },
+  // TODO: Bit of a hack passing down isParent not event sure if it works if u have fragments
+  declarationStatements(scope, parentId, isParent: boolean): { [Symbol.iterator]() },
   reactionExpressions(),
   html(): string
 }
@@ -197,8 +198,6 @@ class DynamicChildrenClient implements AbstractClient {
   }
 
   public *reactionExpressions() {
-    console.log('id', this.id);
-    console.log('exp', this.expression);
     yield t.callExpression(
       mbxMemberExpression('children'),
       [
@@ -235,7 +234,7 @@ function templateDeclaration(templateId, factoryFunctionName, childClients) {
 function createFromTemplateDeclaration(id, templateId) {
   return constDeclaration(
     id, 
-    t.callExpression(t.memberExpression(templateId, t.identifier('create')), [])
+    t.callExpression(templateId, [])
   );
 }
 
@@ -249,7 +248,6 @@ class StaticElementClient implements ChildClient, FieldHoldingClient {
     private readonly staticFields: StaticField[] = [],
     private readonly dynamicFields: DynamicAttribute[] = [],
   ) {
-    jsxElement.openingElement.attributes.forEach(field => addFieldToClientFromJSXAttribute(field, this));
   }
 
   addStaticField(field) {
@@ -279,15 +277,19 @@ class StaticElementClient implements ChildClient, FieldHoldingClient {
     }
   }
 
-  public *declarationStatements(scope, parentId) {
+  public *declarationStatements(scope, parentId, isParent) {
     const nonAttributeStaticFields: StaticField[] = this.staticFields
       .filter((field) => fieldType(field.name) !== ATTR_TYPE);    
-    if (this.childClients.length > 0 || nonAttributeStaticFields.length > 0) {
-      const { declaration, id } = declarationInfo(scope, parentId, this.index, this.name);
-      yield declaration;
-      this.id = id;
+    if (this.childClients.length > 0 || nonAttributeStaticFields.length > 0 || this.dynamicFields.length > 0) {
+      if (isParent) {
+        this.id = parentId;
+      } else {
+        const { declaration, id } = declarationInfo(scope, parentId, this.index, this.name);
+        yield declaration; 
+        this.id = id;
+      }
       for(const client of this.childClients) {
-        yield *client.declarationStatements(scope, this.id);
+        yield *client.declarationStatements(scope, this.id, false);
       }
       
       for(const field of nonAttributeStaticFields) {
@@ -298,16 +300,16 @@ class StaticElementClient implements ChildClient, FieldHoldingClient {
             yield t.expressionStatement(t.assignmentExpression(
               '=',
               t.memberExpression(
-                id,
+                this.id,
                 t.identifier(cleanedName),
               ),
               field.literal
             ));
             break;
           case EVENT_TYPE:
-            yield t.expressionStatement(mbxCallExpression(
-              'addEventListener',
-              [id, field.literal]
+            yield t.expressionStatement(t.callExpression(
+              t.memberExpression(this.id, t.identifier('addEventListener')),
+              [t.stringLiteral(cleanedName), field.literal]
             ))
             break;
           default:
@@ -362,7 +364,7 @@ class RootElementClient implements ChildClient {
     this.id = scope.generateUidIdentifier('root$');
     yield createFromTemplateDeclaration(this.id, this.templateId);
     for(const childClient of this.childClients) {
-      yield *childClient.declarationStatements(scope, this.id);
+      yield *childClient.declarationStatements(scope, this.id, true);
     }
   }
 
@@ -403,22 +405,25 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
   public *templateStatements(scope) {
     if (this.childClients.length > 0) {
       this.templateId = scope.generateUidIdentifier('subTemplate$');
-      yield templateDeclaration(this.templateId, ELEMENT_TEMPLATE_FACTORY_NAME, this.childClients);
+      yield templateDeclaration(this.templateId, this.childClients.length <= 1 ? ELEMENT_TEMPLATE_FACTORY_NAME : FRAGMENT_TEMPLATE_FACTORY_NAME, this.childClients);
     }
     for(const client of this.childClients) {
       yield *client.templateStatements(scope);
     }
   }
-  public *declarationStatements(scope, parentId) {
-    const placeholderInfo = declarationInfo(scope, parentId, this.index, 'placeholder');
-    this.placeholderId = placeholderInfo.id;
-    yield placeholderInfo.declaration;
-    
-    if (this.placeholderId) {
+  public *declarationStatements(scope, parentId, isParent) {
+    if (isParent) {
+      this.placeholderId = parentId;
+    } else {
+      const placeholderInfo = declarationInfo(scope, parentId, this.index, 'placeholder');
+      this.placeholderId = placeholderInfo.id;
+      yield placeholderInfo.declaration;  
+    }
+    if (this.templateId) {
       this.id = scope.generateUidIdentifier('subRoot$');
       yield createFromTemplateDeclaration(this.id, this.templateId);
       for(const client of this.childClients) {
-        yield *client.declarationStatements(scope, parentId);
+        yield *client.declarationStatements(scope, this.id, this.childClients.length <= 1);
       }  
     }
   }
@@ -439,7 +444,7 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
           'dynamicField',
           [
             t.stringLiteral(field.name),
-            (field as DynamicAttribute).expression
+            wrapInArrowFunctionExpression((field as DynamicAttribute).expression)
           ]
         ))
       }
@@ -460,36 +465,46 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
     }
   }
   public addDynamicField(field) {
-    this.fields.push({ type: 'static', field });
-  }
-  public addStaticField(field) {
     this.fields.push({ type: 'dynamic', field });
   }
-  public addChildClient(client) {
+  public addStaticField(field) {
+    this.fields.push({ type: 'static', field });
+  }
+  public addChildClient(client: AbstractClient) {
     this.childClients.push(client);
   }
 }
 
 function clientFromJSXElement(jsxElement, state: State): ChildClient {
   const jsxOpeningElement = jsxElement.openingElement;
-  if (t.isJSXIdentifier(jsxOpeningElement.name) && isElementTag(jsxOpeningElement.name.name)) {
-    const tag = jsxOpeningElement.name.name;
-    const client = new StaticElementClient(state.length, jsxElement, tag);
-    const ownState = { length: 0 };
-    for(const child of jsxElement.children) {
-      client.addChildClient(clientFromNode(child, ownState));
-    }
-    state.length++;
-    return client;
-  } else {
-    const client = new SubComponentClient(state.length, jsxOpeningElement.name);
-    const ownState = { length: 0 };
-    for(const child of jsxElement.children) {
-      client.addChildClient(clientFromNode(child, ownState));
-    }
-    state.length++;
-    return client;
-  }
+  const newClient = (() => {
+    if (t.isJSXIdentifier(jsxOpeningElement.name) && isElementTag(jsxOpeningElement.name.name)) {
+      const tag = jsxOpeningElement.name.name;
+      const client = new StaticElementClient(state.length, jsxElement, tag);
+      const ownState = { length: 0 };
+      for(const child of jsxElement.children) {
+        const childClient = clientFromNode(child, ownState);
+        if (childClient) {
+          client.addChildClient(childClient);
+        }
+      }
+      state.length++;
+      return client;
+    } else {
+      const client = new SubComponentClient(state.length, jsxOpeningElement.name);
+      const ownState = { length: 0 };
+      for(const child of jsxElement.children) {
+        const childClient = clientFromNode(child, ownState);
+        if (childClient) {
+          client.addChildClient(childClient);
+        }
+      }
+      state.length++;
+      return client;
+    }  
+  })();
+  jsxElement.openingElement.attributes.forEach(field => addFieldToClientFromJSXAttribute(field, newClient));
+  return newClient;
 }
 
 class FragmentClient implements ChildClient {
@@ -512,9 +527,9 @@ class FragmentClient implements ChildClient {
       yield *client.reactionExpressions();
     }
   }
-  public *declarationStatements(scope, parentId) {
+  public *declarationStatements(scope, parentId, isParent) {
     for(const client of this.childClients) {
-      yield *client.declarationStatements(scope, parentId);
+      yield *client.declarationStatements(scope, parentId, isParent);
     }
   }
 }
@@ -537,8 +552,15 @@ function clientFromJSXFragment(jsxFragment, state: State): FragmentClient {
   }));
 }
 
-function clientFromJSXText(jsxText, state: State): TextClient {
-  const html = jsxText.value.replace(/^\s*\n\s*|\s*\n\s*$/g, '');
+function clientFromJSXText(jsxText, state: State): TextClient | null {
+  return clientFromString(jsxText.value, state);
+}
+
+function clientFromString(aString: string, state: State): TextClient | null {
+  const html = aString.replace(/^\s*\n\s*|\s*\n\s*$/g, '');
+  if(html === '') {
+    return null;
+  }
   state.length++;
   return new TextClient(html);
 }
@@ -546,18 +568,16 @@ function clientFromJSXText(jsxText, state: State): TextClient {
 const HTMLComment = '<!---->';
 const HTMLDynamicChildrenMarker = HTMLComment;
 const HTMLPlaceholder = HTMLComment;
-function clientFromJSXExpressionContainerNode(node, state: State) {
+function clientFromJSXExpressionContainerNode(node, state: State): AbstractClient | null {
   const expression = node.expression;
   // TODO: Function and array literals
   if (t.isJSXElement(expression) || t.isJSXFragment(expression)) {
     return clientFromNode(expression, state);
   } else if (t.isStringLiteral(expression)) {
     // TODO: Two contained literals next to each other would lead to incorrect state length
-    state.length++;
-    return new TextClient(expression.value);
+    return clientFromString(expression.value, state);
   } else if (t.isNumericLiteral(expression) || t.isBooleanLiteral(expression)) {
-    state.length++;
-    return new TextClient(expression.value.toString());
+    return clientFromString(expression.value.toString(), state);
   } else {
     const client = new DynamicChildrenClient(state.length, expression);
     state.length++;
@@ -565,7 +585,7 @@ function clientFromJSXExpressionContainerNode(node, state: State) {
   }
 }
 
-function clientFromNode(node, state: State) {
+function clientFromNode(node, state: State): AbstractClient | null {
   if (t.isJSXElement(node)) {
     return clientFromJSXElement(node, state);
   } else if (t.isJSXExpressionContainer(node)) {
@@ -579,23 +599,18 @@ function clientFromNode(node, state: State) {
   }
 }
 
-function findProgram(path) {
-  return path.findParent(t => t.isProgram()).node;
-}
-
-// Taken from: https://github.com/ryansolid/babel-plugin-jsx-dom-expressions/blob/master/src/index.js
-function addComponent(componentId, program, templateHTML, componentFactoryName) {
-  const createTemplateExpression = mbxCallExpression(
-    componentFactoryName,
-    [t.stringLiteral(templateHTML)],
-  );
-  const templateVar = t.variableDeclaration('const', [
-    t.variableDeclarator(
-      componentId,
-      createTemplateExpression
-    )
-  ]);
-  program.body.unshift(templateVar);
+function findProgramAndOuterPath(path) {
+  const parent = path.parentPath;
+  if (!parent) {
+    return { program: path };
+  } else {
+    const result = findProgramAndOuterPath(parent);
+    if (result.path) {
+      return result;
+    } else {
+      return { program: result.program, path: path };
+    }
+  }
 }
 
 function isElementTag(tag) {
@@ -705,8 +720,12 @@ export default declare((api, options) => {
     if (isRootJSXNode(path)) {
       const client = new RootElementClient();
       client.addChildClient(clientFromJSXElement(path.node, { length: 0 }));
-      const program = findProgram(path);
-      program.body.unshift(...client.templateStatements(path.scope));
+      const result = findProgramAndOuterPath(path);
+      const outerPath = result.path;
+      for (const statement of client.templateStatements(path.scope)) {
+        outerPath.insertBefore(statement);
+      }
+      
       const replacementStatements = [
         ...client.declarationStatements(path.scope)
       ];

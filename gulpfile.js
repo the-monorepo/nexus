@@ -249,7 +249,7 @@ function watch() {
     sourceGlobFromPackagesDirName(packagesDirName),
     { ignoreInitial: false },
     function() {
-      console.log('test')
+      console.log('test');
     },
   );
 }
