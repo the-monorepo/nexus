@@ -7,7 +7,7 @@ describe('basic rendering', () => {
     root = document.createElement('body');
   });
   it('div tag string', () => {
-    render(root, <div className="test"/>);
+    render(root, <div className="test" />);
   });
 
   it.skip('HTMLElement constructor', () => {
@@ -21,16 +21,16 @@ describe('basic rendering', () => {
       }
     }
     window.customElements.define('x-test', TestElement);
-    render(root, <TestElement/>);
+    render(root, <TestElement />);
   });
 
   it('SFC', () => {
-    const SFC = () => <div className="test"/>;
-    render(root, <SFC/>)
+    const SFC = () => <div className="test" />;
+    render(root, <SFC />);
   });
 
   it('Fragment', () => {
     const Fragment = <></>;
     render(root, Fragment);
   });
-})
+});

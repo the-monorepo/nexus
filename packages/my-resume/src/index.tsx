@@ -129,14 +129,12 @@ setInterval(
 );*/
 const store = observable({
   i: 0,
-})
-setInterval(action(() => store.i++), 1000)
+});
+setInterval(action(() => store.i++), 1000);
 const OuterComponent = (
-  <button $$click={() => console.log('clicked')}>
-    Hello {store.i}
-  </button>
+  <button $$click={() => console.log('clicked')}>Hello {store.i}</button>
 );
-render(document.getElementById('root'), <OuterComponent/>);
+render(document.getElementById('root'), <OuterComponent />);
 
 /*const store = observable({
   arr: observable.array([[]] as number[][]),

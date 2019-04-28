@@ -6,7 +6,7 @@ function mapletFunction(v) {
 }
 
 it('map observable', () => {
-  const array: IObservableArray<number> = observable([]);;
+  const array: IObservableArray<number> = observable([]);
   const mapped = map(array, mapletFunction);
   expect(isObservableArray(mapped)).toBe(true);
   autorun(() => expect(mapped).toEqual(array.map(mapletFunction)));
@@ -28,4 +28,4 @@ it('map non-observable', () => {
   expect(mapped).toEqual([]);
   const mapped2 = map(array, mapletFunction);
   expect(mapped2).toEqual([2, 4, 6]);
-})
+});
