@@ -12,12 +12,17 @@
       }
     </style>
     <script>
-      const div2 = document.createElement('div');
-      const shadow = div2.attachShadow({ mode: 'open' });
-      shadow.innerHTML = 'rawr!';
-      const shadow2 = div2.attachShadow({ mode: 'open' });
-      shadow2.innerHTML = 'rawr2!';
-      document.body.appendChild(div2);
+      const values = [];
+      for(let i = 0; i < 1000000; i++) {
+        const collection = new Set();
+        collection.add(() => {});
+        values.push(collection);
+      }
+      const button = document.createElement('button');
+      button.onclick = () => {
+        console.log(values);
+      }
+      document.body.appendChild(button);
     </script>
   </body>
 </html>

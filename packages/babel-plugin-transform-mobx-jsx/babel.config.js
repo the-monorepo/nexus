@@ -1,3 +1,3 @@
 module.exports = {
-  plugins: ['babel-plugin-transform-mobx-jsx']
-}
+  plugins: ['babel-plugin-transform-mobx-jsx'],
+};
