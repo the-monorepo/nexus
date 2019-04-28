@@ -85,7 +85,9 @@ function isStatic(value) {
     value &&
     (value.type.match(/Literal$/) ||
       t.isArrowFunctionExpression(value) ||
-      t.isFunctionExpression(value))
+      t.isFunctionExpression(value) ||
+      t.isIdentifier(value)
+    )
   );
 }
 
@@ -759,7 +761,7 @@ export default declare((api, options) => {
       path.replaceWithMultiple(replacementStatements);
     }
   };
-
+  /*
   visitor.JSXExpressionContainer = {
     enter(path) {
       if (path.match(/Literal$/)) {
@@ -773,7 +775,7 @@ export default declare((api, options) => {
         }
       }
     }
-  };
+  };*/
 
   return {
     name: 'transform-react-jsx',
