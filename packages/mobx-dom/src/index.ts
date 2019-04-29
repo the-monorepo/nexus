@@ -26,7 +26,7 @@ export type KeyHolder<S extends string = string> = { key: S };
 export type TypeHolder<T> = { type: T };
 export type NodeHolder<N extends Node = Node> = { node: N};
 
-export type DataReaction<D> = { callback: () => D };
+export type DataReaction<D> = { value: D };
 export type FieldReaction<D, T> = DataReaction<D> & KeyHolder & TypeHolder<T>;
 
 export type ReactionDataCallback<T = any> = () => T;
@@ -43,13 +43,13 @@ type EventType = typeof EVENT_TYPE;
 export const SPREAD_TYPE = 3;
 type SpreadType = typeof SPREAD_TYPE;
 
-export type PropertyResult = any;
+export type PropertyResult = () => any;
 export type PropertyReaction = FieldReaction<PropertyResult, PropertyType>;
 
-export type AttributeResult = any;
+export type AttributeResult = () => string;
 export type AttributeReaction = FieldReaction<AttributeResult, AttributeType>;
 
-export type EventResult = any;
+export type EventResult = () => any;
 export type EventReaction = FieldReaction<EventResult, EventType>;
 
 
@@ -72,77 +72,52 @@ export type SubComponentReaction = TypeHolder<SubComponentType> & {
   node: Node,
   component: Component,
   childNode?: Node,
-  reactions: SubComponentFieldReaction<any>[]
+  value?: SubComponentFieldReaction<any>[]
 };
 
 export type NodeReaction = PropertyReaction | AttributeReaction | EventReaction;
 
-export type NodeReactions<N extends Element = Element> = TypeHolder<NodeReactionType> & NodeHolder<N> & { reactions: NodeReaction[] };
+export type NodeReactions<N extends Element = Element> = TypeHolder<NodeReactionType> & NodeHolder<N> & { value: NodeReaction[] };
 
 export type ComponentReaction = NodeReactions | SubComponentReaction | ChildrenReaction;
 
-const STATIC_FIELD_TYPE = 0;
+export const STATIC_FIELD_TYPE = 3;
 export type StaticSubComponentFieldType = typeof STATIC_FIELD_TYPE;
 
-const DYNAMIC_FIELD_TYPE = 1;
+export const DYNAMIC_FIELD_TYPE = 4;
 export type DynamicSubComponentFieldType = typeof DYNAMIC_FIELD_TYPE;
+
+export type SubComponentFieldType = StaticSubComponentFieldType | DynamicSubComponentFieldType;
 
 export type StaticSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<StaticSubComponentFieldType, D> & TypeHolder<StaticSubComponentFieldType>;
 export type DynamicSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<DynamicSubComponentFieldType, () => D> & TypeHolder<DynamicSubComponentFieldType>;
 export type SubComponentFieldReaction<D> = StaticSubComponentFieldReaction<D> | DynamicSubComponentFieldReaction<D>;
 
-const assignStaticFieldToProps = action((props, key: string, value) => {
-  props[key] = value;
-});
-
-const assignDynamicFieldToProps = action((props, key: string, callback) => {
-  props[key] = callback();
-});
-
-export const staticField = <D>(key: string, value: D): StaticSubComponentFieldReaction<D> => {
-  return { type: STATIC_FIELD_TYPE, key, value };
+export const field = <
+  T,
+  D
+>(fieldType: T, key: string, value: D): FieldReaction<D, T> => {
+  return { type: fieldType, key, value };
 }
 
-export const dynamicField = <D>(key: string, value: () => D): DynamicSubComponentFieldReaction<D> => {
-  return { type: DYNAMIC_FIELD_TYPE, key, value };
+export const children = (node: Node, value: ReactionDataCallback<ChildrenResult>): ChildrenReaction => {
+  return { type: CHILDREN_TYPE, node, value };
 }
 
-export const fields = <N extends Element>(node: N, ...reactions: NodeReaction[]): NodeReactions<N> => {
-  return { type: NODE_REACTION_TYPE, node, reactions };
-}
-
-export const attribute = (key: string, callback: ReactionDataCallback<AttributeResult>): AttributeReaction => {
-  return { type: ATTR_TYPE, key, callback };
-}
-
-export const property = (key: string, callback: ReactionDataCallback<PropertyResult>): PropertyReaction => {
-  return { type: PROP_TYPE, key, callback };
-}
-
-export const event = (key: string, callback: ReactionDataCallback<EventResult>): EventReaction => {
-  return { type: EVENT_TYPE, key, callback };
-};
-
-export const children = (node: Node, callback: ReactionDataCallback<ChildrenResult>): ChildrenReaction => {
-  return { type: CHILDREN_TYPE, node, callback };
+export const fields = <N extends Element>(node: N, value: NodeReaction[]): NodeReactions<N> => {
+  return { type: NODE_REACTION_TYPE, node, value };
 }
 
 export const subComponent = (
   component: Component,
   node: Node,
   childNode?: Node,
-  ...reactions: SubComponentFieldReaction<any>[]
+  value?: SubComponentFieldReaction<any>[]
 ): SubComponentReaction => {
-  return { type: SUB_COMPONENT_TYPE, node, component, childNode, reactions};
+  return { type: SUB_COMPONENT_TYPE, node, component, childNode, value };
 }
 
-export const staticNode = <N extends Node = Node>(node: N): ComponentResult<N> => {
-  return {
-    node
-  }
-}
-
-export const dynamicNode = <N extends Node = Node>(node: N, ...reactions: ComponentReaction[]): ComponentResult<N> => {
+export const componentRoot = <N extends Node = Node>(node: N, reactions?: ComponentReaction[]): ComponentResult<N> => {
   return {
     node,
     reactions,
@@ -239,7 +214,7 @@ export function initChildReaction(childrenReaction: ChildrenReaction): RenderRes
   const nextMarker = childrenReaction.node.nextSibling;
   let innerDispose: Dispose | undefined;
   const dispose = wrappedReaction(
-    childrenReaction.callback,
+    childrenReaction.value,
     (renderInfo) => {
       if (innerDispose) {
         innerDispose();
@@ -277,11 +252,9 @@ export function initChildReaction(childrenReaction: ChildrenReaction): RenderRes
   }
 }
 
-let global = 0;
 export function initSubComponentReaction(
   subComponentReaction: SubComponentReaction,
 ): RenderResult {
-  const test = global++;
   const beforeMarker = subComponentReaction.node;
   const afterMarker = beforeMarker.nextSibling;
 
@@ -289,20 +262,22 @@ export function initSubComponentReaction(
     children: subComponentReaction.childNode,
   };
   // TODO: Handle overriding fields
-  for(const propsReaction of subComponentReaction.reactions) {
-    if (propsReaction.type === DYNAMIC_FIELD_TYPE) {
-      Object.defineProperty(
-        props,
-        propsReaction.key,
-        // TODO: I'm pretty sure computed returns a property descriptor
-        computed(props, propsReaction.key, { get: propsReaction.value, configurable: false }) as any
-      );
-    } else {
-      props[propsReaction.key] = propsReaction.value;
-    }
+  if (subComponentReaction.value) {
+    for(const propsReaction of subComponentReaction.value) {
+      if (propsReaction.type === DYNAMIC_FIELD_TYPE) {
+        Object.defineProperty(
+          props,
+          propsReaction.key,
+          // TODO: I'm pretty sure computed returns a property descriptor
+          computed(props, propsReaction.key, { get: propsReaction.value, configurable: false }) as any
+        );
+      } else {
+        props[propsReaction.key] = propsReaction.value;
+      }
+    }  
   }
 
-  let innerDispose: Dispose | undefined;
+  let innerDispose: Dispose | undefined;  
   const dispose = wrappedReaction(
     () => subComponentReaction.component(props),
     (renderInfo) => {
@@ -337,11 +312,10 @@ export function initSubComponentReaction(
 
 export const initAttributeReaction = (
   node: Element,
-  { key, callback }: AttributeReaction
+  { key, value }: AttributeReaction
 ): IReactionDisposer | undefined => {
-  node.setAttribute(key, callback());
   return wrappedReaction(
-    callback,
+    value,
     (data) => node.setAttribute(key, data),
     { fireImmediately: true }
   );
@@ -349,11 +323,11 @@ export const initAttributeReaction = (
 
 export const initPropertyReaction = (
   node: Element,
-  { key, callback }: PropertyReaction
+  { key, value }: PropertyReaction
 ): IReactionDisposer | undefined => {
-  node[key] = callback();
+  node[key] = value();
   return wrappedReaction(
-    callback,
+    value,
     action(data => node[key] = data),
     { fireImmediately: true }
   )
@@ -361,10 +335,10 @@ export const initPropertyReaction = (
 
 export const initEventReaction = (
   element: Element,
-  { key, callback }: EventReaction
+  { key, value }: EventReaction
 ): Dispose | undefined => {
   let removePreviousListener: Dispose = (() => {
-    const listener = callback();
+    const listener = value();
     if (typeof listener === 'function') {
       element.addEventListener(key, listener);
       return () => element.removeEventListener(key, listener);
@@ -374,7 +348,7 @@ export const initEventReaction = (
     }
   })();
   const dispose = wrappedReaction(
-    callback,
+    value,
     listener => {
       removePreviousListener();
       if (typeof listener === 'function') {
@@ -397,7 +371,7 @@ export const initEventReaction = (
 }
 
 export function *initNodeReactions(nodeReactions: NodeReactions): Iterable<Dispose> {
-  for(const fieldReaction of nodeReactions.reactions) {
+  for(const fieldReaction of nodeReactions.value) {
     switch(fieldReaction.type) {
       case ATTR_TYPE:
         const attrDispose = initAttributeReaction(nodeReactions.node, fieldReaction as AttributeReaction);
