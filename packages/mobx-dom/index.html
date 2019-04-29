@@ -12,17 +12,18 @@
       }
     </style>
     <script>
-      const values = [];
-      for(let i = 0; i < 1000000; i++) {
-        const collection = new Set();
-        collection.add(() => {});
-        values.push(collection);
+      function variadic(test, ...something) {
+        return { test, something };
       }
+      const store = [];
       const button = document.createElement('button');
-      button.onclick = () => {
-        console.log(values);
+      const before = performance.now();
+      for(let i = 0; i < 1000000; i++) {
+        store.push(variadic('something'));
       }
-      document.body.appendChild(button);
+      const after = performance.now();
+      console.log(after-before);
+      button.onclick = () => { console.log(store) };
     </script>
   </body>
 </html>
