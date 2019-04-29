@@ -86,8 +86,7 @@ function isStatic(value) {
     (value.type.match(/Literal$/) ||
       t.isArrowFunctionExpression(value) ||
       t.isFunctionExpression(value) ||
-      t.isIdentifier(value)
-    )
+      t.isIdentifier(value))
   );
 }
 
@@ -133,18 +132,19 @@ function mbxMemberExpression(field: string) {
 function fieldExpression(id, attribute: DynamicAttribute) {
   const { name, type } = fieldInfo(attribute.name);
   function nonSpreadFieldExpression(methodName) {
-    return t.callExpression(mbxMemberExpression(methodName), [
+    return t.callExpression(mbxMemberExpression('field'), [
+      mbxMemberExpression(methodName),
       t.stringLiteral(name),
       wrapInArrowFunctionExpression(attribute.expression),
     ]);
   }
   switch (type) {
     case ATTR_TYPE:
-      return nonSpreadFieldExpression('attribute');
+      return nonSpreadFieldExpression('ATTR_TYPE');
     case PROP_TYPE:
-      return nonSpreadFieldExpression('property');
+      return nonSpreadFieldExpression('PROP_TYPE');
     case EVENT_TYPE:
-      return nonSpreadFieldExpression('event');
+      return nonSpreadFieldExpression('EVENT_TYPE');
     case SPREAD_TYPE:
       throw new Error('TODO');
     default:
@@ -447,15 +447,16 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
       const { type, field } = fieldHolder;
       if (type === 'static') {
         reactionExpressions.push(
-          mbxCallExpression('staticField', [
+          mbxCallExpression('field', [
+            mbxMemberExpression('STATIC_FIELD_TYPE'),
             t.stringLiteral(field.name),
             (field as StaticField).literal,
           ]),
         );
       } else {
         reactionExpressions.push(
-          mbxCallExpression('dynamicField', [
-            t.stringLiteral(field.name),
+          mbxCallExpression('field', [
+            mbxMemberExpression('DYNAMIC_FIELD_TYPE'),
             wrapInArrowFunctionExpression((field as DynamicAttribute).expression),
           ]),
         );
@@ -468,7 +469,9 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
         : this.nameExpression,
       this.placeholderId,
       this.id ? this.id : t.identifier('undefined'),
-      ...reactionExpressions,
+      reactionExpressions.length > 0
+        ? t.arrayExpression([...reactionExpressions])
+        : t.identifier('undefined'),
     ]);
 
     for (const client of this.childClients) {
@@ -730,36 +733,32 @@ export default declare((api, options) => {
     }
   };
 
-  visitor.JSXElement = function(path) {
-    if (isRootJSXNode(path)) {
-      const client = new RootElementClient();
-      client.addChildClient(clientFromJSXElement(path.node, { length: 0 }));
-      const result = findProgramAndOuterPath(path);
-      const outerPath = result.path;
-      for (const statement of client.templateStatements(path.scope)) {
-        outerPath.insertBefore(statement);
-      }
+  visitor.JSXElement = {
+    exit(path) {
+      if (isRootJSXNode(path)) {
+        const client = new RootElementClient();
+        client.addChildClient(clientFromJSXElement(path.node, { length: 0 }));
+        const result = findProgramAndOuterPath(path);
+        const outerPath = result.path;
+        for (const statement of client.templateStatements(path.scope)) {
+          outerPath.insertBefore(statement);
+        }
 
-      const replacementStatements = [...client.declarationStatements(path.scope)];
-      const reactionExpressions = [...client.reactionExpressions()];
-      if (reactionExpressions.length > 0) {
+        const replacementStatements = [...client.declarationStatements(path.scope)];
+        const reactionExpressions = [...client.reactionExpressions()];
         replacementStatements.push(
           t.expressionStatement(
-            t.callExpression(mbxMemberExpression('dynamicNode'), [
+            t.callExpression(mbxMemberExpression('componentRoot'), [
               client.id,
-              ...reactionExpressions,
+              reactionExpressions.length > 0
+                ? t.arrayExpression([...reactionExpressions])
+                : t.identifier('undefined'),
             ]),
           ),
         );
-      } else {
-        replacementStatements.push(
-          t.expressionStatement(
-            t.callExpression(mbxMemberExpression('staticNode'), [client.id]),
-          ),
-        );
+        path.replaceWithMultiple(replacementStatements);
       }
-      path.replaceWithMultiple(replacementStatements);
-    }
+    },
   };
   /*
   visitor.JSXExpressionContainer = {

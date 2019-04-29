@@ -7,7 +7,7 @@ let { store, client } = createStore();
 const _template$ = mbx.elementTemplate(
   '<tr><td class="col-md-1"><!----></td><td class="col-md-4"><a><!----></a></td><td class="col-md-1"><a><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td><td class="col-md-6"></td></tr>',
 );
-  
+
 const Row = props =>
   (function() {
     const _root$ = _template$();
