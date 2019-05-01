@@ -18,7 +18,7 @@ import {
   IReactionOptions,
   IAutorunOptions
 } from 'mobx';
-export type ComponentResult<N extends Node = Node> =  NodeHolder<N> & { reactions?: ComponentReaction[] };
+export type ComponentResult<N extends Node = Node> =  NodeHolder<N> & { value?: ComponentReaction[] };
 export type SFC<P extends {} = {}> = (props: P) => ComponentResult;
 export type Component<P = {}> = SFC<P>;
 
@@ -104,7 +104,7 @@ export const children = (node: Node, value: ReactionDataCallback<ChildrenResult>
   return { type: CHILDREN_TYPE, node, value };
 }
 
-export const fields = <N extends Element>(node: N, value: NodeReaction[]): NodeReactions<N> => {
+export const fields = <N extends Element>(node: N, ...value: NodeReaction[]): NodeReactions<N> => {
   return { type: NODE_REACTION_TYPE, node, value };
 }
 
@@ -120,8 +120,8 @@ export const subComponent = (
 export const componentRoot = <N extends Node = Node>(node: N, reactions?: ComponentReaction[]): ComponentResult<N> => {
   return {
     node,
-    reactions,
-  }
+    value: reactions,
+  };
 }
 
 export const elementTemplate = (html: string) => {
@@ -131,24 +131,24 @@ export const elementTemplate = (html: string) => {
 }
 
 export type Dispose = () => void;
+type Computed = {
+  computedFns?: Iterable<() => void>,
+};
 export type RenderResult = {
   dispose?: Dispose,
-  firstNode: Node,
-};
+} & Computed;
 
-const wrappedReaction = <T>(
-  expression: (r: IReactionPublic) => T,
-  effect: (arg: T, r: IReactionPublic) => void,
-  opts?: IReactionOptions,
-): IReactionDisposer | undefined => {
-  return reaction(expression, effect, opts);
+function runComputedFns(computedFns: Iterable<() => void>) {
+  for(const computedFn of computedFns) {
+    computedFn();
+  }
 }
 
 function queuedInsertBefore(parent, newElement, before) {
-  reaction(() => {}, (nothing, r) => {
+  autorun((r) => {
     r.dispose();
     parent.insertBefore(newElement, before);
-  }, { fireImmediately: true })
+  }, { name: 'insert' });
 }
 
 const OBSERVED_ARRAY_TYPE = 0;
@@ -163,106 +163,81 @@ function renderDynamicChildren(
   if (!result) {
     return null;
   } else if (textNodeTypes.includes(typeof result)) {
-    parent.insertBefore(document.createTextNode(result.toString()), nextMarker);
+    const node = document.createTextNode(result.toString());
+    parent.insertBefore(node, nextMarker);
     return null;
   } else if(Array.isArray(result)) {
     if (result.length > 0) {
-      const disposals: Dispose[] = [];
+      // TODO: Don't forget dispose
+      const childResults: (() => void)[] = [];
       const fragment = document.createDocumentFragment();
       for(const item of result) {
         // TODO: Make sure the undefined, undefined works in all cases
         const childResult = renderDynamicChildren(item, fragment, undefined, undefined);
-        if (childResult && childResult.dispose) {
-          disposals.push(childResult.dispose);
+        if (childResult && childResult.computedFns) {
+          childResults.push(...childResult.computedFns);
         }
       }
-      if (disposals.length > 0) {
-        const firstNode = fragment.childNodes[0];      
+      if (childResults.length > 0) {
         parent.insertBefore(fragment, nextMarker);
         return {
-          firstNode,
-          dispose: () => {
-            for(const dispose of disposals) {
-              dispose();
-            }
-          }  
-        }
+          computedFns: childResults,
+          dispose: undefined,
+        };
       }  
     }
     return null;
   } else if(result.type === OBSERVED_ARRAY_TYPE) {
-    return result.callback(beforeMarker, nextMarker);
+    const info = result.callback(beforeMarker, nextMarker);
+    return info;
   } else {
-    return renderComponentResult(result, parent);
+    const info = renderComponentResult(result, parent);
+    return {
+      computedFns: info,
+      dispose: undefined,
+    };
   }
 }
 
-function isPossiblyTrackingSomething(internalReaction: Reaction) {
-  return hasEvaluatedTracking(internalReaction) ? isTrackingSomething(internalReaction) : true;
-}
-
-function hasEvaluatedTracking(internalReaction?: Reaction) {
-  return internalReaction ? internalReaction._isTrackPending : false;
-}
-
-function isTrackingSomething(internalReaction: Reaction): boolean {
-  return internalReaction.observing.length > 0;
-}
-
-export function initChildReaction(childrenReaction: ChildrenReaction): RenderResult {
+export function initChildReaction(childrenReaction: ChildrenReaction) {
   const beforeMarker = childrenReaction.node;
   const nextMarker = childrenReaction.node.nextSibling;
-  let innerDispose: Dispose | undefined;
-  const dispose = wrappedReaction(
-    childrenReaction.value,
-    (renderInfo) => {
+  let innerDispose;
+  return {
+    run: returnlessComputed('child', () =>{
       if (innerDispose) {
         innerDispose();
       }
-      let currentElement = beforeMarker.nextSibling;
-      while(currentElement !== nextMarker) {
-        const nextSibling = currentElement!.nextSibling;
-        currentElement!.parentNode!.removeChild(currentElement!);
-        currentElement = nextSibling;
-      }
+  
+      removeUntilBefore(beforeMarker.nextSibling, nextMarker);
+  
+      const renderInfo = childrenReaction.value();
+  
       const renderResults = renderDynamicChildren(
         renderInfo,
         beforeMarker.parentNode as Node,
         childrenReaction.node,
         nextMarker as Node
       );
-      if(renderResults) {
+      if (renderResults && renderResults.computedFns) {
+        runComputedFns(renderResults.computedFns);
+      }
+      if (renderResults && renderResults.dispose) {
         innerDispose = renderResults.dispose;
       }
-    },
-    { fireImmediately: true }
-  );
-  const firstNode = childrenReaction.node;
-  
-  return {
-    firstNode,
-    dispose: () => {
-      if (dispose) {
-        dispose();
-      }
-      if (innerDispose) {
-        innerDispose();
-      }
-    }
-  }
+    })
+  };
 }
 
 export function initSubComponentReaction(
   subComponentReaction: SubComponentReaction,
-): RenderResult {
-  const beforeMarker = subComponentReaction.node;
-  const afterMarker = beforeMarker.nextSibling;
-
+) {
   const props = {
     children: subComponentReaction.childNode,
   };
+
   // TODO: Handle overriding fields
-  if (subComponentReaction.value) {
+  if(subComponentReaction.value) {
     for(const propsReaction of subComponentReaction.value) {
       if (propsReaction.type === DYNAMIC_FIELD_TYPE) {
         Object.defineProperty(
@@ -274,103 +249,59 @@ export function initSubComponentReaction(
       } else {
         props[propsReaction.key] = propsReaction.value;
       }
-    }  
+    }    
   }
 
-  let innerDispose: Dispose | undefined;  
-  const dispose = wrappedReaction(
-    () => subComponentReaction.component(props),
-    (renderInfo) => {
-      if (innerDispose) {
-        innerDispose();
-      }
-      removeUntilBefore(subComponentReaction.node.nextSibling, afterMarker);
-      const result = renderComponentResult(
-        renderInfo,
-        beforeMarker.parentNode as Node, 
-        afterMarker as Node
-      );
-      if(result) {
-        innerDispose = result.dispose;
-      }
-    },
-    { fireImmediately: true }
-  );
-  const firstNode = subComponentReaction.node;
-  return {
-    firstNode,
-    dispose: () => {
-      if (dispose) {
-        dispose();
-      }
-      if(innerDispose) {
-        innerDispose();
-      }
-    }  
-  }
+  return initChildReaction({
+    type: CHILDREN_TYPE,
+    node: subComponentReaction.node,
+    value: () => subComponentReaction.component(props)
+  });
 }
 
 export const initAttributeReaction = (
   node: Element,
   { key, value }: AttributeReaction
-): IReactionDisposer | undefined => {
-  return wrappedReaction(
-    value,
-    (data) => node.setAttribute(key, data),
-    { fireImmediately: true }
-  );
+) => {
+  return returnlessComputed('attr', () => {
+    const data = value();
+    if (data) {
+      node.setAttribute(key, data)
+    } else {
+      node.removeAttribute(key);
+    }
+  });
 }
+
 
 export const initPropertyReaction = (
   node: Element,
   { key, value }: PropertyReaction
-): IReactionDisposer | undefined => {
-  node[key] = value();
-  return wrappedReaction(
-    value,
-    action(data => node[key] = data),
-    { fireImmediately: true }
-  )
+) => {
+  return returnlessComputed('prop', () => {
+    node[key] = value();
+  });
 }
 
 export const initEventReaction = (
   element: Element,
   { key, value }: EventReaction
-): Dispose | undefined => {
-  let removePreviousListener: Dispose = (() => {
+) => {
+  let removePreviousListener = () => {};
+  return returnlessComputed('event', () => {
+    removePreviousListener();
     const listener = value();
     if (typeof listener === 'function') {
       element.addEventListener(key, listener);
-      return () => element.removeEventListener(key, listener);
+      removePreviousListener = () => element.removeEventListener(key, listener);
     } else {
       element.addEventListener(key, listener.handleEvent, listener);
-      return () => element.removeEventListener(key, listener.handleEvent, listener);
+      removePreviousListener = () => element.removeEventListener(key, listener.handleEvent, listener);
     }
-  })();
-  const dispose = wrappedReaction(
-    value,
-    listener => {
-      removePreviousListener();
-      if (typeof listener === 'function') {
-        element.addEventListener(key, listener);
-        return () => element.removeEventListener(key, listener);
-      } else {
-        element.addEventListener(key, listener.handleEvent, listener);
-        return () => element.removeEventListener(key, listener.handleEvent, listener);
-      }
-    },
-    { fireImmediately: true}
-  );
-  if (dispose) {
-    return () => {
-      dispose();
-      removePreviousListener();
-    }
-  }
-  return undefined;
+  });
 }
 
-export function *initNodeReactions(nodeReactions: NodeReactions): Iterable<Dispose> {
+export function *initNodeReactions(nodeReactions: NodeReactions): Iterable<() => void> {
   for(const fieldReaction of nodeReactions.value) {
     switch(fieldReaction.type) {
       case ATTR_TYPE:
@@ -395,50 +326,46 @@ export function *initNodeReactions(nodeReactions: NodeReactions): Iterable<Dispo
   }
 }
 
-function initComponentResult(componentResult: ComponentResult) {
-  const disposals: Dispose[] = [];
-  if (componentResult.reactions) {
-    for(const reaction of componentResult.reactions) {
+export const render = (renderInfo: ComponentResult, container: Node): IReactionDisposer => {
+  const renderResult = renderComponentResult(renderInfo, container, undefined);
+  return autorun(() => {
+    runComputedFns(renderResult);
+  }, { name: 'render' });
+}
+
+const alwaysTrueComparator = () => true;
+const returnlessComputed = (name, fn) => {
+  const wrappedFn = computed(fn, { name, equals: alwaysTrueComparator, requiresReaction: true });
+  return wrappedFn.get.bind(wrappedFn);
+};
+
+export function *initComponentResult(
+  renderInfo: ComponentResult
+) {
+  if (renderInfo.value) {
+    for(const reaction of renderInfo.value) {
       switch(reaction.type) {
+        case NODE_REACTION_TYPE:
+          yield *initNodeReactions(reaction);
+          break;
         case CHILDREN_TYPE:
-          const result = initChildReaction(reaction);
-          if(result && result.dispose) {
-            disposals.push(result.dispose);
-          }
+          yield initChildReaction(reaction).run;
           break;
         case SUB_COMPONENT_TYPE:
-          const subResult = initSubComponentReaction(reaction);
-          if(subResult && subResult.dispose) {
-            disposals.push(subResult.dispose);
-          }
-          break;
-        case NODE_REACTION_TYPE:
-          disposals.push(...initNodeReactions(reaction));
+          yield initSubComponentReaction(reaction).run;
           break;
       }
     }
   }
-  return {
-    firstNode: componentResult.node,
-    dispose: () => {
-      for(const dispose of disposals) {
-        dispose();
-      }
-    }
-  };
 }
 
-export function renderComponentResult(
+export const renderComponentResult = (
   componentResult: ComponentResult,
   container: Node,
-  before: Node | null = null,
-): RenderResult {
+  before: Node | null = null
+) => {
   container.insertBefore(componentResult.node, before);
   return initComponentResult(componentResult);
-}
-
-export const render = (renderInfo: ComponentResult, container: Node): RenderResult => {
-  return renderComponentResult(renderInfo, container, undefined);
 }
 
 
@@ -463,64 +390,78 @@ function removePart(changeData, childElements: (RenderResult | any)[], before: N
 }
 
 export function repeat<T, N extends Node>(
-  arr: IObservableArray<T>, mapFn: SFC<T>) {
+  arr: IObservableArray<T>, mapFn: (d: T) => any) {
   // TODO: Render initial contents of array
   return {
     type: OBSERVED_ARRAY_TYPE,
-    callback: (firstMarker, before) => {
+    callback: (firstMarker, before): RenderResult => {
       // TODO: Should be | null
-      const results: (RenderResult)[] = [];
+      const results: ({ dispose: Dispose, firstNode: Node })[] = [];
       const dispose = arr.observe((changeData) => {
         switch(changeData.type) {
           case 'splice': 
-          if (changeData.removedCount > 0) {
-            removePart(changeData, results, before);
-          }
-          const removed = results.splice(changeData.index, changeData.removedCount);
-          // TODO: Should move this above removePart
-          for (const removedChildInfo of removed) {
-            if (removedChildInfo && removedChildInfo.dispose) {
-              removedChildInfo.dispose();
+            if (changeData.removedCount > 0) {
+              removePart(changeData, results, before);
             }
-          }
-    
-          let addedChildElements: any[] = [];
-          if (changeData.addedCount > 0) {
-            const fragment = document.createDocumentFragment();
-            const componentResults = changeData.added.map(mapFn);
-            for(const componentResult of componentResults) {
-              fragment.appendChild(componentResult.node);
+            const removed = results.splice(changeData.index, changeData.removedCount);
+            // TODO: Should move this above removePart
+            for (const removedChildInfo of removed) {
+              if (removedChildInfo && removedChildInfo.dispose) {
+                removedChildInfo.dispose();
+              }
             }
-            for(const componentResult of componentResults) {
-              addedChildElements.push(initComponentResult(componentResult));
+      
+            let addedChildElements: any[] = [];
+            if (changeData.addedCount > 0) {
+              const fragment = document.createDocumentFragment();
+              // TODO: Needs to be reacted to
+              const componentResults = changeData.added.map(mapFn);
+              for(const componentResult of componentResults) {
+                fragment.appendChild(componentResult.node);
+              }
+              for(const componentResult of componentResults) {
+                const computeFns = [...initComponentResult(componentResult)];
+                addedChildElements.push({
+                  firstNode: componentResult.node,
+                  dispose: autorun(() => runComputedFns(computeFns), { name: 'item' })
+                });
+              }
+              // TODO: Remove !.
+              const elementToAddBefore = changeData.index < results.length ? results[changeData.index]!.firstNode : before;
+              queuedInsertBefore(firstMarker.parentNode, fragment, elementToAddBefore);
             }
-            // TODO: Remove !.
-            const elementToAddBefore = changeData.index < results.length ? results[changeData.index]!.firstNode : before;
-            queuedInsertBefore(firstMarker.parentNode, fragment, elementToAddBefore);
-          }
-          
-          results.splice(changeData.index, 0, ...addedChildElements);
-          break;
-        case 'update':
-          const toBeRemoved = results[changeData.index];
-          if (toBeRemoved && toBeRemoved.dispose) {
-            toBeRemoved.dispose();
-          }
-          
-          const stopIndex = changeData.index + 1;
-          // TODO: remove !.
-          const stopElement = stopIndex < results.length ? results[stopIndex]!.firstNode : before;
-          const startElement = toBeRemoved.firstNode;        
-          removeUntilBefore(startElement, stopElement);
-          results.splice(changeData.index, 1);
-          const elementToAddBefore = changeData.index < results.length ? results[changeData.index].firstNode : before;
-          const dynamicFn = renderComponentResult(mapFn(changeData.newValue), firstMarker.parentNode, elementToAddBefore);
-          
-          results.splice(changeData.index, 0, dynamicFn);
-          break;
-        }  
-      }, true);    
-      return dispose;
+            
+            results.splice(changeData.index, 0, ...addedChildElements);
+            break;
+          case 'update':
+            const toBeRemoved = results[changeData.index];
+            if (toBeRemoved && toBeRemoved.dispose) {
+              toBeRemoved.dispose();
+            }
+            
+            const stopIndex = changeData.index + 1;
+            // TODO: remove !.
+            const stopElement = stopIndex < results.length ? results[stopIndex].firstNode : before;
+            const startElement = toBeRemoved.firstNode;
+            removeUntilBefore(startElement, stopElement);
+            
+            results.splice(changeData.index, 1);
+            
+            const elementToAddBefore = changeData.index < results.length ? results[changeData.index].firstNode : before;
+            const componentResult = mapFn(changeData.newValue);
+            const renderResult = renderComponentResult(componentResult.node, firstMarker.parentNode, elementToAddBefore);
+            const autorunDispose = autorun(() => runComputedFns(renderResult), { name: 'item' });
+            results.splice(changeData.index, 0, {
+              firstNode: componentResult.node,
+              dispose: autorunDispose,
+            });
+            break;
+          }  
+      }, true);
+      return {
+        computedFns: undefined,
+        dispose,
+      };
     }
   }
 }
