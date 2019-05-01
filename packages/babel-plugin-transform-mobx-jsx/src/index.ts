@@ -132,7 +132,7 @@ function mbxMemberExpression(field: string) {
 function fieldExpression(id, attribute: DynamicAttribute) {
   const { name, type } = fieldInfo(attribute.name);
   function nonSpreadFieldExpression(methodName) {
-    return t.callExpression(mbxMemberExpression('field'), [
+    return t.callExpression(mbxMemberExpression('elementField'), [
       mbxMemberExpression(methodName),
       t.stringLiteral(name),
       wrapInArrowFunctionExpression(attribute.expression),
@@ -156,11 +156,12 @@ function declarationInfo(scope, parentId, index, name: string) {
   const id = scope.generateUidIdentifier(`${name}$`);
   const declaration = constDeclaration(
     id,
+    index > 0 ?
     t.memberExpression(
       t.memberExpression(parentId, t.identifier('childNodes')),
       t.numericLiteral(index),
       true,
-    ),
+    ) : t.memberExpression(parentId, t.identifier('firstChild')),
   );
   return { id, declaration };
 }
@@ -457,6 +458,7 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
         reactionExpressions.push(
           mbxCallExpression('field', [
             mbxMemberExpression('DYNAMIC_FIELD_TYPE'),
+            t.stringLiteral(field.name),
             wrapInArrowFunctionExpression((field as DynamicAttribute).expression),
           ]),
         );
