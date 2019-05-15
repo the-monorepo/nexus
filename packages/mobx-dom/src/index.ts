@@ -16,7 +16,9 @@ import {
   IReactionDisposer,
   IReactionPublic,
   IReactionOptions,
-  IAutorunOptions
+  IAutorunOptions,
+  IArrayChange,
+  IArraySplice
 } from 'mobx';
 export type ComponentResult<N extends Node = Node> =  NodeHolder<N> & { value?: ComponentReaction[] };
 export type SFC<P extends {} = {}> = (props: P) => ComponentResult;
@@ -92,6 +94,61 @@ export type SubComponentFieldType = StaticSubComponentFieldType | DynamicSubComp
 export type StaticSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<StaticSubComponentFieldType, D> & TypeHolder<StaticSubComponentFieldType>;
 export type DynamicSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<DynamicSubComponentFieldType, () => D> & TypeHolder<DynamicSubComponentFieldType>;
 export type SubComponentFieldReaction<D> = StaticSubComponentFieldReaction<D> | DynamicSubComponentFieldReaction<D>;
+
+type ContainerNode<T> = {
+  next?: ContainerNode<T>;
+  value: T;
+}
+
+const linkedListNode = (value) => {
+  return {
+    value,
+    next: undefined
+  };
+}
+
+/**
+ * Just a single linked list
+ */
+class Container<T> implements Iterable<T> {
+  private head?: ContainerNode<T>;
+  private tail?: ContainerNode<T>;
+  private handleNoHead(value: T, callback: (newNode: ContainerNode<T>) => void) {
+    const newNode = linkedListNode(value);
+    if (this.head) {
+      callback(newNode);
+    } else {
+      this.head = newNode;
+      this.tail = newNode;
+    }
+  }
+
+  public unshift(value) {
+    this.handleNoHead(value, (newNode) => {
+      newNode.next = this.head;
+      this.head = newNode;
+    })
+  }
+
+  public push(value) {
+    this.handleNoHead(value, (newNode) => {
+      this.tail!.next = newNode;
+      this.tail = newNode;
+    })
+  }
+
+  *[Symbol.iterator]() {
+    let current = this.head;
+    while(current) {
+      yield current.value;
+      current = current.next;
+    }
+  }
+
+  get isEmpty(): boolean {
+    return this.head === undefined;
+  }
+}
 
 export const field = <
   T,
@@ -301,25 +358,25 @@ export const initEventReaction = (
   });
 }
 
-export function *initNodeReactions(nodeReactions: NodeReactions): Iterable<() => void> {
+export function initNodeReactions(nodeReactions: NodeReactions, computedFns: Container<() => void>): void {
   for(const fieldReaction of nodeReactions.value) {
     switch(fieldReaction.type) {
       case ATTR_TYPE:
         const attrDispose = initAttributeReaction(nodeReactions.node, fieldReaction as AttributeReaction);
         if (attrDispose) {
-          yield attrDispose;
+          computedFns.push(attrDispose);
         }
         break;
       case PROP_TYPE:
         const propDispose = initPropertyReaction(nodeReactions.node, fieldReaction as PropertyReaction)
         if(propDispose) {
-          yield propDispose;
+          computedFns.push(propDispose)
         }
         break;
       case EVENT_TYPE:
         const eventDispose = initEventReaction(nodeReactions.node, fieldReaction as EventReaction);
         if (eventDispose) {
-          yield eventDispose;
+          computedFns.push(eventDispose);
         }
         break;
     }
@@ -339,24 +396,26 @@ const returnlessComputed = (name, fn) => {
   return wrappedFn.get.bind(wrappedFn);
 };
 
-export function *initComponentResult(
+export function initComponentResult(
   renderInfo: ComponentResult
 ) {
+  const computedFns = new Container<() => void>();
   if (renderInfo.value) {
     for(const reaction of renderInfo.value) {
       switch(reaction.type) {
         case NODE_REACTION_TYPE:
-          yield *initNodeReactions(reaction);
+          initNodeReactions(reaction, computedFns);
           break;
         case CHILDREN_TYPE:
-          yield initChildReaction(reaction).run;
+          computedFns.push(initChildReaction(reaction).run);
           break;
         case SUB_COMPONENT_TYPE:
-          yield initSubComponentReaction(reaction).run;
+          computedFns.push(initSubComponentReaction(reaction).run);
           break;
       }
     }
   }
+  return computedFns;
 }
 
 export const renderComponentResult = (
@@ -381,17 +440,12 @@ function removeUntilBefore(startElement, stopElement) {
 function removePart(changeData, childElements: (RenderResult | any)[], before: Node | null) {
   const stopIndex = changeData.index + changeData.removedCount; 
   const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstNode : before;
-  let currentElement = childElements[changeData.index].firstNode;
-  while(currentElement !== stopElement) {
-    const nextSibling = currentElement.nextSibling;
-    currentElement.parentNode.removeChild(currentElement);
-    currentElement = nextSibling;
-  }
+  let startElement = childElements[changeData.index].firstNode;
+  removeUntilBefore(startElement, stopElement);
 }
 
 export function repeat<T, N extends Node>(
   arr: IObservableArray<T>, mapFn: (d: T) => any) {
-  // TODO: Render initial contents of array
   return {
     type: OBSERVED_ARRAY_TYPE,
     callback: (firstMarker, before): RenderResult => {
@@ -420,7 +474,7 @@ export function repeat<T, N extends Node>(
                 fragment.appendChild(componentResult.node);
               }
               for(const componentResult of componentResults) {
-                const computeFns = [...initComponentResult(componentResult)];
+                const computeFns = initComponentResult(componentResult);
                 addedChildElements.push({
                   firstNode: componentResult.node,
                   dispose: autorun(() => runComputedFns(computeFns), { name: 'item' })
@@ -440,7 +494,7 @@ export function repeat<T, N extends Node>(
             }
             
             const stopIndex = changeData.index + 1;
-            // TODO: remove !.
+
             const stopElement = stopIndex < results.length ? results[stopIndex].firstNode : before;
             const startElement = toBeRemoved.firstNode;
             removeUntilBefore(startElement, stopElement);

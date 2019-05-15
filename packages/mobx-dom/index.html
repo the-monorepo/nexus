@@ -19,31 +19,18 @@
       }
     </style>
     <script>
-      const outerFragment = document.createDocumentFragment();
-      for(let i = 0; i < 100; i++) {
-        const outerDiv = document.createElement('div');
-        const fragment = document.createDocumentFragment();
-        for(let j = 0; j < 1000; j++) {
-          const innerDiv = document.createElement('div');
-          innerDiv.className = 'test';
-          fragment.appendChild(innerDiv);
-        }
-        outerDiv.appendChild(fragment);
-        outerFragment.insertBefore(outerDiv, outerFragment.firstChild);
+      let average = 0;
+      let count = 10000000;
+      for(let T = 0; T < count; T++) {
+        const a = Number.parseInt(Math.random() * 2);
+        const b = Number.parseInt(Math.random() * 2);
+        const before = performance.now();
+        const result = a === b;
+        const after = performance.now();
+        const time = after - before
+        average += time;
       }
-      document.body.appendChild(outerFragment);
-      /*
-      const outerFragment = document.createDocumentFragment();
-      for(let i = 0; i < 100; i++) {
-        const outerDiv = document.createElement('div');
-        for(let j = 0; j < 1000; j++) {
-          const innerDiv = document.createElement('div');
-          innerDiv.className = 'test';
-          outerDiv.appendChild(innerDiv);
-        }
-        outerFragment.insertBefore(outerDiv, outerFragment.firstChild);
-      }
-      document.body.appendChild(outerFragment);*/
+      console.log(average/count);
     </script>
   </body>
 </html>

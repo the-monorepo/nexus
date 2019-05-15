@@ -129,22 +129,29 @@ function mbxMemberExpression(field: string) {
   return t.memberExpression(t.identifier('mbx'), t.identifier(field));
 }
 
+
 function fieldExpression(id, attribute: DynamicAttribute) {
   const { name, type } = fieldInfo(attribute.name);
   function nonSpreadFieldExpression(methodName) {
-    return t.callExpression(mbxMemberExpression('elementField'), [
-      mbxMemberExpression(methodName),
+    return t.callExpression(mbxMemberExpression(methodName), [
       t.stringLiteral(name),
       wrapInArrowFunctionExpression(attribute.expression),
     ]);
   }
+
   switch (type) {
     case ATTR_TYPE:
-      return nonSpreadFieldExpression('ATTR_TYPE');
+      return nonSpreadFieldExpression('attribute');
     case PROP_TYPE:
-      return nonSpreadFieldExpression('PROP_TYPE');
+      return t.callExpression(mbxMemberExpression('property'), [
+        wrapInArrowFunctionExpression(t.assignmentExpression(
+          '=',
+          t.memberExpression(id, t.identifier(name)),
+          attribute.expression
+        )),
+      ]);
     case EVENT_TYPE:
-      return nonSpreadFieldExpression('EVENT_TYPE');
+      return nonSpreadFieldExpression('event');
     case SPREAD_TYPE:
       throw new Error('TODO');
     default:

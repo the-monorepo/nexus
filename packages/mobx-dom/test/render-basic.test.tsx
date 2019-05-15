@@ -1,5 +1,5 @@
 import * as mbx from '../src/index';
-import { MobxElement, render } from '../src/index';
+import { render } from '../src/index';
 
 describe('basic rendering', () => {
   let root;
