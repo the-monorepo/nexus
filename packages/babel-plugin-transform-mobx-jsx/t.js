@@ -1,16 +1,7 @@
 "use strict";
 
-var _class, _descriptor, _temp;
-
-function _initializerDefineProperty(target, property, descriptor, context) { if (!descriptor) return; Object.defineProperty(target, property, { enumerable: descriptor.enumerable, configurable: descriptor.configurable, writable: descriptor.writable, value: descriptor.initializer ? descriptor.initializer.call(context) : void 0 }); }
-
-function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) { var desc = {}; Object.keys(descriptor).forEach(function (key) { desc[key] = descriptor[key]; }); desc.enumerable = !!desc.enumerable; desc.configurable = !!desc.configurable; if ('value' in desc || desc.initializer) { desc.writable = true; } desc = decorators.slice().reverse().reduce(function (desc, decorator) { return decorator(target, property, desc) || desc; }, desc); if (context && desc.initializer !== void 0) { desc.value = desc.initializer ? desc.initializer.call(context) : void 0; desc.initializer = undefined; } if (desc.initializer === void 0) { Object.defineProperty(target, property, desc); desc = null; } return desc; }
-
-function _initializerWarningHelper(descriptor, context) { throw new Error('Decorating class property failed. Please ensure that ' + 'proposal-class-properties is enabled and set to use loose mode. ' + 'To use proposal-class-properties in spec mode with decorators, wait for ' + 'the next major version of decorators in stage 2.'); }
-
 import * as mbx from './mobx-dom';
-import { render, repeat } from './mobx-dom';
-import { observable, action, computed, untracked } from 'mobx';
+import { render } from './mobx-dom';
 const adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"];
 const colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"];
 const nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
@@ -19,75 +10,87 @@ function random(max) {
   return Math.round(Math.random() * 1000) % max;
 }
 
-let RowData = (_class = (_temp = class RowData {
-  constructor(id, label, store) {
-    _initializerDefineProperty(this, "label", _descriptor, this);
-
+class RowData {
+  constructor(id, label) {
     this.label = label;
     this.id = id;
-    this.store = store;
+    this.isSelected = false;
   }
 
-  get isSelected() {
-    return this.store.selected === this;
-  }
+}
 
-}, _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "label", [observable], {
-  configurable: true,
-  enumerable: true,
-  writable: true,
-  initializer: null
-}), _applyDecoratedDescriptor(_class.prototype, "isSelected", [computed], Object.getOwnPropertyDescriptor(_class.prototype, "isSelected"), _class.prototype)), _class);
 let rowId = 1;
 
 const buildData = (count = 1000) => {
   const data = [];
 
-  for (let i = 0; i < count; i++) {
-    const row = new RowData(rowId++, adjectives[random(adjectives.length)] + " " + colours[random(colours.length)] + " " + nouns[random(nouns.length)], store);
+  while (data.length < count) {
+    const row = new RowData(rowId++, adjectives[random(adjectives.length)] + " " + colours[random(colours.length)] + " " + nouns[random(nouns.length)]);
     data.push(row);
   }
 
   return data;
 };
 
-const store = observable({
+const store = {
   data: [],
   selected: null
-});
-const updateData = action(() => {
+};
+
+const updateData = () => {
   const data = store.data;
 
   for (let i = 0; i < data.length; i += 10) {
     data[i].label = data[i].label + ' !!!';
   }
-});
-const deleteRow = action(id => {
+};
+
+const deleteRow = id => {
   const data = store.data;
   const idx = data.findIndex(d => d.id === id);
   data.splice(idx, 1);
-});
-const run = action(() => {
-  store.data.replace(buildData(1000));
-  store.selected = undefined;
-});
-const add = action(() => store.data.spliceWithArray(store.data.length, 0, buildData(1000)));
-const update = action(() => {
+};
+
+const run = () => {
+  store.data.splice(0, store.data.length, buildData(1000));
+  store.selected = null;
+  rerender();
+};
+
+const add = () => {
+  store.data.splice(store.data.length, 0, ...buildData(1000));
+  rerender();
+};
+
+const update = () => {
   updateData();
-});
-const select = action(row => {
+  rerender();
+};
+
+const select = row => {
+  if (store.selected) {
+    store.selected.isSelected = false;
+  }
+
   store.selected = row;
-});
-const runLots = action(() => {
+  row.isSelected = true;
+  rerender();
+};
+
+const runLots = () => {
   const newData = buildData(10000);
   store.data.replace(newData);
-  store.selected = undefined;
-});
-const clear = action(() => {
+  store.selected = null;
+  rerender();
+};
+
+const clear = () => {
   store.data.clear();
-  store.selected = undefined;
-});
-const swapRows = action(() => {
+  store.selected = null;
+  rerender();
+};
+
+const swapRows = () => {
   const data = store.data;
 
   if (data.length > 998) {
@@ -95,16 +98,21 @@ const swapRows = action(() => {
     data[1] = data[998];
     data[998] = a;
   }
+
+  rerender();
+};
+
+const _template$ = mbx.elementTemplate("<tr><td class=\"col-md-1\"></td><td class=\"col-md-4\"><a></a></td><td class=\"col-md-1\"><a><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></a></td><td class=\"col-md-6\"></td></tr>", _root => {
+  const _td$ = _root.firstChild;
+  const _td$2 = _root.childNodes[1];
+  const _a$ = _td$2.firstChild;
+  const _td$3 = _root.childNodes[2];
+  const _a$2 = _td$3.firstChild;
+  return [mbx.attribute(_root, "class"), mbx.property(value => _td$.textContent = value), mbx.event(_a$, "click"), mbx.property(value => _a$.textContent = value), mbx.event(_a$2, "click")];
 });
 
-const _template$ = mbx.elementTemplate("<tr><td class=\"col-md-1\"></td><td class=\"col-md-4\"><a></a></td><td class=\"col-md-1\"><a><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></a></td><td class=\"col-md-6\"></td></tr>");
-
-const _template$2 = mbx.elementTemplate("<div class=\"container\"><div class=\"jumbotron\"><div class=\"row\"><div class=\"col-md-6\"><h1>React + Mobx</h1></div><div class=\"col-md-6\"><div class=\"row\"><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"run\">Create 1,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"runlots\">Create 10,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"add\">Append 1,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"update\">Update every 10th row</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"clear\">Clear</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"swaprows\">Swap Rows</button></div></div></div></div></div><table class=\"table table-hover table-striped test-data\"><tbody><!----></tbody></table><span class=\"preloadicon glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></div>");
-
-const Main = () => function () {
-  const _root$2 = _template$2();
-
-  const _div$ = _root$2.firstChild;
+const _template$2 = mbx.elementTemplate("<div class=\"container\"><div class=\"jumbotron\"><div class=\"row\"><div class=\"col-md-6\"><h1>React + Mobx</h1></div><div class=\"col-md-6\"><div class=\"row\"><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"run\">Create 1,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"runlots\">Create 10,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"add\">Append 1,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"update\">Update every 10th row</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"clear\">Clear</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"swaprows\">Swap Rows</button></div></div></div></div></div><table class=\"table table-hover table-striped test-data\"><tbody><!----></tbody></table><span class=\"preloadicon glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></div>", _root2 => {
+  const _div$ = _root2.firstChild;
   const _div$2 = _div$.firstChild;
   const _div$3 = _div$2.firstChild;
   const _h1$ = _div$3.firstChild;
@@ -112,53 +120,37 @@ const Main = () => function () {
   const _div$5 = _div$4.firstChild;
   const _div$6 = _div$5.firstChild;
   const _button$ = _div$6.firstChild;
-  _button$.onclick = run;
   const _div$7 = _div$5.childNodes[1];
   const _button$2 = _div$7.firstChild;
-  _button$2.onclick = runLots;
   const _div$8 = _div$5.childNodes[2];
   const _button$3 = _div$8.firstChild;
-  _button$3.onclick = add;
   const _div$9 = _div$5.childNodes[3];
   const _button$4 = _div$9.firstChild;
-  _button$4.onclick = update;
   const _div$10 = _div$5.childNodes[4];
   const _button$5 = _div$10.firstChild;
-  _button$5.onclick = clear;
   const _div$11 = _div$5.childNodes[5];
   const _button$6 = _div$11.firstChild;
-  _button$6.onclick = swapRows;
-  const _table$ = _root$2.childNodes[1];
+  const _table$ = _root2.childNodes[1];
   const _tbody$ = _table$.firstChild;
   const _marker$ = _tbody$.firstChild;
-  return mbx.componentRoot(_root$2, [mbx.children(_marker$, () => repeat(store.data, data => {
-    const id = untracked(() => data.id);
-    return function () {
-      const _root$ = _template$();
+  return [mbx.event(_button$, "click"), mbx.event(_button$2, "click"), mbx.event(_button$3, "click"), mbx.event(_button$4, "click"), mbx.event(_button$5, "click"), mbx.event(_button$6, "click"), mbx.children(_marker$)];
+});
 
-      const _td$ = _root$.firstChild;
-      _td$.innerHTML = id;
-      const _td$2 = _root$.childNodes[1];
-      const _a$ = _td$2.firstChild;
+const Main = ({
+  store
+}) => mbx.componentResult(_template$2, [run, runLots, add, update, clear, swapRows, store.data.map(data => {
+  const id = data.id;
+  return mbx.componentResult(_template$, [data.isSelected ? 'danger' : null, id, () => {
+    select(data);
+  }, data.label, () => deleteRow(id)]);
+})]);
 
-      _a$.onclick = () => {
-        select(data);
-      };
+const _template$3 = mbx.elementTemplate("<!---->", _root3 => {
+  return [mbx.children(_root3)];
+});
 
-      const _td$3 = _root$.childNodes[2];
-      const _a$2 = _td$3.firstChild;
+const rerender = () => render(mbx.componentResult(_template$3, [Main({
+  store: store
+})]), document.getElementById('main'));
 
-      _a$2.onclick = () => deleteRow(id);
-
-      return mbx.componentRoot(_root$, [mbx.fields(_root$, mbx.field(mbx.ATTR_TYPE, "class", () => data.isSelected ? 'danger' : null)), mbx.fields(_a$, mbx.field(mbx.PROP_TYPE, "innerHTML", () => data.label))]);
-    }();
-  }))]);
-}();
-
-const _template$3 = mbx.elementTemplate("<!---->");
-
-render(function () {
-  const _root$3 = _template$3();
-
-  return mbx.componentRoot(_root$3, [mbx.subComponent(Main, _root$3, undefined, undefined)]);
-}(), document.getElementById('main'));
+rerender();
