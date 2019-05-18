@@ -1,521 +1,272 @@
-import {
-  reaction,
-  decorate,
-  action,
-  computed,
-  autorun,
-  observable,
-  isObservableArray,
-  transaction,
-  untracked,
-  IObservableArray,
-  Reaction,
-  $mobx,
-  toJS,
-  IComputedValue,
-  IReactionDisposer,
-  IReactionPublic,
-  IReactionOptions,
-  IAutorunOptions,
-  IArrayChange,
-  IArraySplice
-} from 'mobx';
-export type ComponentResult<N extends Node = Node> =  NodeHolder<N> & { value?: ComponentReaction[] };
-export type SFC<P extends {} = {}> = (props: P) => ComponentResult;
-export type Component<P = {}> = SFC<P>;
+let nextTemplateId = 0;
+const generateTemplateUid = () => nextTemplateId++;
 
-export type KeyHolder<S extends string = string> = { key: S };
-export type TypeHolder<T> = { type: T };
-export type NodeHolder<N extends Node = Node> = { node: N};
+type CloneFn<V> = (v: V, container: Node, trackerNode: Node, before: Node | null) => CloneInfo<V>;
+type Id = number | any;
+type GeneralCloneFn = (...args: any[]) => CloneInfo<any>;
+type Template<C extends GeneralCloneFn> = {
+  id: Id,
+  clone: C,
+};
+type ChildTemplate<V> = Template<(value: V, container: Node) => CloneInfo<V>>;
+type ComponentTemplate<V> = Template<CloneFn<V>>;
 
-export type DataReaction<D> = { value: D };
-export type FieldReaction<D, T> = DataReaction<D> & KeyHolder & TypeHolder<T>;
+const createTemplate = <C extends GeneralCloneFn>(clone: C): Template<C> => ({
+  id: generateTemplateUid(),
+  clone,
+});
 
-export type ReactionDataCallback<T = any> = () => T;
+const assertNodeExists = (node) => {
+  if (process.env.NODE_ENV !== 'production') {
+    if (!node) {
+      throw new Error(`A node was expected but received ${node} instead`);
+    }
+  }
+}
 
-export const ATTR_TYPE = 0;
-type AttributeType = typeof ATTR_TYPE;
+const memoizedPropInfo = <T>(onSet) => {
+  let value;
+  return {
+    set: (newValue: T)=> {
+      if(newValue === value) {
+        return;
+      }
+      onSet(newValue, value);
+      value = newValue;
+    },
+  };
+}
+type MemoizedPropInfo = ReturnType<typeof memoizedPropInfo>;
 
-export const PROP_TYPE = 1;
-type PropertyType = typeof PROP_TYPE;
+export const attribute = <E extends Element = any>(el: E, key: string) => {
+  assertNodeExists(el);
+  return memoizedPropInfo(
+    (newValue) => {
+      if (newValue != null) {
+        el.setAttribute(key, newValue);
+      } else {
+        el.removeAttribute(key);
+      }
+    }
+  )
+}
+type AttributeField = ReturnType<typeof attribute>;
 
-export const EVENT_TYPE = 2;
-type EventType = typeof EVENT_TYPE;
+export const property = (setter: (value: any) => void) => {
+  return memoizedPropInfo(setter);
+};
+type PropertyField = ReturnType<typeof property>;
 
-export const SPREAD_TYPE = 3;
-type SpreadType = typeof SPREAD_TYPE;
+export const event = <E extends Element = any>(el: E, key: string) => {
+  assertNodeExists(el);
+  return memoizedPropInfo(
+    (newValue, oldValue) => {
+      if (oldValue != null) {
+        if (typeof oldValue === 'function') {
+          el.removeEventListener(key, oldValue);
+        } else {
+          el.removeEventListener(key, oldValue.handle, oldValue.options);
+        }
+      }
+      if (newValue != null) {
+        if (typeof newValue === 'function') {
+          el.addEventListener(key, newValue);
+        } else {
+          el.addEventListener(key, newValue.handle, newValue.options);
+        }
+      } 
+    }
+  )
+};
+type EventField = ReturnType<typeof event>;
 
-export type PropertyResult = () => any;
-export type PropertyReaction = FieldReaction<PropertyResult, PropertyType>;
-
-export type AttributeResult = () => string;
-export type AttributeReaction = FieldReaction<AttributeResult, AttributeType>;
-
-export type EventResult = () => any;
-export type EventReaction = FieldReaction<EventResult, EventType>;
-
-
-export const CHILDREN_TYPE = 0;
-type ChildrenType = typeof CHILDREN_TYPE;
-
-export const SUB_COMPONENT_TYPE = 1;
-type SubComponentType = typeof SUB_COMPONENT_TYPE;
-
-export const NODE_REACTION_TYPE = 2;
-type NodeReactionType = typeof NODE_REACTION_TYPE;
-
-// TODO: ComponentResult needs to be a part of this but at the moment it causes a circular reference
-export type ChildrenResult = Array<any> | string | number | boolean | undefined | null | SFC | any;
-export type ChildrenReaction = NodeHolder & DataReaction<ChildrenResult> & TypeHolder<ChildrenType>;
-
-export type SubComponentResult = any;
-export type GeneralSubComponentFieldReaction<T, D> = TypeHolder<T> & KeyHolder & { value: D };
-export type SubComponentReaction = TypeHolder<SubComponentType> & {
-  node: Node,
-  component: Component,
-  childNode?: Node,
-  value?: SubComponentFieldReaction<any>[]
+type Field = AttributeField | PropertyField | EventField;
+const removeOldResultIfExists = (trackerNode: Node, oldResult?: RenderResult<any>) => {
+  if (oldResult) {
+    removeOldResult(oldResult);
+    trackedNodes.delete(trackerNode);
+  }
 };
 
-export type NodeReaction = PropertyReaction | AttributeReaction | EventReaction;
+type ChildResult = {
+  firstNode: Node,
+  before: Node | null
+};
+type TextTemplateInput = string | boolean | number | any;
+const textTemplate: ComponentTemplate<TextTemplateInput> = createTemplate((initialValue: TextTemplateInput, container: Node, trackerNode, before: Node | null) => {
+  const textNode = document.createTextNode(initialValue.toString());
+  container.insertBefore(textNode, before);
+  return cloneInfo(textNode, textNode, (value: TextTemplateInput) => {
+    textNode.data = value.toString();
+  });
+});
 
-export type NodeReactions<N extends Element = Element> = TypeHolder<NodeReactionType> & NodeHolder<N> & { value: NodeReaction[] };
+const rerenderArray = (items: any[], container: Node, marker: Node, before: Node | null) => {
+  const nodeAfterMarker = marker.nextSibling;
+  if (nodeAfterMarker) {
+    removeUntilBefore(nodeAfterMarker, before);
+  }
+  const fragment = document.createDocumentFragment();
+  const filteredItems = items.filter((v) => v != null);
+  for(const item of filteredItems) {
+    const itemMarker = document.createComment('');
+    fragment.appendChild(itemMarker);
+    renderComponentResult(item, fragment, itemMarker, null);
+  }
+  container.insertBefore(fragment, before);
+};
 
-export type ComponentReaction = NodeReactions | SubComponentReaction | ChildrenReaction;
+const mapTemplate: ComponentTemplate<any[]> = createTemplate((initialValue: any[], container: Node, marker: Node, before: Node | null) => {
+  rerenderArray(initialValue, container, marker, before);
+  return cloneInfo(marker, marker, (value: any[]) => {
+    rerenderArray(value, container, marker, before);
+  });
+});
 
-export const STATIC_FIELD_TYPE = 3;
-export type StaticSubComponentFieldType = typeof STATIC_FIELD_TYPE;
+const figureOutComponentResult = (
+  value: any,
+) => {
+  if(value == null) {
+    return null;
+  } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return componentResult(textTemplate, value);
+  } else if (Array.isArray(value)) {
+    return componentResult(mapTemplate, value);
+  } else {
+    return value;
+  }
+};
 
-export const DYNAMIC_FIELD_TYPE = 4;
-export type DynamicSubComponentFieldType = typeof DYNAMIC_FIELD_TYPE;
-
-export type SubComponentFieldType = StaticSubComponentFieldType | DynamicSubComponentFieldType;
-
-export type StaticSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<StaticSubComponentFieldType, D> & TypeHolder<StaticSubComponentFieldType>;
-export type DynamicSubComponentFieldReaction<D> = GeneralSubComponentFieldReaction<DynamicSubComponentFieldType, () => D> & TypeHolder<DynamicSubComponentFieldType>;
-export type SubComponentFieldReaction<D> = StaticSubComponentFieldReaction<D> | DynamicSubComponentFieldReaction<D>;
-
-type ContainerNode<T> = {
-  next?: ContainerNode<T>;
-  value: T;
-}
-
-const linkedListNode = (value) => {
+export const children = <N extends Node>(marker: N): MemoizedPropInfo => {
+  assertNodeExists(marker);
+  const before = marker.nextSibling;
   return {
-    value,
-    next: undefined
+    set: (newValue) => {
+      assertNodeExists(marker.parentNode);
+      const componentResult = figureOutComponentResult(newValue);
+      checkAndRenderComponentResult(componentResult, marker.parentNode as Node, marker, trackedNodes.get(marker), before);
+    }
   };
 }
-
-/**
- * Just a single linked list
- */
-class Container<T> implements Iterable<T> {
-  private head?: ContainerNode<T>;
-  private tail?: ContainerNode<T>;
-  private handleNoHead(value: T, callback: (newNode: ContainerNode<T>) => void) {
-    const newNode = linkedListNode(value);
-    if (this.head) {
-      callback(newNode);
-    } else {
-      this.head = newNode;
-      this.tail = newNode;
-    }
-  }
-
-  public unshift(value) {
-    this.handleNoHead(value, (newNode) => {
-      newNode.next = this.head;
-      this.head = newNode;
-    })
-  }
-
-  public push(value) {
-    this.handleNoHead(value, (newNode) => {
-      this.tail!.next = newNode;
-      this.tail = newNode;
-    })
-  }
-
-  *[Symbol.iterator]() {
-    let current = this.head;
-    while(current) {
-      yield current.value;
-      current = current.next;
-    }
-  }
-
-  get isEmpty(): boolean {
-    return this.head === undefined;
-  }
-}
-
-export const field = <
-  T,
-  D
->(fieldType: T, key: string, value: D): FieldReaction<D, T> => {
-  return { type: fieldType, key, value };
-}
-
-export const children = (node: Node, value: ReactionDataCallback<ChildrenResult>): ChildrenReaction => {
-  return { type: CHILDREN_TYPE, node, value };
-}
-
-export const fields = <N extends Element>(node: N, ...value: NodeReaction[]): NodeReactions<N> => {
-  return { type: NODE_REACTION_TYPE, node, value };
-}
-
-export const subComponent = (
-  component: Component,
-  node: Node,
-  childNode?: Node,
-  value?: SubComponentFieldReaction<any>[]
-): SubComponentReaction => {
-  return { type: SUB_COMPONENT_TYPE, node, component, childNode, value };
-}
-
-export const componentRoot = <N extends Node = Node>(node: N, reactions?: ComponentReaction[]): ComponentResult<N> => {
-  return {
-    node,
-    value: reactions,
-  };
-}
-
-export const elementTemplate = (html: string) => {
+type Fields = ReadonlyArray<MemoizedPropInfo>;
+type FieldFactory = <E extends Node = any>(root: E) => Fields;
+export const elementTemplate = (
+  html: string,
+  fieldFactory?: FieldFactory
+): ComponentTemplate<any[] | undefined> => {
   const template = document.createElement('template');
   template.innerHTML = html;
-  return () => document.importNode(template.content.firstChild as Node, true);
-}
-
-export type Dispose = () => void;
-type Computed = {
-  computedFns?: Iterable<() => void>,
-};
-export type RenderResult = {
-  dispose?: Dispose,
-} & Computed;
-
-function runComputedFns(computedFns: Iterable<() => void>) {
-  for(const computedFn of computedFns) {
-    computedFn();
-  }
-}
-
-function queuedInsertBefore(parent, newElement, before) {
-  autorun((r) => {
-    r.dispose();
-    parent.insertBefore(newElement, before);
-  }, { name: 'insert' });
-}
-
-const OBSERVED_ARRAY_TYPE = 0;
-const textNodeTypes = ['string', 'boolean', 'number'];
-function renderDynamicChildren(
-  result: ChildrenResult,
-  parent: Node,
-  beforeMarker: Node | null = null,
-  nextMarker: Node | null = null
-): RenderResult | null {
-  // TODO: Render functions
-  if (!result) {
-    return null;
-  } else if (textNodeTypes.includes(typeof result)) {
-    const node = document.createTextNode(result.toString());
-    parent.insertBefore(node, nextMarker);
-    return null;
-  } else if(Array.isArray(result)) {
-    if (result.length > 0) {
-      // TODO: Don't forget dispose
-      const childResults: (() => void)[] = [];
-      const fragment = document.createDocumentFragment();
-      for(const item of result) {
-        // TODO: Make sure the undefined, undefined works in all cases
-        const childResult = renderDynamicChildren(item, fragment, undefined, undefined);
-        if (childResult && childResult.computedFns) {
-          childResults.push(...childResult.computedFns);
+  return createTemplate(
+    (initialValues: any[], container: Node, trackerNode, before: Node | null) => {
+      const cloned = document.importNode(template.content.firstChild as Node, true);
+      container.insertBefore(cloned, before);
+      const setFn = fieldFactory ? (() => {
+        const fields = fieldFactory(cloned);
+        setFieldValues(fields, initialValues);
+        return (fieldValues: any[]) => {
+          setFieldValues(fields, fieldValues);
         }
-      }
-      if (childResults.length > 0) {
-        parent.insertBefore(fragment, nextMarker);
-        return {
-          computedFns: childResults,
-          dispose: undefined,
-        };
-      }  
-    }
-    return null;
-  } else if(result.type === OBSERVED_ARRAY_TYPE) {
-    const info = result.callback(beforeMarker, nextMarker);
-    return info;
-  } else {
-    const info = renderComponentResult(result, parent);
-    return {
-      computedFns: info,
-      dispose: undefined,
-    };
-  }
+      })() : undefined;
+      return cloneInfo(cloned, cloned, setFn);
+    },
+  );
 }
 
-export function initChildReaction(childrenReaction: ChildrenReaction) {
-  const beforeMarker = childrenReaction.node;
-  const nextMarker = childrenReaction.node.nextSibling;
-  let innerDispose;
-  return {
-    run: returnlessComputed('child', () =>{
-      if (innerDispose) {
-        innerDispose();
-      }
-  
-      removeUntilBefore(beforeMarker.nextSibling, nextMarker);
-  
-      const renderInfo = childrenReaction.value();
-  
-      const renderResults = renderDynamicChildren(
-        renderInfo,
-        beforeMarker.parentNode as Node,
-        childrenReaction.node,
-        nextMarker as Node
-      );
-      if (renderResults && renderResults.computedFns) {
-        runComputedFns(renderResults.computedFns);
-      }
-      if (renderResults && renderResults.dispose) {
-        innerDispose = renderResults.dispose;
-      }
-    })
-  };
+export const spread = (el: Element) => {
+  throw new Error('Not implemented yet');
 }
 
-export function initSubComponentReaction(
-  subComponentReaction: SubComponentReaction,
-) {
-  const props = {
-    children: subComponentReaction.childNode,
-  };
-
-  // TODO: Handle overriding fields
-  if(subComponentReaction.value) {
-    for(const propsReaction of subComponentReaction.value) {
-      if (propsReaction.type === DYNAMIC_FIELD_TYPE) {
-        Object.defineProperty(
-          props,
-          propsReaction.key,
-          // TODO: I'm pretty sure computed returns a property descriptor
-          computed(props, propsReaction.key, { get: propsReaction.value, configurable: false }) as any
-        );
-      } else {
-        props[propsReaction.key] = propsReaction.value;
-      }
-    }    
-  }
-
-  return initChildReaction({
-    type: CHILDREN_TYPE,
-    node: subComponentReaction.node,
-    value: () => subComponentReaction.component(props)
-  });
-}
-
-export const initAttributeReaction = (
-  node: Element,
-  { key, value }: AttributeReaction
-) => {
-  return returnlessComputed('attr', () => {
-    const data = value();
-    if (data) {
-      node.setAttribute(key, data)
-    } else {
-      node.removeAttribute(key);
-    }
-  });
-}
-
-
-export const initPropertyReaction = (
-  node: Element,
-  { key, value }: PropertyReaction
-) => {
-  return returnlessComputed('prop', () => {
-    node[key] = value();
-  });
-}
-
-export const initEventReaction = (
-  element: Element,
-  { key, value }: EventReaction
-) => {
-  let removePreviousListener = () => {};
-  return returnlessComputed('event', () => {
-    removePreviousListener();
-    const listener = value();
-    if (typeof listener === 'function') {
-      element.addEventListener(key, listener);
-      removePreviousListener = () => element.removeEventListener(key, listener);
-    } else {
-      element.addEventListener(key, listener.handleEvent, listener);
-      removePreviousListener = () => element.removeEventListener(key, listener.handleEvent, listener);
-    }
-  });
-}
-
-export function initNodeReactions(nodeReactions: NodeReactions, computedFns: Container<() => void>): void {
-  for(const fieldReaction of nodeReactions.value) {
-    switch(fieldReaction.type) {
-      case ATTR_TYPE:
-        const attrDispose = initAttributeReaction(nodeReactions.node, fieldReaction as AttributeReaction);
-        if (attrDispose) {
-          computedFns.push(attrDispose);
-        }
-        break;
-      case PROP_TYPE:
-        const propDispose = initPropertyReaction(nodeReactions.node, fieldReaction as PropertyReaction)
-        if(propDispose) {
-          computedFns.push(propDispose)
-        }
-        break;
-      case EVENT_TYPE:
-        const eventDispose = initEventReaction(nodeReactions.node, fieldReaction as EventReaction);
-        if (eventDispose) {
-          computedFns.push(eventDispose);
-        }
-        break;
-    }
-  }
-}
-
-export const render = (renderInfo: ComponentResult, container: Node): IReactionDisposer => {
-  const renderResult = renderComponentResult(renderInfo, container, undefined);
-  return autorun(() => {
-    runComputedFns(renderResult);
-  }, { name: 'render' });
-}
-
-const alwaysTrueComparator = () => true;
-const returnlessComputed = (name, fn) => {
-  const wrappedFn = computed(fn, { name, equals: alwaysTrueComparator, requiresReaction: true });
-  return wrappedFn.get.bind(wrappedFn);
+type ComponentResult<V> = {
+  template: ComponentTemplate<V>,
+  value: V,
 };
 
-export function initComponentResult(
-  renderInfo: ComponentResult
-) {
-  const computedFns = new Container<() => void>();
-  if (renderInfo.value) {
-    for(const reaction of renderInfo.value) {
-      switch(reaction.type) {
-        case NODE_REACTION_TYPE:
-          initNodeReactions(reaction, computedFns);
-          break;
-        case CHILDREN_TYPE:
-          computedFns.push(initChildReaction(reaction).run);
-          break;
-        case SUB_COMPONENT_TYPE:
-          computedFns.push(initSubComponentReaction(reaction).run);
-          break;
-      }
-    }
-  }
-  return computedFns;
-}
-
-export const renderComponentResult = (
-  componentResult: ComponentResult,
-  container: Node,
-  before: Node | null = null
-) => {
-  container.insertBefore(componentResult.node, before);
-  return initComponentResult(componentResult);
-}
+export const componentResult = <C extends GeneralCloneFn, V>(template: Template<C>, value: V): ComponentResult<V> => ({
+  template,
+  value
+});
 
 
-function removeUntilBefore(startElement, stopElement) {
+type RenderResult<V> = {
+  templateId: Id,
+  set?: SetFn<V>,
+  firstNode: Node,
+  before: Node | null,
+};
+
+const removeUntilBefore = (startElement: Node, stopElement: Node | null) => {
   let currentElement = startElement;
   while(currentElement !== stopElement) {
-    const nextSibling = currentElement.nextSibling;
-    currentElement.parentNode.removeChild(currentElement);
+    const nextSibling = currentElement.nextSibling!;
+    currentElement.parentNode!.removeChild(currentElement);
     currentElement = nextSibling;
   }
 }
 
-function removePart(changeData, childElements: (RenderResult | any)[], before: Node | null) {
-  const stopIndex = changeData.index + changeData.removedCount; 
-  const stopElement = stopIndex < childElements.length ? childElements[stopIndex].firstNode : before;
-  let startElement = childElements[changeData.index].firstNode;
-  removeUntilBefore(startElement, stopElement);
+const setFieldValues = (fields: Fields, fieldValues: any[]) => {
+  for(let f = 0; f < fieldValues.length; f++) {
+    const field = fields[f];
+    const fieldValue = fieldValues[f];
+    field.set(fieldValue);
+  }
+};
+
+export type KeyFn<T> = (item: T, index: number) => any;
+export type MapFn<T, R> = (item: T, index: number) => R;
+export type SetFn<V> = (value: V) => any;
+const cloneInfo = <N extends Node, V>(root: N, firstNode: N, set?: SetFn<V>): CloneInfo<V> => ({
+  root, 
+  firstNode,
+  set
+});
+type CloneInfo<V> = {
+  root: Node,
+  firstNode: Node,
+  set?: SetFn<V>,
+};
+
+const trackedNodes = new WeakMap<Node, RenderResult<any>>();
+
+const renderComponentResult = <V>(
+  renderInfo: ComponentResult<V>,
+  container: Node,
+  trackerNode: Node,
+  before: Node | null = null
+): RenderResult<V> => {
+  const cloneInfo = renderInfo.template.clone(renderInfo.value, container, trackerNode, before);
+  const result: RenderResult<V> = {
+    templateId: renderInfo.template.id,
+    // TODO: remove any
+    set: cloneInfo.set,
+    firstNode: cloneInfo.firstNode,
+    before,
+  };
+  trackedNodes.set(trackerNode, result);
+  return result;
 }
 
-export function repeat<T, N extends Node>(
-  arr: IObservableArray<T>, mapFn: (d: T) => any) {
-  return {
-    type: OBSERVED_ARRAY_TYPE,
-    callback: (firstMarker, before): RenderResult => {
-      // TODO: Should be | null
-      const results: ({ dispose: Dispose, firstNode: Node })[] = [];
-      const dispose = arr.observe((changeData) => {
-        switch(changeData.type) {
-          case 'splice': 
-            if (changeData.removedCount > 0) {
-              removePart(changeData, results, before);
-            }
-            const removed = results.splice(changeData.index, changeData.removedCount);
-            // TODO: Should move this above removePart
-            for (const removedChildInfo of removed) {
-              if (removedChildInfo && removedChildInfo.dispose) {
-                removedChildInfo.dispose();
-              }
-            }
-      
-            let addedChildElements: any[] = [];
-            if (changeData.addedCount > 0) {
-              const fragment = document.createDocumentFragment();
-              // TODO: Needs to be reacted to
-              const componentResults = changeData.added.map(mapFn);
-              for(const componentResult of componentResults) {
-                fragment.appendChild(componentResult.node);
-              }
-              for(const componentResult of componentResults) {
-                const computeFns = initComponentResult(componentResult);
-                addedChildElements.push({
-                  firstNode: componentResult.node,
-                  dispose: autorun(() => runComputedFns(computeFns), { name: 'item' })
-                });
-              }
-              // TODO: Remove !.
-              const elementToAddBefore = changeData.index < results.length ? results[changeData.index]!.firstNode : before;
-              queuedInsertBefore(firstMarker.parentNode, fragment, elementToAddBefore);
-            }
-            
-            results.splice(changeData.index, 0, ...addedChildElements);
-            break;
-          case 'update':
-            const toBeRemoved = results[changeData.index];
-            if (toBeRemoved && toBeRemoved.dispose) {
-              toBeRemoved.dispose();
-            }
-            
-            const stopIndex = changeData.index + 1;
-
-            const stopElement = stopIndex < results.length ? results[stopIndex].firstNode : before;
-            const startElement = toBeRemoved.firstNode;
-            removeUntilBefore(startElement, stopElement);
-            
-            results.splice(changeData.index, 1);
-            
-            const elementToAddBefore = changeData.index < results.length ? results[changeData.index].firstNode : before;
-            const componentResult = mapFn(changeData.newValue);
-            const renderResult = renderComponentResult(componentResult.node, firstMarker.parentNode, elementToAddBefore);
-            const autorunDispose = autorun(() => runComputedFns(renderResult), { name: 'item' });
-            results.splice(changeData.index, 0, {
-              firstNode: componentResult.node,
-              dispose: autorunDispose,
-            });
-            break;
-          }  
-      }, true);
-      return {
-        computedFns: undefined,
-        dispose,
-      };
+const removeOldResult = (oldResult: RenderResult<any>) => {
+  removeUntilBefore(oldResult.firstNode, oldResult.before);
+}
+const checkAndRenderComponentResult = <V>(
+  renderInfo: ComponentResult<V>,
+  container: Node,
+  trackerNode: Node,
+  oldResult?: RenderResult<any>,
+  before: Node | null = null
+) => {
+  if (oldResult) {
+    if (renderInfo.template.id === oldResult.templateId && oldResult.set) {
+      oldResult.set(renderInfo.value);
+    } else {
+      removeOldResult(oldResult);
+      renderComponentResult(renderInfo, container, trackerNode, before);
     }
+  } else {
+    renderComponentResult(renderInfo, container, trackerNode, before);
   }
+};
+
+export const render = <V>(value: ComponentResult<V>, container: Node) => {
+  return checkAndRenderComponentResult(value, container, container, trackedNodes.get(container), null);
 }
