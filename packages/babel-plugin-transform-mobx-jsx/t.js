@@ -102,13 +102,17 @@ const swapRows = () => {
   rerender();
 };
 
+const _td$propertySetter = (_element, _value) => _element.textContent = _value;
+
+const _a$propertySetter = (_element2, _value2) => _element2.textContent = _value2;
+
 const _template$ = mbx.elementTemplate("<tr><td class=\"col-md-1\"></td><td class=\"col-md-4\"><a></a></td><td class=\"col-md-1\"><a><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></a></td><td class=\"col-md-6\"></td></tr>", _root => {
   const _td$ = _root.firstChild;
   const _td$2 = _root.childNodes[1];
   const _a$ = _td$2.firstChild;
   const _td$3 = _root.childNodes[2];
   const _a$2 = _td$3.firstChild;
-  return [mbx.attribute(_root, "class"), mbx.property(value => _td$.textContent = value), mbx.event(_a$, "click"), mbx.property(value => _a$.textContent = value), mbx.event(_a$2, "click")];
+  return [mbx.attribute(_root, "class"), mbx.property(_td$, _td$propertySetter), mbx.event(_a$, "click"), mbx.property(_a$, _a$propertySetter), mbx.event(_a$2, "click")];
 });
 
 const _template$2 = mbx.elementTemplate("<div class=\"container\"><div class=\"jumbotron\"><div class=\"row\"><div class=\"col-md-6\"><h1>React + Mobx</h1></div><div class=\"col-md-6\"><div class=\"row\"><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"run\">Create 1,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"runlots\">Create 10,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"add\">Append 1,000 rows</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"update\">Update every 10th row</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"clear\">Clear</button></div><div class=\"col-sm-6 smallpad\"><button type=\"button\" class=\"btn btn-primary btn-block\" id=\"swaprows\">Swap Rows</button></div></div></div></div></div><table class=\"table table-hover table-striped test-data\"><tbody><!----></tbody></table><span class=\"preloadicon glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></div>", _root2 => {
