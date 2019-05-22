@@ -143,13 +143,9 @@ function fieldTemplateExpression(id, attribute: DynamicAttribute) {
     case ATTR_TYPE:
       return nonSpreadFieldExpression('attribute');
     case PROP_TYPE:
-      const valueId = t.identifier('value');
-      return t.callExpression(mbxMemberExpression('property'), [
-        t.arrowFunctionExpression([valueId], t.assignmentExpression(
-          '=',
-          t.memberExpression(id, t.identifier(name)),
-          valueId
-        )),
+      return mbxCallExpression('property', [
+        id,
+        fieldToProperty.get(attribute.name as string) as any,
       ]);
     case EVENT_TYPE:
       return nonSpreadFieldExpression('event');
@@ -225,34 +221,39 @@ function fieldType(name: string) {
   return name.match(/^\$\$/) ? EVENT_TYPE : name.match(/^\$/) ? PROP_TYPE : ATTR_TYPE;
 }
 
+const STATIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'staticElementTemplate';
 const ELEMENT_TEMPLATE_FACTORY_NAME = 'elementTemplate';
 const FRAGMENT_TEMPLATE_FACTORY_NAME = 'fragmentTemplate';
-function templateDeclaration(scope, templateId, rootParamId, factoryFunctionName, childClients) {
+function templateDeclaration(scope, templateId, rootParamId, dynamicFactoryFunctionName, staticFactoryFunctionName, childClients) {
   const args = [
     t.stringLiteral(childClients.map(client => client.html()).join('')),
   ];
-  if (childClients.length > 0) {
-    const statements: any[] = [];
-    for(const childClient of childClients) {
-      for(const statement of childClient.declarationStatements(scope, rootParamId, true)) {
-        statements.push(statement);
-      }
-    }
-    const fields: any[] = [];
-    for(const client of childClients) {
-      fields.push(...client.fieldExpressions());
-    }
-    statements.push(t.returnStatement(t.arrayExpression(fields)));
-    if (fields.length > 0) {
-      args.push(t.arrowFunctionExpression([rootParamId], t.blockStatement(statements)))    
+  const statements: any[] = [];
+  for(const childClient of childClients) {
+    for(const statement of childClient.declarationStatements(scope, rootParamId, true)) {
+      statements.push(statement);
     }
   }
-  return constDeclaration(
-    templateId,
-    mbxCallExpression(factoryFunctionName, args),
-  );
+  const fields: any[] = [];
+  for(const client of childClients) {
+    fields.push(...client.fieldExpressions());
+  }
+  if (fields.length > 0) {
+    statements.push(t.returnStatement(t.arrayExpression(fields)));
+    args.push(t.arrowFunctionExpression([rootParamId], t.blockStatement(statements)));
+    return constDeclaration(
+      templateId,
+      mbxCallExpression(dynamicFactoryFunctionName, args),
+    );  
+  } else {
+    return constDeclaration(
+      templateId,
+      mbxCallExpression(staticFactoryFunctionName, args),
+    );  
+  }
 }
 
+const fieldToProperty: Map<string, any> = new Map()
 class StaticElementClient implements ChildClient, FieldHoldingClient {
   private id;
   constructor(
@@ -295,11 +296,25 @@ class StaticElementClient implements ChildClient, FieldHoldingClient {
     for (const client of this.childClients) {
       yield* client.templateStatements(scope);
     }
+
+    for(const field of this.fields) {
+      if (field.name && fieldType(field.name) === PROP_TYPE && !fieldToProperty.has(field.name)) {
+        const propertyId = scope.generateUidIdentifier(`${cleanedFieldName(field.name)}$propertySetter`);
+        const valueId = scope.generateUidIdentifier('value');
+        const elementId = scope.generateUidIdentifier('element');
+        const info = fieldInfo(field.name);
+        const nodePropertyExpression = t.memberExpression(elementId, t.identifier(info.name));
+        const assignmentExpression = t.arrowFunctionExpression([elementId, valueId], t.assignmentExpression('=', nodePropertyExpression, valueId));
+        const declaration = constDeclaration(propertyId, assignmentExpression);
+        fieldToProperty.set(field.name, propertyId);
+        yield declaration;
+      }
+    }
   }
 
   public *fieldExpressions() {
     for(const field of this.fields) {
-      yield fieldTemplateExpression(this.id, field);
+      yield fieldTemplateExpression(this.id, field)
     }
     for(const client of this.childClients) {
       yield* client.fieldExpressions();
@@ -363,18 +378,18 @@ class RootElementClient implements ChildClient {
   public *templateStatements(scope) {
     this.templateId = scope.generateUidIdentifier('template$');
     this.rootParamId = scope.generateUidIdentifier('root');
+    for (const client of this.childClients) {
+      yield* client.templateStatements(scope);
+    }
+
     yield templateDeclaration(
       scope,
       this.templateId,
       this.rootParamId,
       ELEMENT_TEMPLATE_FACTORY_NAME,
+      STATIC_ELEMENT_TEMPLATE_FACTORY_NAME,
       this.childClients,
-      this
     );
-    
-    for (const client of this.childClients) {
-      yield* client.templateStatements(scope);
-    }
   }
 
   public *declarationStatements(scope) {
@@ -415,6 +430,7 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
       | { type: 'static'; field: StaticField }
       | { type: 'dynamic'; field: DynamicAttribute })[] = [],
   ) {}
+
   public *fieldExpressions() {
     yield mbxCallExpression('children', [this.placeholderId]);
   }
@@ -422,6 +438,10 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
     return HTMLPlaceholder;
   }
   public *templateStatements(scope) {
+    for (const client of this.childClients) {
+      yield* client.templateStatements(scope);
+    }
+
     if (this.childClients.length > 0) {
       this.templateId = scope.generateUidIdentifier('subTemplate$');
       this.rootParamId = scope.generateUidIdentifier('subRoot$');
@@ -432,12 +452,9 @@ class SubComponentClient implements ChildClient, FieldHoldingClient {
         this.childClients.length <= 1
           ? ELEMENT_TEMPLATE_FACTORY_NAME
           : FRAGMENT_TEMPLATE_FACTORY_NAME,
+        'ERROR',
         this.childClients,
-        this,
       );
-    }
-    for (const client of this.childClients) {
-      yield* client.templateStatements(scope);
     }
   }
   public *declarationStatements(scope, parentId, isParent) {

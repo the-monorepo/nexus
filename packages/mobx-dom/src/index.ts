@@ -1,5 +1,3 @@
-import { stat } from "fs";
-
 let nextTemplateId = 0;
 const generateTemplateUid = () => nextTemplateId++;
 
@@ -37,29 +35,32 @@ type AttributeField = {
   key: string
 };
 
-export const attribute = <E extends Element = any>(el: E, key: string) => {
+export const attribute = <E extends Element = any>(el: E, key: string): AttributeField => {
   assertNodeExists(el);
   return {
     type: ATTRIBUTE_TYPE,
-    oldValue: undefined,
     el,
+    oldValue: undefined,
     key
   };
 }
 
-type PropertySetter = (value: any) => void;
+type PropertySetter = (node: Element, value: any) => any;
 type PropertyField = {
   type: typeof PROPERTY_TYPE,
   oldValue?: any,
+  el: Element,
   setter: PropertySetter
 }
-export const property = (setter: PropertySetter): PropertyField => {
+export const property = <E extends Element = any>(el: E, setter: PropertySetter): PropertyField => {
+  assertNodeExists(el);
   return {
     type: PROPERTY_TYPE,
+    el,
     oldValue: undefined,
-    setter,
-  }
-};
+    setter
+  };
+}
 
 type EventField = {
   type: typeof EVENT_TYPE,
@@ -71,21 +72,21 @@ export const event = <E extends Element = any>(el: E, key: string): EventField =
   assertNodeExists(el);
   return {
     type: EVENT_TYPE,
-    oldValue: undefined,
     el,
+    oldValue: undefined,
     key,
   };
 };
 
 type Field = AttributeField | PropertyField | EventField | ChildrenField;
-
+type ElementField = AttributeField | PropertyField | EventField;
 type TextTemplateInput = string | boolean | number | any;
 const textTemplate: ComponentTemplate<Text, TextTemplateInput> = createTemplate((initialValue: TextTemplateInput, container: Node, before: Node | null) => {
   const textNode = document.createTextNode(initialValue.toString());
   container.insertBefore(textNode, before);
   return textNode;
 }, (textNode, value) => {
-  textNode.data = value.toString();
+  textNode.textContent = value.toString();
 });
 
 const rerenderArray = (items: any[], container: Node, before: Node | null) => {
@@ -134,10 +135,25 @@ type ChildrenField = {
   marker: Node,
 };
 type FieldFactory = <E extends Node = any>(root: E) => ReadonlyArray<Field>;
+
+export const staticElementTemplate = (
+  html: string
+): ComponentTemplate<void, void> => {
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  const rootElement: Node = template.content.firstChild as Node;
+  return createTemplate(
+    (nothing, initialContainer: Node, initialBefore: Node | null) => {
+      const cloned = document.importNode(rootElement, true)
+      initialContainer.insertBefore(cloned, initialBefore);
+    }
+  );
+}
+
 export const elementTemplate = (
   html: string,
-  fieldFactory?: FieldFactory
-): ComponentTemplate<ReadonlyArray<Field> | null, any[]> => {
+  fieldFactory: FieldFactory
+): ComponentTemplate<ReadonlyArray<Field>, any[]> => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement: Node = template.content.firstChild as Node;
@@ -145,17 +161,32 @@ export const elementTemplate = (
     (initialValues: ReadonlyArray<any>, initialContainer: Node, initialBefore: Node | null) => {
       const cloned = document.importNode(rootElement, true);
       initialContainer.insertBefore(cloned, initialBefore);
-      if (fieldFactory !== undefined) {
-        const fields = fieldFactory(cloned);
-        setFieldValues(fields, initialValues, initialBefore);
-        return fields;
-      } else {
-        return null;
+      const fields = fieldFactory(cloned);
+      const fieldLength = fields.length;
+      for(let f = 0; f < fieldLength; f++) {
+        const field = fields[f];
+        const value = initialValues[f];
+        if (field.type === CHILD_TYPE) {
+          setChildrenField(field, value, initialBefore);
+        } else {
+          setElementField(field, value);
+        }
       }
+      return fields;
     },
     (fields, fieldValues, container, before) => {
-      if(fields !== null) {
-        setFieldValues(fields, fieldValues, before)
+      const fieldLength = fields.length;
+      for(let f = 0; f < fieldLength; f++) {
+        const field = fields[f];
+        const value = fieldValues[f];
+        if (field.type === CHILD_TYPE) {
+          setChildrenField(field, value, before);
+        } else {
+          if (field.oldValue === value) {
+            continue;
+          }
+          setElementField(field, value);
+        }
       }
     }
   );
@@ -181,12 +212,11 @@ type RenderResult<C, V> = {
   persistent: C,
 };
 
-const removeUntilBefore = (container: Node, startElement: Node, stopElement: Node | null) => {
-  let currentElement = startElement;
-  while(currentElement !== stopElement) {
-    const nextSibling = currentElement.nextSibling!;
-    container.removeChild(currentElement);
-    currentElement = nextSibling;
+const removeUntilBefore = (container: Node, startElement: Node | null, stopElement: Node | null) => {
+  while(startElement !== stopElement) {
+    const nextSibling = startElement!.nextSibling;
+    container.removeChild(startElement!);
+    startElement = nextSibling;
   }
 }
 
@@ -201,67 +231,50 @@ const extractUntilBefore = (startElement: Node, stopElement: Node | null) => {
   return fragment;
 }
 
-const setFieldValues = (
-  fields: ReadonlyArray<Field>,
-  fieldValues: ReadonlyArray<any>,
-  before: Node | null
-) => {
-  for(let f = 0; f < fieldValues.length; f++) {
-    const field = fields[f];
-    const newValue = fieldValues[f];
-    switch(field.type) {
-      case PROPERTY_TYPE:
-      case EVENT_TYPE:
-      case ATTRIBUTE_TYPE:
-        if (field.oldValue === newValue) {
-          break;
-        }
-        switch(field.type) {
-          case ATTRIBUTE_TYPE:
-            if (newValue != null) {
-              field.el.setAttribute(field.key, newValue);
-            } else {
-              field.el.removeAttribute(field.key);
-            }
-            break;
-          case PROPERTY_TYPE:
-            field.setter(newValue);
-            break;
-          case EVENT_TYPE:
-            if (field.oldValue != null) {
-              if (typeof field.oldValue === 'function') {
-                field.el.removeEventListener(field.key, field.oldValue);
-              } else {
-                field.el.removeEventListener(field.key, field.oldValue.handle, field.oldValue.options);
-              }
-            }
-            if (newValue != null) {
-              if (typeof newValue === 'function') {
-                field.el.addEventListener(field.key, newValue);
-              } else {
-                field.el.addEventListener(field.key, newValue.handle, newValue.options);
-              }
-            }   
-            break;
-        }
-        field.oldValue = newValue;
-        break;
-      case CHILD_TYPE:
-        const componentResult = figureOutComponentResult(newValue);
-        if (componentResult) {
-          checkAndRenderComponentResult(componentResult, field.marker.parentNode as Node, field.marker, before);
+const setElementField = (field: ElementField, newValue: any) => {
+  switch(field.type) {
+    case ATTRIBUTE_TYPE:
+      if (newValue != null) {
+        field.el.setAttribute(field.key, newValue);
+      } else {
+        field.el.removeAttribute(field.key);
+      }
+      break;
+    case PROPERTY_TYPE:
+      field.setter(field.el, newValue);
+      break;
+    case EVENT_TYPE:
+      if (field.oldValue != null) {
+        if (typeof field.oldValue === 'function') {
+          field.el.removeEventListener(field.key, field.oldValue);
         } else {
-          trackedNodes.delete(field.marker);
+          field.el.removeEventListener(field.key, field.oldValue.handle, field.oldValue.options);
         }
-        break;        
-    }
+      }
+      if (newValue != null) {
+        if (typeof newValue === 'function') {
+          field.el.addEventListener(field.key, newValue);
+        } else {
+          field.el.addEventListener(field.key, newValue.handle, newValue.options);
+        }
+      }   
+      break;
   }
-};
+  field.oldValue = newValue;
+}
+
+const setChildrenField = (field: ChildrenField, newValue: any, before: Node | null) => {
+  const componentResult = figureOutComponentResult(newValue);
+  if (componentResult) {
+    checkAndRenderComponentResult(componentResult, field.marker.parentNode as Node, field.marker, before);
+  } else {
+    trackedNodes.delete(field.marker);
+  }
+}
 
 export type KeyFn<T> = (item: T, index: number) => unknown;
 export type MapFn<T, R> = (item: T, index: number) => R;
 export type SetFn<C, V> = (cloneValue: C, value: V, container: Node, before: Node | null) => any;
-type CloneInfo<C, V> = SetFn<C, V> | undefined;
 
 const trackedNodes = new WeakMap<Node, RenderResult<any, any>>();
 
@@ -388,10 +401,8 @@ const renderRepeatItem = <C, R>(
     return oldResult;
   } else {
     const nodeAfterMarker = oldResult.marker.nextSibling;
-    if (nodeAfterMarker !== null) {
-      removeUntilBefore(container, nodeAfterMarker, before);
-    }
-    const renderResult = renderComponentResult(newResult.result, container, oldResult.marker, before);
+    removeUntilBefore(container, nodeAfterMarker, before);
+    const renderResult = renderComponentResultNoSet(newResult.result, container, before);
     return repeatItemData(newResult.key, oldResult.marker, renderResult);
   }
 }
@@ -421,11 +432,9 @@ const movePart = (
     return oldResult;
   } else {
     const nodeAfterMarker = oldResult.marker.nextSibling;
-    if (nodeAfterMarker !== null) {
-      removeUntilBefore(container, nodeAfterMarker, oldNextMarker);
-    }
+    removeUntilBefore(container, nodeAfterMarker, oldNextMarker);
     container.insertBefore(oldResult.marker, before);
-    const renderResult = renderComponentResult(newResult.result, container, oldResult.marker, before);
+    const renderResult = renderComponentResultNoSet(newResult.result, container, before);
     return repeatItemData(newResult.key, oldResult.marker, renderResult);
   }
 }
@@ -469,7 +478,10 @@ const repeatTemplate = createTemplate(
       }
       i++;
     }
-    const newRenderResults: RepeatItemData<any, any>[] = new Array(newComponentResults.length);
+    const oldLength = oldResults.length;
+    const newLength = newComponentResults.length;
+
+    const newRenderResults: RepeatItemData<any, any>[] = [];
 
     // Maps from key to index for current and previous update; these
     // are generated lazily only when needed as a performance
@@ -480,9 +492,10 @@ const repeatTemplate = createTemplate(
 
     // Head and tail pointers to old parts and new values
     let oldHead = 0;
-    let oldTail = oldResults.length - 1;
+    let oldTail = oldLength - 1;
+
     let newHead = 0;
-    let newTail = newComponentResults.length - 1;
+    let newTail = newLength - 1;
 
     while (oldHead <= oldTail && newHead <= newTail) {
       if (oldResults[oldHead] === null) {
@@ -495,12 +508,12 @@ const repeatTemplate = createTemplate(
         oldTail--;
       } else if (oldResults[oldHead]!.key === newComponentResults[newHead].key) {
         // Old head matches new head; update in place
-        newRenderResults[newHead] = renderRepeatItem(oldResults[oldHead]!, newComponentResults[newHead], container, oldHead + 1 >= oldResults.length ? before : oldResults[oldHead + 1]!.marker);
+        newRenderResults[newHead] = renderRepeatItem(oldResults[oldHead]!, newComponentResults[newHead], container, oldHead + 1 >= oldLength ? before : oldResults[oldHead + 1]!.marker);
         oldHead++;
         newHead++;
       } else if (oldResults[oldTail]!.key === newComponentResults[newTail].key) {
         // Old tail matches new tail; update in place
-        newRenderResults[newTail] = renderRepeatItem(oldResults[oldTail]!, newComponentResults[newTail], container, oldTail + 1 >= oldResults.length ? before : oldResults[oldTail + 1]!.marker);
+        newRenderResults[newTail] = renderRepeatItem(oldResults[oldTail]!, newComponentResults[newTail], container, oldTail + 1 >= oldLength ? before : oldResults[oldTail + 1]!.marker);
         oldTail--;
         newTail--;
       } else if (oldResults[oldHead]!.key === newComponentResults[newTail].key) {
@@ -512,7 +525,7 @@ const repeatTemplate = createTemplate(
           newTail,
           container,
           oldResults[oldHead + 1]!.marker,
-          newTail + 1 < newRenderResults.length ? newRenderResults[newTail + 1].marker : before,
+          newTail + 1 < newLength ? newRenderResults[newTail + 1].marker : before,
         );
         oldHead++;
         newTail--;
@@ -524,7 +537,7 @@ const repeatTemplate = createTemplate(
           oldTail,
           newHead,
           container,
-          newTail + 1 < newRenderResults.length ? newRenderResults[newTail + 1]!.marker : before,
+          newTail + 1 < newLength ? newRenderResults[newTail + 1]!.marker : before,
           oldResults[oldHead]!.marker,
         );
         oldTail--;
@@ -537,13 +550,25 @@ const repeatTemplate = createTemplate(
           oldKeyToIndexMap = generateMap(oldResults, oldHead, oldTail);
         }
         if (!newKeyToIndexMap.has(oldResults[oldHead]!.key)) {
-          // Old head is no longer in new list; remove
-          const oldNextMarker = oldHead + 1 < oldResults.length ? oldResults[oldHead + 1]!.marker : before;
-          removePart(oldHead, oldResults as any, container, oldNextMarker);
+          if (!oldKeyToIndexMap.has(newComponentResults[newHead].key) && isReusableRenderResult(newComponentResults[newHead].result, oldResults[oldHead]!.result)) {
+            // The new head and old head don't exist in each other's lists but they share the same template; reuse
+            newRenderResults[newHead] = renderRepeatItem(oldResults[oldHead]!, newComponentResults[newHead], container, before);
+            newHead++;
+          } else {
+            // Old head is no longer in new list; remove
+            const oldNextMarker = oldHead + 1 < oldLength ? oldResults[oldHead + 1]!.marker : before;
+            removePart(oldHead, oldResults as any, container, oldNextMarker);
+          }
           oldHead++;
         } else if (!newKeyToIndexMap.has(oldResults[oldTail]!.key)) {
-          // Old tail is no longer in new list; remove
-          removePart(oldTail, oldResults as any, container, newTail < newRenderResults.length ? newRenderResults[newTail].marker : before);
+          if (!oldKeyToIndexMap.has(newComponentResults[newTail].key) && isReusableRenderResult(newComponentResults[newTail].result, oldResults[oldTail]!.result)) {
+            // The new tail and old tail don't exist in each other's lists but they share the same template; reuse
+            newRenderResults[newTail] = renderRepeatItem(oldResults[oldTail]!, newComponentResults[newTail], container, before);
+            newTail--;
+          } else {
+            // Old tail is no longer in new list; remove
+            removePart(oldTail, oldResults as any, container, newTail < newLength ? newRenderResults[newTail].marker : before);
+          }
           oldTail--;
         } else {
           // Any mismatches at this point are due to additions or
@@ -555,7 +580,7 @@ const repeatTemplate = createTemplate(
               newComponentResults,
               newHead,
               container,
-              oldHead < oldResults.length ? oldResults[oldHead]!.marker : before
+              oldHead < oldLength ? oldResults[oldHead]!.marker : before
             );
           } else {
             newRenderResults[newHead] = movePart(
@@ -579,13 +604,13 @@ const repeatTemplate = createTemplate(
         newComponentResults,
         newHead,
         container,
-        newTail + 1 < newRenderResults.length ? newRenderResults[newTail + 1].marker : before
+        newTail + 1 < newLength ? newRenderResults[newTail + 1].marker : before
       );
       newHead++;
     }
     if (oldHead <= oldTail) {
       const firstToRemoveMarker = oldResults[oldHead]!.marker;
-      const lastToRemoveMarker = newTail + 1 < newRenderResults.length ? newRenderResults[newTail + 1]!.marker : before;
+      const lastToRemoveMarker = newTail + 1 < newLength ? newRenderResults[newTail + 1]!.marker : before;
       removeUntilBefore(container, firstToRemoveMarker, lastToRemoveMarker);
     }
     state.oldResults = newRenderResults;
