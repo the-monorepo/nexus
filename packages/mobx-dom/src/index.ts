@@ -1,16 +1,20 @@
+import { stat } from "fs";
+
 let nextTemplateId = 0;
 const generateTemplateUid = () => nextTemplateId++;
 
-type CloneFn<V> = (v: V, container: Node, before: Node | null) => CloneInfo<V>;
+type CloneFn<V, R> = (v: V, container: Node, before: Node | null) => R;
 type Id = number | any;
-type ComponentTemplate<V> = {
+type ComponentTemplate<C, V> = {
   id: Id,
-  clone: CloneFn<V>,
+  clone: CloneFn<V, C>,
+  set?: SetFn<C, V>
 };
 
-const createTemplate = <V>(clone: CloneFn<V>): ComponentTemplate<V> => ({
+const createTemplate = <C, V>(clone: CloneFn<V, C>, set?: SetFn<C, V>): ComponentTemplate<C, V> => ({
   id: generateTemplateUid(),
   clone,
+  set
 });
 
 const assertNodeExists = (node) => {
@@ -76,12 +80,12 @@ export const event = <E extends Element = any>(el: E, key: string): EventField =
 type Field = AttributeField | PropertyField | EventField | ChildrenField;
 
 type TextTemplateInput = string | boolean | number | any;
-const textTemplate: ComponentTemplate<TextTemplateInput> = createTemplate((initialValue: TextTemplateInput, container: Node, before: Node | null) => {
+const textTemplate: ComponentTemplate<Text, TextTemplateInput> = createTemplate((initialValue: TextTemplateInput, container: Node, before: Node | null) => {
   const textNode = document.createTextNode(initialValue.toString());
   container.insertBefore(textNode, before);
-  return (value: TextTemplateInput) => {
-    textNode.data = value.toString();
-  };
+  return textNode;
+}, (textNode, value) => {
+  textNode.data = value.toString();
 });
 
 const rerenderArray = (items: any[], container: Node, before: Node | null) => {
@@ -95,16 +99,18 @@ const rerenderArray = (items: any[], container: Node, before: Node | null) => {
   container.insertBefore(fragment, before);
 };
 
-const mapTemplate: ComponentTemplate<any[]> = createTemplate((initialValue: any[], container: Node, before: Node | null) => {
-  rerenderArray(initialValue, container, before);
-  return (value: any[]) => {
+const mapTemplate: ComponentTemplate<void, any[]> = createTemplate(
+  (initialValue: any[], container: Node, before: Node | null) => {
+    rerenderArray(initialValue, container, before);
+  },
+  (nothing, value, container, before) => {
     rerenderArray(value, container, before);
-  };
-});
+  }
+);
 
 const figureOutComponentResult = (
   value: any,
-): typeof value extends null | undefined ? null : ComponentResult<any> => {
+): typeof value extends null | undefined ? null : ComponentResult<any, typeof value> => {
   if(value == null) {
     return null;
   } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
@@ -131,8 +137,7 @@ type FieldFactory = <E extends Node = any>(root: E) => ReadonlyArray<Field>;
 export const elementTemplate = (
   html: string,
   fieldFactory?: FieldFactory
-): ComponentTemplate<typeof fieldFactory extends undefined ? undefined : any[]> => {
-
+): ComponentTemplate<ReadonlyArray<Field> | null, any[]> => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement: Node = template.content.firstChild as Node;
@@ -143,13 +148,16 @@ export const elementTemplate = (
       if (fieldFactory !== undefined) {
         const fields = fieldFactory(cloned);
         setFieldValues(fields, initialValues, initialBefore);
-        return (fieldValues: any[], container, before: Node | null) => {
-          setFieldValues(fields, fieldValues, before);
-        };
+        return fields;
       } else {
-        return undefined;
+        return null;
       }
     },
+    (fields, fieldValues, container, before) => {
+      if(fields !== null) {
+        setFieldValues(fields, fieldValues, before)
+      }
+    }
   );
 }
 
@@ -157,20 +165,20 @@ export const spread = (el: Element) => {
   throw new Error('Not implemented yet');
 }
 
-type ComponentResult<V> = {
-  template: ComponentTemplate<V>,
+type ComponentResult<C, V> = {
+  template: ComponentTemplate<C, V>,
   value: V,
 };
 
-export const componentResult = <V>(template: ComponentTemplate<V>, value: V): ComponentResult<V> => ({
+export const componentResult = <C, V>(template: ComponentTemplate<C, V>, value: V): ComponentResult<C, V> => ({
   template,
   value
 });
 
 
-type RenderResult<V> = {
+type RenderResult<C, V> = {
   templateId: Id,
-  set?: SetFn<V>,
+  persistent: C,
 };
 
 const removeUntilBefore = (container: Node, startElement: Node, stopElement: Node | null) => {
@@ -252,41 +260,41 @@ const setFieldValues = (
 
 export type KeyFn<T> = (item: T, index: number) => unknown;
 export type MapFn<T, R> = (item: T, index: number) => R;
-export type SetFn<V> = (value: V, container: Node, before: Node | null) => any;
-type CloneInfo<V> = SetFn<V> | undefined;
+export type SetFn<C, V> = (cloneValue: C, value: V, container: Node, before: Node | null) => any;
+type CloneInfo<C, V> = SetFn<C, V> | undefined;
 
-const trackedNodes = new WeakMap<Node, RenderResult<any>>();
+const trackedNodes = new WeakMap<Node, RenderResult<any, any>>();
 
 const renderComponentResultNoSet = <V>(
-  renderInfo: ComponentResult<V>,
+  renderInfo: ComponentResult<any, V>,
   container: Node,
   before: Node | null
-): RenderResult<V> => {
+): RenderResult<any, V> => {
   const cloneInfo = renderInfo.template.clone(renderInfo.value, container, before);
   return {
     templateId: renderInfo.template.id,
     // TODO: remove any
-    set: cloneInfo,
+    persistent: cloneInfo,
   };
 }
 
-const renderComponentResult = <V>(
-  renderInfo: ComponentResult<V>,
+const renderComponentResult = <C, V>(
+  renderInfo: ComponentResult<C, V>,
   container: Node,
   trackerNode: Node,
   before: Node | null
-): RenderResult<V> => {
-  const result: RenderResult<V> = renderComponentResultNoSet(renderInfo, container, before);
+): RenderResult<C, V> => {
+  const result: RenderResult<C, V> = renderComponentResultNoSet(renderInfo, container, before);
   trackedNodes.set(trackerNode, result);
   return result;
 }
 
-const isReusableRenderResult = (componentResult: ComponentResult<any>, renderResult: RenderResult<any>) => {
+const isReusableRenderResult = (componentResult: ComponentResult<any, any>, renderResult: RenderResult<any, any>) => {
   return renderResult.templateId === componentResult.template.id;
 };
 
-const checkAndRenderComponentResult = <V>(
-  renderInfo: ComponentResult<V>,
+const checkAndRenderComponentResult = <C, V>(
+  renderInfo: ComponentResult<C, V>,
   container: Node,
   trackerNode: Node,
   before: Node | null
@@ -294,8 +302,8 @@ const checkAndRenderComponentResult = <V>(
   const oldResult = trackedNodes.get(trackerNode);
   if (oldResult) {
     if (isReusableRenderResult(renderInfo, oldResult)) {
-      if (oldResult.set !== undefined) {
-        oldResult.set(renderInfo.value, container, before);        
+      if (renderInfo.template.set !== undefined) {
+        renderInfo.template.set(oldResult.persistent, renderInfo.value, container, before);        
       }
     } else {
       removeUntilBefore(container, trackerNode, before);
@@ -308,13 +316,13 @@ const checkAndRenderComponentResult = <V>(
   }
 }
 
-export const render = <V>(value: ComponentResult<V>, container: Node) => {
+export const render = <C, V>(value: ComponentResult<C, V>, container: Node) => {
   return checkAndRenderComponentResult(value, container, container, null);
 }
 
 export type ItemTemplate<T> = (item: T, index: number) => unknown;
 
-const removePart = <R>(markerIndex: number, oldResults: RepeatItemData<R>[], container: Node, before: Node | null) => {
+const removePart = <C, R>(markerIndex: number, oldResults: RepeatItemData<C, R>[], container: Node, before: Node | null) => {
   const marker = oldResults[markerIndex].marker;
   removeUntilBefore(container, marker as Node, before);
 };
@@ -330,31 +338,31 @@ const generateMap = (list: unknown[], start: number, end: number) => {
   return map;
 };
 
-type RepeatTemplateInput<V, R> = {
+type RepeatTemplateInput<V, C, R> = {
   values: Iterable<V>,
-  mapFn: MapFn<V, ComponentResult<R>>,
+  mapFn: MapFn<V, ComponentResult<C, R>>,
   keyFn: KeyFn<V>,
 };
 
-type RepeatItemData<R> = {
+type RepeatItemData<C, R> = {
   key: unknown,
   marker: Comment,
-  result: RenderResult<R>,
+  result: RenderResult<C, R>,
 }
 
-type RepeatComponentData<R> = {
+type RepeatComponentData<C, R> = {
   key: unknown,
-  result: ComponentResult<R>,
+  result: ComponentResult<C, R>,
 }
 
-const repeatItemData = <R>(key: unknown, marker: Comment, result: RenderResult<R>): RepeatItemData<R> => ({
+const repeatItemData = <C, R>(key: unknown, marker: Comment, result: RenderResult<C, R>): RepeatItemData<C, R> => ({
   key,
   marker,
   result,
 });
 
 const insertPartBefore = (
-  newResults: RepeatComponentData<unknown>[],
+  newResults: RepeatComponentData<unknown, unknown>[],
   insertionIndex: number,
   container: Node,
   before: Node | null
@@ -367,15 +375,15 @@ const insertPartBefore = (
   return repeatItemData(newResult.key, newMarker, renderComponentResultNoSet(newResult.result, container, before));
 };
 
-const renderRepeatItem = <R>(
-  oldResult: RepeatItemData<R>,
-  newResult: RepeatComponentData<R>,
+const renderRepeatItem = <C, R>(
+  oldResult: RepeatItemData<C, R>,
+  newResult: RepeatComponentData<C, R>,
   container: Node,
   before: Node | null,
 ) => {
   if (isReusableRenderResult(newResult.result, oldResult.result)) {
-    if (oldResult.result.set) {
-      oldResult.result.set(newResult.result.value, container, before);
+    if (newResult.result.template.set !== undefined) {
+      newResult.result.template.set(oldResult.result.persistent, newResult.result.value, container, before);
     }
     return oldResult;
   } else {
@@ -389,8 +397,8 @@ const renderRepeatItem = <R>(
 }
 
 const movePart = (
-  oldResults: RepeatItemData<any>[],
-  newResults: RepeatComponentData<any>[],
+  oldResults: RepeatItemData<any, any>[],
+  newResults: RepeatComponentData<any, any>[],
   oldIndex: number,
   newIndex: number,
   container: Node,
@@ -406,8 +414,8 @@ const movePart = (
       oldResult.marker,
       oldNextMarker
     );
-    if (oldResult.result.set) {
-      oldResult.result.set(newResult.result.value, fragment, before);
+    if (newResult.result.template.set) {
+      newResult.result.template.set(oldResult.result.persistent, newResult.result.value, fragment, before);
     }
     container.insertBefore(fragment, before);
     return oldResult;
@@ -422,8 +430,12 @@ const movePart = (
   }
 }
 
-const repeatTemplate = createTemplate((initialInput: RepeatTemplateInput<any, any>, initialContainer, before) => {
-  let oldResults: (RepeatItemData<any> | null)[] = [];
+type RepeatTemplateCache<C, R> = {
+  oldResults: (RepeatItemData<C, R> | null)[]
+}
+const repeatTemplate = createTemplate(
+  (initialInput: RepeatTemplateInput<any, any, any>, initialContainer, before) => {
+  let oldResults: (RepeatItemData<any, any> | null)[] = [];
   (() => {
     const fragment = document.createDocumentFragment();
     let i = 0;
@@ -441,9 +453,12 @@ const repeatTemplate = createTemplate((initialInput: RepeatTemplateInput<any, an
   
     initialContainer.insertBefore(fragment, before);  
   })();
-
-  return (newInput: RepeatTemplateInput<any, any>, container: Node) => {
-    const newComponentResults: RepeatComponentData<any>[] = [];
+  const state: RepeatTemplateCache<any, any> = {oldResults};
+  return state;
+},
+(state: RepeatTemplateCache<any, any>, newInput: RepeatTemplateInput<any, any, any>, container: Node, before: Node | null) => {
+  const oldResults = state.oldResults;
+    const newComponentResults: RepeatComponentData<any, any>[] = [];
     
     let i = 0;
     for(const itemValue of newInput.values) {
@@ -454,7 +469,7 @@ const repeatTemplate = createTemplate((initialInput: RepeatTemplateInput<any, an
       }
       i++;
     }
-    const newRenderResults: RepeatItemData<any>[] = new Array(newComponentResults.length);
+    const newRenderResults: RepeatItemData<any, any>[] = new Array(newComponentResults.length);
 
     // Maps from key to index for current and previous update; these
     // are generated lazily only when needed as a performance
@@ -573,11 +588,11 @@ const repeatTemplate = createTemplate((initialInput: RepeatTemplateInput<any, an
       const lastToRemoveMarker = newTail + 1 < newRenderResults.length ? newRenderResults[newTail + 1]!.marker : before;
       removeUntilBefore(container, firstToRemoveMarker, lastToRemoveMarker);
     }
-    oldResults = newRenderResults;
-  };
-});
+    state.oldResults = newRenderResults;
+  }
+);
 
-export const repeat = <V, CR extends ComponentResult<any>>(values: Iterable<V>, keyFn: KeyFn<V>, mapFn: MapFn<V, CR>): ComponentResult<RepeatTemplateInput<V, CR>> => {
+export const repeat = <V, C, R, CR extends ComponentResult<C, R>>(values: Iterable<V>, keyFn: KeyFn<V>, mapFn: MapFn<V, CR>): ComponentResult<RepeatTemplateCache<C, R>, RepeatTemplateInput<V, C, R>> => {
   return {
     template: repeatTemplate,
     value: { values, keyFn, mapFn }
@@ -587,34 +602,41 @@ export const repeat = <V, CR extends ComponentResult<any>>(values: Iterable<V>, 
 export type SFC<P, R> = (props: P) => R;
 export type StateSetter<S> = (state: S) => void;
 export type StatefulComponent<P, S, R> = (props: P, statePatch: S, setState: StateSetter<S>) => R;
-export const withState = <P, S extends {}, R>(sfcWithState: StatefulComponent<P, S, R>, initialState: S): SFC<P, ComponentResult<P>> => {
+type InternalState<S, C, V> = {
+  previousRenderResult: RenderResult<C, V> | null,
+  readonly state: S,
+  readonly setState: (statePatch: Partial<S>) => void
+};
+export const withState = <C, P, S extends {}, R>(
+  sfcWithState: StatefulComponent<P, S, R>,
+  initialState: S
+): SFC<P, ComponentResult<InternalState<S, C, R>, P>> => {
   const stateTemplate = createTemplate((initialProps: P, container, before) => {
     const state = Object.create(initialState);
     const setState = (statePatch) => {
       Object.assign(state, statePatch);
     };
     const initialComponentResult = figureOutComponentResult(sfcWithState(initialProps, state, setState));
-    let previousRenderResult: RenderResult<P> | null = null;
-    if (initialComponentResult !== null) {
-      previousRenderResult = renderComponentResultNoSet(initialComponentResult, container, before);
-    }
-    return (props: P) => {
-      const componentResult = figureOutComponentResult(sfcWithState(props, state, setState));
-      if (componentResult) {
-        if (previousRenderResult !== null && isReusableRenderResult(componentResult, previousRenderResult)) {
-          if (previousRenderResult.set) {
-            previousRenderResult.set(props, container, before);
-          }
-        } else {
-          previousRenderResult = renderComponentResultNoSet(componentResult, container, before);
+    const previousRenderResult: RenderResult<C, P> | null = initialComponentResult !== null ? renderComponentResultNoSet(initialComponentResult, container, before) : null;
+    const internalState: InternalState<S, C, R> =  { previousRenderResult, state, setState };
+    return internalState;
+  }, (internalState, props, container, before) => {
+    const { previousRenderResult, state, setState } = internalState;
+    const componentResult = figureOutComponentResult(sfcWithState(props, state, setState));
+    if (componentResult) {
+      if (previousRenderResult !== null && isReusableRenderResult(componentResult, previousRenderResult)) {
+        if (componentResult.template.set) {
+          componentResult.template.set(previousRenderResult.persistent, props, container, before);
         }
       } else {
-        previousRenderResult = null;
+        internalState.previousRenderResult = renderComponentResultNoSet(componentResult, container, before);
       }
-    };
+    } else {
+      internalState.previousRenderResult = null;
+    }
   });
   return (props: P) => ({
     template: stateTemplate,
     value: props
-  });
+  })
 };
