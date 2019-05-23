@@ -90,14 +90,12 @@ const textTemplate: ComponentTemplate<Text, TextTemplateInput> = createTemplate(
 });
 
 const rerenderArray = (items: any[], container: Node, before: Node | null) => {
-  const fragment = document.createDocumentFragment();
   const filteredItems = items.filter((v) => v != null);
   for(const item of filteredItems) {
     const itemMarker = document.createComment('');
-    fragment.appendChild(itemMarker);
-    renderComponentResult(item, fragment, itemMarker, null);
+    container.insertBefore(itemMarker, before);
+    renderComponentResult(item, container, itemMarker, before);
   }
-  container.insertBefore(fragment, before);
 };
 
 const mapTemplate: ComponentTemplate<void, any[]> = createTemplate(
@@ -162,32 +160,37 @@ export const elementTemplate = (
       const cloned = document.importNode(rootElement, true);
       initialContainer.insertBefore(cloned, initialBefore);
       const fields = fieldFactory(cloned);
-      const fieldLength = fields.length;
-      for(let f = 0; f < fieldLength; f++) {
-        const field = fields[f];
-        const value = initialValues[f];
+      
+      const fieldIterator = fields[Symbol.iterator]();
+      const valueIterator = initialValues[Symbol.iterator]();
+
+      let fieldItem = fieldIterator.next();
+      do {
+        const field = fieldItem.value;
+        const value = valueIterator.next().value;  
         if (field.type === CHILD_TYPE) {
           setChildrenField(field, value, initialBefore);
         } else {
           setElementField(field, value);
-        }
-      }
+        }        
+      } while (!(fieldItem = fieldIterator.next()).done);
+
       return fields;
     },
     (fields, fieldValues, container, before) => {
-      const fieldLength = fields.length;
-      for(let f = 0; f < fieldLength; f++) {
-        const field = fields[f];
-        const value = fieldValues[f];
+      const fieldIterator = fields[Symbol.iterator]();
+      const valueIterator = fieldValues[Symbol.iterator]();
+
+      let fieldItem = fieldIterator.next();
+      do {
+        const field = fieldItem.value;
+        const value = valueIterator.next().value;  
         if (field.type === CHILD_TYPE) {
           setChildrenField(field, value, before);
-        } else {
-          if (field.oldValue === value) {
-            continue;
-          }
+        } else if(field.oldValue !== value) {
           setElementField(field, value);
-        }
-      }
+        }        
+      } while (!(fieldItem = fieldIterator.next()).done);
     }
   );
 }
@@ -220,14 +223,9 @@ const removeUntilBefore = (container: Node, startElement: Node | null, stopEleme
   }
 }
 
-const moveUntilBefore = (
-  newContainer: Node,
-  startElement: Node | null,
-  stopElement: Node | null,
-  before: Node | null,
-) => {
+const moveUntilBefore = (newContainer: Node, startElement: Node | null, stopElement: Node | null, before: Node | null) => {
   while(startElement !== stopElement) {
-    const nextSibling = startElement!.nextSibling;
+    const nextSibling = startElement!.nextSibling!;
     newContainer.insertBefore(startElement!, before);
     startElement = nextSibling;
   }  
@@ -337,11 +335,6 @@ export const render = <C, V>(value: ComponentResult<C, V>, container: Node) => {
 
 export type ItemTemplate<T> = (item: T, index: number) => unknown;
 
-const removePart = <C, R>(markerIndex: number, oldResults: RepeatItemData<C, R>[], container: Node, before: Node | null) => {
-  const marker = oldResults[markerIndex].marker;
-  removeUntilBefore(container, marker as Node, before);
-};
-
 // Helper for generating a map of array item to its index over a subset
 // of an array (used to lazily generate `newKeyToIndexMap` and
 // `oldKeyToIndexMap`)
@@ -410,14 +403,13 @@ const renderRepeatItem = <C, R>(
 }
 
 const movePart = (
-  insertionFragment: DocumentFragment,
   oldResults: RepeatItemData<any, any>[],
   newResults: RepeatComponentData<any, any>[],
   oldIndex: number,
   newIndex: number,
   container: Node,
   oldNextMarker: Node | null,
-  before: Node | null
+  before: Node | null,
 ) => {
   const newResult = newResults[newIndex];
 
@@ -425,58 +417,53 @@ const movePart = (
   
   if (isReusableRenderResult(newResult.result, oldResult.result)) {
     moveUntilBefore(
-      insertionFragment,
+      container,
       oldResult.marker,
       oldNextMarker,
       before
     );
     if (newResult.result.template.set) {
-      newResult.result.template.set(oldResult.result.persistent, newResult.result.value, insertionFragment, before);
+      newResult.result.template.set(oldResult.result.persistent, newResult.result.value, container, before);
     }
     return oldResult;
   } else {
     const nodeAfterMarker = oldResult.marker.nextSibling;
     removeUntilBefore(container, nodeAfterMarker, oldNextMarker);
-    insertionFragment.insertBefore(oldResult.marker, before);
-    const renderResult = renderComponentResultNoSet(newResult.result, insertionFragment, before);
+    container.insertBefore(oldResult.marker, before);
+    const renderResult = renderComponentResultNoSet(newResult.result, container, before);
     return repeatItemData(newResult.key, oldResult.marker, renderResult);
   }
+}
+
+const canReuseRemovedPart = (
+  oldKeyToIndexMap: Map<any, any>,
+  newComponentResults: RepeatComponentData<any, any>[],
+  oldResults: (RepeatItemData<any, any> | null)[],
+  newIndex: number,
+  oldIndex: number
+) =>{
+  return !oldKeyToIndexMap.has(newComponentResults[newIndex].key) && isReusableRenderResult(newComponentResults[newIndex].result, oldResults[oldIndex]!.result)
 }
 
 type RepeatTemplateCache<C, R> = {
   oldResults: (RepeatItemData<C, R> | null)[]
 }
-const NO_SIDE = 0;
-const LEFT_SIDE = 1;
-const RIGHT_SIDE = 2;
-type Side = typeof NO_SIDE | typeof LEFT_SIDE | typeof RIGHT_SIDE;
-
-const getLeftSideInsertBefore = (oldResults: (RepeatItemData<any, any> | null)[], oldHead: number, oldLength: number, before: Node | null): Node | null => {
-  return oldHead + 1 >= oldLength ? before : oldResults[oldHead + 1]!.marker;
-}
-const getRightSideInsertBefore = (newTail: number, newRenderResults: RepeatItemData<any, any>[]): Node | null => {
-  return newRenderResults[newTail]!.marker;
-}
-
 const repeatTemplate = createTemplate(
   (initialInput: RepeatTemplateInput<any, any, any>, initialContainer, before) => {
   let oldResults: (RepeatItemData<any, any> | null)[] = [];
   (() => {
-    const fragment = document.createDocumentFragment();
     let i = 0;
     for(const itemData of initialInput.values) {
       const componentResult = figureOutComponentResult(initialInput.mapFn(itemData, i));
       if (componentResult !== null) {
         const key = initialInput.keyFn(itemData, i);
         const marker = document.createComment('');
-        fragment.appendChild(marker);
-        const result = renderComponentResultNoSet(itemData.result, fragment, null);
+        initialContainer.insertBefore(marker, before);
+        const result = renderComponentResultNoSet(itemData.result, initialContainer, before);
         oldResults.push(repeatItemData(key, marker, result));  
       }
       i++;
     }
-  
-    initialContainer.insertBefore(fragment, before);  
   })();
   const state: RepeatTemplateCache<any, any> = {oldResults};
   return state;
@@ -499,9 +486,6 @@ const repeatTemplate = createTemplate(
 
     const newRenderResults: RepeatItemData<any, any>[] = [];
 
-    const leftFragment: DocumentFragment = document.createDocumentFragment();
-    const rightFragment: DocumentFragment = document.createDocumentFragment();
-
     // Maps from key to index for current and previous update; these
     // are generated lazily only when needed as a performance
     // optimization, since they are only required for multiple
@@ -516,8 +500,6 @@ const repeatTemplate = createTemplate(
     let newHead = 0;
     let newTail = newLength - 1;
 
-    let insertRightBefore: Node | null = before;
-
     while (oldHead <= oldTail && newHead <= newTail) {
       if (oldResults[oldHead] === null) {
         // `null` means old part at head has already been used
@@ -529,46 +511,37 @@ const repeatTemplate = createTemplate(
         oldTail--;
       } else if (oldResults[oldHead]!.key === newComponentResults[newHead].key) {
         // Old head matches new head; update in place
-        const markerToAddBefore = oldHead + 1 >= oldLength ? before : oldResults[oldHead + 1]!.marker;
-        const markerToAddFragmentBefore = oldResults[oldHead]!.marker;
-        container.insertBefore(leftFragment, markerToAddFragmentBefore);
-        newRenderResults[newHead] = renderRepeatItem(oldResults[oldHead]!, newComponentResults[newHead], container, markerToAddBefore);
+        newRenderResults[newHead] = renderRepeatItem(oldResults[oldHead]!, newComponentResults[newHead], container, oldHead + 1 >= oldLength ? before : oldResults[oldHead + 1]!.marker);
         oldHead++;
         newHead++;
-        if ()
       } else if (oldResults[oldTail]!.key === newComponentResults[newTail].key) {
         // Old tail matches new tail; update in place
-        newRenderResults[newTail] = renderRepeatItem(oldResults[oldTail]!, newComponentResults[newTail], container, insertRightBefore);
-        container.insertBefore(rightFragment, insertRightBefore);
-        insertRightBefore = newRenderResults[newTail].marker;
+        newRenderResults[newTail] = renderRepeatItem(oldResults[oldTail]!, newComponentResults[newTail], container, oldTail + 1 >= oldLength ? before : oldResults[oldTail + 1]!.marker);
         oldTail--;
         newTail--;
       } else if (oldResults[oldHead]!.key === newComponentResults[newTail].key) {
-        const rightBefore = oldResults[oldHead + 1]!.marker;
         // Old head matches new tail; update and move to new tail
         newRenderResults[newTail] = movePart(
-          rightFragment,
           oldResults as any,
           newComponentResults,
           oldHead,
           newTail,
           container,
-          rightBefore,
-          rightFragment.firstChild
+          oldResults[oldHead + 1]!.marker,
+          newTail + 1 < newLength ? newRenderResults[newTail + 1].marker : before,
         );
         oldHead++;
         newTail--;
       } else if (oldResults[oldTail]!.key === newComponentResults[newHead].key) {
         // Old tail matches new head; update and move to new head
         newRenderResults[newHead] = movePart(
-          leftFragment,
           oldResults as any,
           newComponentResults,
           oldTail,
           newHead,
           container,
-          insertRightBefore,
-          null
+          newTail + 1 < newLength ? newRenderResults[newTail + 1]!.marker : before,
+          oldResults[oldHead]!.marker,
         );
         oldTail--;
         newHead++;
@@ -580,27 +553,37 @@ const repeatTemplate = createTemplate(
           oldKeyToIndexMap = generateMap(oldResults, oldHead, oldTail);
         }
         if (!newKeyToIndexMap.has(oldResults[oldHead]!.key)) {
+          /**
+           * At this point there's no key in the new list that matches the old head's key but there's still a
+           * chance that the new head is a totally new item that happens to share the same template ID as the 
+           * old head. If so, we can save quite a lot of time by just reusing the old head's DOM render result
+           * and updating with the new head's values. This has great performance benefits for when you're replacing
+           * a batch of render results with an entirely new set that still happen to share the same key.
+           * 
+           * TODO: Might be worth making this more general in the sense that we could technically reuse parts
+           * that don't share the same key, from ANYWHERE within the list
+           * (i.e. Not just matching oldHead with newHead and oldTail with newTail). Not sure if it's worth it 
+           * or if it's even very performant.
+           */
           const oldNextMarker = oldHead + 1 < oldLength ? oldResults[oldHead + 1]!.marker : before;
-          container.insertBefore(leftFragment, oldNextMarker);
-          if (!oldKeyToIndexMap.has(newComponentResults[newHead].key) && isReusableRenderResult(newComponentResults[newHead].result, oldResults[oldHead]!.result)) {
+          if (canReuseRemovedPart(oldKeyToIndexMap, newComponentResults, oldResults, newHead, oldHead)) {
             // The new head and old head don't exist in each other's lists but they share the same template; reuse
             newRenderResults[newHead] = renderRepeatItem(oldResults[oldHead]!, newComponentResults[newHead], container, oldNextMarker);
             newHead++;
           } else {
             // Old head is no longer in new list; remove
-            removePart(oldHead, oldResults as any, container, oldNextMarker);
+            removeUntilBefore(container, oldResults[oldHead]!.marker, oldNextMarker);
           }
           oldHead++;
         } else if (!newKeyToIndexMap.has(oldResults[oldTail]!.key)) {
-          if (!oldKeyToIndexMap.has(newComponentResults[newTail].key) && isReusableRenderResult(newComponentResults[newTail].result, oldResults[oldTail]!.result)) {
+          const oldNextMarker = newTail < newLength ? newRenderResults[newTail].marker : before;
+          if (canReuseRemovedPart(oldKeyToIndexMap, newComponentResults, oldResults, newTail, oldTail)) {
             // The new tail and old tail don't exist in each other's lists but they share the same template; reuse
-            newRenderResults[newTail] = renderRepeatItem(oldResults[oldTail]!, newComponentResults[newTail], container, insertRightBefore);
-            container.insertBefore(rightFragment, insertRightBefore);
-            insertRightBefore = newRenderResults[newTail].marker;
+            newRenderResults[newTail] = renderRepeatItem(oldResults[oldTail]!, newComponentResults[newTail], container, oldNextMarker);
             newTail--;
           } else {
             // Old tail is no longer in new list; remove
-            removePart(oldTail, oldResults as any, container, insertRightBefore);
+            removeUntilBefore(container, oldResults[oldTail]!.marker, oldNextMarker);
           }
           oldTail--;
         } else {
@@ -612,19 +595,18 @@ const repeatTemplate = createTemplate(
             newRenderResults[newHead] = insertPartBefore(
               newComponentResults,
               newHead,
-              leftFragment,
-              null
+              container,
+              oldHead < oldLength ? oldResults[oldHead]!.marker : before
             );
           } else {
             newRenderResults[newHead] = movePart(
-              leftFragment,
               oldResults as any,
               newComponentResults,
               oldIndex,
               newHead,
               container,
               oldResults[oldIndex]!.marker,
-              null
+              oldResults[oldHead]!.marker,
             );
             oldResults[oldIndex] = null;
           }
@@ -632,22 +614,23 @@ const repeatTemplate = createTemplate(
         }
       }
     }
-    // Add parts for any remaining new values
-    while (newHead <= newTail) {      
-      newRenderResults[newHead] = insertPartBefore(
-        newComponentResults,
-        newHead,
-        leftFragment,
-        null
-      );
-      newHead++;
-    }
-    leftFragment.appendChild(rightFragment);
-    container.insertBefore(leftFragment, insertRightBefore);
+    
     if (oldHead <= oldTail) {
       const firstToRemoveMarker = oldResults[oldHead]!.marker;
       const lastToRemoveMarker = newTail + 1 < newLength ? newRenderResults[newTail + 1]!.marker : before;
       removeUntilBefore(container, firstToRemoveMarker, lastToRemoveMarker);
+    } else {
+      // Add parts for any remaining new values
+      const insertAdditionalPartsBefore = newTail + 1 < newLength ? newRenderResults[newTail + 1].marker : before;
+      while (newHead <= newTail) {
+        newRenderResults[newHead] = insertPartBefore(
+          newComponentResults,
+          newHead,
+          container,
+          insertAdditionalPartsBefore
+        );
+        newHead++;
+      }
     }
     state.oldResults = newRenderResults;
   }
