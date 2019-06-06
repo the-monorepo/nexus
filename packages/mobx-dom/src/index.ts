@@ -1,4 +1,9 @@
-let nextTemplateId = 0;
+const STATIC_ELEMENT_TEMPLATE_ID = 0;
+const ELEMENT_TEMPLATE_ID = 1;
+const STATIC_FRAGMENT_TEMPLATE_ID = 2;
+const FRAGMENT_TEMPLATE_ID = 3;
+const TEXT_TEMPLATE_ID = 4;
+let nextTemplateId = 5;
 const generateTemplateUid = () => nextTemplateId++;
 
 type CloneFn<V, R extends StatelessCloneInfo<any> | CloneInfo<any, any>> = (v: V, container: Node, before: Node | null) => R;
@@ -21,7 +26,8 @@ type StatefulComponentTemplate<C, V, N extends Node | null> = {
   clone: CloneFn<V, CloneInfo<N, C>>,
   set: SetFn<C, V>,
 }
-type ComponentTemplate<C, V, N extends Node | null> = StatelessComponentTemplate<V, N> | StatefulComponentTemplate<C, V, N>;
+type GenericTemplate<C, V, N extends Node | null> = StatelessComponentTemplate<V, N> | StatefulComponentTemplate<C, V, N>;
+type ComponentTemplate<C, V, N extends Node | null> = GenericTemplate<C, V, N> | TextTemplate | FragmentTemplate | ElementTemplate | StaticElementTemplate | StaticFragmentTemplate;
 
 type CreateTemplateFunction = {
   <V, N extends Node | null>(clone: CloneFn<V, StatelessCloneInfo<N>>): StatelessComponentTemplate<V, N>,
@@ -103,15 +109,17 @@ export const event = <E extends Element = any>(el: E, key: string): EventField =
 type Field = AttributeField | PropertyField | EventField | ChildrenField<unknown, unknown> | DynamicSectionField;
 type ElementField = AttributeField | PropertyField | EventField;
 type TextTemplateInput = string | boolean | number | any;
-const textTemplate: StatefulComponentTemplate<Text, TextTemplateInput, Text> = createTemplate(
+const textTemplate = {
+  id: TEXT_TEMPLATE_ID
+}
+type TextTemplate = typeof textTemplate;
+/* createTemplate(
   (initialValue: TextTemplateInput, container: Node, before: Node | null) => {
-    const textNode = document.createTextNode(initialValue.toString());
-    container.insertBefore(textNode, before);
     return cloneInfo(textNode, textNode);
   }, (textNode, value) => {
     textNode.textContent = value.toString();
   }
-);
+);*/
 
 // TODO
 const mapTemplate: any = null;
@@ -134,7 +142,7 @@ type DynamicSectionField = {
   type: typeof DYNAMIC_SECTION_TYPE,
   container: Node,
   before: Node | null;
-  oldValues: ({ firstNode: Node | null, result: RenderResult<any, any> | null})[]
+  oldValues: ({ firstNode: Node | null, result: RenderResult<any, any> | undefined})[]
 }
 export const dynamicSection = (container: Node, before: Node | null, length: number): DynamicSectionField => {
   return {
@@ -143,7 +151,7 @@ export const dynamicSection = (container: Node, before: Node | null, length: num
     before,
     oldValues: new Array(length).fill(null).map(() => ({
       firstNode: before,
-      result: null
+      result: undefined
     }))
   }
 }
@@ -173,69 +181,76 @@ const cloneInfo: CloneInfoFunction = <C, N extends Node | null>(firstNode: N, pe
   persistent
 });
 
-export const staticFragmentTemplate = (html: string): StatelessComponentTemplate<void, any> => {
+export const staticFragmentTemplate = (html: string) => {
   const template = document.createElement('template');
   template.innerHTML = html;
-  const contentFragment = template.content;
-  return createTemplate(
-    (nothing, initialContainer, initialBefore) => {
-      const cloned = document.importNode(contentFragment, true);
-      initialContainer.insertBefore(cloned, initialBefore);
-      return cloneInfo(cloned);
-    }
-  );
+  const rootElement = template.content;
+  return {
+    id: STATIC_FRAGMENT_TEMPLATE_ID,
+    rootElement,
+  }
 }
+type StaticFragmentTemplate = ReturnType<typeof staticFragmentTemplate>;
 
 export const staticElementTemplate = (
   html: string
-): StatelessComponentTemplate<void, Element> => {
+) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement: Node = template.content.firstChild as Node;
-  return createTemplate(
-    (nothing, initialContainer: Node, initialBefore: Node | null) => {
-      const cloned = document.importNode(rootElement, true) as Element;
-      initialContainer.insertBefore(cloned, initialBefore);
-      return cloneInfo(cloned);
-    }
-  );
+  return {
+    id: STATIC_ELEMENT_TEMPLATE_ID,
+    rootElement,
+  };
 }
+type StaticElementTemplate = ReturnType<typeof staticElementTemplate>;
 
-const setDynamicSectionChild = (value: any, oldResult: RenderResult<any, any> | undefined, container: Node, before: Node | null): RenderResult<any, any> | null => {
+const setDynamicSectionChild = (value: any, oldResult: RenderResult<any, any> | undefined, container: Node, before: Node | null): RenderResult<any, any> | undefined => {
   const componentResult = figureOutComponentResult(value);
-  if (componentResult) {
+  if (componentResult !== null) {
     return internalRender(componentResult, container, oldResult, before);
   } else {
-    return null;
+    return undefined;
   }
 }
 
 const setDynamicSection = (field: DynamicSectionField, valueIterator: Iterator<any>) => {
-  const fieldLength = field.oldValues.length;
   const container = field.container;
-  const oldValues = field.oldValues;
-  const lastIndex = fieldLength - 1;
-  for(let i = 0; i < lastIndex; i++) {
-    oldValues[i].result = setDynamicSectionChild(
-      oldValues,
+  {
+    const oldValueIterator = field.oldValues[Symbol.iterator]();
+    let previousOldValue = oldValueIterator.next();
+    let oldValue = oldValueIterator.next();
+    while(!oldValue.done) {
+      previousOldValue.value.result = setDynamicSectionChild(
+        valueIterator.next().value,
+        previousOldValue.value.result,
+        container,
+        oldValue.value.firstNode
+      )
+      previousOldValue = oldValue;
+      oldValue = oldValueIterator.next();
+    }  
+    previousOldValue.value.result = setDynamicSectionChild(
       valueIterator.next().value,
+      previousOldValue.value.result,
       container,
-      oldValues[i + 1].firstNode,
-    )
+      field.before
+    )  
   }
-  oldValues[lastIndex].result = setDynamicSectionChild(
-    oldValues,
-    valueIterator.next().value,
-    container,
-    field.before
-  )
-  let previousFirstNode = field.before;
-  for(let i = lastIndex; i >= 0; i--) {
-    const oldValue = oldValues[i];
-    if (oldValue.result !== null && oldValue.result.firstNode !== null) {
-      previousFirstNode = oldValue.result.firstNode;
-    }
-    oldValue.firstNode = previousFirstNode;
+  {
+    const fieldLength = field.oldValues.length;
+    const oldValues = field.oldValues;
+    const lastIndex = fieldLength - 1;  
+    let previousFirstNode = field.before;
+    let i = lastIndex;
+    // Always going to be 1 <= so we can use a do
+    do {
+      const oldValue = oldValues[i];
+      if (oldValue.result !== undefined && oldValue.result.firstNode !== null) {
+        previousFirstNode = oldValue.result.firstNode;
+      }
+      oldValue.firstNode = previousFirstNode;
+    } while (--i >= 0)  
   }
 }
 
@@ -288,41 +303,32 @@ type ElementTemplateState = ReadonlyArray<Field>;
 export const elementTemplate = (
   html: string,
   fieldFactory: FieldFactory
-): ComponentTemplate<ElementTemplateState, ReadonlyArray<any>, Element> => {
+) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement: Element = template.content.firstChild as Element;
-  return createTemplate(
-    (initialValues, initialContainer, initialBefore) => {
-      const cloned = document.importNode(rootElement, true);
-      initialContainer.insertBefore(cloned, initialBefore);
-      const fields = fieldFactory(cloned);
-      setInitialFieldValues(initialValues, fields);
-      return cloneInfo(cloned, fields);
-    },
-    domFieldSetter
-  );
+  return {
+    id: ELEMENT_TEMPLATE_ID,
+    rootElement,
+    fieldFactory
+  }
 }
+type ElementTemplate = ReturnType<typeof elementTemplate>;
 
 export const fragmentTemplate = (
   html: string,
   fieldFactory: FieldFactory
-): ComponentTemplate<ElementTemplateState, ReadonlyArray<any>, any> => {
+) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement: Node = template.content;
-  return createTemplate(
-    (initialValues, initialContainer, initialBefore) => {
-      const cloned = document.importNode(rootElement, true);
-      const firstNode = cloned.firstChild;
-      initialContainer.insertBefore(cloned, initialBefore);
-      const fields = fieldFactory(initialContainer);
-      setInitialFieldValues(initialValues, fields);
-      return cloneInfo(firstNode === null ? initialBefore : firstNode, fields);
-    },
-    domFieldSetter
-  );
+  return {
+    id: FRAGMENT_TEMPLATE_ID,
+    rootElement,
+    fieldFactory
+  }
 }
+type FragmentTemplate = ReturnType<typeof fragmentTemplate>;
 
 export const spread = (el: Element) => {
   throw new Error('Not implemented yet');
@@ -332,6 +338,7 @@ type ComponentResult<C, V, N extends Node | null> = {
   template: ComponentTemplate<C, V, N>,
   value: V,
 };
+
 
 export const componentResult = <C, V, N extends Node | null>(template: ComponentTemplate<C, V, N>, value: V): ComponentResult<C, V, N> => ({
   template,
@@ -414,13 +421,73 @@ const renderComponentResultNoSet = <V>(
   container: Node,
   before: Node | null
 ): RenderResult<any, any> => {
-  const { persistent, firstNode } = renderInfo.template.clone(renderInfo.value, container, before);
-  return {
-    templateId: renderInfo.template.id,
-    // TODO: remove any
-    persistent,
-    firstNode
-  };
+  switch(renderInfo.template.id) {
+    case TEXT_TEMPLATE_ID: {
+      const node = document.createTextNode(renderInfo.value as any);
+      container.insertBefore(node, before);
+      return {
+        templateId: TEXT_TEMPLATE_ID,
+        persistent: renderInfo.value,
+        firstNode: node
+      };
+    }
+    case STATIC_ELEMENT_TEMPLATE_ID: {
+      const template = renderInfo.template as StaticElementTemplate;
+      const cloned = document.importNode(template.rootElement, true);
+      container.insertBefore(cloned, before);
+      return {
+        templateId: STATIC_ELEMENT_TEMPLATE_ID,
+        persistent: undefined,
+        firstNode: cloned
+      };
+    }
+    case STATIC_FRAGMENT_TEMPLATE_ID: {
+      const template = renderInfo.template as StaticFragmentTemplate;
+      const cloned = document.importNode(template.rootElement, true);
+      container.insertBefore(cloned, before);
+      const firstNode = cloned.firstChild;
+      return {
+        templateId: STATIC_FRAGMENT_TEMPLATE_ID,
+        persistent: undefined,
+        firstNode: firstNode === null ? before: firstNode
+      };
+    }
+    case ELEMENT_TEMPLATE_ID: {
+      const elementTemplate = renderInfo.template as ElementTemplate;
+      const cloned = document.importNode(elementTemplate.rootElement, true);
+      container.insertBefore(cloned, before);
+      const fields = elementTemplate.fieldFactory(cloned);
+      setInitialFieldValues(renderInfo.value as any, fields);
+      return {
+        templateId: ELEMENT_TEMPLATE_ID,
+        persistent: fields,
+        firstNode: cloned
+      };
+    }
+    case FRAGMENT_TEMPLATE_ID: {
+      const fragmentTemplate = renderInfo.template as FragmentTemplate;
+      const cloned = document.importNode(fragmentTemplate.rootElement, true);
+      const firstNode = cloned.firstChild;
+      container.insertBefore(cloned, before);
+      const fields = fragmentTemplate.fieldFactory(container);
+      setInitialFieldValues(renderInfo.value as any, fields);
+      return {
+        templateId: FRAGMENT_TEMPLATE_ID,
+        persistent: fields,
+        firstNode: firstNode === null ? before : firstNode,
+      }
+    }
+    default: {
+      const template = renderInfo.template as GenericTemplate<any, V, any>;
+      const { persistent, firstNode } = template.clone(renderInfo.value, container, before);
+      return {
+        templateId: template.id,
+        // TODO: remove any
+        persistent,
+        firstNode
+      };
+    }
+  }
 }
 
 const isReusableRenderResult = (componentResult: ComponentResult<any, any, any>, renderResult: RenderResult<any, any>) => {
@@ -433,12 +500,39 @@ const removeRenderResult = (container: Node, result: RenderResult<any, any>, bef
   }
 }
 
+const setComponentResult = <C, V, N extends Node | null>(
+  renderInfo: ComponentResult<C, V, N>,
+  oldResult: RenderResult<C, N>,
+  container: Node, 
+  before: Node | null
+) => {
+  switch(renderInfo.template.id) {
+    case TEXT_TEMPLATE_ID:
+      if ((oldResult.persistent as any) !== renderInfo.value) {
+        oldResult.firstNode!.textContent = renderInfo.value.toString();
+        (oldResult.persistent as any) = renderInfo.value;
+      }
+      break;
+    case ELEMENT_TEMPLATE_ID:
+    case FRAGMENT_TEMPLATE_ID:
+      domFieldSetter(oldResult.persistent, renderInfo.value);
+      break;
+    case STATIC_ELEMENT_TEMPLATE_ID:
+    case STATIC_FRAGMENT_TEMPLATE_ID:
+      break;
+    default:
+      const template = renderInfo.template as GenericTemplate<C, V, N>;
+      if (template.set !== undefined) {
+        template.set(oldResult.persistent, renderInfo.value, container, before);
+      }      
+      break;
+  }
+}
+
 const internalRender = <C, V, N extends Node | null>(renderInfo: ComponentResult<C, V, N>, container: Node, oldResult: RenderResult<C, N> | undefined, before: Node | null) => {
   if (oldResult !== undefined) {
     if (isReusableRenderResult(renderInfo, oldResult)) {
-      if (renderInfo.template.set !== undefined) {
-        renderInfo.template.set(oldResult.persistent, renderInfo.value, container, before);
-      }
+      setComponentResult(renderInfo, oldResult, container, before);
       return oldResult;
     } else {
       removeRenderResult(container, oldResult, before);        
@@ -515,12 +609,10 @@ const renderRepeatItem = <C, R, N extends Node | null>(
   before: Node | null,
 ) => {
   if (isReusableRenderResult(newResult.result, oldResult.result)) {
-    if (newResult.result.template.set !== undefined) {
-      newResult.result.template.set(oldResult.result.persistent, newResult.result.value, container, before);
-    }
+    setComponentResult(newResult.result, oldResult.result, container, before);
     return oldResult;
   } else {
-    removeUntilBefore(container, oldResult.firstNode, before);
+    removeRenderResult(container, oldResult.result, before);
     const renderResult = renderComponentResultNoSet(newResult.result, container, before);
     return repeatItemData(newResult.key, renderResult, before);
   }
@@ -546,13 +638,10 @@ const movePart = (
       oldNextMarker,
       before
     );
-    if (newResult.result.template.set !== undefined) {
-      newResult.result.template.set(oldResult.result.persistent, newResult.result.value, container, before);
-    }
+    setComponentResult(newResult.result, oldResult.result, container, before);
     return oldResult;
   } else {
-    const nodeAfterMarker = oldResult.firstNode;
-    removeUntilBefore(container, nodeAfterMarker, oldNextMarker);
+    removeRenderResult(container, oldResult.result, oldNextMarker);
     const renderResult = renderComponentResultNoSet(newResult.result, container, before);
     return repeatItemData(newResult.key, renderResult, before);
   }
@@ -573,44 +662,37 @@ type RepeatTemplateCache<C, R, N extends Node | null> = {
 }
 const repeatTemplate = createTemplate(
   (initialInput: RepeatTemplateInput<any, any, any, any>, initialContainer, before) => {
-  let oldResults: (RepeatItemData<any, any, any> | null)[] = [];
-  (() => {
-    let i = 0;
-    for(const itemData of initialInput.values) {
-      const componentResult = figureOutComponentResult(initialInput.mapFn(itemData, i));
-      if (componentResult !== null) {
-        const key = initialInput.keyFn(itemData, i);
-        const result = renderComponentResultNoSet(itemData.result, initialContainer, before);
-        oldResults.push(repeatItemData(key, result, null));  
-      }
-      i++;
+  let oldResults: (RepeatItemData<any, any, any> | null)[] = Array.from(initialInput.values, (itemData, i) => {
+    const componentResult = figureOutComponentResult(initialInput.mapFn(itemData, i));
+    if (componentResult !== null) {
+      const key = initialInput.keyFn(itemData, i);
+      const result = renderComponentResultNoSet(itemData.result, initialContainer, before);
+      return repeatItemData(key, result, null);  
     }
-    let previousFirstNode = before;
-    while(i > 0) {
-      i--;
-      const oldResult = oldResults[i] as RepeatItemData<any, any, any>;
-      if (oldResult.result.firstNode) {
-        previousFirstNode = oldResult.result.firstNode
-      }
-      oldResult.firstNode = previousFirstNode;
+    return null;
+  }).filter(itemData => itemData !== null);
+  let previousFirstNode = before;
+  for(let i = oldResults.length - 1; i >= 0; i--) {
+    const oldResult = oldResults[i] as RepeatItemData<any, any, any>;
+    if (oldResult.result.firstNode) {
+      previousFirstNode = oldResult.result.firstNode
     }
-  })();
+    oldResult.firstNode = previousFirstNode;
+  }
   const state: RepeatTemplateCache<any, any, any> = {oldResults};
   return cloneInfo(oldResults.length > 0 ? (oldResults[0] as RepeatItemData<any, any, any>).firstNode : before, state);
 },
 (state: RepeatTemplateCache<any, any, any>, newInput: RepeatTemplateInput<any, any, any, any>, container: Node, before: Node | null) => {
   const oldResults = state.oldResults;
-    const newComponentResults: RepeatComponentData<any, any, any>[] = [];
-    
-    let i = 0;
-    for(const itemValue of newInput.values) {
+    const newComponentResults: RepeatComponentData<any, any, any>[] = Array.from(newInput.values, (itemValue, i) => {
       const componentResult = figureOutComponentResult(newInput.mapFn(itemValue, i));
       if (componentResult !== null) {
         const key = newInput.keyFn(itemValue, i);
-        newComponentResults.push({ key, result: componentResult });  
+        return { key, result: componentResult }
       }
-      i++;
-    }
+      return null;
+    }).filter(itemValue => itemValue !== null) as any[];
+    
     const oldLength = oldResults.length;
     const newLength = newComponentResults.length;
 
