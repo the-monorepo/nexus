@@ -1,16 +1,18 @@
-
 const recalculateStaleStarts = (values, recalculateFrom) => {
-  let previousItem = recalculateFrom === 0 ? { start: 0, length: 0, offset: 0 }: values[recalculateFrom - 1];
-  for(let v = recalculateFrom; v < values.length; v++) {
+  let previousItem =
+    recalculateFrom === 0
+      ? { start: 0, length: 0, offset: 0 }
+      : values[recalculateFrom - 1];
+  for (let v = recalculateFrom; v < values.length; v++) {
     const currentItem = values[v];
     const newStart = previousItem.start + previousItem.length + currentItem.offset;
-    currentItem.start = newStart
+    currentItem.start = newStart;
     previousItem = currentItem;
   }
-}
+};
 
 export const segmentTracker = () => {
-  const values = new Array();
+  const values = [];
   // -1 means nothing needs to be recalculated
   let recalculateFrom: number = -1;
   /**
@@ -19,15 +21,17 @@ export const segmentTracker = () => {
   return {
     addSegment: (offset: number) => {
       const internalIndex = values.length;
-      const segment = { 
+      const segment = {
         start: -1,
         length: 0,
-        offset
+        offset,
       };
       values.push(segment);
       recalculateFrom = internalIndex;
       return {
-        get length() { return segment.length },
+        get length() {
+          return segment.length;
+        },
         set length(newLength) {
           segment.length = newLength;
           recalculateFrom = internalIndex;
@@ -39,8 +43,8 @@ export const segmentTracker = () => {
             recalculateFrom = -1;
           }
           return segment.start;
-        }
+        },
       };
-    }
-  }
-}
+    },
+  };
+};
