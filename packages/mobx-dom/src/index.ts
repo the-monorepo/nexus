@@ -1,5 +1,5 @@
-let nextTemplateId = 0;
-const generateTemplateUid = () => nextTemplateId++;
+let nextBlueprintId = 0;
+const generateBlueprintUid = () => nextBlueprintId++;
 
 type CloneFn<V, R extends StatelessCloneInfo<any> | CloneInfo<any, any>> = (
   v: V,
@@ -15,30 +15,30 @@ interface CloneInfo<N extends Node, C> {
   firstNode: N;
   persistent: C;
 }
-interface StatelessComponentTemplate<V, N extends Node> {
+interface StatelessComponentBlueprint<V, N extends Node> {
   id: Id;
   clone: CloneFn<V, StatelessCloneInfo<N>>;
   set: undefined;
 }
-interface StatefulComponentTemplate<C, V, N extends Node> {
+interface StatefulComponentBlueprint<C, V, N extends Node> {
   id: Id;
   clone: CloneFn<V, CloneInfo<N, C>>;
   set: SetFn<C, V>;
 }
-type GenericTemplate<C, V, N extends Node = Node> =
-  | StatelessComponentTemplate<V, N>
-  | StatefulComponentTemplate<C, V, N>;
-type ComponentTemplate<C, V, N extends Node> =
-  | GenericTemplate<C, V, N>;
+type GenericBlueprint<C, V, N extends Node = Node> =
+  | StatelessComponentBlueprint<V, N>
+  | StatefulComponentBlueprint<C, V, N>;
+type ComponentBlueprint<C, V, N extends Node> =
+  | GenericBlueprint<C, V, N>;
 
-interface CreateTemplateFunction {
+interface CreateBlueprintFunction {
   <V, N extends Node>(
     clone: CloneFn<V, StatelessCloneInfo<N>>,
-  ): StatelessComponentTemplate<V, N>;
+  ): StatelessComponentBlueprint<V, N>;
   <V, C, N extends Node>(
     clone: CloneFn<V, CloneInfo<N, C>>,
     set: SetFn<C, V>,
-  ): StatefulComponentTemplate<C, V, N>;
+  ): StatefulComponentBlueprint<C, V, N>;
 }
 
 interface CloneInfoFunction {
@@ -53,11 +53,11 @@ const cloneInfo: CloneInfoFunction = <C, N extends Node | null>(
   persistent,
 });
 
-const createTemplate = ((clone, set) => ({
-  id: generateTemplateUid(),
+const createBlueprint = ((clone, set) => ({
+  id: generateBlueprintUid(),
   clone,
   set,
-})) as CreateTemplateFunction; // TODO: Try remove the as any at some point
+})) as CreateBlueprintFunction; // TODO: Try remove the as any at some point
 
 const ATTRIBUTE_TYPE = 0;
 const PROPERTY_TYPE = 1;
@@ -127,28 +127,27 @@ type Field =
   | DynamicSectionField
   | SpreadField;
 type ElementField = AttributeField | PropertyField | EventField | SpreadField;
-type TextTemplateInput = string | boolean | number;
-const textTemplate = createTemplate((value: TextTemplateInput, container, before) => {
+type TextBlueprintInput = string | boolean | number;
+const textBlueprint = createBlueprint((value: TextBlueprintInput, container, before) => {
   const node = document.createTextNode(value.toString());
   container.insertBefore(node, before);
   return cloneInfo(node, node);
 }, (textNode, value) => {
   textNode.data = value.toString();
 });
-type TextTemplate = typeof textTemplate;
 
 type MapItemData = RenderResult<any>;
 
-interface MapTemplateState {
+interface MapBlueprintState {
   oldResults: (MapItemData | null)[];
 }
 
 const renderResult = <C, N extends Node>(
-  templateId: number,
+  blueprintId: number,
   firstNode: N,
   persistent: C,
 ): RenderResult<C, N> => ({
-  templateId,
+  blueprintId,
   firstNode,
   persistent,
 });
@@ -189,20 +188,20 @@ const renderComponentResultNoSet = (
   container: Node,
   before: Node | null,
 ): RenderResult<any> => {
-  const template = renderInfo.template;
-  const { persistent, firstNode } = template.clone(
+  const blueprint = renderInfo.blueprint;
+  const { persistent, firstNode } = blueprint.clone(
     renderInfo.value,
     container,
     before,
   );
-  return renderResult(template.id, firstNode, persistent);
+  return renderResult(blueprint.id, firstNode, persistent);
 };
 
 export const componentResult = <C, V, N extends Node>(
-  template: ComponentTemplate<C, V, N>,
+  blueprint: ComponentBlueprint<C, V, N>,
   value: V,
 ): ComponentResult<C, V, N> => ({
-  template,
+  blueprint,
   value,
 });
 
@@ -218,12 +217,12 @@ const replaceOldResult = <C, V, N extends Node>(
 
 const componentResultFromValue = (
   value: any,
-): ComponentResult<unknown, any, Node> => {
+) => {
   const valueType = typeof value;
   if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-    return componentResult(textTemplate, value);
+    return componentResult(textBlueprint, value);
   } else if (value[Symbol.iterator] !== undefined) {
-    return componentResult(mapTemplate, value);
+    return componentResult(mapBlueprint, value);
   } else {
     return value;
   }
@@ -240,8 +239,8 @@ export const render = (value: any, container: Node) => {
     if (oldResult === undefined) {
       trackedNodes.set(container, renderComponentResultNoSet(componentResult, container, null));
     } else if (isReusableRenderResult(componentResult, oldResult)) {
-      if (componentResult.template.set !== undefined) {
-        componentResult.template.set(oldResult.persistent, componentResult.value, container, null);
+      if (componentResult.blueprint.set !== undefined) {
+        componentResult.blueprint.set(oldResult.persistent, componentResult.value, container, null);
       }
     } else {
       trackedNodes.set(container, replaceOldResult(componentResult, container, oldResult, null));
@@ -256,8 +255,8 @@ const renderMapItemData = (
   before: Node | null,
 ) => {
   if (isReusableRenderResult(newValue, oldResult)) {
-    if (newValue.template.set !== undefined) {
-      newValue.template.set(oldResult.persistent, newValue.value, container, before);
+    if (newValue.blueprint.set !== undefined) {
+      newValue.blueprint.set(oldResult.persistent, newValue.value, container, before);
     }
     return oldResult;
   } else {
@@ -265,8 +264,8 @@ const renderMapItemData = (
   }
 };
 
-const mapTemplate: GenericTemplate<MapTemplateState, Iterable<any>> = createTemplate(
-  (initialValues: Iterable<any>, container, before) => {
+const mapBlueprint: GenericBlueprint<MapBlueprintState, Iterable<any>> = createBlueprint(
+  (initialValues: Iterable<any>, container, before): CloneInfo<Node, MapBlueprintState> => {
     let oldResults: MapItemData[] = [];
     let j = 0;
     const marker = document.createComment('');
@@ -280,7 +279,7 @@ const mapTemplate: GenericTemplate<MapTemplateState, Iterable<any>> = createTemp
     const state = { oldResults };
     return cloneInfo(marker, state);
   },
-  (state: MapTemplateState, newInput: any[], container: Node, before: Node | null) => {
+  (state: MapBlueprintState, newInput: Iterable<any>, container: Node, before: Node | null) => {
     const oldResults = state.oldResults;
     const newComponentResults: ComponentResult<any, any, any>[] = [];
     let j = 0;
@@ -313,8 +312,8 @@ const mapTemplate: GenericTemplate<MapTemplateState, Iterable<any>> = createTemp
         // below; skip
         oldTail--;
       } else if (
-        oldResults[oldHead]!.templateId ===
-        newComponentResults[newHead].template.id
+        oldResults[oldHead]!.blueprintId ===
+        newComponentResults[newHead].blueprint.id
       ) {
         // Old head matches new head; update in place
         newRenderResults[newHead] = renderMapItemData(
@@ -326,8 +325,8 @@ const mapTemplate: GenericTemplate<MapTemplateState, Iterable<any>> = createTemp
         oldHead++;
         newHead++;
       } else if (
-        oldResults[oldTail]!.templateId ===
-        newComponentResults[newTail].template.id
+        oldResults[oldTail]!.blueprintId ===
+        newComponentResults[newTail].blueprint.id
       ) {
         // Old tail matches new tail; update in place
         newRenderResults[newTail] = renderMapItemData(
@@ -339,8 +338,8 @@ const mapTemplate: GenericTemplate<MapTemplateState, Iterable<any>> = createTemp
         oldTail--;
         newTail--;
       } else if (
-        oldResults[oldHead]!.templateId ===
-        newComponentResults[newTail].template.id
+        oldResults[oldHead]!.blueprintId ===
+        newComponentResults[newTail].blueprint.id
       ) {
         // Old head matches new tail; update and move to new tail
         newRenderResults[newTail] = renderMapItemData(
@@ -352,8 +351,8 @@ const mapTemplate: GenericTemplate<MapTemplateState, Iterable<any>> = createTemp
         newTail--;
         oldHead++;
       } else if (
-        oldResults[oldTail]!.templateId ===
-        newComponentResults[newHead].template.id
+        oldResults[oldTail]!.blueprintId ===
+        newComponentResults[newHead].blueprint.id
       ) {
         // Old tail matches new head; update and move to new head
         newRenderResults[newTail] = renderMapItemData(
@@ -437,11 +436,11 @@ export const children = <C, V>(
 };
 type FieldFactory = <E extends Node = any>(root: E) => ReadonlyArray<Field>;
 
-export const staticFragmentTemplate = (html: string) => {
+export const staticFragmentBlueprint = (html: string) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement = template.content;
-  return createTemplate((nothing, container, before) => {
+  return createBlueprint((nothing, container, before) => {
     const cloned = document.importNode(rootElement, true);
     container.insertBefore(cloned, before);
     const firstNode = cloned.firstChild as Node;
@@ -449,11 +448,11 @@ export const staticFragmentTemplate = (html: string) => {
   });
 };
 
-export const staticElementTemplate = (html: string) => {
+export const staticElementBlueprint = (html: string) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement: Element = template.content.firstChild as Element;
-  return createTemplate((nothing, container, before) => {
+  return createBlueprint((nothing, container, before) => {
     const cloned = document.importNode(rootElement, true);
     container.insertBefore(cloned, before);
     return cloneInfo(cloned);
@@ -476,8 +475,8 @@ const setDynamicSectionChild = (
   if (oldResult === undefined) {
     return renderComponentResultNoSet(componentResult, container, before);
   } else if (isReusableRenderResult(componentResult, oldResult)) {
-    if (componentResult.template.set !== undefined) {
-      componentResult.template.set(oldResult.persistent, componentResult.value, container, before);
+    if (componentResult.blueprint.set !== undefined) {
+      componentResult.blueprint.set(oldResult.persistent, componentResult.value, container, before);
     }
     return oldResult;
   } else {
@@ -537,14 +536,14 @@ const domFieldSetter = (fields: ReadonlyArray<Field>, fieldValues: ReadonlyArray
   }
 };
 
-export const elementTemplate = (
+export const elementBlueprint = (
   html: string,
   fieldFactory: FieldFactory,
 ) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement = template.content.firstChild as Element;
-  return createTemplate((fieldValues: ReadonlyArray<any>, container, before) => {
+  return createBlueprint((fieldValues: ReadonlyArray<any>, container, before) => {
     const cloned = document.importNode(rootElement, true);
     container.insertBefore(cloned, before);
     const fields = fieldFactory(cloned);
@@ -553,14 +552,14 @@ export const elementTemplate = (
   }, domFieldSetter)
 };
 
-export const fragmentTemplate = (
+export const fragmentBlueprint = (
   html: string,
   fieldFactory: FieldFactory,
 ) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement = template.content;
-  return createTemplate((fieldValues: ReadonlyArray<any>, container, before) => {
+  return createBlueprint((fieldValues: ReadonlyArray<any>, container, before) => {
     const cloned = document.importNode(rootElement, true);
     const firstNode = cloned.firstChild as Node;
     container.insertBefore(cloned, before);
@@ -584,12 +583,12 @@ export const spread = (el: Element) => {
 };
 
 interface ComponentResult<C, V, N extends Node> {
-  template: ComponentTemplate<C, V, N>;
+  blueprint: ComponentBlueprint<C, V, N>;
   value: V;
 }
 
 interface RenderResult<C, N extends Node = Node> {
-  templateId: Id;
+  blueprintId: Id;
   firstNode: N;
   persistent: C;
 }
@@ -735,10 +734,10 @@ const isReusableRenderResult = (
   componentResult: ComponentResult<any, any, any>,
   renderResult: RenderResult<any>,
 ) => {
-  return renderResult.templateId === componentResult.template.id;
+  return renderResult.blueprintId === componentResult.blueprint.id;
 };
 
-export type ItemTemplate<T> = (item: T, index: number) => unknown;
+export type ItemBlueprint<T> = (item: T, index: number) => unknown;
 
 // Helper for generating a map of array item to its index over a subset
 // of an array (used to lazily generate `newKeyToIndexMap` and
@@ -751,7 +750,7 @@ const generateMap = (list: unknown[], start: number, end: number) => {
   return map;
 };
 
-interface RepeatTemplateInput<V, C, R, N extends Node = Node> {
+interface RepeatBlueprintInput<V, C, R, N extends Node = Node> {
   values: Iterable<V>;
   mapFn: MapFn<V, ComponentResult<C, R, N>>;
   keyFn: KeyFn<V>;
@@ -765,8 +764,8 @@ const renderRepeatItem = <C, R, N extends Node>(
   before: Node | null,
 ) => {
   if (isReusableRenderResult(newResult, oldResult)) {
-    if (newResult.template.set !== undefined) {
-      newResult.template.set(oldResult.persistent, newResult.value, container, before);
+    if (newResult.blueprint.set !== undefined) {
+      newResult.blueprint.set(oldResult.persistent, newResult.value, container, before);
     }
     return oldResult;
   } else {
@@ -786,8 +785,8 @@ const movePart = (
 
   if (isReusableRenderResult(newResult, oldResult)) {
     moveUntilBefore(container, oldResult.firstNode, oldNextMarker, before);
-    if (newResult.template.set !== undefined) {
-      newResult.template.set(oldResult.persistent, newResult.value, container, before);
+    if (newResult.blueprint.set !== undefined) {
+      newResult.blueprint.set(oldResult.persistent, newResult.value, container, before);
     }
     return oldResult;
   } else {
@@ -814,12 +813,12 @@ const canReuseRemovedPart = (
   );
 };
 
-interface RepeatTemplateCache<C, N extends Node> {
+interface RepeatBlueprintCache<C, N extends Node> {
   oldResults: (RenderResult<C, N> | null)[];
   keys: any[];
 }
-const repeatTemplate = createTemplate(
-  (initialInput: RepeatTemplateInput<any, any, any>, initialContainer, before) => {
+const repeatBlueprint = createBlueprint(
+  (initialInput: RepeatBlueprintInput<any, any, any>, initialContainer, before) => {
     const oldResults: RenderResult<any, any>[] = [];
     const keys: any[] = [];
 
@@ -842,12 +841,12 @@ const repeatTemplate = createTemplate(
       }
       i++;
     }
-    const state: RepeatTemplateCache<any, any> = { oldResults, keys };
+    const state: RepeatBlueprintCache<any, any> = { oldResults, keys };
     return cloneInfo(marker, state);
   },
   (
-    state: RepeatTemplateCache<any, any>,
-    newInput: RepeatTemplateInput<any, any, any, any>,
+    state: RepeatBlueprintCache<any, any>,
+    newInput: RepeatBlueprintInput<any, any, any, any>,
     container: Node,
     before: Node | null,
   ) => {
@@ -952,7 +951,7 @@ const repeatTemplate = createTemplate(
         if (!newKeyToIndexMap.has(keys[oldHead])) {
           /**
            * At this point there's no key in the new list that matches the old head's key but there's still a
-           * chance that the new head is a totally new item that happens to share the same template ID as the
+           * chance that the new head is a totally new item that happens to share the same blueprint ID as the
            * old head. If so, we can save quite a lot of time by just reusing the old head's DOM render result
            * and updating with the new head's values. This has great performance benefits for when you're replacing
            * a batch of render results with an entirely new set that still happen to share the same key.
@@ -975,7 +974,7 @@ const repeatTemplate = createTemplate(
               oldHead
             )
           ) {
-            // The new head and old head don't exist in each other's lists but they share the same template; reuse
+            // The new head and old head don't exist in each other's lists but they share the same blueprint; reuse
             newRenderResults[newHead] = renderRepeatItem(
               oldResults[oldHead]!,
               newComponentResults[newHead],
@@ -1001,7 +1000,7 @@ const repeatTemplate = createTemplate(
               oldTail,
             )
           ) {
-            // The new tail and old tail don't exist in each other's lists but they share the same template; reuse
+            // The new tail and old tail don't exist in each other's lists but they share the same blueprint; reuse
             newRenderResults[newTail] = renderRepeatItem(
               oldResults[oldTail]!,
               newComponentResults[newTail],
@@ -1071,11 +1070,11 @@ const keyedComponents = <V, C, R, CR extends ComponentResult<C, R, any>>(
   mapFn: MapFn<V, CR>,
   recycle: boolean,
 ): ComponentResult<
-  RepeatTemplateCache<C, any>,
-  RepeatTemplateInput<V, C, R, any>,
+  RepeatBlueprintCache<C, any>,
+  RepeatBlueprintInput<V, C, R, any>,
   any
 > => {
-  return componentResult(repeatTemplate, { values, keyFn, mapFn, recycle });
+  return componentResult(repeatBlueprint, { values, keyFn, mapFn, recycle });
 };
 
 export const map = <V, C, R, CR extends ComponentResult<C, R, any>>(
@@ -1083,8 +1082,8 @@ export const map = <V, C, R, CR extends ComponentResult<C, R, any>>(
   keyFn: KeyFn<V>,
   mapFn: MapFn<V, CR>,
 ): ComponentResult<
-  RepeatTemplateCache<C, any>,
-  RepeatTemplateInput<V, C, R, any>,
+  RepeatBlueprintCache<C, any>,
+  RepeatBlueprintInput<V, C, R, any>,
   any
 > => {
   return keyedComponents(values, keyFn, mapFn, true);
@@ -1095,8 +1094,8 @@ export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
   keyFn: KeyFn<V>,
   mapFn: MapFn<V, CR>,
 ): ComponentResult<
-  RepeatTemplateCache<C, any>,
-  RepeatTemplateInput<V, C, R, any>,
+  RepeatBlueprintCache<C, any>,
+  RepeatBlueprintInput<V, C, R, any>,
   any
 > => {
   return keyedComponents(values, keyFn, mapFn, false);
@@ -1115,7 +1114,7 @@ export const withState = <C, P, S extends {}, R>(
   sfcWithState: StatefulComponent<P, S, R>,
   initialState: S
 ): SFC<P, ComponentResult<InternalState<S, C, R>, P>> => {
-  const stateTemplate = createTemplate((initialProps: P, container, before) => {
+  const stateBlueprint = createBlueprint((initialProps: P, container, before) => {
     const state = Object.create(initialState);
     const setState = (statePatch) => {
       Object.assign(state, statePatch);
@@ -1129,8 +1128,8 @@ export const withState = <C, P, S extends {}, R>(
     const componentResult = componentResultFromValue(sfcWithState(props, state, setState));
     if (componentResult) {
       if (previousRenderResult !== null && isReusableRenderResult(componentResult, previousRenderResult)) {
-        if (componentResult.template.set) {
-          componentResult.template.set(previousRenderResult.persistent, props, container, before);
+        if (componentResult.blueprint.set) {
+          componentResult.blueprint.set(previousRenderResult.persistent, props, container, before);
         }
       } else {
         internalState.previousRenderResult = renderComponentResultNoSet(componentResult, container, before);
@@ -1142,7 +1141,7 @@ export const withState = <C, P, S extends {}, R>(
     return null;
   });
   return (props: P) => ({
-    template: stateTemplate,
+    blueprint: stateBlueprint,
     value: props
   })
 };*/
