@@ -478,10 +478,10 @@ const constDeclaration = (id, expression) => {
   return t.variableDeclaration('const', [t.variableDeclarator(id, expression)]);
 };
 
-const STATIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'staticElementTemplate';
-const DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'elementTemplate';
-const STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'staticFragmentTemplate';
-const DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'fragmentTemplate';
+const STATIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'staticElementBlueprint';
+const DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'elementBlueprint';
+const STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'staticFragmentBlueprint';
+const DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'fragmentBlueprint';
 
 function* yieldDeclarationStatementsFromRootNodes(
   nodes: Node[],
