@@ -13,7 +13,7 @@ const loggingMethods = ['error', 'debug', 'info', 'warn'];
 function testLoggerCallCounts(callCounts) {
   Object.keys(mockLogger.levels).forEach(level => {
     const callCount = callCounts[level] ? callCounts[level] : 0;
-    expect(mockLogger[level].mock.calls.length).toBe(callCount);
+    expect(mockLogger[level].mock.calls.length).to.be(callCount);
   });
 }
 

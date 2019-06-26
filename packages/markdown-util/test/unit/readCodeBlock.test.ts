@@ -7,7 +7,7 @@ jest
     readFile: async () => 'test',
   }))
   .mock('js-yaml', () => ({
-    safeLoad: jest.fn(),
+    safeLoad: stub(),
   }));
 
 describe('readCodeBlock', () => {
@@ -26,12 +26,12 @@ describe('readCodeBlock', () => {
         language_id: 378,
       },
     });
-    expect(await readCodeBlock('something.ts')).toBe('```typescript\ntest\n```\n');
+    expect(await readCodeBlock('something.ts')).to.be('```typescript\ntest\n```\n');
 
-    expect(await readCodeBlock('something.tsx')).toBe('```typescript\ntest\n```\n');
+    expect(await readCodeBlock('something.tsx')).to.be('```typescript\ntest\n```\n');
 
-    expect(await readCodeBlock('something.js')).toBe('```\ntest\n```\n');
+    expect(await readCodeBlock('something.js')).to.be('```\ntest\n```\n');
 
-    expect(await readCodeBlock('something')).toBe('```\ntest\n```\n');
+    expect(await readCodeBlock('something')).to.be('```\ntest\n```\n');
   });
 });
