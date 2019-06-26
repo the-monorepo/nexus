@@ -1,7 +1,12 @@
 module.exports = api => {
   const env = api.env();
   const esm = env === 'esm';
-
+  const test = env === 'test';
+  const development = env === 'development';
+  const plugins = [];
+  if (test) {
+    plugins.push('babel-plugin-istanbul');
+  }
   return {
     presets: [
       [
@@ -9,16 +14,18 @@ module.exports = api => {
         {
           modules: esm ? false : undefined,
           targets: {
-            node: env === 'development' ? 'current' : '6',
+            node: development || test ? 'current' : '6',
             esmodules: esm,
           },
         },
       ],
       '@babel/preset-typescript',
     ],
+    plugins,
     overrides: [
       {
         test: ['./packages/my-resume', './packages/resume-template'],
+        plugins,
         presets: [
           '@babel/preset-react',
           [

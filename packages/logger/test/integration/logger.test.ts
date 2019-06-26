@@ -31,7 +31,7 @@ const adjustedTime = tempdate.getTime() + tempdate.getTimezoneOffset() * 60 * 10
 MockDate.set(adjustedTime);
 
 // replace stdout.write so we can capture output
-const mockedWrite = jest.fn();
+const mockedWrite = stub();
 (console as any)._stdout = { write: mockedWrite };
 
 const levelName = 'info';
@@ -76,15 +76,15 @@ Object.keys(loggers).forEach(loggerName => {
       for (const testCase of testCases) {
         it(testCase.name, () => {
           (log[levelName] as any)(...testCase.input);
-          expect(writeFn).toHaveBeenCalledTimes(1);
+          expect(writeFn).to.have.callCount(1);
           // Trimming to ignore inconsistencies with \rs
           const printedMessage = writeFn.mock.calls[0][0].replace('\r', '');
           if (typeof testCase.output === 'string') {
-            expect(printedMessage).toBe(
+            expect(printedMessage).to.be(
               formatExpected(testCase.output).replace('\r', ''),
             );
           } else {
-            expect(printedMessage).toMatch(testCase.output);
+            expect(printedMessage).to.match(testCase.output);
           }
         });
       }

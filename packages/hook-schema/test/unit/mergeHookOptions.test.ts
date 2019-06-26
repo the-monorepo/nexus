@@ -14,26 +14,26 @@ describe('mergeHookOptions', () => {
     const options1 = {};
     const options2 = {
       before: {
-        test1: jest.fn().mockResolvedValue(null),
+        test1: stub().mockResolvedValue(null),
       },
     };
     const options3 = {
       after: {
         nested: {
-          test2: jest.fn().mockResolvedValue(null),
+          test2: stub().mockResolvedValue(null),
           nested: {
-            test3: jest.fn().mockRejectedValue(null),
+            test3: stub().mockRejectedValue(null),
           },
         },
       },
     };
     const merged = mergeHookOptions([options1, options2, options3], testSchema);
     await merged.before.test1();
-    expect(options2.before.test1).toHaveBeenCalledTimes(1);
-    expect(options3.after.nested.test2).not.toHaveBeenCalled();
+    expect(options2.before.test1).to.have.callCount(1);
+    expect(options3.after.nested.test2).not.to.have.been.called();
 
     await merged.after.nested.test2();
-    expect(options3.after.nested.test2).toHaveBeenCalledTimes(1);
+    expect(options3.after.nested.test2).to.have.callCount(1);
 
     // TODO: This seems to break Jest in some way?
     // await merged.after.nested.nested.test3();
@@ -55,29 +55,29 @@ describe('mergeHookOptions', () => {
 
     const hooks1 = hookUtil.withHooks({
       before: {
-        a: jest.fn(),
+        a: stub(),
       },
       on: {
-        b: jest.fn(),
+        b: stub(),
       },
     });
     const hooks2 = {
       before: {
-        a: jest.fn(),
+        a: stub(),
       },
       on: {
-        b: jest.fn(),
+        b: stub(),
       },
     };
 
     const mergedHooks = hookUtil.mergeHookOptions([hooks1, hooks2, undefined]);
 
     await mergedHooks.on.b();
-    expect(hooks1.on.b).toHaveBeenCalled();
-    expect(hooks2.on.b).toHaveBeenCalled();
+    expect(hooks1.on.b).to.have.been.called();
+    expect(hooks2.on.b).to.have.been.called();
 
     await mergedHooks.before.a();
-    expect(hooks1.before.a).toHaveBeenCalled();
-    expect(hooks2.before.a).toHaveBeenCalled();
+    expect(hooks1.before.a).to.have.been.called();
+    expect(hooks2.before.a).to.have.been.called();
   });
 });

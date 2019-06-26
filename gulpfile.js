@@ -11,7 +11,11 @@ const changed = require('gulp-changed');
 const staged = require('gulp-staged');
 const rename = require('gulp-rename');
 
+const spawn = require('cross-spawn');
+
 const through = require('through2');
+
+const PluginError = require('plugin-error');
 
 const packagesDirName = 'packages';
 const buildPackagesDirName = 'build-packages';
@@ -308,22 +312,28 @@ function checkTypesStaged() {
 }
 gulp.task('check-types-staged', checkTypesStaged);
 
-async function testNoBuild() {
-  const jest = require('jest-cli/build/cli');
-  try {
-    const results = await jest.runCLI({ json: false }, [process.cwd()]);
-    if (!results.results.success) {
-      throw new Error('Tests failed');
-    }
-  } catch (err) {
-    const PluginError = require('plugin-error');
-    throw new PluginError('Jest', err, { showStack: true });
-  }
-}
-gulp.task('test-no-build', testNoBuild);
+function testNoBuild(done) {
+  const testEnv = Object.create(process.env);
+  testEnv.NODE_ENV = 'test';
+  const testProgram = spawn(
+    './node_modules/.bin/mocha',
+    ['--config', 'mocha.config.js'],
+    {
+      stdio: 'inherit',
+      env: testEnv,
+    },
+  );
 
-const test = gulp.series(transpile, testNoBuild);
-gulp.task('test', test);
+  testProgram.on('close', function(code) {
+    if (code !== 0) {
+      done(new PluginError('mocha', 'Test finished with errors'));
+    } else {
+      done();
+    }
+  });
+}
+
+gulp.task('test', testNoBuild);
 
 const precommit = gulp.series(
   gulp.parallel(gulp.series(formatStaged, transpile), copy),
@@ -333,8 +343,8 @@ gulp.task('precommit', precommit);
 
 const prepublish = gulp.series(
   gulp.parallel(clean, format),
-  gulp.parallel(transpile, copy),
-  gulp.parallel(checkTypes, testNoBuild, writeme),
+  gulp.parallel(transpile, copy, testNoBuild),
+  gulp.parallel(checkTypes, writeme),
 );
 gulp.task('prepublish', prepublish);
 
