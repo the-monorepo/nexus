@@ -1,0 +1,75 @@
+{
+  "name": "jest-mock-functions",
+  "description": "Mock all functions inside an array or object literal",
+  "version": "3.3.4",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": "https://github.com/PatrickShaw/jest-mock-functions",
+  "keywords": [
+    "jest",
+    "mock",
+    "testing",
+    "test",
+    "typescript",
+    "easy",
+    "util",
+    "helper",
+    "function"
+  ],
+  "scripts": {
+    "format": "prettier --write \"{**/,}*.{js,jsx,ts,tsx}\"",
+    "test": "yarn test:types && yarn test:jest",
+    "test:types": "tsc --noEmit",
+    "test:jest": "jest",
+    "ci-test": "yarn test && codecov",
+    "transpile": "babel src --extensions \".ts\" --source-maps",
+    "build:main": "yarn transpile --out-dir lib",
+    "build:module": "yarn transpile --out-dir esm --env-name ES6",
+    "build": "yarn build:main && yarn build:module",
+    "prepublish": "yarn build",
+    "precommit": "lint-staged"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn precommit"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn format",
+      "git add"
+    ]
+  },
+  "peerDependencies": {
+    "jest": "^23.6.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.0",
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "@babel/preset-typescript": "^7.0.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "codecov": "^3.1.0",
+    "husky": "^1.2.0",
+    "jest": "^23.6.0",
+    "lint-staged": "^8.1.0",
+    "prettier": "^1.15.3",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.12"
+  },
+  "engines": {
+    "node": ">=6"
+  }
+}
