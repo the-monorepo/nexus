@@ -1,28 +1,27 @@
+import { mock, stub } from 'sinon';
 import MockDate from 'mockdate';
 
 import { logger, consoleTransport, fileTransport } from '../../src/index';
 import { testCases } from '../util/testCases';
-
+import * as winston from 'winston';
+import { mockFormatter } from '../util/mockFormatter';
+import * as winstonFormats from '@pshaw/winston-formats';
 // We're removing color codes from logging
-jest.mock('winston', () => {
-  const { mockFormatter } = require('../util/mockFormatter');
-  const actualModule = require.requireActual('winston');
-  Object.defineProperty(actualModule.format, 'colorize', { value: mockFormatter() });
-  Object.defineProperty(actualModule.transports, 'File', {
-    value: actualModule.transports.Console,
-  });
-  return actualModule;
+Object.defineProperty(winston.format, 'colorize', { value: mockFormatter() });
+Object.defineProperty(winston.transports, 'File', {
+  value: winston.transports.Console,
 });
+mock(winston, 'winston');
 
-jest.mock('@pshaw/winston-formats', () => {
-  const { mockFormatter } = require('../util/mockFormatter');
-  const actualModule = require.requireActual('@pshaw/winston-formats');
-  actualModule.colorize = mockFormatter();
-  const ogObjectsFormatter = actualModule.objects;
-  actualModule.objects = ({ ...other }) =>
-    ogObjectsFormatter({ ...other, colors: false });
-  return actualModule;
+
+Object.defineProperty(winstonFormats, 'colorize', { value: mockFormatter() });
+const ogObjectsFormatter = winstonFormats.objects;
+Object.defineProperty(winstonFormats, 'objects', { 
+  value: ({ ...other }) =>
+    ogObjectsFormatter({ ...other, colors: false })
 });
+mock(winstonFormats, '@pshaw/winston-formats');
+
 
 // Set timezone to const value then adjust for timezone
 MockDate.set('2018-05-03T12:34:56z');
@@ -78,7 +77,7 @@ Object.keys(loggers).forEach(loggerName => {
           (log[levelName] as any)(...testCase.input);
           expect(writeFn).to.have.callCount(1);
           // Trimming to ignore inconsistencies with \rs
-          const printedMessage = writeFn.mock.calls[0][0].replace('\r', '');
+          const printedMessage = writeFn.returnValues[0].replace('\r', '');
           if (typeof testCase.output === 'string') {
             expect(printedMessage).to.be(
               formatExpected(testCase.output).replace('\r', ''),
