@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/camelcase */
+import { mock, stub } from 'sinon';
 import { readCodeBlock } from '../../src';
 import { safeLoad } from 'js-yaml';
 
-jest
-  .mock('mz/fs', () => ({
-    readFile: async () => 'test',
-  }))
-  .mock('js-yaml', () => ({
-    safeLoad: stub(),
-  }));
+mock({
+  readFile: async () => 'test'
+}, 'mz/fs');
+mock({
+  safeLoad: stub()
+}, 'js-yaml');
 
 describe('readCodeBlock', () => {
   it('typescript', async () => {
-    safeLoad.mockReturnValue({
+    safeLoad.returns({
       TypeScript: {
         type: 'programming',
         color: '#2b7489',

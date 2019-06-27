@@ -1,3 +1,4 @@
+import { stub } from 'sinon';
 import schema, { mergeHookOptions } from '../../src';
 describe('mergeHookOptions', () => {
   it('calls all associated hooks', async () => {
@@ -14,15 +15,15 @@ describe('mergeHookOptions', () => {
     const options1 = {};
     const options2 = {
       before: {
-        test1: stub().mockResolvedValue(null),
+        test1: stub().resolves(null),
       },
     };
     const options3 = {
       after: {
         nested: {
-          test2: stub().mockResolvedValue(null),
+          test2: stub().resolves(null),
           nested: {
-            test3: stub().mockRejectedValue(null),
+            test3: stub().rejects(null),
           },
         },
       },
