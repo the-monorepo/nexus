@@ -317,7 +317,14 @@ function testNoBuild(done) {
   testEnv.NODE_ENV = 'test';
   const testProgram = spawn(
     './node_modules/.bin/mocha',
-    ['--config', 'mocha.config.js'],
+    [
+      "'./{build-packages,packages,test}/**/*.test.{js,jsx,ts,tsx}'",
+      '--config',
+      'mocha.config.yaml',
+      "--exclude=\"./**/node_modules,coverage/**\"",
+      "--exclude=\"./build-packages/*/{dist,lib,esm}/**\"",
+      "--exclude=\"./packages/*/{dist,lib,esm}/**}\""
+    ],
     {
       stdio: 'inherit',
       env: testEnv,

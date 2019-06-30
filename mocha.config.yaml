@@ -1,0 +1,9 @@
+require: 
+  - ./test/require/babel.js'
+file: 
+  - 'test/helpers/globals.js'
+extension:
+  - js
+  - jsx
+  - ts
+  - tsx

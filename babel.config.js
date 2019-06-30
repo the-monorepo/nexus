@@ -4,8 +4,9 @@ module.exports = api => {
   const test = env === 'test';
   const development = env === 'development';
   const plugins = [];
+    plugins.push('rewiremock/babel');
   if (test) {
-    plugins.push('babel-plugin-istanbul');
+    //plugins.push('babel-plugin-istanbul', 'rewiremock/babel');
   }
   return {
     presets: [

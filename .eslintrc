@@ -4,16 +4,18 @@
     "@pshaw/eslint-config-core",
     "@pshaw/eslint-config-react",
     "@pshaw/eslint-config-typescript",
-    "plugin:jest/recommended",
     "prettier",
     "prettier/@typescript-eslint"
   ],
+  "globals": {
+    "expect": "writable"
+  },
   "env": {
       "browser": true,
-      "amd": true,
+      "commonjs": true,
       "node": true,
       "es6": true,
-      "jest": true
+      "mocha": true
   },
   "parserOptions": {
     "ecmaVersion": 9,
