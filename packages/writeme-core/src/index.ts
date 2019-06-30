@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 import { pathExists } from 'fs-extra';
 import globby from 'globby';
 import { fromSchema, HookOptionsOf } from 'hook-schema';

@@ -2,7 +2,9 @@ import { stubFunctions } from '../src';
 import rewiremock from 'rewiremock';
 import * as es6 from './es6-module';
 import * as commonjs from './exports-module';
-rewiremock('./exports-module').with(stubFunctions(rewiremock.requireActual('./exports-module')));
+rewiremock('./exports-module').with(
+  stubFunctions(rewiremock.requireActual('./exports-module')),
+);
 rewiremock('./es6-module').with(stubFunctions(rewiremock.requireActual('./es6-module')));
 
 describe('require', () => {

@@ -6,12 +6,6 @@ module.exports = {
     'no-empty': 'error',
     'no-unused-vars': 'error',
     'object-literal-sort-keys': 'off',
-    'ordered-imports': [
-      true,
-      {
-        'named-imports-order': 'any',
-      },
-    ],
     'prefer-template': 'error',
   },
 };
