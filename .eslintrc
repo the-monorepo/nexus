@@ -6,7 +6,7 @@
     "@pshaw/eslint-config-typescript",
     "prettier",
     "prettier/@typescript-eslint"
-  ],
+  ],  
   "globals": {
     "expect": "writable"
   },
@@ -26,8 +26,7 @@
     }
   },
   "rules": {
-    "react/prop-types": "off",
-    "jest/valid-describe": "off"
+    "react/prop-types": "off"
   },
   "overrides": [{
     "files": [ "**/examples/**" ],
@@ -39,6 +38,11 @@
     "files": ["**/test/**", "build-packages/**", "**/*.config.js", "**/gulpfile.js"],
     "rules": {
       "@typescript-eslint/no-var-requires": "off"
+    }
+  }, {
+    "files": ["packages/jest-mock-functions/**"],
+    "env": {
+      "jest": true
     }
   }]
 }
