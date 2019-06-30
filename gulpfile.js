@@ -72,7 +72,7 @@ function globBuildOutputFromPackagesDirName(dirName) {
 }
 
 function sourceGlobFromPackagesDirName(dirName) {
-  return join(packagesGlobFromPackagesDirName(dirName), 'src/**/*.{js,jsx,ts,tsx}');
+  return `${packagesGlobFromPackagesDirName(dirName)}/src/**/*.{js,jsx,ts,tsx}`;
 }
 
 const pshawLogger = require('build-pshaw-logger');
@@ -248,14 +248,13 @@ gulp.task('writeme', writeme);
 const build = gulp.series(gulp.parallel(copy, transpile), writeme);
 gulp.task('build', build);
 
-function watch() {
-  return gulp.watch(
-    [sourceGlobFromPackagesDirName(packagesDirName)],
-    { ignoreInitial: false },
-    build,
+gulp.task('watch', function watch() {
+  gulp.watch(
+    sourceGlobFromPackagesDirName(packagesDirName),
+    { ignoreInitial: false, events: 'all' },
+    transpile
   );
-}
-gulp.task('watch', watch);
+});
 
 gulp.task('default', build);
 
