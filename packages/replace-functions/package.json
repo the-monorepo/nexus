@@ -1,6 +1,6 @@
 {
-  "name": "jest-mock-functions",
-  "description": "Mock all functions inside an array or object literal with Jest",
+  "name": "replace-functions",
+  "description": "Mock all functions inside an array or object literal",
   "version": "4.0.0",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
@@ -15,23 +15,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/mock-functitons-jest"
+    "directory": "packages/mock-functions-core"
   },
   "keywords": [
-    "sinon",
-    "stub",
-    "testing",
-    "test",
     "typescript",
     "util",
     "helper",
-    "function"
-  ],
-  "peerDependencies": {
-    "jest": "^23.6.0"
-  },
-  "dependencies": {
-    "@types/jest": "^24.0.15",
-    "replace-functions": "^4.0.0"
-  }
+    "function",
+    "replace"
+  ]
 }

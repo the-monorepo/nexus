@@ -31,7 +31,7 @@ describe('mergeHookOptions', () => {
     const merged = mergeHookOptions([options1, options2, options3], testSchema);
     await merged.before.test1();
     expect(options2.before.test1).to.have.callCount(1);
-    expect(options3.after.nested.test2).not.to.have.been.called();
+    expect(options3.after.nested.test2).not.to.have.been.called;
 
     await merged.after.nested.test2();
     expect(options3.after.nested.test2).to.have.callCount(1);
@@ -74,11 +74,11 @@ describe('mergeHookOptions', () => {
     const mergedHooks = hookUtil.mergeHookOptions([hooks1, hooks2, undefined]);
 
     await mergedHooks.on.b();
-    expect(hooks1.on.b).to.have.been.called();
-    expect(hooks2.on.b).to.have.been.called();
+    expect(hooks1.on.b).to.have.been.called;
+    expect(hooks2.on.b).to.have.been.called;
 
     await mergedHooks.before.a();
-    expect(hooks1.before.a).to.have.been.called();
-    expect(hooks2.before.a).to.have.been.called();
+    expect(hooks1.before.a).to.have.been.called;
+    expect(hooks2.before.a).to.have.been.called;
   });
 });
