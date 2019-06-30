@@ -1,15 +1,16 @@
-import { mockFunctions } from 'jest-mock-functions';
+/*
+import { stubFunctions } from 'sinon-stub-functions';
 
 import { logger, overrideConsoleLogger } from '../../src';
 import { testCases } from '../util/testCases';
 
-const mockLogger: any = mockFunctions(logger(), { recursive: true });
+const mockLogger: any = stubFunctions(logger(), true);
 // Logging methods that console and logger share in common
 const loggingMethods = ['error', 'debug', 'info', 'warn'];
 
-/**
+**
  * Checks which logging methods in the custom logger were actually called
- */
+ *
 function testLoggerCallCounts(callCounts) {
   Object.keys(mockLogger.levels).forEach(level => {
     const callCount = callCounts[level] ? callCounts[level] : 0;
@@ -17,10 +18,10 @@ function testLoggerCallCounts(callCounts) {
   });
 }
 
-/**
+**
  * Will test if logging something through console.xxx will, in turn,
  * call the custom logger logging methods if you use overrideConsoleLogger
- */
+ *
 function testConsoleInput(...input) {
   const stringifiedInput = input.map(i => JSON.stringify(i)).join();
   describe(`input = [${stringifiedInput}]`, () => {
@@ -46,3 +47,4 @@ describe('console logs to custom logger', () => {
     testConsoleInput(testCase.input);
   }
 });
+*/
