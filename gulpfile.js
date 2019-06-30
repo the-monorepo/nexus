@@ -252,7 +252,7 @@ gulp.task('watch', function watch() {
   gulp.watch(
     sourceGlobFromPackagesDirName(packagesDirName),
     { ignoreInitial: false, events: 'all' },
-    transpile
+    transpile,
   );
 });
 
@@ -320,9 +320,9 @@ function testNoBuild(done) {
       "'./{build-packages,packages,test}/**/*.test.{js,jsx,ts,tsx}'",
       '--config',
       'mocha.config.yaml',
-      "--exclude=\"./**/node_modules,coverage/**\"",
-      "--exclude=\"./build-packages/*/{dist,lib,esm}/**\"",
-      "--exclude=\"./packages/*/{dist,lib,esm}/**}\""
+      '--exclude="./**/node_modules,coverage/**"',
+      '--exclude="./build-packages/*/{dist,lib,esm}/**"',
+      '--exclude="./packages/*/{dist,lib,esm}/**}"',
     ],
     {
       stdio: 'inherit',

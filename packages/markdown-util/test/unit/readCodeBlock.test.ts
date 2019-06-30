@@ -3,7 +3,7 @@ import mock from 'rewiremock';
 import { stub } from 'sinon';
 
 mock('mz/fs').with({
-  readFile: async () => 'test'
+  readFile: async () => 'test',
 });
 mock('js-yaml').with({
   safeLoad: stub().returns({
@@ -19,7 +19,7 @@ mock('js-yaml').with({
       codemirror_mime_type: 'application/typescript',
       language_id: 378,
     },
-  })
+  }),
 });
 mock.enable();
 const { readCodeBlock } = require('../../src');
