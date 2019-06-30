@@ -1,9 +1,6 @@
-import mock from 'rewiremock';
 import { stub } from 'sinon';
 import { replaceFunctions, RecursionOptions } from 'replace-functions';
-import {test} from './test';
-mock('./test').with({ test: () => {} })
-test();
+
 export const stubFunctions = <T>(
   value: T,
   recursive: RecursionOptions = false,
