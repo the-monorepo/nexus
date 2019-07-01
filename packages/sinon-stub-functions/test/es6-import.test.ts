@@ -7,7 +7,7 @@ rewiremock('./exports-module').with(
 );
 rewiremock('./es6-module').with(stubFunctions(rewiremock.requireActual('./es6-module')));
 
-describe('require', () => {
+describe('esm imports', () => {
   it('exports mocked modules work', () => {
     expect(commonjs.someFunction()).to.be.undefined;
   });
