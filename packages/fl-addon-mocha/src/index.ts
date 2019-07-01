@@ -6,8 +6,6 @@ const run = async testPath => {
     color: true,
     fullStackTrace: true,
   } as any);
-  mocha.addFile('./test/require/babel.js');
-  mocha.addFile('./test/helpers/globals.js');
   mocha.addFile(testPath);
 
   try {
