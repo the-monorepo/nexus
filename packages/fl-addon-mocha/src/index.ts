@@ -1,12 +1,13 @@
 import Mocha from 'mocha';
 import { join } from 'path';
-const run = async testPath => {
+const run = async testPaths => {
   const mocha = new Mocha({
     allowUncaught: true,
     color: true,
     fullStackTrace: true,
   } as any);
-  mocha.addFile(testPath);
+
+  testPaths.forEach((testPath) => mocha.addFile(testPath));
 
   try {
     const failures = await new Promise(resolve => {
