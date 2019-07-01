@@ -1,5 +1,6 @@
 import globby from 'globby';
 import { fork } from 'child_process';
+import { resolve } from 'path';
 
 export const run = async () => {
   const directories = await globby(
@@ -12,8 +13,11 @@ export const run = async () => {
     { onlyFiles: true },
   );
 
+  const importPaths = ['./test/require/babel.js', './test/helpers/globals.js'];
+  const absoluteImportPaths = importPaths.map((path) => resolve(path));
+
   for (const testPath of directories) {
-    fork(require.resolve('fl-addon-core'), ['fl-addon-mocha', testPath], {
+    fork(require.resolve('fl-addon-core'), ['fl-addon-mocha', testPath, JSON.stringify(absoluteImportPaths)], {
       env: {
         ...process.env,
         NODE_ENV: 'test',
