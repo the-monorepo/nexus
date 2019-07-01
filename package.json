@@ -17,6 +17,7 @@
     "format-staged": "gulp format-staged",
     "test": "gulp test",
     "clean": "gulp clean",
+    "transpile": "gulp transpile",
     "build": "gulp build",
     "watch": "gulp watch",
     "writeme": "gulp writeme",
