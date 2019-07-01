@@ -29,11 +29,11 @@ function mockSetValues<T, R>(
   mockedSet,
   createReplacementValue: CreateReplacementValueFn<R>,
   recursive: RecursionOptions,
+  mockValueFn: MockValueFn,
   ogToMockedMap: Map<any, any>,
-  mockValueFn,
 ): Set<T | Replaced<T, R>> {
   for (const value of actualSet) {
-    mockedSet.add(mockValueFn(value, createReplacementValue, recursive, ogToMockedMap));
+    mockedSet.add(mockValueFn(value, createReplacementValue, recursive, mockValueFn, ogToMockedMap));
   }
   return mockedSet;
 }
@@ -43,13 +43,13 @@ function mockMapValues<T, V, R>(
   mockedMap,
   createReplacementValue: CreateReplacementValueFn<R>,
   recursive: RecursionOptions,
-  mockValueFn,
+  mockValueFn: MockValueFn,
   ogToMockedMap: Map<any, any> = new Map(),
 ): Map<T, V | Replaced<V, R>> {
   for (const [key, value] of actualMap.entries()) {
     mockedMap.set(
       key,
-      mockValueFn(value, createReplacementValue, recursive, ogToMockedMap),
+      mockValueFn(value, createReplacementValue, recursive, mockValueFn, ogToMockedMap),
     );
   }
   return mockedMap;
@@ -60,7 +60,7 @@ function mockProperties<T, V, R>(
   mockedObject: V,
   createReplacementValue: CreateReplacementValueFn<R>,
   recursive: RecursionOptions,
-  mockValueFn,
+  mockValueFn: MockValueFn,
   ogToMockedMap: Map<any, any> = new Map(),
 ): Replaced<T, R> & V {
   const propertyDescriptors = Object.getOwnPropertyDescriptors(value);
@@ -74,12 +74,14 @@ function mockProperties<T, V, R>(
               propertyDescriptor.get,
               createReplacementValue,
               recursive,
+              mockValueFn,
               ogToMockedMap,
             ),
             set: mockValueFn(
               propertyDescriptor.set,
               createReplacementValue,
               recursive,
+              mockValueFn,
               ogToMockedMap,
             ),
           }
@@ -89,6 +91,7 @@ function mockProperties<T, V, R>(
               propertyDescriptor.value,
               createReplacementValue,
               recursive,
+              mockValueFn,
               ogToMockedMap,
             ),
           };
@@ -102,6 +105,7 @@ function mockPrototypeFunctions<T, V, R>(
   mockedObject: V,
   createReplacementValue: CreateReplacementValueFn<R>,
   recursive: RecursionOptions,
+  mockValueFn: MockValueFn,
   ogToMockedMap: Map<any, any> = new Map(),
 ): Replaced<T, R> & V | V {
   // This will map the prototype values to the mocked object and not other objects with the same prototype
@@ -112,6 +116,7 @@ function mockPrototypeFunctions<T, V, R>(
       mockedObject,
       createReplacementValue,
       recursive,
+      mockValueFn,
       ogToMockedMap,
     );
   } else {
@@ -123,6 +128,7 @@ function mockValue<R>(
   realValue,
   createReplacementValue: CreateReplacementValueFn<R>,
   recursive: RecursionOptions,
+  mockValueFn: MockValueFn,
   ogToMockedMap: Map<any, any>,
 ) {
   const classInstances: boolean | undefined =
@@ -140,6 +146,7 @@ function mockValue<R>(
         mocked,
         createReplacementValue,
         recursive,
+        mockValueFn,
         ogToMockedMap,
       );
     } else {
@@ -169,20 +176,21 @@ function mockValue<R>(
     (classInstances || ogToMockedMap.size == 0)
   ) {
     return handleContainer(objectWithPrototypeFrom, (realVal, mocked, opts, map) => {
-      const mocked2 = mockPrototypeFunctions(realVal, mocked, opts, map);
-      return mockProperties(realVal, mocked2, opts, map, mockValue);
+      const mocked2 = mockPrototypeFunctions(realVal, mocked, createReplacementValue, opts, mockValueFn, map);
+      return mockProperties(realVal, mocked2, createReplacementValue, opts, mockValue, map);
     });
   } else {
     return realValue;
   }
 }
+export type MockValueFn = typeof mockValue;
 
 export function replaceFunctions<T, R>(
   value: T,
   createReplacementValue: CreateReplacementValueFn<R>,
   recursive: RecursionOptions = false,
 ): Replaced<T, R> {
-  return mockValue(value, createReplacementValue, recursive, new Map());
+  return mockValue(value, createReplacementValue, recursive, mockValue, new Map());
 }
 
 export default replaceFunctions;
