@@ -315,17 +315,14 @@ gulp.task('check-types-staged', checkTypesStaged);
 
 async function testNoBuild() {
   await flCore.run({
-    tester: 'fl-addon-mocha', 
+    tester: 'fl-tester-mocha',
     testMatch: [
       './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
       '!./**/node_modules/**',
       '!./coverage',
       '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
     ],
-    setupFiles: [
-      './test/require/babel.js',
-      './test/helpers/globals.js',
-    ]
+    setupFiles: ['./test/require/babel.js', './test/helpers/globals.js'],
   });
 }
 

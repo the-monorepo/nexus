@@ -1,11 +1,11 @@
 import Mocha from 'mocha';
 import { submitExecutionResult } from 'fl-addon-core';
-import { join } from 'path';
-const DONE = 0;
+
 const run = async testPaths => {
   const mocha = new Mocha({
     allowUncaught: true,
     color: true,
+    reporter: function() {},
     fullStackTrace: true,
   } as any);
 
@@ -23,7 +23,7 @@ const run = async testPaths => {
       });
     });
     submitExecutionResult({
-      passed: !failures
+      passed: !failures,
     });
   } catch (err) {
     console.error(err);
