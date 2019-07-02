@@ -7,19 +7,23 @@ export interface AssertionData {
   passed: boolean;
   coverage: any;
 }
-type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
+export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
 
 export interface TestData {
   fullTitle: any;
+  duration: number;
   passed: boolean;
+  file: string;
   coverage: any;
 }
-type TestResult = TestData & TypeHolder<typeof types.TEST>;
+export type TestResult = TestData & TypeHolder<typeof types.TEST>;
 
-export interface ExecutionData {}
-type ExecutionResult = ExecutionData & TypeHolder<typeof types.EXECUTION>;
+export interface ExecutionData {
+  passed: boolean,
+}
+export type ExecutionResult = ExecutionData & TypeHolder<typeof types.EXECUTION>;
 
-const promiseSend: (param: any) => Promise<unknown> = promisify(process.send!);
+const promiseSend: (param: any) => Promise<unknown> = promisify(process.send!.bind(process));
 export const submitAssertionResult = (data: AssertionData) => {
   const result: AssertionResult = {
     ...data,
