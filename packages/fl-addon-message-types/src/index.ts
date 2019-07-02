@@ -5,8 +5,8 @@ export const EXECUTION = 0;
 /**
  * For recording assertion results
  */
-export const ASSERTION = 0;
+export const ASSERTION = 1;
 /**
  * For recording test results
  */
-export const TEST = 0;
+export const TEST = 2;
