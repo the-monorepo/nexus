@@ -9,22 +9,32 @@ export interface AssertionData {
 }
 export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
 
-export interface TestData {
+type TestData =  {
   fullTitle: any;
   hash: string;
   duration: number;
-  passed: boolean;
   file: string;
   coverage: any;
 }
-export type TestResult = TestData & TypeHolder<typeof types.TEST>;
+
+type PassingTestData = {
+  passed: true;  
+} & TestData;
+
+type FailingTestData = {
+  passed: false;
+  stack: any;
+} & TestData;
+export type TestResult = (PassingTestData | FailingTestData) & TypeHolder<typeof types.TEST>;
 
 export interface ExecutionData {
-  passed: boolean,
+  passed: boolean;
 }
 export type ExecutionResult = ExecutionData & TypeHolder<typeof types.EXECUTION>;
 
-const promiseSend: (param: any) => Promise<unknown> = promisify(process.send!.bind(process));
+const promiseSend: (param: any) => Promise<unknown> = promisify(
+  process.send!.bind(process),
+);
 export const submitAssertionResult = (data: AssertionData) => {
   const result: AssertionResult = {
     ...data,
@@ -34,7 +44,7 @@ export const submitAssertionResult = (data: AssertionData) => {
   return promiseSend!(result);
 };
 
-export const submitTestResult = (data: TestData) => {
+export const submitTestResult = (data: PassingTestData | FailingTestData) => {
   const result: TestResult = {
     ...data,
     type: types.TEST,
