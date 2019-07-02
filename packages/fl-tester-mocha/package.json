@@ -1,5 +1,5 @@
 {
-  "name": "fl-addon-mocha",
+  "name": "fl-tester-mocha",
   "version": "1.0.0-alpha.0",
   "description": "Use Mocha tests in the fl test runner",
   "types": "./src/index.ts",
