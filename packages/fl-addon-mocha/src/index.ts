@@ -1,4 +1,5 @@
 import Mocha from 'mocha';
+import { submitExecutionResult } from 'fl-addon-core';
 import { join } from 'path';
 const DONE = 0;
 const run = async testPaths => {
@@ -21,17 +22,9 @@ const run = async testPaths => {
         }
       });
     });
-    if (failures) {
-      process.send!({
-        type: DONE,
-        failed: true,
-      });
-    } else {
-      process.send!({
-        type: DONE,
-        failed: false,
-      });
-    }
+    submitExecutionResult({
+      passed: !failures
+    });
   } catch (err) {
     console.error(err);
     process.exit(1);
