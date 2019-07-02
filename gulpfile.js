@@ -17,6 +17,8 @@ const through = require('through2');
 
 const PluginError = require('plugin-error');
 
+const flCore = require('fl-core');
+
 const packagesDirName = 'packages';
 const buildPackagesDirName = 'build-packages';
 
@@ -311,31 +313,18 @@ function checkTypesStaged() {
 }
 gulp.task('check-types-staged', checkTypesStaged);
 
-function testNoBuild(done) {
-  const testEnv = Object.create(process.env);
-  testEnv.NODE_ENV = 'test';
-  const testProgram = spawn(
-    './node_modules/.bin/mocha',
-    [
-      "'./{build-packages,packages,test}/**/*.test.{js,jsx,ts,tsx}'",
-      '--config',
-      'mocha.config.yaml',
-      '--exclude="./**/node_modules,coverage/**"',
-      '--exclude="./build-packages/*/{dist,lib,esm}/**"',
-      '--exclude="./packages/*/{dist,lib,esm}/**}"',
+async function testNoBuild() {
+  await flCore.run({
+    testMatch: [
+      './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
+      '!./**/node_modules/**',
+      '!./coverage',
+      '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
     ],
-    {
-      stdio: 'inherit',
-      env: testEnv,
-    },
-  );
-
-  testProgram.on('close', function(code) {
-    if (code !== 0) {
-      done(new PluginError('mocha', 'Test finished with errors'));
-    } else {
-      done();
-    }
+    setupFiles: [
+      './test/helpers/globals.js',
+      './test/require/babel.js'
+    ]
   });
 }
 

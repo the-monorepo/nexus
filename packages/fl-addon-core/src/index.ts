@@ -11,6 +11,7 @@ export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>
 
 export interface TestData {
   fullTitle: any;
+  hash: string;
   duration: number;
   passed: boolean;
   file: string;

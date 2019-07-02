@@ -1,6 +1,5 @@
 import globby from 'globby';
 import { fork } from 'child_process';
-import { join } from 'path';
 import { cpus } from 'os';
 import * as types from 'fl-addon-message-types';
 import { AssertionResult, ExecutionResult, TestResult } from 'fl-addon-core';
@@ -10,7 +9,7 @@ const runInSeperateProcesses = async (directories, processCount, absoluteImportP
     let processesStillRunning = processCount;
     const forkForTest = testPath => {
       return fork(
-        require.resolve('./addonEntry'),
+        require.resolve('./addon-entry'),
         [
           'fl-addon-mocha',
           JSON.stringify([testPath]),
@@ -101,22 +100,22 @@ const runAndRecycleProcesses = async (directories, processCount, absoluteImportP
   await Promise.all(forkPromises);
 };
 
-export const run = async () => {
+export const run = async ({
+  testMatch,
+  setupFiles,
+}) => {
   const directories = await globby(
-    [
-      './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
-      '!./**/node_modules/**',
-      '!./coverage',
-      '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
-    ],
+    testMatch,
     { onlyFiles: true },
   );
   // We pop the paths off the end of the list so the first path thing needs to be at the end
   directories.reverse();
 
   const processIsolation = false;
-  const importPaths = ['./test/require/babel.js', './test/helpers/globals.js'];
-  const absoluteImportPaths = importPaths.map(path => join(process.cwd(), path));
+  const importPaths = [setupFiles];
+  const absoluteImportPaths = importPaths.map(path => require.resolve(path, {
+    paths: [process.cwd()]
+  }));
 
   const processCount = cpus().length;
 
@@ -128,4 +127,3 @@ export const run = async () => {
 };
 
 export default run;
-run();
