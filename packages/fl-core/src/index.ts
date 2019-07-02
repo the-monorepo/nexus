@@ -3,6 +3,7 @@ import { fork } from 'child_process';
 import { join } from 'path';
 import { cpus } from 'os';
 import * as types from 'fl-addon-message-types';
+import { AssertionResult, ExecutionResult, TestResult } from 'fl-addon-core';
 
 const runInSeperateProcesses = async (directories, processCount, absoluteImportPaths) => {
   await new Promise((resolve, reject) => {
@@ -50,6 +51,7 @@ const runAndRecycleProcesses = async (directories, processCount, absoluteImportP
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
   let i = 0;
+  const testResults: any[] = [];
   const forkForTest = testPaths => {
     const forkTest = fork(
       require.resolve('./addonEntry'),
@@ -62,16 +64,21 @@ const runAndRecycleProcesses = async (directories, processCount, absoluteImportP
       },
     );
     return new Promise((resolve, reject) => {
-      forkTest.on('message', message => {
+      forkTest.on('message', (message: ExecutionResult | AssertionResult | TestResult) => {
+        console.log(message);
         switch (message.type) {
           case types.EXECUTION:
-            resolve(message.failed);
+            console.log(testResults);
+            resolve(message.passed);
+            break;
+          case types.TEST:
+            testResults.push(message);
             break;
         }
       });
       forkTest.on('exit', code => {
         if (code !== 0) {
-          reject('An error ocurred while running tests');
+          reject(new Error('An error ocurred while running tests'));
         }
       });
     });
