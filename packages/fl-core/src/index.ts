@@ -3,50 +3,9 @@ import { fork } from 'child_process';
 import { cpus } from 'os';
 import * as types from 'fl-addon-message-types';
 import { AssertionResult, ExecutionResult, TestResult } from 'fl-addon-core';
+import { reporter } from './default-reporter';
 
 const addonEntryPath = require.resolve('./addon-entry');
-const runInSeperateProcesses = async (
-  tester,
-  directories,
-  processCount,
-  absoluteImportPaths,
-) => {
-  await new Promise((resolve, reject) => {
-    let processesStillRunning = processCount;
-    const forkForTest = testPath => {
-      return fork(
-        addonEntryPath,
-        [tester, JSON.stringify([testPath]), JSON.stringify(absoluteImportPaths)],
-        {
-          env: {
-            ...process.env,
-            NODE_ENV: 'test',
-          },
-        },
-      );
-    };
-
-    const runNextTest = () => {
-      if (directories.length <= 0) {
-        processesStillRunning--;
-        if (processesStillRunning <= 0) {
-          resolve();
-        }
-        return;
-      }
-      const testPath = directories.pop() as string;
-      const testFork = forkForTest(testPath);
-
-      testFork.on('exit', () => {
-        runNextTest();
-      });
-    };
-
-    for (let i = 0; i < processCount && directories.length > 0; i++) {
-      runNextTest();
-    }
-  });
-};
 
 const runAndRecycleProcesses = async (
   tester,
@@ -73,10 +32,8 @@ const runAndRecycleProcesses = async (
       forkTest.on(
         'message',
         (message: ExecutionResult | AssertionResult | TestResult) => {
-          console.log(message);
           switch (message.type) {
             case types.EXECUTION:
-              console.log(testResults);
               resolve(message.passed);
               break;
             case types.TEST:
@@ -108,6 +65,8 @@ const runAndRecycleProcesses = async (
   }
 
   await Promise.all(forkPromises);
+
+  return { testResults };
 };
 
 export const run = async ({ tester, testMatch, setupFiles }) => {
@@ -115,7 +74,6 @@ export const run = async ({ tester, testMatch, setupFiles }) => {
   // We pop the paths off the end of the list so the first path thing needs to be at the end
   directories.reverse();
 
-  const processIsolation = false;
   const absoluteImportPaths = setupFiles.map(path =>
     require.resolve(path, {
       paths: [process.cwd()],
@@ -124,10 +82,10 @@ export const run = async ({ tester, testMatch, setupFiles }) => {
 
   const processCount = cpus().length;
 
-  if (processIsolation) {
-    await runInSeperateProcesses(tester, directories, processCount, absoluteImportPaths);
-  } else {
-    await runAndRecycleProcesses(tester, directories, processCount, absoluteImportPaths);
+  const results = await runAndRecycleProcesses(tester, directories, processCount, absoluteImportPaths);
+  reporter(results);
+  if (results.testResults.some(result => !result.passed)) {
+    process.exit(1);
   }
 };
 
