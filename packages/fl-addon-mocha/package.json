@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/fl-addon-mocha"
+    "directory": "packages/fl-tester-mocha"
   },
   "keywords": [
     "sinon",
