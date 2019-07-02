@@ -4,14 +4,15 @@ import { cpus } from 'os';
 import * as types from 'fl-addon-message-types';
 import { AssertionResult, ExecutionResult, TestResult } from 'fl-addon-core';
 
-const runInSeperateProcesses = async (directories, processCount, absoluteImportPaths) => {
+const addonEntryPath = require.resolve('./addon-entry');
+const runInSeperateProcesses = async (tester, directories, processCount, absoluteImportPaths) => {
   await new Promise((resolve, reject) => {
     let processesStillRunning = processCount;
     const forkForTest = testPath => {
       return fork(
-        require.resolve('./addon-entry'),
+        addonEntryPath,
         [
-          'fl-addon-mocha',
+          tester,
           JSON.stringify([testPath]),
           JSON.stringify(absoluteImportPaths),
         ],
@@ -46,15 +47,15 @@ const runInSeperateProcesses = async (directories, processCount, absoluteImportP
   });
 };
 
-const runAndRecycleProcesses = async (directories, processCount, absoluteImportPaths) => {
+const runAndRecycleProcesses = async (tester, directories, processCount, absoluteImportPaths) => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
   let i = 0;
   const testResults: any[] = [];
   const forkForTest = testPaths => {
     const forkTest = fork(
-      require.resolve('./addonEntry'),
-      ['fl-addon-mocha', JSON.stringify(testPaths), JSON.stringify(absoluteImportPaths)],
+      addonEntryPath,
+      [tester, JSON.stringify(testPaths), JSON.stringify(absoluteImportPaths)],
       {
         env: {
           ...process.env,
@@ -101,6 +102,7 @@ const runAndRecycleProcesses = async (directories, processCount, absoluteImportP
 };
 
 export const run = async ({
+  tester,
   testMatch,
   setupFiles,
 }) => {
@@ -112,17 +114,16 @@ export const run = async ({
   directories.reverse();
 
   const processIsolation = false;
-  const importPaths = [setupFiles];
-  const absoluteImportPaths = importPaths.map(path => require.resolve(path, {
+  const absoluteImportPaths = setupFiles.map(path => require.resolve(path, {
     paths: [process.cwd()]
   }));
 
   const processCount = cpus().length;
 
   if (processIsolation) {
-    await runInSeperateProcesses(directories, processCount, absoluteImportPaths);
+    await runInSeperateProcesses(tester, directories, processCount, absoluteImportPaths);
   } else {
-    await runAndRecycleProcesses(directories, processCount, absoluteImportPaths);
+    await runAndRecycleProcesses(tester, directories, processCount, absoluteImportPaths);
   }
 };
 
