@@ -33,7 +33,9 @@ function mockSetValues<T, R>(
   ogToMockedMap: Map<any, any>,
 ): Set<T | Replaced<T, R>> {
   for (const value of actualSet) {
-    mockedSet.add(mockValueFn(value, createReplacementValue, recursive, mockValueFn, ogToMockedMap));
+    mockedSet.add(
+      mockValueFn(value, createReplacementValue, recursive, mockValueFn, ogToMockedMap),
+    );
   }
   return mockedSet;
 }
@@ -176,8 +178,22 @@ function mockValue<R>(
     (classInstances || ogToMockedMap.size == 0)
   ) {
     return handleContainer(objectWithPrototypeFrom, (realVal, mocked, opts, map) => {
-      const mocked2 = mockPrototypeFunctions(realVal, mocked, createReplacementValue, opts, mockValueFn, map);
-      return mockProperties(realVal, mocked2, createReplacementValue, opts, mockValue, map);
+      const mocked2 = mockPrototypeFunctions(
+        realVal,
+        mocked,
+        createReplacementValue,
+        opts,
+        mockValueFn,
+        map,
+      );
+      return mockProperties(
+        realVal,
+        mocked2,
+        createReplacementValue,
+        opts,
+        mockValue,
+        map,
+      );
     });
   } else {
     return realValue;
