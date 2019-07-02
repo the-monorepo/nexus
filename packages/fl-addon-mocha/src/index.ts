@@ -1,5 +1,6 @@
 import Mocha from 'mocha';
 import { join } from 'path';
+const DONE = 0;
 const run = async testPaths => {
   const mocha = new Mocha({
     allowUncaught: true,
@@ -7,7 +8,8 @@ const run = async testPaths => {
     fullStackTrace: true,
   } as any);
 
-  testPaths.forEach((testPath) => mocha.addFile(testPath));
+  mocha.addFile(require.resolve('./recordTests'));
+  testPaths.forEach(testPath => mocha.addFile(testPath));
 
   try {
     const failures = await new Promise(resolve => {
@@ -20,12 +22,19 @@ const run = async testPaths => {
       });
     });
     if (failures) {
-      console.warn('Tests failed!', failures);
+      process.send!({
+        type: DONE,
+        failed: true,
+      });
     } else {
-      console.info('Tests succeeded!');
+      process.send!({
+        type: DONE,
+        failed: false,
+      });
     }
   } catch (err) {
     console.error(err);
+    process.exit(1);
   }
 };
 export default run;
