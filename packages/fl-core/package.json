@@ -26,5 +26,6 @@
     "util",
     "helper",
     "function"
-  ]
+  ],
+  "dependencies": {}
 }
