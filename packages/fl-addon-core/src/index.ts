@@ -9,7 +9,7 @@ export interface AssertionData {
 }
 export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
 
-type TestData =  {
+export type TestData =  {
   fullTitle: any;
   hash: string;
   duration: number;
@@ -17,14 +17,15 @@ type TestData =  {
   coverage: any;
 }
 
-type PassingTestData = {
+export type PassingTestData = {
   passed: true;  
 } & TestData;
 
-type FailingTestData = {
+export type FailingTestData = {
   passed: false;
   stack: any;
 } & TestData;
+
 export type TestResult = (PassingTestData | FailingTestData) & TypeHolder<typeof types.TEST>;
 
 export interface ExecutionData {
