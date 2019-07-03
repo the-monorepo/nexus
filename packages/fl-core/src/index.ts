@@ -17,6 +17,7 @@ const runAndRecycleProcesses = async (
   const remainders = directories.length % processCount;
   let i = 0;
   const testResults: any[] = [];
+  const suiteResults: Map<string, TestResult[]> = new Map();
   const forkForTest = testPaths => {
     const forkTest = fork(
       addonEntryPath,
@@ -26,6 +27,7 @@ const runAndRecycleProcesses = async (
           ...process.env,
           NODE_ENV: 'test',
         },
+        stdio: 'inherit'
       },
     );
     return new Promise((resolve, reject) => {
@@ -37,6 +39,12 @@ const runAndRecycleProcesses = async (
               resolve(message.passed);
               break;
             case types.TEST:
+              console.log(message.passed);
+              if (!suiteResults.has(message.file)) {
+                suiteResults.set(message.file, []);
+              }
+              const results = suiteResults.get(message.file)!;
+              results.push(message);
               testResults.push(message);
               break;
           }
@@ -65,8 +73,8 @@ const runAndRecycleProcesses = async (
   }
 
   await Promise.all(forkPromises);
-
-  return { testResults };
+  console.log(suiteResults);
+  return { testResults, suiteResults };
 };
 
 export const run = async ({ tester, testMatch, setupFiles }) => {
