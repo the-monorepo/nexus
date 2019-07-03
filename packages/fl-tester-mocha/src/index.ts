@@ -1,11 +1,11 @@
 import Mocha from 'mocha';
 import { submitExecutionResult } from 'fl-addon-core';
-
+import { IPCReporter } from './recordTests';
 const run = async testPaths => {
   const mocha = new Mocha({
     allowUncaught: true,
     color: true,
-    reporter: function() {},
+    reporter: IPCReporter,
     fullStackTrace: true,
   } as any);
 
@@ -22,7 +22,7 @@ const run = async testPaths => {
         }
       });
     });
-    submitExecutionResult({
+    await submitExecutionResult({
       passed: !failures,
     });
   } catch (err) {

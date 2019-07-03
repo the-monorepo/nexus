@@ -3,6 +3,7 @@ import { stubFunctions } from '../src';
 
 describe('require', () => {
   it('exports mocked modules work', () => {
+    expect(1).to.be.undefined;
     rewiremock.enable();
     rewiremock('./exports-module').with(
       stubFunctions(rewiremock.requireActual('./exports-module')),
