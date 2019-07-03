@@ -1,18 +1,15 @@
-import globby from 'globby';
-import { logger, consoleTransport } from '@pshaw/logger';
-import { fork } from 'child_process';
-import { join } from 'path';
-const l = logger().add(consoleTransport());
-export const run = async () => {
-  const directories = await globby(
-    [
-      './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
-      '!./**/node_modules/**',
-      '!./coverage',
-      '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
-    ],
-    { onlyFiles: true },
+import { createContext, summarizers } from 'istanbul-lib-report';
+import { create } from 'istanbul-reports';
+import { createCoverageMap } from 'istanbul-lib-coverage';
+export const report = ({ testResults, suiteResults }) => {
+  const totalCoverage = createCoverageMap({});
+  for(const { coverage } of testResults) {
+    totalCoverage.merge(coverage);
+  }
+  const context = createContext();
+  
+  const tree = summarizers.pkg(totalCoverage);
+  ['json', 'lcov', 'text'].forEach(reporter =>
+    tree.visit(create(reporter as any, {}), context)
   );
-  fork(join(__dirname, '../../fl-mocha-addon/lib/index'), directories);
 };
-run();

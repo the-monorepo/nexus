@@ -1,9 +1,10 @@
 import { relative, dirname, basename, join } from 'path';
 import { TestResult } from 'fl-addon-core';
 import chalk from 'chalk';
+import { report } from 'fl-istanbul-reporter';
 
 const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
-  console.log(`${chalk.bold(`${prefix}:`)} ${failedCount > 0 ? `${chalk.redBright(`${failedCount} failed`)}, ` : ''}${chalk.greenBright(`${passedCount} passed`)}, ${totalCount} total`);
+  console.log(`${chalk.bold(`${prefix}:`)} ${chalk.redBright(`${failedCount} failed`)}, ${chalk.greenBright(`${passedCount} passed`)}, ${totalCount} total`);
 }
 
 export const reporter = ({ testResults, suiteResults }: { testResults: TestResult[], suiteResults: Map<string, TestResult[]> }) => {
@@ -14,6 +15,7 @@ export const reporter = ({ testResults, suiteResults }: { testResults: TestResul
       console.log(chalk.gray(testResult.stack));
     }
   }
+  report({ testResults, suiteResults });
   for(const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
     const filePath = relative(process.cwd(), absoluteFilePath);
 
