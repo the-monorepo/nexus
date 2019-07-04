@@ -1,7 +1,6 @@
 /**
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */
-require('source-map-support/register');
 const { join, sep, relative } = require('path');
 
 const chalk = require('chalk');
@@ -16,8 +15,6 @@ const spawn = require('cross-spawn');
 const through = require('through2');
 
 const PluginError = require('plugin-error');
-
-const flCore = require('fl-core');
 
 const packagesDirName = 'packages';
 const buildPackagesDirName = 'build-packages';
@@ -314,6 +311,7 @@ function checkTypesStaged() {
 gulp.task('check-types-staged', checkTypesStaged);
 
 async function testNoBuild() {
+  const flCore = require('fl-core');
   await flCore.run({
     tester: 'fl-tester-mocha',
     testMatch: [
