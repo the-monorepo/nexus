@@ -3,6 +3,17 @@ import { TestResult } from 'fl-addon-core';
 import chalk from 'chalk';
 import { report } from 'fl-istanbul-reporter';
 import { readFile } from 'mz/fs';
+import { groupTestsByFilePath, localiseFaults, gatherResults, Stats, passFailStatsFromTests, FileResult } from './fl';
+const dStar = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats, e = 2) => {
+  if (codeElementTestStateCounts.failed === 0) {
+    return null;
+  }
+  return (
+    Math.pow(codeElementTestStateCounts.failed, e) /
+    (codeElementTestStateCounts.passed +
+      (totalTestStateCounts.failed - codeElementTestStateCounts.failed))
+  );
+};
 
 const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
   console.log(
@@ -12,22 +23,49 @@ const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
   );
 };
 
+const reportFaults = async (testResults: TestResult[], fileResults: Map<string, FileResult>, totalPassFailStats: Stats) => {
+  const faults = localiseFaults(testResults, fileResults, (expressionPassFailStats) => dStar(expressionPassFailStats, totalPassFailStats));
+  const rankedFaults = faults.filter(fault => fault.score !== null).sort((f1, f2) => f2.score - f1.score).slice(0, 10);
+  for(const fault of rankedFaults) {
+    const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
+    console.log(
+      `${fault.sourcePath}:${fault.location.start.line}:${fault.location.start.column}, ${chalk.cyan(fault.score.toString())}`,
+    );
+    let l = fault.location.start.line - 1;
+    let lineCount = 0;
+    while (l < fault.location.end.line && lineCount < 5) {
+      console.log(chalk.grey(lines[l++]));
+      lineCount++;
+    }
+    if (l < fault.location.end.line) {
+      console.log('...');
+    }
+    console.log();
+  }
+
+}
+
 export const reporter = async ({
   testResults,
-  suiteResults,
-  faults,
 }: {
   testResults: TestResult[];
-  suiteResults: Map<string, TestResult[]>;
-  faults: any;
 }) => {
+  const suiteResults = groupTestsByFilePath(testResults);
   testResults.sort((a, b) => a.file.localeCompare(b.file));
+
+  const fileResults = gatherResults(testResults);
+  const totalPassFailStats: Stats = passFailStatsFromTests(testResults);
+
   for (const testResult of testResults) {
-    if (!testResult.passed) {
-      console.log(chalk.bold(testResult.fullTitle));
-      console.log(chalk.gray(testResult.stack));
+    if (testResult.passed) {
+      continue;
     }
+    console.log(chalk.bold(testResult.fullTitle));
+    console.log(chalk.red(testResult.stack));
   }
+
+  reportFaults(testResults, fileResults, totalPassFailStats);
+
   report({ testResults, suiteResults });
   for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
     const filePath = relative(process.cwd(), absoluteFilePath);
@@ -54,39 +92,5 @@ export const reporter = async ({
   const failedCount = totalCount - passedCount;
   reportPassFailCounts('Tests', failedCount, passedCount, totalCount);
   //console.log(faults);
-  for (const suiteFaults of faults) {
-    const faultMap = new Map();
-    for (const fault of suiteFaults) {
-      if (!faultMap.has(fault.sourceFile)) {
-        faultMap.set(fault.sourceFile, []);
-      }
-      const fileFaults = faultMap.get(fault.sourceFile)!;
-      fileFaults.push(fault);
-    }
-    for (const [file, fileFaults] of faultMap.entries()) {
-      fileFaults.sort((a, b) => a.location.start.column - b.location.start.column);
-      fileFaults.sort((a, b) => a.location.line - b.location.line);
-      fileFaults.sort((a, b) => b.rank - a.rank);
-      const slicedFileFaults = fileFaults.slice(0, 5);
-      const lines = (await readFile(file, 'utf8')).split('\n');
-      for (const fault of slicedFileFaults) {
-        console.log(
-          `${chalk.bold(
-            `${fault.file}:${fault.location.start.line}:${fault.location.start.column}`,
-          )} ${chalk.cyan(fault.rank)}`,
-        );
-        let l = fault.location.start.line - 1;
-        let lineCount = 0;
-        while (l < fault.location.end.line && lineCount < 5) {
-          console.log(chalk.grey(lines[l++]));
-          lineCount++;
-        }
-        if (l < fault.location.end.line) {
-          console.log('...');
-        }
-        console.log();
-      }
-    }
-  }
 };
 export default reporter;

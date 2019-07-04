@@ -1,26 +1,44 @@
 import { TestResult } from 'fl-addon-core';
-const dStar = (codeElementTestStateCounts, totalTestStateCounts, e = 2) => {
-  return (
-    Math.pow(codeElementTestStateCounts.failed, e) /
-    (codeElementTestStateCounts.passed +
-      (totalTestStateCounts.failed - codeElementTestStateCounts.failed))
-  );
+import { ExpressionLocation } from 'fl-istanbul-util';
+
+export type Stats = {
+  passed: number,
+  failed: number
 };
 
+export type ExpressionResult = {
+  stats: Stats,
+  location: ExpressionLocation,
+  testedPath: string,
+  sourcePath: string,
+}
+
+export type FileResult = {
+  testedPath: string,
+  sourcePath: string,
+  expressions: ExpressionResult[],
+};
+
+export type Fault = {
+  location: ExpressionLocation,
+  testedPath: string,
+  sourcePath: string,
+  score: number | null,
+}
+
 const statementStr = (filePath, { start, end }) => {
-  return `${filePath}|${start.line},${start.column}|${end.line},${end.column}`;
+  return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;
 };
 
 export const gatherResults = (testResults: TestResult[]) => {
-  const statementToResults = new Map();
+  const expressionResults: Map<string, ExpressionResult> = new Map();
   for (const testResult of testResults) {
-    const fileTests = testResult.coverage;
-    if (fileTests === undefined) {
+    const coverage = testResult.coverage;
+    if (coverage === undefined) {
       continue;
     }
-    for (const [filePath, fileCoverage] of Object.entries(fileTests) as any) {
+    for (const [filePath, fileCoverage] of Object.entries(coverage) as any) {
       const statementMap = fileCoverage.statementMap;
-
       for (const statementKey of Object.keys(statementMap)) {
         const executionCount = fileCoverage.s[statementKey];
         if (executionCount === 0) {
@@ -30,57 +48,95 @@ export const gatherResults = (testResults: TestResult[]) => {
         const hash = statementStr(filePath, statementCoverage);
 
         const results = (() => {
-          if (statementToResults.has(hash)) {
-            return statementToResults.get(hash);
+          if (expressionResults.has(hash)) {
+            return expressionResults.get(hash)!;
           } else {
             const passFailCounts = { passed: 0, failed: 0 };
-            const newResult = {
+            const newResult: ExpressionResult = {
               location: statementCoverage,
-              stateCounts: passFailCounts,
-              file: filePath,
-              sourceFile: fileCoverage.path,
+              stats: passFailCounts,
+              testedPath: testResult.file,
+              sourcePath: fileCoverage.path
             };
-            statementToResults.set(hash, newResult);
+            expressionResults.set(hash, newResult);
             return newResult;
           }
         })();
-        results.stateCounts[testResult.passed ? 'passed' : 'failed']++;
+        results.stats[testResult.passed ? 'passed' : 'failed']++;
       }
     }
   }
-  return statementToResults;
-};
 
-export const localiseFaults = (suiteResult: TestResult[]) => {
-  const statementKeyToStateCounts = gatherResults(suiteResult);
-  const stateCounts = { passed: 0, failed: 0 };
-
-  for (const testResult of suiteResult) {
-    stateCounts[testResult.passed ? 'passed' : 'failed']++;
+  const fileResults: Map<string, FileResult> = new Map();
+  for(const expressionResult of expressionResults.values()) {
+    const { sourcePath, testedPath } = expressionResult;
+    if (!fileResults.has(expressionResult.sourcePath)) {
+      fileResults.set(sourcePath, {
+        sourcePath,
+        testedPath,
+        expressions: [expressionResult]
+      });
+    } else {
+      const fileResult = fileResults.get(sourcePath)!;
+      fileResult.expressions.push(expressionResult);
+    }
   }
-
-  const results = [...statementKeyToStateCounts.entries()]
-    .map(([statementKey, statementStateCounts]) => {
-      // console.log(statementStateCounts.stateCounts, stateCounts, statementKey);
-      return {
-        location: statementStateCounts.location,
-        stateCounts: statementStateCounts.stateCounts,
-        file: statementStateCounts.file,
-        sourceFile: statementStateCounts.sourceFile,
-        rank: dStar(statementStateCounts.stateCounts, stateCounts),
-      };
-    })
-    .filter(fault => fault.rank > 0)
-    .sort((a, b) => (a.rank < b.rank ? -1 : a.rank > b.rank ? 1 : 0));
-  return results;
+  return fileResults;
 };
 
-export const localiseFaultsFromSuiteResults = (
-  suiteResults: Map<string, TestResult[]>,
+export const passFailStatsFromTests = (testResults: TestResult[]): Stats => {
+  const stats: Stats = {
+    passed: 0,
+    failed: 0,
+  }
+  for(const testResult of testResults) {
+    stats[testResult.passed ? 'passed' : 'failed' ]++;
+  }
+  return stats;
+}
+
+export const groupTestsByFilePath = (
+  testResults: TestResult[],
 ) => {
-  const failedSuites = Array.from(suiteResults.values()).filter(suiteResult =>
-    suiteResult.some(testResult => !testResult.passed),
-  );
-  const faults = failedSuites.map(localiseFaults);
+  const grouped: Map<string, TestResult[]> = new Map();
+  for(const testResult of testResults) {
+    if (!grouped.has(testResult.file)) {
+      grouped.set(testResult.file, [testResult]);
+    } else {
+      const groupedTestResults = grouped.get(testResult.file)!;
+      groupedTestResults.push(testResult);
+    }
+  }
+  return grouped;
+}
+
+type ScoringFn = (expressionPassFailStats: Stats) => number | null;
+export const localiseFaults = (
+  groupedTestResults: TestResult[],
+  fileResults: Map<string, FileResult>,
+  scoringFn: ScoringFn,
+): Fault[] => {
+  const faults: Fault[] = [];
+  const selectedSourceFiles: Set<string> = new Set();
+  for(const testResult of groupedTestResults) {
+    if (testResult.coverage === undefined) {
+      continue;
+    }
+    for(const coverage of Object.values(testResult.coverage)) {
+      selectedSourceFiles.add(coverage.path);
+    }
+  }
+  for(const sourcePath of selectedSourceFiles) {
+    const fileResult = fileResults.get(sourcePath)!;
+    for(const expression of fileResult.expressions) {
+      const { location, sourcePath, testedPath } = expression;
+      faults.push({
+        sourcePath,
+        testedPath,
+        location,
+        score: scoringFn(expression.stats)
+      });
+    }
+  }
   return faults;
 };
