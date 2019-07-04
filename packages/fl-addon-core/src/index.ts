@@ -1,21 +1,21 @@
 import * as types from 'fl-addon-message-types';
 import { promisify } from 'util';
-interface TypeHolder<T> {
+type TypeHolder<T> = {
   type: T;
-}
-export interface AssertionData {
+};
+export type AssertionData = {
   passed: boolean;
   coverage: any;
-}
+};
 export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
 
-export interface TestData {
+export type TestData = {
   fullTitle: any;
   hash: string;
   duration: number;
   file: string;
   coverage: any;
-}
+};
 
 export type PassingTestData = {
   passed: true;
@@ -29,9 +29,9 @@ export type FailingTestData = {
 export type TestResult = (PassingTestData | FailingTestData) &
   TypeHolder<typeof types.TEST>;
 
-export interface ExecutionData {
+export type ExecutionData = {
   passed: boolean;
-}
+};
 export type ExecutionResult = ExecutionData & TypeHolder<typeof types.EXECUTION>;
 
 const promiseSend: (param: any) => Promise<unknown> = promisify(

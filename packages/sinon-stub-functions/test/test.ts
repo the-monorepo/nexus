@@ -44,7 +44,7 @@ describe('empty containers', () => {
 it('can mock prototypeless objects', () => {
   const prototypeless = Object.setPrototypeOf(
     new class {
-      aFunction() {}
+      public aFunction() {}
     }(),
     null,
   );
@@ -85,14 +85,14 @@ it('cloned instance behaves correctly', () => {
 
   class TestClass {
     private _value: number;
-    constructor() {
+    public constructor() {
       this._value = 0;
     }
 
-    changeValue(newValue) {
+    public changeValue(newValue) {
       this._value = newValue;
     }
-    get value() {
+    public get value() {
       return this._value;
     }
   }
@@ -128,12 +128,12 @@ it('null', () => {
 it('can mock class instances', () => {
   class AClass {
     public fn2;
-    constructor() {
+    public constructor() {
       this.fn2 = () => {
         return 3;
       };
     }
-    fn1() {
+    public fn1() {
       return 1;
     }
   }
@@ -153,16 +153,16 @@ it('instance without constructor', () => {
 
 describe('classInstance behaves correctly', () => {
   class BClass {
-    innerMethod() {
+    public innerMethod() {
       return 42;
     }
   }
   class AClass {
     public inner;
-    constructor() {
+    public constructor() {
       this.inner = new BClass();
     }
-    test() {
+    public test() {
       return 100;
     }
   }
@@ -223,7 +223,7 @@ describe('can mock recursively', () => {
   it('class with object', () => {
     class ClassWithObject {
       public anObject;
-      constructor() {
+      public constructor() {
         this.anObject = {
           aFunction: () => 10,
         };
