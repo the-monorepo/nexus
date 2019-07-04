@@ -50,21 +50,23 @@ export interface FCoverage {
 export interface SCoverage {
   [s: string]: number;
 }
-export interface ExpressionLocation {
+
+export type TextLocation = {
   line: number;
   column: number;
 }
-export interface ExpressionCoverage {
-  start: ExpressionLocation;
-  end: ExpressionLocation;
+
+export interface ExpressionLocation {
+  start: TextLocation;
+  end: TextLocation;  
 }
 export interface StatementMap {
-  [s: string]: ExpressionCoverage;
+  [s: string]: ExpressionLocation;
 }
 export interface FunctionCoverage {
   name: string;
-  decl: ExpressionCoverage;
-  loc: ExpressionCoverage;
+  decl: ExpressionLocation;
+  loc: ExpressionLocation;
   line: number;
 }
 export interface FunctionMap {
