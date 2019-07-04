@@ -6,6 +6,7 @@ const COVERAGE_KEY = '__coverage__';
 
 const run = async testPaths => {
   let passed = true;
+  const originalCacheKeys = new Set(Object.keys(require.cache));
   for(const testPath of testPaths) {
     const mocha = new Mocha({
       allowUncaught: true,
@@ -15,6 +16,7 @@ const run = async testPaths => {
     } as any);
     
     global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
+    
     mocha.addFile(require.resolve('./recordTests'));
     mocha.addFile(testPath);
   
@@ -34,7 +36,13 @@ const run = async testPaths => {
     } catch (err) {
       console.error(err);
       process.exit(1);
-    }  
+    }
+    const cacheKeysAfterTest = new Set(Object.keys(require.cache));
+    for(const testCacheKey of cacheKeysAfterTest) {
+      if (!originalCacheKeys.has(testCacheKey)) {
+        delete require.cache[testCacheKey];
+      }
+    }
   }
   
   await submitExecutionResult({
