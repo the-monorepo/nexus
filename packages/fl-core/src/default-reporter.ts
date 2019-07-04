@@ -70,15 +70,15 @@ export const reporter = async ({
       fileFaults.sort(fault => fault.location.line);
       const lines = (await readFile(file, 'utf8')).split('\n');
       for (const fault of fileFaults) {
-        //console.log(`fault ${chalk.cyan(fault.rank)}`, fault.location);
+        console.log(`fault ${chalk.cyan(fault.rank)}`, fault.location);
         let l = fault.location.start.line - 1;
         let lineCount = 0;
         while (l < fault.location.end.line && lineCount < 5) {
-          //console.log(lines[l++]);
+          console.log(lines[l++]);
           lineCount++;
         }
         if (l < fault.location.end.line) {
-          //console.log('...');
+          console.log('...');
         }
       }
     }
