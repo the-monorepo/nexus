@@ -55,7 +55,6 @@ export const reporter = async ({
   reportPassFailCounts('Tests', failedCount, passedCount, totalCount);
   //console.log(faults);
   for (const suiteFaults of faults) {
-    console.log(chalk.bold('suite'));
     const faultMap = new Map();
     for (const fault of suiteFaults) {
       if (!faultMap.has(fault.sourceFile)) {
@@ -65,21 +64,27 @@ export const reporter = async ({
       fileFaults.push(fault);
     }
     for (const [file, fileFaults] of faultMap.entries()) {
-      console.log(chalk.bold(file));
-      fileFaults.sort(fault => fault.location.start.column);
-      fileFaults.sort(fault => fault.location.line);
+      fileFaults.sort((a, b) => a.location.start.column - b.location.start.column);
+      fileFaults.sort((a, b) => a.location.line - b.location.line);
+      fileFaults.sort((a, b) => b.rank - a.rank);
+      const slicedFileFaults = fileFaults.slice(0, 5);
       const lines = (await readFile(file, 'utf8')).split('\n');
-      for (const fault of fileFaults) {
-        console.log(`fault ${chalk.cyan(fault.rank)}`, fault.location);
+      for (const fault of slicedFileFaults) {
+        console.log(
+          `${chalk.bold(
+            `${fault.file}:${fault.location.start.line}:${fault.location.start.column}`,
+          )} ${chalk.cyan(fault.rank)}`,
+        );
         let l = fault.location.start.line - 1;
         let lineCount = 0;
         while (l < fault.location.end.line && lineCount < 5) {
-          console.log(lines[l++]);
+          console.log(chalk.grey(lines[l++]));
           lineCount++;
         }
         if (l < fault.location.end.line) {
           console.log('...');
         }
+        console.log();
       }
     }
   }
