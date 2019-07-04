@@ -1,11 +1,12 @@
 import * as types from 'fl-addon-message-types';
 import { promisify } from 'util';
+import { Coverage } from 'fl-istanbul-util';
 type TypeHolder<T> = {
   type: T;
 };
 export type AssertionData = {
   passed: boolean;
-  coverage: any;
+  coverage: Coverage;
 };
 export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
 
@@ -14,7 +15,7 @@ export type TestData = {
   hash: string;
   duration: number;
   file: string;
-  coverage: any;
+  coverage: Coverage;
 };
 
 export type PassingTestData = {

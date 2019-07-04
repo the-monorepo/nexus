@@ -58,7 +58,7 @@ export function defaultHooksFromSchema<H extends HookSchema>(
   schemaObj: H,
   hooksObj: RecursivePartial<Hooks<H>> = {},
 ): Hooks<H> {
-  return Object.keys(schemaObj).reduce((hooks, key) => {
+  return Object.keys(schemaObj).reduce((hooks, key: keyof H) => {
     if (!hooks[key]) {
       // TODO: There's some type errors that occur for whatever reason with as any. Need to remove them
       if (schemaObj[key] === null) {

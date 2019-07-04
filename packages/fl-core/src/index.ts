@@ -1,10 +1,8 @@
 import globby from 'globby';
 import { fork } from 'child_process';
-import { cpus } from 'os';
 import * as types from 'fl-addon-message-types';
 import { AssertionResult, ExecutionResult, TestResult } from 'fl-addon-core';
 import { reporter } from './default-reporter';
-import { localiseFaults } from './fl';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
@@ -18,7 +16,6 @@ const runAndRecycleProcesses = async (
   const remainders = directories.length % processCount;
   let i = 0;
   const testResults: any[] = [];
-  const suiteResults: Map<string, TestResult[]> = new Map();
   const forkForTest = testPaths => {
     const forkTest = fork(
       addonEntryPath,
@@ -41,11 +38,6 @@ const runAndRecycleProcesses = async (
               break;
             }
             case types.TEST: {
-              if (!suiteResults.has(message.file)) {
-                suiteResults.set(message.file, []);
-              }
-              const results = suiteResults.get(message.file)!;
-              results.push(message);
               testResults.push(message);
               break;
             }
@@ -75,8 +67,7 @@ const runAndRecycleProcesses = async (
   }
 
   await Promise.all(forkPromises);
-  const faults = [localiseFaults(testResults)];
-  return { testResults, suiteResults, faults };
+  return { testResults };
 };
 
 export const run = async ({ tester, testMatch, setupFiles }) => {
