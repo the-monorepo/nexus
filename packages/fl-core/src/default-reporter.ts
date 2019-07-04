@@ -25,15 +25,15 @@ const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
 
 const reportFaults = async (testResults: TestResult[], fileResults: Map<string, FileResult>, totalPassFailStats: Stats) => {
   const faults = localiseFaults(testResults, fileResults, (expressionPassFailStats) => dStar(expressionPassFailStats, totalPassFailStats));
-  const rankedFaults = faults.filter(fault => fault.score !== null).sort((f1, f2) => f2.score - f1.score).slice(0, 10);
+  const rankedFaults = faults.filter(fault => fault.score !== null).sort((f1, f2) => f2.score! - f1.score!).slice(0, 10);
   for(const fault of rankedFaults) {
     const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
     console.log(
-      `${fault.sourcePath}:${fault.location.start.line}:${fault.location.start.column}, ${chalk.cyan(fault.score.toString())}`,
+      `${fault.sourcePath}:${fault.location.start.line}:${fault.location.start.column}, ${chalk.cyan(fault.score!.toString())}`,
     );
     let l = fault.location.start.line - 1;
     let lineCount = 0;
-    while (l < fault.location.end.line && lineCount < 5) {
+    while (l < fault.location.end.line && lineCount < 3) {
       console.log(chalk.grey(lines[l++]));
       lineCount++;
     }
