@@ -2,6 +2,7 @@
 import mock from 'rewiremock';
 import { stub } from 'sinon';
 
+mock.enable();
 mock('mz/fs').with({
   readFile: async () => 'test',
 });
@@ -21,8 +22,8 @@ mock('js-yaml').with({
     },
   }),
 });
-mock.enable();
 const { readCodeBlock } = require('../../src');
+mock.disable();
 
 describe('readCodeBlock', () => {
   it('typescript', async () => {
