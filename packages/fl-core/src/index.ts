@@ -36,10 +36,11 @@ const runAndRecycleProcesses = async (
         'message',
         (message: ExecutionResult | AssertionResult | TestResult) => {
           switch (message.type) {
-            case types.EXECUTION:
+            case types.EXECUTION: {
               resolve(message.passed);
               break;
-            case types.TEST:
+            }
+            case types.TEST: {
               if (!suiteResults.has(message.file)) {
                 suiteResults.set(message.file, []);
               }
@@ -47,6 +48,7 @@ const runAndRecycleProcesses = async (
               results.push(message);
               testResults.push(message);
               break;
+            }
           }
         },
       );
@@ -88,7 +90,7 @@ export const run = async ({ tester, testMatch, setupFiles }) => {
     }),
   );
 
-  const processCount = 1//cpus().length;
+  const processCount = 1; //cpus().length;
 
   const results = await runAndRecycleProcesses(
     tester,

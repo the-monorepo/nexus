@@ -10,9 +10,9 @@ export interface TransportOptions {
   timestamp?: string | null | boolean;
 }
 
-export interface FileTransportOptions extends TransportOptions {
+export type FileTransportOptions = {
   path?: string;
-}
+} & TransportOptions;
 
 function getFormats({ colors, timestamp }: TransportOptions = {}, defaults) {
   const formats: any[] = [];

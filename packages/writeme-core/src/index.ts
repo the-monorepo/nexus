@@ -22,9 +22,9 @@ export interface Sections {
   development?: string;
 }
 
-export interface Projects extends Project {
+export type Projects = {
   overrides: Project[];
-}
+} & Project;
 
 export interface PackageOptions {
   dir: string;

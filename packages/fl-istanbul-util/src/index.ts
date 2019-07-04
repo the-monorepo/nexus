@@ -80,8 +80,8 @@ export interface Coverage {
     f: FCoverage;
     b: BCoverage;
     _coverageSchema: string;
-    hash: string;  
-  }
+    hash: string;
+  };
 }
 export const subtractCoverage = (from: Coverage, amount: Coverage | undefined) => {
   if (amount === undefined) {

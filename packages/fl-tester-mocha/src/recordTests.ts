@@ -8,7 +8,6 @@ const {
   EVENT_SUITE_BEGIN,
   EVENT_SUITE_END,
   EVENT_RUN_BEGIN,
-  EVENT_HOOK_BEGIN
 } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
@@ -26,12 +25,11 @@ const commonTestHandle = submitHandle => {
 };
 
 export class IPCReporter {
-  constructor(runner) {
+  public constructor(runner) {
     runner
       .on(
         EVENT_TEST_PASS,
         commonTestHandle(async testData => {
-          console.log('record pass')
           await submitTestResult({
             ...testData,
             passed: true,
@@ -41,22 +39,12 @@ export class IPCReporter {
       .on(
         EVENT_TEST_FAIL,
         commonTestHandle(async (testData, test, err) => {
-          console.log('record fail')
           await submitTestResult({
             ...testData,
             passed: false,
             stack: err.stack,
           });
         }),
-      )
-      .on(EVENT_SUITE_BEGIN, () => {
-        console.log('start');
-      })
-      .on(EVENT_SUITE_END, () => {
-        console.log('end');
-      })
-      .on(EVENT_RUN_BEGIN, () => {
-        console.log('hook');
-      })
+      );
   }
 }

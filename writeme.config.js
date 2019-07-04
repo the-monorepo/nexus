@@ -21,6 +21,10 @@ module.exports = {
         category: 'TSLint',
         test: './{build-packages,packages}/eslint*',
       },
+      {
+        category: 'Fault localization',
+        test: ['./{build-packages,packages}/fl-*'],
+      },
     ],
   },
 };
