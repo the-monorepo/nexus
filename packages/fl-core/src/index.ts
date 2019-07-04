@@ -4,6 +4,7 @@ import { cpus } from 'os';
 import * as types from 'fl-addon-message-types';
 import { AssertionResult, ExecutionResult, TestResult } from 'fl-addon-core';
 import { reporter } from './default-reporter';
+import { localiseFaults } from './fl';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
@@ -27,7 +28,7 @@ const runAndRecycleProcesses = async (
           ...process.env,
           NODE_ENV: 'test',
         },
-        stdio: 'inherit'
+        stdio: 'inherit',
       },
     );
     return new Promise((resolve, reject) => {
@@ -39,7 +40,6 @@ const runAndRecycleProcesses = async (
               resolve(message.passed);
               break;
             case types.TEST:
-              console.log(message.passed);
               if (!suiteResults.has(message.file)) {
                 suiteResults.set(message.file, []);
               }
@@ -73,8 +73,8 @@ const runAndRecycleProcesses = async (
   }
 
   await Promise.all(forkPromises);
-  console.log(suiteResults);
-  return { testResults, suiteResults };
+  const faults = [localiseFaults(testResults)];
+  return { testResults, suiteResults, faults };
 };
 
 export const run = async ({ tester, testMatch, setupFiles }) => {
@@ -88,10 +88,15 @@ export const run = async ({ tester, testMatch, setupFiles }) => {
     }),
   );
 
-  const processCount = cpus().length;
+  const processCount = 1//cpus().length;
 
-  const results = await runAndRecycleProcesses(tester, directories, processCount, absoluteImportPaths);
-  reporter(results);
+  const results = await runAndRecycleProcesses(
+    tester,
+    directories,
+    processCount,
+    absoluteImportPaths,
+  );
+  await reporter(results);
   if (results.testResults.some(result => !result.passed)) {
     process.exit(1);
   }
