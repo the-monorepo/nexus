@@ -115,8 +115,6 @@ export const subtractCoverage = (from: Coverage, amount: Coverage | undefined) =
       Object.values(fileDiff.b).some(arr => arr.some(notZero));
     if (hasChanged) {
       diff[filePath] = fileDiff;
-    } else {
-      //console.log(filePath, fileDiff.s, beforeFileCoverage.s, fileCoverage.s)
     }
   }
   return diff;
