@@ -17,7 +17,7 @@ const dStar = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats, e
 
 const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
   console.log(
-    `${chalk.bold(`${prefix}:`)} ${chalk.redBright(
+    `${chalk.bold(`${prefix}`)}${chalk.redBright(
       `${failedCount} failed`,
     )}, ${chalk.greenBright(`${passedCount} passed`)}, ${totalCount} total`,
   );
@@ -47,6 +47,7 @@ const reportFaults = async (testResults: TestResult[], fileResults: Map<string, 
 
 export const reporter = async ({
   testResults,
+  duration
 }: {
   testResults: TestResult[];
 }) => {
@@ -80,17 +81,21 @@ export const reporter = async ({
       console.log(`${chalk.bgRedBright(chalk.black(' FAIL '))} ${formattedFilePath}`);
     }
   }
+
+  console.log();
+
   const suiteCount = suiteResults.size;
   const suitePassedCount = Array.from(suiteResults.entries()).filter(
     ([filePath, results]) => !results.some(result => !result.passed),
   ).length;
   const suiteFailedCount = suiteCount - suitePassedCount;
-  reportPassFailCounts('Test Suite', suiteFailedCount, suitePassedCount, suiteCount);
+  reportPassFailCounts('Test Suite: ', suiteFailedCount, suitePassedCount, suiteCount);
 
   const passedCount = testResults.filter(result => result.passed).length;
   const totalCount = testResults.length;
   const failedCount = totalCount - passedCount;
-  reportPassFailCounts('Tests', failedCount, passedCount, totalCount);
+  reportPassFailCounts('Tests:      ', failedCount, passedCount, totalCount);
+  console.log(chalk.bold('Time:       ') + chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`));
   //console.log(faults);
 };
 export default reporter;

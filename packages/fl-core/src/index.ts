@@ -16,6 +16,7 @@ const runAndRecycleProcesses = async (
   const remainders = directories.length % processCount;
   let i = 0;
   const testResults: any[] = [];
+  const start = new Date();
   const forkForTest = testPaths => {
     const forkTest = fork(
       addonEntryPath,
@@ -67,7 +68,11 @@ const runAndRecycleProcesses = async (
   }
 
   await Promise.all(forkPromises);
-  return { testResults };
+
+  const end = new Date();
+  const duration = end.getTime() - start.getTime();
+
+  return { testResults, duration };
 };
 
 export const run = async ({ tester, testMatch, setupFiles }) => {
