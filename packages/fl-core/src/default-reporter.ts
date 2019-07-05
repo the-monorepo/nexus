@@ -64,7 +64,7 @@ export const reporter = async ({
     console.log(chalk.red(testResult.stack));
   }
 
-  reportFaults(testResults, fileResults, totalPassFailStats);
+  await reportFaults(testResults, fileResults, totalPassFailStats);
 
   report({ testResults, suiteResults });
   for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
