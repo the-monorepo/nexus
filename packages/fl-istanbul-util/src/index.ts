@@ -54,11 +54,11 @@ export interface SCoverage {
 export type TextLocation = {
   line: number;
   column: number;
-}
+};
 
 export interface ExpressionLocation {
   start: TextLocation;
-  end: TextLocation;  
+  end: TextLocation;
 }
 export interface StatementMap {
   [s: string]: ExpressionLocation;
