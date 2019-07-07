@@ -53,7 +53,7 @@ const loggers = {
     log: logger().add(fileTransport()),
     formatExpected: formatTester({ timestamp: '2018-05-03 12:34:56 ' }),
   },
-  'console-default-double-tagged': {
+  'console-default/double-tagged': {
     log: logger()
       .add(consoleTransport())
       .child({ tags: ['hello', 'world'] }),

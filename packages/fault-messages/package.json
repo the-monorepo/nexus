@@ -1,5 +1,5 @@
 {
-  "name": "fault-messages",
+  "name": "@fault/messages",
   "version": "1.0.0-alpha.0",
   "description": "Use Mocha tests in the fl test runner",
   "types": "./src/index.ts",
@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/fault-messages"
+    "directory": "packages/@fault/messages"
   },
   "keywords": [
     "sinon",
