@@ -1,9 +1,9 @@
 import Mocha from 'mocha';
 import * as types from 'fl-addon-message-types';
 import { IPCReporter } from './recordTests';
-import { submitFileResult } from 'fl-addon-core';
+import { submitFileResult } from 'fl-messages';
 import { cloneCoverage } from 'fl-istanbul-util';
-import { ParentResult } from 'fl-addon-core';
+import { ParentResult } from 'fl-messages';
 const COVERAGE_KEY = '__coverage__';
 
 export const initialize = async () => {
@@ -17,10 +17,10 @@ export const initialize = async () => {
         delete require.cache[testCacheKey];
       }
     }
-  }
-  
+  };
+
   process.on('message', async (data: ParentResult) => {
-    switch(data.type) {
+    switch (data.type) {
       case types.STOP_WORKER: {
         process.exit(0);
         break;
@@ -39,7 +39,7 @@ export const initialize = async () => {
         try {
           await new Promise(resolve => {
             global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
-            mocha.run(async (failures) => {
+            mocha.run(async failures => {
               await submitFileResult(data);
               clearCache();
               resolve(failures);

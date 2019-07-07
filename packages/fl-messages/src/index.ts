@@ -31,9 +31,8 @@ export type FailingTestData = {
 export type TestResult = (PassingTestData | FailingTestData) &
   TypeHolder<typeof types.TEST>;
 
-const promiseSend: (param: any) => Promise<unknown> = process.send !== undefined ? promisify(
-  process.send!.bind(process),
-) : undefined!;
+const promiseSend: (param: any) => Promise<unknown> =
+  process.send !== undefined ? promisify(process.send!.bind(process)) : undefined!;
 export const submitAssertionResult = (data: AssertionData) => {
   const result: AssertionResult = {
     ...data,
@@ -60,11 +59,11 @@ export const submitFileResult = (data: FileFinishedData) => {
     type: types.FILE_FINISHED,
   };
   return promiseSend(result);
-}
+};
 
 const promiseWorkerSend = (worker: ChildProcess, data: any) => {
   return new Promise((resolve, reject) => {
-    worker.send(data, (err) => {
+    worker.send(data, err => {
       if (err) {
         reject(err);
       } else {
@@ -72,7 +71,7 @@ const promiseWorkerSend = (worker: ChildProcess, data: any) => {
       }
     });
   });
-}
+};
 export type RunTestData = {
   filePath: string;
 };
@@ -80,21 +79,20 @@ export type RunTestPayload = RunTestData & TypeHolder<typeof types.RUN_TEST>;
 export const runTest = (worker: ChildProcess, data: RunTestData) => {
   const result: RunTestPayload = {
     type: types.RUN_TEST,
-    ...data
+    ...data,
   };
   return promiseWorkerSend(worker, result);
 };
 
-export type StopWorkerData = {
-};
+export type StopWorkerData = {};
 export type StopWorkerResult = StopWorkerData & TypeHolder<typeof types.STOP_WORKER>;
 export const stopWorker = (worker: ChildProcess, data: StopWorkerData) => {
   const result: StopWorkerResult = {
     type: types.STOP_WORKER,
-    ...data
+    ...data,
   };
   return promiseWorkerSend(worker, result);
-}
+};
 
 export type ChildResult = TestResult | AssertionResult | FileFinishedResult;
 export type ParentResult = StopWorkerResult | RunTestPayload;

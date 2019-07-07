@@ -1,11 +1,18 @@
 import { relative, dirname, basename, join } from 'path';
-import { TestResult } from 'fl-addon-core';
+import { TestResult } from 'fl-messages';
 import chalk from 'chalk';
 import { report } from 'fl-istanbul-reporter';
 import { readFile } from 'mz/fs';
-import { groupTestsByFilePath, localiseFaults, gatherResults, Stats, passFailStatsFromTests, FileResult } from './fl';
+import {
+  groupTestsByFilePath,
+  localiseFaults,
+  gatherResults,
+  Stats,
+  passFailStatsFromTests,
+  FileResult,
+} from './fl';
 
-const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFilePath);
+const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
 const dStar = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats, e = 2) => {
   if (codeElementTestStateCounts.failed === 0) {
@@ -26,13 +33,24 @@ const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
   );
 };
 
-const reportFaults = async (testResults: TestResult[], fileResults: Map<string, FileResult>, totalPassFailStats: Stats) => {
-  const faults = localiseFaults(testResults, fileResults, (expressionPassFailStats) => dStar(expressionPassFailStats, totalPassFailStats));
-  const rankedFaults = faults.filter(fault => fault.score !== null).sort((f1, f2) => f2.score! - f1.score!).slice(0, 10);
-  for(const fault of rankedFaults) {
+const reportFaults = async (
+  testResults: TestResult[],
+  fileResults: Map<string, FileResult>,
+  totalPassFailStats: Stats,
+) => {
+  const faults = localiseFaults(testResults, fileResults, expressionPassFailStats =>
+    dStar(expressionPassFailStats, totalPassFailStats),
+  );
+  const rankedFaults = faults
+    .filter(fault => fault.score !== null)
+    .sort((f1, f2) => f2.score! - f1.score!)
+    .slice(0, 10);
+  for (const fault of rankedFaults) {
     const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
     console.log(
-      `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${fault.location.start.column}, ${chalk.cyan(fault.score!.toString())}`,
+      `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${
+        fault.location.start.column
+      }, ${chalk.cyan(fault.score!.toString())}`,
     );
     let l = fault.location.start.line - 1;
     let lineCount = 0;
@@ -42,22 +60,21 @@ const reportFaults = async (testResults: TestResult[], fileResults: Map<string, 
       lineCount++;
     }
     const lastLine = lines[l++];
-    console.log(chalk.grey(lastLine))
+    console.log(chalk.grey(lastLine));
     if (lineCount >= maxLineCount) {
       const spaces = lastLine.match(/^ */)![0];
-      console.log(chalk.grey(new Array(spaces.length + 1).join(' ') + '...'));
+      console.log(chalk.grey(`${new Array(spaces.length + 1).join(' ')}...`));
     }
     console.log();
   }
-
-}
+};
 
 export const reporter = async ({
   testResults,
-  duration
+  duration,
 }: {
-  testResults: TestResult[],
-  duration: number,
+  testResults: TestResult[];
+  duration: number;
 }) => {
   const suiteResults = groupTestsByFilePath(testResults);
   testResults.sort((a, b) => a.file.localeCompare(b.file));
@@ -103,7 +120,10 @@ export const reporter = async ({
   const totalCount = testResults.length;
   const failedCount = totalCount - passedCount;
   reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
-  console.log(chalk.bold('Time:   ') + chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`));
+  console.log(
+    chalk.bold('Time:   ') +
+      chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`),
+  );
   //console.log(faults);
 };
 export default reporter;
