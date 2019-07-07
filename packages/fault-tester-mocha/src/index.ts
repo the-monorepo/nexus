@@ -1,9 +1,9 @@
 import Mocha from 'mocha';
-import * as types from 'fl-addon-message-types';
+import * as types from 'fault-addon-message-types';
 import { IPCReporter } from './recordTests';
-import { submitFileResult } from 'fl-messages';
-import { cloneCoverage } from 'fl-istanbul-util';
-import { ParentResult } from 'fl-messages';
+import { submitFileResult } from 'fault-messages';
+import { cloneCoverage } from 'fault-istanbul-util';
+import { ParentResult } from 'fault-messages';
 const COVERAGE_KEY = '__coverage__';
 
 export const initialize = async () => {
