@@ -1,8 +1,8 @@
 import globby from 'globby';
 import { fork, ChildProcess } from 'child_process';
-import * as types from 'fl-addon-message-types';
-import { ChildResult } from 'fl-messages';
-import { runTest, stopWorker } from 'fl-messages';
+import * as types from 'fault-addon-message-types';
+import { ChildResult } from 'fault-messages';
+import { runTest, stopWorker } from 'fault-messages';
 import { reporter } from './default-reporter';
 
 const addonEntryPath = require.resolve('./addon-entry');

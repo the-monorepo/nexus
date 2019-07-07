@@ -1,6 +1,6 @@
-import * as types from 'fl-addon-message-types';
+import * as types from 'fault-addon-message-types';
 import { promisify } from 'util';
-import { Coverage } from 'fl-istanbul-util';
+import { Coverage } from 'fault-istanbul-util';
 import { ChildProcess } from 'child_process';
 type TypeHolder<T> = {
   type: T;
