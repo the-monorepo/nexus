@@ -11,7 +11,6 @@ export const ASSERTION = 'submit-assertion-result';
  */
 export const TEST = 'submit-test-result';
 
-
 /**
  * For when you want to notify the test worker to finish
  */

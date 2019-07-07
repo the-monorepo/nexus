@@ -177,24 +177,27 @@ function mockValue<R>(
     typeof realValue === 'object' &&
     (classInstances || ogToMockedMap.size == 0)
   ) {
-    return handleContainer(objectWithPrototypeFrom, (realVal, mocked, createReplacementValueFn, opts, mockValueFn, map) => {
-      const mocked2 = mockPrototypeFunctions(
-        realVal,
-        mocked,
-        createReplacementValue,
-        opts,
-        mockValueFn,
-        map,
-      );
-      return mockProperties(
-        realVal,
-        mocked2,
-        createReplacementValue,
-        opts,
-        mockValue,
-        map,
-      );
-    });
+    return handleContainer(
+      objectWithPrototypeFrom,
+      (realVal, mocked, createReplacementValueFn, opts, mockValueFn, map) => {
+        const mocked2 = mockPrototypeFunctions(
+          realVal,
+          mocked,
+          createReplacementValue,
+          opts,
+          mockValueFn,
+          map,
+        );
+        return mockProperties(
+          realVal,
+          mocked2,
+          createReplacementValue,
+          opts,
+          mockValue,
+          map,
+        );
+      },
+    );
   } else {
     return realValue;
   }

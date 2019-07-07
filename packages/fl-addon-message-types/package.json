@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/fl-addon-core"
+    "directory": "packages/fl-messages"
   },
   "keywords": [
     "sinon",

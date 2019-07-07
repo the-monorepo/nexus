@@ -1,30 +1,30 @@
-import { TestResult } from 'fl-addon-core';
+import { TestResult } from 'fl-messages';
 import { ExpressionLocation } from 'fl-istanbul-util';
 
 export type Stats = {
-  passed: number,
-  failed: number
+  passed: number;
+  failed: number;
 };
 
 export type ExpressionResult = {
-  stats: Stats,
-  location: ExpressionLocation,
-  testedPath: string,
-  sourcePath: string,
-}
+  stats: Stats;
+  location: ExpressionLocation;
+  testedPath: string;
+  sourcePath: string;
+};
 
 export type FileResult = {
-  testedPath: string,
-  sourcePath: string,
-  expressions: ExpressionResult[],
+  testedPath: string;
+  sourcePath: string;
+  expressions: ExpressionResult[];
 };
 
 export type Fault = {
-  location: ExpressionLocation,
-  testedPath: string,
-  sourcePath: string,
-  score: number | null,
-}
+  location: ExpressionLocation;
+  testedPath: string;
+  sourcePath: string;
+  score: number | null;
+};
 
 const statementStr = (filePath, { start, end }) => {
   return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;
@@ -56,7 +56,7 @@ export const gatherResults = (testResults: TestResult[]) => {
               location: statementCoverage,
               stats: passFailCounts,
               testedPath: testResult.file,
-              sourcePath: fileCoverage.path
+              sourcePath: fileCoverage.path,
             };
             expressionResults.set(hash, newResult);
             return newResult;
@@ -68,13 +68,13 @@ export const gatherResults = (testResults: TestResult[]) => {
   }
 
   const fileResults: Map<string, FileResult> = new Map();
-  for(const expressionResult of expressionResults.values()) {
+  for (const expressionResult of expressionResults.values()) {
     const { sourcePath, testedPath } = expressionResult;
     if (!fileResults.has(expressionResult.sourcePath)) {
       fileResults.set(sourcePath, {
         sourcePath,
         testedPath,
-        expressions: [expressionResult]
+        expressions: [expressionResult],
       });
     } else {
       const fileResult = fileResults.get(sourcePath)!;
@@ -88,18 +88,16 @@ export const passFailStatsFromTests = (testResults: TestResult[]): Stats => {
   const stats: Stats = {
     passed: 0,
     failed: 0,
-  }
-  for(const testResult of testResults) {
-    stats[testResult.passed ? 'passed' : 'failed' ]++;
+  };
+  for (const testResult of testResults) {
+    stats[testResult.passed ? 'passed' : 'failed']++;
   }
   return stats;
-}
+};
 
-export const groupTestsByFilePath = (
-  testResults: TestResult[],
-) => {
+export const groupTestsByFilePath = (testResults: TestResult[]) => {
   const grouped: Map<string, TestResult[]> = new Map();
-  for(const testResult of testResults) {
+  for (const testResult of testResults) {
     if (!grouped.has(testResult.file)) {
       grouped.set(testResult.file, [testResult]);
     } else {
@@ -108,7 +106,7 @@ export const groupTestsByFilePath = (
     }
   }
   return grouped;
-}
+};
 
 type ScoringFn = (expressionPassFailStats: Stats) => number | null;
 export const localiseFaults = (
@@ -118,23 +116,23 @@ export const localiseFaults = (
 ): Fault[] => {
   const faults: Fault[] = [];
   const selectedSourceFiles: Set<string> = new Set();
-  for(const testResult of groupedTestResults) {
+  for (const testResult of groupedTestResults) {
     if (testResult.coverage === undefined) {
       continue;
     }
-    for(const coverage of Object.values(testResult.coverage)) {
+    for (const coverage of Object.values(testResult.coverage)) {
       selectedSourceFiles.add(coverage.path);
     }
   }
-  for(const sourcePath of selectedSourceFiles) {
+  for (const sourcePath of selectedSourceFiles) {
     const fileResult = fileResults.get(sourcePath)!;
-    for(const expression of fileResult.expressions) {
+    for (const expression of fileResult.expressions) {
       const { location, sourcePath, testedPath } = expression;
       faults.push({
         sourcePath,
         testedPath,
         location,
-        score: scoringFn(expression.stats)
+        score: scoringFn(expression.stats),
       });
     }
   }
