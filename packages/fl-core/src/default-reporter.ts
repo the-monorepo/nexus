@@ -4,6 +4,9 @@ import chalk from 'chalk';
 import { report } from 'fl-istanbul-reporter';
 import { readFile } from 'mz/fs';
 import { groupTestsByFilePath, localiseFaults, gatherResults, Stats, passFailStatsFromTests, FileResult } from './fl';
+
+const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFilePath);
+
 const dStar = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats, e = 2) => {
   if (codeElementTestStateCounts.failed === 0) {
     return null;
@@ -29,16 +32,20 @@ const reportFaults = async (testResults: TestResult[], fileResults: Map<string, 
   for(const fault of rankedFaults) {
     const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
     console.log(
-      `${fault.sourcePath}:${fault.location.start.line}:${fault.location.start.column}, ${chalk.cyan(fault.score!.toString())}`,
+      `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${fault.location.start.column}, ${chalk.cyan(fault.score!.toString())}`,
     );
     let l = fault.location.start.line - 1;
     let lineCount = 0;
-    while (l < fault.location.end.line && lineCount < 3) {
+    const maxLineCount = 3;
+    while (l < fault.location.end.line - 1 && lineCount < maxLineCount) {
       console.log(chalk.grey(lines[l++]));
       lineCount++;
     }
-    if (l < fault.location.end.line) {
-      console.log('...');
+    const lastLine = lines[l++];
+    console.log(chalk.grey(lastLine))
+    if (lineCount >= maxLineCount) {
+      const spaces = lastLine.match(/^ */)![0];
+      console.log(chalk.grey(new Array(spaces.length + 1).join(' ') + '...'));
     }
     console.log();
   }
@@ -49,7 +56,8 @@ export const reporter = async ({
   testResults,
   duration
 }: {
-  testResults: TestResult[];
+  testResults: TestResult[],
+  duration: number,
 }) => {
   const suiteResults = groupTestsByFilePath(testResults);
   testResults.sort((a, b) => a.file.localeCompare(b.file));
@@ -67,35 +75,35 @@ export const reporter = async ({
 
   await reportFaults(testResults, fileResults, totalPassFailStats);
 
-  report({ testResults, suiteResults });
   for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
-    const filePath = relative(process.cwd(), absoluteFilePath);
+    const filePath = simplifyPath(absoluteFilePath);
 
     const fileName = basename(filePath);
     const fileDir = dirname(filePath);
     const formattedFilePath = join(fileDir, chalk.bold(fileName));
     const passed = !suiteResult.some(result => !result.passed);
     if (passed) {
-      console.log(`${chalk.bgGreenBright(chalk.black(' PASS '))} ${formattedFilePath}`);
+      console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}`);
     } else {
-      console.log(`${chalk.bgRedBright(chalk.black(' FAIL '))} ${formattedFilePath}`);
+      console.log(`${chalk.reset.inverse.bold.red(' FAIL ')} ${formattedFilePath}`);
     }
   }
 
-  console.log();
+  report({ testResults, suiteResults });
 
+  console.log();
   const suiteCount = suiteResults.size;
   const suitePassedCount = Array.from(suiteResults.entries()).filter(
     ([filePath, results]) => !results.some(result => !result.passed),
   ).length;
   const suiteFailedCount = suiteCount - suitePassedCount;
-  reportPassFailCounts('Test Suite: ', suiteFailedCount, suitePassedCount, suiteCount);
+  reportPassFailCounts('Files:  ', suiteFailedCount, suitePassedCount, suiteCount);
 
   const passedCount = testResults.filter(result => result.passed).length;
   const totalCount = testResults.length;
   const failedCount = totalCount - passedCount;
-  reportPassFailCounts('Tests:      ', failedCount, passedCount, totalCount);
-  console.log(chalk.bold('Time:       ') + chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`));
+  reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
+  console.log(chalk.bold('Time:   ') + chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`));
   //console.log(faults);
 };
 export default reporter;

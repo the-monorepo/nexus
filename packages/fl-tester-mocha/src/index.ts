@@ -1,52 +1,57 @@
 import Mocha from 'mocha';
-import { submitExecutionResult } from 'fl-addon-core';
+import * as types from 'fl-addon-message-types';
 import { IPCReporter } from './recordTests';
+import { submitFileResult } from 'fl-addon-core';
 import { cloneCoverage } from 'fl-istanbul-util';
+import { ParentResult } from 'fl-addon-core';
 const COVERAGE_KEY = '__coverage__';
 
-const run = async testPaths => {
-  let passed = true;
+export const initialize = async () => {
   const originalCacheKeys = new Set(Object.keys(require.cache));
-  for (const testPath of testPaths) {
-    const mocha = new Mocha({
-      allowUncaught: true,
-      color: true,
-      reporter: IPCReporter,
-      fullStackTrace: true,
-    } as any);
 
-    global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
-
-    mocha.addFile(require.resolve('./recordTests'));
-    mocha.addFile(testPath);
-
-    try {
-      const failures = await new Promise(resolve => {
-        mocha.run(failures => {
-          if (failures) {
-            resolve(failures);
-          } else {
-            resolve();
-          }
-        });
-      });
-      if (failures) {
-        passed = false;
-      }
-    } catch (err) {
-      console.error(err);
-      process.exit(1);
-    }
+  const clearCache = () => {
     const cacheKeysAfterTest = new Set(Object.keys(require.cache));
+
     for (const testCacheKey of cacheKeysAfterTest) {
       if (!originalCacheKeys.has(testCacheKey)) {
         delete require.cache[testCacheKey];
       }
     }
   }
+  
+  process.on('message', async (data: ParentResult) => {
+    switch(data.type) {
+      case types.STOP_WORKER: {
+        process.exit(0);
+        break;
+      }
+      case types.RUN_TEST: {
+        const mocha = new Mocha({
+          allowUncaught: true,
+          color: true,
+          reporter: IPCReporter,
+          fullStackTrace: true,
+        } as any);
 
-  await submitExecutionResult({
-    passed,
+        mocha.addFile(require.resolve('./recordTests'));
+        mocha.addFile(data.filePath);
+
+        try {
+          await new Promise(resolve => {
+            global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
+            mocha.run(async (failures) => {
+              await submitFileResult(data);
+              clearCache();
+              resolve(failures);
+            });
+          });
+        } catch (err) {
+          console.error(err);
+          process.exit(1);
+        }
+        break;
+      }
+    }
   });
 };
-export default run;
+export default initialize;

@@ -1,26 +1,27 @@
 import globby from 'globby';
-import { fork } from 'child_process';
+import { fork, ChildProcess } from 'child_process';
 import * as types from 'fl-addon-message-types';
-import { AssertionResult, ExecutionResult, TestResult } from 'fl-addon-core';
+import { ChildResult } from 'fl-addon-core';
+import { runTest, stopWorker } from 'fl-addon-core';
 import { reporter } from './default-reporter';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
-const runAndRecycleProcesses = async (
+const runAndRecycleProcesses = (
   tester,
   directories,
   processCount,
   absoluteImportPaths,
-) => {
+): Promise<any> => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
   let i = 0;
   const testResults: any[] = [];
   const start = new Date();
-  const forkForTest = testPaths => {
-    const forkTest = fork(
+  const forkForTest = (): ChildProcess => (
+    fork(
       addonEntryPath,
-      [tester, JSON.stringify(testPaths), JSON.stringify(absoluteImportPaths)],
+      [tester, JSON.stringify(absoluteImportPaths)],
       {
         env: {
           ...process.env,
@@ -28,51 +29,73 @@ const runAndRecycleProcesses = async (
         },
         stdio: 'inherit',
       },
-    );
-    return new Promise((resolve, reject) => {
-      forkTest.on(
+    )
+  );
+  
+  const runTests = (worker: ChildProcess, testPaths: string[]) => {
+    return Promise.all(testPaths.map(testPath => runTest(worker, {
+      filePath: testPath,
+    })));
+  }
+
+  const unfinishedFiles: Set<string> = new Set(directories);
+  let workers: ChildProcess[] = [];
+  return new Promise((resolve, reject) => {
+    const setupWorkerHandle = (worker: ChildProcess) => {
+      worker.on(
         'message',
-        (message: ExecutionResult | AssertionResult | TestResult) => {
+        async (message: ChildResult) => {
           switch (message.type) {
-            case types.EXECUTION: {
-              resolve(message.passed);
-              break;
-            }
             case types.TEST: {
               testResults.push(message);
+              break;
+            }
+            case types.FILE_FINISHED: {
+              unfinishedFiles.delete(message.filePath);
+              if (unfinishedFiles.size <= 0) {
+                const end = new Date();
+                const duration = end.getTime() - start.getTime();
+                await Promise.all(workers.map(worker => stopWorker(worker, {})));
+                resolve({ testResults, duration });
+              }
               break;
             }
           }
         },
       );
-      forkTest.on('exit', code => {
+      worker.on('exit', code => {
+        for(const otherWorker of workers) {
+          if (otherWorker === worker) {
+            continue;
+          }
+          // TODO: I believe otherWorker might cause this handler to be called yet again before the current handle finishes
+          otherWorker.kill();
+        }
         if (code !== 0) {
           reject(new Error('An error ocurred while running tests'));
         }
       });
-    });
-  };
-
-  let forkPromises: any[] = [];
-  while (i < remainders) {
-    const testPaths = directories.splice(0, testsPerWorkerWithoutRemainder + 1);
-    forkPromises[i] = forkForTest(testPaths);
-    i++;
-  }
-  if (testsPerWorkerWithoutRemainder > 0) {
-    while (i < processCount) {
-      const testPaths = directories.splice(0, testsPerWorkerWithoutRemainder);
-      forkPromises[i] = forkForTest(testPaths);
+    }
+  
+    while (i < remainders) {
+      const testPaths = directories.splice(0, testsPerWorkerWithoutRemainder + 1);
+      const worker = forkForTest();
+      setupWorkerHandle(worker);
+      runTests(worker, testPaths);
+      workers[i] = worker;
       i++;
     }
-  }
-
-  await Promise.all(forkPromises);
-
-  const end = new Date();
-  const duration = end.getTime() - start.getTime();
-
-  return { testResults, duration };
+    if (testsPerWorkerWithoutRemainder > 0) {
+      while (i < processCount) {
+        const testPaths = directories.splice(0, testsPerWorkerWithoutRemainder);
+        const worker = forkForTest();
+        setupWorkerHandle(worker);
+        runTests(worker, testPaths);
+        workers[i] = worker;
+        i++;
+      }
+    }  
+  })
 };
 
 export const run = async ({ tester, testMatch, setupFiles }) => {
