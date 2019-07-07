@@ -311,9 +311,9 @@ function checkTypesStaged() {
 gulp.task('check-types-staged', checkTypesStaged);
 
 async function testNoBuild() {
-  const flCore = require('fault-core');
+  const flCore = require('@fault/core');
   await flCore.run({
-    tester: 'fault-tester-mocha',
+    tester: '@fault/tester-mocha',
     testMatch: [
       './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
       '!./**/node_modules/**',
