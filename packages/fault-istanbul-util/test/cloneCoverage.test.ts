@@ -3,8 +3,8 @@ describe('cloneCoverage', () => {
   [
     {},
     {
-      'packages\\fl-tester-mocha\\lib\\index.js': {
-        path: 'packages\\fl-tester-mocha\\lib\\index.js',
+      'packages\\fault-tester-mocha\\lib\\index.js': {
+        path: 'packages\\fault-tester-mocha\\lib\\index.js',
         statementMap: {
           '0': {
             start: {
@@ -525,15 +525,15 @@ describe('cloneCoverage', () => {
           mappings:
             ';;;;;;;AAAA;;AACA;;AACA;;;;AACA,MAAMA,GAAG,GAAG,MAAMC,SAAN,IAAmB;AAC7B,QAAMC,KAAK,GAAG,IAAIC,cAAJ,CAAU;AACtBC,IAAAA,aAAa,EAAE,IADO;AAEtBC,IAAAA,KAAK,EAAE,IAFe;AAGtBC,IAAAA,QAAQ,EAAEC,wBAHY;AAItBC,IAAAA,cAAc,EAAE;AAJM,GAAV,CAAd;AAOAN,EAAAA,KAAK,CAACO,OAAN,CAAcC,OAAO,CAACC,OAAR,CAAgB,eAAhB,CAAd;AACAV,EAAAA,SAAS,CAACW,OAAV,CAAkBC,QAAQ,IAAIX,KAAK,CAACO,OAAN,CAAcI,QAAd,CAA9B;;AAEA,MAAI;AACF,UAAMC,QAAQ,GAAG,MAAM,IAAIC,OAAJ,CAAYJ,OAAO,IAAI;AAC5CT,MAAAA,KAAK,CAACF,GAAN,CAAUc,QAAQ,IAAI;AACpB,YAAIA,QAAJ,EAAc;AACZH,UAAAA,OAAO,CAACG,QAAD,CAAP;AACD,SAFD,MAEO;AACLH,UAAAA,OAAO;AACR;AACF,OAND;AAOD,KARsB,CAAvB;AASA,UAAM,wCAAsB;AAC1BK,MAAAA,MAAM,EAAE,CAACF;AADiB,KAAtB,CAAN;AAGD,GAbD,CAaE,OAAOG,GAAP,EAAY;AACZC,IAAAA,OAAO,CAACC,KAAR,CAAcF,GAAd;AACAG,IAAAA,OAAO,CAACC,IAAR,CAAa,CAAb;AACD;AACF,CA5BD;;eA6BerB,G',
           sourcesContent: [
-            "import Mocha from 'mocha';\r\nimport { submitExecutionResult } from 'fl-messages';\r\nimport { IPCReporter } from './recordTests';\r\nconst run = async testPaths => {\r\n  const mocha = new Mocha({\r\n    allowUncaught: true,\r\n    color: true,\r\n    reporter: IPCReporter,\r\n    fullStackTrace: true,\r\n  } as any);\r\n\r\n  mocha.addFile(require.resolve('./recordTests'));\r\n  testPaths.forEach(testPath => mocha.addFile(testPath));\r\n\r\n  try {\r\n    const failures = await new Promise(resolve => {\r\n      mocha.run(failures => {\r\n        if (failures) {\r\n          resolve(failures);\r\n        } else {\r\n          resolve();\r\n        }\r\n      });\r\n    });\r\n    await submitExecutionResult({\r\n      passed: !failures,\r\n    });\r\n  } catch (err) {\r\n    console.error(err);\r\n    process.exit(1);\r\n  }\r\n};\r\nexport default run;\r\n",
+            "import Mocha from 'mocha';\r\nimport { submitExecutionResult } from 'fault-messages';\r\nimport { IPCReporter } from './recordTests';\r\nconst run = async testPaths => {\r\n  const mocha = new Mocha({\r\n    allowUncaught: true,\r\n    color: true,\r\n    reporter: IPCReporter,\r\n    fullStackTrace: true,\r\n  } as any);\r\n\r\n  mocha.addFile(require.resolve('./recordTests'));\r\n  testPaths.forEach(testPath => mocha.addFile(testPath));\r\n\r\n  try {\r\n    const failures = await new Promise(resolve => {\r\n      mocha.run(failures => {\r\n        if (failures) {\r\n          resolve(failures);\r\n        } else {\r\n          resolve();\r\n        }\r\n      });\r\n    });\r\n    await submitExecutionResult({\r\n      passed: !failures,\r\n    });\r\n  } catch (err) {\r\n    console.error(err);\r\n    process.exit(1);\r\n  }\r\n};\r\nexport default run;\r\n",
           ],
           file: 'index.js',
         },
         _coverageSchema: '43e27e138ebf9cfc5966b082cf9a028302ed4184',
         hash: '81d139a3247bff2f983b757333ece0c27e9a579a',
       },
-      'packages\\fl-messages\\lib\\index.js': {
-        path: 'packages\\fl-messages\\lib\\index.js',
+      'packages\\fault-messages\\lib\\index.js': {
+        path: 'packages\\fault-messages\\lib\\index.js',
         statementMap: {
           '0': {
             start: {
@@ -1283,15 +1283,15 @@ describe('cloneCoverage', () => {
           mappings:
             ';;;;;;;AAAA;;AACA;;;;AAmCA,MAAMA,WAA6C,GAAG,qBACpDC,OAAO,CAACC,IAAR,CAAcC,IAAd,CAAmBF,OAAnB,CADoD,CAAtD;;AAGO,MAAMG,qBAAqB,GAAIC,IAAD,IAAyB;AAC5D,QAAMC,MAAuB,GAAG,EAC9B,GAAGD,IAD2B;AAE9BE,IAAAA,IAAI,EAAEC,KAAK,CAACC;AAFkB,GAAhC;AAKA,SAAOT,WAAW,CAAEM,MAAF,CAAlB;AACD,CAPM;;;;AASA,MAAMI,gBAAgB,GAAIL,IAAD,IAA6C;AAC3E,QAAMC,MAAkB,GAAG,EACzB,GAAGD,IADsB;AAEzBE,IAAAA,IAAI,EAAEC,KAAK,CAACG;AAFa,GAA3B;AAKA,SAAOX,WAAW,CAAEM,MAAF,CAAlB;AACD,CAPM;;;;AASA,MAAMM,qBAAqB,GAAIP,IAAD,IAAyB;AAC5D,QAAMC,MAAuB,GAAG,EAC9B,GAAGD,IAD2B;AAE9BE,IAAAA,IAAI,EAAEC,KAAK,CAACK;AAFkB,GAAhC;AAKA,SAAOb,WAAW,CAAEM,MAAF,CAAlB;AACD,CAPM',
           sourcesContent: [
-            "import * as types from 'fl-addon-message-types';\r\nimport { promisify } from 'util';\r\ninterface TypeHolder<T> {\r\n  type: T;\r\n}\r\nexport interface AssertionData {\r\n  passed: boolean;\r\n  coverage: any;\r\n}\r\nexport type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;\r\n\r\nexport interface TestData {\r\n  fullTitle: any;\r\n  hash: string;\r\n  duration: number;\r\n  file: string;\r\n  coverage: any;\r\n}\r\n\r\nexport type PassingTestData = {\r\n  passed: true;\r\n} & TestData;\r\n\r\nexport type FailingTestData = {\r\n  passed: false;\r\n  stack: any;\r\n} & TestData;\r\n\r\nexport type TestResult = (PassingTestData | FailingTestData) &\r\n  TypeHolder<typeof types.TEST>;\r\n\r\nexport interface ExecutionData {\r\n  passed: boolean;\r\n}\r\nexport type ExecutionResult = ExecutionData & TypeHolder<typeof types.EXECUTION>;\r\n\r\nconst promiseSend: (param: any) => Promise<unknown> = promisify(\r\n  process.send!.bind(process),\r\n);\r\nexport const submitAssertionResult = (data: AssertionData) => {\r\n  const result: AssertionResult = {\r\n    ...data,\r\n    type: types.ASSERTION,\r\n  };\r\n\r\n  return promiseSend!(result);\r\n};\r\n\r\nexport const submitTestResult = (data: PassingTestData | FailingTestData) => {\r\n  const result: TestResult = {\r\n    ...data,\r\n    type: types.TEST,\r\n  };\r\n\r\n  return promiseSend!(result);\r\n};\r\n\r\nexport const submitExecutionResult = (data: ExecutionData) => {\r\n  const result: ExecutionResult = {\r\n    ...data,\r\n    type: types.EXECUTION,\r\n  };\r\n\r\n  return promiseSend!(result);\r\n};\r\n",
+            "import * as types from 'fault-addon-message-types';\r\nimport { promisify } from 'util';\r\ninterface TypeHolder<T> {\r\n  type: T;\r\n}\r\nexport interface AssertionData {\r\n  passed: boolean;\r\n  coverage: any;\r\n}\r\nexport type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;\r\n\r\nexport interface TestData {\r\n  fullTitle: any;\r\n  hash: string;\r\n  duration: number;\r\n  file: string;\r\n  coverage: any;\r\n}\r\n\r\nexport type PassingTestData = {\r\n  passed: true;\r\n} & TestData;\r\n\r\nexport type FailingTestData = {\r\n  passed: false;\r\n  stack: any;\r\n} & TestData;\r\n\r\nexport type TestResult = (PassingTestData | FailingTestData) &\r\n  TypeHolder<typeof types.TEST>;\r\n\r\nexport interface ExecutionData {\r\n  passed: boolean;\r\n}\r\nexport type ExecutionResult = ExecutionData & TypeHolder<typeof types.EXECUTION>;\r\n\r\nconst promiseSend: (param: any) => Promise<unknown> = promisify(\r\n  process.send!.bind(process),\r\n);\r\nexport const submitAssertionResult = (data: AssertionData) => {\r\n  const result: AssertionResult = {\r\n    ...data,\r\n    type: types.ASSERTION,\r\n  };\r\n\r\n  return promiseSend!(result);\r\n};\r\n\r\nexport const submitTestResult = (data: PassingTestData | FailingTestData) => {\r\n  const result: TestResult = {\r\n    ...data,\r\n    type: types.TEST,\r\n  };\r\n\r\n  return promiseSend!(result);\r\n};\r\n\r\nexport const submitExecutionResult = (data: ExecutionData) => {\r\n  const result: ExecutionResult = {\r\n    ...data,\r\n    type: types.EXECUTION,\r\n  };\r\n\r\n  return promiseSend!(result);\r\n};\r\n",
           ],
           file: 'index.js',
         },
         _coverageSchema: '43e27e138ebf9cfc5966b082cf9a028302ed4184',
         hash: 'da72cdb6bcfe1fd176c077f3366501c9f974b7c5',
       },
-      'packages\\fl-addon-message-types\\lib\\index.js': {
-        path: 'packages\\fl-addon-message-types\\lib\\index.js',
+      'packages\\fault-addon-message-types\\lib\\index.js': {
+        path: 'packages\\fault-addon-message-types\\lib\\index.js',
         statementMap: {
           '0': {
             start: {
@@ -1402,8 +1402,8 @@ describe('cloneCoverage', () => {
         _coverageSchema: '43e27e138ebf9cfc5966b082cf9a028302ed4184',
         hash: 'b1892b75135c9d7a4f1cdeb7655f15fc00ecef46',
       },
-      'packages\\fl-tester-mocha\\lib\\recordTests.js': {
-        path: 'packages\\fl-tester-mocha\\lib\\recordTests.js',
+      'packages\\fault-tester-mocha\\lib\\recordTests.js': {
+        path: 'packages\\fault-tester-mocha\\lib\\recordTests.js',
         statementMap: {
           '0': {
             start: {
@@ -1992,15 +1992,15 @@ describe('cloneCoverage', () => {
           mappings:
             ';;;;;;;AAAA;;AACA;;AACA;;AACA;;AAEA;;;;AACA,MAAM;AACJA,EAAAA,eADI;AAEJC,EAAAA,eAFI;AAGJC,EAAAA;AAHI,IAIDC,eAAMC,MAAP,CAAsBC,SAJ1B;AAKA,MAAMC,YAAY,GAAG,cAArB;AACA,IAAIC,kBAAwC,GAAGC,SAA/C;AAEA,IAAIC,CAAC,GAAE,CAAP;;AACA,MAAMC,gBAAgB,GAAGC,YAAY,IAAI;AACvC,SAAO,OAAOC,IAAP,EAAaC,GAAb,KAAqB;AAC1B,UAAM,mBAAU,OAAO,CAACJ,CAAC,EAAF,EAAMK,QAAN,EAAP,GAA0B,MAApC,EAA4CC,IAAI,CAACC,SAAL,CAAeC,MAAM,CAACX,YAAD,CAArB,EAAqCE,SAArC,EAAgD,CAAhD,CAA5C,EAAgG,MAAhG,CAAN;AACA,UAAMU,QAAQ,GAAG,sCAAiBX,kBAAjB,EAAqCU,MAAM,CAACX,YAAD,CAA3C,CAAjB;AACA,UAAMa,IAAI,GAAG,wBAAW,MAAX,EACVC,MADU,CACHR,IAAI,CAAES,IADH,EAEVC,MAFU,CAEH,QAFG,CAAb;AAGA,UAAMC,QAAQ,GAAGX,IAAI,CAACW,QAAL,GAAiB,IAAlC;AACA,UAAMC,IAAI,GAAGZ,IAAI,CAACY,IAAlB;AACA,UAAMC,SAAS,GAAGb,IAAI,CAACa,SAAL,EAAlB;AACA,UAAMd,YAAY,CAAC;AAAEQ,MAAAA,IAAF;AAAQI,MAAAA,QAAR;AAAkBC,MAAAA,IAAlB;AAAwBC,MAAAA,SAAxB;AAAmCP,MAAAA;AAAnC,KAAD,EAAgDN,IAAhD,EAAsDC,GAAtD,CAAlB;AACD,GAVD;AAWD,CAZD;;AAcO,MAAMa,WAAN,CAAkB;AACvBC,EAAAA,WAAW,CAACC,MAAD,EAAS;AAClBA,IAAAA,MAAM,CACHC,EADH,CAEI5B,eAFJ,EAGIS,gBAAgB,CAAC,MAAMoB,QAAN,IAAkB;AACjC,YAAM,mCAAiB,EACrB,GAAGA,QADkB;AAErBC,QAAAA,MAAM,EAAE;AAFa,OAAjB,CAAN;AAID,KALe,CAHpB,EAUGF,EAVH,CAWI7B,eAXJ,EAYIU,gBAAgB,CAAC,OAAOoB,QAAP,EAAiBlB,IAAjB,EAAuBC,GAAvB,KAA+B;AAC9C,YAAM,mCAAiB,EACrB,GAAGiB,QADkB;AAErBC,QAAAA,MAAM,EAAE,KAFa;AAGrBC,QAAAA,KAAK,EAAEnB,GAAG,CAACmB;AAHU,OAAjB,CAAN;AAKD,KANe,CAZpB,EAoBGH,EApBH,CAoBM3B,iBApBN,EAoByB,MAAM;AAC3BK,MAAAA,kBAAkB,GAAG,mCAAcU,MAAM,CAACX,YAAD,CAApB,CAArB;AACD,KAtBH;AAuBD;;AAzBsB',
           sourcesContent: [
-            "import { submitTestResult } from 'fl-messages';\r\nimport { createHash } from 'crypto';\r\nimport { subtractCoverage, Coverage } from 'fl-istanbul-util';\r\nimport { writeFile } from 'mz/fs';\r\nimport { cloneCoverage } from 'fl-istanbul-util';\r\nimport Mocha from 'mocha';\r\nconst {\r\n  EVENT_TEST_FAIL,\r\n  EVENT_TEST_PASS,\r\n  EVENT_SUITE_BEGIN,\r\n} = (Mocha.Runner as any).constants;\r\nconst COVERAGE_KEY = '__coverage__';\r\nlet beforeTestCoverage: Coverage | undefined = undefined;\r\n\r\nlet i =0;\r\nconst commonTestHandle = submitHandle => {\r\n  return async (test, err) => {\r\n    await writeFile('./' + (i++).toString() + '.txt', JSON.stringify(global[COVERAGE_KEY], undefined, 2), 'utf8');\r\n    const coverage = subtractCoverage(beforeTestCoverage, global[COVERAGE_KEY]);\r\n    const hash = createHash('sha1')\r\n      .update(test!.body)\r\n      .digest('base64');\r\n    const duration = test.duration! * 1000;\r\n    const file = test.file!;\r\n    const fullTitle = test.fullTitle();\r\n    await submitHandle({ hash, duration, file, fullTitle, coverage }, test, err);\r\n  };\r\n};\r\n\r\nexport class IPCReporter {\r\n  constructor(runner) {\r\n    runner\r\n      .on(\r\n        EVENT_TEST_PASS,\r\n        commonTestHandle(async testData => {\r\n          await submitTestResult({\r\n            ...testData,\r\n            passed: true,\r\n          });\r\n        }),\r\n      )\r\n      .on(\r\n        EVENT_TEST_FAIL,\r\n        commonTestHandle(async (testData, test, err) => {\r\n          await submitTestResult({\r\n            ...testData,\r\n            passed: false,\r\n            stack: err.stack,\r\n          });\r\n        }),\r\n      )\r\n      .on(EVENT_SUITE_BEGIN, () => {\r\n        beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);\r\n      });\r\n  }\r\n}\r\n",
+            "import { submitTestResult } from 'fault-messages';\r\nimport { createHash } from 'crypto';\r\nimport { subtractCoverage, Coverage } from 'fault-istanbul-util';\r\nimport { writeFile } from 'mz/fs';\r\nimport { cloneCoverage } from 'fault-istanbul-util';\r\nimport Mocha from 'mocha';\r\nconst {\r\n  EVENT_TEST_FAIL,\r\n  EVENT_TEST_PASS,\r\n  EVENT_SUITE_BEGIN,\r\n} = (Mocha.Runner as any).constants;\r\nconst COVERAGE_KEY = '__coverage__';\r\nlet beforeTestCoverage: Coverage | undefined = undefined;\r\n\r\nlet i =0;\r\nconst commonTestHandle = submitHandle => {\r\n  return async (test, err) => {\r\n    await writeFile('./' + (i++).toString() + '.txt', JSON.stringify(global[COVERAGE_KEY], undefined, 2), 'utf8');\r\n    const coverage = subtractCoverage(beforeTestCoverage, global[COVERAGE_KEY]);\r\n    const hash = createHash('sha1')\r\n      .update(test!.body)\r\n      .digest('base64');\r\n    const duration = test.duration! * 1000;\r\n    const file = test.file!;\r\n    const fullTitle = test.fullTitle();\r\n    await submitHandle({ hash, duration, file, fullTitle, coverage }, test, err);\r\n  };\r\n};\r\n\r\nexport class IPCReporter {\r\n  constructor(runner) {\r\n    runner\r\n      .on(\r\n        EVENT_TEST_PASS,\r\n        commonTestHandle(async testData => {\r\n          await submitTestResult({\r\n            ...testData,\r\n            passed: true,\r\n          });\r\n        }),\r\n      )\r\n      .on(\r\n        EVENT_TEST_FAIL,\r\n        commonTestHandle(async (testData, test, err) => {\r\n          await submitTestResult({\r\n            ...testData,\r\n            passed: false,\r\n            stack: err.stack,\r\n          });\r\n        }),\r\n      )\r\n      .on(EVENT_SUITE_BEGIN, () => {\r\n        beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);\r\n      });\r\n  }\r\n}\r\n",
           ],
           file: 'recordTests.js',
         },
         _coverageSchema: '43e27e138ebf9cfc5966b082cf9a028302ed4184',
         hash: 'e22707b82fd6b54a27aab2453836e50fe422bccf',
       },
-      'packages\\fl-istanbul-util\\lib\\index.js': {
-        path: 'packages\\fl-istanbul-util\\lib\\index.js',
+      'packages\\fault-istanbul-util\\lib\\index.js': {
+        path: 'packages\\fault-istanbul-util\\lib\\index.js',
         statementMap: {
           '0': {
             start: {

@@ -1,6 +1,6 @@
-import { subtractCoverage } from 'fl-istanbul-util';
+import { subtractCoverage } from 'fault-istanbul-util';
 import Mocha from 'mocha';
-import { submitTestResult } from 'fl-messages';
+import { submitTestResult } from 'fault-messages';
 import { createHash } from 'crypto';
 const {
   EVENT_TEST_FAIL,
