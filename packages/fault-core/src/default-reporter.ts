@@ -1,7 +1,7 @@
 import { relative, dirname, basename, join } from 'path';
-import { TestResult } from 'fault-messages';
+import { TestResult } from '@fault/messages';
 import chalk from 'chalk';
-import { report } from 'fault-istanbul-reporter';
+import { report } from '@fault/istanbul-reporter';
 import { readFile } from 'mz/fs';
 import {
   groupTestsByFilePath,

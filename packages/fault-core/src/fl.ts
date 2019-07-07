@@ -1,5 +1,5 @@
-import { TestResult } from 'fault-messages';
-import { ExpressionLocation } from 'fault-istanbul-util';
+import { TestResult } from '@fault/messages';
+import { ExpressionLocation } from '@fault/istanbul-util';
 
 export type Stats = {
   passed: number;
