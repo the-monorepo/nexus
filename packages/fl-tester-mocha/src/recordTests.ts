@@ -1,7 +1,7 @@
-import { submitTestResult } from 'fl-addon-core';
-import { createHash } from 'crypto';
 import { subtractCoverage } from 'fl-istanbul-util';
 import Mocha from 'mocha';
+import { submitTestResult } from 'fl-addon-core';
+import { createHash } from 'crypto';
 const {
   EVENT_TEST_FAIL,
   EVENT_TEST_PASS,

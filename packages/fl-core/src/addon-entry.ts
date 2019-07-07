@@ -1,7 +1,6 @@
 export const run = async () => {
   try {
-    const [nodePath, filePath, modulePath, testPathsJson, importPathJson] = process.argv;
-    const testPaths = JSON.parse(testPathsJson);
+    const [nodePath, filePath, modulePath, importPathJson] = process.argv;
     const importPaths = JSON.parse(importPathJson);
     for (const importPath of importPaths) {
       const requiredModule = require(importPath);
@@ -15,7 +14,7 @@ export const run = async () => {
     }
     const runner = require(modulePath).default;
     try {
-      await Promise.resolve(runner(testPaths));
+      await Promise.resolve(runner());
     } catch (err) {
       console.error(err);
     }
