@@ -5,6 +5,7 @@ import { ChildResult, TestResult } from '@fault/messages';
 import { runTest, stopWorker } from '@fault/messages';
 import { TestHookOptions, PartialTestHookOptions, schema } from './hooks';
 import defaultReporter from './default-reporter';
+import { cpus } from 'os';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
@@ -142,7 +143,8 @@ export const run = async ({ tester, testMatch, setupFiles, addons = [], reporter
     }),
   );
 
-  const processCount = 1; //cpus().length;
+  // TODO: Still need to add a scheduling algorithm
+  const processCount = cpus().length;
 
   const results = await runAndRecycleProcesses(
     tester,
