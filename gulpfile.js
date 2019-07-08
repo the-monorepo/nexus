@@ -1,3 +1,4 @@
+require('source-map-support/register');
 /**
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */

@@ -1,22 +1,29 @@
 import globby from 'globby';
 import { fork, ChildProcess } from 'child_process';
 import * as types from '@fault/addon-message-types';
-import { ChildResult } from '@fault/messages';
+import { ChildResult, TestResult } from '@fault/messages';
 import { runTest, stopWorker } from '@fault/messages';
-import { reporter } from './default/reporter';
+import { TestHookOptions, PartialTestHookOptions, schema } from './hooks';
+import defaultReporter from './default-reporter';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
+export type TesterResults = {
+  testResults: TestResult[],
+  duration: number,
+};
+
 const runAndRecycleProcesses = (
-  tester,
-  directories,
-  processCount,
-  absoluteImportPaths,
-): Promise<any> => {
+  tester: string,
+  directories: string[],
+  processCount: number,
+  absoluteImportPaths: string[],
+  hooks: TestHookOptions
+): Promise<TesterResults> => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
   let i = 0;
-  const testResults: any[] = [];
+  const testResults: TestResult[] = [];
   const start = new Date();
   const forkForTest = (): ChildProcess =>
     fork(addonEntryPath, [tester, JSON.stringify(absoluteImportPaths)], {
@@ -40,20 +47,56 @@ const runAndRecycleProcesses = (
   const unfinishedFiles: Set<string> = new Set(directories);
   let workers: ChildProcess[] = [];
   return new Promise((resolve, reject) => {
+    const runAllTestsInUnfinishedFiles = () => {
+      const unfinishedFilePaths = [...unfinishedFiles];
+      while (i < remainders) {
+        const testPaths = unfinishedFilePaths.splice(0, testsPerWorkerWithoutRemainder + 1);
+        const worker = forkForTest();
+        setupWorkerHandle(worker);
+        runTests(worker, testPaths);
+        workers[i] = worker;
+        i++;
+      }
+      if (testsPerWorkerWithoutRemainder > 0) {
+        while (i < processCount) {
+          const testPaths = unfinishedFilePaths.splice(0, testsPerWorkerWithoutRemainder);
+          const worker = forkForTest();
+          setupWorkerHandle(worker);
+          runTests(worker, testPaths);
+          workers[i] = worker;
+          i++;
+        }
+      }
+    }
     const setupWorkerHandle = (worker: ChildProcess) => {
       worker.on('message', async (message: ChildResult) => {
         switch (message.type) {
           case types.TEST: {
             testResults.push(message);
+            await hooks.on.testResult(message);
             break;
           }
           case types.FILE_FINISHED: {
             unfinishedFiles.delete(message.filePath);
+            await hooks.on.fileFinished();
             if (unfinishedFiles.size <= 0) {
               const end = new Date();
               const duration = end.getTime() - start.getTime();
-              await Promise.all(workers.map(worker => stopWorker(worker, {})));
-              resolve({ testResults, duration });
+              const results = { testResults, duration };
+
+              for(const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
+                const filePathIterator = await allFilesFinishedPromise;
+                for(const filePath of filePathIterator) {
+                  unfinishedFiles.add(filePath);
+                }
+              }
+
+              if (unfinishedFiles.size <= 0) {
+                await Promise.all(workers.map(worker => stopWorker(worker, {})));
+                resolve(results);  
+              } else {
+                runAllTestsInUnfinishedFiles();
+              }
             }
             break;
           }
@@ -73,28 +116,22 @@ const runAndRecycleProcesses = (
       });
     };
 
-    while (i < remainders) {
-      const testPaths = directories.splice(0, testsPerWorkerWithoutRemainder + 1);
-      const worker = forkForTest();
-      setupWorkerHandle(worker);
-      runTests(worker, testPaths);
-      workers[i] = worker;
-      i++;
-    }
-    if (testsPerWorkerWithoutRemainder > 0) {
-      while (i < processCount) {
-        const testPaths = directories.splice(0, testsPerWorkerWithoutRemainder);
-        const worker = forkForTest();
-        setupWorkerHandle(worker);
-        runTests(worker, testPaths);
-        workers[i] = worker;
-        i++;
-      }
-    }
+    runAllTestsInUnfinishedFiles();
   });
 };
 
-export const run = async ({ tester, testMatch, setupFiles }) => {
+export type RunOptions = {
+  tester: string;
+  testMatch: string;
+  setupFiles: string[];
+  addons: PartialTestHookOptions[],
+  reporters?: PartialTestHookOptions[]
+}
+export const run = async ({ tester, testMatch, setupFiles, addons = [], reporters = [defaultReporter] }: RunOptions) => {
+  addons.push(...reporters);
+
+  const hooks: TestHookOptions = schema.mergeHookOptions(addons);
+
   const directories = await globby(testMatch, { onlyFiles: true });
   // We pop the paths off the end of the list so the first path thing needs to be at the end
   directories.reverse();
@@ -112,8 +149,11 @@ export const run = async ({ tester, testMatch, setupFiles }) => {
     directories,
     processCount,
     absoluteImportPaths,
+    hooks,
   );
-  await reporter(results);
+
+  hooks.on.complete(results);
+
   if (results.testResults.some(result => !result.passed)) {
     process.exit(1);
   }
