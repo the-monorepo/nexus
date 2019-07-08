@@ -11,6 +11,7 @@ import {
   passFailStatsFromTests,
   FileResult,
 } from './fl';
+import { PartialTestHookOptions } from './hooks';
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
@@ -69,7 +70,7 @@ const reportFaults = async (
   }
 };
 
-export const reporter = async ({
+const onComplete = async ({
   testResults,
   duration,
 }: {
@@ -126,4 +127,11 @@ export const reporter = async ({
   );
   //console.log(faults);
 };
-export default reporter;
+
+const hooks: PartialTestHookOptions = {
+  on: {
+    complete: onComplete
+  }
+};
+
+export default hooks;
