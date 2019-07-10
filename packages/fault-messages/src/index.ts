@@ -12,8 +12,8 @@ export type AssertionData = {
 export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
 
 export type TestData = {
-  fullTitle: any;
-  hash: string;
+  key: string;
+  titlePath: string[];
   duration: number;
   file: string;
   coverage: Coverage;
