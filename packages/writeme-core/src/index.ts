@@ -103,7 +103,7 @@ function projectOptionsToMd(projects: Project[], rootDir: string): string {
   let md = '';
   for (const project of projects) {
     const filteredPackages = project.packages
-      .filter(packageOptions => !packageOptions.private)
+      .filter(packageOptions => packageOptions && !packageOptions.private)
       .sort((a, b) => (a.name < b.name ? -1 : a.name == b.name ? 0 : 1));
     if (filteredPackages.length <= 0) {
       continue;
