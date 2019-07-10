@@ -10,7 +10,7 @@ import { cpus } from 'os';
 const addonEntryPath = require.resolve('./addon-entry');
 
 export type TesterResults = {
-  testResults: TestResult[],
+  testResults: Map<string, TestResult>,
   duration: number,
 };
 
@@ -24,7 +24,7 @@ const runAndRecycleProcesses = (
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
   let i = 0;
-  const testResults: TestResult[] = [];
+  const testResults: Map<string, TestResult> = new Map();
   const start = new Date();
   const forkForTest = (): ChildProcess =>
     fork(addonEntryPath, [tester, JSON.stringify(absoluteImportPaths)], {
@@ -73,7 +73,7 @@ const runAndRecycleProcesses = (
       worker.on('message', async (message: ChildResult) => {
         switch (message.type) {
           case types.TEST: {
-            testResults.push(message);
+            testResults.set(message.key, message);
             await hooks.on.testResult(message);
             break;
           }
@@ -154,9 +154,9 @@ export const run = async ({ tester, testMatch, setupFiles, addons = [], reporter
     hooks,
   );
 
-  hooks.on.complete(results);
+  await hooks.on.complete(results);
 
-  if (results.testResults.some(result => !result.passed)) {
+  if ([...results.testResults.values()].some(result => !result.passed)) {
     process.exit(1);
   }
 };

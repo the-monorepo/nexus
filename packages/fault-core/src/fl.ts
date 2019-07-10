@@ -30,7 +30,7 @@ const statementStr = (filePath, { start, end }) => {
   return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;
 };
 
-export const gatherResults = (testResults: TestResult[]) => {
+export const gatherResults = (testResults: Iterable<TestResult>) => {
   const expressionResults: Map<string, ExpressionResult> = new Map();
   for (const testResult of testResults) {
     const coverage = testResult.coverage;
@@ -84,7 +84,7 @@ export const gatherResults = (testResults: TestResult[]) => {
   return fileResults;
 };
 
-export const passFailStatsFromTests = (testResults: TestResult[]): Stats => {
+export const passFailStatsFromTests = (testResults: Iterable<TestResult>): Stats => {
   const stats: Stats = {
     passed: 0,
     failed: 0,
@@ -95,7 +95,7 @@ export const passFailStatsFromTests = (testResults: TestResult[]): Stats => {
   return stats;
 };
 
-export const groupTestsByFilePath = (testResults: TestResult[]) => {
+export const groupTestsByFilePath = (testResults: Iterable<TestResult>) => {
   const grouped: Map<string, TestResult[]> = new Map();
   for (const testResult of testResults) {
     if (!grouped.has(testResult.file)) {
@@ -110,7 +110,7 @@ export const groupTestsByFilePath = (testResults: TestResult[]) => {
 
 type ScoringFn = (expressionPassFailStats: Stats) => number | null;
 export const localiseFaults = (
-  groupedTestResults: TestResult[],
+  groupedTestResults: Iterable<TestResult>,
   fileResults: Map<string, FileResult>,
   scoringFn: ScoringFn,
 ): Fault[] => {

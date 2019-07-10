@@ -12,6 +12,7 @@ import {
   FileResult,
 } from './fl';
 import { PartialTestHookOptions } from './hooks';
+import { TesterResults } from '.';
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
@@ -70,28 +71,30 @@ const reportFaults = async (
   }
 };
 
+const titleFromPath = (path: string[]) => {
+  return path.join(chalk.dim(' \u203A '));
+}
+
 const onComplete = async ({
   testResults,
   duration,
-}: {
-  testResults: TestResult[];
-  duration: number;
-}) => {
-  const suiteResults = groupTestsByFilePath(testResults);
-  testResults.sort((a, b) => a.file.localeCompare(b.file));
+}: TesterResults) => {
+  const testResultsArr: TestResult[] = [...testResults.values()];
+  const suiteResults = groupTestsByFilePath(testResultsArr);
+  testResultsArr.sort((a, b) => a.file.localeCompare(b.file));
 
-  const fileResults = gatherResults(testResults);
-  const totalPassFailStats: Stats = passFailStatsFromTests(testResults);
+  const fileResults = gatherResults(testResultsArr);
+  const totalPassFailStats: Stats = passFailStatsFromTests(testResultsArr);
 
-  for (const testResult of testResults) {
+  for (const testResult of testResultsArr) {
     if (testResult.passed) {
       continue;
     }
-    console.log(chalk.bold(testResult.fullTitle));
+    console.log(chalk.bold(titleFromPath(testResult.titlePath)));
     console.log(chalk.red(testResult.stack));
   }
 
-  await reportFaults(testResults, fileResults, totalPassFailStats);
+  await reportFaults(testResultsArr, fileResults, totalPassFailStats);
 
   for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
     const filePath = simplifyPath(absoluteFilePath);
@@ -107,7 +110,7 @@ const onComplete = async ({
     }
   }
 
-  report({ testResults, suiteResults });
+  report({ testResults });
 
   console.log();
   const suiteCount = suiteResults.size;
@@ -117,8 +120,8 @@ const onComplete = async ({
   const suiteFailedCount = suiteCount - suitePassedCount;
   reportPassFailCounts('Files:  ', suiteFailedCount, suitePassedCount, suiteCount);
 
-  const passedCount = testResults.filter(result => result.passed).length;
-  const totalCount = testResults.length;
+  const passedCount = testResultsArr.filter(result => result.passed).length;
+  const totalCount = testResultsArr.length;
   const failedCount = totalCount - passedCount;
   reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
   console.log(
