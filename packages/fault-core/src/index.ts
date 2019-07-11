@@ -10,8 +10,8 @@ import { cpus } from 'os';
 const addonEntryPath = require.resolve('./addon-entry');
 
 export type TesterResults = {
-  testResults: Map<string, TestResult>,
-  duration: number,
+  testResults: Map<string, TestResult>;
+  duration: number;
 };
 
 const runAndRecycleProcesses = (
@@ -19,7 +19,7 @@ const runAndRecycleProcesses = (
   directories: string[],
   processCount: number,
   absoluteImportPaths: string[],
-  hooks: TestHookOptions
+  hooks: TestHookOptions,
 ): Promise<TesterResults> => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
@@ -51,7 +51,10 @@ const runAndRecycleProcesses = (
     const runAllTestsInUnfinishedFiles = () => {
       const unfinishedFilePaths = [...unfinishedFiles];
       while (i < remainders) {
-        const testPaths = unfinishedFilePaths.splice(0, testsPerWorkerWithoutRemainder + 1);
+        const testPaths = unfinishedFilePaths.splice(
+          0,
+          testsPerWorkerWithoutRemainder + 1,
+        );
         const worker = forkForTest();
         setupWorkerHandle(worker);
         runTests(worker, testPaths);
@@ -68,12 +71,17 @@ const runAndRecycleProcesses = (
           i++;
         }
       }
-    }
+    };
     const setupWorkerHandle = (worker: ChildProcess) => {
       worker.on('message', async (message: ChildResult) => {
         switch (message.type) {
+          case types.ASSERTION: {
+            break;
+          }
           case types.TEST: {
-            testResults.set(message.key, message);
+            testResults.set(message.key, {
+              ...message,
+            });
             await hooks.on.testResult(message);
             break;
           }
@@ -85,16 +93,16 @@ const runAndRecycleProcesses = (
               const duration = end.getTime() - start.getTime();
               const results = { testResults, duration };
 
-              for(const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
+              for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
                 const filePathIterator = await allFilesFinishedPromise;
-                for(const filePath of filePathIterator) {
+                for (const filePath of filePathIterator) {
                   unfinishedFiles.add(filePath);
                 }
               }
 
               if (unfinishedFiles.size <= 0) {
                 await Promise.all(workers.map(worker => stopWorker(worker, {})));
-                resolve(results);  
+                resolve(results);
               } else {
                 runAllTestsInUnfinishedFiles();
               }
@@ -125,10 +133,16 @@ export type RunOptions = {
   tester: string;
   testMatch: string;
   setupFiles: string[];
-  addons: PartialTestHookOptions[],
-  reporters?: PartialTestHookOptions[]
-}
-export const run = async ({ tester, testMatch, setupFiles, addons = [], reporters = [defaultReporter] }: RunOptions) => {
+  addons: PartialTestHookOptions[];
+  reporters?: PartialTestHookOptions[];
+};
+export const run = async ({
+  tester,
+  testMatch,
+  setupFiles,
+  addons = [],
+  reporters = [defaultReporter],
+}: RunOptions) => {
   addons.push(...reporters);
 
   const hooks: TestHookOptions = schema.mergeHookOptions(addons);

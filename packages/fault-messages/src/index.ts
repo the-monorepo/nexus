@@ -1,15 +1,20 @@
 import * as types from '@fault/addon-message-types';
+import * as assertionTypes from '@fault/addon-message-types/src/assertion-types';
 import { promisify } from 'util';
 import { Coverage } from '@fault/istanbul-util';
 import { ChildProcess } from 'child_process';
 type TypeHolder<T> = {
   type: T;
 };
-export type AssertionData = {
-  passed: boolean;
-  coverage: Coverage;
+export type AssertionFailureData = {
+  assertionType: typeof assertionTypes.GENERIC,
+  file: string;
+  key: string;
+  expected: any;
+  actual: any;
+  message: any;
 };
-export type AssertionResult = AssertionData & TypeHolder<typeof types.ASSERTION>;
+export type AssertionFailureResult = AssertionFailureData & TypeHolder<typeof types.ASSERTION>;
 
 export type TestData = {
   key: string;
@@ -33,8 +38,8 @@ export type TestResult = (PassingTestData | FailingTestData) &
 
 const promiseSend: (param: any) => Promise<unknown> =
   process.send !== undefined ? promisify(process.send!.bind(process)) : undefined!;
-export const submitAssertionResult = (data: AssertionData) => {
-  const result: AssertionResult = {
+export const submitAssertionResult = (data: AssertionFailureData) => {
+  const result: AssertionFailureResult = {
     ...data,
     type: types.ASSERTION,
   };
@@ -42,13 +47,13 @@ export const submitAssertionResult = (data: AssertionData) => {
   return promiseSend!(result);
 };
 
-export const submitTestResult = (data: PassingTestData | FailingTestData) => {
+export const submitTestResult = async (data: PassingTestData | FailingTestData) => {
   const result: TestResult = {
     ...data,
     type: types.TEST,
   };
 
-  return promiseSend!(result);
+  return await promiseSend!(result);
 };
 
 type FileFinishedData = RunTestData;
@@ -94,5 +99,5 @@ export const stopWorker = (worker: ChildProcess, data: StopWorkerData) => {
   return promiseWorkerSend(worker, result);
 };
 
-export type ChildResult = TestResult | AssertionResult | FileFinishedResult;
+export type ChildResult = TestResult | AssertionFailureResult | FileFinishedResult;
 export type ParentResult = StopWorkerResult | RunTestPayload;
