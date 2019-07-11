@@ -4,6 +4,7 @@ export type AssertionData = {
   expected: any;
   actual: any;
   message: any;
+  stackFrames: any[];
 }
 export class AssertionError extends Error {
   constructor(

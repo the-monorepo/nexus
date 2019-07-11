@@ -1,7 +1,7 @@
 import globby from 'globby';
 import { fork, ChildProcess } from 'child_process';
 import * as types from '@fault/addon-message-types';
-import { ChildResult, TestResult } from '@fault/messages';
+import { ChildResult, TestResult, AssertionFailureData, AssertionFailureResult } from '@fault/messages';
 import { runTest, stopWorker } from '@fault/messages';
 import { TestHookOptions, PartialTestHookOptions, schema } from './hooks';
 import defaultReporter from './default-reporter';
@@ -11,6 +11,7 @@ const addonEntryPath = require.resolve('./addon-entry');
 
 export type TesterResults = {
   testResults: Map<string, TestResult>;
+  assertionResults: Map<string, AssertionFailureResult>
   duration: number;
 };
 
@@ -25,6 +26,7 @@ const runAndRecycleProcesses = (
   const remainders = directories.length % processCount;
   let i = 0;
   const testResults: Map<string, TestResult> = new Map();
+  const assertionResults: Map<string, AssertionFailureResult> = new Map();
   const start = new Date();
   const forkForTest = (): ChildProcess =>
     fork(addonEntryPath, [tester, JSON.stringify(absoluteImportPaths)], {
@@ -76,6 +78,7 @@ const runAndRecycleProcesses = (
       worker.on('message', async (message: ChildResult) => {
         switch (message.type) {
           case types.ASSERTION: {
+            assertionResults.set(message.key, message);
             break;
           }
           case types.TEST: {
@@ -91,7 +94,7 @@ const runAndRecycleProcesses = (
             if (unfinishedFiles.size <= 0) {
               const end = new Date();
               const duration = end.getTime() - start.getTime();
-              const results = { testResults, duration };
+              const results = { testResults, duration, assertionResults };
 
               for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
                 const filePathIterator = await allFilesFinishedPromise;

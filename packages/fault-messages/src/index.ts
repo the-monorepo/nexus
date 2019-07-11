@@ -13,6 +13,7 @@ export type AssertionFailureData = {
   expected: any;
   actual: any;
   message: any;
+  stackFrames: any[];
 };
 export type AssertionFailureResult = AssertionFailureData & TypeHolder<typeof types.ASSERTION>;
 

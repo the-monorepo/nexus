@@ -26,5 +26,8 @@
     "util",
     "helper",
     "function"
-  ]
+  ],
+  "dependencies": {
+    "stacktrace-js": "^2.0.0"
+  }
 }
