@@ -36,7 +36,7 @@ const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
 };
 
 const reportFaults = async (
-  testResults: TestResult[],
+  testResults: Iterable<TestResult>,
   fileResults: Map<string, FileResult>,
   totalPassFailStats: Stats,
 ) => {
@@ -73,12 +73,9 @@ const reportFaults = async (
 
 const titleFromPath = (path: string[]) => {
   return path.join(chalk.dim(' \u203A '));
-}
+};
 
-const onComplete = async ({
-  testResults,
-  duration,
-}: TesterResults) => {
+const onComplete = async ({ testResults, duration }: TesterResults) => {
   const testResultsArr: TestResult[] = [...testResults.values()];
   const suiteResults = groupTestsByFilePath(testResultsArr);
   testResultsArr.sort((a, b) => a.file.localeCompare(b.file));
@@ -133,8 +130,8 @@ const onComplete = async ({
 
 const hooks: PartialTestHookOptions = {
   on: {
-    complete: onComplete
-  }
+    complete: onComplete,
+  },
 };
 
 export default hooks;

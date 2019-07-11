@@ -14,7 +14,9 @@ export interface Hook<
 }
 
 type NonArrayHookSchemaValue = null | HookSchema | HookCallbackFactory;
-export type HookSchemaValue = NonArrayHookSchemaValue | ([NonArrayHookSchemaValue, MergeOptions]);
+export type HookSchemaValue =
+  | NonArrayHookSchemaValue
+  | ([NonArrayHookSchemaValue, MergeOptions]);
 
 export interface HookSchema {
   [k: string]: HookSchemaValue;
@@ -25,7 +27,7 @@ export type Hooks<H extends HookSchema> = {
     ? Hooks<H[K]>
     : H[K] extends HookCallbackFactory
     ? ReturnType<H[K]>
-    : HookCallback
+    : HookCallback;
 };
 
 type RecursivePartial<T> = {
@@ -33,7 +35,7 @@ type RecursivePartial<T> = {
     ? RecursivePartial<U>[]
     : T[P] extends object
     ? RecursivePartial<T[P]>
-    : T[P]
+    : T[P];
 };
 
 export interface CompleteHooksOptions<K extends HookSchema, O extends HookSchema> {
@@ -75,13 +77,13 @@ export function defaultHooksFromSchema<H extends HookSchema>(
 }
 
 const mergeHookCallback = (filteredHooksList: HookCallback[]) => {
-    const callHooks = async (...params) => {
-      for (const callback of filteredHooksList as HookCallback[]) {
-        await Promise.resolve(callback(...params));
-      }
+  const callHooks = async (...params) => {
+    for (const callback of filteredHooksList as HookCallback[]) {
+      await Promise.resolve(callback(...params));
     }
-    return callHooks;
-}
+  };
+  return callHooks;
+};
 /**
  * Wraps the calls of a set of hooks into a single call
  * @param hooksList The list of hooks
@@ -97,14 +99,16 @@ export function mergeHooks<H extends HookSchema>(
   if (Array.isArray(value)) {
     const arr = (value as any) as [H | null | HookCallbackFactory, MergeOptions];
     const options: MergeOptions = arr[1];
-    const callHooks = options.yield ? function* callHooks(...params) {
-      for (const callback of filteredHooksList as HookCallback[]) {
-        yield Promise.resolve(callback(...params));
-      }
-    } : mergeHookCallback(filteredHooksList as HookCallback[]);
+    const callHooks = options.yield
+      ? function* callHooks(...params) {
+          for (const callback of filteredHooksList as HookCallback[]) {
+            yield Promise.resolve(callback(...params));
+          }
+        }
+      : mergeHookCallback(filteredHooksList as HookCallback[]);
     return callHooks as any;
   } else if (typeof value === 'function' || value === null) {
-    const merged = mergeHookCallback(filteredHooksList as HookCallback[])
+    const merged = mergeHookCallback(filteredHooksList as HookCallback[]);
     /*
       TODO: This breaks the returned type contract, although only when the hooksList
       is a list of hook callbacks (as opposed to a hook object)
@@ -119,8 +123,8 @@ export function mergeHooks<H extends HookSchema>(
 }
 
 export type MergeOptions = {
-  yield?: boolean
-}
+  yield?: boolean;
+};
 export function mergeHookOptions<H extends HookSchema, O extends HookSchema>(
   hookOptionsList: (HookOptions<H, O> | undefined)[],
   beforeAfterSchemaObj: H,
