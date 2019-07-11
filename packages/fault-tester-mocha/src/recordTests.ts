@@ -1,30 +1,29 @@
 import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 import Mocha from 'mocha';
-import { submitTestResult } from '@fault/messages';
+import { submitTestResult, submitAssertionResult, AssertionFailureData } from '@fault/messages';
 import { createHash } from 'crypto';
-const {
-  EVENT_TEST_FAIL,
-  EVENT_TEST_PASS,
-} = (Mocha.Runner as any).constants;
+import { AssertionError } from '@fault/mocha-assertion-error';
+
+const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {
-  key: string,
+  key: string;
   file: string;
   titlePath: string[];
   duration: number;
-  coverage: Coverage
-}
+  coverage: Coverage;
+};
 
-type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => {
-
-}
+type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => {};
 const commonTestHandle = (submitHandle: SubmitHandle) => {
   return async (test: Mocha.Test, err) => {
     const coverage = subtractCoverage(global[COVERAGE_KEY], global.beforeTestCoverage);
-    const hash = test!.titlePath().join('_') + createHash('sha1')
-      .update(test!.body)
-      .digest('base64');
+    const hash =
+      test!.titlePath().join('_') +
+      createHash('sha1')
+        .update(test!.body)
+        .digest('base64');
     const duration = test.duration! * 1000;
     const file = test.file!;
     const titlePath = test.titlePath();
@@ -47,6 +46,15 @@ export class IPCReporter {
       .on(
         EVENT_TEST_FAIL,
         commonTestHandle(async (testData, test, err) => {
+          if (err instanceof AssertionError) {
+            const assertionErr = err as AssertionError;
+            const assertionData: AssertionFailureData = {
+              ...assertionErr.data,
+              file: testData.file,
+              key: testData.key
+            };
+            await submitAssertionResult(assertionData);
+          }
           await submitTestResult({
             ...testData,
             passed: false,

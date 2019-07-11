@@ -27,7 +27,6 @@ export const initialize = async () => {
       }
       case types.RUN_TEST: {
         const mocha = new Mocha({
-          allowUncaught: true,
           color: true,
           reporter: IPCReporter,
           fullStackTrace: true,

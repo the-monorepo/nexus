@@ -43,9 +43,9 @@ describe('empty containers', () => {
 });
 it('can mock prototypeless objects', () => {
   const prototypeless = Object.setPrototypeOf(
-    new class {
+    new (class {
       public aFunction() {}
-    }(),
+    })(),
     null,
   );
   expect(prototypeless.aFunction).to.undefined;
@@ -267,7 +267,9 @@ describe('can mock recursively', () => {
       },
       true,
     );
-    expect(mockedObject.nested.returnObject()).not.to.equal(aObjectLiteral.returnObject());
+    expect(mockedObject.nested.returnObject()).not.to.equal(
+      aObjectLiteral.returnObject(),
+    );
   });
   it('with array', () => {
     const mockedArray = stubFunctions([anArray], true);
