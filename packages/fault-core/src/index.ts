@@ -138,6 +138,7 @@ export type RunOptions = {
   setupFiles: string[];
   addons: PartialTestHookOptions[];
   reporters?: PartialTestHookOptions[];
+  workers?: number;
 };
 export const run = async ({
   tester,
@@ -145,6 +146,7 @@ export const run = async ({
   setupFiles,
   addons = [],
   reporters = [defaultReporter],
+  workers = cpus().length
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -161,7 +163,7 @@ export const run = async ({
   );
 
   // TODO: Still need to add a scheduling algorithm
-  const processCount = cpus().length;
+  const processCount = workers;
 
   const results = await runAndRecycleProcesses(
     tester,

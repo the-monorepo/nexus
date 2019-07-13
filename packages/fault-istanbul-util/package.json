@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/@fault/istanbul-util"
+    "directory": "packages/fault-istanbul-util"
   },
   "keywords": [
     "sinon",
