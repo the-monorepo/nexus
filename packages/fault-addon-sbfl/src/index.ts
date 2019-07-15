@@ -98,11 +98,13 @@ export const passFailStatsFromTests = (testResults: Iterable<TestResult>): Stats
   return stats;
 };
 
-type ScoringFn = (expressionPassFailStats: Stats) => number | null;
+type InternalScoringFn = (expressionPassFailStats: Stats) => number | null;
+type ExternalScoringFn = (expressionPassFailStats: Stats, totalPassFailStats: Stats) => number | null;
+export type ScoringFn = ExternalScoringFn;
 export const localizeFaults = (
   groupedTestResults: Iterable<TestResult>,
   fileResults: Map<string, FileResult>,
-  scoringFn: ScoringFn,
+  scoringFn: InternalScoringFn,
 ): Fault[] => {
   const faults: Fault[] = [];
   const selectedSourceFiles: Set<string> = new Set();
@@ -131,9 +133,10 @@ export const localizeFaults = (
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
-const reportFaults = async (testResults: Iterable<TestResult>, scoringFn: ScoringFn) => {
+const reportFaults = async (testResults: Iterable<TestResult>, scoringFn: ExternalScoringFn) => {
   const fileResults = gatherResults(testResults);
-  const faults = localizeFaults(testResults, fileResults, scoringFn);
+  const totalPassFailStats = passFailStatsFromTests(testResults);
+  const faults = localizeFaults(testResults, fileResults, (expressionPassFailStats) => scoringFn(expressionPassFailStats, totalPassFailStats));
   const rankedFaults = faults
     .filter(fault => fault.score !== null)
     .sort((f1, f2) => f2.score! - f1.score!)
@@ -162,9 +165,13 @@ const reportFaults = async (testResults: Iterable<TestResult>, scoringFn: Scorin
   }
 };
 
-export const createPlugin = (scoringFn: ScoringFn) => {
-  return async (results: TesterResults) => {
-    await reportFaults(results.testResults.values(), scoringFn);
+export const createPlugin = (scoringFn: ScoringFn): PartialTestHookOptions => {
+  return {
+    on: {
+      complete: async (results: TesterResults) => {
+        await reportFaults([...results.testResults.values()], scoringFn);
+      }
+    }
   };
 };
 

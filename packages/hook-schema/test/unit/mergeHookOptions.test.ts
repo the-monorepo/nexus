@@ -54,7 +54,7 @@ describe('mergeHookOptions', () => {
     };
     const hookUtil = schema(beforeAfterSchema, onSchema);
 
-    const hooks1 = hookUtil.withHooks({
+    const hooks1 = hookUtil.withNoops({
       before: {
         a: stub(),
       },
@@ -71,7 +71,7 @@ describe('mergeHookOptions', () => {
       },
     };
 
-    const mergedHooks = hookUtil.mergeHookOptions([hooks1, hooks2, undefined]);
+    const mergedHooks = hookUtil.merge([hooks1, hooks2, undefined]);
 
     await mergedHooks.on.b();
     expect(hooks1.on.b).to.have.been.called;

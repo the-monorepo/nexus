@@ -15,7 +15,7 @@ describe('schema', () => {
 
   const hookUtil = fromSchema(testSchema);
   it('undefined', async () => {
-    const hooks = hookUtil.withHooks();
+    const hooks = hookUtil.withNoops();
     await hooks.before.a({});
     await hooks.before.b({});
     await hooks.before.nested1.c({});
@@ -25,7 +25,7 @@ describe('schema', () => {
   });
 
   it("doesn't replace when hook callback already exists", async () => {
-    const hooks = hookUtil.withHooks({
+    const hooks = hookUtil.withNoops({
       before: {
         a: async () => 33,
       },

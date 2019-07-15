@@ -1,6 +1,6 @@
 import { relative, dirname, basename, join } from 'path';
 import chalk from 'chalk';
-import { report } from '@fault/istanbul-reporter';
+import { report } from '@fault/addon-istanbul';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { TestResult, TesterResults } from '@fault/types';
 

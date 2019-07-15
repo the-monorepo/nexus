@@ -153,7 +153,7 @@ export const run = async ({
 }: RunOptions) => {
   addons.push(...reporters);
 
-  const hooks: TestHookOptions = schema.mergeHookOptions(addons);
+  const hooks: TestHookOptions = schema.merge(addons);
 
   const directories = await globby(testMatch, { onlyFiles: true });
   // We pop the paths off the end of the list so the first path thing needs to be at the end
@@ -168,7 +168,7 @@ export const run = async ({
   // TODO: Still need to add a scheduling algorithm
   const processCount = workers;
 
-  const results = await runAndRecycleProcesses(
+  const results: TesterResults = await runAndRecycleProcesses(
     tester,
     directories,
     processCount,
