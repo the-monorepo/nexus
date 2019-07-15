@@ -46,6 +46,7 @@ export class IPCReporter {
       .on(
         EVENT_TEST_FAIL,
         commonTestHandle(async (testData, test, err) => {
+          let stack = err.stack;
           if (err instanceof AssertionError) {
             const assertionErr = err as AssertionError;
             const assertionData: AssertionFailureData = {
@@ -54,11 +55,12 @@ export class IPCReporter {
               key: testData.key
             };
             await submitAssertionResult(assertionData);
+            stack = err.data.stack;
           }
           await submitTestResult({
             ...testData,
             passed: false,
-            stack: err.stack,
+            stack,
           });
         }),
       );
