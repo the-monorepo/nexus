@@ -1,15 +1,15 @@
-# Core
+# Runner
 
-Use Mocha tests in the fl test runner
+The official Fault.js test runner
 
 ## Installation
 
 ```bash
-npm install --save @fault/core@1.0.0-alpha.0
+npm install --save @fault/runner@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add @fault/core@1.0.0-alpha.0
+yarn add @fault/runner@1.0.0-alpha.0
 ```
 
 ---
