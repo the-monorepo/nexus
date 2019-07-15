@@ -23,7 +23,7 @@ module.exports = {
       },
       {
         category: 'Fault localization',
-        test: ['./{build-packages,packages}/fault/*'],
+        test: ['./{build-packages,packages}/fault-*'],
       },
     ],
   },
