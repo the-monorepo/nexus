@@ -1,6 +1,6 @@
 import { AssertionError } from '@fault/mocha-assertion-error';
 import StackTrace from 'stacktrace-js'; 
-import { GENERIC } from '@fault/addon-message-types/src/assertion-types';
+import { Assertion } from '@fault/types';
 const plugin = (chai, util) => {
   const AssertionPrototype = chai.Assertion.prototype;
   const originalAssert = AssertionPrototype.assert;
@@ -10,11 +10,12 @@ const plugin = (chai, util) => {
     } catch(err) {
       const stackFrames = StackTrace.getSync();
       throw new AssertionError({
-        assertionType: GENERIC,
+        assertionType: Assertion.GENERIC,
         actual: err.actual,
         expected: err.expected,
+        stackFrames,
+        stack: err.stack,
         message: err.message,
-        stackFrames
       });
     }
   }

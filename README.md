@@ -6,14 +6,18 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`@fault/addon-message-types`](packages/fault-addon-message-types/README.md) | FL addon IPC message types
+1.0.0-alpha.0 | [`@fault/addon-hook-schema`](packages/fault-addon-hook-schema/README.md) | A Chai plugin for Fault
+1.0.0-alpha.0 | [`@fault/ast-localization`](packages/fault-ast-localization/README.md) | Fault AST localization
 1.0.0-alpha.0 | [`@fault/chai`](packages/fault-chai/README.md) | A Chai plugin for Fault
 1.0.0-alpha.0 | [`@fault/core`](packages/fault-core/README.md) | Use Mocha tests in the fl test runner
 1.0.0-alpha.0 | [`@fault/istanbul-reporter`](packages/fault-istanbul-reporter/README.md) | Use Mocha tests in the fl test runner
 1.0.0-alpha.0 | [`@fault/istanbul-util`](packages/fault-istanbul-util/README.md) | Use Mocha tests in the fl test runner
+1.0.0-alpha.0 | [`@fault/localization-util`](packages/fault-localization-util/README.md) | Utility package containing common fault localization methods
 1.0.0-alpha.0 | [`@fault/messages`](packages/fault-messages/README.md) | Use Mocha tests in the fl test runner
 1.0.0-alpha.0 | [`@fault/mocha-assertion-error`](packages/fault-mocha-assertion-error/README.md) | Use Mocha tests in the fl test runner
+1.0.0-alpha.0 | [`@fault/mutation-localization`](packages/fault-mutation-localization/README.md) | Fault AST localization
 1.0.0-alpha.0 | [`@fault/tester-mocha`](packages/fault-tester-mocha/README.md) | Use Mocha tests in the fl test runner
+1.0.0-alpha.0 | [`@fault/types`](packages/fault-types/README.md) | Package containing all type values for Fault.js
 1.4.3 | [`@pshaw/convict-util`](packages/convict-util/README.md) | A helper package for reading configs in using convict
 1.1.3 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
 2.2.3 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects

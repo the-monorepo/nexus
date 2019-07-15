@@ -1,5 +1,4 @@
 import { relative, dirname, basename, join } from 'path';
-import { TestResult } from '@fault/messages';
 import chalk from 'chalk';
 import { report } from '@fault/istanbul-reporter';
 import { readFile } from 'mz/fs';
@@ -11,8 +10,9 @@ import {
   passFailStatsFromTests,
   FileResult,
 } from './fl';
-import { PartialTestHookOptions } from './hooks';
+import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { TesterResults } from '.';
+import { TestResult } from '@fault/types';
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 

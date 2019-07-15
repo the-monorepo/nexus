@@ -1,9 +1,8 @@
 import globby from 'globby';
 import { fork, ChildProcess } from 'child_process';
-import * as types from '@fault/addon-message-types';
-import { ChildResult, TestResult, AssertionFailureData, AssertionFailureResult } from '@fault/messages';
+import { IPC, TestResult, AssertionFailureResult, ChildResult } from '@fault/types';
 import { runTest, stopWorker } from '@fault/messages';
-import { TestHookOptions, PartialTestHookOptions, schema } from './hooks';
+import { TestHookOptions, PartialTestHookOptions, schema } from '@fault/addon-hook-schema';
 import defaultReporter from './default-reporter';
 import { cpus } from 'os';
 
@@ -77,18 +76,18 @@ const runAndRecycleProcesses = (
     const setupWorkerHandle = (worker: ChildProcess) => {
       worker.on('message', async (message: ChildResult) => {
         switch (message.type) {
-          case types.ASSERTION: {
+          case IPC.ASSERTION: {
             assertionResults.set(message.key, message);
             break;
           }
-          case types.TEST: {
+          case IPC.TEST: {
             testResults.set(message.key, {
               ...message,
             });
             await hooks.on.testResult(message);
             break;
           }
-          case types.FILE_FINISHED: {
+          case IPC.FILE_FINISHED: {
             unfinishedFiles.delete(message.filePath);
             await hooks.on.fileFinished();
             if (unfinishedFiles.size <= 0) {

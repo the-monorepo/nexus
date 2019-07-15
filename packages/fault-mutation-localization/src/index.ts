@@ -1,7 +1,9 @@
 import { parse } from '@babel/parser';
-import { File, AssignmentExpression, Statement } from '@babel/types';
-import { AssertionFailureData } from '@fault/messages';
+import { File, AssignmentExpression, Expression, Statement } from '@babel/types';
+import * as t from '@babel/types';
+import { AssertionFailureData } from '@fault/types';
 import { readFile } from 'mz/fs';
+
 export type LocalizeFaultInput = {
   rootFile: string,
   assertions: AssertionFailureData
@@ -31,13 +33,22 @@ export const localizeFaults = async function *(
 
 }
 
-export const mutateFile = async function *(filePath: string, astCache: AstCache) {
+export async function* mutateFile(filePath: string, astCache: AstCache) {
   const ast = await astCache.get(filePath);
-  ast.program.body;
 }
 
-export const mutateStatements = async function *(statement: Statement, astCache: AstCache) {
+export async function* mutateStatements(statement: Statement, astCache: AstCache) {
+  if (t.isExpressionStatement(statement)) {
+    yield *mutateExpressions([statement.expression]);
+  }
+}
 
+export async function* mutateExpressions(expressions: Expression[]) {
+  for(const expression of expressions) {
+    if (t.isAssignmentExpression(expression)) {
+      yield* mutateAssignmentExpression(expression);
+    }  
+  }
 }
 
 const operations = new Set(['=', '!=', '&=', '^=', '<<=', '>>=', '-=', '+=', '/=', '*=']);
@@ -49,3 +60,7 @@ export function *mutateAssignmentExpression(expression: AssignmentExpression) {
     yield;
   }
 }
+
+export const plugin = {
+
+};

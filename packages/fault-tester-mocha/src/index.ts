@@ -1,9 +1,8 @@
 import Mocha from 'mocha';
-import * as types from '@fault/addon-message-types';
 import { IPCReporter } from './recordTests';
 import { submitFileResult } from '@fault/messages';
 import { cloneCoverage } from '@fault/istanbul-util';
-import { ParentResult } from '@fault/messages';
+import { ParentResult, IPC } from '@fault/types';
 const COVERAGE_KEY = '__coverage__';
 
 export const initialize = async () => {
@@ -21,11 +20,11 @@ export const initialize = async () => {
 
   process.on('message', async (data: ParentResult) => {
     switch (data.type) {
-      case types.STOP_WORKER: {
+      case IPC.STOP_WORKER: {
         process.exit(0);
         break;
       }
-      case types.RUN_TEST: {
+      case IPC.RUN_TEST: {
         const mocha = new Mocha({
           color: true,
           reporter: IPCReporter,
