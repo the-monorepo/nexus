@@ -160,14 +160,14 @@ export function fromSchema<H extends HookSchema, O extends HookSchema>(
   onSchemaObj: O = {} as any,
 ) {
   return {
-    withHooks: (partialHooks: HookOptions<H, O> = {}): CompleteHooksOptions<H, O> => {
+    withNoops: (partialHooks: HookOptions<H, O> = {}): CompleteHooksOptions<H, O> => {
       return {
         on: defaultHooksFromSchema(onSchemaObj, partialHooks.on),
         before: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.before),
         after: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.after),
       };
     },
-    mergeHookOptions: (hookOptions: (HookOptions<H, O> | undefined)[]) =>
+    merge: (hookOptions: (HookOptions<H, O> | undefined)[]) =>
       mergeHookOptions(hookOptions, beforeAfterSchemaObj, onSchemaObj),
   };
 }

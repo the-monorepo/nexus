@@ -240,7 +240,7 @@ export async function genReadmeFromPackageDir(
   packageDir: string,
   hooks: GenReadmeFromPackageDirHooks,
 ) {
-  const h = genReadmeFromPackageDirHookUtil.withHooks(hooks);
+  const h = genReadmeFromPackageDirHookUtil.withNoops(hooks);
   const context: any = { packageDir };
   async function readConfig() {
     context.configRequirePath = join(context.packageDir, 'writeme.config');
@@ -299,7 +299,7 @@ export async function genReadmeFromPackageDir(
           const packages = await Promise.all(
             project.testPaths.map(async path => {
               let writemeOptions;
-              const nestedHooks = genReadmeFromPackageDirHookUtil.mergeHookOptions([
+              const nestedHooks = genReadmeFromPackageDirHookUtil.merge([
                 {
                   after: {
                     async genReadme(innerContext) {
@@ -347,10 +347,10 @@ export async function writeReadmeFromPackageDir(
   packageDir: string,
   hooks: WriteReadmeFromPackageDirHooks,
 ) {
-  const h = writeReadmeFromPackageDirUtil.withHooks(hooks);
+  const h = writeReadmeFromPackageDirUtil.withNoops(hooks);
   await genReadmeFromPackageDir(
     packageDir,
-    writeReadmeFromPackageDirUtil.mergeHookOptions([
+    writeReadmeFromPackageDirUtil.merge([
       {
         after: {
           async genReadme(context) {
