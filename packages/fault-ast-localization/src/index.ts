@@ -36,7 +36,6 @@ const localizeBlockStatement = async (blockStatement: BlockStatement, assertion:
 };
 
 const localizeEmptyStatement = async (statement: EmptyStatement, assertion: AssertionFailureData) => {
-  statement.
 };
 
 const localizeStatement = async (statement: Statement, dependencies: Map<string, string[]>, assertion: AssertionFailureData) => {

@@ -1,3 +1,6 @@
+import * as assertionTypes from './assertion';
+import { Coverage } from '@fault/istanbul-util';
+
 /**
  * For when the tests in a file have completed
  */
@@ -15,6 +18,7 @@ export const TEST = 'submit-test-result';
  * For when you want to notify the test worker to finish
  */
 export const STOP_WORKER = 'stop-worker';
+
 /**
  * Run a test
  */
