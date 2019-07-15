@@ -1,7 +1,7 @@
 {
   "name": "@fault/mocha-assertion-error",
   "version": "1.0.0-alpha.0",
-  "description": "Use Mocha tests in the fl test runner",
+  "description": "An assertion error, used with @fault/addon-tester-mocha, thrown in order to record assertion data in Fault.js",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",

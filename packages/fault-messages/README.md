@@ -1,6 +1,6 @@
 # Messages
 
-Use Mocha tests in the fl test runner
+Helper methods for easier communication between the main @fault/runner process and its workers
 
 ## Installation
 
