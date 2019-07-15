@@ -1,6 +1,6 @@
 # Mocha Assertion Error
 
-Use Mocha tests in the fl test runner
+An assertion error, used with @fault/addon-tester-mocha, thrown in order to record assertion data in Fault.js
 
 ## Installation
 

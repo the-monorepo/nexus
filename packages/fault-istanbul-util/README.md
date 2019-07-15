@@ -1,6 +1,6 @@
 # Istanbul Util
 
-Use Mocha tests in the fl test runner
+Helper functions for use with istanbul
 
 ## Installation
 
