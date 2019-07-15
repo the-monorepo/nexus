@@ -1,6 +1,6 @@
 # Addon Hook Schema
 
-A Chai plugin for Fault
+Hook schema for Fault.js addons
 
 ## Installation
 

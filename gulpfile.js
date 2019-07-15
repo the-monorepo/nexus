@@ -322,6 +322,7 @@ async function testNoBuild() {
       '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
     ],
     setupFiles: ['./test/require/babel.js', './test/helpers/globals.js'],
+    addons: [require('@fault/addon-sbfl').default(require('@fault/sbfl-dstar').default)],
   });
 }
 

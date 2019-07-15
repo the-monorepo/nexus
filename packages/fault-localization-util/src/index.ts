@@ -1,7 +1,7 @@
 type Stats = {
   passed: number;
   failed: number;
-}
+};
 export const passFailStatsFromTests = (testResults: Iterable<TestResult>): Stats => {
   const stats: Stats = {
     passed: 0,
