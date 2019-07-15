@@ -1,17 +1,21 @@
 import { Coverage } from '@fault/istanbul-util';
 import * as IPC from './ipc';
 import * as Assertion from './assertion';
-export {
-  IPC,
-  Assertion
+export { IPC, Assertion };
+
+export type TesterResults = {
+  testResults: Map<string, TestResult>;
+  assertionResults: Map<string, AssertionFailureResult>;
+  duration: number;
 };
+
 export type AssertionType = typeof Assertion.GENERIC;
 
 type TypeHolder<T> = {
   type: T;
 };
 export type AssertionFailureData = {
-  assertionType: typeof Assertion.GENERIC,
+  assertionType: typeof Assertion.GENERIC;
   file: string;
   key: string;
   expected: any;
@@ -19,7 +23,8 @@ export type AssertionFailureData = {
   message: any;
   stackFrames: any[];
 };
-export type AssertionFailureResult = AssertionFailureData & TypeHolder<typeof IPC.ASSERTION>;
+export type AssertionFailureResult = AssertionFailureData &
+  TypeHolder<typeof IPC.ASSERTION>;
 
 export type TestData = {
   key: string;

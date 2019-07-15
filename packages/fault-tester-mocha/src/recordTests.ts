@@ -1,6 +1,10 @@
 import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 import Mocha from 'mocha';
-import { submitTestResult, submitAssertionResult, AssertionFailureData } from '@fault/messages';
+import {
+  submitTestResult,
+  submitAssertionResult,
+  AssertionFailureData,
+} from '@fault/messages';
 import { createHash } from 'crypto';
 import { AssertionError } from '@fault/mocha-assertion-error';
 
@@ -52,7 +56,7 @@ export class IPCReporter {
             const assertionData: AssertionFailureData = {
               ...assertionErr.data,
               file: testData.file,
-              key: testData.key
+              key: testData.key,
             };
             await submitAssertionResult(assertionData);
             stack = err.data.stack;

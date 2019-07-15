@@ -6,11 +6,9 @@ export type AssertionData = {
   stackFrames: any[];
   message: string;
   stack: string;
-}
+};
 export class AssertionError extends Error {
-  constructor(
-    public data: AssertionData,
-  ) {
+  constructor(public data: AssertionData) {
     super();
   }
 }

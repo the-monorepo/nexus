@@ -1,6 +1,9 @@
-import { TestResult } from '@fault/messages';
+import { TestResult, TesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
-
+import { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import { relative } from 'path';
+import { readFile } from 'mz/fs';
+import chalk from 'chalk';
 export type Stats = {
   passed: number;
   failed: number;
@@ -95,21 +98,8 @@ export const passFailStatsFromTests = (testResults: Iterable<TestResult>): Stats
   return stats;
 };
 
-export const groupTestsByFilePath = (testResults: Iterable<TestResult>) => {
-  const grouped: Map<string, TestResult[]> = new Map();
-  for (const testResult of testResults) {
-    if (!grouped.has(testResult.file)) {
-      grouped.set(testResult.file, [testResult]);
-    } else {
-      const groupedTestResults = grouped.get(testResult.file)!;
-      groupedTestResults.push(testResult);
-    }
-  }
-  return grouped;
-};
-
 type ScoringFn = (expressionPassFailStats: Stats) => number | null;
-export const localiseFaults = (
+export const localizeFaults = (
   groupedTestResults: Iterable<TestResult>,
   fileResults: Map<string, FileResult>,
   scoringFn: ScoringFn,
@@ -138,3 +128,44 @@ export const localiseFaults = (
   }
   return faults;
 };
+
+const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
+
+const reportFaults = async (testResults: Iterable<TestResult>, scoringFn: ScoringFn) => {
+  const fileResults = gatherResults(testResults);
+  const faults = localizeFaults(testResults, fileResults, scoringFn);
+  const rankedFaults = faults
+    .filter(fault => fault.score !== null)
+    .sort((f1, f2) => f2.score! - f1.score!)
+    .slice(0, 10);
+  for (const fault of rankedFaults) {
+    const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
+    console.log(
+      `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${
+        fault.location.start.column
+      }, ${chalk.cyan(fault.score!.toString())}`,
+    );
+    let l = fault.location.start.line - 1;
+    let lineCount = 0;
+    const maxLineCount = 3;
+    while (l < fault.location.end.line - 1 && lineCount < maxLineCount) {
+      console.log(chalk.grey(lines[l++]));
+      lineCount++;
+    }
+    const lastLine = lines[l++];
+    console.log(chalk.grey(lastLine));
+    if (lineCount >= maxLineCount) {
+      const spaces = lastLine.match(/^ */)![0];
+      console.log(chalk.grey(`${new Array(spaces.length + 1).join(' ')}...`));
+    }
+    console.log();
+  }
+};
+
+export const createPlugin = (scoringFn: ScoringFn) => {
+  return async (results: TesterResults) => {
+    await reportFaults(results.testResults.values(), scoringFn);
+  };
+};
+
+export default createPlugin;
