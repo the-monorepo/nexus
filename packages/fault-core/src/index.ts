@@ -1,18 +1,22 @@
 import globby from 'globby';
 import { fork, ChildProcess } from 'child_process';
-import { IPC, TestResult, AssertionFailureResult, ChildResult } from '@fault/types';
+import {
+  IPC,
+  TestResult,
+  AssertionFailureResult,
+  ChildResult,
+  TesterResults,
+} from '@fault/types';
 import { runTest, stopWorker } from '@fault/messages';
-import { TestHookOptions, PartialTestHookOptions, schema } from '@fault/addon-hook-schema';
+import {
+  TestHookOptions,
+  PartialTestHookOptions,
+  schema,
+} from '@fault/addon-hook-schema';
 import defaultReporter from './default-reporter';
 import { cpus } from 'os';
 
 const addonEntryPath = require.resolve('./addon-entry');
-
-export type TesterResults = {
-  testResults: Map<string, TestResult>;
-  assertionResults: Map<string, AssertionFailureResult>
-  duration: number;
-};
 
 const runAndRecycleProcesses = (
   tester: string,
@@ -145,7 +149,7 @@ export const run = async ({
   setupFiles,
   addons = [],
   reporters = [defaultReporter],
-  workers = cpus().length
+  workers = cpus().length,
 }: RunOptions) => {
   addons.push(...reporters);
 

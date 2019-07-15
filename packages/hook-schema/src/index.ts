@@ -14,7 +14,9 @@ export interface Hook<
 }
 
 type NonArrayHookSchemaValue = null | HookSchema | HookCallbackFactory;
-export type HookSchemaValue = NonArrayHookSchemaValue | ([NonArrayHookSchemaValue, MergeOptions]);
+export type HookSchemaValue =
+  | NonArrayHookSchemaValue
+  | ([NonArrayHookSchemaValue, MergeOptions]);
 
 export interface HookSchema {
   [k: string]: HookSchemaValue;

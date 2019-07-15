@@ -1,4 +1,17 @@
-import { AssertionFailureData, IPC, AssertionFailureResult, PassingTestData, FailingTestData, TestResult, FileFinishedData, FileFinishedResult, RunTestData, RunTestPayload, StopWorkerData, StopWorkerResult } from '@fault/types';
+import {
+  AssertionFailureData,
+  IPC,
+  AssertionFailureResult,
+  PassingTestData,
+  FailingTestData,
+  TestResult,
+  FileFinishedData,
+  FileFinishedResult,
+  RunTestData,
+  RunTestPayload,
+  StopWorkerData,
+  StopWorkerResult,
+} from '@fault/types';
 import { promisify } from 'util';
 import { Coverage } from '@fault/istanbul-util';
 import { ChildProcess } from 'child_process';
