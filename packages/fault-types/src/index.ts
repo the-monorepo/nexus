@@ -2,6 +2,10 @@ import { Coverage } from '@fault/istanbul-util';
 import * as IPC from './ipc';
 import * as Assertion from './assertion';
 export { IPC, Assertion };
+export type Stats = {
+  failed: number;
+  passed: number;
+};
 
 export type TesterResults = {
   testResults: Map<string, TestResult>;
