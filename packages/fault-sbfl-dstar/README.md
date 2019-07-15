@@ -1,6 +1,6 @@
 # Sbfl Dstar
 
-DStar algorithm for use with @fault/addon-spectrum-localization
+DStar algorithm for use with @fault/addon-sbfl
 
 ## Installation
 
