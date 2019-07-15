@@ -9,7 +9,7 @@ describe('require', () => {
     const mockedModule = require('./exports-module');
     rewiremock.disable();
 
-    expect(mockedModule.someFunction()).to.be.equal(1);
+    expect(mockedModule.someFunction()).to.be.undefined;
   });
 
   it('mocked modules work', () => {
