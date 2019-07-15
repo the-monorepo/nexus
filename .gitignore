@@ -65,3 +65,5 @@ lib/
 .cache
 
 packages/*/stats.html
+
+faults

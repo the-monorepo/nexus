@@ -2,7 +2,9 @@ import { TestResult, TesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { relative } from 'path';
-import { readFile } from 'mz/fs';
+import { readFile, writeFile } from 'mz/fs';
+import { recordFaults } from '@fault/record-faults';
+import dStar from '@fault/sbfl-dstar'; 
 import chalk from 'chalk';
 export type Stats = {
   passed: number;
@@ -133,10 +135,7 @@ export const localizeFaults = (
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
-const reportFaults = async (testResults: Iterable<TestResult>, scoringFn: ExternalScoringFn) => {
-  const fileResults = gatherResults(testResults);
-  const totalPassFailStats = passFailStatsFromTests(testResults);
-  const faults = localizeFaults(testResults, fileResults, (expressionPassFailStats) => scoringFn(expressionPassFailStats, totalPassFailStats));
+const reportFaults = async (faults: Fault[], scoringFn: ExternalScoringFn) => {
   const rankedFaults = faults
     .filter(fault => fault.score !== null)
     .sort((f1, f2) => f2.score! - f1.score!)
@@ -165,11 +164,24 @@ const reportFaults = async (testResults: Iterable<TestResult>, scoringFn: Extern
   }
 };
 
-export const createPlugin = (scoringFn: ScoringFn): PartialTestHookOptions => {
+export type PluginOptions = {
+  scoringFn?: ScoringFn,
+  faultFilePath?: string | null;
+}
+export const createPlugin = (
+  { scoringFn = dStar, faultFilePath = './faults/faults.json' }: PluginOptions
+): PartialTestHookOptions => {
   return {
     on: {
       complete: async (results: TesterResults) => {
-        await reportFaults([...results.testResults.values()], scoringFn);
+        const testResults: TestResult[] = [...results.testResults.values()];
+        const fileResults = gatherResults(testResults);
+        const totalPassFailStats = passFailStatsFromTests(testResults);
+        const faults = localizeFaults(testResults, fileResults, (expressionPassFailStats) => scoringFn(expressionPassFailStats, totalPassFailStats));      
+        await reportFaults(faults, scoringFn);
+        if (faultFilePath !== null) {
+          await recordFaults(faultFilePath, faults);
+        }
       }
     }
   };
