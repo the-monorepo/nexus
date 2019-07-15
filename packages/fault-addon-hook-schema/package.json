@@ -1,7 +1,7 @@
 {
   "name": "@fault/addon-hook-schema",
   "version": "1.0.0-alpha.0",
-  "description": "A Chai plugin for Fault",
+  "description": "Hook schema for Fault.js addons",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
