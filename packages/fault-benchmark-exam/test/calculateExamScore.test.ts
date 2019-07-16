@@ -30,7 +30,7 @@ describe('measure', () => {
           }
         }
       }];
-      expect(measure(faults, faults, 2)).to.equal(0.5);
+      expect(calculateExamScore(faults, faults, 2)).to.equal(0.5);
     });
   });
 })
