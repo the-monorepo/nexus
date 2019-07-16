@@ -24,7 +24,7 @@ export const readFaultFile = async (filePath: string): Promise<FaultData> => {
   return JSON.parse(jsonText);
 }
 
-export const faultFileToFaults = (faultData: FaultData): Fault[] => {
+export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
   const faults: Fault[] = [];
 
   for(const testFilePath of Object.keys(faultData)) {

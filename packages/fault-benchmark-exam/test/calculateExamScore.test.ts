@@ -1,5 +1,5 @@
 import { ScorelessFault } from '@fault/addon-sbfl';
-import { measure } from '../src/index';
+import { calculateExamScore } from '../src/index';
 describe('measure', () => {
   describe('exact match', () => {
     it('1 fault, 1 line', () => {
