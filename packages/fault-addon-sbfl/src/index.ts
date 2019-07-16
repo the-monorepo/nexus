@@ -2,7 +2,7 @@ import { TestResult, TesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { relative } from 'path';
-import { readFile, writeFile } from 'mz/fs';
+import { readFile } from 'mz/fs';
 import { recordFaults } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar'; 
 import chalk from 'chalk';
@@ -24,12 +24,15 @@ export type FileResult = {
   expressions: ExpressionResult[];
 };
 
-export type Fault = {
+export type ScorelessFault = {
   location: ExpressionLocation;
   testedPath: string;
   sourcePath: string;
+}
+
+export type Fault = {
   score: number | null;
-};
+} & ScorelessFault;
 
 const statementStr = (filePath, { start, end }) => {
   return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;
