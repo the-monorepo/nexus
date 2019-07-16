@@ -169,10 +169,10 @@ const reportFaults = async (faults: Fault[], scoringFn: ExternalScoringFn) => {
 
 export type PluginOptions = {
   scoringFn?: ScoringFn,
-  faultFilePath?: string | null;
+  faultFilePath?: string | null | true | false;
 }
 export const createPlugin = (
-  { scoringFn = dStar, faultFilePath = './faults/faults.json' }: PluginOptions
+  { scoringFn = dStar, faultFilePath }: PluginOptions
 ): PartialTestHookOptions => {
   return {
     on: {
@@ -182,8 +182,15 @@ export const createPlugin = (
         const totalPassFailStats = passFailStatsFromTests(testResults);
         const faults = localizeFaults(testResults, fileResults, (expressionPassFailStats) => scoringFn(expressionPassFailStats, totalPassFailStats));      
         await reportFaults(faults, scoringFn);
-        if (faultFilePath !== null) {
-          await recordFaults(faultFilePath, faults);
+        if (faultFilePath !== null && faultFilePath !== undefined && faultFilePath !== false) {
+          const resolvedFilePath = (() => {
+            if(faultFilePath === true) {
+              return './faults/faults.json'
+            } else {
+              return faultFilePath
+            }
+          })();
+          await recordFaults(resolvedFilePath, faults);
         }
       }
     }
