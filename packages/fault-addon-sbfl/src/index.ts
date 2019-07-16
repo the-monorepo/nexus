@@ -171,6 +171,7 @@ export type PluginOptions = {
   scoringFn?: ScoringFn,
   faultFilePath?: string | null | true | false;
 }
+
 export const createPlugin = (
   { scoringFn = dStar, faultFilePath }: PluginOptions
 ): PartialTestHookOptions => {
