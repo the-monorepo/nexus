@@ -1,3 +1,5 @@
+import { readFile } from 'mz/fs';
+
 export const cloneCoverage = coverage => {
   if (Array.isArray(coverage)) {
     return coverage.map(cloneCoverage);
@@ -118,4 +120,20 @@ export const subtractCoverage = (from: Coverage, amount: Coverage | undefined) =
     }
   }
   return diff;
+};
+
+export const readCoverageFile = async (filePath: string = './coverage/coverage-final.json'): Promise<Coverage> => {
+  const coverageText = await readFile(filePath, 'utf8');
+  const coverage = JSON.parse(coverageText);
+  return coverage;
+}
+
+export const getTotalExecutedStatements = (coverage: Coverage): number => {
+  let total = 0;
+
+  for(const fileCoverage of Object.values(coverage)) {
+    total += Object.values(fileCoverage.s).filter(value => value > 0).length;
+  }
+
+  return total;
 };

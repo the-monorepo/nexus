@@ -2,6 +2,7 @@ import { ScorelessFault, Fault } from '@fault/addon-sbfl';
 import { readFaultFile, convertFileFaultDataToFaults } from '@fault/record-faults';
 import { mkdirSync } from 'fs';
 import { writeFile } from 'mz/fs';
+import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
 
 export const faultToKey = (fault: ScorelessFault): string => {
   return `${fault.sourcePath}:${fault.location.start.line}:${fault.location.start.column}`;
@@ -30,20 +31,24 @@ export const calculateExamScore = (actualFaults: ScorelessFault[], expectedFault
   return (sum / expectedFaults.length) / totalExecutableStatements;
 }
 
-type BenchmarkData = {
+export type BenchmarkData = {
   [algorithmName: string]: number;
 }
+
 export const measureFromFiles = async (
   actualFaultFiles: { name: string, path: string }[],
   expectedFaultFile: string,
-  fileOutputPath: string,
-  totalExecutableStatements: number,
+  fileOutputPath: string = './fault-benchmark.json',
+  coveragePath?: string,
 ) => {
   const expectedFaultFileData = await readFaultFile(expectedFaultFile);
 
   const expectedFaults: ScorelessFault[] = convertFileFaultDataToFaults(expectedFaultFileData);
 
   const output: BenchmarkData = {};
+  
+  const coverage = await readCoverageFile(coveragePath);
+  const totalExecutableStatements = getTotalExecutedStatements(coverage);
 
   for(const faultFilePath of actualFaultFiles) {
     const faultFileData = await readFaultFile(faultFilePath.path);
