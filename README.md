@@ -62,6 +62,8 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/record-faults`](packages/fault-record-faults/README.md) | Record faults
 1.0.0-alpha.0 | [`@fault/runner`](packages/fault-runner/README.md) | The official Fault.js test runner
 1.0.0-alpha.0 | [`@fault/sbfl-dstar`](packages/fault-sbfl-dstar/README.md) | DStar algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.0 | [`@fault/sbfl-ochiai`](packages/fault-sbfl-ochiai/README.md) | Ochiai algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.0 | [`@fault/sbfl-tarantula`](packages/fault-sbfl-tarantula/README.md) | Tarantula algorithm for use with @fault/addon-sbfl
 1.0.0-alpha.0 | [`@fault/tester-mocha`](packages/fault-tester-mocha/README.md) | Use Mocha tests in the fl test runner
 1.0.0-alpha.0 | [`@fault/types`](packages/fault-types/README.md) | Package containing all type values for Fault.js
 
