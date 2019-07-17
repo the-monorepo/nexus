@@ -1,7 +1,7 @@
 {
   "name": "@fault/sbfl-ochiai",
   "version": "1.0.0-alpha.0",
-  "description": "DStar algorithm for use with @fault/addon-sbfl",
+  "description": "Ochiai algorithm for use with @fault/addon-sbfl",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "packages/fault-core"
+    "directory": "packages/fault-sbfl-ochiai"
   },
   "keywords": [
     "sinon",
