@@ -1,11 +1,14 @@
 import { TestResult, TesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import { relative } from 'path';
-import { readFile } from 'mz/fs';
+import { passFailStatsFromTests } from '@fault/localization-util';
 import { recordFaults } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar'; 
+
+import { relative } from 'path';
+import { readFile } from 'mz/fs';
 import chalk from 'chalk';
+
 export type Stats = {
   passed: number;
   failed: number;
@@ -34,7 +37,7 @@ export type Fault = {
   score: number | null;
 } & ScorelessFault;
 
-const statementStr = (filePath, { start, end }) => {
+const statementStr = (filePath: string, { start, end }: ExpressionLocation) => {
   return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;
 };
 
@@ -90,17 +93,6 @@ export const gatherResults = (testResults: Iterable<TestResult>) => {
     }
   }
   return fileResults;
-};
-
-export const passFailStatsFromTests = (testResults: Iterable<TestResult>): Stats => {
-  const stats: Stats = {
-    passed: 0,
-    failed: 0,
-  };
-  for (const testResult of testResults) {
-    stats[testResult.passed ? 'passed' : 'failed']++;
-  }
-  return stats;
 };
 
 type InternalScoringFn = (expressionPassFailStats: Stats) => number | null;
