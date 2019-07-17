@@ -1,10 +1,11 @@
 {
-  "name": "@fault/addon-benchmarker",
+  "name": "@fault/benchmarker",
   "version": "1.0.0-alpha.0",
-  "description": "EXAM fault localization benchmark algorithm",
+  "description": "Benchmarking library for measuring various fault localization/repair algorithms in Fault.js",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
+  "private": false,
   "files": [
     "lib",
     "src",
