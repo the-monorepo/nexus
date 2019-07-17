@@ -1,6 +1,4 @@
 import { TestResult } from '@fault/types';
-import { readFile } from 'mz/fs';
-import { Coverage } from '@fault/istanbul-util';
 
 export type Stats = {
   passed: number;
