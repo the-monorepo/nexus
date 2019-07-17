@@ -16,7 +16,7 @@ export interface Hook<
 type NonArrayHookSchemaValue = null | HookSchema | HookCallbackFactory;
 export type HookSchemaValue =
   | NonArrayHookSchemaValue
-  | ([NonArrayHookSchemaValue, MergeOptions]);
+  | (NonArrayHookSchemaValue | MergeOptions)[]; // TODO: Could use a tuple but array literals don't get interpreted as tuples which causes type errors when there aren't any
 
 export interface HookSchema {
   [k: string]: HookSchemaValue;
@@ -50,8 +50,8 @@ export interface HookOptions<K extends HookSchema, O extends HookSchema> {
   on?: RecursivePartial<Hooks<O>>;
 }
 
-export type HookOptionsOf<T extends any> = Parameters<T['withHooks']>[0];
-export type CompleteHookOptionsOf<T extends any> = ReturnType<T['withHooks']>;
+export type HookOptionsOf<T extends any> = Parameters<T['withNoops']>[0];
+export type CompleteHookOptionsOf<T extends any> = ReturnType<T['withNoops']>;
 
 export function defaultHook(): HookCallback {
   return async () => {};
@@ -116,7 +116,7 @@ export function mergeHooks<H extends HookSchema>(
     return merged as any;
   } else {
     return Object.keys(value).reduce((merged, key) => {
-      merged[key] = mergeHooks(filteredHooksList.map(hooks => hooks[key]), value[key]);
+      merged[key] = mergeHooks(filteredHooksList.map(hooks => hooks[key]), value[key] as any);
       return merged;
     }, {}) as Hooks<H>;
   }
@@ -167,7 +167,7 @@ export function fromSchema<H extends HookSchema, O extends HookSchema>(
         after: defaultHooksFromSchema(beforeAfterSchemaObj, partialHooks.after),
       };
     },
-    merge: (hookOptions: (HookOptions<H, O> | undefined)[]) =>
+    merge: (hookOptions: (HookOptions<H, O> | undefined)[]): CompleteHooksOptions<H, O> =>
       mergeHookOptions(hookOptions, beforeAfterSchemaObj, onSchemaObj),
   };
 }

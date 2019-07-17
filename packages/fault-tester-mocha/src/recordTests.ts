@@ -3,8 +3,8 @@ import Mocha from 'mocha';
 import {
   submitTestResult,
   submitAssertionResult,
-  AssertionFailureData,
 } from '@fault/messages';
+import { AssertionFailureData } from '@fault/types';
 import { createHash } from 'crypto';
 import { AssertionError } from '@fault/mocha-assertion-error';
 
