@@ -1,8 +1,10 @@
-import { ScorelessFault, Fault } from '@fault/addon-sbfl';
-import { readFaultFile, convertFileFaultDataToFaults } from '@fault/record-faults';
+import { ScorelessFault } from '@fault/addon-sbfl';
+import { readFaultFile, convertFileFaultDataToFaults, recordFaults } from '@fault/record-faults';
 import { mkdirSync } from 'fs';
-import { writeFile } from 'mz/fs';
+import { writeFile, readdir } from 'mz/fs';
 import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
+import { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import { basename } from 'path';
 
 export const faultToKey = (fault: ScorelessFault): string => {
   return `${fault.sourcePath}:${fault.location.start.line}:${fault.location.start.column}`;
@@ -60,3 +62,22 @@ export const measureFromFiles = async (
   mkdirSync(fileOutputPath, { recursive: true });
   await writeFile(fileOutputPath, JSON.stringify(output), { encoding: 'utf8', flag: 'w+' });
 }
+
+export const createPlugin = (directoryPath: string, expectedFaultFilePath: string, fileOutputPath: string): PartialTestHookOptions => {
+  const plugin: PartialTestHookOptions = {
+    on: {
+      complete: async () => {
+        const filePaths: string[] = await readdir(directoryPath);
+        const faultFileDataInfo = filePaths.map(filePath => ({
+          name: basename(filePath),
+          path: filePath
+        }));
+        
+        await measureFromFiles(faultFileDataInfo, expectedFaultFilePath, fileOutputPath);
+      }
+    }
+  };  
+  return plugin;
+};
+
+export default createPlugin;
