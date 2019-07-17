@@ -24,6 +24,7 @@ const runAndRecycleProcesses = (
   processCount: number,
   absoluteImportPaths: string[],
   hooks: TestHookOptions,
+  cwd?: string,
 ): Promise<TesterResults> => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
@@ -37,6 +38,7 @@ const runAndRecycleProcesses = (
         ...process.env,
         NODE_ENV: 'test',
       },
+      cwd,
       stdio: 'inherit',
     });
 
@@ -137,19 +139,21 @@ const runAndRecycleProcesses = (
 
 export type RunOptions = {
   tester: string;
-  testMatch: string;
-  setupFiles: string[];
-  addons: PartialTestHookOptions[];
+  testMatch: string | string[];
+  cwd?: string,
+  setupFiles?: string[];
+  addons?: PartialTestHookOptions[];
   reporters?: PartialTestHookOptions[];
   workers?: number;
 };
 export const run = async ({
   tester,
   testMatch,
-  setupFiles,
+  setupFiles = [],
   addons = [],
   reporters = [defaultReporter],
   workers = cpus().length,
+  cwd
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -174,8 +178,9 @@ export const run = async ({
     processCount,
     absoluteImportPaths,
     hooks,
+    cwd
   );
-
+  
   await hooks.on.complete(results);
 
   if ([...results.testResults.values()].some(result => !result.passed)) {
