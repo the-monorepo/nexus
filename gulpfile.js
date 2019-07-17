@@ -92,6 +92,13 @@ function packagesSrcCodeStream(options) {
   });
 }
 
+function packagesSrcCodeWithTsDefinitionsStream(options) {
+  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName).concat('**/*.d.ts'), {
+    base: `.`,
+    ...options,
+  });
+}
+
 function codeStream(options) {
   return gulp.src(
     [
@@ -299,7 +306,7 @@ let withTypeCheckPipes = stream => {
 };
 
 function checkTypes() {
-  return withTypeCheckPipes(packagesSrcCodeStream());
+  return withTypeCheckPipes(packagesSrcCodeWithTsDefinitionsStream());
 }
 checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +

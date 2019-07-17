@@ -13,10 +13,9 @@ import {
   StopWorkerResult,
 } from '@fault/types';
 import { promisify } from 'util';
-import { Coverage } from '@fault/istanbul-util';
 import { ChildProcess } from 'child_process';
 
-const promiseSend: (param: any) => Promise<unknown> =
+const promiseSend: (...arg: any) => Promise<any> =
   process.send !== undefined ? promisify(process.send!.bind(process)) : undefined!;
 export const submitAssertionResult = (data: AssertionFailureData) => {
   const result: AssertionFailureResult = {
