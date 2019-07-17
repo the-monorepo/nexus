@@ -1,5 +1,5 @@
 {
-  "name": "@fault/benchmark-exam",
+  "name": "@fault/addon-benchmarker",
   "version": "1.0.0-alpha.0",
   "description": "EXAM fault localization benchmark algorithm",
   "types": "./src/index.ts",
