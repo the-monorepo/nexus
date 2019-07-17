@@ -1,0 +1,31 @@
+{
+  "name": "@fault/sbfl-ochiai",
+  "version": "1.0.0-alpha.0",
+  "description": "DStar algorithm for use with @fault/addon-sbfl",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "packages/fault-core"
+  },
+  "keywords": [
+    "sinon",
+    "stub",
+    "testing",
+    "test",
+    "typescript",
+    "util",
+    "helper",
+    "function"
+  ],
+  "dependencies": {}
+}
