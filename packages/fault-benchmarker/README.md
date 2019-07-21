@@ -1,15 +1,15 @@
-# Benchmark Exam
+# Benchmarker
 
-EXAM fault localization benchmark algorithm
+Benchmarking library for measuring various fault localization/repair algorithms in Fault.js
 
 ## Installation
 
 ```bash
-npm install --save @fault/benchmark-exam@1.0.0-alpha.0
+npm install --save @fault/benchmarker@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add @fault/benchmark-exam@1.0.0-alpha.0
+yarn add @fault/benchmarker@1.0.0-alpha.0
 ```
 
 ---
