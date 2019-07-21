@@ -1,6 +1,8 @@
 import 'source-map-support/register';
 import { ScorelessFault, createPlugin } from '@fault/addon-sbfl';
 import { convertFileFaultDataToFaults } from '@fault/record-faults';
+import { consoleTransport, logger } from '@pshaw/logger';
+
 import { writeFile } from 'mz/fs';
 import { existsSync, exists } from 'fs';
 import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
@@ -55,15 +57,21 @@ type BenchmarkConfig = {
   testMatch: string
 };
 
+const log = logger().add(consoleTransport({
+  level: 'verbose'
+}));
+
 export const runOnProject = async (projectDir: string) => {
+  log.verbose(`Starting ${projectDir}...`);
   const benchmarkConfigPath = join(projectDir, 'benchmark.config.js');
   const benchmarkConfigExists = existsSync(benchmarkConfigPath);
-  const { setupFiles = [], testMatch = join(projectDir, '**/*.test.js') }: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
+  const { setupFiles = [join(__dirname, 'babel')], testMatch = join(projectDir, '**/*.test.{js,jsx,ts,tsx}') }: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
   const expectedFaults = convertFileFaultDataToFaults(require(join(projectDir, 'expected-faults.json')));
 
   const projectOutput = {};
 
   for(const sbflModuleName of sbflAlgorithmModuleNames) {
+    log.verbose(`Running ${sbflModuleName} on ${projectDir}`);
     const sbflModuleFolderName = sbflModuleName.replace(/@/g, '').replace(/\/|\\/g, '-')
 
     const sbflFaultFilePath = join(projectDir, 'faults', sbflModuleFolderName, 'faults.json');
