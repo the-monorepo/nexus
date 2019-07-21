@@ -24,7 +24,7 @@ const runAndRecycleProcesses = (
   processCount: number,
   absoluteImportPaths: string[],
   hooks: TestHookOptions,
-  cwd?: string,
+  cwd: string = process.cwd(),
 ): Promise<TesterResults> => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
@@ -163,12 +163,6 @@ export const run = async ({
   // We pop the paths off the end of the list so the first path thing needs to be at the end
   directories.reverse();
 
-  const absoluteImportPaths = setupFiles.map(path =>
-    require.resolve(path, {
-      paths: [process.cwd()],
-    }),
-  );
-
   // TODO: Still need to add a scheduling algorithm
   const processCount = workers;
 
@@ -176,7 +170,7 @@ export const run = async ({
     tester,
     directories,
     processCount,
-    absoluteImportPaths,
+    setupFiles,
     hooks,
     cwd
   );
