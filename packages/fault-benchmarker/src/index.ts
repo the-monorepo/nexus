@@ -1,7 +1,8 @@
+import 'source-map-support/register';
 import { ScorelessFault, createPlugin } from '@fault/addon-sbfl';
-import { readFaultFile, convertFileFaultDataToFaults, recordFaults } from '@fault/record-faults';
-import { mkdirSync } from 'fs';
-import { writeFile, readdir } from 'mz/fs';
+import { convertFileFaultDataToFaults } from '@fault/record-faults';
+import { writeFile } from 'mz/fs';
+import { existsSync, exists } from 'fs';
 import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
 import * as flRunner from '@fault/runner';
 import { basename, join } from 'path';
@@ -38,32 +39,6 @@ export type BenchmarkData = {
   [algorithmName: string]: number;
 }
 
-export const measureFromFiles = async (
-  actualFaultFiles: { name: string, path: string }[],
-  expectedFaultFile: string,
-  fileOutputPath: string = './fault-benchmark.json',
-  coveragePath?: string,
-) => {
-  const expectedFaultFileData = await readFaultFile(expectedFaultFile);
-
-  const expectedFaults: ScorelessFault[] = convertFileFaultDataToFaults(expectedFaultFileData);
-
-  const output: BenchmarkData = {};
-  
-  const coverage = await readCoverageFile(coveragePath);
-  const totalExecutableStatements = getTotalExecutedStatements(coverage);
-
-  for(const faultFilePath of actualFaultFiles) {
-    const faultFileData = await readFaultFile(faultFilePath.path);
-    const faults = convertFileFaultDataToFaults(faultFileData);
-    const examScore = calculateExamScore(faults, expectedFaults, totalExecutableStatements);
-    output[faultFilePath.name] = examScore;
-  }
- 
-  mkdirSync(fileOutputPath, { recursive: true });
-  await writeFile(fileOutputPath, JSON.stringify(output), { encoding: 'utf8', flag: 'w+' });
-}
-
 export const getProjectPaths = async () => {
   return await globby('./projects', { onlyDirectories: true });
 }
@@ -81,11 +56,21 @@ type BenchmarkConfig = {
 };
 
 export const runOnProject = async (projectDir: string) => {
-  const { setupFiles = [], name, testMatch = join(projectDir, '**/*.test.{js,jsx,ts,tsx}') }: BenchmarkConfig = require(join(projectDir, 'benchmark.config.js'));
+  const benchmarkConfigPath = join(projectDir, 'benchmark.config.js');
+  const benchmarkConfigExists = existsSync(benchmarkConfigPath);
+  const { setupFiles = [], testMatch = join(projectDir, '**/*.test.js') }: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
+  const expectedFaults = convertFileFaultDataToFaults(require(join(projectDir, 'expected-faults.json')));
+
+  const projectOutput = {};
+
   for(const sbflModuleName of sbflAlgorithmModuleNames) {
+    const sbflModuleFolderName = sbflModuleName.replace(/@/g, '').replace(/\/|\\/g, '-')
+
+    const sbflFaultFilePath = join(projectDir, 'faults', sbflModuleFolderName, 'faults.json');
+
     const sbflAddon = createPlugin({
       scoringFn: require(sbflModuleName).default,
-      faultFilePath: join('.', 'results', sbflModuleName.replace(/@/g, '').replace(/\//g, '-'), name)
+      faultFilePath: sbflFaultFilePath
     });
 
     await flRunner.run({
@@ -95,23 +80,28 @@ export const runOnProject = async (projectDir: string) => {
         sbflAddon
       ],
       setupFiles,
-    });  
+      cwd: projectDir
+    });
+
+    const actualFaults = convertFileFaultDataToFaults(require(sbflFaultFilePath));
+
+    const coverage = await readCoverageFile(join(projectDir, 'coverage/coverage-final.json'));
+
+    const totalExecutableStatements = getTotalExecutedStatements(coverage);
+
+    const examScore = calculateExamScore(actualFaults, expectedFaults, totalExecutableStatements);
+
+    projectOutput[sbflModuleName] = examScore;
   }  
+
+  await writeFile(join(projectDir, 'fault-results.json'), JSON.stringify(projectOutput, undefined, 2));
 }
 
 export const run = async () => {
   const projectDirs = await getProjectPaths();
 
   for(const projectDir of projectDirs) {
-    await runOnProject(projectDir);
+    await runOnProject(join(__dirname, '..', projectDir));
   }
-
-  const filePaths: string[] = await readdir('');
-  const faultFileDataInfo = filePaths.map(filePath => ({
-    name: basename(filePath),
-    path: filePath
-  }));
-  
-  await measureFromFiles(faultFileDataInfo, expectedFaultFilePath, fileOutputPath);
 }
 run();
