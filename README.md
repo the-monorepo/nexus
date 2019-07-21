@@ -52,7 +52,7 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/addon-istanbul`](packages/fault-addon-istanbul/README.md) | Report istanbul coverage
 1.0.0-alpha.0 | [`@fault/addon-sbfl`](packages/fault-addon-sbfl/README.md) | A spectrum based localization addon
 1.0.0-alpha.0 | [`@fault/ast-localization`](packages/fault-ast-localization/README.md) | Fault AST localization
-1.0.0-alpha.0 | [`@fault/benchmark-exam`](packages/fault-benchmark-exam/README.md) | EXAM fault localization benchmark algorithm
+1.0.0-alpha.0 | [`@fault/benchmarker`](packages/fault-benchmarker/README.md) | Benchmarking library for measuring various fault localization/repair algorithms in Fault.js
 1.0.0-alpha.0 | [`@fault/chai`](packages/fault-chai/README.md) | A Chai plugin for Fault
 1.0.0-alpha.0 | [`@fault/istanbul-util`](packages/fault-istanbul-util/README.md) | Helper functions for use with istanbul
 1.0.0-alpha.0 | [`@fault/localization-util`](packages/fault-localization-util/README.md) | Utility package containing common fault localization methods
