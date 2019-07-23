@@ -42,7 +42,23 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
     }
   }
 
-  return faults;
+  return faults.sort((a, b) => {
+    if (a.score === b.score) {
+      return 0;
+    }
+    if (a.score === undefined || b.score === null) {
+      return 1;
+    }
+    if (a.score === null || b.score === undefined) {
+      return -1;
+    }
+    if (a.score < b.score) {
+      return -1;
+    }
+    if (a.score > b.score) {
+      return 1;
+    }
+  });
 };
 
 export const recordFaults = (filePath: string, faults: Fault[]) => {
