@@ -8,12 +8,13 @@ import {
   TesterResults,
 } from '@fault/types';
 import { runTest, stopWorker } from '@fault/messages';
+import { join } from 'path';
 import {
   TestHookOptions,
   PartialTestHookOptions,
   schema,
 } from '@fault/addon-hook-schema';
-import defaultReporter from './default-reporter';
+import * as defaultReporter from './default-reporter';
 import { cpus } from 'os';
 
 const addonEntryPath = require.resolve('./addon-entry');
@@ -140,7 +141,7 @@ const runAndRecycleProcesses = (
 export type RunOptions = {
   tester: string;
   testMatch: string | string[];
-  cwd?: string,
+  cwd?: string;
   setupFiles?: string[];
   addons?: PartialTestHookOptions[];
   reporters?: PartialTestHookOptions[];
@@ -151,9 +152,9 @@ export const run = async ({
   testMatch,
   setupFiles = [],
   addons = [],
-  reporters = [defaultReporter],
   workers = cpus().length,
-  cwd
+  cwd = process.cwd(),
+  reporters = [defaultReporter.createPlugin({ dir: join(cwd, 'coverage') })],
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -172,14 +173,12 @@ export const run = async ({
     processCount,
     setupFiles,
     hooks,
-    cwd
+    cwd,
   );
-  
+
   await hooks.on.complete(results);
 
-  if ([...results.testResults.values()].some(result => !result.passed)) {
-    process.exit(1);
-  }
+  return ![...results.testResults.values()].some(result => !result.passed);
 };
 
 export default run;

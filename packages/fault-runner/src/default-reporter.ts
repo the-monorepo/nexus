@@ -31,58 +31,63 @@ export const groupTestsByFilePath = (testResults: Iterable<TestResult>) => {
   return grouped;
 };
 
-const onComplete = async ({ testResults, duration }: TesterResults) => {
-  const testResultsArr: TestResult[] = [...testResults.values()];
-  const suiteResults = groupTestsByFilePath(testResultsArr);
-  testResultsArr.sort((a, b) => a.file.localeCompare(b.file));
+export const createPlugin = (contextOptions?) => {
+  const onComplete = async ({ testResults, duration }: TesterResults) => {
+    const testResultsArr: TestResult[] = [...testResults.values()];
+    const suiteResults = groupTestsByFilePath(testResultsArr);
+    testResultsArr.sort((a, b) => a.file.localeCompare(b.file));
 
-  for (const testResult of testResultsArr) {
-    if (testResult.passed) {
-      continue;
+    for (const testResult of testResultsArr) {
+      if (testResult.passed) {
+        continue;
+      }
+      console.log(chalk.bold(titleFromPath(testResult.titlePath)));
+      console.log(chalk.red(testResult.stack));
     }
-    console.log(chalk.bold(titleFromPath(testResult.titlePath)));
-    console.log(chalk.red(testResult.stack));
-  }
 
-  for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
-    const filePath = simplifyPath(absoluteFilePath);
+    for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
+      const filePath = simplifyPath(absoluteFilePath);
 
-    const fileName = basename(filePath);
-    const fileDir = dirname(filePath);
-    const formattedFilePath = join(fileDir, chalk.bold(fileName));
-    const passed = !suiteResult.some(result => !result.passed);
-    if (passed) {
-      console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}`);
-    } else {
-      console.log(`${chalk.reset.inverse.bold.red(' FAIL ')} ${formattedFilePath}`);
+      const fileName = basename(filePath);
+      const fileDir = dirname(filePath);
+      const formattedFilePath = join(fileDir, chalk.bold(fileName));
+      const passed = !suiteResult.some(result => !result.passed);
+      if (passed) {
+        console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}`);
+      } else {
+        console.log(`${chalk.reset.inverse.bold.red(' FAIL ')} ${formattedFilePath}`);
+      }
     }
-  }
 
-  report({ testResults });
+    report({ testResults }, contextOptions);
 
-  console.log();
-  const suiteCount = suiteResults.size;
-  const suitePassedCount = Array.from(suiteResults.entries()).filter(
-    ([filePath, results]) => !results.some(result => !result.passed),
-  ).length;
-  const suiteFailedCount = suiteCount - suitePassedCount;
-  reportPassFailCounts('Files:  ', suiteFailedCount, suitePassedCount, suiteCount);
+    console.log();
+    const suiteCount = suiteResults.size;
+    const suitePassedCount = Array.from(suiteResults.entries()).filter(
+      ([filePath, results]) => !results.some(result => !result.passed),
+    ).length;
+    const suiteFailedCount = suiteCount - suitePassedCount;
+    reportPassFailCounts('Files:  ', suiteFailedCount, suitePassedCount, suiteCount);
 
-  const passedCount = testResultsArr.filter(result => result.passed).length;
-  const totalCount = testResultsArr.length;
-  const failedCount = totalCount - passedCount;
-  reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
-  console.log(
-    chalk.bold('Time:   ') +
-      chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`),
-  );
-  //console.log(faults);
+    const passedCount = testResultsArr.filter(result => result.passed).length;
+    const totalCount = testResultsArr.length;
+    const failedCount = totalCount - passedCount;
+    reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
+    console.log(
+      chalk.bold('Time:   ') +
+        chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`),
+    );
+    //console.log(faults);
+  };
+
+  const plugins: PartialTestHookOptions = {
+    on: {
+      complete: onComplete,
+    },
+  };
+  return plugins;
 };
 
-const hooks: PartialTestHookOptions = {
-  on: {
-    complete: onComplete,
-  },
-};
+export const defaultPlugin = createPlugin();
 
-export default hooks;
+export default defaultPlugin;
