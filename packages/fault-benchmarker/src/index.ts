@@ -70,68 +70,68 @@ const log = logger().add(
   }),
 );
 
-export const runOnProject = async (projectDir: string) => {
-  log.verbose(`Starting ${projectDir}...`);
-  const benchmarkConfigPath = resolve(projectDir, 'benchmark.config.js');
-  const benchmarkConfigExists = existsSync(benchmarkConfigPath);
-  const {
-    setupFiles = [resolve(__dirname, 'babel')],
-    testMatch = resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}'),
-  }: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
-  const expectedFaults = convertFileFaultDataToFaults(
-    require(resolve(projectDir, 'expected-faults.json')),
-  );
-
-  const projectOutput = {};
-
-  for (const sbflModuleName of sbflAlgorithmModuleNames) {
-    log.verbose(`Running ${sbflModuleName} on ${projectDir}`);
-    const sbflModuleFolderName = sbflModuleName.replace(/@/g, '').replace(/\/|\\/g, '-');
-
-    const sbflFaultFilePath = resolve(
-      projectDir,
-      'faults',
-      sbflModuleFolderName,
-      'faults.json',
-    );
-
-    const sbflAddon = createPlugin({
-      scoringFn: require(sbflModuleName).default,
-      faultFilePath: sbflFaultFilePath,
-    });
-
-    await flRunner.run({
-      tester: '@fault/tester-mocha',
-      testMatch: testMatch,
-      addons: [sbflAddon],
-      setupFiles,
-      cwd: projectDir,
-    });
-
-    const actualFaults = convertFileFaultDataToFaults(require(sbflFaultFilePath));
-    const coverage = await readCoverageFile(
-      resolve(projectDir, 'coverage/coverage-final.json'),
-    );
-
-    const totalExecutableStatements = getTotalExecutedStatements(coverage);
-
-    const examScore = calculateExamScore(
-      projectDir, 
-      actualFaults,
-      expectedFaults,
-      totalExecutableStatements,
-    );
-
-    projectOutput[sbflModuleName] = examScore;
-  }
-  const faultResultsPath = resolve(projectDir, 'fault-results.json');
-
-  console.log(projectOutput);
-  await writeFile(faultResultsPath, JSON.stringify(projectOutput, undefined, 2));
-};
-
 export const run = async () => {
   const projectDirs = await getProjectPaths(process.argv.length <= 2 ? undefined : process.argv.slice(2));
+
+  const runOnProject = async (projectDir: string) => {
+    log.verbose(`Starting ${projectDir}...`);
+    const benchmarkConfigPath = resolve(projectDir, 'benchmark.config.js');
+    const benchmarkConfigExists = existsSync(benchmarkConfigPath);
+    const {
+      setupFiles = [resolve(__dirname, 'babel')],
+      testMatch = resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}'),
+    }: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
+    const expectedFaults = convertFileFaultDataToFaults(
+      require(resolve(projectDir, 'expected-faults.json')),
+    );
+  
+    const projectOutput = {};
+  
+    for (const sbflModuleName of sbflAlgorithmModuleNames) {
+      log.verbose(`Running ${sbflModuleName} on ${projectDir}`);
+      const sbflModuleFolderName = sbflModuleName.replace(/@/g, '').replace(/\/|\\/g, '-');
+  
+      const sbflFaultFilePath = resolve(
+        projectDir,
+        'faults',
+        sbflModuleFolderName,
+        'faults.json',
+      );
+  
+      const sbflAddon = createPlugin({
+        scoringFn: require(sbflModuleName).default,
+        faultFilePath: sbflFaultFilePath,
+      });
+  
+      await flRunner.run({
+        tester: '@fault/tester-mocha',
+        testMatch: testMatch,
+        addons: [sbflAddon],
+        setupFiles,
+        cwd: projectDir,
+      });
+  
+      const actualFaults = convertFileFaultDataToFaults(require(sbflFaultFilePath));
+      const coverage = await readCoverageFile(
+        resolve(projectDir, 'coverage/coverage-final.json'),
+      );
+  
+      const totalExecutableStatements = getTotalExecutedStatements(coverage);
+  
+      const examScore = calculateExamScore(
+        projectDir, 
+        actualFaults,
+        expectedFaults,
+        totalExecutableStatements,
+      );
+  
+      projectOutput[sbflModuleName] = examScore;
+    }
+    const faultResultsPath = resolve(projectDir, 'fault-results.json');
+  
+    console.log(projectOutput);
+    await writeFile(faultResultsPath, JSON.stringify(projectOutput, undefined, 2));
+  };
 
   for (const projectDir of projectDirs) {
     await runOnProject(resolve(__dirname, '..', projectDir));
