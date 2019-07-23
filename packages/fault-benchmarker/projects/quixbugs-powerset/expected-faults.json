@@ -1,0 +1,14 @@
+{
+  ".\\index.test.js": {
+    ".\\index.js": [
+      {
+        "location": {
+          "start": {
+            "line": 5,
+            "column": 37
+          }
+        }
+      }
+    ]
+  }
+}
