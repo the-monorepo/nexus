@@ -320,17 +320,21 @@ gulp.task('check-types-staged', checkTypesStaged);
 
 async function testNoBuild() {
   const runner = require('@fault/runner');
-  await runner.run({
+  const passed = await runner.run({
     tester: '@fault/tester-mocha',
     testMatch: [
       './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
       '!./**/node_modules/**',
       '!./coverage',
       '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
+      '!./packages/fault-benchmarker/projects/**',
     ],
     setupFiles: ['./test/require/babel.js', './test/helpers/globals.js'],
     addons: [require('@fault/addon-sbfl').default(require('@fault/sbfl-dstar').default)],
   });
+  if (!passed) {
+    process.exit(1);
+  }
 }
 
 gulp.task('test', testNoBuild);

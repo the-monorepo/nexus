@@ -3,7 +3,7 @@ import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { passFailStatsFromTests } from '@fault/localization-util';
 import { recordFaults } from '@fault/record-faults';
-import dStar from '@fault/sbfl-dstar'; 
+import dStar from '@fault/sbfl-dstar';
 
 import { relative } from 'path';
 import { readFile } from 'mz/fs';
@@ -31,7 +31,7 @@ export type ScorelessFault = {
   location: ExpressionLocation;
   testedPath: string;
   sourcePath: string;
-}
+};
 
 export type Fault = {
   score: number | null;
@@ -96,7 +96,10 @@ export const gatherResults = (testResults: Iterable<TestResult>) => {
 };
 
 type InternalScoringFn = (expressionPassFailStats: Stats) => number | null;
-type ExternalScoringFn = (expressionPassFailStats: Stats, totalPassFailStats: Stats) => number | null;
+type ExternalScoringFn = (
+  expressionPassFailStats: Stats,
+  totalPassFailStats: Stats,
+) => number | null;
 export type ScoringFn = ExternalScoringFn;
 export const localizeFaults = (
   groupedTestResults: Iterable<TestResult>,
@@ -160,33 +163,40 @@ const reportFaults = async (faults: Fault[], scoringFn: ExternalScoringFn) => {
 };
 
 export type PluginOptions = {
-  scoringFn?: ScoringFn,
+  scoringFn?: ScoringFn;
   faultFilePath?: string | null | true | false;
-}
+};
 
-export const createPlugin = (
-  { scoringFn = dStar, faultFilePath }: PluginOptions
-): PartialTestHookOptions => {
+export const createPlugin = ({
+  scoringFn = dStar,
+  faultFilePath,
+}: PluginOptions): PartialTestHookOptions => {
   return {
     on: {
       complete: async (results: TesterResults) => {
         const testResults: TestResult[] = [...results.testResults.values()];
         const fileResults = gatherResults(testResults);
         const totalPassFailStats = passFailStatsFromTests(testResults);
-        const faults = localizeFaults(testResults, fileResults, (expressionPassFailStats) => scoringFn(expressionPassFailStats, totalPassFailStats));      
+        const faults = localizeFaults(testResults, fileResults, expressionPassFailStats =>
+          scoringFn(expressionPassFailStats, totalPassFailStats),
+        );
         await reportFaults(faults, scoringFn);
-        if (faultFilePath !== null && faultFilePath !== undefined && faultFilePath !== false) {
+        if (
+          faultFilePath !== null &&
+          faultFilePath !== undefined &&
+          faultFilePath !== false
+        ) {
           const resolvedFilePath = (() => {
-            if(faultFilePath === true) {
-              return './faults/faults.json'
+            if (faultFilePath === true) {
+              return './faults/faults.json';
             } else {
-              return faultFilePath
+              return faultFilePath;
             }
           })();
           await recordFaults(resolvedFilePath, faults);
         }
-      }
-    }
+      },
+    },
   };
 };
 
