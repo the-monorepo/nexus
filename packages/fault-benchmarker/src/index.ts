@@ -46,8 +46,8 @@ export type BenchmarkData = {
   [algorithmName: string]: number;
 };
 
-export const getProjectPaths = async () => {
-  return await globby('./projects/*', { onlyDirectories: true, expandDirectories: false });
+export const getProjectPaths = async (path: string | string[] = './projects/*') => {
+  return await globby(path, { onlyDirectories: true, expandDirectories: false });
 };
 
 const sbflAlgorithmModuleNames = [
@@ -131,7 +131,7 @@ export const runOnProject = async (projectDir: string) => {
 };
 
 export const run = async () => {
-  const projectDirs = await getProjectPaths();
+  const projectDirs = await getProjectPaths(process.argv.length <= 2 ? undefined : process.argv.slice(2));
 
   for (const projectDir of projectDirs) {
     await runOnProject(resolve(__dirname, '..', projectDir));
