@@ -1,9 +1,6 @@
 import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 import Mocha from 'mocha';
-import {
-  submitTestResult,
-  submitAssertionResult,
-} from '@fault/messages';
+import { submitTestResult, submitAssertionResult } from '@fault/messages';
 import { AssertionFailureData } from '@fault/types';
 import { createHash } from 'crypto';
 import { AssertionError } from '@fault/mocha-assertion-error';

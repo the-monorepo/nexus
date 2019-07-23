@@ -3,7 +3,9 @@ export const run = async () => {
     const [nodePath, filePath, modulePath, importPathJson] = process.argv;
     const importPaths = JSON.parse(importPathJson);
     for (const importPath of importPaths) {
-      const requiredModule = require(require.resolve(importPath, { paths: [process.cwd()] }));
+      const requiredModule = require(require.resolve(importPath, {
+        paths: [process.cwd()],
+      }));
       if (requiredModule !== undefined) {
         if (typeof requiredModule === 'function') {
           await Promise.resolve(requiredModule());
