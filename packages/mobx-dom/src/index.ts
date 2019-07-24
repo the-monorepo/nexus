@@ -382,7 +382,7 @@ const mapBlueprint: GenericBlueprint<
   },
 );
 
-class DynamicSection {
+class DynamicSection implements Field {
   private readonly state: (RenderResult<unknown> | undefined)[];
   constructor(private readonly el: Node, private readonly before: Node, length: number) {
     this.state = new Array(length).fill(undefined);
@@ -396,24 +396,25 @@ class DynamicSection {
     }
   }
 
+  init(fieldValues, v) {
+    return this.update(fieldValues, v);
+  }
+
   update(fieldValues, v) {
-    const returnedV = v + this.state.length;
-    v = returnedV;
     const container = this.el;
-    const lastFieldIndex = this.state.length - 1;
     let before = this.before;
-    let f = lastFieldIndex;
+    let f = 0;
     do {
-      v--;
       const fieldValue = fieldValues[v];
       const state = this.state[f];
       this.state[f] = renderValue(fieldValue, state, container, before);
       if (state !== undefined) {
         before = state.data.first;
       }
-      f--;
-    } while (f >= 0);
-    return returnedV;
+      v++;
+      f++;
+    } while (f < this.state.length);
+    return v;
   }
 }
 export const dynamicSection = (el: Node, before: Node, length: number) => {
