@@ -8,10 +8,17 @@ Version | Package | Description
 --- | --- | ---
 1.4.3 | [`@pshaw/convict-util`](packages/convict-util/README.md) | A helper package for reading configs in using convict
 1.1.3 | [`@pshaw/resume-template`](packages/resume-template/README.md) | A template you can use to generate resumes
+1.0.0-alpha.0 | [`babel-plugin-transform-mobx-jsx`](packages/babel-plugin-transform-mobx-jsx/README.md) | Convert JSX into MobXElement renderables
 2.2.3 | [`hook-schema`](packages/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](packages/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 4.0.0 | [`replace-functions`](packages/replace-functions/README.md) | Mock all functions inside an array or object literal
 4.0.0 | [`sinon-stub-functions`](packages/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
+
+### UI
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.0 | [`mobx-dom`](packages/mobx-dom/README.md) | Create interactive UIs with seamless state management using MobX
+1.0.0-alpha.0 | [`mobx-map`](packages/mobx-map/README.md) | Utility for mapping one MobX observable array to another
 
 ### Build tooling
 Version | Package | Description
@@ -61,8 +68,10 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/mutation-localization`](packages/fault-mutation-localization/README.md) | Fault AST localization
 1.0.0-alpha.0 | [`@fault/record-faults`](packages/fault-record-faults/README.md) | Record faults
 1.0.0-alpha.0 | [`@fault/runner`](packages/fault-runner/README.md) | The official Fault.js test runner
+1.0.0-alpha.0 | [`@fault/sbfl-barinel`](packages/fault-sbfl-barinel/README.md) | Barinel algorithm for use with @fault/addon-sbfl
 1.0.0-alpha.0 | [`@fault/sbfl-dstar`](packages/fault-sbfl-dstar/README.md) | DStar algorithm for use with @fault/addon-sbfl
 1.0.0-alpha.0 | [`@fault/sbfl-ochiai`](packages/fault-sbfl-ochiai/README.md) | Ochiai algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.0 | [`@fault/sbfl-op2`](packages/fault-sbfl-op2/README.md) | Op2 algorithm for use with @fault/addon-sbfl
 1.0.0-alpha.0 | [`@fault/sbfl-tarantula`](packages/fault-sbfl-tarantula/README.md) | Tarantula algorithm for use with @fault/addon-sbfl
 1.0.0-alpha.0 | [`@fault/tester-mocha`](packages/fault-tester-mocha/README.md) | Use Mocha tests in the fl test runner
 1.0.0-alpha.0 | [`@fault/types`](packages/fault-types/README.md) | Package containing all type values for Fault.js

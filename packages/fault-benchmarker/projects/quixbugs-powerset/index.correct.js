@@ -4,7 +4,7 @@ export function powerset(arr) {
     const restSubsets = powerset(rest);
     return restSubsets.concat(restSubsets.map(subset => [first].concat(subset)));
   } else {
-      return [[]];
+    return [[]];
   }
 }
 /*
@@ -22,4 +22,3 @@ A list of lists, each representing a different subset of arr. The empty set is a
 Example:
 >>> powerset(['a', 'b', 'c'])
 [[], ['c'], ['b'], ['b', 'c'], ['a'], ['a', 'c'], ['a', 'b'], ['a', 'b', 'c']]*/
-

@@ -19,13 +19,28 @@ module.exports = api => {
           },
         },
       ],
-      '@babel/preset-typescript',
+      [
+        '@babel/preset-typescript',
+        {
+          jsxPragma: 'mbx',
+        },
+      ],
     ],
     plugins,
     overrides: [
       {
-        test: ['./packages/my-resume', './packages/resume-template'],
-        plugins,
+        test: [
+          './packages/my-resume',
+          './packages/resume-template',
+          './packages/mobx-dom',
+        ],
+        plugins: plugins.concat([
+          '@babel/plugin-syntax-jsx',
+          'babel-plugin-transform-mobx-jsx',
+          ['@babel/plugin-proposal-decorators', { legacy: true }],
+          ['@babel/plugin-proposal-class-properties', { loose: true }],
+          '@babel/plugin-transform-strict-mode',
+        ]),
         presets: [
           '@babel/preset-react',
           [
@@ -36,6 +51,7 @@ module.exports = api => {
             },
           ],
         ],
+        presets: [['@babel/preset-env', {}]],
       },
     ],
   };

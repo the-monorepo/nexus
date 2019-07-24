@@ -116,7 +116,9 @@ export function mergeHooks<H extends HookSchema>(
     return merged as any;
   } else {
     return Object.keys(value).reduce((merged, key) => {
-      merged[key] = mergeHooks(filteredHooksList.map(hooks => hooks[key]), value[key] as any);
+      merged[key] = mergeHooks(filteredHooksList.map(hooks => hooks[key]), value[
+        key
+      ] as any);
       return merged;
     }, {}) as Hooks<H>;
   }
