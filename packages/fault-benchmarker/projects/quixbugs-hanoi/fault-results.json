@@ -1,5 +1,5 @@
 {
-  "@fault/sbfl-dstar": null,
-  "@fault/sbfl-ochiai": null,
-  "@fault/sbfl-tarantula": null
+  "@fault/sbfl-dstar": 0.5,
+  "@fault/sbfl-ochiai": 0.9,
+  "@fault/sbfl-tarantula": 0.9
 }
