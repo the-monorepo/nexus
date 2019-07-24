@@ -126,6 +126,7 @@ async function clean() {
   await del(globBuildOutputFromPackagesDirName(packagesDirName));
   await del(globBuildOutputFromPackagesDirName(buildPackagesDirName));
   await del(['./README.md', './{build-packages,packages}/*/README.md']);
+  await del(['./packages/fault-benchmarker/projects/*/{faults,coverage}']);
 }
 gulp.task('clean', clean);
 
