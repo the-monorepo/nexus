@@ -1,14 +1,16 @@
 export const hanoi = (height, start, end) => {
-  const steps = []
+  const steps = [];
   if (height > 0) {
-    const helper = [1, 2, 3].filter(x => x !== start).filter(x => x !== end).shift();
+    const helper = [1, 2, 3]
+      .filter(x => x !== start)
+      .filter(x => x !== end)
+      .shift();
     steps.push(...hanoi(height - 1, start, helper));
     steps.push([start, helper]);
     steps.push(...hanoi(height - 1, helper, end));
   }
   return steps;
-}
-
+};
 
 /*
 Towers of Hanoi

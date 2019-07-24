@@ -4,7 +4,9 @@ export const barinel = (codeElementStats: Stats) => {
     return null;
   }
 
-  return 1 - (codeElementStats.passed / (codeElementStats.passed + codeElementStats.failed));
-}
+  return (
+    1 - codeElementStats.passed / (codeElementStats.passed + codeElementStats.failed)
+  );
+};
 
 export default barinel;

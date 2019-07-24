@@ -17,11 +17,13 @@ import { barinel } from '@fault/sbfl-barinel';
 import { op2 } from '@fault/sbfl-op2';
 
 export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
-  return `${resolve(projectDir, fault.sourcePath)}:${fault.location.start.line}:${fault.location.start.column}`;
+  return `${resolve(projectDir, fault.sourcePath)}:${fault.location.start.line}:${
+    fault.location.start.column
+  }`;
 };
 
 export const calculateExamScore = (
-  projectDir: string, 
+  projectDir: string,
   actualFaults: ScorelessFault[],
   expectedFaults: ScorelessFault[],
   totalExecutableStatements: number,
@@ -82,17 +84,14 @@ const log = logger().add(
 );
 
 const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
-  const faultPath = resolve(
-    projectDir,
-    'faults',
-    sbflModuleFolderName,
-    'faults.json',
-  );
+  const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName, 'faults.json');
   return faultPath;
-}
+};
 
 export const run = async () => {
-  const projectDirs = await getProjectPaths(process.argv.length <= 2 ? undefined : process.argv.slice(2));
+  const projectDirs = await getProjectPaths(
+    process.argv.length <= 2 ? undefined : process.argv.slice(2),
+  );
 
   const runOnProject = async (projectDir: string) => {
     log.verbose(`Starting ${projectDir}...`);
@@ -105,12 +104,12 @@ export const run = async () => {
     const expectedFaults = convertFileFaultDataToFaults(
       require(resolve(projectDir, 'expected-faults.json')),
     );
-  
+
     const projectOutput = {};
-  
+
     log.verbose(`Running SBFL algorithms on ${projectDir}`);
-    
-    const sbflAddons = sbflAlgorithms.map(({ scoringFn, name }) => {  
+
+    const sbflAddons = sbflAlgorithms.map(({ scoringFn, name }) => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
         faultFilePath: faultFilePath(projectDir, name),
@@ -130,23 +129,25 @@ export const run = async () => {
     const coverage = await readCoverageFile(
       resolve(projectDir, 'coverage/coverage-final.json'),
     );
-  
+
     for (const { name } of sbflAlgorithms) {
-      const actualFaults = convertFileFaultDataToFaults(require(faultFilePath(projectDir, name)));
-  
+      const actualFaults = convertFileFaultDataToFaults(
+        require(faultFilePath(projectDir, name)),
+      );
+
       const totalExecutableStatements = getTotalExecutedStatements(coverage);
-  
+
       const examScore = calculateExamScore(
-        projectDir, 
+        projectDir,
         actualFaults,
         expectedFaults,
         totalExecutableStatements,
       );
-  
+
       projectOutput[name] = examScore;
     }
     const faultResultsPath = resolve(projectDir, 'fault-results.json');
-  
+
     console.log(projectOutput);
     await writeFile(faultResultsPath, JSON.stringify(projectOutput, undefined, 2));
   };
