@@ -33,6 +33,7 @@ module.exports = api => {
           './packages/my-resume',
           './packages/resume-template',
           './packages/mobx-dom',
+          './packages/fault-benchmarker/frontend'
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
