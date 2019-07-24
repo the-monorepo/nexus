@@ -14,14 +14,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.json$/,
-        use: [
-          {
-            loader: 'json-loader',
-          },
-        ],
-      },
-      {
         test: /\.svg$/,
         use: [
           {
