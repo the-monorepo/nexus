@@ -17,9 +17,9 @@ module.exports = {
         test: /\.json$/,
         use: [
           {
-            loader: 'json-loader'
-          }
-        ]
+            loader: 'json-loader',
+          },
+        ],
       },
       {
         test: /\.svg$/,
@@ -44,7 +44,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
-              cwd: join(__dirname, '../../..'),
+              cwd: join(__dirname, '../..'),
             },
           },
         ],

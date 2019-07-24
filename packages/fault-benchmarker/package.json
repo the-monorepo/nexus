@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node ./lib/index.js",
     "results": "node ./lib/results.js",
-    "frontend": "webpack"
+    "report": "webpack-dev-server --watch --mode development"
   },
   "private": false,
   "files": [
