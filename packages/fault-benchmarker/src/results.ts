@@ -5,49 +5,56 @@ import { resolve, basename } from 'path';
 type ProjectResult = {
   name: string;
   results: {
-    [s: string]: number
-  }
-}
+    [s: string]: number;
+  };
+};
 
 export const run = async () => {
-  const projectDirs = await globby('./projects/*', { expandDirectories: false, onlyDirectories: true }); 
+  const projectDirs = await globby('./projects/*', {
+    expandDirectories: false,
+    onlyDirectories: true,
+  });
   const projectResults: ProjectResult[] = [];
-  for(const projectDir of projectDirs) {
+  for (const projectDir of projectDirs) {
     const packageJson = require(resolve(projectDir, 'package.json'));
     projectResults.push({
       name: packageJson.name,
-      results: require(resolve(projectDir, 'fault-results.json'))
+      results: require(resolve(projectDir, 'fault-results.json')),
     });
   }
 
   const algorithmNames: Set<string> = new Set();
-  for(const projectResult of projectResults) {
-    for(const algorithmName of Object.keys(projectResult.results)) {
+  for (const projectResult of projectResults) {
+    for (const algorithmName of Object.keys(projectResult.results)) {
       algorithmNames.add(algorithmName);
     }
   }
 
-  const initialAverageResult = [...algorithmNames].reduce((obj, algorithmName) =>{
+  const initialAverageResult = [...algorithmNames].reduce((obj, algorithmName) => {
     obj[algorithmName] = 0;
     return obj;
   }, {});
 
   const averageResults = projectResults.reduce((currentSum, projectResult) => {
-    for(const algorithmName of Object.keys(projectResult.results)) {
+    for (const algorithmName of Object.keys(projectResult.results)) {
       currentSum[algorithmName] += projectResult.results[algorithmName];
     }
     return currentSum;
   }, initialAverageResult);
 
-  for(const algorithmName of Object.keys(averageResults)) {
+  for (const algorithmName of Object.keys(averageResults)) {
     averageResults[algorithmName] /= projectResults.length;
   }
 
   const finalResults = {
     average: averageResults,
-    projects: projectResults
-  }
+    projects: projectResults,
+  };
 
-  await writeFile('./benchmark-results.json', JSON.stringify(finalResults, undefined, 2), 'utf8');
-}
+  await writeFile(
+    './benchmark-results.json',
+    JSON.stringify(finalResults, undefined, 2),
+    'utf8',
+  );
+};
 run().catch(console.error);

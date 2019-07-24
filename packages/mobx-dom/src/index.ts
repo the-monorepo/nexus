@@ -1,203 +1,193 @@
-let nextBlueprintId = 0;
-const generateBlueprintUid = () => nextBlueprintId++;
+let nextid = 0;
+const generateBlueprintUid = () => nextid++;
 
-type CloneFn<V, R extends StatelessCloneInfo<any> | CloneInfo<any, any>> = (
+export type MountFn<V, R extends StatelessCloneInfo<any> | RenderData<any, any>> = (
   v: V,
   container: Node,
   before: Node | null,
 ) => R;
-type Id = number | any;
-interface StatelessCloneInfo<N extends Node> {
-  firstNode: N;
-  persistent: undefined;
+export type Id = number | any;
+export interface StatelessCloneInfo<N extends Node> {
+  first: N;
+  state: undefined;
 }
-interface CloneInfo<N extends Node, C> {
-  firstNode: N;
-  persistent: C;
-}
-interface StatelessComponentBlueprint<V, N extends Node> {
+export type Unmount<C> = (cloneValue: C) => any;
+export type UnmountHolder<C> = {
+  unmount: Unmount<C>;
+};
+export interface StatelessComponentBlueprint<V, N extends Node, D = Unmount<any> | undefined> {
   id: Id;
-  clone: CloneFn<V, StatelessCloneInfo<N>>;
-  set: undefined;
+  mount: MountFn<V, StatelessCloneInfo<N>>;
+  update: undefined;
+  unmount: D;
 }
-interface StatefulComponentBlueprint<C, V, N extends Node> {
+export interface StatefulComponentBlueprint<C, V, N extends Node, D = Unmount<any> | undefined> {
   id: Id;
-  clone: CloneFn<V, CloneInfo<N, C>>;
-  set: SetFn<C, V>;
+  mount: MountFn<V, RenderData<C, N>>;
+  update: SetFn<C, V>;
+  unmount: D;
 }
-type GenericBlueprint<C, V, N extends Node = Node> =
-  | StatelessComponentBlueprint<V, N>
-  | StatefulComponentBlueprint<C, V, N>;
-type ComponentBlueprint<C, V, N extends Node> = GenericBlueprint<C, V, N>;
+export type GenericBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
+  | StatelessComponentBlueprint<V, N, D>
+  | StatefulComponentBlueprint<C, V, N, D>;
+export type ComponentBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
+  | GenericBlueprint<C, V, N, D>;
 
-interface CreateBlueprintFunction {
+export interface CreateBlueprintFunction {
   <V, N extends Node>(
-    clone: CloneFn<V, StatelessCloneInfo<N>>,
-  ): StatelessComponentBlueprint<V, N>;
+    clone: MountFn<V, StatelessCloneInfo<N>>,
+  ): StatelessComponentBlueprint<V, N> & UnmountHolder<undefined>;
   <V, C, N extends Node>(
-    clone: CloneFn<V, CloneInfo<N, C>>,
-    set: SetFn<C, V>,
-  ): StatefulComponentBlueprint<C, V, N>;
+    clone: MountFn<V, RenderData<C, N>>,
+    update: SetFn<C, V>,
+  ): StatefulComponentBlueprint<C, V, N> & UnmountHolder<undefined>;
+  <V, C, N extends Node>(
+    clone: MountFn<V, RenderData<C, N>>,
+    update: undefined,
+    unmount: Unmount<C>
+  ): StatelessCloneInfo<N> & UnmountHolder<C>;
+  <V, C, N extends Node>(
+    clone: MountFn<V, RenderData<C, N>>,
+    update: SetFn<C, V>,
+    unmount: Unmount<C>
+  ): StatefulComponentBlueprint<C, V, N> & UnmountHolder<C>;
 }
 
-interface CloneInfoFunction {
-  <N extends Node>(firstNode: N): StatelessCloneInfo<N>;
-  <N extends Node, C>(firstNode: N, persistent: C): CloneInfo<N, C>;
+export interface CloneInfoFunction {
+  <N extends Node>(first: N): StatelessCloneInfo<N>;
+  <N extends Node, C>(first: N, state: C): RenderData<C, N>;
 }
-const cloneInfo: CloneInfoFunction = <C, N extends Node | null>(
-  firstNode: N,
-  persistent?: C,
+export const renderData: CloneInfoFunction = <C, N extends Node | null>(
+  first: N,
+  state?: C,
 ) => ({
-  firstNode,
-  persistent,
+  first,
+  state,
 });
 
-const createBlueprint = ((clone, set) => ({
+export const createBlueprint = ((mount, update, unmount) => ({
   id: generateBlueprintUid(),
-  clone,
-  set,
-})) as CreateBlueprintFunction; // TODO: Try remove the as any at some point
+  mount,
+  update,
+  unmount
+})) as CreateBlueprintFunction;
 
-const ATTRIBUTE_TYPE = 0;
-const PROPERTY_TYPE = 1;
-const EVENT_TYPE = 2;
-const SPREAD_TYPE = 3;
-const CHILD_TYPE = 4;
-const DYNAMIC_SECTION_TYPE = 5;
+abstract class CachedField implements Field {
+  protected state = null;
+  protected abstract set(value);
+  
+  init(fieldValues, v) {
+    const value = fieldValues[v++];
+    this.set(value);
+    this.state = value;
+    return v;
+  }
 
-interface AttributeField {
-  type: typeof ATTRIBUTE_TYPE;
-  el: Element;
-  key: string;
-  oldValue?: any;
+  update(fieldValues, v,) {
+    const value = fieldValues[v++];
+    if (this.state !== value) {
+      this.set(value);
+      this.state = value;
+    }
+    return v;
+  }
 }
 
-export const attribute = <E extends Element = any>(
-  el: E,
+class AttributeField extends CachedField {
+  constructor(
+    private readonly el: Element,
+    private readonly key: string,
+  ) {
+    super();
+  }
+
+  set(value) {
+    setAttribute(this.el, this.key, value);
+  }
+}
+
+export const attribute = (
+  el: Element,
   key: string,
 ): AttributeField => {
-  return {
-    type: ATTRIBUTE_TYPE,
-    el,
-    key,
-    oldValue: undefined,
-  };
+  return new AttributeField(el, key);
 };
 
-type PropertySetter = (node: Element, value: any) => any;
-interface PropertyField {
-  type: typeof PROPERTY_TYPE;
-  el: Element;
-  setter: PropertySetter;
-  oldValue?: any;
+export type PropertySetter = (node: Element, value: any) => any;
+class PropertyField extends CachedField {
+  constructor(
+    private readonly el: Element,
+    private readonly setter: PropertySetter,
+  ) {
+    super();
+  }
+  set(value) {
+    this.setter(this.el, value);
+  }
 }
 export const property = <E extends Element = any>(
   el: E,
   setter: PropertySetter,
 ): PropertyField => {
-  return {
-    type: PROPERTY_TYPE,
-    el,
-    setter,
-    oldValue: undefined,
-  };
+  return new PropertyField(el, setter);
 };
 
-interface EventField {
-  type: typeof EVENT_TYPE;
-  el: Element;
-  key: string;
-  oldValue?: any;
+class EventField extends CachedField {
+  constructor(
+    private readonly el: Element,
+    private readonly key: string,
+  ) {
+    super();
+  }
+  set(value) {
+    setEvent(this.el, this.key, this.state, value);
+  }
 }
 export const event = <E extends Element = any>(el: E, key: string): EventField => {
-  return {
-    type: EVENT_TYPE,
-    el,
-    key,
-    oldValue: undefined,
-  };
+  return new EventField(el, key);
 };
 
-type Field =
-  | AttributeField
-  | PropertyField
-  | EventField
-  | ChildrenField<unknown, unknown>
-  | DynamicSectionField
-  | SpreadField;
-type ElementField = AttributeField | PropertyField | EventField | SpreadField;
-type TextBlueprintInput = string | boolean | number;
-const textBlueprint = createBlueprint(
-  (value: TextBlueprintInput, container, before) => {
-    const node = document.createTextNode(value.toString());
-    container.insertBefore(node, before);
-    return cloneInfo(node, node);
-  },
-  (textNode, value) => {
-    textNode.data = value.toString();
-  },
-);
-
-type MapItemData = RenderResult<any>;
-
-interface MapBlueprintState {
-  oldResults: (MapItemData | null)[];
-}
-
-const renderResult = <C, N extends Node>(
-  blueprintId: number,
-  firstNode: N,
-  persistent: C,
-): RenderResult<C, N> => ({
-  blueprintId,
-  firstNode,
-  persistent,
+export type Field = {
+  init: (fieldValues: ReadonlyArray<any>, v: number) => number,
+  update: (fieldValues: ReadonlyArray<any>, v: number) => number,
+};
+export type TextBlueprintInput = string | boolean | number;
+const textBlueprint = createBlueprint((value: TextBlueprintInput, container, before) => {
+  const node = document.createTextNode(value.toString());
+  container.insertBefore(node, before);
+  return renderData(node, {node, value});
+}, (state, value) => {
+  if (state.state.value !== value) {
+    state.state.node.data = value.toString();
+  }
 });
 
-const setInitialFieldValues = (
-  fields: readonly Field[],
-  fieldValues: readonly unknown[],
-) => {
-  const fieldLength = fields.length;
-  let v = 0;
-  for (let f = 0; f < fieldLength; f++) {
-    const field = fields[f];
-    switch (field.type) {
-      case EVENT_TYPE:
-      case ATTRIBUTE_TYPE:
-      case PROPERTY_TYPE:
-      case SPREAD_TYPE: {
-        const value = fieldValues[v++];
-        setElementField(field, value);
-        break;
-      }
-      case CHILD_TYPE: {
-        const value = fieldValues[v++];
-        field.oldValue = setDynamicSectionChild(
-          value,
-          field.oldValue,
-          field.el,
-          field.before,
-        );
-        break;
-      }
-      case DYNAMIC_SECTION_TYPE: {
-        v += field.oldValues.length;
-        setDynamicSection(field, fieldValues, v);
-        break;
-      }
-    }
-  }
-};
+export interface MapBlueprintState<C, N extends Node = Node> {
+  results: (RenderResult<C, N> | null)[];
+}
 
-const renderComponentResultNoSet = (
-  renderInfo: ComponentResult<any, any, any>,
+export const renderResult = <C, N extends Node>(
+  id: number,
+  data: RenderData<any, N>,
+  unmount?: Unmount<C>
+): RenderResult<C, N> => ({
+  id,
+  data,
+  unmount,
+});
+
+export const renderComponentResultNoSet = <C, V, N extends Node>(
+  renderInfo: ComponentResult<C, V, N>,
   container: Node,
   before: Node | null,
-): RenderResult<any> => {
+): RenderResult<C, N> => {
   const blueprint = renderInfo.blueprint;
-  const { persistent, firstNode } = blueprint.clone(renderInfo.value, container, before);
-  return renderResult(blueprint.id, firstNode, persistent);
+  const data = blueprint.mount(
+    renderInfo.value,
+    container,
+    before,
+  );
+  return renderResult(blueprint.id, data, blueprint.unmount);
 };
 
 export const componentResult = <C, V, N extends Node>(
@@ -208,17 +198,22 @@ export const componentResult = <C, V, N extends Node>(
   value,
 });
 
-const replaceOldResult = <C, V, N extends Node>(
+export const replaceOldResult = <C, V, N extends Node>(
   renderInfo: ComponentResult<C, V, N>,
   container: Node,
   oldResult: RenderResult<C, N>,
   before: Node | null,
 ) => {
-  removeUntilBefore(container, oldResult.firstNode, before);
+  if (oldResult.unmount !== undefined) {
+    oldResult.unmount(oldResult.data.state);
+  }
+  removeUntilBefore(container, oldResult.data.first, before);
   return renderComponentResultNoSet(renderInfo, container, before);
-};
+}
 
-const componentResultFromValue = (value: any) => {
+export const componentResultFromValue = (
+  value: any,
+) => {
   const valueType = typeof value;
   if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
     return componentResult(textBlueprint, value);
@@ -229,80 +224,137 @@ const componentResultFromValue = (value: any) => {
   }
 };
 
-const trackedNodes = new WeakMap<Node, RenderResult<any>>();
+const trackedNodes = new WeakMap<Node, RenderResult<any> | undefined>();
 export const render = (value: any, container: Node) => {
-  if (value == null) {
-    removeUntilBefore(container, container.firstChild, null);
-    trackedNodes.delete(container);
-  } else {
-    const componentResult = componentResultFromValue(value);
-    const oldResult = trackedNodes.get(container);
-    if (oldResult === undefined) {
-      trackedNodes.set(
-        container,
-        renderComponentResultNoSet(componentResult, container, null),
-      );
-    } else if (isReusableRenderResult(componentResult, oldResult)) {
-      if (componentResult.blueprint.set !== undefined) {
-        componentResult.blueprint.set(
-          oldResult.persistent,
-          componentResult.value,
-          container,
-          null,
-        );
-      }
-    } else {
-      trackedNodes.set(
-        container,
-        replaceOldResult(componentResult, container, oldResult, null),
-      );
-    }
-  }
+  trackedNodes.set(container, renderValue(value, trackedNodes.get(container), container, null));
 };
 
-const renderMapItemData = (
-  oldResult: MapItemData,
-  newValue: ComponentResult<any, any, any>,
+export const updateComponentResultsArray = <C, V, N extends Node>(
+  newComponentResults: ComponentResult<C, V, N>[],
+  results: (RenderResult<C, N> | null)[],
+  oldHead: number,
+  newHead: number,
+  oldLength: number,
+  newLength: number,
   container: Node,
   before: Node | null,
-) => {
-  if (isReusableRenderResult(newValue, oldResult)) {
-    if (newValue.blueprint.set !== undefined) {
-      newValue.blueprint.set(oldResult.persistent, newValue.value, container, before);
-    }
-    return oldResult;
-  } else {
-    return replaceOldResult(newValue, container, oldResult, before);
-  }
-};
+): RenderResult<C, N>[] => {
 
-const mapBlueprint: GenericBlueprint<MapBlueprintState, Iterable<any>> = createBlueprint(
-  (
-    initialValues: Iterable<any>,
-    container,
-    before,
-  ): CloneInfo<Node, MapBlueprintState> => {
-    let oldResults: MapItemData[] = [];
+  const newRenderResults: RenderResult<C, N>[] = new Array(newLength);
+
+  // Head and tail pointers to old parts and new values
+  let oldTail = oldLength - 1;
+  let newTail = newLength - 1;
+
+  while (oldHead <= oldTail && newHead <= newTail) {
+    if (results[oldHead] === null) {
+      // `null` means old part at head has already been used
+      // below; skip
+      oldHead++;
+    } else if (results[oldTail] === null) {
+      // `null` means old part at tail has already been used
+      // below; skip
+      oldTail--;
+    } else if (
+      results[oldHead]!.id ===
+      newComponentResults[newHead].blueprint.id
+    ) {
+      // Old head matches new head; update in place
+      newRenderResults[newHead] = renderOrReuseComponentResult(
+        newComponentResults[newHead],
+        results[oldHead]!,
+        container,
+        oldHead + 1 >= oldLength ? before : results[oldHead + 1]!.data.first,
+      )!;
+      oldHead++;
+      newHead++;
+    } else if (
+      results[oldTail]!.id ===
+      newComponentResults[newTail].blueprint.id
+    ) {
+      // Old tail matches new tail; update in place
+      newRenderResults[newTail] = renderOrReuseComponentResult(
+        newComponentResults[newTail],
+        results[oldTail]!,
+        container,
+        oldTail + 1 >= oldLength ? before : results[oldTail + 1]!.data.first,
+      )!;
+      oldTail--;
+      newTail--;
+    } else if (
+      results[oldHead]!.id ===
+      newComponentResults[newTail].blueprint.id
+    ) {
+      // Old head matches new tail; update and move to new tail
+      newRenderResults[newTail] = renderOrReuseComponentResult(
+        newComponentResults[newTail],
+        results[oldHead]!,
+        container,
+        newTail + 1 < newLength ? newRenderResults[newTail + 1].data.first : before,
+      )!;
+      newTail--;
+      oldHead++;
+    } else if (
+      results[oldTail]!.id ===
+      newComponentResults[newHead].blueprint.id
+    ) {
+      // Old tail matches new head; update and move to new head
+      newRenderResults[newTail] = renderOrReuseComponentResult(
+        newComponentResults[newHead],
+        results[oldTail]!,
+        container,
+        results[oldHead]!.data.first,
+      )!;
+      newHead++;
+      oldTail++;
+    } else {
+      const oldNextMarker =
+        oldHead + 1 < oldLength ? results[oldHead + 1]!.data.first : before;
+      removeUntilBefore(container, results[oldHead]!.data.first, oldNextMarker);
+      oldHead++;
+    }
+  }
+
+  if (oldHead <= oldTail) {
+    const firstToRemoveMarker = results[oldHead]!.data.first;
+    const lastToRemoveMarker =
+      newTail + 1 < newLength ? newRenderResults[newTail + 1]!.data.first : before;
+    removeUntilBefore(container, firstToRemoveMarker, lastToRemoveMarker);
+  } else {
+    // Add parts for any remaining new values
+    const insertAdditionalPartsBefore =
+      newTail + 1 < newLength ? newRenderResults[newTail + 1].data.first : before;
+    let i = newHead;
+    while (i <= newTail) {
+      newRenderResults[i] = renderComponentResultNoSet(
+        newComponentResults[i],
+        container,
+        insertAdditionalPartsBefore,
+      );
+      i++;
+    }
+  }
+  return newRenderResults;
+}
+
+const mapBlueprint: GenericBlueprint<MapBlueprintState<unknown>, Iterable<any>> = createBlueprint(
+  (initialValues: Iterable<any>, container, before): RenderData<MapBlueprintState<unknown>> => {
+    let results: RenderResult<unknown>[] = [];
     let j = 0;
     const marker = document.createComment('');
     container.insertBefore(marker, before);
     for (const itemData of initialValues) {
       if (itemData != null) {
         const componentResult = componentResultFromValue(itemData);
-        oldResults[j++] = renderComponentResultNoSet(componentResult, container, before);
+        results[j++] = renderComponentResultNoSet(componentResult, container, before);
       }
     }
-    const state = { oldResults };
-    return cloneInfo(marker, state);
+    const state = { results };
+    return renderData(marker, state);
   },
-  (
-    state: MapBlueprintState,
-    newInput: Iterable<any>,
-    container: Node,
-    before: Node | null,
-  ) => {
-    const oldResults = state.oldResults;
-    const newComponentResults: ComponentResult<any, any, any>[] = [];
+  (state: RenderData<MapBlueprintState<unknown>>, newInput: Iterable<any>, container: Node, before: Node | null) => {
+    const results = state.state.results;
+    const newComponentResults: ComponentResult<unknown, unknown, Node>[] = [];
     let j = 0;
     for (const itemValue of newInput) {
       if (itemValue != null) {
@@ -311,144 +363,97 @@ const mapBlueprint: GenericBlueprint<MapBlueprintState, Iterable<any>> = createB
       }
     }
 
-    const oldLength = oldResults.length;
+    const oldLength = results.length;
     const newLength = newComponentResults.length;
-
-    const newRenderResults: MapItemData[] = new Array(newLength);
 
     // Head and tail pointers to old parts and new values
     let oldHead = 0;
-    let oldTail = oldLength - 1;
-
     let newHead = 0;
-    let newTail = newLength - 1;
-
-    while (oldHead <= oldTail && newHead <= newTail) {
-      if (oldResults[oldHead] === null) {
-        // `null` means old part at head has already been used
-        // below; skip
-        oldHead++;
-      } else if (oldResults[oldTail] === null) {
-        // `null` means old part at tail has already been used
-        // below; skip
-        oldTail--;
-      } else if (
-        oldResults[oldHead]!.blueprintId === newComponentResults[newHead].blueprint.id
-      ) {
-        // Old head matches new head; update in place
-        newRenderResults[newHead] = renderMapItemData(
-          oldResults[oldHead]!,
-          newComponentResults[newHead],
-          container,
-          oldHead + 1 >= oldLength ? before : oldResults[oldHead + 1]!.firstNode,
-        );
-        oldHead++;
-        newHead++;
-      } else if (
-        oldResults[oldTail]!.blueprintId === newComponentResults[newTail].blueprint.id
-      ) {
-        // Old tail matches new tail; update in place
-        newRenderResults[newTail] = renderMapItemData(
-          oldResults[oldTail]!,
-          newComponentResults[newTail],
-          container,
-          oldTail + 1 >= oldLength ? before : oldResults[oldTail + 1]!.firstNode,
-        );
-        oldTail--;
-        newTail--;
-      } else if (
-        oldResults[oldHead]!.blueprintId === newComponentResults[newTail].blueprint.id
-      ) {
-        // Old head matches new tail; update and move to new tail
-        newRenderResults[newTail] = renderMapItemData(
-          oldResults[oldHead]!,
-          newComponentResults[newTail],
-          container,
-          newTail + 1 < newLength ? newRenderResults[newTail + 1].firstNode : before,
-        );
-        newTail--;
-        oldHead++;
-      } else if (
-        oldResults[oldTail]!.blueprintId === newComponentResults[newHead].blueprint.id
-      ) {
-        // Old tail matches new head; update and move to new head
-        newRenderResults[newTail] = renderMapItemData(
-          oldResults[oldTail]!,
-          newComponentResults[newHead],
-          container,
-          oldResults[oldHead]!.firstNode,
-        );
-        newHead++;
-        oldTail++;
-      } else {
-        const oldNextMarker =
-          oldHead + 1 < oldLength ? oldResults[oldHead + 1]!.firstNode : before;
-        removeUntilBefore(container, oldResults[oldHead]!.firstNode, oldNextMarker);
-        oldHead++;
-      }
-    }
-
-    if (oldHead <= oldTail) {
-      const firstToRemoveMarker = oldResults[oldHead]!.firstNode;
-      const lastToRemoveMarker =
-        newTail + 1 < newLength ? newRenderResults[newTail + 1]!.firstNode : before;
-      removeUntilBefore(container, firstToRemoveMarker, lastToRemoveMarker);
-    } else {
-      // Add parts for any remaining new values
-      const insertAdditionalPartsBefore =
-        newTail + 1 < newLength ? newRenderResults[newTail + 1].firstNode : before;
-      let i = newHead;
-      while (i <= newTail) {
-        const result = renderComponentResultNoSet(
-          newComponentResults[i],
-          container,
-          insertAdditionalPartsBefore,
-        );
-        newRenderResults[i] = result;
-        i++;
-      }
-    }
-    state.oldResults = newRenderResults;
+    state.state.results = updateComponentResultsArray(newComponentResults, results, oldHead, newHead, oldLength, newLength, container, before);
   },
 );
 
-interface DynamicSectionField {
-  type: typeof DYNAMIC_SECTION_TYPE;
-  el: Node;
-  before: Node | null;
-  oldValues: readonly ({ firstNode: Node; result: RenderResult<any> | undefined })[];
+class DynamicSection {
+  private readonly state: ( RenderResult<unknown> | undefined )[];
+  constructor(
+    private readonly el: Node,
+    private readonly before: Node,
+    length: number,
+  ) {
+    this.state = new Array(length).fill(undefined);
+  }
+
+  unmount() {
+    for(const result of this.state) {
+      if (result !== undefined && result.unmount !== undefined) {
+        result.unmount(result.data.state);
+      }
+    }
+  }
+
+  update(fieldValues, v) {
+    const returnedV = v + this.state.length;
+    v = returnedV;
+    const container = this.el;
+    const lastFieldIndex = this.state.length - 1;
+    let before = this.before;
+    let f = lastFieldIndex;
+    do {
+      v--;
+      const fieldValue = fieldValues[v];
+      const state = this.state[f];
+      this.state[f] = renderValue(
+        fieldValue,
+        state,
+        container,
+        before
+      );
+      if (state !== undefined) {
+        before = state.data.first;
+      }
+      f--;
+    } while(f >= 0);    
+    return returnedV;
+  }
 }
 export const dynamicSection = (
   el: Node,
   before: Node,
   length: number,
-): DynamicSectionField => {
-  return {
-    type: DYNAMIC_SECTION_TYPE,
-    el,
-    before,
-    oldValues: new Array(length).fill(null).map(() => ({
-      firstNode: before,
-      result: undefined,
-    })),
-  };
+) => {
+  return new DynamicSection(el, before, length);
 };
 
-interface ChildrenField<C, V> {
-  type: typeof CHILD_TYPE;
-  el: Node;
-  oldValue: RenderResult<C> | undefined;
-  before: Node | null;
+class ChildrenField implements Field {
+  private state: RenderResult<any, any> | undefined = undefined;
+  constructor(
+    private readonly el: Node,
+    private readonly before: Node | null,
+  ) {  }
+
+  init(fieldValues, v) {
+    return this.update(fieldValues, v);
+  }
+
+  update(fieldValues, v) {
+    const value = fieldValues[v++];
+    this.state = renderValue(value, this.state, this.el, this.before);
+    return v;
+  }
+  
+  unmount() {
+    if (this.state !== undefined && this.state.unmount !== undefined) {
+      this.state.unmount(this.state.data.state);
+    }
+  }
 }
-export const children = <C, V>(el: Node, before: Node | null): ChildrenField<C, V> => {
-  return {
-    type: CHILD_TYPE,
-    el,
-    before,
-    oldValue: undefined,
-  };
+export const children = <C, V>(
+  el: Node,
+  before: Node | null,
+): ChildrenField => {
+  return new ChildrenField(el, before);
 };
-type FieldFactory = <E extends Node = any>(root: E) => readonly Field[];
+type FieldFactory = <E extends Node = any>(root: E) => ReadonlyArray<Field>;
 
 export const staticFragmentBlueprint = (html: string) => {
   const template = document.createElement('template');
@@ -457,8 +462,8 @@ export const staticFragmentBlueprint = (html: string) => {
   return createBlueprint((nothing, container, before) => {
     const cloned = document.importNode(rootElement, true);
     container.insertBefore(cloned, before);
-    const firstNode = cloned.firstChild as Node;
-    return cloneInfo(firstNode);
+    const first = cloned.firstChild as Node;
+    return renderData(first);
   });
 };
 
@@ -469,11 +474,29 @@ export const staticElementBlueprint = (html: string) => {
   return createBlueprint((nothing, container, before) => {
     const cloned = document.importNode(rootElement, true);
     container.insertBefore(cloned, before);
-    return cloneInfo(cloned);
+    return renderData(cloned);
   });
 };
 
-const setDynamicSectionChild = (
+export const renderOrReuseComponentResult = <C, V, N extends Node>(
+  componentResult: ComponentResult<C, V, N>,
+  oldResult: RenderResult<C, N> | undefined,
+  container: Node,
+  before: Node | null,
+): RenderResult<C, N> => {
+  if (oldResult === undefined) {
+    return renderComponentResultNoSet(componentResult, container, before);
+  } else if (isReusableRenderResult(componentResult, oldResult)) {
+    if (componentResult.blueprint.update !== undefined) {
+      componentResult.blueprint.update(oldResult.data, componentResult.value, container, before);
+    }
+    return oldResult;
+  } else {
+    return replaceOldResult(componentResult, container, oldResult, before);
+  }
+}
+
+export const renderValue = (
   value: unknown,
   oldResult: RenderResult<unknown> | undefined,
   container: Node,
@@ -481,141 +504,108 @@ const setDynamicSectionChild = (
 ): RenderResult<unknown> | undefined => {
   if (value == null) {
     if (oldResult !== undefined) {
-      removeUntilBefore(container, oldResult.firstNode, before);
+      removeUntilBefore(container, oldResult.data.first, before);
     }
-    return undefined;
+    return undefined;    
   }
   const componentResult = componentResultFromValue(value);
-  if (oldResult === undefined) {
-    return renderComponentResultNoSet(componentResult, container, before);
-  } else if (isReusableRenderResult(componentResult, oldResult)) {
-    if (componentResult.blueprint.set !== undefined) {
-      componentResult.blueprint.set(
-        oldResult.persistent,
-        componentResult.value,
-        container,
-        before,
-      );
-    }
-    return oldResult;
-  } else {
-    return replaceOldResult(componentResult, container, oldResult, before);
-  }
+  return renderOrReuseComponentResult(componentResult, oldResult, container, before);
 };
 
-const setDynamicSection = (
-  field: DynamicSectionField,
-  fieldValues: readonly any[],
-  v: number,
-) => {
-  const container = field.el;
-  const lastFieldIndex = field.oldValues.length - 1;
-  let before = field.before;
-  let f = lastFieldIndex;
-  do {
-    const fieldValue = fieldValues[v];
-    const oldValue = field.oldValues[f];
-    oldValue.result = setDynamicSectionChild(
-      fieldValue,
-      oldValue.result,
-      container,
-      before,
-    );
-    if (oldValue.result !== undefined) {
-      before = oldValue.result.firstNode;
-    }
-    v--;
-    f--;
-  } while (f >= 0);
-};
-
-const domFieldSetter = (fields: readonly Field[], fieldValues: readonly any[]) => {
-  const fieldLength = fields.length;
+const initialDomFieldSetter = (fields: ReadonlyArray<Field>, fieldValues: ReadonlyArray<any>) => {
   let v = 0;
-  for (let f = 0; f < fieldLength; f++) {
-    const field = fields[f];
-    switch (field.type) {
-      case EVENT_TYPE:
-      case ATTRIBUTE_TYPE:
-      case PROPERTY_TYPE:
-      case SPREAD_TYPE: {
-        const value = fieldValues[v++];
-        if (field.oldValue !== value) {
-          setElementField(field, value);
-        }
-        break;
-      }
-      case CHILD_TYPE: {
-        const value = fieldValues[v++];
-        field.oldValue = setDynamicSectionChild(
-          value,
-          field.oldValue,
-          field.el,
-          field.before,
-        );
-        break;
-      }
-      case DYNAMIC_SECTION_TYPE: {
-        v += field.oldValues.length;
-        setDynamicSection(field, fieldValues, v);
-        break;
-      }
-    }
+  for(let f = 0; f < fields.length; f++) {
+    v = fields[f].init(fieldValues, v);
   }
 };
 
-export const elementBlueprint = (html: string, fieldFactory: FieldFactory) => {
+const domFieldSetter = (result: RenderData<ReadonlyArray<Field>>, fieldValues: ReadonlyArray<any>) => {
+  let v = 0;
+  const fields = result.state;
+  for(let f = 0; f < fields.length; f++) {
+    v = fields[f].update(fieldValues, v);
+  }
+};
+
+const domFieldUnmount = (fields) => {
+  for(const field of fields) {
+    if (field.unmount !== undefined) {
+      field.unmount();      
+    }
+  }
+}
+
+export const elementBlueprint = (
+  html: string,
+  fieldFactory: FieldFactory,
+) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement = template.content.firstChild as Element;
-  return createBlueprint((fieldValues: readonly any[], container, before) => {
+  return createBlueprint((fieldValues: ReadonlyArray<any>, container, before) => {
     const cloned = document.importNode(rootElement, true);
     container.insertBefore(cloned, before);
     const fields = fieldFactory(cloned);
-    setInitialFieldValues(fields, fieldValues);
-    return cloneInfo(cloned, fields);
-  }, domFieldSetter);
+    initialDomFieldSetter(fields, fieldValues);
+    return renderData(cloned, fields);
+  }, domFieldSetter, domFieldUnmount)
 };
 
-export const fragmentBlueprint = (html: string, fieldFactory: FieldFactory) => {
+export const fragmentBlueprint = (
+  html: string,
+  fieldFactory: FieldFactory,
+) => {
   const template = document.createElement('template');
   template.innerHTML = html;
   const rootElement = template.content;
-  return createBlueprint((fieldValues: readonly any[], container, before) => {
+  return createBlueprint((fieldValues: ReadonlyArray<any>, container, before) => {
     const cloned = document.importNode(rootElement, true);
-    const firstNode = cloned.firstChild as Node;
+    const first = cloned.firstChild as Node;
     container.insertBefore(cloned, before);
     const fields = fieldFactory(container);
-    setInitialFieldValues(fields, fieldValues);
-    return cloneInfo(firstNode, fields);
-  }, domFieldSetter);
+    initialDomFieldSetter(fields, fieldValues);
+    return renderData(first, fields);
+  }, domFieldSetter, domFieldUnmount);
 };
 
-interface SpreadField {
-  type: typeof SPREAD_TYPE;
-  el: Element;
-  oldValue: { [s: string]: any };
+class SpreadField implements Field {
+  private readonly state: { [s: string]: any } = {};
+  constructor(
+    private readonly el: Element,
+  ) {
+    
+  }
+
+  init(fieldValues, v) {
+    return this.update(fieldValues, v);
+  }
+
+  update(fieldValues, v) {
+    const value = fieldValues[v++];
+    applySpread(this.el, this.state, value);
+    return v;
+  }
 }
 export const spread = (el: Element) => {
-  return {
-    type: SPREAD_TYPE,
-    el,
-    oldValue: {},
-  };
+  return new SpreadField(el);
 };
 
-interface ComponentResult<C, V, N extends Node> {
+export interface ComponentResult<C, V, N extends Node = Node> {
   blueprint: ComponentBlueprint<C, V, N>;
   value: V;
 }
 
-interface RenderResult<C, N extends Node = Node> {
-  blueprintId: Id;
-  firstNode: N;
-  persistent: C;
+export type RenderData<C, N extends Node = Node> = {
+  first: N;
+  state: C;
+};
+export interface RenderResult<C, N extends Node = Node> {
+  id: Id;
+  unmount?: Unmount<C>;
+  data: RenderData<C, N>
 }
 
-const removeUntilBefore = (
+export const removeUntilBefore = (
   container: Node,
   startElement: Node | null,
   stopElement: Node | null,
@@ -627,7 +617,7 @@ const removeUntilBefore = (
   }
 };
 
-const moveUntilBefore = (
+export const moveUntilBefore = (
   newContainer: Node,
   startElement: Node | null,
   stopElement: Node | null,
@@ -658,8 +648,8 @@ const removeEvent = (el: Element, key: string, eventObject) => {
   }
 };
 
-const setEvent = (el: Element, key: string, oldValue, newValue) => {
-  removeEvent(el, key, oldValue);
+const setEvent = (el: Element, key: string, state, newValue) => {
+  removeEvent(el, key, state);
   if (newValue != null) {
     if (typeof newValue === 'function') {
       el.addEventListener(key, newValue);
@@ -671,13 +661,12 @@ const setEvent = (el: Element, key: string, oldValue, newValue) => {
 
 const EVENT_PREFIX_REGEX = /^\$\$/;
 const PROPERTY_PREFIX_REGEX = /^\$/;
-const fieldInfo = (
-  type: typeof EVENT_TYPE | typeof PROPERTY_TYPE | typeof ATTRIBUTE_TYPE,
-  key: string,
-) => ({
-  type,
-  key,
-});
+const EVENT_TYPE = 0;
+const PROPERTY_TYPE = 1;
+const ATTRIBUTE_TYPE = 2;
+const fieldInfo = (type: typeof EVENT_TYPE | typeof PROPERTY_TYPE | typeof ATTRIBUTE_TYPE, key: string) => ({
+  type, key
+})
 const fieldInfoFromKey = (key: string) => {
   if (key.match(EVENT_PREFIX_REGEX)) {
     return fieldInfo(EVENT_TYPE, key.replace(EVENT_PREFIX_REGEX, ''));
@@ -688,11 +677,11 @@ const fieldInfoFromKey = (key: string) => {
   }
 };
 
-const applySpread = (el: Element, oldValue, newValue) => {
+const applySpread = (el: Element, state, newValue) => {
   const newKeys = new Set();
   for (const [prefixedKey, value] of Object.entries(newValue)) {
     newKeys.add(prefixedKey);
-    if (oldValue[prefixedKey] !== value) {
+    if (state[prefixedKey] !== value) {
       const { type, key } = fieldInfoFromKey(prefixedKey);
       switch (type) {
         case ATTRIBUTE_TYPE:
@@ -702,12 +691,12 @@ const applySpread = (el: Element, oldValue, newValue) => {
           el[key] = value;
           break;
         case EVENT_TYPE:
-          setEvent(el, key, oldValue, value);
+          setEvent(el, key, state, value);
           break;
       }
     }
   }
-  for (const prefixedKey in oldValue) {
+  for (const prefixedKey in state) {
     if (newKeys.has(prefixedKey)) {
       continue;
     }
@@ -726,31 +715,10 @@ const applySpread = (el: Element, oldValue, newValue) => {
   }
 };
 
-const setElementField = (field: ElementField, newValue: any) => {
-  switch (field.type) {
-    case SPREAD_TYPE:
-      if (newValue == null) {
-        newValue = {};
-      }
-      applySpread(field.el, field.oldValue, newValue);
-      break;
-    case ATTRIBUTE_TYPE:
-      setAttribute(field.el, field.key, newValue);
-      break;
-    case PROPERTY_TYPE:
-      field.setter(field.el, newValue);
-      break;
-    case EVENT_TYPE:
-      setEvent(field.el, field.key, field.oldValue, newValue);
-      break;
-  }
-  field.oldValue = newValue;
-};
-
 export type KeyFn<T> = (item: T, index: number) => unknown;
 export type MapFn<T, R> = (item: T, index: number) => R;
 export type SetFn<C, V> = (
-  cloneValue: C,
+  cloneValue: RenderData<C, Node>,
   value: V,
   container: Node,
   before: Node | null,
@@ -760,7 +728,7 @@ const isReusableRenderResult = (
   componentResult: ComponentResult<any, any, any>,
   renderResult: RenderResult<any>,
 ) => {
-  return renderResult.blueprintId === componentResult.blueprint.id;
+  return renderResult.id === componentResult.blueprint.id;
 };
 
 export type ItemBlueprint<T> = (item: T, index: number) => unknown;
@@ -783,24 +751,6 @@ interface RepeatBlueprintInput<V, C, R, N extends Node = Node> {
   recycle: boolean;
 }
 
-const renderRepeatItem = <C, R, N extends Node>(
-  oldResult: RenderResult<C, N>,
-  newResult: ComponentResult<C, R, N>,
-  container: Node,
-  before: Node | null,
-) => {
-  if (isReusableRenderResult(newResult, oldResult)) {
-    if (newResult.blueprint.set !== undefined) {
-      newResult.blueprint.set(oldResult.persistent, newResult.value, container, before);
-    }
-    return oldResult;
-  } else {
-    removeUntilBefore(container, oldResult.firstNode, before);
-    const renderResult = renderComponentResultNoSet(newResult, container, before);
-    return renderResult;
-  }
-};
-
 const movePart = (
   oldResult: RenderResult<any, any>,
   newResult: ComponentResult<any, any, any>,
@@ -808,16 +758,15 @@ const movePart = (
   oldNextMarker: Node | null,
   before: Node | null,
 ) => {
+
   if (isReusableRenderResult(newResult, oldResult)) {
-    moveUntilBefore(container, oldResult.firstNode, oldNextMarker, before);
-    if (newResult.blueprint.set !== undefined) {
-      newResult.blueprint.set(oldResult.persistent, newResult.value, container, before);
+    moveUntilBefore(container, oldResult.data.first, oldNextMarker, before);
+    if (newResult.blueprint.update !== undefined) {
+      newResult.blueprint.update(oldResult.data.state, newResult.value, container, before);
     }
     return oldResult;
   } else {
-    removeUntilBefore(container, oldResult.firstNode, oldNextMarker);
-    const renderResult = renderComponentResultNoSet(newResult, container, before);
-    return renderResult;
+    return replaceOldResult(newResult, container, oldResult, before);
   }
 };
 
@@ -825,23 +774,26 @@ const canReuseRemovedPart = (
   oldKeyToIndexMap: Map<any, any>,
   newComponentResults: ComponentResult<any, any, Node>[],
   newKeys: any[],
-  oldResults: (RenderResult<any, any> | null)[],
+  results: (RenderResult<any, any> | null)[],
   newIndex: number,
   oldIndex: number,
 ) => {
   return (
     !oldKeyToIndexMap.has(newKeys[newIndex]) &&
-    isReusableRenderResult(newComponentResults[newIndex], oldResults[oldIndex]!)
+    isReusableRenderResult(
+      newComponentResults[newIndex],
+      results[oldIndex]!,
+    )
   );
 };
 
 interface RepeatBlueprintCache<C, N extends Node> {
-  oldResults: (RenderResult<C, N> | null)[];
+  results: (RenderResult<C, N> | null)[];
   keys: any[];
 }
-const repeatBlueprint = createBlueprint(
+export const repeatBlueprint = createBlueprint(
   (initialInput: RepeatBlueprintInput<any, any, any>, initialContainer, before) => {
-    const oldResults: RenderResult<any, any>[] = [];
+    const results: RenderResult<any, any>[] = [];
     const keys: any[] = [];
 
     let i = 0;
@@ -849,7 +801,7 @@ const repeatBlueprint = createBlueprint(
     const marker = document.createComment('');
     initialContainer.insertBefore(marker, before);
     for (const itemData of initialInput.values) {
-      if (itemData != null) {
+      if(itemData != null) {
         const componentResult = componentResultFromValue(initialInput.mapFn(itemData, i));
         const key = initialInput.keyFn(itemData, i);
         const result = renderComponentResultNoSet(
@@ -858,21 +810,21 @@ const repeatBlueprint = createBlueprint(
           before,
         );
         keys[j] = key;
-        oldResults[j] = result;
+        results[j] = result;
         j++;
       }
       i++;
     }
-    const state: RepeatBlueprintCache<any, any> = { oldResults, keys };
-    return cloneInfo(marker, state);
+    const state: RepeatBlueprintCache<any, any> = { results, keys };
+    return renderData(marker, state);
   },
   (
-    state: RepeatBlueprintCache<any, any>,
+    state: RenderData<RepeatBlueprintCache<any, any>>,
     newInput: RepeatBlueprintInput<any, any, any, any>,
     container: Node,
     before: Node | null,
   ) => {
-    const { oldResults, keys } = state;
+    const {results, keys} = state.state;
     const newComponentResults: ComponentResult<any, any, Node>[] = [];
     const newKeys: any[] = [];
     let i = 0;
@@ -888,7 +840,7 @@ const repeatBlueprint = createBlueprint(
       i++;
     }
 
-    const oldLength = oldResults.length;
+    const oldLength = results.length;
     const newLength = newComponentResults.length;
 
     const newRenderResults: RenderResult<any, any>[] = new Array(newLength);
@@ -908,34 +860,34 @@ const repeatBlueprint = createBlueprint(
     let newTail = newLength - 1;
 
     while (oldHead <= oldTail && newHead <= newTail) {
-      if (oldResults[oldHead] === null) {
+      if (results[oldHead] === null) {
         // `null` means old part at head has already been used
         // below; skip
         oldHead++;
-      } else if (oldResults[oldTail] === null) {
+      } else if (results[oldTail] === null) {
         // `null` means old part at tail has already been used
         // below; skip
         oldTail--;
       } else if (keys[oldHead] === newKeys[newHead]) {
         const nextOldHead = oldHead + 1;
         // Old head matches new head; update in place
-        newRenderResults[newHead] = renderRepeatItem(
-          oldResults[oldHead]!,
+        newRenderResults[newHead] = renderOrReuseComponentResult(
           newComponentResults[newHead],
+          results[oldHead]!,
           container,
-          nextOldHead >= oldLength ? before : oldResults[nextOldHead]!.firstNode,
-        );
+          nextOldHead >= oldLength ? before : results[nextOldHead]!.data.first,
+        )!;
         oldHead = nextOldHead;
         newHead++;
       } else if (keys[oldTail] === newKeys[newTail]) {
         const nextOldTail = oldTail + 1;
         // Old tail matches new tail; update in place
-        newRenderResults[newTail] = renderRepeatItem(
-          oldResults[oldTail]!,
+        newRenderResults[newTail] = renderOrReuseComponentResult(
           newComponentResults[newTail],
+          results[oldTail]!,
           container,
-          nextOldTail >= oldLength ? before : oldResults[nextOldTail]!.firstNode,
-        );
+          nextOldTail >= oldLength ? before : results[nextOldTail]!.data.first,
+        )!;
         oldTail--;
         newTail--;
       } else if (keys[oldHead] === newKeys[newTail]) {
@@ -943,11 +895,11 @@ const repeatBlueprint = createBlueprint(
         const nextOldHead = oldHead + 1;
         const nextNewTail = newTail + 1;
         newRenderResults[newTail] = movePart(
-          oldResults[oldHead]!,
+          results[oldHead]!,
           newComponentResults[newTail],
           container,
-          oldResults[nextOldHead]!.firstNode,
-          nextNewTail < newLength ? newRenderResults[nextNewTail].firstNode : before,
+          results[nextOldHead]!.data.first,
+          nextNewTail < newLength ? newRenderResults[nextNewTail].data.first : before,
         );
         oldHead = nextOldHead;
         newTail--;
@@ -955,11 +907,11 @@ const repeatBlueprint = createBlueprint(
         const nextNewTail = newTail + 1;
         // Old tail matches new head; update and move to new head
         newRenderResults[newHead] = movePart(
-          oldResults[oldTail]!,
+          results[oldTail]!,
           newComponentResults[newHead],
           container,
-          nextNewTail < newLength ? newRenderResults[nextNewTail]!.firstNode : before,
-          oldResults[oldHead]!.firstNode,
+          nextNewTail < newLength ? newRenderResults[nextNewTail]!.data.first : before,
+          results[oldHead]!.data.first,
         );
         oldTail--;
         newHead++;
@@ -968,7 +920,7 @@ const repeatBlueprint = createBlueprint(
           // Lazily generate key-to-index maps, used for removals &
           // moves below
           newKeyToIndexMap = generateMap(newComponentResults, newHead, newTail);
-          oldKeyToIndexMap = generateMap(oldResults, oldHead, oldTail);
+          oldKeyToIndexMap = generateMap(results, oldHead, oldTail);
         }
         if (!newKeyToIndexMap.has(keys[oldHead])) {
           /**
@@ -985,54 +937,54 @@ const repeatBlueprint = createBlueprint(
            */
           const nextOldHead = oldHead + 1;
           const oldNextMarker =
-            nextOldHead < oldLength ? oldResults[nextOldHead]!.firstNode : before;
+            nextOldHead < oldLength ? results[nextOldHead]!.data.first : before;
           if (
             canReuseRemovedPart(
               oldKeyToIndexMap,
               newComponentResults,
               newKeys,
-              oldResults,
+              results,
               newHead,
-              oldHead,
+              oldHead
             )
           ) {
             // The new head and old head don't exist in each other's lists but they share the same blueprint; reuse
-            newRenderResults[newHead] = renderRepeatItem(
-              oldResults[oldHead]!,
+            newRenderResults[newHead] = renderOrReuseComponentResult(
               newComponentResults[newHead],
+              results[oldHead]!,
               container,
               oldNextMarker,
-            );
+            )!;
             newHead++;
           } else {
             // Old head is no longer in new list; remove
-            removeUntilBefore(container, oldResults[oldHead]!.firstNode, oldNextMarker);
+            removeUntilBefore(container, results[oldHead]!.data.first, oldNextMarker);
           }
           oldHead++;
         } else if (!newKeyToIndexMap.has(keys[oldTail])) {
           const oldNextMarker =
-            newTail < newLength ? newRenderResults[newTail].firstNode : before;
+            newTail < newLength ? newRenderResults[newTail].data.first : before;
           if (
             canReuseRemovedPart(
               oldKeyToIndexMap,
               newComponentResults,
               newKeys,
-              oldResults,
+              results,
               newTail,
               oldTail,
             )
           ) {
             // The new tail and old tail don't exist in each other's lists but they share the same blueprint; reuse
-            newRenderResults[newTail] = renderRepeatItem(
-              oldResults[oldTail]!,
+            newRenderResults[newTail] = renderOrReuseComponentResult(
               newComponentResults[newTail],
+              results[oldTail]!,
               container,
               oldNextMarker,
-            );
+            )!;
             newTail--;
           } else {
             // Old tail is no longer in new list; remove
-            removeUntilBefore(container, oldResults[oldTail]!.firstNode, oldNextMarker);
+            removeUntilBefore(container, results[oldTail]!.data.first, oldNextMarker);
           }
           oldTail--;
         } else {
@@ -1044,18 +996,18 @@ const repeatBlueprint = createBlueprint(
             newRenderResults[newHead] = renderComponentResultNoSet(
               newComponentResults[newHead],
               container,
-              oldHead < oldLength ? oldResults[oldHead]!.firstNode : before,
+              oldHead < oldLength ? results[oldHead]!.data.first : before,
             );
           } else {
             const nextOldIndex = oldIndex + 1;
             newRenderResults[newHead] = movePart(
-              oldResults[oldIndex]!,
+              results[oldIndex]!,
               newComponentResults[newHead],
               container,
-              nextOldIndex < oldLength ? oldResults[nextOldIndex]!.firstNode : before,
-              oldResults[oldHead]!.firstNode,
+              nextOldIndex < oldLength ? results[nextOldIndex]!.data.first : before,
+              results[oldHead]!.data.first,
             );
-            oldResults[oldIndex] = null;
+            results[oldIndex] = null;
           }
           newHead++;
         }
@@ -1064,14 +1016,14 @@ const repeatBlueprint = createBlueprint(
 
     const nextNewTail = newTail + 1;
     if (oldHead <= oldTail) {
-      const firstToRemoveMarker = oldResults[oldHead]!.firstNode;
+      const firstToRemoveMarker = results[oldHead]!.data.first;
       const lastToRemoveMarker =
-        nextNewTail < newLength ? newRenderResults[nextNewTail].firstNode : before;
+        nextNewTail < newLength ? newRenderResults[nextNewTail].data.first : before;
       removeUntilBefore(container, firstToRemoveMarker, lastToRemoveMarker);
     } else {
       // Add parts for any remaining new values
       const insertAdditionalPartsBefore =
-        nextNewTail < newLength ? newRenderResults[nextNewTail].firstNode : before;
+        nextNewTail < newLength ? newRenderResults[nextNewTail].data.first : before;
       while (newHead <= newTail) {
         newRenderResults[newHead] = renderComponentResultNoSet(
           newComponentResults[newHead],
@@ -1081,8 +1033,8 @@ const repeatBlueprint = createBlueprint(
         newHead++;
       }
     }
-    state.oldResults = newRenderResults;
-    state.keys = newKeys;
+    state.state.results = newRenderResults;
+    state.state.keys = newKeys;
   },
 );
 
@@ -1091,11 +1043,7 @@ const keyedComponents = <V, C, R, CR extends ComponentResult<C, R, any>>(
   keyFn: KeyFn<V>,
   mapFn: MapFn<V, CR>,
   recycle: boolean,
-): ComponentResult<
-  RepeatBlueprintCache<C, any>,
-  RepeatBlueprintInput<V, C, R, any>,
-  any
-> => {
+) => {
   return componentResult(repeatBlueprint, { values, keyFn, mapFn, recycle });
 };
 
@@ -1103,11 +1051,7 @@ export const map = <V, C, R, CR extends ComponentResult<C, R, any>>(
   values: Iterable<V>,
   keyFn: KeyFn<V>,
   mapFn: MapFn<V, CR>,
-): ComponentResult<
-  RepeatBlueprintCache<C, any>,
-  RepeatBlueprintInput<V, C, R, any>,
-  any
-> => {
+) => {
   return keyedComponents(values, keyFn, mapFn, true);
 };
 
@@ -1115,11 +1059,7 @@ export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
   values: Iterable<V>,
   keyFn: KeyFn<V>,
   mapFn: MapFn<V, CR>,
-): ComponentResult<
-  RepeatBlueprintCache<C, any>,
-  RepeatBlueprintInput<V, C, R, any>,
-  any
-> => {
+) => {
   return keyedComponents(values, keyFn, mapFn, false);
 };
 
@@ -1150,8 +1090,8 @@ export const withState = <C, P, S extends {}, R>(
     const componentResult = componentResultFromValue(sfcWithState(props, state, setState));
     if (componentResult) {
       if (previousRenderResult !== null && isReusableRenderResult(componentResult, previousRenderResult)) {
-        if (componentResult.blueprint.set) {
-          componentResult.blueprint.set(previousRenderResult.persistent, props, container, before);
+        if (componentResult.blueprint.update) {
+          componentResult.blueprint.update(previousRenderResult.state, props, container, before);
         }
       } else {
         internalState.previousRenderResult = renderComponentResultNoSet(componentResult, container, before);

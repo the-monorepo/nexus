@@ -33,7 +33,7 @@ module.exports = api => {
           './packages/my-resume',
           './packages/resume-template',
           './packages/mobx-dom',
-          './packages/fault-benchmarker/frontend'
+          './packages/fault-benchmarker/src/frontend',
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
@@ -52,7 +52,6 @@ module.exports = api => {
             },
           ],
         ],
-        presets: [['@babel/preset-env', {}]],
       },
     ],
   };

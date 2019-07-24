@@ -7,7 +7,8 @@
   "main": "./lib/index.js",
   "scripts": {
     "start": "node ./lib/index.js",
-    "results": "node ./lib/results.js"
+    "results": "node ./lib/results.js",
+    "frontend": "webpack"
   },
   "private": false,
   "files": [
