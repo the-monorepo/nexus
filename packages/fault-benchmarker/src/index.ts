@@ -10,6 +10,10 @@ import * as flRunner from '@fault/runner';
 import { resolve } from 'path';
 import globby from 'globby';
 
+import { dStar } from '@fault/sbfl-dstar';
+import { tarantula } from '@fault/sbfl-tarantula';
+import { ochiai } from '@fault/sbfl-ochiai';
+
 export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
   return `${resolve(projectDir, fault.sourcePath)}:${fault.location.start.line}:${fault.location.start.column}`;
 };
@@ -50,10 +54,13 @@ export const getProjectPaths = async (path: string | string[] = './projects/*') 
   return await globby(path, { onlyDirectories: true, expandDirectories: false });
 };
 
-const sbflAlgorithmModuleNames = [
-  '@fault/sbfl-dstar',
-  '@fault/sbfl-ochiai',
-  '@fault/sbfl-tarantula',
+const sbflAlgorithms = [
+  { name: 'dstar-2', scoringFn: dStar },
+  { name: 'dstar-3', scoringFn: (a, b) => dStar(a, b, 3) },
+  { name: 'dstar-4', scoringFn: (a, b) => dStar(a, b, 4) },
+  { name: 'dstar-5', scoringFn: (a, b) => dStar(a, b, 5) },
+  { name: 'ochiai', scoringFn: ochiai },
+  { name: 'tarantula', scoringFn: tarantula },
 ];
 
 type BenchmarkConfig = {
@@ -69,6 +76,16 @@ const log = logger().add(
     level: 'verbose',
   }),
 );
+
+const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
+  const faultPath = resolve(
+    projectDir,
+    'faults',
+    sbflModuleFolderName,
+    'faults.json',
+  );
+  return faultPath;
+}
 
 export const run = async () => {
   const projectDirs = await getProjectPaths(process.argv.length <= 2 ? undefined : process.argv.slice(2));
@@ -87,34 +104,31 @@ export const run = async () => {
   
     const projectOutput = {};
   
-    for (const sbflModuleName of sbflAlgorithmModuleNames) {
-      log.verbose(`Running ${sbflModuleName} on ${projectDir}`);
-      const sbflModuleFolderName = sbflModuleName.replace(/@/g, '').replace(/\/|\\/g, '-');
-  
-      const sbflFaultFilePath = resolve(
-        projectDir,
-        'faults',
-        sbflModuleFolderName,
-        'faults.json',
-      );
-  
+    log.verbose(`Running SBFL algorithms on ${projectDir}`);
+    
+    const sbflAddons = sbflAlgorithms.map(({ scoringFn, name }) => {  
       const sbflAddon = createPlugin({
-        scoringFn: require(sbflModuleName).default,
-        faultFilePath: sbflFaultFilePath,
+        scoringFn: scoringFn,
+        faultFilePath: faultFilePath(projectDir, name),
       });
+
+      return sbflAddon;
+    });
+
+    await flRunner.run({
+      tester: '@fault/tester-mocha',
+      testMatch: testMatch,
+      addons: sbflAddons,
+      setupFiles,
+      cwd: projectDir,
+    });
+
+    const coverage = await readCoverageFile(
+      resolve(projectDir, 'coverage/coverage-final.json'),
+    );
   
-      await flRunner.run({
-        tester: '@fault/tester-mocha',
-        testMatch: testMatch,
-        addons: [sbflAddon],
-        setupFiles,
-        cwd: projectDir,
-      });
-  
-      const actualFaults = convertFileFaultDataToFaults(require(sbflFaultFilePath));
-      const coverage = await readCoverageFile(
-        resolve(projectDir, 'coverage/coverage-final.json'),
-      );
+    for (const { name } of sbflAlgorithms) {
+      const actualFaults = convertFileFaultDataToFaults(require(faultFilePath(projectDir, name)));
   
       const totalExecutableStatements = getTotalExecutedStatements(coverage);
   
@@ -125,7 +139,7 @@ export const run = async () => {
         totalExecutableStatements,
       );
   
-      projectOutput[sbflModuleName] = examScore;
+      projectOutput[name] = examScore;
     }
     const faultResultsPath = resolve(projectDir, 'fault-results.json');
   
