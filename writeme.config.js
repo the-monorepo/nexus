@@ -2,6 +2,10 @@ module.exports = {
   projects: {
     overrides: [
       {
+        category: 'UI',
+        test: './{build-packages,packages}/mobx*/',
+      },
+      {
         category: 'Build tooling',
         test: './{build-packages,packages}/{build-util,gulp-*}',
       },

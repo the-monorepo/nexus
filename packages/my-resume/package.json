@@ -16,10 +16,13 @@
   },
   "dependencies": {
     "@pshaw/resume-template": "^1.1.3",
+    "jsx-render": "^1.1.2",
     "react": "^16.8.2",
     "react-dom": "^16.8.2"
   },
   "devDependencies": {
-    "puppeteer": "^1.13.0"
+    "@babel/plugin-transform-strict-mode": "^7.2.0",
+    "puppeteer": "^1.13.0",
+    "source-map-loader": "^0.2.4"
   }
 }

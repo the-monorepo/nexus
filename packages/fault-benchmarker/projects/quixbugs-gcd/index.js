@@ -1,8 +1,8 @@
 export function gcd(a, b) {
   if (b === 0) {
-      return a;
+    return a;
   } else {
-      return gcd(a % b, b);
+    return gcd(a % b, b);
   }
 }
 
@@ -24,4 +24,3 @@ Example:
 >>> gcd(35, 21)
 7
 */
-

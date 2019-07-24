@@ -8,4 +8,4 @@ describe('gcd', () => {
   it('4', () => expect(gcd(20, 100)).to.equal(20));
   it('5', () => expect(gcd(624129, 2061517)).to.equal(18913));
   it('6', () => expect(gcd(3, 12)).to.equal(3));
-})
+});

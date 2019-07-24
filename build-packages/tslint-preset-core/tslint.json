@@ -13,6 +13,7 @@
       "named-imports-order": "any"
     }],
     "no-empty-interface": false,
-    "prefer-template": [true, "allow-single-concat"]
+    "prefer-template": [true, "allow-single-concat"],
+    "no-non-null-assertion": false
   }
 }

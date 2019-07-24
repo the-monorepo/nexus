@@ -1,4 +1,4 @@
-export const quicksort = (arr) => {
+export const quicksort = arr => {
   if (arr.length === 0) {
     return [];
   }
@@ -6,7 +6,7 @@ export const quicksort = (arr) => {
   const lesser = quicksort(arr.slice(1).filter(x => x < pivot));
   const greater = quicksort(arr.slice(1).filter(x => x >= pivot));
   return lesser.concat(pivot).concat(greater);
-}
+};
 
 /*
 QuickSort
@@ -17,4 +17,3 @@ arr: A list of ints
 
 Output:
 The elements of arr in sorted order*/
-

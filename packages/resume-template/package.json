@@ -20,23 +20,19 @@
   "main": "./lib/index.js",
   "module": "./esm/index.js",
   "dependencies": {
-    "@material-ui/core": "^3.9.2",
     "@types/classnames": "^2.2.7",
     "@types/date-fns": "^2.6.0",
     "@types/jss": "^9.5.7",
-    "@types/react": "^16.8.3",
-    "@types/react-jss": "^8.6.2",
     "classnames": "^2.2.6",
     "date-fns": "^2.0.0-alpha.27",
     "jss": "^9.8.7",
-    "react": "^16.8.2",
-    "react-jss": "^8.6.1"
+    "jss-plugin-camel-case": "^10.0.0-alpha.7",
+    "mobx": "^5.9.0"
   },
   "devDependencies": {
     "jss": "^9.8.7",
     "jss-global": "^3.0.0",
     "jss-nested": "^6.0.1",
-    "react": "^16.8.2",
     "webpack-dev-server": "^3.1.14"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
