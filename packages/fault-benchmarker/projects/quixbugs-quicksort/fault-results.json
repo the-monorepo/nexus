@@ -1,5 +1,8 @@
 {
-  "@fault/sbfl-dstar": 0,
-  "@fault/sbfl-ochiai": 0,
-  "@fault/sbfl-tarantula": 0
+  "dstar-2": 0.8888888888888888,
+  "dstar-3": 0.8888888888888888,
+  "dstar-4": 0.8888888888888888,
+  "dstar-5": 0.8888888888888888,
+  "ochiai": 0.8888888888888888,
+  "tarantula": 0.8888888888888888
 }
