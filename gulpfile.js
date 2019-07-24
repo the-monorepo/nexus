@@ -26,7 +26,8 @@ function swapSrcWith(srcPath, newDirName) {
   const parts = srcPath.split(sep);
   // Swap out src for the new dir name
   parts[2] = newDirName;
-  return join(__dirname, ...parts);
+  const resultingPath = join(__dirname, ...parts);
+  return resultingPath;
 }
 
 function createSrcDirSwapper(dir) {
@@ -105,7 +106,8 @@ function codeStream(options) {
       '**/*.{js,jsx,ts,tsx}',
       '!**/node_modules/**',
       '!coverage/**',
-      '!{build-packages,packages}/*/{dist,lib,esm}/**',
+      '!{build-packages,packages}/*/{dist,lib,esm,coverage}/**',
+      '!packages/fault-benchmarker/projects/*/coverage/**',
     ],
     {
       base: '.',
@@ -136,7 +138,7 @@ function copyPipes(stream, l, dir) {
     .pipe(simplePipeLogger(l, 'Copying'))
     .pipe(
       rename(filePath => {
-        filePath.dirname = join(filePath.dirname, `../${dir}`);
+        filePath.dirname = swapSrcWith(filePath.dirname, dir);
         return filePath;
       }),
     )
@@ -167,7 +169,7 @@ function transpilePipes(stream, babelOptions, dir, chalkFn) {
     .pipe(babel(babelOptions))
     .pipe(
       rename(filePath => {
-        filePath.dirname = join(filePath.dirname, `../${dir}`);
+        filePath.dirname = swapSrcWith(filePath.dirname, dir);
         return filePath;
       }),
     )
