@@ -4,5 +4,7 @@
   "dstar-4": 0.5,
   "dstar-5": 0.5,
   "ochiai": 0.9,
-  "tarantula": 0.9
+  "tarantula": 0.9,
+  "barinel": 0.9,
+  "op2": 0.9
 }

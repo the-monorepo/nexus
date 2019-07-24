@@ -13,6 +13,8 @@ import globby from 'globby';
 import { dStar } from '@fault/sbfl-dstar';
 import { tarantula } from '@fault/sbfl-tarantula';
 import { ochiai } from '@fault/sbfl-ochiai';
+import { barinel } from '@fault/sbfl-barinel';
+import { op2 } from '@fault/sbfl-op2';
 
 export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
   return `${resolve(projectDir, fault.sourcePath)}:${fault.location.start.line}:${fault.location.start.column}`;
@@ -61,6 +63,8 @@ const sbflAlgorithms = [
   { name: 'dstar-5', scoringFn: (a, b) => dStar(a, b, 5) },
   { name: 'ochiai', scoringFn: ochiai },
   { name: 'tarantula', scoringFn: tarantula },
+  { name: 'barinel', scoringFn: barinel },
+  { name: 'op2', scoringFn: op2 },
 ];
 
 type BenchmarkConfig = {
