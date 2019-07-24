@@ -6,7 +6,8 @@
   "module": "./esm/index.js",
   "main": "./lib/index.js",
   "scripts": {
-    "start": "node ./lib/index.js"
+    "start": "node ./lib/index.js",
+    "results": "node ./lib/results.js"
   },
   "private": false,
   "files": [
