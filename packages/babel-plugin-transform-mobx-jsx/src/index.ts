@@ -2,6 +2,8 @@ import { declare } from '@babel/helper-plugin-utils';
 import jsx from '@babel/plugin-syntax-jsx';
 import helper from '@babel/helper-builder-react-jsx';
 import { types as t } from '@babel/core';
+import { JSXAttribute, JSXElement, JSXFragment, JSXText } from '@babel/types';
+import { JSXExpressionContainer } from '@babel/types';
 
 const mbxMemberExpression = (field: string) => {
   return t.memberExpression(t.identifier('mbx'), t.identifier(field));
@@ -118,7 +120,7 @@ interface TextNode {
   id?: any;
 }
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
-function domNodeFromJSXText(jsxText, previousIsDynamic: boolean, scope) {
+function domNodeFromJSXText(jsxText: JSXText, previousIsDynamic: boolean, scope) {
   return domNodeFromString(jsxText.value, previousIsDynamic, scope);
 }
 
@@ -173,10 +175,10 @@ const isRootJSXNode = path => {
 
 const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
 
-const valueExpressionFromJsxAttributeValue = jsxValue =>
+const valueExpressionFromJsxAttributeValue = (jsxValue: JSXAttribute['value']) =>
   t.isJSXExpressionContainer(jsxValue) ? jsxValue.expression : jsxValue;
 
-const domNodesFromJSXChildren = (jsxChildren, scope, outerPath): any[] => {
+const domNodesFromJSXChildren = (jsxChildren: JSXElement['children'], scope, outerPath): any[] => {
   const children: Node[] = [];
   let previousChildIsDynamic = false;
   for (const child of jsxChildren) {
@@ -197,12 +199,12 @@ const hasDynamicNodes = (children: Node[]) => {
   return children.some(
     childNode =>
       childNode.type === DYNAMIC_TYPE ||
-      (childNode.type === ELEMENT_TYPE && childNode.id),
+      (childNode.type === ELEMENT_TYPE && childNode.id) || SUBCOMPONENT_TYPE,
   );
 };
 
 const domNodeFromJSXElement = (
-  jsxElement,
+  jsxElement: JSXElement,
   previousIsDynamic,
   scope,
   outerPath,
@@ -330,7 +332,7 @@ const isDynamicDomlessNode = (node: Node) => {
 };
 
 function* yieldDomNodeFromJSXFragment(
-  jsxFragment,
+  jsxFragment: JSXFragment,
   previousIsDynamic: boolean,
   scope,
   outerPath,
@@ -349,7 +351,7 @@ function* yieldDomNodeFromJSXFragment(
 }
 
 function* yieldDomNodeFromJSXExpressionContainerNode(
-  node,
+  node: JSXExpressionContainer,
   previousIsDynamic: boolean,
   scope,
   outerPath,
@@ -387,7 +389,7 @@ function* yieldDomNodeFromJSXExpressionContainerNode(
 }
 
 function* yieldDomNodeFromNodeNonSimplified(
-  node,
+  node: JSXElement['children'][0],
   previousIsDynamic,
   scope,
   outerPath,
@@ -414,7 +416,7 @@ function* yieldDomNodeFromNodeNonSimplified(
 }
 
 function* yieldDomNodeFromNodeSimplified(
-  node,
+  node: JSXElement | JSXFragment,
   previousIsDynamic: boolean,
   scope,
   outerPath,

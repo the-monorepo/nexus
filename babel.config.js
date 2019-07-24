@@ -43,7 +43,6 @@ module.exports = api => {
           '@babel/plugin-transform-strict-mode',
         ]),
         presets: [
-          '@babel/preset-react',
           [
             '@babel/preset-env',
             {

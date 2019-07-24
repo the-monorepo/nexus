@@ -12,6 +12,8 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "jsx": "preserve",
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "exclude": [
     "node_modules", 
