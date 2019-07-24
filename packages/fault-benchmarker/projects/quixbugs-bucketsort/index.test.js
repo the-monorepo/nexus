@@ -1,5 +1,6 @@
 import { bucketsort } from './index';
 import { expect } from 'chai';
+
 describe('bucketsort', () => {
   it('1', () => expect(bucketsort([], 14)).to.deep.equal([]));
   it('2', () =>

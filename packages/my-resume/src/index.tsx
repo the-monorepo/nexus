@@ -4,13 +4,13 @@ import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
 mbx.render(rootElement, <Resume data={data} />);*/
-
+/*
 import * as mbx from 'mobx-dom';
 import map from 'mobx-map';
 import { MobxElement } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 import { render } from 'mobx-dom/src';
-/*No double assignment of props
+No double assignment of props
 import * as mbx from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
@@ -126,7 +126,7 @@ setInterval(
       }
     });
   }),
-);*/
+);
 const store = observable({
   i: 0,
 });
@@ -135,7 +135,7 @@ const OuterComponent = (
   <button $$click={() => console.log('clicked')}>Hello {store.i}</button>
 );
 render(document.getElementById('root'), <OuterComponent />);
-
+*/
 /*const store = observable({
   arr: observable.array([[]] as number[][]),
 });
