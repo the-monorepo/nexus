@@ -1,18 +1,16 @@
 {
-  ".\\test\\validation-tests.js": {
-    ".\\lib\\convict.js": [
-      {
-        "location": {
-          "start": {
-            "line": 71,
-            "column": 6
-          },
-          "end": {
-            "line": 71,
-            "column": 13
-          }
+  ".\\lib\\convict.js": [
+    {
+      "location": {
+        "start": {
+          "line": 71,
+          "column": 6
+        },
+        "end": {
+          "line": 71,
+          "column": 13
         }
       }
-    ]
-  }
+    }
+  ]
 }

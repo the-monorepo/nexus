@@ -1,14 +1,12 @@
 {
-  ".\\index.test.js": {
-    ".\\index.js": [
-      {
-        "location": {
-          "start": {
-            "line": 7,
-            "column": 53
-          }
+  ".\\index.js": [
+    {
+      "location": {
+        "start": {
+          "line": 7,
+          "column": 53
         }
       }
-    ]
-  }
+    }
+  ]
 }

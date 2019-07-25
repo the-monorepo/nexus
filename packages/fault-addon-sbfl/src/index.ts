@@ -2,7 +2,7 @@ import { TestResult, TesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { passFailStatsFromTests } from '@fault/localization-util';
-import { recordFaults } from '@fault/record-faults';
+import { recordFaults, sortBySuspciousness } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar';
 
 import { relative } from 'path';
@@ -17,19 +17,16 @@ export type Stats = {
 export type ExpressionResult = {
   stats: Stats;
   location: ExpressionLocation;
-  testedPath: string;
   sourcePath: string;
 };
 
 export type FileResult = {
-  testedPath: string;
   sourcePath: string;
   expressions: ExpressionResult[];
 };
 
 export type ScorelessFault = {
   location: ExpressionLocation;
-  testedPath: string;
   sourcePath: string;
 };
 
@@ -41,7 +38,10 @@ const statementStr = (filePath: string, { start, end }: ExpressionLocation) => {
   return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;
 };
 
-export const gatherResults = (testResults: Iterable<TestResult>) => {
+/**
+ * Gets the pass/fail results for each expression in each file
+ */
+export const gatherFileResults = (testResults: Iterable<TestResult>): Map<string, FileResult> => {
   const expressionResults: Map<string, ExpressionResult> = new Map();
   for (const testResult of testResults) {
     const coverage = testResult.coverage;
@@ -62,29 +62,32 @@ export const gatherResults = (testResults: Iterable<TestResult>) => {
           if (expressionResults.has(hash)) {
             return expressionResults.get(hash)!;
           } else {
-            const passFailCounts = { passed: 0, failed: 0 };
+            const passFailCounts: Stats = { passed: 0, failed: 0 };
             const newResult: ExpressionResult = {
               location: statementCoverage,
               stats: passFailCounts,
-              testedPath: testResult.file,
               sourcePath: fileCoverage.path,
             };
             expressionResults.set(hash, newResult);
             return newResult;
           }
         })();
-        results.stats[testResult.passed ? 'passed' : 'failed']++;
+
+        if (testResult.passed) {
+          results.stats.passed++;
+        } else {
+          results.stats.failed++;
+        }
       }
     }
   }
 
   const fileResults: Map<string, FileResult> = new Map();
   for (const expressionResult of expressionResults.values()) {
-    const { sourcePath, testedPath } = expressionResult;
+    const { sourcePath } = expressionResult;
     if (!fileResults.has(expressionResult.sourcePath)) {
       fileResults.set(sourcePath, {
         sourcePath,
-        testedPath,
         expressions: [expressionResult],
       });
     } else {
@@ -107,22 +110,25 @@ export const localizeFaults = (
   scoringFn: InternalScoringFn,
 ): Fault[] => {
   const faults: Fault[] = [];
+  
+  // Gather all files that were executed in tests
   const selectedSourceFiles: Set<string> = new Set();
   for (const testResult of groupedTestResults) {
     if (testResult.coverage === undefined) {
       continue;
     }
-    for (const coverage of Object.values(testResult.coverage)) {
-      selectedSourceFiles.add(coverage.path);
+    for (const fileCoverage of Object.values(testResult.coverage)) {
+      selectedSourceFiles.add(fileCoverage.path);
     }
   }
+
+  // For each expression in each executed file, assign a "suspciousness" score
   for (const sourcePath of selectedSourceFiles) {
     const fileResult = fileResults.get(sourcePath)!;
     for (const expression of fileResult.expressions) {
-      const { location, sourcePath, testedPath } = expression;
+      const { location, sourcePath } = expression;
       faults.push({
         sourcePath,
-        testedPath,
         location,
         score: scoringFn(expression.stats),
       });
@@ -133,10 +139,10 @@ export const localizeFaults = (
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
-const reportFaults = async (faults: Fault[], scoringFn: ExternalScoringFn) => {
-  const rankedFaults = faults
-    .filter(fault => fault.score !== null)
-    .sort((f1, f2) => f2.score! - f1.score!)
+const reportFaults = async (faults: Fault[]) => {
+  const rankedFaults = sortBySuspciousness(faults
+    .filter(fault => fault.score !== null && fault.score !== Number.NEGATIVE_INFINITY && fault.score !== Number.NaN)
+    .sort((f1, f2) => f2.score! - f1.score!))
     .slice(0, 10);
   for (const fault of rankedFaults) {
     const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
@@ -175,12 +181,12 @@ export const createPlugin = ({
     on: {
       complete: async (results: TesterResults) => {
         const testResults: TestResult[] = [...results.testResults.values()];
-        const fileResults = gatherResults(testResults);
+        const fileResults = gatherFileResults(testResults);
         const totalPassFailStats = passFailStatsFromTests(testResults);
         const faults = localizeFaults(testResults, fileResults, expressionPassFailStats =>
           scoringFn(expressionPassFailStats, totalPassFailStats),
         );
-        await reportFaults(faults, scoringFn);
+        await reportFaults(faults);
         if (
           faultFilePath !== null &&
           faultFilePath !== undefined &&

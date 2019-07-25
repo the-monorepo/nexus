@@ -6,7 +6,6 @@ describe('measure', () => {
       const faults: ScorelessFault[] = [
         {
           sourcePath: 'a',
-          testedPath: 'a',
           location: {
             start: {
               line: 1,
@@ -20,7 +19,6 @@ describe('measure', () => {
         },
         {
           sourcePath: 'a',
-          testedPath: 'a',
           location: {
             start: {
               line: 2,

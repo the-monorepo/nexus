@@ -1,18 +1,16 @@
 {
-  ".\\test\\get-tests.js": {
-    ".\\lib\\convict.js": [
-      {
-        "location": {
-          "start": {
-            "line": 318,
-            "column": 4
-          },
-          "end": {
-            "line": 323,
-            "column": 5
-          }
+  ".\\lib\\convict.js": [
+    {
+      "location": {
+        "start": {
+          "line": 318,
+          "column": 4
+        },
+        "end": {
+          "line": 323,
+          "column": 5
         }
       }
-    ]
-  }
+    }
+  ]
 }
