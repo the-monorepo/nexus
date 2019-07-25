@@ -5,7 +5,7 @@ import { dirname } from 'path';
 import { ExpressionLocation } from '@fault/istanbul-util';
 
 export type FileFault = {
-  score: number;
+  score: number | boolean | null;
   location: ExpressionLocation;
 };
 
@@ -36,6 +36,7 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
           sourcePath: sourceFilePath,
           testedPath: testFilePath,
           ...fileFault,
+          score: fileFault.score === true ? Number.POSITIVE_INFINITY : fileFault.score === false ? Number.NEGATIVE_INFINITY : fileFault.score
         };
         faults.push(fault);
       }
@@ -46,11 +47,11 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
     if (a.score === b.score) {
       return 0;
     }
-    if (a.score === undefined || b.score === null) {
-      return 1;
-    }
-    if (a.score === null || b.score === undefined) {
+    if (a.score === null) {
       return -1;
+    }
+    if (b.score === null) {
+      return 1;
     }
     if (a.score < b.score) {
       return -1;
@@ -58,6 +59,7 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
     if (a.score > b.score) {
       return 1;
     }
+    throw new Error(`Shouldn't get here. Was comparing ${a.score} and ${b.score}`);
   });
 };
 
@@ -65,11 +67,8 @@ export const recordFaults = (filePath: string, faults: Fault[]) => {
   mkdirSync(dirname(filePath), { recursive: true });
   const faultsData = {};
   for (const fault of faults) {
-    if (fault.score === null) {
-      continue;
-    }
     const recordedItem = {
-      score: fault.score,
+      score: fault.score === null ? null : Number.isNaN(fault.score) ? false : Number.POSITIVE_INFINITY === fault.score ? true : Number.NEGATIVE_INFINITY === fault.score ? false : fault.score,
       location: fault.location,
     };
     if (faultsData[fault.testedPath] === undefined) {
