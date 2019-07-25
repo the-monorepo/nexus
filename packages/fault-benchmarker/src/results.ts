@@ -16,9 +16,8 @@ export const run = async () => {
   });
   const projectResults: ProjectResult[] = [];
   for (const projectDir of projectDirs) {
-    const packageJson = require(resolve(projectDir, 'package.json'));
     projectResults.push({
-      name: packageJson.name,
+      name: basename(projectDir),
       results: require(resolve(projectDir, 'fault-results.json')),
     });
   }

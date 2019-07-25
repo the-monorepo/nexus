@@ -1,0 +1,18 @@
+{
+  ".\\test\\cases\\argv_dot_notation.js": {
+    ".\\lib\\convict.js": [
+      {
+        "location": {
+          "start": {
+            "line": 264,
+            "column": 2
+          },
+          "end": {
+            "line": 264,
+            "column": 81
+          }
+        }
+      }
+    ]
+  }
+}
