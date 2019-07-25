@@ -1,11 +1,11 @@
 {
-  "dstar-1": 0.875,
-  "dstar-2": 0.875,
-  "dstar-3": 0.875,
-  "dstar-4": 0.875,
-  "dstar-5": 0.875,
-  "ochiai": 0.875,
-  "tarantula": 0.875,
-  "barinel": 0.875,
-  "op2": 0.875
+  "dstar-1": 0.625,
+  "dstar-2": 0.625,
+  "dstar-3": 0.625,
+  "dstar-4": 0.625,
+  "dstar-5": 0.625,
+  "ochiai": 0.625,
+  "tarantula": 0.625,
+  "barinel": 0.625,
+  "op2": 0.625
 }

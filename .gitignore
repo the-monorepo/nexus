@@ -59,9 +59,7 @@ typings/
 
 packages/*/lib/
 packages/*/esm/
-esm/
-dist/
-lib/
+packages/*/dist/
 .cache
 
 packages/*/stats.html
