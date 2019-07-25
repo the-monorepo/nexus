@@ -11,12 +11,8 @@ export type FileFault = {
 
 export type SourceFileFaults = FileFault[];
 
-export type TestFileFaults = {
-  [sourceFilePath: string]: SourceFileFaults;
-};
-
 export type FaultData = {
-  [testFilePath: string]: TestFileFaults;
+  [sourceFilePath: string]: SourceFileFaults;
 };
 
 export const readFaultFile = async (filePath: string): Promise<FaultData> => {
@@ -24,25 +20,7 @@ export const readFaultFile = async (filePath: string): Promise<FaultData> => {
   return JSON.parse(jsonText);
 };
 
-export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
-  const faults: Fault[] = [];
-
-  for (const testFilePath of Object.keys(faultData)) {
-    const testFileFaults = faultData[testFilePath];
-    for (const sourceFilePath of Object.keys(testFileFaults)) {
-      const sourceFileFaults = testFileFaults[sourceFilePath];
-      for (const fileFault of sourceFileFaults) {
-        const fault: Fault = {
-          sourcePath: sourceFilePath,
-          testedPath: testFilePath,
-          ...fileFault,
-          score: fileFault.score === true ? Number.POSITIVE_INFINITY : fileFault.score === false ? Number.NEGATIVE_INFINITY : fileFault.score
-        };
-        faults.push(fault);
-      }
-    }
-  }
-
+export const sortBySuspciousness = (faults: Fault[]) => {
   return faults.sort((a, b) => {
     if (a.score === b.score) {
       return 0;
@@ -61,6 +39,24 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
     }
     throw new Error(`Shouldn't get here. Was comparing ${a.score} and ${b.score}`);
   });
+}
+
+export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
+  const faults: Fault[] = [];
+  for (const sourceFilePath of Object.keys(faultData)) {
+    const sourceFileFaults = faultData[sourceFilePath];
+    for (const fileFault of sourceFileFaults) {
+      const fault: Fault = {
+        sourcePath: sourceFilePath,
+        ...fileFault,
+        score: fileFault.score === true ? Number.POSITIVE_INFINITY : fileFault.score === false ? Number.NEGATIVE_INFINITY : fileFault.score
+      };
+      faults.push(fault);
+    }
+  }
+
+  sortBySuspciousness(faults);
+  return faults;
 };
 
 export const recordFaults = (filePath: string, faults: Fault[]) => {
@@ -71,14 +67,10 @@ export const recordFaults = (filePath: string, faults: Fault[]) => {
       score: fault.score === null ? null : Number.isNaN(fault.score) ? false : Number.POSITIVE_INFINITY === fault.score ? true : Number.NEGATIVE_INFINITY === fault.score ? false : fault.score,
       location: fault.location,
     };
-    if (faultsData[fault.testedPath] === undefined) {
-      faultsData[fault.testedPath] = {};
-    }
-    const testFaults = faultsData[fault.testedPath];
-    if (testFaults[fault.sourcePath] === undefined) {
-      testFaults[fault.sourcePath] = [recordedItem];
+    if (faultsData[fault.sourcePath] === undefined) {
+      faultsData[fault.sourcePath] = [recordedItem];
     } else {
-      testFaults[fault.sourcePath].push(recordedItem);
+      faultsData[fault.sourcePath].push(recordedItem);
     }
   }
   return writeFile(filePath, JSON.stringify(faultsData, undefined, 2), {

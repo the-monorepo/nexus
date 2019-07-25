@@ -26,6 +26,7 @@ const runAndRecycleProcesses = (
   absoluteImportPaths: string[],
   hooks: TestHookOptions,
   cwd: string = process.cwd(),
+  env?: { [s: string]: any },
 ): Promise<TesterResults> => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
@@ -35,10 +36,7 @@ const runAndRecycleProcesses = (
   const start = new Date();
   const forkForTest = (): ChildProcess =>
     fork(addonEntryPath, [tester, JSON.stringify(absoluteImportPaths)], {
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-      },
+      env: env ? env : process.env,
       cwd,
       stdio: 'inherit',
     });
