@@ -1,0 +1,54 @@
+{
+  "author": "Lloyd Hilaiel <lloyd@hilaiel.com> (http://lloyd.io)",
+  "name": "convict",
+  "description": "Unruly configuration management for nodejs",
+  "version": "1.0.2",
+  "homepage": "https://github.com/mozilla/node-convict",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/node-convict.git"
+  },
+  "main": "lib/convict.js",
+  "engines": {
+    "node": ">=0.4.7"
+  },
+  "dependencies": {
+    "cjson": "0.3.2",
+    "depd": "1.1.0",
+    "moment": "2.10.6",
+    "optimist": "0.6.1",
+    "validator": "4.0.5",
+    "varify": "0.1.1"
+  },
+  "devDependencies": {
+    "blanket": "1.1.7",
+    "coveralls": "2.11.4",
+    "eslint": "1.4.3",
+    "mocha": "2.3.2",
+    "mocha-lcov-reporter": "0.0.2",
+    "must": "0.12.0",
+    "obj_diff": "0.3.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "mocha --check-leaks -R spec",
+    "pretest-coverage": "npm run lint",
+    "test-coverage": "mocha --check-leaks --require blanket -R html-cov > test/coverage.html",
+    "pretest-travis": "npm run lint",
+    "test-travis": "mocha --check-leaks --require blanket -R mocha-lcov-reporter | coveralls",
+    "clean": "rm -rf test/coverage.html"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "lib/convict.js"
+    }
+  },
+  "bugs": "https://github.com/mozilla/node-convict/issues",
+  "license": "Apache-2.0",
+  "browserify": {
+    "transform": [
+      "varify"
+    ]
+  }
+}
