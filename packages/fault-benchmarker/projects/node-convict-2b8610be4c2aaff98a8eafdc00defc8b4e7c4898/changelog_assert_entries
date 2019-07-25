@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# cf. https://docs.npmjs.com/cli/version
+new_version=$1
+
+for entry in $(git tag|cut -c 2-) $new_version
+do
+    if $(grep -q -E ^$entry ChangeLog)
+    then
+        echo "OK: Entry $entry present in the ChangeLog"
+    else
+        echo "KO: Entry $entry MISSING in the ChangeLog"
+
+        # Rollback modified package.json file so it has the previous version
+        git checkout package.json
+
+        exit 1
+    fi
+done

@@ -1,6 +1,6 @@
 {
   "author": "Lloyd Hilaiel <lloyd@hilaiel.com> (http://lloyd.io)",
-  "name": "node-convict-17788058cc8c15336ec927dc2dc8616b3f3dd0f2",
+  "name": "convict",
   "description": "Featureful configuration management library for Node.js (nested structure, schema validation, etc.)",
   "keywords": [
     "configuration",
