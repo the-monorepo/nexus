@@ -334,6 +334,10 @@ async function testNoBuild() {
     ],
     setupFiles: ['./test/require/babel.js', './test/helpers/globals.js'],
     addons: [require('@fault/addon-sbfl').default(require('@fault/sbfl-dstar').default)],
+    env: {
+      ...process.env,
+      NODE_ENV: 'test',
+    }
   });
   if (!passed) {
     process.exit(1);
