@@ -333,11 +333,12 @@ async function testNoBuild() {
       '!./packages/fault-benchmarker/projects/**',
     ],
     setupFiles: ['./test/require/babel.js', './test/helpers/globals.js'],
-    addons: [require('@fault/addon-sbfl').default(require('@fault/sbfl-dstar').default)],
+    addons: [require('@fault/addon-sbfl').default({ scoringFn: require('@fault/sbfl-dstar').default, faultFilePath: './faults/faults.json' })],
     env: {
       ...process.env,
       NODE_ENV: 'test',
-    }
+    },
+    workers: 1,
   });
   if (!passed) {
     process.exit(1);

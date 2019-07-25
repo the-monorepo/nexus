@@ -50,12 +50,13 @@ export const gatherFileResults = (testResults: Iterable<TestResult>): Map<string
     }
     for (const [filePath, fileCoverage] of Object.entries(coverage) as any) {
       const statementMap = fileCoverage.statementMap;
-      for (const statementKey of Object.keys(statementMap)) {
+      for (const statementKey of Object.keys(statementMap)) {    
         const executionCount = fileCoverage.s[statementKey];
-        if (executionCount === 0) {
+        if (executionCount <= 0) {
           continue;
         }
         const statementCoverage = statementMap[statementKey];
+
         const hash = statementStr(filePath, statementCoverage);
 
         const results = (() => {

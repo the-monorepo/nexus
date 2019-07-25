@@ -1,12 +1,12 @@
 {
-  "dstar-0": 0.9,
-  "dstar-1": 0.9,
-  "dstar-2": 0.9,
-  "dstar-3": 0.9,
-  "dstar-4": 0.9,
-  "dstar-5": 0.9,
-  "ochiai": 0.9,
-  "tarantula": 0.9,
-  "barinel": 0.9,
-  "op2": 0.9
+  "dstar-0": 0.5,
+  "dstar-1": 0.5,
+  "dstar-2": 0.5,
+  "dstar-3": 0.5,
+  "dstar-4": 0.5,
+  "dstar-5": 0.5,
+  "ochiai": 0.5,
+  "tarantula": 0.5,
+  "barinel": 0.5,
+  "op2": 0.5
 }
