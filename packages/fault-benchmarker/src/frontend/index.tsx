@@ -48,7 +48,6 @@ const ProjectResult = (project: ProjectResult) => {
         const red = offset + factor * Math.min(1, colorWeight);
         const green = offset + factor * Math.max(0, 1 - colorWeight);
         const blue = offset * 0.8;
-        console.log(project.min, project.max);
         return (
           <td style={`background-color: rgb(${red}, ${green}, ${blue});`}>
             <p>{result ? Math.round(result * 1000) / 1000 : 'unknown'}</p>
