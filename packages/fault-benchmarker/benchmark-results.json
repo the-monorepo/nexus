@@ -1,24 +1,24 @@
 {
   "average": {
-    "dstar-1": 0.6527777777777778,
-    "dstar-2": 0.6527777777777778,
-    "dstar-3": 0.6527777777777778,
-    "dstar-4": 0.6527777777777778,
-    "dstar-5": 0.6527777777777778,
-    "ochiai": 0.8161111111111111,
-    "tarantula": 0.8161111111111111,
-    "barinel": 0.8161111111111111,
-    "op2": 0.8161111111111111
+    "dstar-1": 0.8467592592592593,
+    "dstar-2": 0.8467592592592593,
+    "dstar-3": 0.8467592592592593,
+    "dstar-4": 0.8467592592592593,
+    "dstar-5": 0.8467592592592593,
+    "ochiai": 0.8467592592592593,
+    "tarantula": 0.8467592592592593,
+    "barinel": 0.8467592592592593,
+    "op2": 0.8467592592592593
   },
   "projects": [
     {
       "name": "quixbugs-bucketsort",
       "results": {
-        "dstar-1": 0.875,
-        "dstar-2": 0.875,
-        "dstar-3": 0.875,
-        "dstar-4": 0.875,
-        "dstar-5": 0.875,
+        "dstar-1": 0.625,
+        "dstar-2": 0.625,
+        "dstar-3": 0.625,
+        "dstar-4": 0.625,
+        "dstar-5": 0.625,
         "ochiai": 0.625,
         "tarantula": 0.625,
         "barinel": 0.625,
@@ -28,11 +28,11 @@
     {
       "name": "quixbugs-gcd",
       "results": {
-        "dstar-1": 0.3333333333333333,
-        "dstar-2": 0.3333333333333333,
-        "dstar-3": 0.3333333333333333,
-        "dstar-4": 0.3333333333333333,
-        "dstar-5": 0.3333333333333333,
+        "dstar-1": 1,
+        "dstar-2": 1,
+        "dstar-3": 1,
+        "dstar-4": 1,
+        "dstar-5": 1,
         "ochiai": 1,
         "tarantula": 1,
         "barinel": 1,
@@ -42,15 +42,29 @@
     {
       "name": "quixbugs-hanoi",
       "results": {
-        "dstar-1": 0.5,
-        "dstar-2": 0.5,
-        "dstar-3": 0.5,
-        "dstar-4": 0.5,
-        "dstar-5": 0.5,
+        "dstar-1": 0.9,
+        "dstar-2": 0.9,
+        "dstar-3": 0.9,
+        "dstar-4": 0.9,
+        "dstar-5": 0.9,
         "ochiai": 0.9,
         "tarantula": 0.9,
         "barinel": 0.9,
         "op2": 0.9
+      }
+    },
+    {
+      "name": "quixbugs-next-palindrome",
+      "results": {
+        "dstar-1": 1,
+        "dstar-2": 1,
+        "dstar-3": 1,
+        "dstar-4": 1,
+        "dstar-5": 1,
+        "ochiai": 1,
+        "tarantula": 1,
+        "barinel": 1,
+        "op2": 1
       }
     },
     {
