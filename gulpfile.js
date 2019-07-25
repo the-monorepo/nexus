@@ -42,7 +42,7 @@ function packageSubDirGlob(dirName, folderName) {
   return `./${dirName}/*/${folderName}/**/*`;
 }
 
-const transpiledExtensions = '{js,jsx,ts,tsx,html,css}';
+const transpiledExtensions = '{js,jsx,ts,tsx}';
 
 function srcTranspiledGlob(dirName, folderName) {
   return `${packageSubDirGlob(dirName, folderName)}.${transpiledExtensions}`;
