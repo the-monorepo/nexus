@@ -1,5 +1,5 @@
 {
-  ".\\test\\cases\\argv_dot_notation.js": {
+  ".\\test\\cases\\get-tests.js": {
     ".\\lib\\convict.js": [
       {
         "location": {

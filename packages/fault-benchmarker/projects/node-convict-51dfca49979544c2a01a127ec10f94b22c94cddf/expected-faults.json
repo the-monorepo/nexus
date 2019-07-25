@@ -1,15 +1,15 @@
 {
-  ".\\test\\validation-tests.js": {
+  ".\\test\\get-tests.js": {
     ".\\lib\\convict.js": [
       {
         "location": {
           "start": {
-            "line": 264,
-            "column": 2
+            "line": 318,
+            "column": 4
           },
           "end": {
-            "line": 264,
-            "column": 81
+            "line": 323,
+            "column": 5
           }
         }
       }
