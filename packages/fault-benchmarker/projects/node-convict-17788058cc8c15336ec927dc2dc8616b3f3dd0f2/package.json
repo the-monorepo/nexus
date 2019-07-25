@@ -1,0 +1,60 @@
+{
+  "author": "Lloyd Hilaiel <lloyd@hilaiel.com> (http://lloyd.io)",
+  "name": "node-convict-17788058cc8c15336ec927dc2dc8616b3f3dd0f2",
+  "description": "Featureful configuration management library for Node.js (nested structure, schema validation, etc.)",
+  "keywords": [
+    "configuration",
+    "config",
+    "key value store",
+    "schema",
+    "nested",
+    "validation"
+  ],
+  "version": "4.3.2",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/mozilla/node-convict",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/node-convict.git"
+  },
+  "bugs": "https://github.com/mozilla/node-convict/issues",
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "test": "mocha --check-leaks -R spec test/*-tests.js",
+    "posttest": "npm run lint",
+    "pretest:coverage": "rm -f test/coverage/coverage-*.json",
+    "test:coverage": "istanbul cover --print none --report none --include-pid _mocha -- --check-leaks test/*-tests.js && istanbul report text-summary lcov",
+    "posttest:coverage": "npm run lint",
+    "pretest:ci": "rm -f test/coverage/coverage-*.json",
+    "test:ci": "istanbul cover --print none --report none --include-pid _mocha -- --check-leaks test/*-tests.js && istanbul report text-summary lcov && cat test/coverage/lcov.info | coveralls",
+    "posttest:ci": "npm run lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "clean": "rm -rf test/coverage",
+    "version": "./assert_changelog_ready $npm_package_version"
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "lib/convict.js",
+  "dependencies": {
+    "depd": "1.1.2",
+    "json5": "1.0.1",
+    "lodash.clonedeep": "4.5.0",
+    "moment": "2.22.2",
+    "validator": "10.4.0",
+    "yargs-parser": "10.1.0"
+  },
+  "devDependencies": {
+    "coveralls": "3.0.2",
+    "eslint": "4.19.1",
+    "istanbul": "0.4.5",
+    "js-yaml": "^3.11.0",
+    "mocha": "5.2.0",
+    "must": "0.13.4",
+    "obj_diff": "0.3.0",
+    "toml": "^2.3.3"
+  }
+}

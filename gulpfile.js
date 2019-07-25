@@ -107,7 +107,7 @@ function codeStream(options) {
       '!**/node_modules/**',
       '!coverage/**',
       '!{build-packages,packages}/*/{dist,lib,esm,coverage}/**',
-      '!packages/fault-benchmarker/projects/*/coverage/**',
+      '!packages/fault-benchmarker/projects/**',
     ],
     {
       base: '.',
