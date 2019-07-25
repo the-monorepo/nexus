@@ -2,6 +2,8 @@ import Mocha from 'mocha';
 import { IPCReporter } from './recordTests';
 import { submitFileResult } from '@fault/messages';
 import { ParentResult, IPC, RunTestPayload } from '@fault/types';
+import { cloneCoverage } from '@fault/istanbul-util';
+const COVERAGE_KEY = '__coverage__';
 
 export const initialize = async () => {
   const originalCacheKeys = new Set(Object.keys(require.cache));
@@ -36,6 +38,7 @@ export const initialize = async () => {
 
       try {
         await new Promise(resolve => {
+          global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
           mocha.run(async failures => {
             await submitFileResult(data);
             clearCache();
