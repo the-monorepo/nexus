@@ -122,7 +122,6 @@ function mockPrototypeFunctions<T, V, R>(
       ogToMockedMap,
     );
   } else {
-    return null;
     return mockedObject;
   }
 }
