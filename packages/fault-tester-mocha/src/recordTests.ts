@@ -4,9 +4,8 @@ import { submitTestResult, submitAssertionResult } from '@fault/messages';
 import { AssertionFailureData } from '@fault/types';
 import { createHash } from 'crypto';
 import { AssertionError } from '@fault/mocha-assertion-error';
-import { cloneCoverage } from '@fault/istanbul-util';
 
-const { EVENT_TEST_FAIL, EVENT_TEST_PASS, EVENT_TEST_BEGIN } = (Mocha.Runner as any).constants;
+const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {
@@ -36,19 +35,6 @@ const commonTestHandle = (submitHandle: SubmitHandle) => {
 export class IPCReporter {
   public constructor(runner) {
     runner
-      .on(EVENT_TEST_FAIL, (test) => {
-        console.log('end', test.titlePath().join(' > '));
-      })
-      .on(EVENT_TEST_PASS, (test) => {
-        console.log('end', test.titlePath().join(' > '))
-      })
-      .on(
-        EVENT_TEST_BEGIN,
-        (test) => {
-          console.log('save', test.titlePath().join(' > '))
-          global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
-        }
-      )
       .on(
         EVENT_TEST_PASS,
         commonTestHandle(async testData => {
