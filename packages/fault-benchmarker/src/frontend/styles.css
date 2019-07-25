@@ -1,0 +1,32 @@
+:root {
+  --dark-primary: rgba(0, 0, 0, 0.87);
+  --dark-secondary: rgba(0, 0, 0, 0.53);
+  --dark-ternary: rgba(0, 0, 0, 0.17);
+}
+
+* {
+  color: var(--dark-primary);
+  font-family: "Open Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  padding: 60px;
+}
+
+.table {
+  border-collapse: collapse;
+}
+
+.table > tbody > *:first-child > * {
+  font-weight: 600;
+}
+
+.table > tbody > * > * {
+  border: 1px solid #AAAAAA;
+  padding: 20px;
+  width: 70px;
+  text-align: center;
+  vertical-align: middle;
+}
