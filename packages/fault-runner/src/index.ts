@@ -26,7 +26,7 @@ const runAndRecycleProcesses = (
   absoluteImportPaths: string[],
   hooks: TestHookOptions,
   cwd: string = process.cwd(),
-  env?: { [s: string]: any },
+  env: { [s: string]: any },
 ): Promise<TesterResults> => {
   const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
   const remainders = directories.length % processCount;
@@ -36,7 +36,7 @@ const runAndRecycleProcesses = (
   const start = new Date();
   const forkForTest = (): ChildProcess =>
     fork(addonEntryPath, [tester, JSON.stringify(absoluteImportPaths)], {
-      env: env ? env : process.env,
+      env,
       cwd,
       stdio: 'inherit',
     });
@@ -144,6 +144,7 @@ export type RunOptions = {
   addons?: PartialTestHookOptions[];
   reporters?: PartialTestHookOptions[];
   workers?: number;
+  env?: { [s: string]: any },
 };
 export const run = async ({
   tester,
@@ -153,6 +154,7 @@ export const run = async ({
   workers = cpus().length,
   cwd = process.cwd(),
   reporters = [defaultReporter.createPlugin({ dir: join(cwd, 'coverage') })],
+  env = process.env
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -172,6 +174,7 @@ export const run = async ({
     setupFiles,
     hooks,
     cwd,
+    env
   );
 
   await hooks.on.complete(results);
