@@ -79,6 +79,7 @@
     "lerna": "^3.10.7",
     "mocha": "^6.1.4",
     "mz": "^2.7.0",
+    "node-fetch": "^2.6.0",
     "prettier": "^1.15.3",
     "puppeteer": "^1.19.0",
     "rewiremock": "^3.13.7",
