@@ -1,2 +1,2 @@
 scrape-repo.auth
-scrape-repo.output
+scrape-repo.*.*.output
