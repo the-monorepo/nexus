@@ -8,6 +8,7 @@ import { consoleTransport } from 'build-pshaw-logger';
 import { readFile } from 'mz/fs';
 import { resolve } from 'path';
 import chalk from 'chalk';
+import { writeFile, appendFile } from 'mz/fs';
 
 const log = logger().add(consoleTransport());
 
@@ -64,22 +65,32 @@ const run = async () => {
   const owner = process.argv[2];
   const repoName = process.argv[3];
 
-  const retrivePrs = async (after?): Promise<QueryPayload> => {
-    const response = await fetch('https://api.github.com/graphql', {
-      body: JSON.stringify({
-        query: graphqlQuery,
-        variables: {
-          owner,
-          repoName,
-          after
-        }
-      }),
-      headers: {
-        Authorization: `token ${token}`,
-      },
-      method: 'POST'
-    });
-    return await response.json();
+  const retrievePrs = async (after?): Promise<QueryPayload> => {
+    while(true) {
+      const response = await fetch('https://api.github.com/graphql', {
+        body: JSON.stringify({
+          query: graphqlQuery,
+          variables: {
+            owner,
+            repoName,
+            after
+          }
+        }),
+        headers: {
+          Authorization: `token ${token}`,
+        },
+        method: 'POST'
+      });
+
+      const data = await response.json();
+
+      if(data.data != null) {
+        return data;
+      } else {
+        log.warn(`Requesting PRs after ${after} responded with strange results...`);
+        console.log(data);
+      }
+    }
   }
 
 
@@ -89,9 +100,10 @@ const run = async () => {
   let data: QueryPayload = undefined as any;
   let prCount = 0;
   do {
-    data = await retrivePrs(after);
+    data = await retrievePrs(after);
 
     for(const pullRequest of data.data.repository.pullRequests.edges) {
+      prCount++;
       const logSkipMessage = (reason: string) => {
         log.info(`Skipping ${chalk.cyan(pullRequest.node.title)}. ${reason}`);
       }
@@ -128,12 +140,14 @@ const run = async () => {
         url: pullRequest.node.url,
         commitUrl: pullRequest.node.mergeCommit ? pullRequest.node.mergeCommit.commitUrl : null
       });
-      prCount++;
     }  
     after = data.data.repository.pullRequests.pageInfo.endCursor;
   } while(data.data.repository.pullRequests.pageInfo.hasNextPage)
 
+  const outputFilePath = `./scrape-repo.${owner}.${repoName}.output`;
+  await writeFile(outputFilePath, '', 'utf8');
   for(const pullRequestData of spicyPullRequests) {
+    await appendFile(outputFilePath, `${pullRequestData.title}\n${pullRequestData.url}\n\n`);
     console.log(chalk.cyan(pullRequestData.title));
     console.log(chalk.greenBright(pullRequestData.url))
     console.log();
