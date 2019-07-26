@@ -27,6 +27,7 @@ export const initialize = async () => {
     running = true;
     while(queue.length > 0) {
       const data = queue.pop()!;
+
       const mocha = new Mocha({
         color: true,
         reporter: IPCReporter,
@@ -39,6 +40,7 @@ export const initialize = async () => {
       try {
         await new Promise(resolve => {
           global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
+
           mocha.run(async failures => {
             await submitFileResult(data);
             clearCache();

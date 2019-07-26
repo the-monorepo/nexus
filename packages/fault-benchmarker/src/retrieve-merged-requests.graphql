@@ -1,8 +1,11 @@
 query Query($repoName: String!, $owner: String!, $after: String) {
   repository(name: $repoName, owner: $owner) {
     pullRequests(first: 100, after: $after, states: [MERGED]) {
+      pageInfo{
+        hasNextPage,
+        endCursor
+      }
       edges {
-        cursor
         node {
           title
           url
