@@ -140,7 +140,6 @@ describe('utilities', function () {
 
     it('should handle out of bounds array index', function() {
       var info = gpi('dimensions.lengths[3]', obj);
-
       info.parent.should.equal(obj.dimensions.lengths);
       expect(info.value).to.be.undefined;
       info.name.should.equal(3);
@@ -194,7 +193,6 @@ describe('utilities', function () {
       var o = {
         foo: 'bar'
       };
-
       hp('foo', o).should.be.true;
       hp('baz', o).should.be.false;
       hp(0, o).should.be.false;
