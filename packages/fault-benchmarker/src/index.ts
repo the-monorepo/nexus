@@ -55,7 +55,9 @@ export type BenchmarkData = {
 };
 
 export const getProjectPaths = async (path: string | string[] = './projects/*') => {
-  return await globby(path, { onlyDirectories: true, expandDirectories: false });
+  const projectsDir = './projects';
+  const resolved = typeof path === 'string' ? resolve(projectsDir, path) : path.map(glob => resolve(projectsDir, glob));
+  return await globby(resolved, { onlyDirectories: true, expandDirectories: false });
 };
 
 const sbflAlgorithms = [
@@ -73,10 +75,10 @@ const sbflAlgorithms = [
 
 type BenchmarkConfig = {
   // Setup files to use (E.g. Babel register to transpile files)
-  setupFiles: string[];
+  setupFiles?: string[];
   // Name of the project
-  name: string;
-  testMatch: string;
+  testMatch?: string | string[];
+  env: { [s: string]: any }
 };
 
 const log = logger().add(
@@ -97,12 +99,28 @@ export const run = async () => {
 
   const runOnProject = async (projectDir: string) => {
     log.verbose(`Starting ${projectDir}...`);
+
     const benchmarkConfigPath = resolve(projectDir, 'benchmark.config.js');
     const benchmarkConfigExists = existsSync(benchmarkConfigPath);
+
+    const benchmarkConfig: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
     const {
-      setupFiles = [resolve(__dirname, 'babel')],
-      testMatch = resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}'),
-    }: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
+      setupFiles = [resolve(__dirname, 'babel')]
+    } = benchmarkConfig;
+
+    const optionsEnv = benchmarkConfig.env ? benchmarkConfig.env : {};
+    const testMatch = (() => {
+      if (benchmarkConfig.testMatch) {
+        if (typeof benchmarkConfig.testMatch === 'string') {
+          return resolve(projectDir, benchmarkConfig.testMatch);
+        } else {
+          return benchmarkConfig.testMatch.map(glob => resolve(projectDir, glob));
+        }
+      } else {
+        return resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}');
+      }
+    })();
+
     const expectedFaults = convertFileFaultDataToFaults(
       require(resolve(projectDir, 'expected-faults.json')),
     );
@@ -122,10 +140,18 @@ export const run = async () => {
 
     await flRunner.run({
       tester: '@fault/tester-mocha',
-      testMatch: testMatch,
+      testMatch,
       addons: sbflAddons,
-      setupFiles,
       cwd: projectDir,
+      setupFiles,
+      testerOptions: {
+        resetRequireCache: false,
+      },
+      env: {
+        ...process.env,
+        ...optionsEnv
+      },
+      workers: 1
     });
 
     const coverage = await readCoverageFile(
