@@ -115,8 +115,12 @@ const run = async () => {
         logSkipMessage('PR appears to involve changing dependencies');
         continue;
       }
-      if (pullRequest.node.title.match(/\btypos?\b/)) {
+      if (pullRequest.node.title.match(/\btypos?\b/i)) {
         logSkipMessage('The PR appears to just fix typos');
+        continue;
+      }
+      if (pullRequest.node.title.match(/\breadme\b/i)) {
+        logSkipMessage('The PR appears to just fix documentation');
         continue;
       }
       const fileThreshold = 20;
