@@ -1,11 +1,17 @@
-import Mocha from 'mocha';
 import { IPCReporter } from './recordTests';
 import { submitFileResult } from '@fault/messages';
 import { ParentResult, IPC, RunTestPayload } from '@fault/types';
 import { cloneCoverage } from '@fault/istanbul-util';
 const COVERAGE_KEY = '__coverage__';
 
-export const initialize = async () => {
+type Options = {
+  mocha?: string;
+  resetRequireCache?: boolean;
+};
+
+export const initialize = async (options: Options) => {
+  const { mocha = 'mocha', resetRequireCache = true } = options; 
+  const Mocha = require(mocha);
   const originalCacheKeys = new Set(Object.keys(require.cache));
 
   const clearCache = () => {
@@ -27,23 +33,24 @@ export const initialize = async () => {
     running = true;
     while(queue.length > 0) {
       const data = queue.pop()!;
-
-      const mocha = new Mocha({
+      const mochaInstance = new Mocha({
         color: true,
         reporter: IPCReporter,
         fullStackTrace: true,
       } as any);
 
-      mocha.addFile(require.resolve('./recordTests'));
-      mocha.addFile(data.filePath);
+      mochaInstance.addFile(require.resolve('./recordTests'));
+      mochaInstance.addFile(data.filePath);
 
       try {
         await new Promise(resolve => {
           global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
 
-          mocha.run(async failures => {
+          mochaInstance.run(async failures => {
             await submitFileResult(data);
-            clearCache();
+            if (resetRequireCache) {
+              clearCache();
+            }
             resolve(failures);
           });
         });
