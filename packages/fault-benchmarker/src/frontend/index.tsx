@@ -65,7 +65,7 @@ const averageMax = Math.max(...averageResults);
 const Main = () => (
   <div class="page">
     <header>
-      <h1>Fault.js Benchmarker</h1>
+      <h1>Fault.js benchmark results</h1>
     </header>
     <table class='table'>
       <tbody>
