@@ -128,22 +128,33 @@ const run = async () => {
         logSkipMessage(`More than ${fileThreshold} files changed (${pullRequest.node.files.totalCount})`);
         continue;
       }
-  
-      const changeThreshold = 1000;
-      const changeAmount = Math.abs(pullRequest.node.additions + pullRequest.node.deletions);
-      if (changeAmount > changeThreshold) {
-        logSkipMessage(`Additions - deletions was > 2000 (${changeAmount})`);
-        continue;
-      }
-    
+      
       const testFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/(\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b/i))
       if (testFiles.length <= 0) {
         logSkipMessage('Could not find any tests changed in the PR');
         continue;
       }
-      const hasNonTestSourceFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/\.([tj]sx?|flow)/i));
-      if (hasNonTestSourceFiles.length <= 0) {
+
+      const nonTestSourceFiles = pullRequest.node.files.nodes.filter(file => !testFiles.some(testFile => testFile.path === file.path) && !!file.path.match(/\.([tj]sx?|flow)/i));
+      if (nonTestSourceFiles.length <= 0) {
         logSkipMessage('No non-test source code files appear to have changed in this PR.');
+        continue;
+      }
+
+      const sourceFileData = nonTestSourceFiles.reduce((currentData, file) => {
+        currentData.additions += file.additions;
+        currentData.deletions += file.deletions;
+        return currentData;
+      }, { additions: 0, deletions: 0 });
+      
+      const additionsThreshold = 5;
+      const deletionsThreshold = 5;
+      if (sourceFileData.additions > additionsThreshold) {
+        logSkipMessage(`Source code had ${sourceFileData.additions} (>${additionsThreshold}) additions`);
+        continue;
+      }
+      if (sourceFileData.deletions > deletionsThreshold) {
+        logSkipMessage(`Source code had ${sourceFileData.deletions} (>${deletionsThreshold}) deletions`);
         continue;
       }
       spicyPullRequests.push({
