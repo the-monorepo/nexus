@@ -332,12 +332,12 @@ async function testNoBuild() {
       '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
       '!./packages/fault-benchmarker/projects/**',
     ],
-    setupFiles: ['./test/require/babel.js', './test/helpers/globals.js'],
     addons: [require('@fault/addon-sbfl').default({ scoringFn: require('@fault/sbfl-dstar').default, faultFilePath: './faults/faults.json' })],
     env: {
       ...process.env,
       NODE_ENV: 'test',
     },
+    setupFiles: ['source-map-support/register', './test/require/babel', './test/helpers/globals']
   });
   if (!passed) {
     process.exit(1);
