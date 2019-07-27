@@ -115,6 +115,10 @@ const run = async () => {
         logSkipMessage('PR appears to involve changing dependencies');
         continue;
       }
+      if (pullRequest.node.title.match(/\btypos?\b/)) {
+        logSkipMessage('The PR appears to just fix typos');
+        continue;
+      }
       const fileThreshold = 20;
       if (pullRequest.node.files.totalCount > fileThreshold) {
         logSkipMessage(`More than ${fileThreshold} files changed (${pullRequest.node.files.totalCount})`);
@@ -128,13 +132,17 @@ const run = async () => {
         continue;
       }
     
-      const nonTestFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/test.*\.([tj]sx?|flow)/i))
+      const nonTestFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/(\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b/i))
       const hasTests = nonTestFiles.length - pullRequest.node.files.nodes.length;
       if (!hasTests) {
         logSkipMessage('Could not find any tests changed in the PR');
         continue;
       }
-  
+      const hasNonTestSourceFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/\.([tj]sx?|flow)/i));
+      if (hasNonTestSourceFiles.length <= 0) {
+        logSkipMessage('No non-test source code files appear to have changed in this PR.');
+        continue;
+      }
       spicyPullRequests.push({
         title: pullRequest.node.title,
         url: pullRequest.node.url,
@@ -152,7 +160,7 @@ const run = async () => {
     console.log(chalk.greenBright(pullRequestData.url))
     console.log();
   }
-  log.info(`Searched ${prCount} PRs`);
+  log.info(`Searched ${prCount} PRs - ${spicyPullRequests.length} have potential`);
 }
 
 run().catch(console.error);
