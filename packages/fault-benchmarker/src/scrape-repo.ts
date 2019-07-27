@@ -54,7 +54,7 @@ type CuratedPullRequest = {
   commitUrl: string | null
 }
 
-const run = async () => {
+const run = async () => { 
   if (process.argv.length <= 3) {
     log.error('Was expecting arguments of the format <owner> <repo-name>');
     return;
@@ -115,7 +115,7 @@ const run = async () => {
         logSkipMessage('PR appears to involve changing dependencies');
         continue;
       }
-      if (pullRequest.node.title.match(/\btypos?\b/i)) {
+      if (pullRequest.node.title.match(/\b(typos?|spelling)\b/i)) {
         logSkipMessage('The PR appears to just fix typos');
         continue;
       }
@@ -136,9 +136,8 @@ const run = async () => {
         continue;
       }
     
-      const nonTestFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/(\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b/i))
-      const hasTests = nonTestFiles.length - pullRequest.node.files.nodes.length;
-      if (!hasTests) {
+      const testFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/(\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b/i))
+      if (testFiles.length <= 0) {
         logSkipMessage('Could not find any tests changed in the PR');
         continue;
       }
