@@ -57,7 +57,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: `Patrick Shaw - Resume`,
+      title: `Fault.js benchmark results`,
       inject: false,
       template: HtmlWebpackTemplate,
       appMountId: 'root',
