@@ -78,7 +78,8 @@ type BenchmarkConfig = {
   setupFiles?: string[];
   // Name of the project
   testMatch?: string | string[];
-  env: { [s: string]: any }
+  env: { [s: string]: any },
+  sandbox?: boolean;
 };
 
 const log = logger().add(
@@ -105,7 +106,8 @@ export const run = async () => {
 
     const benchmarkConfig: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
     const {
-      setupFiles = [resolve(__dirname, 'babel')]
+      setupFiles = [resolve(__dirname, 'babel')],
+      sandbox = false
     } = benchmarkConfig;
 
     const optionsEnv = benchmarkConfig.env ? benchmarkConfig.env : {};
@@ -148,6 +150,7 @@ export const run = async () => {
       setupFiles,
       testerOptions: {
         resetRequireCache: false,
+        sandbox
       },
       env: {
         ...process.env,
