@@ -1,15 +1,15 @@
 import 'source-map-support/register';
-import { ScorelessFault, createPlugin } from '@fault/addon-sbfl';
-import { convertFileFaultDataToFaults } from '@fault/record-faults';
 import { consoleTransport, logger } from '@pshaw/logger';
 
 import { writeFile } from 'mz/fs';
 import { existsSync } from 'fs';
-import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
 import * as flRunner from '@fault/runner';
 import { resolve } from 'path';
 import globby from 'globby';
 
+import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
+import { ScorelessFault, createPlugin } from '@fault/addon-sbfl';
+import { convertFileFaultDataToFaults } from '@fault/record-faults';
 import { dStar } from '@fault/sbfl-dstar';
 import { tarantula } from '@fault/sbfl-tarantula';
 import { ochiai } from '@fault/sbfl-ochiai';
@@ -54,7 +54,7 @@ export type BenchmarkData = {
   [algorithmName: string]: number;
 };
 
-export const getProjectPaths = async (path: string | string[] = './projects/*') => {
+export const getProjectPaths = async (path: string | string[] = '*') => {
   const projectsDir = './projects';
   const resolved = typeof path === 'string' ? resolve(projectsDir, path) : path.map(glob => resolve(projectsDir, glob));
   return await globby(resolved, { onlyDirectories: true, expandDirectories: false });
@@ -109,6 +109,7 @@ export const run = async () => {
     } = benchmarkConfig;
 
     const optionsEnv = benchmarkConfig.env ? benchmarkConfig.env : {};
+
     const testMatch = (() => {
       if (benchmarkConfig.testMatch) {
         if (typeof benchmarkConfig.testMatch === 'string') {
@@ -133,6 +134,7 @@ export const run = async () => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
         faultFilePath: faultFilePath(projectDir, name),
+        console: false
       });
 
       return sbflAddon;
@@ -175,7 +177,6 @@ export const run = async () => {
       projectOutput[name] = examScore;
     }
     const faultResultsPath = resolve(projectDir, 'fault-results.json');
-
     console.log(projectOutput);
     await writeFile(faultResultsPath, JSON.stringify(projectOutput, undefined, 2));
   };

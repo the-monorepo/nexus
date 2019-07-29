@@ -1,6 +1,3 @@
-import * as assertionTypes from './assertion';
-import { Coverage } from '@fault/istanbul-util';
-
 /**
  * For when the tests in a file have completed
  */

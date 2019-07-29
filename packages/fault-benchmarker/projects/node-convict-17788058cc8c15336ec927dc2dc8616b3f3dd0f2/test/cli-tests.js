@@ -114,6 +114,7 @@ function run(name, done) {
         return done();
       }
     } catch(e) {
+      console.log(e);
       return done(e);
     }
   });

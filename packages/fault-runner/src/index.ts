@@ -7,7 +7,7 @@ import {
   ChildResult,
   TesterResults,
 } from '@fault/types';
-import { runTest, stopWorker } from '@fault/messages';
+import { runTests, stopWorker } from '@fault/messages';
 import { join } from 'path';
 import {
   TestHookOptions,
@@ -42,16 +42,6 @@ const runAndRecycleProcesses = (
       stdio: 'inherit',
     });
 
-  const runTests = (worker: ChildProcess, testPaths: string[]) => {
-    return Promise.all(
-      testPaths.map(testPath =>
-        runTest(worker, {
-          filePath: testPath,
-        }),
-      ),
-    );
-  };
-
   const unfinishedFiles: Set<string> = new Set(directories);
   let workers: ChildProcess[] = [];
   return new Promise((resolve, reject) => {
@@ -64,7 +54,10 @@ const runAndRecycleProcesses = (
         );
         const worker = forkForTest();
         setupWorkerHandle(worker);
-        runTests(worker, testPaths);
+        runTests(worker, {
+          testPaths
+        });
+
         workers[i] = worker;
         i++;
       }
@@ -73,7 +66,7 @@ const runAndRecycleProcesses = (
           const testPaths = unfinishedFilePaths.splice(0, testsPerWorkerWithoutRemainder);
           const worker = forkForTest();
           setupWorkerHandle(worker);
-          runTests(worker, testPaths);
+          runTests(worker, { testPaths });
           workers[i] = worker;
           i++;
         }
@@ -94,8 +87,10 @@ const runAndRecycleProcesses = (
             break;
           }
           case IPC.FILE_FINISHED: {
-            unfinishedFiles.delete(message.filePath);
+            unfinishedFiles.delete(message.testPath);
+
             await hooks.on.fileFinished();
+
             if (unfinishedFiles.size <= 0) {
               const end = new Date();
               const duration = end.getTime() - start.getTime();
@@ -164,8 +159,7 @@ export const run = async ({
   const hooks: TestHookOptions = schema.merge(addons);
 
   const directories = await globby(testMatch, { onlyFiles: true });
-  // We pop the paths off the end of the list so the first path thing needs to be at the end
-  directories.reverse();
+  directories.sort();
 
   // TODO: Still need to add a scheduling algorithm
   const processCount = workers;

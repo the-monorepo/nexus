@@ -347,6 +347,7 @@ async function testNoBuild() {
       './test/require/babel',
       './test/helpers/globals',
     ],
+    sandbox: true
   });
   if (!passed) {
     process.exit(1);
