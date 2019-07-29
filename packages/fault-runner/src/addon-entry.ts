@@ -7,6 +7,7 @@ export const run = async () => {
       const requiredModule = require(require.resolve(importPath, {
         paths: [process.cwd()],
       }));
+
       if (requiredModule !== undefined) {
         if (typeof requiredModule === 'function') {
           await Promise.resolve(requiredModule());
@@ -15,6 +16,7 @@ export const run = async () => {
         }
       }
     }
+
     const runner = require(modulePath).default;
     try {
       await Promise.resolve(runner(testerOptions));
@@ -26,5 +28,4 @@ export const run = async () => {
   }
 };
 
-export default run;
 run();
