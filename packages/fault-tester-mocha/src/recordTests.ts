@@ -5,7 +5,7 @@ import { AssertionFailureData } from '@fault/types';
 import { createHash } from 'crypto';
 import { AssertionError } from '@fault/mocha-assertion-error';
 
-const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
+const { EVENT_TEST_FAIL, EVENT_TEST_PASS, EVENT_ROOT_SUITE_RUN } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {

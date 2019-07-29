@@ -6,12 +6,37 @@ const COVERAGE_KEY = '__coverage__';
 
 type Options = {
   mocha?: string;
-  resetRequireCache?: boolean;
+  sandbox?: boolean;
 };
 
+const createMochaInstance = (Mocha) => {
+  const mochaInstance = new Mocha({
+    color: true,
+    reporter: IPCReporter,
+    fullStackTrace: true,
+  } as any);
+  mochaInstance.addFile(require.resolve('./recordTests'));
+  return mochaInstance;
+}
+
+const runMochaInstance = async (mochaInstance, runHandle) => {
+  try {
+    await new Promise(resolve => {
+      mochaInstance.run(async failures => {
+        await runHandle(failures);
+        resolve(failures);
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  } 
+}
+
 export const initialize = async (options: Options) => {
-  const { mocha = 'mocha', resetRequireCache = true } = options; 
+  const { mocha = 'mocha', sandbox = false } = options; 
   const Mocha = require(mocha);
+  
   const originalCacheKeys = new Set(Object.keys(require.cache));
 
   const clearCache = () => {
@@ -22,41 +47,42 @@ export const initialize = async (options: Options) => {
         delete require.cache[testCacheKey];
       }
     }
-  };
+  }; 
 
   const queue: RunTestPayload[] = [];
   let running = false;
-  const runQueue = async () => {
+  const runQueue = async (data: RunTestPayload) => {
+    queue.push(data);
     if (running) {
       return;
     }
+    
     running = true;
     while(queue.length > 0) {
       const data = queue.pop()!;
-      const mochaInstance = new Mocha({
-        color: true,
-        reporter: IPCReporter,
-        fullStackTrace: true,
-      } as any);
-
-      mochaInstance.addFile(require.resolve('./recordTests'));
-      mochaInstance.addFile(data.filePath);
-
-      try {
-        await new Promise(resolve => {
+      if (sandbox) {
+        for(const testPath of data.testPaths) {    
+          const mochaInstance = createMochaInstance(Mocha);
+          mochaInstance.addFile(testPath);
           global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
-
-          mochaInstance.run(async failures => {
-            await submitFileResult(data);
-            if (resetRequireCache) {
-              clearCache();
-            }
-            resolve(failures);
+          await runMochaInstance(mochaInstance, async () => {
+            await submitFileResult({ testPath });
+            clearCache();
           });
-        });
-      } catch (err) {
-        console.error(err);
-        process.exit(1);
+        }
+      } else {
+        const mochaInstance = createMochaInstance(Mocha);
+        for(const testPath of data.testPaths) {  
+          mochaInstance.addFile(testPath);
+        }
+        await runMochaInstance(mochaInstance, async () => {
+          for(const testPath of data.testPaths) {
+            await submitFileResult({
+              testPath
+            });
+          }
+          clearCache();
+        });  
       }
     }
     running = false;
@@ -68,8 +94,7 @@ export const initialize = async (options: Options) => {
         break;
       }
       case IPC.RUN_TEST: {
-        queue.push(data);
-        runQueue();
+        runQueue(data);
         break;
       }
     }

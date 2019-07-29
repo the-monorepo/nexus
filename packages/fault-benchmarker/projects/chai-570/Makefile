@@ -1,6 +1,6 @@
 
 TESTS = test/*.js
-REPORTER = dot
+REPORTER = list
 
 #
 # Browser Build

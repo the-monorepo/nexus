@@ -50,10 +50,12 @@ export type FailingTestData = {
 export type TestResult = (PassingTestData | FailingTestData) &
   TypeHolder<typeof IPC.TEST>;
 
-export type FileFinishedData = RunTestData;
+export type FileFinishedData = {
+  testPath: string;
+};
 export type FileFinishedResult = FileFinishedData & TypeHolder<typeof IPC.FILE_FINISHED>;
 export type RunTestData = {
-  filePath: string;
+  testPaths: string[];
 };
 export type RunTestPayload = RunTestData & TypeHolder<typeof IPC.RUN_TEST>;
 export type StopWorkerData = {};
