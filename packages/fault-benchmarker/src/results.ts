@@ -1,3 +1,4 @@
+import 'source-map-support/register';
 import { readFile, readdir, writeFile } from 'mz/fs';
 import globby from 'globby';
 import { resolve, basename } from 'path';
@@ -16,10 +17,18 @@ export const run = async () => {
   });
   const projectResults: ProjectResult[] = [];
   for (const projectDir of projectDirs) {
-    projectResults.push({
-      name: basename(projectDir),
-      results: require(resolve(projectDir, 'fault-results.json')),
-    });
+    try {
+      projectResults.push({
+        name: basename(projectDir),
+        results: require(resolve(projectDir, 'fault-results.json')),
+      });  
+    } catch(err) {
+      if (err.code === 'MODULE_NOT_FOUND') {
+        console.error(`${projectDir} is missing a 'fault-results.json' file`);
+      } else {
+        throw err;
+      }
+    }
   }
 
   const algorithmNames: Set<string> = new Set();
