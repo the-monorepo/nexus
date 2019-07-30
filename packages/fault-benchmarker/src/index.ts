@@ -63,7 +63,7 @@ export const getProjectPaths = async (path: string | string[] = '*') => {
 const sbflAlgorithms = [
   { name: 'dstar-0', scoringFn: (a, b) => dStar(a, b, 0) },
   { name: 'dstar-1', scoringFn: (a, b) => dStar(a, b, 1) },
-  { name: 'dstar-2', scoringFn: dStar },
+  { name: 'dstar-2', scoringFn: dStar, console: true },
   { name: 'dstar-3', scoringFn: (a, b) => dStar(a, b, 3) },
   { name: 'dstar-4', scoringFn: (a, b) => dStar(a, b, 4) },
   { name: 'dstar-5', scoringFn: (a, b) => dStar(a, b, 5) },
@@ -132,11 +132,11 @@ export const run = async () => {
 
     log.verbose(`Running SBFL algorithms on ${projectDir}`);
 
-    const sbflAddons = sbflAlgorithms.map(({ scoringFn, name }) => {
+    const sbflAddons = sbflAlgorithms.map(({ scoringFn, name, console = false }) => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
         faultFilePath: faultFilePath(projectDir, name),
-        console: false
+        console
       });
 
       return sbflAddon;
