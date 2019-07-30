@@ -44,7 +44,7 @@ module.exports = function (chai, _) {
   [ 'to', 'be', 'been'
   , 'is', 'and', 'has', 'have'
   , 'with', 'that', 'which', 'at'
-  , 'of', 'same', 'but' ].forEach(function (chain) {
+  , 'of', 'same', 'but', 'does' ].forEach(function (chain) {
     Assertion.addProperty(chain);
   });
 

@@ -1,14 +1,14 @@
 {
-  "./lib/chai/core/assertion.js": [
+  "./lib/chai/core/assertions.js": [
     { 
       "location": {
         "start": {
-          "line": 939,
-          "column": 4
+          "line": 44,
+          "column": 2
         },
         "end": {
-          "line": 943,
-          "column": 6
+          "line": 49,
+          "column": 5
         }
       }
     }

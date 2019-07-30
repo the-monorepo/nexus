@@ -1,5 +1,5 @@
 {
-  "./lib/chai/core/assertion.js": [
+  "./lib/chai/core/assertions.js": [
     { 
       "location": {
         "start": {
