@@ -45,13 +45,13 @@ export const run = async () => {
 
   const averageResults = projectResults.reduce((currentSum, projectResult) => {
     for (const algorithmName of Object.keys(projectResult.results)) {
-      currentSum[algorithmName] *= projectResult.results[algorithmName];
+      currentSum[algorithmName] += projectResult.results[algorithmName];
     }
     return currentSum;
   }, initialAverageResult);
 
   for (const algorithmName of Object.keys(averageResults)) {
-    averageResults[algorithmName] = Math.pow(averageResults[algorithmName], 1 / projectResults.length);
+    averageResults[algorithmName] = averageResults[algorithmName] / projectResults.length;
   }
 
   const finalResults = {
