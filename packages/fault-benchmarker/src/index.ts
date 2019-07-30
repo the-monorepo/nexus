@@ -4,7 +4,7 @@ import { consoleTransport, logger } from '@pshaw/logger';
 import { writeFile } from 'mz/fs';
 import { existsSync } from 'fs';
 import * as flRunner from '@fault/runner';
-import { resolve } from 'path';
+import { resolve, normalize } from 'path';
 import globby from 'globby';
 
 import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
@@ -17,7 +17,7 @@ import { barinel } from '@fault/sbfl-barinel';
 import { op2 } from '@fault/sbfl-op2';
 
 export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
-  return `${resolve(projectDir, fault.sourcePath)}:${fault.location.start.line}:${
+  return `${normalize(resolve(projectDir, fault.sourcePath)).replace(/\\\\/g, '\\')}:${fault.location.start.line}:${
     fault.location.start.column
   }`;
 };
@@ -34,20 +34,21 @@ export const calculateExamScore = (
   }
 
   let sum = 0;
-  let linesInspected = 1; // The first fault will still need to be counted as 1 line so start with 1
+  let nonFaultElementsInspected = 0; // The first fault will still need to be counted as 1 line so start with 1
 
   for (const actualFault of actualFaults) {
     const key = faultToKey(projectDir, actualFault);
     const expectedFault = expectedFaultMap.get(key);
     if (expectedFault !== undefined) {
-      sum += linesInspected;
+      sum += nonFaultElementsInspected;
       expectedFaultMap.delete(key);
     } else {
-      linesInspected++;
+      nonFaultElementsInspected++;
     }
   }
+  sum += expectedFaultMap.size * nonFaultElementsInspected;
 
-  return sum / expectedFaults.length / totalExecutableStatements;
+  return (sum / expectedFaults.length) / totalExecutableStatements;
 };
 
 export type BenchmarkData = {
