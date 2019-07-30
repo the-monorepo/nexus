@@ -37,13 +37,11 @@ const TableHeader = () => (
 );
 
 const ProjectResult = (project: ProjectResult) => {
-  console.log(project.max, project.min);
   const range = project.max - project.min;
   return (
     <tr>
       <td><p>{project.name}</p></td>
       {project.results.map((result) => {
-        console.log(range);
         const colorWeight = range === 0 ? 0 : ((result != null ? result : 0) - project.min) / range;
         const offset = 120;
         const factor = (255 - offset) - 10;
