@@ -60,7 +60,7 @@ const ProjectResult = (project: ProjectResult) => {
   );
 }
 
-const averageResults: number[] = Object.values(benchmarkResults.average).map(result => result ? result : 0) as number[];
+const averageResults: number[] = Object.values(benchmarkResults.average).map(result => result != null ? result : 0) as number[];
 const averageMin = Math.min(...averageResults);
 const averageMax = Math.max(...averageResults);
 
