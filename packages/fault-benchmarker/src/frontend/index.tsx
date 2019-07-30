@@ -17,8 +17,8 @@ const projectResults: ProjectResult[] = benchmarkResults.projects.map(project =>
   for (const algorithmName of algorithmNames) {
     results.push(project.results[algorithmName]);
   }
-  const max = Math.max(...results.filter(a => !!a) as number[]);
-  const min = Math.min(...results.filter(a => !!a) as number[]);
+  const max = Math.max(...results.filter(a => a != null) as number[]);
+  const min = Math.min(...results.filter(a => a != null) as number[]);
   return {
     name: project.name,
     max: Number.isNaN(max) ? 1 : max,
@@ -37,12 +37,14 @@ const TableHeader = () => (
 );
 
 const ProjectResult = (project: ProjectResult) => {
+  console.log(project.max, project.min);
   const range = project.max - project.min;
   return (
     <tr>
       <td><p>{project.name}</p></td>
       {project.results.map((result) => {
-        const colorWeight = range === 0 ? 0 : (((result ? result : 0) - project.min) / range);
+        console.log(range);
+        const colorWeight = range === 0 ? 0 : ((result != null ? result : 0) - project.min) / range;
         const offset = 120;
         const factor = (255 - offset) - 10;
         const red = offset + factor * Math.min(1, colorWeight);
@@ -50,7 +52,7 @@ const ProjectResult = (project: ProjectResult) => {
         const blue = offset * 0.8;
         return (
           <td style={`background-color: rgb(${red}, ${green}, ${blue});`}>
-            <p>{result ? Math.round(result * 1000) / 1000 : 'unknown'}</p>
+            <p>{result != null ? Math.round(result * 1000) / 1000 : 'unknown'}</p>
           </td>
         );
       })}
