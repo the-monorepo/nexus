@@ -26,6 +26,22 @@ describe('configuration', function () {
   }
 
   describe('includeStack', function() {
+    it.skip('is true for method assertions', function () {
+      chai.config.includeStack = true;
+
+      try {
+        fooThrows();
+        assert.ok(false, 'should not get here because error thrown');
+      } catch (err) {
+        // not all browsers support err.stack
+        if ('undefined' !== typeof err.stack) {
+          assert.include(err.stack, 'assertEqual', 'should have internal stack trace in error message');
+          assert.include(err.stack, 'fooThrows', 'should have user stack trace in error message');
+        }
+      }
+
+    });
+
     it('is false for method assertions', function () {
       chai.config.includeStack = false;
 
