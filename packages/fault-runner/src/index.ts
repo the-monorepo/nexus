@@ -88,10 +88,23 @@ const runAndRecycleProcesses = async (
     workers[w] = worker;
   }
 
-  const bufferCount = 2;
+  const bufferCount = 3;
   const addInitialTests = () => {
-    for(const worker of workers) {
-      addTestsToWorker(worker, testFileQueue.splice(0, bufferCount));
+    const workerTests: string[][] = [];
+    for(let w = 0; w < workers.length; w++) {
+      workerTests[w] = [];
+    }
+    let i = 0;
+    while(testFileQueue.length > 0 && i < bufferCount) {
+      let w = 0;
+      while(testFileQueue.length > 0 && w < workers.length) {
+        workerTests[w].push(testFileQueue.pop()!);
+        w++;
+      }
+      i++;
+    }
+    for(let w = 0; w < workers.length; w++) {
+      addTestsToWorker(workers[w], workerTests[w]);
     }
   }
 
