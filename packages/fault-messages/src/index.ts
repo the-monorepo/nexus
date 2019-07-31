@@ -1,30 +1,20 @@
 import {
-  AssertionFailureData,
   IPC,
-  AssertionFailureResult,
   PassingTestData,
   FailingTestData,
   TestResult,
   FileFinishedData,
   FileFinishedResult,
-  RunTestData,
-  RunTestPayload,
+  RunTestsPayload,
   StopWorkerData,
   StopWorkerResult,
+  RunTestsData,
 } from '@fault/types';
 import { promisify } from 'util';
 import { ChildProcess } from 'child_process';
 
 const promiseSend: (...arg: any) => Promise<any> =
   process.send !== undefined ? promisify(process.send!.bind(process)) : undefined!;
-export const submitAssertionResult = (data: AssertionFailureData) => {
-  const result: AssertionFailureResult = {
-    ...data,
-    type: IPC.ASSERTION,
-  };
-
-  return promiseSend!(result);
-};
 
 export const submitTestResult = async (data: PassingTestData | FailingTestData) => {
   const result: TestResult = {
@@ -54,8 +44,8 @@ const promiseWorkerSend = (worker: ChildProcess, data: any) => {
     });
   });
 };
-export const runTests = (worker: ChildProcess, data: RunTestData) => {
-  const result: RunTestPayload = {
+export const runTests = (worker: ChildProcess, data: RunTestsData) => {
+  const result: RunTestsPayload = {
     type: IPC.RUN_TEST,
     ...data,
   };
