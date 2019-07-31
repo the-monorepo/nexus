@@ -36,10 +36,11 @@ export type TestResult = (PassingTestData | FailingTestData) &
 export type FileFinishedResult = FileFinishedData & TypeHolder<typeof IPC.FILE_FINISHED>;
 export type RunTestData = {
   testPath: string;
-  duration: number;
   key: any;
 };
-export type FileFinishedData = RunTestData;
+export type FileFinishedData = RunTestData & {
+  duration: number;
+};
 
 export type RunTestsData = {
   testsToRun: RunTestData[];
