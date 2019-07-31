@@ -2,10 +2,11 @@ import 'source-map-support/register';
 import { consoleTransport, logger } from '@pshaw/logger';
 
 import { writeFile } from 'mz/fs';
-import { existsSync } from 'fs';
 import * as flRunner from '@fault/runner';
 import { resolve, normalize } from 'path';
 import globby from 'globby';
+import * as micromatch from 'micromatch';
+import chalk from 'chalk';
 
 import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
 import { ScorelessFault, createPlugin } from '@fault/addon-sbfl';
@@ -15,6 +16,10 @@ import { tarantula } from '@fault/sbfl-tarantula';
 import { ochiai } from '@fault/sbfl-ochiai';
 import { barinel } from '@fault/sbfl-barinel';
 import { op2 } from '@fault/sbfl-op2';
+
+import { BenchmarkConfig, ProjectConfig } from './config';
+import benchmarkConfig from './config';
+
 
 export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
   return `${normalize(resolve(projectDir, fault.sourcePath)).replace(/\\\\/g, '\\')}:${fault.location.start.line}:${
@@ -74,15 +79,6 @@ const sbflAlgorithms = [
   { name: 'op2', scoringFn: op2 },
 ];
 
-type BenchmarkConfig = {
-  // Setup files to use (E.g. Babel register to transpile files)
-  setupFiles?: string[];
-  // Name of the project
-  testMatch?: string | string[];
-  env: { [s: string]: any },
-  sandbox?: boolean;
-};
-
 const log = logger().add(
   consoleTransport({
     level: 'verbose',
@@ -94,6 +90,17 @@ const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
   return faultPath;
 };
 
+const findConfig = (benchmarkConfig: BenchmarkConfig, path: string): ProjectConfig | null => {
+  for(const projectConfig of benchmarkConfig) {
+    const globs = Array.isArray(projectConfig.glob) ? projectConfig.glob : [projectConfig.glob];
+    const resolvedGlobs = globs.map(glob => resolve('./projects', glob).replace(/\\+/g, '/'));
+    if (micromatch.isMatch(path, resolvedGlobs)) {
+      return projectConfig;
+    }
+  }
+  return null;
+}
+
 export const run = async () => {
   const projectDirs = await getProjectPaths(
     process.argv.length <= 2 ? undefined : process.argv.slice(2),
@@ -101,24 +108,26 @@ export const run = async () => {
 
   const runOnProject = async (projectDir: string) => {
     log.verbose(`Starting ${projectDir}...`);
-
-    const benchmarkConfigPath = resolve(projectDir, 'benchmark.config.js');
-    const benchmarkConfigExists = existsSync(benchmarkConfigPath);
-
-    const benchmarkConfig: BenchmarkConfig = benchmarkConfigExists ? require(benchmarkConfigPath) : {};
+    
+    const selectedConfig = findConfig(benchmarkConfig, projectDir);
+    if (selectedConfig === null) {
+      log.warn(`Could not find an explicit config for '${chalk.cyan(projectDir)}'`);
+    }
+    const projectConfig = selectedConfig === null ? {} : selectedConfig; 
     const {
       setupFiles = [resolve(__dirname, 'babel')],
-      sandbox = false
-    } = benchmarkConfig;
+      sandbox = false,
+      tester = '@fault/tester-mocha',
+    } = projectConfig;
 
-    const optionsEnv = benchmarkConfig.env ? benchmarkConfig.env : {};
+    const optionsEnv = projectConfig.env ? projectConfig.env : {};
 
     const testMatch = (() => {
-      if (benchmarkConfig.testMatch) {
-        if (typeof benchmarkConfig.testMatch === 'string') {
-          return resolve(projectDir, benchmarkConfig.testMatch);
+      if (projectConfig.testMatch) {
+        if (typeof projectConfig.testMatch === 'string') {
+          return resolve(projectDir, projectConfig.testMatch);
         } else {
-          return benchmarkConfig.testMatch.map(glob => resolve(projectDir, glob));
+          return projectConfig.testMatch.map(glob => resolve(projectDir, glob));
         }
       } else {
         return resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}');
@@ -143,8 +152,9 @@ export const run = async () => {
       return sbflAddon;
     });
 
+    // TODO: Don't hard code testerOptions
     await flRunner.run({
-      tester: '@fault/tester-mocha',
+      tester,
       testMatch,
       addons: sbflAddons,
       cwd: projectDir,
@@ -181,7 +191,6 @@ export const run = async () => {
       projectOutput[name] = examScore;
     }
     const faultResultsPath = resolve(projectDir, 'fault-results.json');
-    console.log(projectOutput);
     await writeFile(faultResultsPath, JSON.stringify(projectOutput, undefined, 2));
   };
 
