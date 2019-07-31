@@ -17,7 +17,6 @@ type TypeHolder<T> = {
 export type TestData = {
   key: string;
   titlePath: string[];
-  duration: number;
   file: string;
   coverage: Coverage;
 };
@@ -34,15 +33,14 @@ export type FailingTestData = {
 export type TestResult = (PassingTestData | FailingTestData) &
   TypeHolder<typeof IPC.TEST>;
 
-export type FileFinishedData = {
-  testPath: string;
-  estimatedDuration: number;
-};
 export type FileFinishedResult = FileFinishedData & TypeHolder<typeof IPC.FILE_FINISHED>;
 export type RunTestData = {
   testPath: string;
-  estimatedDuration: number;
+  duration: number;
+  key: any;
 };
+export type FileFinishedData = RunTestData;
+
 export type RunTestsData = {
   testsToRun: RunTestData[];
 };
