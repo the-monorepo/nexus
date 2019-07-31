@@ -157,7 +157,7 @@ export const run = async () => {
         ...process.env,
         ...optionsEnv
       },
-      workers: 1
+      workers: sandbox ? undefined : 1
     });
 
     const coverage = await readCoverageFile(
