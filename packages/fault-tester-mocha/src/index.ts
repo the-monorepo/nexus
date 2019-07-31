@@ -61,12 +61,15 @@ export const initialize = async (options: Options) => {
     while(queue.length > 0) {
       const data = queue.pop()!;
       if (sandbox) {
-        for(const {testPath, estimatedDuration } of data.testsToRun) {    
+        for(const { testPath, key } of data.testsToRun) {    
           const mochaInstance = createMochaInstance(Mocha);
           mochaInstance.addFile(testPath);
           global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
+          const startTime = Date.now();
           await runMochaInstance(mochaInstance, async () => {
-            await submitFileResult({ testPath, estimatedDuration });
+            const endTime = Date.now();
+            await submitFileResult({ testPath, key, duration: endTime - startTime });
+
             clearCache();
           });
         }
@@ -76,10 +79,11 @@ export const initialize = async (options: Options) => {
           mochaInstance.addFile(testPath);
         }
         await runMochaInstance(mochaInstance, async () => {
-          for(const {testPath, estimatedDuration} of data.testsToRun) {
+          for(const {testPath, key } of data.testsToRun) {
             await submitFileResult({
               testPath,
-              estimatedDuration
+              key,
+              duration: 0
             });
           }
           clearCache();
