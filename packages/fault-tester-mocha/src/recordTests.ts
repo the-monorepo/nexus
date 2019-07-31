@@ -1,11 +1,10 @@
 import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 import Mocha from 'mocha';
-import { submitTestResult, submitAssertionResult } from '@fault/messages';
-import { AssertionFailureData } from '@fault/types';
+import { submitTestResult } from '@fault/messages';
 import { createHash } from 'crypto';
 import { AssertionError } from '@fault/mocha-assertion-error';
 
-const { EVENT_TEST_FAIL, EVENT_TEST_PASS, EVENT_ROOT_SUITE_RUN } = (Mocha.Runner as any).constants;
+const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {
@@ -48,16 +47,6 @@ export class IPCReporter {
         EVENT_TEST_FAIL,
         commonTestHandle(async (testData, test, err) => {
           let stack = err.stack;
-          if (err instanceof AssertionError) {
-            const assertionErr = err as AssertionError;
-            const assertionData: AssertionFailureData = {
-              ...assertionErr.data,
-              file: testData.file,
-              key: testData.key,
-            };
-            await submitAssertionResult(assertionData);
-            stack = err.data.stack;
-          }
           await submitTestResult({
             ...testData,
             passed: false,

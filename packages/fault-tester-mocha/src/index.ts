@@ -1,6 +1,6 @@
 import { IPCReporter } from './recordTests';
 import { submitFileResult } from '@fault/messages';
-import { ParentResult, IPC, RunTestPayload } from '@fault/types';
+import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
 import { cloneCoverage } from '@fault/istanbul-util';
 const COVERAGE_KEY = '__coverage__';
 
@@ -49,9 +49,9 @@ export const initialize = async (options: Options) => {
     }
   }; 
 
-  const queue: RunTestPayload[] = [];
+  const queue: RunTestsPayload[] = [];
   let running = false;
-  const runQueue = async (data: RunTestPayload) => {
+  const runQueue = async (data: RunTestsPayload) => {
     queue.push(data);
     if (running) {
       return;
@@ -61,24 +61,25 @@ export const initialize = async (options: Options) => {
     while(queue.length > 0) {
       const data = queue.pop()!;
       if (sandbox) {
-        for(const testPath of data.testPaths) {    
+        for(const {testPath, estimatedDuration } of data.testsToRun) {    
           const mochaInstance = createMochaInstance(Mocha);
           mochaInstance.addFile(testPath);
           global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
           await runMochaInstance(mochaInstance, async () => {
-            await submitFileResult({ testPath });
+            await submitFileResult({ testPath, estimatedDuration });
             clearCache();
           });
         }
       } else {
         const mochaInstance = createMochaInstance(Mocha);
-        for(const testPath of data.testPaths) {  
+        for(const {testPath} of data.testsToRun) {  
           mochaInstance.addFile(testPath);
         }
         await runMochaInstance(mochaInstance, async () => {
-          for(const testPath of data.testPaths) {
+          for(const {testPath, estimatedDuration} of data.testsToRun) {
             await submitFileResult({
-              testPath
+              testPath,
+              estimatedDuration
             });
           }
           clearCache();

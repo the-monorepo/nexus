@@ -37,7 +37,7 @@ export const sortBySuspciousness = (faults: Fault[]) => {
     if (a.score > b.score) {
       return -1;
     }
-    throw new Error(`Shouldn't get here. Was comparing ${a.score} and ${b.score}`);
+    throw new Error(`Shouldn't get here. Was comparing ${JSON.stringify(a)} and ${JSON.stringify(b)}`);
   });
 }
 

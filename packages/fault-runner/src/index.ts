@@ -3,9 +3,9 @@ import { fork, ChildProcess } from 'child_process';
 import {
   IPC,
   TestResult,
-  AssertionFailureResult,
   ChildResult,
   TesterResults,
+  RunTestData,
 } from '@fault/types';
 import { runTests, stopWorker } from '@fault/messages';
 import { join } from 'path';
@@ -19,9 +19,13 @@ import { cpus } from 'os';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
-const runAndRecycleProcesses = (
+type WorkerInfo = {
+  process: ChildProcess,
+  totalPendingDuration: number,
+}
+const runAndRecycleProcesses = async (
   tester: string,
-  directories: string[],
+  testMatch: string | string[],
   processCount: number,
   setupFiles: string[],
   hooks: TestHookOptions,
@@ -29,11 +33,9 @@ const runAndRecycleProcesses = (
   env: { [s: string]: any },
   testerOptions = {}
 ): Promise<TesterResults> => {
-  const testsPerWorkerWithoutRemainder = Math.floor(directories.length / processCount);
-  const remainders = directories.length % processCount;
   let i = 0;
   const testResults: Map<string, TestResult> = new Map();
-  const assertionResults: Map<string, AssertionFailureResult> = new Map();
+  const testDurations: Map<string, number> = new Map();
   const start = new Date();
   const forkForTest = (): ChildProcess =>
     fork(addonEntryPath, [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)], {
@@ -42,85 +44,119 @@ const runAndRecycleProcesses = (
       stdio: 'inherit',
     });
 
-  const unfinishedFiles: Set<string> = new Set(directories);
-  let workers: ChildProcess[] = [];
-  return new Promise((resolve, reject) => {
-    const runAllTestsInUnfinishedFiles = () => {
-      const unfinishedFilePaths = [...unfinishedFiles];
-      while (i < remainders) {
-        const testPaths = unfinishedFilePaths.splice(
-          0,
-          testsPerWorkerWithoutRemainder + 1,
-        );
-        const worker = forkForTest();
-        setupWorkerHandle(worker);
-        runTests(worker, {
-          testPaths
-        });
+  const totalPendingFiles: Map<string, number> = new Map();
+  
+  const testFileQueue: string[] = await globby(testMatch, { onlyFiles: true });
 
-        workers[i] = worker;
-        i++;
+  // TODO: Obtain actual time
+  for(const testPath of testFileQueue) {
+    testDurations.set(testPath, 1);
+  }
+
+  const resortFileQueue = () => {
+    testFileQueue.sort((a, b) => testDurations.get(a)! - testDurations.get(b)!)
+  }
+
+  resortFileQueue();
+
+  const addTestsToWorker = (worker: WorkerInfo, testPaths: string[]) => {
+    const testsToRun: RunTestData[] = [];
+    for(const testPath of testPaths) {
+      const duration = testDurations.get(testPath)!;
+      worker.totalPendingDuration += duration;
+      testsToRun.push({
+        testPath,
+        estimatedDuration: duration
+      });
+
+      const originalPendingTestCount = totalPendingFiles.get(testPath);
+      if (originalPendingTestCount !== undefined) {
+        totalPendingFiles.set(testPath, originalPendingTestCount + 1);
+      } else {
+        totalPendingFiles.set(testPath, 1);
       }
-      if (testsPerWorkerWithoutRemainder > 0) {
-        while (i < processCount) {
-          const testPaths = unfinishedFilePaths.splice(0, testsPerWorkerWithoutRemainder);
-          const worker = forkForTest();
-          setupWorkerHandle(worker);
-          runTests(worker, { testPaths });
-          workers[i] = worker;
-          i++;
-        }
-      }
+    }
+    runTests(worker.process, { testsToRun });
+  }
+
+  const workers: WorkerInfo[] = [];
+  for(let w = 0; w < processCount; w++)  {
+    const worker: WorkerInfo = {
+      process: forkForTest(),
+      totalPendingDuration: 0
     };
-    const setupWorkerHandle = (worker: ChildProcess) => {
-      worker.on('message', async (message: ChildResult) => {
+    workers[w] = worker;
+  }
+
+  const bufferCount = 2;
+  const addInitialTests = () => {
+    for(const worker of workers) {
+      addTestsToWorker(worker, testFileQueue.splice(0, bufferCount));
+    }
+  }
+
+  const addAQueuedTestWorker = (worker: WorkerInfo) => {
+    const isHighestDuration = !workers.some(otherWorker => worker !== otherWorker && otherWorker.totalPendingDuration > worker.totalPendingDuration);
+    const testPath = isHighestDuration ? testFileQueue.shift()! : testFileQueue.pop()!;
+    addTestsToWorker(worker, [testPath]);
+  }
+
+  return new Promise((resolve, reject) => {
+    const setupWorkerHandle = (worker: WorkerInfo) => {
+      worker.process.on('message', async (message: ChildResult) => {
         switch (message.type) {
-          case IPC.ASSERTION: {
-            assertionResults.set(message.key, message);
-            break;
-          }
           case IPC.TEST: {
-            testResults.set(message.key, {
-              ...message,
-            });
+            testResults.set(message.key, message);
             await hooks.on.testResult(message);
             break;
           }
           case IPC.FILE_FINISHED: {
-            unfinishedFiles.delete(message.testPath);
+            worker.totalPendingDuration -= message.estimatedDuration;
+            const originalFileCount = totalPendingFiles.get(message.testPath)!;
+            if (originalFileCount <= 1) {
+              totalPendingFiles.delete(message.testPath);
+            } else {
+              totalPendingFiles.set(message.testPath, originalFileCount - 1);
+            }
 
             await hooks.on.fileFinished();
 
-            if (unfinishedFiles.size <= 0) {
+            if (testFileQueue.length > 0) {
+              addAQueuedTestWorker(worker);
+            }
+
+            if (totalPendingFiles.size <= 0 && testFileQueue.length <= 0) {
               const end = new Date();
               const duration = end.getTime() - start.getTime();
-              const results = { testResults, duration, assertionResults };
-
+              const results = { testResults, duration };
+              
+              const newFilesToAdd: Set<string> = new Set();
               for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
                 const filePathIterator = await allFilesFinishedPromise;
                 for (const filePath of filePathIterator) {
-                  unfinishedFiles.add(filePath);
+                  newFilesToAdd.add(filePath);
                 }
               }
+              testFileQueue.push(...newFilesToAdd)
 
-              if (unfinishedFiles.size <= 0) {
-                await Promise.all(workers.map(worker => stopWorker(worker, {})));
+              if (testFileQueue.length <= 0) {
+                await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
                 resolve(results);
               } else {
-                runAllTestsInUnfinishedFiles();
+                addInitialTests();
               }
             }
             break;
           }
         }
       });
-      worker.on('exit', code => {
+      worker.process.on('exit', code => {
         for (const otherWorker of workers) {
           if (otherWorker === worker) {
             continue;
           }
           // TODO: I believe otherWorker might cause this handler to be called yet again before the current handle finishes
-          otherWorker.kill();
+          otherWorker.process.kill();
         }
         if (code !== 0) {
           reject(new Error('An error ocurred while running tests'));
@@ -128,7 +164,10 @@ const runAndRecycleProcesses = (
       });
     };
 
-    runAllTestsInUnfinishedFiles();
+    for(const worker of workers) {
+      setupWorkerHandle(worker);
+    }
+    addInitialTests();
   });
 };
 
@@ -158,15 +197,12 @@ export const run = async ({
 
   const hooks: TestHookOptions = schema.merge(addons);
 
-  const directories = await globby(testMatch, { onlyFiles: true });
-  directories.sort();
-
   // TODO: Still need to add a scheduling algorithm
   const processCount = workers;
 
   const results: TesterResults = await runAndRecycleProcesses(
     tester,
-    directories,
+    testMatch,
     processCount,
     setupFiles,
     hooks,
