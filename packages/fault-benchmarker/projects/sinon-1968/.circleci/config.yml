@@ -1,0 +1,80 @@
+version: 2
+jobs:
+  build-common: &common-build
+    docker:
+      - image: node
+    environment:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+    working_directory: ~/sinon
+    steps:
+      - run:
+          name: Versions
+          command: npm version
+      - checkout
+      - restore_cache:
+          keys:
+            - v3-npm-{{ .Branch }}-{{ checksum "package.json" }}
+            - v3-npm-master-{{ checksum "package.json" }}
+      - run:
+          name: Install dependencies
+          command: |
+            npm config set strict-ssl false
+            npm install
+
+            # install latest chrome unstable version
+            if node --version | grep -q '^v10'; then
+              wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+              echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google.list
+              apt-get -qq update
+              apt-get -qq install -y --no-install-recommends google-chrome-stable
+              apt-get -qq install -y --no-install-recommends google-chrome-unstable
+            fi
+      - run:
+          name: Pre-Test
+          # ESLint only supports Node >=4
+          command: |
+            if node --version | grep -q '^v10'; then
+              npm run lint
+
+              npm run test-headless -- --chrome $(which google-chrome-unstable) --allow-chrome-as-root
+              npm run test-webworker -- --chrome $(which google-chrome-stable) --allow-chrome-as-root
+              npm run test-esm-bundle
+
+              if [ -z "$CIRCLE_PULL_REQUESTS" ]; then
+                npm run test-cloud
+              fi
+            fi
+      - run:
+          name: Test
+          command: npm run test-node
+      - save_cache:
+          key: v3-npm-{{ .Branch }}-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+
+  node-6:
+    <<: *common-build
+    docker:
+      - image: node:6-alpine
+
+  node-8:
+    <<: *common-build
+    docker:
+      - image: node:8-alpine
+
+  node-10:
+    <<: *common-build
+    docker:
+      - image: node:10
+    environment:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+        SINON_CHROME_BIN: /usr/bin/google-chrome-unstable
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - node-6
+      - node-8
+      - node-10

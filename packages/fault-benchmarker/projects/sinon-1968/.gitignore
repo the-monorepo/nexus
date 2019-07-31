@@ -1,0 +1,7 @@
+pkg
+tmp/
+node_modules
+coverage/
+.idea
+.sass_cache
+_site
