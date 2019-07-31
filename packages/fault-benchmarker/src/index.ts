@@ -22,7 +22,7 @@ import benchmarkConfig from './config';
 
 
 export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
-  return `${normalize(resolve(projectDir, fault.sourcePath)).replace(/\\\\/g, '\\')}:${fault.location.start.line}:${
+  return `${normalize(resolve(projectDir, fault.sourcePath)).replace(/\\+/g, '\\')}:${fault.location.start.line}:${
     fault.location.start.column
   }`;
 };
