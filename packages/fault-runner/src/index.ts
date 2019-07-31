@@ -8,7 +8,7 @@ import {
   RunTestData,
 } from '@fault/types';
 import { runTests, stopWorker } from '@fault/messages';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import {
   TestHookOptions,
   PartialTestHookOptions,
@@ -16,13 +16,22 @@ import {
 } from '@fault/addon-hook-schema';
 import * as defaultReporter from './default-reporter';
 import { cpus } from 'os';
+import { readFile, writeFile } from 'mz/fs';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
 type WorkerInfo = {
   process: ChildProcess,
   totalPendingDuration: number,
+  pendingUnknownTestCount: number,
 }
+type InternalTestData = {
+  testPath: string;
+  estimatedDuration?: number;
+}
+type TestDurations = {
+  [s: string]: number;
+};
 const runAndRecycleProcesses = async (
   tester: string,
   testMatch: string | string[],
@@ -33,10 +42,10 @@ const runAndRecycleProcesses = async (
   env: { [s: string]: any },
   testerOptions = {}
 ): Promise<TesterResults> => {
-  let i = 0;
+  const startTime = Date.now();
+
+  let globalTestId = 0;
   const testResults: Map<string, TestResult> = new Map();
-  const testDurations: Map<string, number> = new Map();
-  const start = new Date();
   const forkForTest = (): ChildProcess =>
     fork(addonEntryPath, [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)], {
       env,
@@ -44,17 +53,38 @@ const runAndRecycleProcesses = async (
       stdio: 'inherit',
     });
 
-  const totalPendingFiles: Map<string, number> = new Map();
+  // key -> internal test data
+  const totalPendingFiles: Map<number, InternalTestData> = new Map();
   
   const testFileQueue: string[] = await globby(testMatch, { onlyFiles: true });
 
-  // TODO: Obtain actual time
-  for(const testPath of testFileQueue) {
-    testDurations.set(testPath, 1);
-  }
+  const durationsPath = resolve(__dirname, '../durations-cache.json');
+  const testDurations: TestDurations = await (async () => {
+    try {
+      const text = await readFile(durationsPath, 'utf8');
+      const durationsJson: { [s: string]: number } = JSON.parse(text);
+      return durationsJson;  
+    } catch(err) {
+      return {};
+    }
+  })();
 
   const resortFileQueue = () => {
-    testFileQueue.sort((a, b) => testDurations.get(a)! - testDurations.get(b)!)
+    testFileQueue.sort((a, b) => {
+      const aD = testDurations[a];
+      const bD = testDurations[b];
+      if (aD === bD) {
+        return 0;
+      } else if (aD === undefined) {
+        return 1;
+      } else if (bD === undefined) {
+        return -1;
+      } else if (aD < bD) {
+        return -1;
+      } else {
+        return 1;
+      } 
+    })
   }
 
   resortFileQueue();
@@ -62,19 +92,24 @@ const runAndRecycleProcesses = async (
   const addTestsToWorker = (worker: WorkerInfo, testPaths: string[]) => {
     const testsToRun: RunTestData[] = [];
     for(const testPath of testPaths) {
-      const duration = testDurations.get(testPath)!;
-      worker.totalPendingDuration += duration;
-      testsToRun.push({
-        testPath,
-        estimatedDuration: duration
-      });
-
-      const originalPendingTestCount = totalPendingFiles.get(testPath);
-      if (originalPendingTestCount !== undefined) {
-        totalPendingFiles.set(testPath, originalPendingTestCount + 1);
+      const duration = testDurations[testPath];
+      if (duration === undefined) {
+        worker.pendingUnknownTestCount++;
       } else {
-        totalPendingFiles.set(testPath, 1);
+        worker.totalPendingDuration += duration;
       }
+      const key = globalTestId++;
+      const externalTestData: RunTestData = {
+        testPath,
+        key,
+      };
+      const internalTestData: InternalTestData = {
+        testPath,
+        estimatedDuration: duration,
+      };
+      testsToRun.push(externalTestData);
+
+      totalPendingFiles.set(key, internalTestData);
     }
     runTests(worker.process, { testsToRun });
   }
@@ -83,7 +118,8 @@ const runAndRecycleProcesses = async (
   for(let w = 0; w < processCount; w++)  {
     const worker: WorkerInfo = {
       process: forkForTest(),
-      totalPendingDuration: 0
+      totalPendingDuration: 0,
+      pendingUnknownTestCount: 0,
     };
     workers[w] = worker;
   }
@@ -109,12 +145,12 @@ const runAndRecycleProcesses = async (
   }
 
   const addAQueuedTestWorker = (worker: WorkerInfo) => {
-    const isHighestDuration = !workers.some(otherWorker => worker !== otherWorker && otherWorker.totalPendingDuration > worker.totalPendingDuration);
+    const isHighestDuration = worker.pendingUnknownTestCount > 0 || !workers.some(otherWorker => worker !== otherWorker && otherWorker.totalPendingDuration > worker.totalPendingDuration);
     const testPath = isHighestDuration ? testFileQueue.shift()! : testFileQueue.pop()!;
     addTestsToWorker(worker, [testPath]);
   }
 
-  return new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     const setupWorkerHandle = (worker: WorkerInfo) => {
       worker.process.on('message', async (message: ChildResult) => {
         switch (message.type) {
@@ -124,13 +160,14 @@ const runAndRecycleProcesses = async (
             break;
           }
           case IPC.FILE_FINISHED: {
-            worker.totalPendingDuration -= message.estimatedDuration;
-            const originalFileCount = totalPendingFiles.get(message.testPath)!;
-            if (originalFileCount <= 1) {
-              totalPendingFiles.delete(message.testPath);
+            const testData = totalPendingFiles.get(message.key)!;
+            testDurations[testData.testPath] = message.duration;
+            if (testData.estimatedDuration === undefined) {
+              worker.pendingUnknownTestCount--;
             } else {
-              totalPendingFiles.set(message.testPath, originalFileCount - 1);
+              worker.totalPendingDuration -= testData.estimatedDuration;
             }
+            totalPendingFiles.delete(message.key);
 
             await hooks.on.fileFinished();
 
@@ -139,11 +176,12 @@ const runAndRecycleProcesses = async (
             }
 
             if (totalPendingFiles.size <= 0 && testFileQueue.length <= 0) {
-              const end = new Date();
-              const duration = end.getTime() - start.getTime();
-              const results = { testResults, duration };
+              const endTime = Date.now();
+              const totalDuration = endTime - startTime;
+              const results: TesterResults = { testResults, duration: totalDuration };
               
               const newFilesToAdd: Set<string> = new Set();
+              await writeFile(durationsPath, JSON.stringify(testDurations));
               for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
                 const filePathIterator = await allFilesFinishedPromise;
                 for (const filePath of filePathIterator) {

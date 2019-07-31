@@ -2,7 +2,6 @@ import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 import Mocha from 'mocha';
 import { submitTestResult } from '@fault/messages';
 import { createHash } from 'crypto';
-import { AssertionError } from '@fault/mocha-assertion-error';
 
 const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
