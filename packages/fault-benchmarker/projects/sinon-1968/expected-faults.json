@@ -1,26 +1,26 @@
 {
-  "./lib/chai/core/assertions.js": [
+  "./lib/sinon/stub.js": [
     { 
       "location": {
         "start": {
           "line": 39,
-          "column": 4
+          "column": 33
         },
         "end": {
           "line": 39,
-          "column": 95
+          "column": 94
         }
       }
     },
-    { 
+    {
       "location": {
         "start": {
-          "line": 41,
-          "column": 4
+          "line": 42,
+          "column": 8
         },
         "end": {
           "line": 45,
-          "column": 42
+          "column": 41
         }
       }
     }
