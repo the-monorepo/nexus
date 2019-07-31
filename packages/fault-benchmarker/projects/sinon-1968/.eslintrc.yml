@@ -1,0 +1,23 @@
+extends:
+  - sinon
+  - plugin:prettier/recommended
+
+globals:
+  ArrayBuffer: false
+  Map: false
+  Promise: false
+  Set: false
+  Symbol: false
+
+plugins:
+  - ie11
+  - local-rules
+  - prettier
+
+rules:
+  prettier/prettier: error
+  ie11/no-collection-args: error
+  ie11/no-for-in-const: error
+  ie11/no-loop-func: warn
+  ie11/no-weak-collections: error
+  local-rules/no-prototype-methods: error

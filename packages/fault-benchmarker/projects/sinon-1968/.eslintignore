@@ -1,0 +1,10 @@
+coverage/
+pkg/
+tmp/
+docs/_site/
+docs/js/
+docs/releases/
+docs/assets/js/
+
+# has "invalid" ESM syntax
+rollup.config.js
