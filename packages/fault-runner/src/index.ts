@@ -20,17 +20,28 @@ import { readFile, writeFile } from 'mz/fs';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
-type WorkerInfo = {
-  process: ChildProcess,
+type DurationData = {
   totalPendingDuration: number,
   pendingUnknownTestCount: number,
 }
+type WorkerInfo = {
+  process: ChildProcess,
+} & DurationData;
 type InternalTestData = {
   testPath: string;
   estimatedDuration?: number;
 }
 type TestDurations = {
   [s: string]: number;
+};
+
+
+const isSmallestDuration = (worker: DurationData, workers: DurationData[]) => {
+  if (worker.pendingUnknownTestCount > 0) {
+    return !workers.some(otherWorker => otherWorker !== worker && otherWorker.pendingUnknownTestCount < worker.pendingUnknownTestCount);
+  } else {
+    return !workers.some(otherWorker => otherWorker !== worker && otherWorker.totalPendingDuration < worker.totalPendingDuration);
+  }
 };
 const runAndRecycleProcesses = async (
   tester: string,
@@ -124,29 +135,36 @@ const runAndRecycleProcesses = async (
     workers[w] = worker;
   }
 
-  const bufferCount = 3;
+  const bufferCount = 2;
   const addInitialTests = () => {
-    const workerTests: string[][] = [];
+    const workerTests: ({ paths: string[] } & DurationData)[] = [];
     for(let w = 0; w < workers.length; w++) {
-      workerTests[w] = [];
+      workerTests[w] = { pendingUnknownTestCount: 0, totalPendingDuration: 0, paths: []};
     }
     let i = 0;
     while(testFileQueue.length > 0 && i < bufferCount) {
       let w = 0;
       while(testFileQueue.length > 0 && w < workers.length) {
-        workerTests[w].push(testFileQueue.pop()!);
+        const workerTestInfo = workerTests[w];
+        const testPath = isSmallestDuration(workerTestInfo, workerTests) ? testFileQueue.pop()! : testFileQueue.shift()!;
+        const duration = testDurations[testPath];
+        if (duration === undefined) {
+          workerTestInfo.pendingUnknownTestCount++;
+        } else {
+          workerTestInfo.totalPendingDuration += duration;
+        }
+        workerTestInfo.paths.push(testPath);
         w++;
       }
       i++;
     }
     for(let w = 0; w < workers.length; w++) {
-      addTestsToWorker(workers[w], workerTests[w]);
+      addTestsToWorker(workers[w], workerTests[w].paths);
     }
   }
 
   const addAQueuedTestWorker = (worker: WorkerInfo) => {
-    const isHighestDuration = worker.pendingUnknownTestCount > 0 || !workers.some(otherWorker => worker !== otherWorker && otherWorker.totalPendingDuration > worker.totalPendingDuration);
-    const testPath = isHighestDuration ? testFileQueue.shift()! : testFileQueue.pop()!;
+    const testPath = isSmallestDuration(worker, workers) ? testFileQueue.pop()! : testFileQueue.shift()!;
     addTestsToWorker(worker, [testPath]);
   }
 
