@@ -349,7 +349,7 @@ async function testNoBuild() {
       './test/helpers/globals',
     ],
     testerOptions: {
-      sandbox: true,
+      sandbox: false,
     }
   });
   if (!passed) {

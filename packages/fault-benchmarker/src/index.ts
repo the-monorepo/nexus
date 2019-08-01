@@ -167,7 +167,8 @@ export const run = async () => {
         ...process.env,
         ...optionsEnv
       },
-      workers: sandbox ? undefined : 1
+      workers: sandbox ? undefined : 1,
+      fileBufferCount: sandbox ? undefined : null
     });
 
     const coverage = await readCoverageFile(
@@ -190,6 +191,9 @@ export const run = async () => {
 
       projectOutput[name] = examScore;
     }
+
+    console.log(projectOutput);
+
     const faultResultsPath = resolve(projectDir, 'fault-results.json');
     await writeFile(faultResultsPath, JSON.stringify(projectOutput, undefined, 2));
   };
