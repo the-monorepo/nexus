@@ -51,7 +51,8 @@ const runAndRecycleProcesses = async (
   hooks: TestHookOptions,
   cwd: string = process.cwd(),
   env: { [s: string]: any },
-  testerOptions = {}
+  testerOptions = {},
+  bufferCount: number,
 ): Promise<TesterResults> => {
   const startTime = Date.now();
 
@@ -135,14 +136,14 @@ const runAndRecycleProcesses = async (
     workers[w] = worker;
   }
 
-  const bufferCount = 2;
+  const workerFileQueueSize = bufferCount + 1;
   const addInitialTests = () => {
     const workerTests: ({ paths: string[] } & DurationData)[] = [];
     for(let w = 0; w < workers.length; w++) {
       workerTests[w] = { pendingUnknownTestCount: 0, totalPendingDuration: 0, paths: []};
     }
     let i = 0;
-    while(testFileQueue.length > 0 && i < bufferCount) {
+    while(testFileQueue.length > 0 && i < workerFileQueueSize) {
       let w = 0;
       while(testFileQueue.length > 0 && w < workers.length) {
         const workerTestInfo = workerTests[w];
@@ -249,7 +250,8 @@ export type RunOptions = {
   reporters?: PartialTestHookOptions[];
   workers?: number;
   env?: { [s: string]: any },
-  testerOptions?: any
+  testerOptions?: any,
+  fileBufferCount?: number | null
 };
 export const run = async ({
   tester,
@@ -260,7 +262,8 @@ export const run = async ({
   cwd = process.cwd(),
   reporters = [defaultReporter.createPlugin({ dir: join(cwd, 'coverage') })],
   env = process.env,
-  testerOptions
+  testerOptions,
+  fileBufferCount = 2
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -277,7 +280,8 @@ export const run = async ({
     hooks,
     cwd,
     env,
-    testerOptions
+    testerOptions,
+    fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount
   );
 
   await hooks.on.complete(results);

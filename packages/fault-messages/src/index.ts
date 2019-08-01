@@ -44,6 +44,7 @@ const promiseWorkerSend = (worker: ChildProcess, data: any) => {
     });
   });
 };
+
 export const runTests = (worker: ChildProcess, data: RunTestsData) => {
   const result: RunTestsPayload = {
     type: IPC.RUN_TEST,

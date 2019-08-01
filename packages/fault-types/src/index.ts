@@ -45,6 +45,7 @@ export type FileFinishedData = RunTestData & {
 export type RunTestsData = {
   testsToRun: RunTestData[];
 };
+
 export type RunTestsPayload = RunTestsData & TypeHolder<typeof IPC.RUN_TEST>;
 export type StopWorkerData = {};
 export type StopWorkerResult = StopWorkerData & TypeHolder<typeof IPC.STOP_WORKER>;

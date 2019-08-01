@@ -51,8 +51,7 @@ export const initialize = async (options: Options) => {
 
   const queue: RunTestsPayload[] = [];
   let running = false;
-  const runQueue = async (data: RunTestsPayload) => {
-    queue.push(data);
+  const runQueue = async () => {
     if (running) {
       return;
     }
@@ -99,7 +98,8 @@ export const initialize = async (options: Options) => {
         break;
       }
       case IPC.RUN_TEST: {
-        runQueue(data);
+        queue.push(data);
+        runQueue();
         break;
       }
     }
