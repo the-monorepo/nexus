@@ -106,7 +106,7 @@ export const run = async () => {
     process.argv.length <= 2 ? undefined : process.argv.slice(2),
   );
 
-  const runOnProject = async (projectDir: string) => {
+  const runOnProject =  async (projectDir: string) => {
     log.verbose(`Starting ${projectDir}...`);
     
     const selectedConfig = findConfig(benchmarkConfig, projectDir);
