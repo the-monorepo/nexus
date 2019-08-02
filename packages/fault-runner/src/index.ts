@@ -1,10 +1,13 @@
 import globby from 'globby';
 import { fork, ChildProcess } from 'child_process';
+import { createCoverageMap } from 'istanbul-lib-coverage';
+
 import {
   IPC,
   TestResult,
   ChildResult,
   TesterResults,
+  FinalTesterResults,
   RunTestData,
 } from '@fault/types';
 import { runTests, stopWorker } from '@fault/messages';
@@ -17,6 +20,7 @@ import {
 import * as defaultReporter from './default-reporter';
 import { cpus } from 'os';
 import { readFile, writeFile } from 'mz/fs';
+import { Coverage } from '@fault/istanbul-util';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
@@ -53,7 +57,7 @@ const runAndRecycleProcesses = async (
   env: { [s: string]: any },
   testerOptions = {},
   bufferCount: number,
-): Promise<TesterResults> => {
+): Promise<FinalTesterResults> => {
   const startTime = Date.now();
 
   let globalTestId = 0;
@@ -164,11 +168,13 @@ const runAndRecycleProcesses = async (
     }
   }
 
+  const runningWorkers = new Set(workers);
+
   const addAQueuedTestWorker = (worker: WorkerInfo) => {
     const testPath = isSmallestDuration(worker, workers) ? testFileQueue.pop()! : testFileQueue.shift()!;
     addTestsToWorker(worker, [testPath]);
   }
-
+  const workerCoverage: Coverage[] = [];
   return await new Promise((resolve, reject) => {
     const setupWorkerHandle = (worker: WorkerInfo) => {
       worker.process.on('message', async (message: ChildResult) => {
@@ -176,6 +182,24 @@ const runAndRecycleProcesses = async (
           case IPC.TEST: {
             testResults.set(message.key, message);
             await hooks.on.testResult(message);
+            break;
+          }
+          case IPC.STOPPED_WORKER: {
+            workerCoverage.push(message.coverage);
+            runningWorkers.delete(worker);
+            if (runningWorkers.size <= 0) {
+              const endTime = Date.now();
+              const totalDuration = endTime - startTime;
+              
+              const totalCoverage = createCoverageMap({});
+              for (const coverage of workerCoverage) {
+                totalCoverage.merge(coverage);
+              }
+              
+              const finalResults: FinalTesterResults = { coverage: totalCoverage, testResults, duration: totalDuration };
+
+              resolve(finalResults);
+            }
             break;
           }
           case IPC.FILE_FINISHED: {
@@ -211,7 +235,6 @@ const runAndRecycleProcesses = async (
 
               if (testFileQueue.length <= 0) {
                 await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
-                resolve(results);
               } else {
                 addInitialTests();
               }
@@ -230,6 +253,8 @@ const runAndRecycleProcesses = async (
         }
         if (code !== 0) {
           reject(new Error('An error ocurred while running tests'));
+        } else if (runningWorkers.has(worker)) {
+          reject(new Error('Worker unexpectedly stopped'));
         }
       });
     };
@@ -269,10 +294,9 @@ export const run = async ({
 
   const hooks: TestHookOptions = schema.merge(addons);
 
-  // TODO: Still need to add a scheduling algorithm
   const processCount = workers;
 
-  const results: TesterResults = await runAndRecycleProcesses(
+  const results: FinalTesterResults = await runAndRecycleProcesses(
     tester,
     testMatch,
     processCount,

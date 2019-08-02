@@ -11,6 +11,10 @@ export type TesterResults = {
   duration: number;
 };
 
+export type FinalTesterResults = {
+  coverage: Coverage
+} & TesterResults;
+
 type TypeHolder<T> = {
   type: T;
 };
@@ -45,9 +49,15 @@ export type FileFinishedData = RunTestData & {
 export type RunTestsData = {
   testsToRun: RunTestData[];
 };
-
 export type RunTestsPayload = RunTestsData & TypeHolder<typeof IPC.RUN_TEST>;
+
 export type StopWorkerData = {};
 export type StopWorkerResult = StopWorkerData & TypeHolder<typeof IPC.STOP_WORKER>;
-export type ChildResult = TestResult | FileFinishedResult;
+
+export type StoppedWorkerData = {
+  coverage: Coverage;
+};
+export type StoppedWorkerResult = StoppedWorkerData & TypeHolder<typeof IPC.STOPPED_WORKER>;
+
+export type ChildResult = TestResult | FileFinishedResult | StoppedWorkerResult;
 export type ParentResult = StopWorkerResult | RunTestsPayload;
