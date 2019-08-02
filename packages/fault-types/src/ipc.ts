@@ -20,3 +20,8 @@ export const STOP_WORKER = 'stop-worker';
  * Run a test
  */
 export const RUN_TEST = 'run-test';
+
+/**
+ * Sent once the worker has finally stopped running/exitted
+ */
+export const STOPPED_WORKER = 'stopped';
