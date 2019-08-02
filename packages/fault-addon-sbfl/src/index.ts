@@ -50,7 +50,7 @@ export const gatherFileResults = (testResults: Iterable<TestResult>): Map<string
     }
     for (const [filePath, fileCoverage] of Object.entries(coverage) as any) {
       const statementMap = fileCoverage.statementMap;
-      for (const statementKey of Object.keys(statementMap)) {    
+      for (const statementKey of Object.keys(statementMap)) {     
         const executionCount = fileCoverage.s[statementKey];
         if (executionCount <= 0) {
           continue;
@@ -178,7 +178,7 @@ export type PluginOptions = {
 export const createPlugin = ({
   scoringFn = dStar,
   faultFilePath,
-  console = false
+  console: printToConsole = false
 }: PluginOptions): PartialTestHookOptions => {
   return {
     on: {
@@ -189,7 +189,7 @@ export const createPlugin = ({
         const faults = localizeFaults(testResults, fileResults, expressionPassFailStats =>
           scoringFn(expressionPassFailStats, totalPassFailStats),
         );
-        if (console) {
+        if (printToConsole) {
           await reportFaults(faults);
         }
         if (
