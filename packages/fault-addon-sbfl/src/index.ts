@@ -1,4 +1,4 @@
-import { TestResult, TesterResults } from '@fault/types';
+import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { passFailStatsFromTests } from '@fault/localization-util';
@@ -182,7 +182,7 @@ export const createPlugin = ({
 }: PluginOptions): PartialTestHookOptions => {
   return {
     on: {
-      complete: async (results: TesterResults) => {
+      complete: async (results: FinalTesterResults) => {
         const testResults: TestResult[] = [...results.testResults.values()];
         const fileResults = gatherFileResults(testResults);
         const totalPassFailStats = passFailStatsFromTests(testResults);

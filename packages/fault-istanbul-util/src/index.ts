@@ -87,7 +87,7 @@ export interface Coverage {
     hash: string;
   };
 }
-export const subtractCoverage = (from: Coverage, amount: Coverage | undefined) => {
+export const subtractCoverage = (from: Coverage = {}, amount: Coverage | undefined) => {
   if (amount === undefined) {
     return cloneCoverage(from);
   }

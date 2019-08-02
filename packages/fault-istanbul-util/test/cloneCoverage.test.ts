@@ -6034,4 +6034,7 @@ describe('cloneCoverage', () => {
       clonedCoverageWithBranch.aPath.b['0'],
     );
   });
+  it('clones undefined as empty coverage', () => {
+    expect(cloneCoverage(undefined)).to.equal(undefined);
+  })
 });
