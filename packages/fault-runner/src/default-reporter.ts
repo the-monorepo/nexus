@@ -2,7 +2,7 @@ import { relative, dirname, basename, join } from 'path';
 import chalk from 'chalk';
 import { report } from '@fault/addon-istanbul';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import { TestResult, TesterResults } from '@fault/types';
+import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
@@ -32,7 +32,8 @@ export const groupTestsByFilePath = (testResults: Iterable<TestResult>) => {
 };
 
 export const createPlugin = (contextOptions?) => {
-  const onComplete = async ({ testResults, duration }: TesterResults) => {
+  const onComplete = async (testerResults: FinalTesterResults) => {
+    const { testResults, duration } = testerResults;
     const testResultsArr: TestResult[] = [...testResults.values()];
     const suiteResults = groupTestsByFilePath(testResultsArr);
     testResultsArr.sort((a, b) => a.file.localeCompare(b.file));
@@ -59,7 +60,7 @@ export const createPlugin = (contextOptions?) => {
       }
     }
 
-    report({ testResults }, contextOptions);
+    report(testerResults, contextOptions);
 
     console.log();
     const suiteCount = suiteResults.size;

@@ -1,4 +1,4 @@
-import { submitFileResult } from '@fault/messages';
+import { submitFileResult, stoppedWorker } from '@fault/messages';
 import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
 import { cloneCoverage } from '@fault/istanbul-util';
 import { createMochaInstance, runMochaInstance } from './mocha-util';
@@ -11,6 +11,11 @@ type Options = {
 };
 
 let running = false;
+
+const exit = async (exitCode: number) => {
+  await stoppedWorker({ coverage: global[COVERAGE_KEY] });
+  process.exit(exitCode);
+}
 export const initialize = async (options: Options) => {
   const { mocha = 'mocha', sandbox = false } = options; 
   const Mocha = require(mocha);
@@ -57,6 +62,7 @@ export const initialize = async (options: Options) => {
             await submitFileResult({ duration, key, testPath });
           }
         } else {
+          // Sort tests alphabetically
           data.testsToRun.sort((a, b) => a.testPath.localeCompare(b.testPath, 'en', { sensitivity: 'base' }));
           const mochaInstance = createMochaInstance(Mocha);
           for(const {testPath} of data.testsToRun) {  
@@ -80,7 +86,7 @@ export const initialize = async (options: Options) => {
   process.on('message', (data: ParentResult) => {
     switch (data.type) {
       case IPC.STOP_WORKER: {
-        process.exit(0);
+        exit(0);
         break;
       }
       case IPC.RUN_TEST: {

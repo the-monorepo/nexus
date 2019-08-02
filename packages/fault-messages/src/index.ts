@@ -6,6 +6,7 @@ import {
   FileFinishedData,
   FileFinishedResult,
   RunTestsPayload,
+  StoppedWorkerData,
   StopWorkerData,
   StopWorkerResult,
   RunTestsData,
@@ -60,3 +61,10 @@ export const stopWorker = (worker: ChildProcess, data: StopWorkerData) => {
   };
   return promiseWorkerSend(worker, result);
 };
+
+export const stoppedWorker = (data: StoppedWorkerData) => {
+  return promiseSend({
+    type: IPC.STOPPED_WORKER,
+    ...data
+  });
+}
