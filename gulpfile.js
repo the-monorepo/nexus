@@ -349,8 +349,9 @@ async function testNoBuild() {
       './test/helpers/globals',
     ],
     testerOptions: {
-      sandbox: false,
-    }
+      sandbox: true,
+    },
+    workers: 1
   });
   if (!passed) {
     process.exit(1);

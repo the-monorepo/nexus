@@ -35,14 +35,24 @@ export const calculateExamScore = (
 ) => {
   const expectedFaultMap: Map<string, ScorelessFault> = new Map();
   for (const fault of expectedFaults) {
-    expectedFaultMap.set(faultToKey(projectDir, fault), fault);
+    const key = faultToKey(projectDir, fault);
+    if (expectedFaultMap.has(key)) {
+      throw new Error(`${key} was already set`);
+    }
+    expectedFaultMap.set(key, fault);
   }
 
   let sum = 0;
   let nonFaultElementsInspected = 0; // The first fault will still need to be counted as 1 line so start with 1
 
+  const actualFaultKeys = new Set<string>();
   for (const actualFault of actualFaults) {
     const key = faultToKey(projectDir, actualFault);
+    if (actualFaultKeys.has(key)) {
+      throw new Error(`${key} was already set`);
+    } else {
+      actualFaultKeys.add(key);
+    }
     const expectedFault = expectedFaultMap.get(key);
     if (expectedFault !== undefined) {
       sum += nonFaultElementsInspected;
@@ -167,7 +177,7 @@ export const run = async () => {
         ...process.env,
         ...optionsEnv
       },
-      workers: sandbox ? undefined : 1,
+      workers: sandbox ? 1 : 1,
       fileBufferCount: sandbox ? undefined : null
     });
 
@@ -181,7 +191,6 @@ export const run = async () => {
       );
 
       const totalExecutableStatements = getTotalExecutedStatements(coverage);
-
       const examScore = calculateExamScore(
         projectDir,
         actualFaults,

@@ -20,9 +20,17 @@ export const readFaultFile = async (filePath: string): Promise<FaultData> => {
   return JSON.parse(jsonText);
 };
 
+const createComparisonError = (a: Fault, b: Fault) => {
+  return new Error(`Shouldn't get here. Was comparing ${JSON.stringify(a)} and ${JSON.stringify(b)}`);
+}
+
 export const sortBySuspciousness = (faults: Fault[]) => {
   return faults.sort((a, b) => {
     if (a.score === b.score) {
+      const locationComparison = compareLocation(a, b);
+      if (locationComparison !== null) {
+        return locationComparison;
+      }
       return 0;
     }
     if (a.score === null) {
@@ -37,7 +45,7 @@ export const sortBySuspciousness = (faults: Fault[]) => {
     if (a.score > b.score) {
       return -1;
     }
-    throw new Error(`Shouldn't get here. Was comparing ${JSON.stringify(a)} and ${JSON.stringify(b)}`);
+    throw createComparisonError(a, b);
   });
 }
 
@@ -58,6 +66,32 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
   sortBySuspciousness(faults);
   return faults;
 };
+
+export const compareLocation = (faultA: Fault, faultB: Fault): number | null => {
+  const a = faultA.location;
+  const b = faultB.location;
+  if (a.start.line !== b.start.line) {
+    return a.start.line - b.start.line;
+  } else if (a.start.column !== b.start.column) {
+    return a.start.column - b.start.column;
+  } else if (a.end.line !== b.end.line) {
+    return a.end.line - a.end.line;
+  } else if (a.end.column !== b.end.column) {
+    return a.end.column - b.end.column
+  }
+  return null;
+}
+
+export const sortByLocation = (fileFaults: Fault[]) => {
+  fileFaults.sort((faultA, faultB) => {
+    const locationComparison = compareLocation(faultA, faultB);
+    if (locationComparison !== null) {
+      return locationComparison;
+    }
+    throw createComparisonError(faultA, faultB);
+  })
+
+}
 
 export const recordFaults = (filePath: string, faults: Fault[]) => {
   mkdirSync(dirname(filePath), { recursive: true });

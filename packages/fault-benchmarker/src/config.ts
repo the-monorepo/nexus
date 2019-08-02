@@ -18,8 +18,7 @@ export type BenchmarkConfig = GlobbedConfig[];
 export const config: BenchmarkConfig = [
   {
     glob: 'sinon-*',
-    testMatch: './test/**/*.test.js',
-    setupFiles: ['./babel', './test/bootstrap'],
+    testMatch: './test/**/*-test.js',
     sandbox: true,
   },
   {
