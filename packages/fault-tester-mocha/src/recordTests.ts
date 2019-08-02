@@ -16,7 +16,7 @@ type PartialTestData = {
 
 type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => {};
 const commonTestHandle = (submitHandle: SubmitHandle) => {
-  return async (test: Mocha.Test, err) => {
+  return (test: Mocha.Test, err) => {
     const coverage = subtractCoverage(global[COVERAGE_KEY], global.beforeTestCoverage);
     const hash =
       test!.titlePath().join('_') +
@@ -26,7 +26,7 @@ const commonTestHandle = (submitHandle: SubmitHandle) => {
     const duration = test.duration! * 1000;
     const file = test.file!;
     const titlePath = test.titlePath();
-    await submitHandle({ key: hash, duration, file, titlePath, coverage }, test, err);
+    return submitHandle({ key: hash, duration, file, titlePath, coverage }, test, err);
   };
 };
 
@@ -35,8 +35,8 @@ export class IPCReporter {
     runner
       .on(
         EVENT_TEST_PASS,
-        commonTestHandle(async testData => {
-          await submitTestResult({
+        commonTestHandle(testData => {
+          return submitTestResult({
             ...testData,
             passed: true,
           });
@@ -44,9 +44,9 @@ export class IPCReporter {
       )
       .on(
         EVENT_TEST_FAIL,
-        commonTestHandle(async (testData, test, err) => {
+        commonTestHandle((testData, test, err) => {
           let stack = err.stack;
-          await submitTestResult({
+          return submitTestResult({
             ...testData,
             passed: false,
             stack,
