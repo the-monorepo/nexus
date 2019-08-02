@@ -129,13 +129,13 @@ const run = async () => {
         continue;
       }
       
-      const testFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/(\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b/i))
+      const testFiles = pullRequest.node.files.nodes.filter(file => !!file.path.match(/((\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b)$/i))
       if (testFiles.length <= 0) {
         logSkipMessage('Could not find any tests changed in the PR');
         continue;
       }
 
-      const nonTestSourceFiles = pullRequest.node.files.nodes.filter(file => !testFiles.some(testFile => testFile.path === file.path) && !!file.path.match(/\.([tj]sx?|flow)/i));
+      const nonTestSourceFiles = pullRequest.node.files.nodes.filter(file => !testFiles.some(testFile => testFile.path === file.path) && !!file.path.match(/\.([tj]sx?|flow)$/i));
       if (nonTestSourceFiles.length <= 0) {
         logSkipMessage('No non-test source code files appear to have changed in this PR.');
         continue;
@@ -166,7 +166,7 @@ const run = async () => {
     after = data.data.repository.pullRequests.pageInfo.endCursor;
   } while(data.data.repository.pullRequests.pageInfo.hasNextPage)
 
-  const outputFilePath = `./scrape-repo.${owner}.${repoName}.output`;
+  const outputFilePath = `./scrape-repo/scrape-repo.${owner}.${repoName}.output`;
   await writeFile(outputFilePath, '', 'utf8');
   for(const pullRequestData of spicyPullRequests) {
     await appendFile(outputFilePath, `${pullRequestData.title}\n${pullRequestData.url}\n\n`);
