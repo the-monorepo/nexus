@@ -59,11 +59,9 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/addon-sbfl`](packages/fault-addon-sbfl/README.md) | A spectrum based localization addon
 1.0.0-alpha.0 | [`@fault/ast-localization`](packages/fault-ast-localization/README.md) | Fault AST localization
 1.0.0-alpha.0 | [`@fault/benchmarker`](packages/fault-benchmarker/README.md) | Benchmarking library for measuring various fault localization/repair algorithms in Fault.js
-1.0.0-alpha.0 | [`@fault/chai`](packages/fault-chai/README.md) | A Chai plugin for Fault
 1.0.0-alpha.0 | [`@fault/istanbul-util`](packages/fault-istanbul-util/README.md) | Helper functions for use with istanbul
 1.0.0-alpha.0 | [`@fault/localization-util`](packages/fault-localization-util/README.md) | Utility package containing common fault localization methods
 1.0.0-alpha.0 | [`@fault/messages`](packages/fault-messages/README.md) | Helper methods for easier communication between the main @fault/runner process and its workers
-1.0.0-alpha.0 | [`@fault/mocha-assertion-error`](packages/fault-mocha-assertion-error/README.md) | An assertion error, used with @fault/addon-tester-mocha, thrown in order to record assertion data in Fault.js
 1.0.0-alpha.0 | [`@fault/mutation-localization`](packages/fault-mutation-localization/README.md) | Fault AST localization
 1.0.0-alpha.0 | [`@fault/record-faults`](packages/fault-record-faults/README.md) | Record faults
 1.0.0-alpha.0 | [`@fault/runner`](packages/fault-runner/README.md) | The official Fault.js test runner
