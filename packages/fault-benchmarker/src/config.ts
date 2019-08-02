@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 export type ProjectConfig = {
   // Setup files to use (E.g. Babel register to transpile files)
   setupFiles?: string[];
@@ -34,7 +35,7 @@ export const config: BenchmarkConfig = [
   {
     glob: 'chai-*',
     testMatch: './test/*.js',
-    setupFiles: ['./babel', './test/bootstrap'],
+    setupFiles: [resolve(__dirname, 'babel'), './test/bootstrap'],
     sandbox: false,
     env: {
       ...process.env,
