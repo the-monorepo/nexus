@@ -351,7 +351,6 @@ async function testNoBuild() {
     testerOptions: {
       sandbox: true,
     },
-    workers: 1
   });
   if (!passed) {
     process.exit(1);
