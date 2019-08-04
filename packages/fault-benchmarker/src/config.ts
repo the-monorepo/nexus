@@ -4,10 +4,12 @@ export type ProjectConfig = {
   setupFiles?: string[];
   // Name of the project
   testMatch?: string | string[];
-  env?: { [s: string]: any },
-  sandbox?: boolean;
+  env?: { [s: string]: any };
   artificial?: boolean;
   tester?: string;
+  testOptions?: {
+    [s: string]: any;
+  };
 };
 
 export type GlobbedConfig = {
@@ -20,28 +22,37 @@ export const config: BenchmarkConfig = [
   {
     glob: 'sinon-*',
     testMatch: './test/**/*-test.js',
-    sandbox: true,
+    testOptions: {
+      sandbox: true,
+    },
   },
   {
     glob: 'quixbugs-*',
-    sandbox: true,
+    testOptions: {
+      sandbox: true,
+    },
     artificial: true,
   },
   {
     glob: 'node-convict-*',
     testMatch: './test/*-tests.js',
-    sandbox: true,
+    testOptions: {
+      sandbox: true,
+    },
   },
   {
     glob: 'chai-*',
-    testMatch: './test/*.js',
-    setupFiles: [resolve(__dirname, 'babel'), './test/bootstrap'],
-    sandbox: false,
+    testMatch: ['./test/*.js'],
+    testOptions: {
+      sandbox: true,
+      mocha: 'mocha',
+      require: ['./test/bootstrap'],
+    },
     env: {
       ...process.env,
-      NODE_ENV: 'test'
-    },  
-  }
+      NODE_ENV: 'test',
+    },
+  },
 ];
 
 export default config;

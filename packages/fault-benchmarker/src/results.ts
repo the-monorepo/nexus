@@ -21,8 +21,8 @@ export const run = async () => {
       projectResults.push({
         name: basename(projectDir),
         results: require(resolve(projectDir, 'fault-results.json')),
-      });  
-    } catch(err) {
+      });
+    } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND') {
         console.error(`${projectDir} is missing a 'fault-results.json' file`);
       } else {

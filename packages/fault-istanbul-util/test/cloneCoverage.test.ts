@@ -6036,5 +6036,5 @@ describe('cloneCoverage', () => {
   });
   it('clones undefined as empty coverage', () => {
     expect(cloneCoverage(undefined)).to.equal(undefined);
-  })
+  });
 });

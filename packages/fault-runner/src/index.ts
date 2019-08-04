@@ -25,26 +25,33 @@ import { Coverage } from '@fault/istanbul-util';
 const addonEntryPath = require.resolve('./addon-entry');
 
 type DurationData = {
-  totalPendingDuration: number,
-  pendingUnknownTestCount: number,
-}
+  totalPendingDuration: number;
+  pendingUnknownTestCount: number;
+};
 type WorkerInfo = {
-  process: ChildProcess,
+  process: ChildProcess;
 } & DurationData;
 type InternalTestData = {
   testPath: string;
   estimatedDuration?: number;
-}
+};
 type TestDurations = {
   [s: string]: number;
 };
 
-
 const isSmallestDuration = (worker: DurationData, workers: DurationData[]) => {
   if (worker.pendingUnknownTestCount > 0) {
-    return !workers.some(otherWorker => otherWorker !== worker && otherWorker.pendingUnknownTestCount < worker.pendingUnknownTestCount);
+    return !workers.some(
+      otherWorker =>
+        otherWorker !== worker &&
+        otherWorker.pendingUnknownTestCount < worker.pendingUnknownTestCount,
+    );
   } else {
-    return !workers.some(otherWorker => otherWorker !== worker && otherWorker.totalPendingDuration < worker.totalPendingDuration);
+    return !workers.some(
+      otherWorker =>
+        otherWorker !== worker &&
+        otherWorker.totalPendingDuration < worker.totalPendingDuration,
+    );
   }
 };
 const runAndRecycleProcesses = async (
@@ -63,15 +70,19 @@ const runAndRecycleProcesses = async (
   let globalTestId = 0;
   const testResults: Map<string, TestResult> = new Map();
   const forkForTest = (): ChildProcess =>
-    fork(addonEntryPath, [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)], {
-      env,
-      cwd,
-      stdio: 'inherit',
-    });
+    fork(
+      addonEntryPath,
+      [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)],
+      {
+        env,
+        cwd,
+        stdio: 'inherit',
+      },
+    );
 
   // key -> internal test data
   const totalPendingFiles: Map<number, InternalTestData> = new Map();
-  
+
   const testFileQueue: string[] = await globby(testMatch, { onlyFiles: true });
 
   const durationsPath = resolve(__dirname, '../durations-cache.json');
@@ -79,8 +90,8 @@ const runAndRecycleProcesses = async (
     try {
       const text = await readFile(durationsPath, 'utf8');
       const durationsJson: { [s: string]: number } = JSON.parse(text);
-      return durationsJson;  
-    } catch(err) {
+      return durationsJson;
+    } catch (err) {
       return {};
     }
   })();
@@ -99,15 +110,15 @@ const runAndRecycleProcesses = async (
         return -1;
       } else {
         return 1;
-      } 
-    })
-  }
+      }
+    });
+  };
 
   resortFileQueue();
 
   const addTestsToWorker = (worker: WorkerInfo, testPaths: string[]) => {
     const testsToRun: RunTestData[] = [];
-    for(const testPath of testPaths) {
+    for (const testPath of testPaths) {
       const duration = testDurations[testPath];
       if (duration === undefined) {
         worker.pendingUnknownTestCount++;
@@ -128,10 +139,10 @@ const runAndRecycleProcesses = async (
       totalPendingFiles.set(key, internalTestData);
     }
     runTests(worker.process, { testsToRun });
-  }
+  };
 
   const workers: WorkerInfo[] = [];
-  for(let w = 0; w < processCount; w++)  {
+  for (let w = 0; w < processCount; w++) {
     const worker: WorkerInfo = {
       process: forkForTest(),
       totalPendingDuration: 0,
@@ -143,15 +154,17 @@ const runAndRecycleProcesses = async (
   const workerFileQueueSize = bufferCount + 1;
   const addInitialTests = () => {
     const workerTests: ({ paths: string[] } & DurationData)[] = [];
-    for(let w = 0; w < workers.length; w++) {
-      workerTests[w] = { pendingUnknownTestCount: 0, totalPendingDuration: 0, paths: []};
+    for (let w = 0; w < workers.length; w++) {
+      workerTests[w] = { pendingUnknownTestCount: 0, totalPendingDuration: 0, paths: [] };
     }
     let i = 0;
-    while(testFileQueue.length > 0 && i < workerFileQueueSize) {
+    while (testFileQueue.length > 0 && i < workerFileQueueSize) {
       let w = 0;
-      while(testFileQueue.length > 0 && w < workers.length) {
+      while (testFileQueue.length > 0 && w < workers.length) {
         const workerTestInfo = workerTests[w];
-        const testPath = isSmallestDuration(workerTestInfo, workerTests) ? testFileQueue.pop()! : testFileQueue.shift()!;
+        const testPath = isSmallestDuration(workerTestInfo, workerTests)
+          ? testFileQueue.pop()!
+          : testFileQueue.shift()!;
         const duration = testDurations[testPath];
         if (duration === undefined) {
           workerTestInfo.pendingUnknownTestCount++;
@@ -163,17 +176,19 @@ const runAndRecycleProcesses = async (
       }
       i++;
     }
-    for(let w = 0; w < workers.length; w++) {
+    for (let w = 0; w < workers.length; w++) {
       addTestsToWorker(workers[w], workerTests[w].paths);
     }
-  }
+  };
 
   const runningWorkers = new Set(workers);
 
   const addAQueuedTestWorker = (worker: WorkerInfo) => {
-    const testPath = isSmallestDuration(worker, workers) ? testFileQueue.pop()! : testFileQueue.shift()!;
+    const testPath = isSmallestDuration(worker, workers)
+      ? testFileQueue.pop()!
+      : testFileQueue.shift()!;
     addTestsToWorker(worker, [testPath]);
-  }
+  };
   const workerCoverage: Coverage[] = [];
   return await new Promise((resolve, reject) => {
     const setupWorkerHandle = (worker: WorkerInfo) => {
@@ -190,13 +205,17 @@ const runAndRecycleProcesses = async (
             if (runningWorkers.size <= 0) {
               const endTime = Date.now();
               const totalDuration = endTime - startTime;
-              
+
               const totalCoverage = createCoverageMap({});
               for (const coverage of workerCoverage) {
                 totalCoverage.merge(coverage);
               }
-              
-              const finalResults: FinalTesterResults = { coverage: totalCoverage, testResults, duration: totalDuration };
+
+              const finalResults: FinalTesterResults = {
+                coverage: totalCoverage,
+                testResults,
+                duration: totalDuration,
+              };
 
               resolve(finalResults);
             }
@@ -222,7 +241,7 @@ const runAndRecycleProcesses = async (
               const endTime = Date.now();
               const totalDuration = endTime - startTime;
               const results: TesterResults = { testResults, duration: totalDuration };
-              
+
               const newFilesToAdd: Set<string> = new Set();
               await writeFile(durationsPath, JSON.stringify(testDurations));
               for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
@@ -231,7 +250,7 @@ const runAndRecycleProcesses = async (
                   newFilesToAdd.add(filePath);
                 }
               }
-              testFileQueue.push(...newFilesToAdd)
+              testFileQueue.push(...newFilesToAdd);
 
               if (testFileQueue.length <= 0) {
                 await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
@@ -259,7 +278,7 @@ const runAndRecycleProcesses = async (
       });
     };
 
-    for(const worker of workers) {
+    for (const worker of workers) {
       setupWorkerHandle(worker);
     }
     addInitialTests();
@@ -274,9 +293,9 @@ export type RunOptions = {
   addons?: PartialTestHookOptions[];
   reporters?: PartialTestHookOptions[];
   workers?: number;
-  env?: { [s: string]: any },
-  testerOptions?: any,
-  fileBufferCount?: number | null
+  env?: { [s: string]: any };
+  testerOptions?: any;
+  fileBufferCount?: number | null;
 };
 export const run = async ({
   tester,
@@ -288,7 +307,7 @@ export const run = async ({
   reporters = [defaultReporter.createPlugin({ dir: join(cwd, 'coverage') })],
   env = process.env,
   testerOptions,
-  fileBufferCount = 2
+  fileBufferCount = 2,
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -305,7 +324,7 @@ export const run = async ({
     cwd,
     env,
     testerOptions,
-    fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount
+    fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount,
   );
 
   await hooks.on.complete(results);

@@ -178,7 +178,11 @@ const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
 const valueExpressionFromJsxAttributeValue = (jsxValue: JSXAttribute['value']) =>
   t.isJSXExpressionContainer(jsxValue) ? jsxValue.expression : jsxValue;
 
-const domNodesFromJSXChildren = (jsxChildren: JSXElement['children'], scope, outerPath): any[] => {
+const domNodesFromJSXChildren = (
+  jsxChildren: JSXElement['children'],
+  scope,
+  outerPath,
+): any[] => {
   const children: Node[] = [];
   let previousChildIsDynamic = false;
   for (const child of jsxChildren) {
@@ -199,7 +203,8 @@ const hasDynamicNodes = (children: Node[]) => {
   return children.some(
     childNode =>
       childNode.type === DYNAMIC_TYPE ||
-      (childNode.type === ELEMENT_TYPE && childNode.id) || SUBCOMPONENT_TYPE,
+      (childNode.type === ELEMENT_TYPE && childNode.id) ||
+      SUBCOMPONENT_TYPE,
   );
 };
 

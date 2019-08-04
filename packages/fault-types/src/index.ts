@@ -12,7 +12,7 @@ export type TesterResults = {
 };
 
 export type FinalTesterResults = {
-  coverage: Coverage
+  coverage: Coverage;
 } & TesterResults;
 
 type TypeHolder<T> = {
@@ -57,7 +57,8 @@ export type StopWorkerResult = StopWorkerData & TypeHolder<typeof IPC.STOP_WORKE
 export type StoppedWorkerData = {
   coverage: Coverage;
 };
-export type StoppedWorkerResult = StoppedWorkerData & TypeHolder<typeof IPC.STOPPED_WORKER>;
+export type StoppedWorkerResult = StoppedWorkerData &
+  TypeHolder<typeof IPC.STOPPED_WORKER>;
 
 export type ChildResult = TestResult | FileFinishedResult | StoppedWorkerResult;
 export type ParentResult = StopWorkerResult | RunTestsPayload;

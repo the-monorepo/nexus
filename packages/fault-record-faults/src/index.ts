@@ -21,8 +21,10 @@ export const readFaultFile = async (filePath: string): Promise<FaultData> => {
 };
 
 const createComparisonError = (a: Fault, b: Fault) => {
-  return new Error(`Shouldn't get here. Was comparing ${JSON.stringify(a)} and ${JSON.stringify(b)}`);
-}
+  return new Error(
+    `Shouldn't get here. Was comparing ${JSON.stringify(a)} and ${JSON.stringify(b)}`,
+  );
+};
 
 export const sortBySuspciousness = (faults: Fault[]) => {
   return faults.sort((a, b) => {
@@ -47,7 +49,7 @@ export const sortBySuspciousness = (faults: Fault[]) => {
     }
     throw createComparisonError(a, b);
   });
-}
+};
 
 export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
   const faults: Fault[] = [];
@@ -57,7 +59,12 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
       const fault: Fault = {
         sourcePath: sourceFilePath,
         ...fileFault,
-        score: fileFault.score === true ? Number.POSITIVE_INFINITY : fileFault.score === false ? Number.NEGATIVE_INFINITY : fileFault.score
+        score:
+          fileFault.score === true
+            ? Number.POSITIVE_INFINITY
+            : fileFault.score === false
+            ? Number.NEGATIVE_INFINITY
+            : fileFault.score,
       };
       faults.push(fault);
     }
@@ -77,10 +84,10 @@ export const compareLocation = (faultA: Fault, faultB: Fault): number | null => 
   } else if (a.end.line !== b.end.line) {
     return a.end.line - a.end.line;
   } else if (a.end.column !== b.end.column) {
-    return a.end.column - b.end.column
+    return a.end.column - b.end.column;
   }
   return null;
-}
+};
 
 export const sortByLocation = (fileFaults: Fault[]) => {
   fileFaults.sort((faultA, faultB) => {
@@ -89,16 +96,24 @@ export const sortByLocation = (fileFaults: Fault[]) => {
       return locationComparison;
     }
     throw createComparisonError(faultA, faultB);
-  })
-
-}
+  });
+};
 
 export const recordFaults = (filePath: string, faults: Fault[]) => {
   mkdirSync(dirname(filePath), { recursive: true });
   const faultsData = {};
   for (const fault of faults) {
     const recordedItem = {
-      score: fault.score === null ? null : Number.isNaN(fault.score) ? false : Number.POSITIVE_INFINITY === fault.score ? true : Number.NEGATIVE_INFINITY === fault.score ? false : fault.score,
+      score:
+        fault.score === null
+          ? null
+          : Number.isNaN(fault.score)
+          ? false
+          : Number.POSITIVE_INFINITY === fault.score
+          ? true
+          : Number.NEGATIVE_INFINITY === fault.score
+          ? false
+          : fault.score,
       location: fault.location,
     };
     if (faultsData[fault.sourcePath] === undefined) {
