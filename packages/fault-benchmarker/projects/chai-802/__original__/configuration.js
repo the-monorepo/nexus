@@ -27,7 +27,7 @@ describe('configuration', function () {
   }
 
   describe('includeStack', function() {
-    it.skip('is true for method assertions', function () {
+    it('is true for method assertions', function () {
       chai.config.includeStack = true;
 
       try {

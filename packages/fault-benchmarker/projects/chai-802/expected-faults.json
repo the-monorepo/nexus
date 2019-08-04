@@ -1,0 +1,16 @@
+{
+  "./lib/chai/utils/inspect.js": [
+    {
+      "location": {
+        "start": {
+          "line": 38,
+          "column": 4
+        },
+        "end": {
+          "line": 41,
+          "column": 42
+        }
+      }
+    }
+  ]
+}
