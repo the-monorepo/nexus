@@ -37,6 +37,14 @@
   ],
   "dependencies": {
     "@babel/parser": "^7.5.0",
+    "@fault/addon-sbfl": "1.0.0-alpha.0",
+    "@fault/record-faults": "1.0.0-alpha.0",
+    "@fault/runner": "1.0.0-alpha.0",
+    "@fault/sbfl-barinel": "1.0.0-alpha.0",
+    "@fault/sbfl-dstar": "1.0.0-alpha.0",
+    "@fault/sbfl-op2": "1.0.0-alpha.0",
+    "@fault/sbfl-tarantula": "1.0.0-alpha.0",
+    "@fault/tester-mocha": "1.0.0-alpha.0",
     "micromatch": "^4.0.2"
   },
   "devDependencies": {

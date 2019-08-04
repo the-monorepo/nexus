@@ -20,11 +20,10 @@ import { op2 } from '@fault/sbfl-op2';
 import { BenchmarkConfig, ProjectConfig } from './config';
 import benchmarkConfig from './config';
 
-
 export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
-  return `${normalize(resolve(projectDir, fault.sourcePath)).replace(/\\+/g, '\\')}:${fault.location.start.line}:${
-    fault.location.start.column
-  }`;
+  return `${normalize(resolve(projectDir, fault.sourcePath)).replace(/\\+/g, '\\')}:${
+    fault.location.start.line
+  }:${fault.location.start.column}`;
 };
 
 export const calculateExamScore = (
@@ -63,7 +62,7 @@ export const calculateExamScore = (
   }
   sum += expectedFaultMap.size * nonFaultElementsInspected;
 
-  return (sum / expectedFaults.length) / totalExecutableStatements;
+  return sum / expectedFaults.length / totalExecutableStatements;
 };
 
 export type BenchmarkData = {
@@ -72,7 +71,10 @@ export type BenchmarkData = {
 
 export const getProjectPaths = async (path: string | string[] = '*') => {
   const projectsDir = './projects';
-  const resolved = typeof path === 'string' ? resolve(projectsDir, path) : path.map(glob => resolve(projectsDir, glob));
+  const resolved =
+    typeof path === 'string'
+      ? resolve(projectsDir, path)
+      : path.map(glob => resolve(projectsDir, glob));
   return await globby(resolved, { onlyDirectories: true, expandDirectories: false });
 };
 
@@ -100,36 +102,44 @@ const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
   return faultPath;
 };
 
-const findConfig = (benchmarkConfig: BenchmarkConfig, path: string): ProjectConfig | null => {
-  for(const projectConfig of benchmarkConfig) {
-    const globs = Array.isArray(projectConfig.glob) ? projectConfig.glob : [projectConfig.glob];
-    const resolvedGlobs = globs.map(glob => resolve('./projects', glob).replace(/\\+/g, '/'));
+const findConfig = (
+  benchmarkConfig: BenchmarkConfig,
+  path: string,
+): ProjectConfig | null => {
+  for (const projectConfig of benchmarkConfig) {
+    const globs = Array.isArray(projectConfig.glob)
+      ? projectConfig.glob
+      : [projectConfig.glob];
+    const resolvedGlobs = globs.map(glob =>
+      resolve('./projects', glob).replace(/\\+/g, '/'),
+    );
     if (micromatch.isMatch(path, resolvedGlobs)) {
       return projectConfig;
     }
   }
   return null;
-}
+};
 
 export const run = async () => {
   const projectDirs = await getProjectPaths(
     process.argv.length <= 2 ? undefined : process.argv.slice(2),
   );
 
-  const runOnProject =  async (projectDir: string) => {
+  const runOnProject = async (projectDir: string) => {
     log.verbose(`Starting ${projectDir}...`);
-    
+
     const selectedConfig = findConfig(benchmarkConfig, projectDir);
     if (selectedConfig === null) {
       log.warn(`Could not find an explicit config for '${chalk.cyan(projectDir)}'`);
     }
-    const projectConfig = selectedConfig === null ? {} : selectedConfig; 
+    const projectConfig = selectedConfig === null ? {} : selectedConfig;
     const {
       setupFiles = [resolve(__dirname, 'babel')],
-      sandbox = false,
       tester = '@fault/tester-mocha',
+      testOptions,
     } = projectConfig;
-
+    const { sandbox = false, mocha = require.resolve('mocha') } =
+      testOptions === undefined ? {} : testOptions;
     const optionsEnv = projectConfig.env ? projectConfig.env : {};
 
     const testMatch = (() => {
@@ -156,12 +166,11 @@ export const run = async () => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
         faultFilePath: faultFilePath(projectDir, name),
-        console
+        console,
       });
 
       return sbflAddon;
     });
-
     // TODO: Don't hard code testerOptions
     await flRunner.run({
       tester,
@@ -170,15 +179,16 @@ export const run = async () => {
       cwd: projectDir,
       setupFiles,
       testerOptions: {
-        resetRequireCache: false,
-        sandbox
+        ...testOptions,
+        sandbox,
+        mocha,
       },
       env: {
         ...process.env,
-        ...optionsEnv
+        ...optionsEnv,
       },
-      workers: sandbox ? 1 : 1,
-      fileBufferCount: sandbox ? undefined : null
+      workers: sandbox ? undefined : 1,
+      fileBufferCount: sandbox ? undefined : null,
     });
 
     const coverage = await readCoverageFile(

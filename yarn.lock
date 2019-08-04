@@ -5268,7 +5268,7 @@ diagnostics@^1.1.1:
     enabled "1.0.x"
     kuler "1.0.x"
 
-diff-lines@^1.1.0:
+diff-lines@^1.1.0, diff-lines@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/diff-lines/-/diff-lines-1.1.1.tgz#4f10a709b6ce2af1d6b412ada5a90cf01d782571"
   integrity sha512-Oo5JzEEriF/+T0usOeRP5yOzr6SWvni2rrxvIgijMZSxPcEvf8JOvCO5GpnWwkte7fcOgnue/f5ECg1H9lMPCw==
@@ -8105,6 +8105,27 @@ isomorphic-git@^0.51.12:
     sha.js "^2.4.9"
     simple-get "^3.0.2"
 
+isomorphic-git@^0.58.1:
+  version "0.58.1"
+  resolved "https://registry.yarnpkg.com/isomorphic-git/-/isomorphic-git-0.58.1.tgz#974ac91ceee674a8991ccb8cc1b5983272f7b502"
+  integrity sha512-SuoNS/fYTkZxgdGCXRLZKfbLNTHtw0KUznVO6KhPv1Hry9GYv+Xd9K3TpkAR3N7SQ/DkG3vdq+TJRxVXgrjLDA==
+  dependencies:
+    async-lock "^1.1.0"
+    clean-git-ref "1.0.3"
+    crc-32 "^1.2.0"
+    diff-lines "^1.1.1"
+    git-apply-delta "0.0.7"
+    globalyzer "^0.1.0"
+    globrex "^0.1.2"
+    ignore "^5.0.4"
+    marky "^1.2.1"
+    minimisted "^2.0.0"
+    pako "^1.0.10"
+    pify "^4.0.1"
+    readable-stream "^3.1.1"
+    sha.js "^2.4.9"
+    simple-get "^3.0.2"
+
 isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
@@ -9921,7 +9942,7 @@ p-waterfall@^1.0.0:
   dependencies:
     p-reduce "^1.0.0"
 
-pako@^1.0.7, pako@~1.0.5:
+pako@^1.0.10, pako@^1.0.7, pako@~1.0.5:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
   integrity sha512-0DTvPVU3ed8+HNXOu5Bs+o//Mbdj9VNQMUOe9oKCwh8l0GNwpTDMKCWbRjgtD291AWnkAgkqA/LOnQS8AmS1tw==

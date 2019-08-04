@@ -1,13 +1,16 @@
 import { IPCReporter } from './recordTests';
-export const createMochaInstance = (Mocha) => {
+export const createMochaInstance = (Mocha, requireFiles: string[]) => {
   const mochaInstance = new Mocha({
     color: true,
     reporter: IPCReporter,
     fullStackTrace: true,
   } as any);
+  for (const requireFile of requireFiles) {
+    mochaInstance.addFile(requireFile);
+  }
   mochaInstance.addFile(require.resolve('./recordTests'));
   return mochaInstance;
-}
+};
 
 export const runMochaInstance = async (mochaInstance, runHandle) => {
   try {
@@ -20,5 +23,5 @@ export const runMochaInstance = async (mochaInstance, runHandle) => {
   } catch (err) {
     console.error(err);
     process.exit(1);
-  } 
-}
+  }
+};

@@ -3,7 +3,11 @@ import Mocha from 'mocha';
 import { submitTestResult } from '@fault/messages';
 import { createHash } from 'crypto';
 
-const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
+const {
+  EVENT_TEST_FAIL,
+  EVENT_TEST_PASS,
+  EVENT_TEST_BEGIN,
+} = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {

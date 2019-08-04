@@ -41,7 +41,9 @@ const statementStr = (filePath: string, { start, end }: ExpressionLocation) => {
 /**
  * Gets the pass/fail results for each expression in each file
  */
-export const gatherFileResults = (testResults: Iterable<TestResult>): Map<string, FileResult> => {
+export const gatherFileResults = (
+  testResults: Iterable<TestResult>,
+): Map<string, FileResult> => {
   const expressionResults: Map<string, ExpressionResult> = new Map();
   for (const testResult of testResults) {
     const coverage = testResult.coverage;
@@ -50,7 +52,7 @@ export const gatherFileResults = (testResults: Iterable<TestResult>): Map<string
     }
     for (const [filePath, fileCoverage] of Object.entries(coverage) as any) {
       const statementMap = fileCoverage.statementMap;
-      for (const statementKey of Object.keys(statementMap)) {     
+      for (const statementKey of Object.keys(statementMap)) {
         const executionCount = fileCoverage.s[statementKey];
         if (executionCount <= 0) {
           continue;
@@ -111,7 +113,7 @@ export const localizeFaults = (
   scoringFn: InternalScoringFn,
 ): Fault[] => {
   const faults: Fault[] = [];
-  
+
   // Gather all files that were executed in tests
   const selectedSourceFiles: Set<string> = new Set();
   for (const testResult of groupedTestResults) {
@@ -141,10 +143,16 @@ export const localizeFaults = (
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
 const reportFaults = async (faults: Fault[]) => {
-  const rankedFaults = sortBySuspciousness(faults
-    .filter(fault => fault.score !== null && fault.score !== Number.NEGATIVE_INFINITY && fault.score !== Number.NaN)
-    .sort((f1, f2) => f2.score! - f1.score!))
-    .slice(0, 10);
+  const rankedFaults = sortBySuspciousness(
+    faults
+      .filter(
+        fault =>
+          fault.score !== null &&
+          fault.score !== Number.NEGATIVE_INFINITY &&
+          fault.score !== Number.NaN,
+      )
+      .sort((f1, f2) => f2.score! - f1.score!),
+  ).slice(0, 10);
   for (const fault of rankedFaults) {
     const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
     console.log(
@@ -172,13 +180,13 @@ const reportFaults = async (faults: Fault[]) => {
 export type PluginOptions = {
   scoringFn?: ScoringFn;
   faultFilePath?: string | null | true | false;
-  console?: boolean,
+  console?: boolean;
 };
 
 export const createPlugin = ({
   scoringFn = dStar,
   faultFilePath,
-  console: printToConsole = false
+  console: printToConsole = false,
 }: PluginOptions): PartialTestHookOptions => {
   return {
     on: {
