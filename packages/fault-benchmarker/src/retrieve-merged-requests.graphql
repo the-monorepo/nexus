@@ -1,5 +1,6 @@
 query Query($repoName: String!, $owner: String!, $after: String) {
   repository(name: $repoName, owner: $owner) {
+    url,
     pullRequests(first: 100, after: $after, states: [MERGED]) {
       pageInfo{
         hasNextPage,
@@ -7,10 +8,11 @@ query Query($repoName: String!, $owner: String!, $after: String) {
       }
       edges {
         node {
+          number,
           title
           url
           mergeCommit {
-            commitUrl
+            oid
           }
           additions
           deletions
