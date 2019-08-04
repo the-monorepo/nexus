@@ -6,7 +6,7 @@ export const op2 = (codeElementTestStateCounts: Stats, totalTestStateCounts: Sta
   }
   return (
     codeElementTestStateCounts.failed -
-    (codeElementTestStateCounts.passed / (totalTestStateCounts.passed + 1))
+    codeElementTestStateCounts.passed / (totalTestStateCounts.passed + 1)
   );
 };
 export default op2;

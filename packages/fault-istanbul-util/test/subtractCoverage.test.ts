@@ -103,11 +103,13 @@ describe('subtractCoverage', () => {
     expect(subtractCoverage(populatedCoverage1, {})).to.deep.equal(populatedCoverage1);
   });
   it('populated1 - undefined', () => {
-    expect(subtractCoverage(populatedCoverage1, undefined)).to.deep.equal(populatedCoverage1);
+    expect(subtractCoverage(populatedCoverage1, undefined)).to.deep.equal(
+      populatedCoverage1,
+    );
   });
   it('undefined - undefined', () => {
     expect(subtractCoverage(undefined, undefined)).to.deep.equal({});
-  })
+  });
   it('populated1 - populated1', () => {
     expect(subtractCoverage(populatedCoverage2, populatedCoverage1)).to.deep.equal(
       differenceBetween1And2,

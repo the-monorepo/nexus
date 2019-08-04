@@ -65,6 +65,6 @@ export const stopWorker = (worker: ChildProcess, data: StopWorkerData) => {
 export const stoppedWorker = (data: StoppedWorkerData) => {
   return promiseSend({
     type: IPC.STOPPED_WORKER,
-    ...data
+    ...data,
   });
-}
+};

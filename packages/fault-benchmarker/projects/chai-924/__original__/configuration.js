@@ -19,7 +19,7 @@ describe('configuration', function () {
     });
   });
 
-  describe.skip('includeStack', function() {
+  describe('includeStack', function() {
     // Skip tests if `Error.captureStackTrace` is unsupported
     if (typeof Error.captureStackTrace === 'undefined') return;
 
