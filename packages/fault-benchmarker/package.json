@@ -38,5 +38,9 @@
   "dependencies": {
     "@babel/parser": "^7.5.0",
     "micromatch": "^4.0.2"
+  },
+  "devDependencies": {
+    "cross-spawn": "^6.0.5",
+    "isomorphic-git": "^0.58.1"
   }
 }

@@ -4,14 +4,13 @@
  * MIT Licensed
  */
 
-var used = []
-  , exports = module.exports = {};
+var used = [];
 
 /*!
  * Chai version
  */
 
-exports.version = '3.5.0';
+exports.version = require('../package').version;
 
 /*!
  * Assertion Error
@@ -28,7 +27,7 @@ var util = require('./chai/utils');
 /**
  * # .use(function)
  *
- * Provides a way to extend the internals of Chai
+ * Provides a way to extend the internals of Chai.
  *
  * @param {Function}
  * @returns {this} for chaining
@@ -37,11 +36,11 @@ var util = require('./chai/utils');
 
 exports.use = function (fn) {
   if (!~used.indexOf(fn)) {
-    fn(this, util);
+    fn(exports, util);
     used.push(fn);
   }
 
-  return this;
+  return exports;
 };
 
 /*!

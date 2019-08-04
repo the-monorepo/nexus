@@ -8,7 +8,13 @@ import { consoleTransport } from 'build-pshaw-logger';
 import { readFile } from 'mz/fs';
 import { resolve } from 'path';
 import chalk from 'chalk';
-import { writeFile, appendFile } from 'mz/fs';
+import { writeFile, appendFile, access } from 'mz/fs';
+import * as git from 'isomorphic-git';
+import fs from 'fs';
+import spawn from 'cross-spawn';
+import del from 'del';
+
+git.plugins.set('fs', fs)
 
 const log = logger().add(consoleTransport());
 
@@ -20,10 +26,11 @@ type FileNode = {
 
 type PullRequestEdge = {
   node: {
+    number: number,
     title: string;
     url: string;
     mergeCommit: {
-      commitUrl: string
+      oid: string
     },
     additions: number,
     deletions: number,
@@ -37,6 +44,7 @@ type PullRequestEdge = {
 type QueryPayload = {
   data: {
     repository: {
+      url: string,
       pullRequests: {
         pageInfo: {
           hasNextPage: boolean,
@@ -49,9 +57,10 @@ type QueryPayload = {
 }
 
 type CuratedPullRequest = {
+  number: number;
   title: string;
   url: string;
-  commitUrl: string | null
+  oid: string | null
 }
 
 const run = async () => { 
@@ -158,9 +167,10 @@ const run = async () => {
         continue;
       }
       spicyPullRequests.push({
+        number: pullRequest.node.number,
         title: pullRequest.node.title,
         url: pullRequest.node.url,
-        commitUrl: pullRequest.node.mergeCommit ? pullRequest.node.mergeCommit.commitUrl : null
+        oid: pullRequest.node.mergeCommit ? pullRequest.node.mergeCommit.oid : null
       });
     }  
     after = data.data.repository.pullRequests.pageInfo.endCursor;
@@ -175,6 +185,53 @@ const run = async () => {
     console.log();
   }
   log.info(`Searched ${prCount} PRs - ${spicyPullRequests.length} have potential`);
+  
+  const cloneablePrs = spicyPullRequests.filter(pr => pr.oid != null);
+  const cloningPromises = cloneablePrs.map(async pr => {
+    const cloneDir = resolve('./projects', `${repoName}-${pr.number}`);
+    const alreadyExists = await (async () => {
+      try {
+        await access(cloneDir, fs.constants.F_OK);
+        return true
+      } catch(err) {
+        return false;
+      }
+    })();
+    if (alreadyExists) {
+      return;
+    }
+    try {
+      await git.clone({
+        url: data.data.repository.url,
+        dir: cloneDir,
+        ref: pr.oid!
+      });
+      const isYarn = await (async () => {
+        try {
+          await access(resolve(cloneDir, 'yarn.lock'), fs.constants.F_OK);  
+          return true;
+        } catch(err) {
+          return false;
+        }  
+      })();
+      await new Promise((resolve, reject) => {
+        const npmInstallProcess = spawn(isYarn ? 'yarn' : 'npm', ['install'], { cwd: cloneDir, stdio: 'inherit' });  
+        npmInstallProcess.on('close', (code) => {
+          if (code !== 0) {
+            reject(new Error('Failed to install'));
+          } else {
+            resolve();
+          }
+        });  
+      });
+      await del(resolve(cloneDir, '.git'));
+    } catch(err) {
+      log.error(`Failed to install for PR ${pr.number}`);
+      log.error(err);
+      await del(cloneDir);
+    }
+  });
+  await Promise.all(cloningPromises);
 }
 
 run().catch(console.error);
