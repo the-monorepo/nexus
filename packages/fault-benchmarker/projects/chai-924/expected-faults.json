@@ -1,3 +1,16 @@
 {
-  
+  "./lib/chai/core/assertions.js": [
+    {
+      "location": {
+        "start": {
+          "line": 1464,
+          "column": 6
+        },
+        "end": {
+          "line": 1466,
+          "column": 7
+        }
+      }
+    }
+  ]
 }

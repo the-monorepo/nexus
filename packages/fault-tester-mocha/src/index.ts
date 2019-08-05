@@ -87,10 +87,8 @@ export const initialize = async (options: Options) => {
           );
           const mochaInstance = createMochaInstance(Mocha, requireFiles);
           for (const { testPath } of data.testsToRun) {
-            console.log(testPath);
             mochaInstance.addFile(testPath);
           }
-          console.log('starting...');
           try {
             await runMochaInstance(mochaInstance, async () => {
               for (const { testPath, key } of data.testsToRun) {
@@ -99,7 +97,6 @@ export const initialize = async (options: Options) => {
                   key,
                   duration: 0,
                 });
-                console.log(testPath);
               }
               clearCache();
             });
