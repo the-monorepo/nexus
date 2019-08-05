@@ -5,14 +5,13 @@ import 'source-map-support/register';
 import fetch from 'node-fetch';
 import logger from '@pshaw/logger';
 import { consoleTransport } from 'build-pshaw-logger';
-import { readFile } from 'mz/fs';
 import { resolve } from 'path';
 import chalk from 'chalk';
-import { writeFile, appendFile, access } from 'mz/fs';
 import * as git from 'isomorphic-git';
 import fs from 'fs';
 import spawn from 'cross-spawn';
 import del from 'del';
+const { writeFile, appendFile, stat, readFile } = fs.promises;
 
 git.plugins.set('fs', fs);
 
@@ -209,20 +208,23 @@ const run = async () => {
   log.info(`Searched ${prCount} PRs - ${spicyPullRequests.length} have potential`);
 
   const cloneablePrs = spicyPullRequests.filter(pr => pr.oid != null);
-  const cloningPromises = cloneablePrs.map(async pr => {
+  log.info(`${cloneablePrs.length} clonable out of ${spicyPullRequests.length} viable PRs (they couldn't be checked out)`);
+  for(const pr of cloneablePrs) {
     const cloneDir = resolve('./projects', `${repoName}-${pr.number}`);
     const alreadyExists = await (async () => {
       try {
-        await access(cloneDir, fs.constants.F_OK);
-        return true;
+        const pathStat = await stat(cloneDir);
+        return pathStat.isDirectory();
       } catch (err) {
         return false;
       }
     })();
     if (alreadyExists) {
-      return;
+      log.info(`Skipping PR ${pr.number} since it already exists`)
+      continue;
     }
     try {
+      log.info(`Cloning PR ${pr.number}`);
       await git.clone({
         url: data.data.repository.url,
         dir: cloneDir,
@@ -230,12 +232,13 @@ const run = async () => {
       });
       const isYarn = await (async () => {
         try {
-          await access(resolve(cloneDir, 'yarn.lock'), fs.constants.F_OK);
-          return true;
+          const pathStat = await stat(resolve(cloneDir, 'yarn.lock'));
+          return pathStat.isFile();
         } catch (err) {
           return false;
         }
       })();
+      log.info(`Installing packages for PR ${pr.number}`);
       await new Promise((resolve, reject) => {
         const npmInstallProcess = spawn(isYarn ? 'yarn' : 'npm', ['install'], {
           cwd: cloneDir,
@@ -255,8 +258,7 @@ const run = async () => {
       log.error(err);
       await del(cloneDir);
     }
-  });
-  await Promise.all(cloningPromises);
+  }
 };
 
 run().catch(console.error);
