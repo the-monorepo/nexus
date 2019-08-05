@@ -23,8 +23,7 @@ describe('integration tests', function () {
   })
 
   it('should run as a node script with arguments', function (done) {
-    this.timeout(10000000000000);
-    testArgs('node bin.js', [ 'x', 'y', 'z' ], done);
+    testArgs('node bin.js', [ 'x', 'y', 'z' ], done)
   })
 
   describe('path returned by "which"', function () {
