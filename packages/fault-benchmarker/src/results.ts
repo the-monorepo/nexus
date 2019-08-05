@@ -1,5 +1,4 @@
 import 'source-map-support/register';
-import { readFile, readdir, writeFile } from 'mz/fs';
 import globby from 'globby';
 import { resolve, basename } from 'path';
 
