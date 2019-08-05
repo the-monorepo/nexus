@@ -179,6 +179,7 @@ export const run = async () => {
       cwd: projectDir,
       setupFiles,
       testerOptions: {
+        timeout: 15000,
         ...testOptions,
         sandbox,
         mocha,
