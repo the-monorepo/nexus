@@ -55,9 +55,9 @@ export const config: BenchmarkConfig = [
   {
     glob: 'yargs-*',
     testMatch: './test/*.js',
-    setupFiles: ['./test/before'],
     testOptions: {
-      sandbox: false
+      require: ['./test/before'],
+      sandbox: false,
     }
   }
 ];
