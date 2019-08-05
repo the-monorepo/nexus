@@ -1,7 +1,9 @@
 /// <reference path="global.d.ts" />
 import './styles.css';
 import * as mbx from 'mobx-dom';
-import benchmarkResults from '../../benchmark-results.json';
+const requireAll = (requireContext) => requireContext.keys().map(requireContext);
+const faultResults = requireAll(require.context('../../projects', true, /\/fault-results\.json$/));
+const benchmarkResults = gatherBenchmarkResults(faultResults);
 const algorithmNames = Object.keys(benchmarkResults.average);
 
 type Result = number | undefined | null;
