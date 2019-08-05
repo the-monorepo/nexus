@@ -42,7 +42,7 @@ export const config: BenchmarkConfig = [
   },
   {
     glob: 'chai-*',
-    testMatch: ['./test/*.js'],
+    testMatch: './test/*.js',
     testOptions: {
       sandbox: false,
       require: ['./test/bootstrap'],
@@ -52,6 +52,14 @@ export const config: BenchmarkConfig = [
       NODE_ENV: 'test',
     },
   },
+  {
+    glob: 'yargs-*',
+    testMatch: './test/*.js',
+    setupFiles: ['./test/before'],
+    testOptions: {
+      sandbox: false
+    }
+  }
 ];
 
 export default config;
