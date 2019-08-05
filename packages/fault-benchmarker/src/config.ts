@@ -44,8 +44,7 @@ export const config: BenchmarkConfig = [
     glob: 'chai-*',
     testMatch: ['./test/*.js'],
     testOptions: {
-      sandbox: true,
-      mocha: 'mocha',
+      sandbox: false,
       require: ['./test/bootstrap'],
     },
     env: {
