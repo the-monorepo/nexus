@@ -1,1 +1,12 @@
-{}
+{
+  "./lib/apply-extends.js": [
+    {
+      "location": {
+        "start": {
+          "line": 22,
+          "column": 2
+        }
+      }
+    }
+  ]
+}
