@@ -1,1 +1,17 @@
-{}
+{
+  "./index.js": [
+    {
+      "score": 0.001828153564899404,
+      "location": {
+        "start": {
+          "line": 29,
+          "column": 6
+        },
+        "end": {
+          "line": 29,
+          "column": 85
+        }
+      }
+    }
+  ]
+}
