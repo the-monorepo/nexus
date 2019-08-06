@@ -1,1 +1,36 @@
-{}
+{
+  "./lib/command.js": [
+    {
+      "location": {
+        "start": {
+          "line": 23,
+          "column": 4
+        }
+      }
+    },
+    {
+      "location": {
+        "start": {
+          "line": 24,
+          "column": 4
+        }
+      }
+    },
+    {
+      "location": {
+        "start": {
+          "line": 25,
+          "column": 4
+        }
+      }
+    },
+    {
+      "location": {
+        "start": {
+          "line": 236,
+          "column": 6
+        }
+      }
+    }
+  ]
+}
