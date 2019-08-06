@@ -1,9 +1,10 @@
 import { IPCReporter } from './recordTests';
-export const createMochaInstance = (Mocha, requireFiles: string[]) => {
+export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   const mochaInstance = new Mocha({
     color: true,
     reporter: IPCReporter,
     fullStackTrace: true,
+    ...options,
   } as any);
   for (const requireFile of requireFiles) {
     mochaInstance.addFile(requireFile);
