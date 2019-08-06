@@ -19,8 +19,8 @@ module.exports = function command (yargs, usage, validation, globalMiddleware) {
     let aliases = []
     handler = handler || (() => {})
     middlewares = middlewares || []
-    middlewares = globalMiddleware.concat(middlewares)
-    
+    globalMiddleware.push(...middlewares)
+    middlewares = globalMiddleware
     if (Array.isArray(cmd)) {
       aliases = cmd.slice(1)
       cmd = cmd[0]
@@ -427,3 +427,4 @@ module.exports = function command (yargs, usage, validation, globalMiddleware) {
 
   return self
 }
+  
