@@ -1,1 +1,12 @@
-{}
+{
+  "./lib/middleware.js": [
+    {
+      "location": {
+        "start": {
+          "line": 5,
+          "column": 11
+        }
+      }
+    }
+  ]
+}
