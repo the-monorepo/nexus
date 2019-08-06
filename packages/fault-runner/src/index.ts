@@ -82,7 +82,6 @@ const runAndRecycleProcesses = async (
 
   // key -> internal test data
   const totalPendingFiles: Map<number, InternalTestData> = new Map();
-
   const testFileQueue: string[] = await globby(testMatch, { onlyFiles: true });
 
   const durationsPath = resolve(__dirname, '../durations-cache.json');
