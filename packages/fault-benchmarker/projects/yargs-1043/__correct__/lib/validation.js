@@ -37,7 +37,7 @@ module.exports = function validation (yargs, usage, y18n) {
           )
         } else {
           usage.fail(
-            __('Too many non-option arguments: got %s, maximum of %s', _s, demandedCommands._.max)
+          __('Too many non-option arguments: got %s, maximum of %s', _s, demandedCommands._.max)
           )
         }
       }
@@ -51,6 +51,40 @@ module.exports = function validation (yargs, usage, y18n) {
       usage.fail(
         __('Not enough non-option arguments: got %s, need at least %s', observed, required)
       )
+    }
+  }
+
+  // make sure that any args that require an
+  // value (--foo=bar), have a value.
+  self.missingArgumentValue = function missingArgumentValue (argv) {
+    const defaultValues = [true, false, '', undefined]
+    const options = yargs.getOptions()
+    if (options.requiresArg.length > 0) {
+      const missingRequiredArgs = []
+
+      options.requiresArg.forEach((key) => {
+        // if the argument is not set in argv no need to check
+        // whether a right-hand-side has been provided.
+        if (!argv.hasOwnProperty(key)) return
+
+        const value = argv[key]
+        // if a value is explicitly requested,
+        // flag argument as missing if it does not
+        // look like foo=bar was entered.
+        if (~defaultValues.indexOf(value) ||
+          (Array.isArray(value) && !value.length)) {
+          missingRequiredArgs.push(key)
+        }
+      })
+
+      if (missingRequiredArgs.length > 0) {
+        usage.fail(__n(
+          'Missing argument value: %s',
+          'Missing argument values: %s',
+          missingRequiredArgs.length,
+          missingRequiredArgs.join(', ')
+        ))
+      }
     }
   }
 
@@ -292,7 +326,7 @@ module.exports = function validation (yargs, usage, y18n) {
           // we default keys to 'undefined' that have been configured, we should not
           // apply conflicting check unless they are a value other than 'undefined'.
           if (value && argv[key] !== undefined && argv[value] !== undefined) {
-            usage.fail(__(`Arguments ${key} and ${value} are mutually exclusive`));
+            usage.fail(__(`Arguments ${key} and ${value} are mutually exclusive`))
           }
         })
       }

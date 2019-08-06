@@ -63,10 +63,6 @@ module.exports = function validation (yargs, usage, y18n) {
       const missingRequiredArgs = []
 
       options.requiresArg.forEach((key) => {
-        // if the argument is not set in argv no need to check
-        // whether a right-hand-side has been provided.
-        if (!argv.hasOwnProperty(key)) return
-
         const value = argv[key]
         // if a value is explicitly requested,
         // flag argument as missing if it does not
