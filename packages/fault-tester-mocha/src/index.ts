@@ -9,6 +9,7 @@ type Options = {
   mocha?: string;
   sandbox?: boolean;
   require?: string[];
+  timeout?: number;
 };
 
 let running = false;
@@ -22,6 +23,7 @@ export const initialize = async (options: Options) => {
     mocha = 'mocha',
     sandbox = false,
     require: relativeRequireFiles = [],
+    timeout
   } = options;
 
   const requireFiles = relativeRequireFiles.map(filePath =>
@@ -85,7 +87,7 @@ export const initialize = async (options: Options) => {
           data.testsToRun.sort((a, b) =>
             a.testPath.localeCompare(b.testPath, 'en', { sensitivity: 'base' }),
           );
-          const mochaInstance = createMochaInstance(Mocha, requireFiles);
+          const mochaInstance = createMochaInstance(Mocha, {timeout}, requireFiles);
           for (const { testPath } of data.testsToRun) {
             mochaInstance.addFile(testPath);
           }

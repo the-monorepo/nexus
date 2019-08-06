@@ -1,1 +1,12 @@
-{}
+{
+  "./yargs.js": [
+    {
+      "location": {
+        "start": {
+          "line": 650,
+          "column": 6
+        }
+      }
+    }
+  ]
+}
