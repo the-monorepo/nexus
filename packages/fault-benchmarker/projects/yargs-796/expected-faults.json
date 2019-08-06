@@ -1,1 +1,12 @@
-{}
+{
+  "./lib/validation.js": [
+    {
+      "location": {
+        "start": {
+          "line": 134,
+          "column": 6
+        }
+      }
+    }
+  ]
+}

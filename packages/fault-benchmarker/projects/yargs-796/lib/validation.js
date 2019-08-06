@@ -135,7 +135,6 @@ module.exports = function (yargs, usage, y18n) {
         !descriptions.hasOwnProperty(key) &&
         !demandedOptions.hasOwnProperty(key) &&
         !positionalMap.hasOwnProperty(key) &&
-        !yargs._getParseContext().hasOwnProperty(key) &&
         !aliasLookup.hasOwnProperty(key)) {
         unknown.push(key)
       }
