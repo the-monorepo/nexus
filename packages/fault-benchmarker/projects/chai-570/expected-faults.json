@@ -1,10 +1,14 @@
 {
-  ".\\lib\\chai\\utils\\getMessage.js": [
+  "./lib/chai/utils/getMessage.js": [
     {
+      "type": "within",
       "location": {
         "start": {
           "line": 45,
           "column": 2
+        },
+        "end": {
+          "line": 48
         }
       }
     }
