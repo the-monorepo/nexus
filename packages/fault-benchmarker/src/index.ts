@@ -67,14 +67,20 @@ export function *faultKeys(projectDir: string, fault: ScorelessFault): IterableI
 
 export const isWithinLocation = (projectDir: string, withinLocation: WithinFault, fault: ScorelessFault): boolean => {
   const sameFile = normalizeKeyPath(projectDir, withinLocation.sourcePath) === normalizeKeyPath(projectDir, fault.sourcePath);
+  if (!sameFile) {
+    return false;
+  }
   if (withinLocation.location === undefined) {
-    return sameFile;
+    return true;
   }
-  const withinStart = sameFile && withinLocation.location.start.line <= fault.location.start.line && withinLocation.location.start.column <= fault.location.start.column;
-  if (withinLocation.location.end === undefined) {
-    return withinStart;
+  const withinStart = sameFile && (fault.location.start.line > withinLocation.location.start.line || (fault.location.start.line === withinLocation.location.start.line && fault.location.start.column >= withinLocation.location.start.column));
+  if (!withinStart) {
+    return false;
   }
-  const withinEnd = withinStart && withinLocation.location.end.line >= fault.location.start.line && withinLocation.location.end.column >= fault.location.start.column;
+  if (withinLocation.location.end == undefined) {
+    return true;
+  }
+  const withinEnd = withinStart && (fault.location.start.line < withinLocation.location.end.line || (fault.location.start.line === withinLocation.location.end.line && fault.location.start.column <= withinLocation.location.end.column));
   return withinEnd;
 }
 
@@ -116,6 +122,7 @@ export const calculateExamScore = (
     }
   }
   sum += expectedExactLocations.size * nonFaultElementsInspected;
+  sum += withinLocations.length * nonFaultElementsInspected;
 
   return sum / expectedFaults.length / totalExecutableStatements;
 };
