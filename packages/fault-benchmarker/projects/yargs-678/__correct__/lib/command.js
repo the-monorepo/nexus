@@ -169,6 +169,8 @@ module.exports = function (yargs, usage, validation) {
       commandHandler.handler(innerArgv)
     }
     currentContext.commands.pop()
+    numFiles = currentContext.files.length - numFiles
+    if (numFiles > 0) currentContext.files.splice(numFiles * -1, numFiles)
     return innerArgv
   }
 
