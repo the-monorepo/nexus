@@ -1,1 +1,17 @@
-{}
+{
+  "./yargs.js": [
+    {
+      "type": "within",
+      "location": {
+        "start": {
+          "line": 938,
+          "column": 4
+        },
+        "end": {
+          "line": 938,
+          "column": 55
+        }
+      }
+    }
+  ]
+}
