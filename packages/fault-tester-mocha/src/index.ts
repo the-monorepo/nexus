@@ -61,7 +61,7 @@ export const initialize = async (options: Options) => {
         const data = queue.pop()!;
         if (sandbox) {
           for (const { testPath, key } of data.testsToRun) {
-            const mochaInstance = createMochaInstance(Mocha, requireFiles);
+            const mochaInstance = createMochaInstance(Mocha, { timeout }, requireFiles);
             mochaInstance.addFile(testPath);
 
             const startTime = Date.now();

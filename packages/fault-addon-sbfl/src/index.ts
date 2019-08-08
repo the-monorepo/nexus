@@ -28,11 +28,13 @@ export type FileResult = {
 export type ScorelessFault = {
   location: ExpressionLocation;
   sourcePath: string;
-};
+}
 
-export type Fault = {
+export type ScoreHolder = {
   score: number | null;
-} & ScorelessFault;
+}
+
+export type Fault = ScoreHolder & ScorelessFault;
 
 const statementStr = (filePath: string, { start, end }: ExpressionLocation) => {
   return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;

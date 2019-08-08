@@ -1,26 +1,54 @@
 {
   "./lib/command.js": [
     {
+      "type": "within",
       "location": {
         "start": {
           "line": 23,
           "column": 4
-        }
-        "start": {
-          "line": 24,
-          "column": 4
+        },
+        "end": {
+          "line": 23,
+          "column": 35
         }
       }
     },
     {
+      "type": "within",
+      "location": {
+        "start": {
+          "line": 24,
+          "column": 4
+        },
+        "end": {
+          "line": 24,
+          "column": 41
+        }
+      }
+    },
+    {
+      "type": "within",
       "location": {
         "start": {
           "line": 25,
           "column": 4
+        },
+        "end": {
+          "line": 25,
+          "column": 34
         }
+      }
+    },
+    {
+      "type": "within",
+      "location": {
         "start": {
-          "line": 236,
+          "line": 235,
           "column": 6
+        },
+        "end": {
+          "line": 235,
+          "column": 58
         }
       }
     }

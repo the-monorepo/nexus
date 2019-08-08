@@ -37,19 +37,12 @@ export const normalizeKeyPath = (projectDir: string, sourcePath: string) => {
   return normalize(resolve(projectDir, sourcePath)).replace(/\\+/g, '\\');
 }
 
-export const faultToKey = (projectDir: string, fault: ScorelessFault): string => {
-  return `${normalizeKeyPath(projectDir, fault.sourcePath)}:${
-    fault.location.start.line
-  }:${fault.location.start.column}`;
-};
-
-export const mostSpecificFaultKey = (projectDir: string, fault: ScorelessFault) => {
-  const iterator = faultKeys(projectDir, fault);
-  let iterated = iterator.next();
-  while(!iterated.done) {
-    iterated = iterator.next();
+export const mostSpecificFaultKey = (projectDir: string, fault: ScorelessFault): string => {
+  let lastKey: string = undefined as any;
+  for(const key of faultKeys(projectDir, fault)) {
+    lastKey = key;
   }
-  return iterated.value;
+  return lastKey;
 }
 
 export function *faultKeys(projectDir: string, fault: ScorelessFault): IterableIterator<string> {

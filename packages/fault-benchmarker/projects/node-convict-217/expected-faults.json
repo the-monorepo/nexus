@@ -1,11 +1,11 @@
 {
-  ".\\lib\\convict.js": [
+  "./lib/convict.js": [
     {
       "location": {
         "start": {
           "line": 318,
           "column": 4
-        },
+        }
       }
     }
   ]

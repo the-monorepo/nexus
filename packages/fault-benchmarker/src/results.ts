@@ -19,9 +19,12 @@ export const run = async () => {
   const projectResults: ProjectResult[] = [];
   for (const projectDir of projectDirs) {
     try {
+      const faultResults = require(resolve(projectDir, 'fault-results.json'));
+      if (projectDir.includes('1247'))
+      console.log(faultResults)
       projectResults.push({
         name: basename(projectDir),
-        results: require(resolve(projectDir, 'fault-results.json')),
+        results: faultResults,
       });
     } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND') {
