@@ -6,10 +6,6 @@
           "line": 39,
           "column": 33
         },
-        "end": {
-          "line": 39,
-          "column": 94
-        }
       }
     },
     {
@@ -18,10 +14,6 @@
           "line": 42,
           "column": 8
         },
-        "end": {
-          "line": 45,
-          "column": 41
-        }
       }
     }
   ]
