@@ -20,8 +20,8 @@ module.exports = function command (yargs, usage, validation, globalMiddleware) {
   self.addHandler = function addHandler (cmd, description, builder, handler, middlewares) {
     let aliases = []
     handler = handler || (() => {})
-    middlewares = middlewares || []	
-    globalMiddleware.push(...middlewares)	
+    middlewares = middlewares || []
+    globalMiddleware.push(...middlewares)
     middlewares = globalMiddleware
 
     if (Array.isArray(cmd)) {
