@@ -1,10 +1,15 @@
 {
   "./lib/apply-extends.js": [
     {
+      "type": "within",
       "location": {
         "start": {
           "line": 22,
           "column": 2
+        },
+        "end": {
+          "line": 22,
+          "column": 39
         }
       }
     }
