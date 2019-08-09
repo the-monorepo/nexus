@@ -1,10 +1,15 @@
 {
   "./lib/validation.js": [
     {
+      "type": "within",
       "location": {
         "start": {
           "line": 105,
           "column": 4
+        },
+        "end": {
+          "line": 105,
+          "column": 31
         }
       }
     }
