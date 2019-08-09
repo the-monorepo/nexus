@@ -1,18 +1,28 @@
 {
   "./lib/sinon/stub.js": [
     { 
+      "type": "within",
       "location": {
         "start": {
           "line": 39,
-          "column": 33
+          "column": 4
+        },
+        "end": {
+          "line": 39,
+          "column": 95
         }
       }
     },
     {
+      "type": "within",
       "location": {
         "start": {
-          "line": 42,
-          "column": 8
+          "line": 41,
+          "column": 4
+        },
+        "end": {
+          "line": 45,
+          "column": 42
         }
       }
     }

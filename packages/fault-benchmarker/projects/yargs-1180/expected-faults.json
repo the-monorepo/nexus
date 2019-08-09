@@ -1,10 +1,15 @@
 {
   "./lib/command.js": [
     {
+      "type": "within",
       "location": {
         "start": {
           "line": 22,
           "column": 4
+        },
+        "end": {
+          "line": 22,
+          "column": 44
         }
       }
     }
