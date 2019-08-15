@@ -5,6 +5,7 @@ const onHookSchema = {
   complete: null,
   fileFinished: null,
   testResult: null,
+  start: null,
   allFilesFinished: [null, { yield: true }],
 };
 export type PartialTestHookOptions = HookOptions<
