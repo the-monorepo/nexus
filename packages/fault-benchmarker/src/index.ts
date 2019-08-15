@@ -134,7 +134,6 @@ export const getProjectPaths = async (path: string | string[] = '*') => {
 };
 
 const sbflAlgorithms = [
-  { name: 'dstar-0', scoringFn: (a, b) => dStar(a, b, 0) },
   { name: 'dstar-1', scoringFn: (a, b) => dStar(a, b, 1) },
   { name: 'dstar-2', scoringFn: dStar, console: true },
   { name: 'dstar-3', scoringFn: (a, b) => dStar(a, b, 3) },

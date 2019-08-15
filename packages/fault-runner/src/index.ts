@@ -314,6 +314,8 @@ export const run = async ({
 
   const processCount = workers;
 
+  await hooks.on.start();
+
   const results: FinalTesterResults = await runAndRecycleProcesses(
     tester,
     testMatch,
