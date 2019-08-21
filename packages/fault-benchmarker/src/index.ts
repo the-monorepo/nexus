@@ -96,6 +96,7 @@ export const calculateExamScore = (
 
   for (const actualFault of actualFaults) {
     let removedSomething = false;
+
     for(let w = 0; w < withinLocations.length; w++) {
       if (isWithinLocation(projectDir, withinLocations[w], actualFault)) {
         removedSomething = true;
@@ -103,6 +104,7 @@ export const calculateExamScore = (
         withinLocations.splice(w, 1);
       }
     }
+
     for(const key of faultKeys(projectDir, actualFault)) {
       if (expectedExactLocations.has(key)) {
         sum += nonFaultElementsInspected;
@@ -110,6 +112,7 @@ export const calculateExamScore = (
         removedSomething = true;
       }
     }
+
     if (!removedSomething) {
       nonFaultElementsInspected++;
     }
@@ -164,9 +167,11 @@ const findConfig = (
     const globs = Array.isArray(projectConfig.glob)
       ? projectConfig.glob
       : [projectConfig.glob];
+
     const resolvedGlobs = globs.map(glob =>
       resolve('./projects', glob).replace(/\\+/g, '/'),
     );
+
     if (micromatch.isMatch(path, resolvedGlobs)) {
       return projectConfig;
     }

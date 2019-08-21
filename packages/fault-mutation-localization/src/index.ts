@@ -31,7 +31,7 @@ type AstCache = ReturnType<typeof createAstCache>;
 
 type Mutation = { 
   filePath: string,
-  ast: File
+  //ast: File
 };
 
 type MutationResults = {
@@ -72,103 +72,136 @@ interface UnknownMutationSite extends GenericMutationSite {
 
 interface AssignmentMutationSite extends GenericMutationSite {
   type: typeof ASSIGNMENT,
-  operations: string[],
+  operators: string[],
   filePath: string,
   location: ExpressionLocation
 }
 
 type Instruction = UnknownMutationSite | AssignmentMutationSite;
 
-let previousMutationResults: MutationResults | null = null;
-const instructionQueue: Instruction[] = [];
-let firstRun = true;
-
-const identifyUnknownInstruction = async (instruction: UnknownMutationSite, cache: AstCache): Promise<Instruction | null> => {
-  const ast = await cache.get(instruction.filePath);
-  let nodePath: any = null;
+const findNodePathsWithLocation = (ast, location: ExpressionLocation) => {
+  let nodePaths: any[] = [];
   traverse(ast, {
     enter(path) {
-      const loc1 = instruction.location;
+      const loc1 = location;
       const loc2 = path.node.location;
       if (
         loc1.start.column === loc2.start.column && loc1.start.line === loc2.start.line
           && loc1.end.column === loc2.end.column && loc1.end.line === loc2.end.line) {
-            nodePath = path;
+            nodePaths.push(path);
           }
     }
   });
-  if(nodePath.isAssignmentExpression()) {
-    return {
-      type: ASSIGNMENT,
-      operations: [...assignmentOperations],
-      filePath: instruction.filePath,
-      location: nodePath.node.loc
-    };
-  } else {
-    return null;
-  }
+  return nodePaths;
 }
 
-const processInstruction = async (instruction: Instruction, cache): Promise<MutationResults | null> => {
-  switch(instruction.type) {
-    case UNKNOWN:
-      const identifiedInstruction = await identifyUnknownInstruction(instruction, cache);
-      if (identifiedInstruction === null) {
-        return null;
+const identifyUnknownInstruction = async (instruction: UnknownMutationSite, cache: AstCache): Promise<Instruction[]> => {
+  const ast = await cache.get(instruction.filePath);
+  const nodePaths = findNodePathsWithLocation(ast, instruction.location);
+  const assignmentInstructions = nodePaths
+    .filter(nodePath => t.isAssignmentExpression(nodePath.node))
+    .map((nodePath): Instruction => ({
+      type: ASSIGNMENT,
+      operators: [...assignmentOperations].filter(operator => operator !== nodePath.node.operator),
+      filePath: instruction.filePath,
+      location: nodePath.node.loc
+    }));
+
+  return assignmentInstructions;
+}
+
+const processAssignmentInstruction = async (instruction: AssignmentMutationSite, cache: AstCache): Promise<MutationResults | null> => {
+  const ast = await cache.get(instruction.filePath);
+  
+  const nodePaths = findNodePathsWithLocation(ast, instruction.location);
+  if (nodePaths.length <= 0) {
+    return null;
+  }
+  if (instruction.operators.length <= 0) {
+    return null;
+  }
+  const operators = instruction.operators.pop();
+  const nodePath =nodePaths[0];
+  nodePath.node.operator = operators;
+  return {
+    mutations: [
+      {
+        filePath: instruction.filePath,
       }
-      return processInstruction(identifiedInstruction, cache);
+    ]
+  }
+};
+
+const processInstruction = async (instruction: Instruction, cache: AstCache): Promise<MutationResults | null> => {
+  switch(instruction.type) {
+    case ASSIGNMENT:
+      return processAssignmentInstruction(instruction, cache);
     default:
       throw new Error(`Unknown instruction type: ${instruction.type}`);
   }
 }
 
-export const plugin: PartialTestHookOptions = {
-  on: {
-    start: async () => {
-      // TODO: Types appear to be broken with mkdtemp
-      copyTempDir = await (mkdtemp as any)(join(tmpdir(), copyTempDir));
-    },
-    allFilesFinished: async (tester: TesterResults) => {
-      const cache = createAstCache();
-      if (firstRun) {
-        const totalCoverage = createCoverageMap({});
-        for (const testResult of tester.testResults.values()) {
-          totalCoverage.merge(testResult.coverage);
-        }
+export const createPlugin = (): PartialTestHookOptions => {
+  let previousMutationResults: MutationResults | null = null;
+  const instructionQueue: Instruction[] = [];
+  let firstRun = true;
+  
+  return {
+    on: {
+      start: async () => {
+        // TODO: Types appear to be broken with mkdtemp
+        copyTempDir = await (mkdtemp as any)(join(tmpdir(), copyTempDir));
+      },
+      allFilesFinished: async (tester: TesterResults) => {
+        const cache = createAstCache();
+        if (firstRun) {
+          firstRun = false;
+          const totalCoverage = createCoverageMap({});
+          for (const testResult of tester.testResults.values()) {
+            totalCoverage.merge(testResult.coverage);
+          }
 
-        for(const [coveragePath, fileCoverage] of Object.entries(totalCoverage as Coverage)) {
-          for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
-            instructionQueue.push({
-              type: UNKNOWN,
-              location: statementCoverage,
-              filePath: coveragePath
-            });
+          for(const [coveragePath, fileCoverage] of Object.entries(totalCoverage as Coverage)) {
+            for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
+              instructionQueue.push({
+                type: UNKNOWN,
+                location: statementCoverage,
+                filePath: coveragePath
+              });
+            }
           }
         }
-      }
 
-      if (previousMutationResults !== null) {
-        for(const mutation of previousMutationResults.mutations) {
-          await resetFile(mutation.filePath);
+        if (previousMutationResults !== null) {
+          for(const mutation of previousMutationResults.mutations) {
+            await resetFile(mutation.filePath);
+          }
         }
+        
+        if (instructionQueue.length <= 0) {
+          return;
+        }
+        
+        let currentInstruction: Instruction = instructionQueue.pop();
+        while (currentInstruction.type === UNKNOWN) {
+          const identifiedInstructions = await identifyUnknownInstruction(currentInstruction, cache);
+          instructionQueue.push(...identifiedInstructions);
+          currentInstruction = instructionQueue.pop();
+        }
+        const instruction = instructionQueue.pop()!;
+        const mutationResults = await processInstruction(instruction, cache);
+        if (mutationResults !== null) {
+          await Promise.all(mutationResults.mutations.map(
+            mutation => createTempCopyOfFileIfItDoesntExist(mutation.filePath)
+          ));  
+        }
+        previousMutationResults = mutationResults;
+        return [...tester.testResults.values()];
+      },
+      complete: async () => {
+        await Promise.all([...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)));
+        await unlink(copyTempDir);
       }
-      
-      if (instructionQueue.length <= 0) {
-        return;
-      }
-      
-      const instruction = instructionQueue.pop()!;
-      const mutationResults = await processInstruction(instruction, cache);
-      if (mutationResults !== null) {
-        await Promise.all(mutationResults.mutations.map(
-          mutation => createTempCopyOfFileIfItDoesntExist(mutation.filePath)
-        ));  
-      }
-      previousMutationResults = mutationResults;
     },
-    complete: async () => {
-      await Promise.all([...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)));
-      await unlink(copyTempDir);
-    }
-  },
+  }
 };
