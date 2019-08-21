@@ -145,7 +145,7 @@ export const createPlugin = (): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   const instructionQueue: Instruction[] = [];
   let firstRun = true;
-  
+
   return {
     on: {
       start: async () => {
@@ -188,13 +188,18 @@ export const createPlugin = (): PartialTestHookOptions => {
           instructionQueue.push(...identifiedInstructions);
           currentInstruction = instructionQueue.pop();
         }
+
         const instruction = instructionQueue.pop()!;
-        const mutationResults = await processInstruction(instruction, cache);
-        if (mutationResults !== null) {
-          await Promise.all(mutationResults.mutations.map(
-            mutation => createTempCopyOfFileIfItDoesntExist(mutation.filePath)
-          ));  
+
+        let mutationResults = await processInstruction(instruction, cache);
+        while (mutationResults === null || mutationResults.mutations.length <= 0) {
+          mutationResults = await processInstruction(instruction, cache);
         }
+
+        await Promise.all(mutationResults.mutations.map(
+          mutation => createTempCopyOfFileIfItDoesntExist(mutation.filePath)
+        ));  
+
         previousMutationResults = mutationResults;
         return [...tester.testResults.values()];
       },
