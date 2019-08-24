@@ -31,7 +31,7 @@ export type PassingTestData = {
 
 export type FailingTestData = {
   passed: false;
-  stack: any;
+  stack: string | null;
 } & TestData;
 
 export type TestResult = (PassingTestData | FailingTestData) &

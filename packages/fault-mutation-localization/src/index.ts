@@ -2,12 +2,13 @@ import { parse } from '@babel/parser';
 import { File, AssignmentExpression, Expression, Statement } from '@babel/types';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import * as t from '@babel/types';
-import { TesterResults } from '@fault/types';
+import { TesterResults, TestResult, FailingTestData } from '@fault/types';
 import { readFile, writeFile, mkdtemp, unlink } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage'
 import { join, resolve } from 'path';
 import { tmpdir } from 'os';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
+import ErrorStackParser from 'error-stack-parser';
 
 import traverse from "@babel/traverse";
 
@@ -141,10 +142,126 @@ const processInstruction = async (instruction: Instruction, cache: AstCache): Pr
   }
 }
 
+type EvaluationResult = {
+  // Whether the exception that was thrown in the test has changed
+  errorChanged: boolean;
+  // How much better we're doing in terms of whether the test failed/passed
+  endResultImprovement: number;
+} & StackEvaluation;
+
+type StackEvaluation = { 
+  stackColumnScore: number | null,
+  stackLineScore: number | null,
+};
+
+export const sortExpressionEvaluations = (evaluationResults: EvaluationResult[]) => {
+  evaluationResults.sort((result1, result2) => {
+    if (result1.endResultImprovement > result2.endResultImprovement) {
+      return 1;
+    } else if (result1.endResultImprovement < result2.endResultImprovement) {
+      return -1;
+    } else if (result1.stackLineScore !== null && result2.stackLineScore === null) {
+      return 1;
+    } else if (result1.stackLineScore === null && result2.stackLineScore !== null) {
+      return -1;
+    } else if (result1.stackLineScore !== null && result2.stackLineScore !== null) {
+      if (result1.stackLineScore > result2.stackLineScore) {
+        return 1;
+      } else if (result1.stackLineScore < result2.stackLineScore) {
+        return -1;
+      } else if (result1.stackColumnScore !== null && result2.stackColumnScore === null) {
+        return 1;
+      } else if (result1.stackColumnScore === null && result2.stackColumnScore !== null) {
+        return -1;
+      } else if (result1.stackColumnScore !== null && result2.stackColumnScore !== null) {
+        if (result1.stackColumnScore > result2.stackColumnScore) {
+          return 1;
+        } else if (result1.stackColumnScore < result2.stackColumnScore) {
+          return -1;
+        }
+      }
+    }
+    if (result1.errorChanged === result2.errorChanged) {
+      return 0;
+    }
+    return result1.errorChanged ? 1 : -1;
+  })
+};
+
+export const evaluateStackDifference = (originalResult: TestResult, newResult: TestResult): StackEvaluation => {
+  if (newResult.stack === null || originalResult.stack === null) {
+    return {
+      stackColumnScore: null,
+      stackLineScore: null,
+    }
+  }
+  
+  const newStackInfo = ErrorStackParser.parse(newResult.stack);
+  const oldStackInfo = ErrorStackParser.parse(originalResult.stack);
+
+  const firstNewStackFrame = newStackInfo[0];
+  const firstOldStackFrame = oldStackInfo[0];
+
+  if (firstNewStackFrame.fileName !== firstOldStackFrame.fileName) {
+    return {
+      stackColumnScore: null,
+      stackLineScore: null
+    }
+  }
+  const stackLineScore = firstNewStackFrame.lineNumber !== undefined && firstOldStackFrame.lineNumber !== undefined ? firstNewStackFrame.lineNumber - firstOldStackFrame.lineNumber : null;
+  const stackColumnScore = firstNewStackFrame.columnNumber !== undefined && firstOldStackFrame.columnNumber !== undefined ? firstNewStackFrame.columnNumber - firstOldStackFrame.columnNumber : null;
+
+  return { stackColumnScore, stackLineScore };
+}
+
+export const evaluateModifiedTestResult = (originalResult: TestResult, newResult: TestResult): EvaluationResult => {
+  const samePassFailResult = originalResult.passed === newResult.passed;
+  const endResultImprovement: number = samePassFailResult ? 0 : newResult.passed ? 1 : -1;
+  const errorChanged: boolean = (() => {
+    if (!samePassFailResult) {
+      return true;
+    }
+    if (newResult.passed) {
+      return false;
+    }
+    return newResult.stack === (originalResult as FailingTestData).stack;
+  })();
+  const stackEvaluation = evaluateStackDifference(originalResult, newResult);
+
+  return {
+    endResultImprovement,
+    errorChanged,
+    ...stackEvaluation
+  };
+}
+
+const evaluateNewMutation = (originalResults: TesterResults, newResults: TesterResults): Map<string, EvaluationResult> => {
+  const notSeen = new Set(originalResults.testResults.keys());
+  const evaluationMap: Map<string, EvaluationResult> = new Map();  
+  for(const [key, newResult] of newResults.testResults) {
+    if (!notSeen.has(key)) {
+      // Maybe don't
+      continue;
+    }  
+    notSeen.delete(key);
+    const oldResult = originalResults.testResults.get(key);
+    if (oldResult === undefined) {
+      // Maybe don't
+      continue;
+    }
+    evaluationMap.set(key, {
+
+    });
+  }
+  return evaluationMap;
+};
+
 export const createPlugin = (): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   const instructionQueue: Instruction[] = [];
   let firstRun = true;
+  let firstTesterResults: TesterResults;
+  const faultMap: Map<string, EvaluationResult> = new Map();
 
   return {
     on: {
@@ -155,6 +272,7 @@ export const createPlugin = (): PartialTestHookOptions => {
       allFilesFinished: async (tester: TesterResults) => {
         const cache = createAstCache();
         if (firstRun) {
+          firstTesterResults = tester;
           firstRun = false;
           const totalCoverage = createCoverageMap({});
           for (const testResult of tester.testResults.values()) {
@@ -170,6 +288,8 @@ export const createPlugin = (): PartialTestHookOptions => {
               });
             }
           }
+        } else {
+          
         }
 
         if (previousMutationResults !== null) {
@@ -189,7 +309,7 @@ export const createPlugin = (): PartialTestHookOptions => {
           currentInstruction = instructionQueue.pop();
         }
 
-        const instruction = instructionQueue.pop()!;
+        const instruction = currentInstruction;
 
         let mutationResults = await processInstruction(instruction, cache);
         while (mutationResults === null || mutationResults.mutations.length <= 0) {
