@@ -28,6 +28,7 @@
     "function"
   ],
   "dependencies": {
-    "@babel/parser": "^7.5.0"
+    "@babel/parser": "^7.5.0",
+    "error-stack-parser": "^2.0.3"
   }
 }
