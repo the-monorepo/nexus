@@ -142,7 +142,7 @@ const processInstruction = async (instruction: Instruction, cache: AstCache): Pr
   }
 }
 
-type EvaluationResult = {
+export type EvaluationResult = {
   // Whether the exception that was thrown in the test has changed
   errorChanged: boolean;
   // How much better we're doing in terms of whether the test failed/passed
