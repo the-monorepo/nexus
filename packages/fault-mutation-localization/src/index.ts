@@ -9,6 +9,7 @@ import { join, resolve } from 'path';
 import { tmpdir } from 'os';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import ErrorStackParser from 'error-stack-parser';
+import { reportFaults } from '@fault/localization-util';
 
 import traverse from "@babel/traverse";
 
@@ -142,7 +143,7 @@ const processInstruction = async (instruction: Instruction, cache: AstCache): Pr
   }
 }
 
-export type EvaluationResult = {
+export type TestEvaluation = {
   // Whether the exception that was thrown in the test has changed
   errorChanged: boolean;
   // How much better we're doing in terms of whether the test failed/passed
@@ -154,38 +155,40 @@ type StackEvaluation = {
   stackLineScore: number | null,
 };
 
-export const sortExpressionEvaluations = (evaluationResults: EvaluationResult[]) => {
-  evaluationResults.sort((result1, result2) => {
-    if (result1.endResultImprovement > result2.endResultImprovement) {
+export const compareTestEvaluations = (result1, result2) => {
+  if (result1.endResultImprovement > result2.endResultImprovement) {
+    return 1;
+  } else if (result1.endResultImprovement < result2.endResultImprovement) {
+    return -1;
+  } else if (result1.stackLineScore !== null && result2.stackLineScore === null) {
+    return 1;
+  } else if (result1.stackLineScore === null && result2.stackLineScore !== null) {
+    return -1;
+  } else if (result1.stackLineScore !== null && result2.stackLineScore !== null) {
+    if (result1.stackLineScore > result2.stackLineScore) {
       return 1;
-    } else if (result1.endResultImprovement < result2.endResultImprovement) {
+    } else if (result1.stackLineScore < result2.stackLineScore) {
       return -1;
-    } else if (result1.stackLineScore !== null && result2.stackLineScore === null) {
+    } else if (result1.stackColumnScore !== null && result2.stackColumnScore === null) {
       return 1;
-    } else if (result1.stackLineScore === null && result2.stackLineScore !== null) {
+    } else if (result1.stackColumnScore === null && result2.stackColumnScore !== null) {
       return -1;
-    } else if (result1.stackLineScore !== null && result2.stackLineScore !== null) {
-      if (result1.stackLineScore > result2.stackLineScore) {
+    } else if (result1.stackColumnScore !== null && result2.stackColumnScore !== null) {
+      if (result1.stackColumnScore > result2.stackColumnScore) {
         return 1;
-      } else if (result1.stackLineScore < result2.stackLineScore) {
+      } else if (result1.stackColumnScore < result2.stackColumnScore) {
         return -1;
-      } else if (result1.stackColumnScore !== null && result2.stackColumnScore === null) {
-        return 1;
-      } else if (result1.stackColumnScore === null && result2.stackColumnScore !== null) {
-        return -1;
-      } else if (result1.stackColumnScore !== null && result2.stackColumnScore !== null) {
-        if (result1.stackColumnScore > result2.stackColumnScore) {
-          return 1;
-        } else if (result1.stackColumnScore < result2.stackColumnScore) {
-          return -1;
-        }
       }
     }
-    if (result1.errorChanged === result2.errorChanged) {
-      return 0;
-    }
-    return result1.errorChanged ? 1 : -1;
-  })
+  }
+  if (result1.errorChanged === result2.errorChanged) {
+    return 0;
+  }
+  return result1.errorChanged ? 1 : -1;
+};
+
+export const sortExpressionEvaluations = (TestEvaluations: TestEvaluation[]) => {
+  TestEvaluations.sort(compareTestEvaluations);
 };
 
 export const evaluateStackDifference = (originalResult: TestResult, newResult: TestResult): StackEvaluation => {
@@ -214,9 +217,15 @@ export const evaluateStackDifference = (originalResult: TestResult, newResult: T
   return { stackColumnScore, stackLineScore };
 }
 
-export const evaluateModifiedTestResult = (originalResult: TestResult, newResult: TestResult): EvaluationResult => {
+const EndResult = {
+  BETTER: 1,
+  UNCHANGED: 0,
+  WORSE: -1,
+}
+
+export const evaluateModifiedTestResult = (originalResult: TestResult, newResult: TestResult): TestEvaluation => {
   const samePassFailResult = originalResult.passed === newResult.passed;
-  const endResultImprovement: number = samePassFailResult ? 0 : newResult.passed ? 1 : -1;
+  const endResultImprovement: number = samePassFailResult ? EndResult.WORSE : newResult.passed ? EndResult.BETTER : EndResult.WORSE;
   const errorChanged: boolean = (() => {
     if (!samePassFailResult) {
       return true;
@@ -235,9 +244,29 @@ export const evaluateModifiedTestResult = (originalResult: TestResult, newResult
   };
 }
 
-const evaluateNewMutation = (originalResults: TesterResults, newResults: TesterResults): Map<string, EvaluationResult> => {
+type MutationEvaluation = {
+  testsWorsened: number,
+  testsImproved: number,
+  lineDegradationScore: number ;
+  columnDegradationScore: number;
+  lineScoreNulls: number;
+  columnScoreNulls: number;
+  lineImprovementScore: number,
+  columnImprovementScore: number,
+  errorsChanged: number,
+};
+const evaluateNewMutation = (originalResults: TesterResults, newResults: TesterResults): MutationEvaluation => {
   const notSeen = new Set(originalResults.testResults.keys());
-  const evaluationMap: Map<string, EvaluationResult> = new Map();  
+  let testsWorsened: number = 0;
+  let testsImproved: number = 0;
+  let lineDegradationScore: number = 0;
+  let columnDegradationScore: number = 0;
+  let lineImprovementScore: number = 0;
+  let lineScoreNulls: number = 0;
+  let columnImprovementScore: number = 0;
+  let columnScoreNulls: number = 0;
+  let errorsChanged: number = 0;
+
   for(const [key, newResult] of newResults.testResults) {
     if (!notSeen.has(key)) {
       // Maybe don't
@@ -249,19 +278,55 @@ const evaluateNewMutation = (originalResults: TesterResults, newResults: TesterR
       // Maybe don't
       continue;
     }
-    evaluationMap.set(key, {
+    const testEvaluation = evaluateModifiedTestResult(oldResult, newResult);
+    
+    // End result scores
+    if (testEvaluation.endResultImprovement === EndResult.BETTER) {
+      testsImproved++;
+    } else if(testEvaluation.endResultImprovement === EndResult.WORSE) {
+      testsWorsened++;
+    } else if(testEvaluation.errorChanged) {
+      errorsChanged++;
+    }
 
-    });
+    // Stack scores
+    if (testEvaluation.stackLineScore === null) {
+      lineScoreNulls++
+    } else if (testEvaluation.stackLineScore > 0) {
+      lineImprovementScore += testEvaluation.stackLineScore;
+    } else if (testEvaluation.stackLineScore < 0) {
+      lineDegradationScore -= testEvaluation.stackLineScore;
+    } else if (testEvaluation.stackColumnScore === null) {
+      columnScoreNulls++
+    } else if (testEvaluation.stackColumnScore > 0) {
+      columnImprovementScore += testEvaluation.stackColumnScore;
+    } else if (testEvaluation.stackColumnScore < 0) {
+      columnImprovementScore -= testEvaluation.stackColumnScore;
+    }
   }
-  return evaluationMap;
+  return {
+    testsWorsened,
+    testsImproved,
+    lineDegradationScore,
+    columnDegradationScore,
+    lineScoreNulls,
+    columnScoreNulls,
+    lineImprovementScore,
+    columnImprovementScore,
+    errorsChanged,
+  };
 };
+
+type TestPath = string;
+type LocationKey = string;
+
 
 export const createPlugin = (): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   const instructionQueue: Instruction[] = [];
   let firstRun = true;
   let firstTesterResults: TesterResults;
-  const faultMap: Map<string, EvaluationResult> = new Map();
+  const faultEvaluationMap: Map<LocationKey, Map<TestPath, TestEvaluation>> = new Map();
 
   return {
     on: {
@@ -289,7 +354,14 @@ export const createPlugin = (): PartialTestHookOptions => {
             }
           }
         } else {
+          const evaluations = evaluateNewMutation(firstTesterResults, tester);
           
+          for(const [key, evaluation] of evaluations) {
+            const previousEvaluation = faultEvaluationMap.get(key);
+            if (previousEvaluation === undefined || compareTestEvaluations(evaluation, previousEvaluation) > 0) {
+              faultEvaluationMap.set(key, evaluation);
+            }
+          }
         }
 
         if (previousMutationResults !== null) {
@@ -298,15 +370,16 @@ export const createPlugin = (): PartialTestHookOptions => {
           }
         }
         
-        if (instructionQueue.length <= 0) {
+        if (instructionQueue.length <= 0 || ![...tester.testResults.values()].some(testResult => !testResult.passed)) {
           return;
         }
         
-        let currentInstruction: Instruction = instructionQueue.pop();
+        let currentInstruction = instructionQueue.pop()!;
         while (currentInstruction.type === UNKNOWN) {
           const identifiedInstructions = await identifyUnknownInstruction(currentInstruction, cache);
+          // TODO: If identification results in 0 new instructions we'd run into a problem here
           instructionQueue.push(...identifiedInstructions);
-          currentInstruction = instructionQueue.pop();
+          currentInstruction = instructionQueue.pop()!;
         }
 
         const instruction = currentInstruction;
