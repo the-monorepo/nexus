@@ -3,6 +3,8 @@ import { writeFile, readFile } from 'mz/fs';
 import { mkdirSync } from 'fs';
 import { dirname } from 'path';
 import { ExpressionLocation } from '@fault/istanbul-util';
+import { relative } from 'path';
+import chalk from 'chalk';
 
 export type FileFault = {
   score: number | boolean | null;
@@ -126,4 +128,42 @@ export const recordFaults = (filePath: string, faults: Fault[]) => {
     encoding: 'utf8',
     flag: 'w+',
   });
+};
+
+
+const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
+
+export const reportFaults = async (faults: Fault[]) => {
+  const rankedFaults = sortBySuspciousness(
+    faults
+      .filter(
+        fault =>
+          fault.score !== null &&
+          fault.score !== Number.NEGATIVE_INFINITY &&
+          fault.score !== Number.NaN,
+      )
+      .sort((f1, f2) => f2.score! - f1.score!),
+  ).slice(0, 10);
+  for (const fault of rankedFaults) {
+    const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
+    console.log(
+      `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${
+        fault.location.start.column
+      }, ${chalk.cyan(fault.score!.toString())}`,
+    );
+    let l = fault.location.start.line - 1;
+    let lineCount = 0;
+    const maxLineCount = 3;
+    while (l < fault.location.end.line - 1 && lineCount < maxLineCount) {
+      console.log(chalk.grey(lines[l++]));
+      lineCount++;
+    }
+    const lastLine = lines[l++];
+    console.log(chalk.grey(lastLine));
+    if (lineCount >= maxLineCount) {
+      const spaces = lastLine.match(/^ */)![0];
+      console.log(chalk.grey(`${new Array(spaces.length + 1).join(' ')}...`));
+    }
+    console.log();
+  }
 };

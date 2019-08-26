@@ -2,12 +2,9 @@ import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { passFailStatsFromTests } from '@fault/localization-util';
-import { recordFaults, sortBySuspciousness } from '@fault/record-faults';
+import { recordFaults, reportFaults } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar';
 
-import { relative } from 'path';
-import { readFile } from 'mz/fs';
-import chalk from 'chalk';
 
 export type Stats = {
   passed: number;
@@ -140,43 +137,6 @@ export const localizeFaults = (
     }
   }
   return faults;
-};
-
-const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
-
-const reportFaults = async (faults: Fault[]) => {
-  const rankedFaults = sortBySuspciousness(
-    faults
-      .filter(
-        fault =>
-          fault.score !== null &&
-          fault.score !== Number.NEGATIVE_INFINITY &&
-          fault.score !== Number.NaN,
-      )
-      .sort((f1, f2) => f2.score! - f1.score!),
-  ).slice(0, 10);
-  for (const fault of rankedFaults) {
-    const lines = (await readFile(fault.sourcePath, 'utf8')).split('\n');
-    console.log(
-      `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${
-        fault.location.start.column
-      }, ${chalk.cyan(fault.score!.toString())}`,
-    );
-    let l = fault.location.start.line - 1;
-    let lineCount = 0;
-    const maxLineCount = 3;
-    while (l < fault.location.end.line - 1 && lineCount < maxLineCount) {
-      console.log(chalk.grey(lines[l++]));
-      lineCount++;
-    }
-    const lastLine = lines[l++];
-    console.log(chalk.grey(lastLine));
-    if (lineCount >= maxLineCount) {
-      const spaces = lastLine.match(/^ */)![0];
-      console.log(chalk.grey(`${new Array(spaces.length + 1).join(' ')}...`));
-    }
-    console.log();
-  }
 };
 
 export type PluginOptions = {
