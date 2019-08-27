@@ -8,7 +8,11 @@ import globby from 'globby';
 import * as micromatch from 'micromatch';
 import chalk from 'chalk';
 
-import { readCoverageFile, getTotalExecutedStatements, ExpressionLocation } from '@fault/istanbul-util';
+import {
+  readCoverageFile,
+  getTotalExecutedStatements,
+  ExpressionLocation,
+} from '@fault/istanbul-util';
 import { ScorelessFault, createPlugin } from '@fault/addon-sbfl';
 import { convertFileFaultDataToFaults } from '@fault/record-faults';
 import { dStar } from '@fault/sbfl-dstar';
@@ -24,28 +28,34 @@ const WITHIN = 'within';
 const EXACT = 'exact';
 
 export type WithinFault = {
-  type: typeof WITHIN,
+  type: typeof WITHIN;
 } & ScorelessFault;
 
 export type ExactFault = {
-  type: typeof EXACT | undefined
+  type: typeof EXACT | undefined;
 } & ScorelessFault;
 
 export type ExpectedFault = WithinFault & ExactFault;
 
 export const normalizeKeyPath = (projectDir: string, sourcePath: string) => {
   return normalize(resolve(projectDir, sourcePath)).replace(/\\+/g, '\\');
-}
+};
 
-export const mostSpecificFaultKey = (projectDir: string, fault: ScorelessFault): string => {
+export const mostSpecificFaultKey = (
+  projectDir: string,
+  fault: ScorelessFault,
+): string => {
   let lastKey: string = undefined as any;
-  for(const key of faultKeys(projectDir, fault)) {
+  for (const key of faultKeys(projectDir, fault)) {
     lastKey = key;
   }
   return lastKey;
-}
+};
 
-export function *faultKeys(projectDir: string, fault: ScorelessFault): IterableIterator<string> {
+export function* faultKeys(
+  projectDir: string,
+  fault: ScorelessFault,
+): IterableIterator<string> {
   const justFile = `${normalizeKeyPath(projectDir, fault.sourcePath)}`;
   yield justFile;
   if (fault.location !== undefined) {
@@ -58,24 +68,38 @@ export function *faultKeys(projectDir: string, fault: ScorelessFault): IterableI
   }
 }
 
-export const isWithinLocation = (projectDir: string, withinLocation: WithinFault, fault: ScorelessFault): boolean => {
-  const sameFile = normalizeKeyPath(projectDir, withinLocation.sourcePath) === normalizeKeyPath(projectDir, fault.sourcePath);
+export const isWithinLocation = (
+  projectDir: string,
+  withinLocation: WithinFault,
+  fault: ScorelessFault,
+): boolean => {
+  const sameFile =
+    normalizeKeyPath(projectDir, withinLocation.sourcePath) ===
+    normalizeKeyPath(projectDir, fault.sourcePath);
   if (!sameFile) {
     return false;
   }
   if (withinLocation.location === undefined) {
     return true;
   }
-  const withinStart = sameFile && (fault.location.start.line > withinLocation.location.start.line || (fault.location.start.line === withinLocation.location.start.line && fault.location.start.column >= withinLocation.location.start.column));
+  const withinStart =
+    sameFile &&
+    (fault.location.start.line > withinLocation.location.start.line ||
+      (fault.location.start.line === withinLocation.location.start.line &&
+        fault.location.start.column >= withinLocation.location.start.column));
   if (!withinStart) {
     return false;
   }
   if (withinLocation.location.end == undefined) {
     return true;
   }
-  const withinEnd = withinStart && (fault.location.start.line < withinLocation.location.end.line || (fault.location.start.line === withinLocation.location.end.line && fault.location.start.column <= withinLocation.location.end.column));
+  const withinEnd =
+    withinStart &&
+    (fault.location.start.line < withinLocation.location.end.line ||
+      (fault.location.start.line === withinLocation.location.end.line &&
+        fault.location.start.column <= withinLocation.location.end.column));
   return withinEnd;
-}
+};
 
 export const calculateExamScore = (
   projectDir: string,
@@ -84,20 +108,22 @@ export const calculateExamScore = (
   totalExecutableStatements: number,
 ) => {
   const expectedExactLocations: Set<string> = new Set(
-    expectedFaults.filter(expectedFault => (
-      expectedFault.type === EXACT || expectedFault.type === undefined
-    )).map((expectedFault) => mostSpecificFaultKey(projectDir, expectedFault))
+    expectedFaults
+      .filter(
+        expectedFault => expectedFault.type === EXACT || expectedFault.type === undefined,
+      )
+      .map(expectedFault => mostSpecificFaultKey(projectDir, expectedFault)),
   );
-  const withinLocations: WithinFault[] = expectedFaults.filter(expectedFault => (
-    expectedFault.type === WITHIN
-  )) as WithinFault[];
+  const withinLocations: WithinFault[] = expectedFaults.filter(
+    expectedFault => expectedFault.type === WITHIN,
+  ) as WithinFault[];
   let sum = 0;
   let nonFaultElementsInspected = 0; // The first fault will still need to be counted as 1 line so start with 1
 
   for (const actualFault of actualFaults) {
     let removedSomething = false;
 
-    for(let w = 0; w < withinLocations.length; w++) {
+    for (let w = 0; w < withinLocations.length; w++) {
       if (isWithinLocation(projectDir, withinLocations[w], actualFault)) {
         removedSomething = true;
         sum += nonFaultElementsInspected;
@@ -105,7 +131,7 @@ export const calculateExamScore = (
       }
     }
 
-    for(const key of faultKeys(projectDir, actualFault)) {
+    for (const key of faultKeys(projectDir, actualFault)) {
       if (expectedExactLocations.has(key)) {
         sum += nonFaultElementsInspected;
         expectedExactLocations.delete(key);

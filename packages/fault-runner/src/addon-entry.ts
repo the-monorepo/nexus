@@ -17,7 +17,7 @@ export const run = async () => {
   }
 
   const runner = require(require.resolve(modulePath, {
-    paths: [process.cwd()]
+    paths: [process.cwd()],
   })).default;
   try {
     await Promise.resolve(runner(testerOptions));

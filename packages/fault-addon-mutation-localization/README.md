@@ -1,15 +1,15 @@
-# Mutation Localization
+# Addon Mutation Localization
 
 Fault AST localization
 
 ## Installation
 
 ```bash
-npm install --save @fault/mutation-localization@1.0.0-alpha.0
+npm install --save @fault/addon-mutation-localization@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add @fault/mutation-localization@1.0.0-alpha.0
+yarn add @fault/addon-mutation-localization@1.0.0-alpha.0
 ```
 
 ---

@@ -23,7 +23,7 @@ export const initialize = async (options: Options) => {
     mocha = 'mocha',
     sandbox = false,
     require: relativeRequireFiles = [],
-    timeout
+    timeout,
   } = options;
 
   const requireFiles = relativeRequireFiles.map(filePath =>
@@ -33,7 +33,7 @@ export const initialize = async (options: Options) => {
   );
 
   const mochaModulePath = require.resolve(mocha, {
-    paths: [process.cwd()]
+    paths: [process.cwd()],
   });
   const Mocha = require(mochaModulePath);
 
@@ -87,7 +87,7 @@ export const initialize = async (options: Options) => {
           data.testsToRun.sort((a, b) =>
             a.testPath.localeCompare(b.testPath, 'en', { sensitivity: 'base' }),
           );
-          const mochaInstance = createMochaInstance(Mocha, {timeout}, requireFiles);
+          const mochaInstance = createMochaInstance(Mocha, { timeout }, requireFiles);
           for (const { testPath } of data.testsToRun) {
             mochaInstance.addFile(testPath);
           }
@@ -103,8 +103,8 @@ export const initialize = async (options: Options) => {
               clearCache();
             });
           } catch (err) {
-            await exit(1);
             console.error(err);
+            await exit(1);
           }
         }
       }

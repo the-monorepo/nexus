@@ -208,8 +208,10 @@ const run = async () => {
   log.info(`Searched ${prCount} PRs - ${spicyPullRequests.length} have potential`);
 
   const cloneablePrs = spicyPullRequests.filter(pr => pr.oid != null);
-  log.info(`${cloneablePrs.length} clonable out of ${spicyPullRequests.length} viable PRs (they couldn't be checked out)`);
-  for(const pr of cloneablePrs) {
+  log.info(
+    `${cloneablePrs.length} clonable out of ${spicyPullRequests.length} viable PRs (they couldn't be checked out)`,
+  );
+  for (const pr of cloneablePrs) {
     const cloneDir = resolve('./projects', `${repoName}-${pr.number}`);
     const alreadyExists = await (async () => {
       try {
@@ -220,7 +222,7 @@ const run = async () => {
       }
     })();
     if (alreadyExists) {
-      log.info(`Skipping PR ${pr.number} since it already exists`)
+      log.info(`Skipping PR ${pr.number} since it already exists`);
       continue;
     }
     try {

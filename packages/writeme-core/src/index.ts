@@ -270,7 +270,12 @@ export async function genReadmeFromPackageDir(
     await h.after.readConfig(context);
     context.writemeOptions = {
       ...context.packageJson,
-      workspaces: context.packageJson.workspaces == null ? undefined : Array.isArray(context.packageJson.workspaces) ? context.packageJson.workspaces : context.packageJson.workspaces.packages,
+      workspaces:
+        context.packageJson.workspaces == null
+          ? undefined
+          : Array.isArray(context.packageJson.workspaces)
+          ? context.packageJson.workspaces
+          : context.packageJson.workspaces.packages,
       ...context.config,
       dir: packageDir,
     };

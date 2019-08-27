@@ -2,9 +2,8 @@ import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { passFailStatsFromTests } from '@fault/localization-util';
-import { recordFaults, reportFaults } from '@fault/record-faults';
+import { recordFaults, reportFaults, Fault } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar';
-
 
 export type Stats = {
   passed: number;
@@ -21,17 +20,6 @@ export type FileResult = {
   sourcePath: string;
   expressions: ExpressionResult[];
 };
-
-export type ScorelessFault = {
-  location: ExpressionLocation;
-  sourcePath: string;
-}
-
-export type ScoreHolder = {
-  score: number | null;
-}
-
-export type Fault = ScoreHolder & ScorelessFault;
 
 const statementStr = (filePath: string, { start, end }: ExpressionLocation) => {
   return `${filePath}:${start.line}:${start.column}|${end.line}:${end.column}`;
