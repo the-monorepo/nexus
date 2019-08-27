@@ -325,39 +325,40 @@ function checkTypesStaged() {
 gulp.task('check-types-staged', checkTypesStaged);
 
 async function testNoBuild() {
-  const runner = require('@fault/runner');
-  const passed = await runner.run({
-    tester: '@fault/tester-mocha',
-    testMatch: [
-      './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
-      '!./**/node_modules/**',
-      '!./coverage',
-      '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
-      '!./packages/fault-benchmarker/projects/**',
-    ],
-    addons: [
-      require('@fault/addon-sbfl').default({
-        scoringFn: require('@fault/sbfl-dstar').default,
-        faultFilePath: './faults/faults.json',
-      }),
-    ],
-    env: {
-      ...process.env,
-      NODE_ENV: 'test',
-    },
-    setupFiles: [
-      'source-map-support/register',
-      './test/require/babel',
-      './test/helpers/globals',
-    ],
-    testerOptions: {
-      sandbox: true,
-    },
-  });
-  if (!passed) {
-    process.exit(1);
+  try {
+    const runner = require('@fault/runner');
+    const passed = await runner.run({
+      tester: '@fault/tester-mocha',
+      testMatch: [
+        './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
+        '!./**/node_modules/**',
+        '!./coverage',
+        '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
+        '!./packages/fault-benchmarker/projects/**',
+      ],
+      addons: [require('@fault/addon-mutation-localization').default()],
+      env: {
+        ...process.env,
+        NODE_ENV: 'test',
+      },
+      setupFiles: [
+        'source-map-support/register',
+        './test/require/babel',
+        './test/helpers/globals',
+      ],
+      testerOptions: {
+        sandbox: true,
+      },
+    });
+    if (!passed) {
+      process.exit(1);
+    }     
+  } catch(err) {
+    console.log(err);
+    throw err;
   }
 }
+ 
 
 gulp.task('test', testNoBuild);
 
