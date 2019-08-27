@@ -58,7 +58,7 @@ export const config: BenchmarkConfig = [
     testOptions: {
       require: ['./test/before'],
       sandbox: false,
-    }
+    },
   },
 ];
 

@@ -1,10 +1,20 @@
-import { Fault } from '@fault/addon-sbfl';
 import { writeFile, readFile } from 'mz/fs';
 import { mkdirSync } from 'fs';
 import { dirname } from 'path';
 import { ExpressionLocation } from '@fault/istanbul-util';
 import { relative } from 'path';
 import chalk from 'chalk';
+
+export type ScorelessFault = {
+  location: ExpressionLocation;
+  sourcePath: string;
+};
+
+export type ScoreHolder = {
+  score: number | null;
+};
+
+export type Fault = ScoreHolder & ScorelessFault;
 
 export type FileFault = {
   score: number | boolean | null;
@@ -101,7 +111,7 @@ export const sortByLocation = (fileFaults: Fault[]) => {
   });
 };
 
-export const recordFaults = (filePath: string, faults: Fault[]) => {
+export const recordFaults = (filePath: string, faults: (ScorelessFault | Fault)[]) => {
   mkdirSync(dirname(filePath), { recursive: true });
   const faultsData = {};
   for (const fault of faults) {
@@ -130,10 +140,9 @@ export const recordFaults = (filePath: string, faults: Fault[]) => {
   });
 };
 
-
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
-export const reportFaults = async (faults: Fault[]) => {
+export const reportFaults = async (faults: (Fault | ScorelessFault)[]) => {
   const rankedFaults = sortBySuspciousness(
     faults
       .filter(

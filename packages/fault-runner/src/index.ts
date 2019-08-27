@@ -245,6 +245,9 @@ const runAndRecycleProcesses = async (
               await writeFile(durationsPath, JSON.stringify(testDurations));
               for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
                 const filePathIterator = await allFilesFinishedPromise;
+                if (filePathIterator === undefined) {
+                  continue;
+                }
                 for (const filePath of filePathIterator) {
                   newFilesToAdd.add(filePath);
                 }

@@ -67,20 +67,25 @@ const averageResults: number[] = Object.values(benchmarkResults.average).map(res
 const averageMin = Math.min(...averageResults);
 const averageMax = Math.max(...averageResults);
 const state = {
-  separateSandboxed: false
+  separateSandboxed: false,
 };
 const Main = () => (
-  <div class="page">
-    <header class="page-title">
+  <div className="page">
+    <header className="page-title">
       <h1>Fault.js benchmark results</h1>
     </header>
-    <input type="checkbox" name="separate-sandboxed" $$click={(e) => {
-      state.separateSandboxed = e.target.checked;
-      rerender();
-    }} checked>
-      <label for="separate-sandboxed">Separate sandboxed</label> 
+    <input
+      type="checkbox"
+      name="separate-sandboxed"
+      $$click={e => {
+        state.separateSandboxed = e.target.checked;
+        rerender();
+      }}
+      checked
+    >
+      <label htmlFor="separate-sandboxed">Separate sandboxed</label>
     </input>
-    <table class="table">
+    <table className="table">
       <tbody>
         <TableHeader />
         {projectResults.map(ProjectResult)}

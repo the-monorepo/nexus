@@ -1,5 +1,5 @@
 {
-  "name": "@fault/mutation-localization",
+  "name": "@fault/addon-mutation-localization",
   "version": "1.0.0-alpha.0",
   "description": "Fault AST localization",
   "types": "./src/index.ts",

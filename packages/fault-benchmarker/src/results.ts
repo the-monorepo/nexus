@@ -20,8 +20,7 @@ export const run = async () => {
   for (const projectDir of projectDirs) {
     try {
       const faultResults = require(resolve(projectDir, 'fault-results.json'));
-      if (projectDir.includes('1247'))
-      console.log(faultResults)
+      if (projectDir.includes('1247')) console.log(faultResults);
       projectResults.push({
         name: basename(projectDir),
         results: faultResults,
