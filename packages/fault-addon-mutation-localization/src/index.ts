@@ -3,7 +3,7 @@ import { File, AssignmentExpression, Expression, Statement } from '@babel/types'
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import * as t from '@babel/types';
 import { TesterResults, TestResult, FailingTestData } from '@fault/types';
-import { readFile, writeFile, mkdtemp, unlink } from 'mz/fs';
+import { readFile, writeFile, mkdtemp, unlink, rmdir } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import { join, resolve } from 'path';
 import { tmpdir } from 'os';
@@ -433,6 +433,7 @@ export const createPlugin = (
         copyTempDir = await (mkdtemp as any)(join(tmpdir(), 'fault-addon-mutation-localization-'));
       },
       allFilesFinished: async (tester: TesterResults) => {
+        console.log('finished all files')
         const cache = createAstCache();
         if (firstRun) {
           firstTesterResults = tester;
@@ -507,13 +508,17 @@ export const createPlugin = (
         );
 
         previousMutationResults = mutationResults;
-        return [...tester.testResults.values()].map(result => result.file);
+        const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
+        console.log(testsToBeRerun);
+
+        return testsToBeRerun;
       },
       complete: async () => {
+        console.log('complete');
         await Promise.all(
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         );
-        await unlink(copyTempDir);
+        await rmdir(copyTempDir);
         const faults = mutationEvalatuationMapToFaults(evaluations);
         await recordFaults(faultFilePath, faults);
         await reportFaults(faults);
