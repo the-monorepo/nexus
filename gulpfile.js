@@ -336,7 +336,14 @@ async function testNoBuild() {
         '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
         '!./packages/fault-benchmarker/projects/**',
       ],
-      addons: [require('@fault/addon-mutation-localization').default()],
+      addons: [
+        require('@fault/addon-mutation-localization').default({
+          babelOptions: {
+            plugins: ['jsx', 'typescript', 'exportDefaultFrom'],
+            sourceType: 'module',
+          },
+        }),
+      ],
       env: {
         ...process.env,
         NODE_ENV: 'test',
@@ -352,13 +359,12 @@ async function testNoBuild() {
     });
     if (!passed) {
       process.exit(1);
-    }     
-  } catch(err) {
+    }
+  } catch (err) {
     console.log(err);
     throw err;
   }
 }
- 
 
 gulp.task('test', testNoBuild);
 
