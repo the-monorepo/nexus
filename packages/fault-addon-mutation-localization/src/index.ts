@@ -147,25 +147,26 @@ async function* identifyUnknownInstruction(
 
     traverse(scopedPath.node, {
       enter: (path) => {
+        const pathNode = path.node;
         console.log(path.type);
-        const key = expressionKey(filePath, path.node);
+        const key = expressionKey(filePath, pathNode);
         if (expressionsSeen.has(key)) {
           return;
         }
         expressionsSeen.add(key);
-        if (t.isAssignmentExpression(path.node)) {
+        if (t.isAssignmentExpression(pathNode)) {
           newInstructions.push({
             type: ASSIGNMENT,
             operators: [...assignmentOperations].filter(
-              operator => operator !== path.node.operator,
+              operator => operator !== pathNode.operator,
             ),
             filePath,
             location,
           });
-        } else if(t.isBlockStatement(path.node)) {
+        } else if(t.isBlockStatement(pathNode)) {
           newInstructions.push({
             type: BLOCK,
-            indexes: path.node.statements.map((stataement, i) => i),
+            indexes: pathNode.body.map((statement, i) => i),
             location,
             filePath
           });
@@ -221,7 +222,7 @@ const processBlockInstruction = async (instruction: BlockMutationSite, cache: As
   const nodePath = nodePaths.pop()!;
 
   console.log(nodePath);
-  nodePath.node.statements.splice(index, 1);
+  nodePath.node.body.splice(index, 1);
 
   return {
     mutations: [
