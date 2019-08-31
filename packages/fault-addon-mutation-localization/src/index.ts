@@ -319,15 +319,19 @@ export const evaluateStackDifference = (
   originalResult: TestResult,
   newResult: TestResult,
 ): StackEvaluation => {
-  if (newResult.stack === null || originalResult.stack === null) {
+  console.log(newResult);
+  console.log(chalk.cyan('new result stack'))
+  console.log(newResult.stack);
+  console.log(chalk.cyan('old result stack'))
+  console.log(originalResult.stack);
+  if (newResult.stack == null || originalResult.stack == null) {
     return {
       stackColumnScore: null,
       stackLineScore: null,
     };
   }
-
-  const newStackInfo = ErrorStackParser.parse(newResult.stack);
-  const oldStackInfo = ErrorStackParser.parse(originalResult.stack);
+  const newStackInfo = ErrorStackParser.parse({ stack: newResult.stack });
+  const oldStackInfo = ErrorStackParser.parse({ stack: originalResult.stack });
 
   const firstNewStackFrame = newStackInfo[0];
   const firstOldStackFrame = oldStackInfo[0];
@@ -596,7 +600,6 @@ export const createPlugin = ({
         previousMutationResults = mutationResults;
         const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
         console.log('done')
-        console.log(testsToBeRerun);
 
         return testsToBeRerun;
       },
