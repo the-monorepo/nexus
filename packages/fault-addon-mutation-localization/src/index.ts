@@ -173,7 +173,7 @@ async function* identifyUnknownInstruction(
         }    
       }
     }, scopedPath.scope);
-    console.log(newInstructions);
+    newInstructions.forEach(console.log);
 
     yield* newInstructions;
   }
@@ -208,7 +208,7 @@ const processAssignmentInstruction = async (
 const processBlockInstruction = async (instruction: BlockMutationSite, cache: AstCache): Promise<MutationResults | null> => {
   const ast = await cache.get(instruction.filePath);
   
-  const nodePaths = findNodePathsWithLocation(ast, instruction.location);
+  const nodePaths = findNodePathsWithLocation(ast, instruction.location).filter(thePath => t.isBlockStatement(thePath.node));
   if (nodePaths.length <= 0) {
     return null;
   }
@@ -522,7 +522,6 @@ export const createPlugin = ({
         if (firstRun) {
           firstTesterResults = tester;
           firstRun = false;
-          console.log('rawr');
           const coverageMap = createCoverageMap({});
           for (const testResult of tester.testResults.values()) {
             // TODO: Maybe don't?
@@ -531,7 +530,6 @@ export const createPlugin = ({
             }
             coverageMap.merge(testResult.coverage);
           }
-          console.log('hmmm');
           const totalCoverage = coverageMap.data;
           for (const [coveragePath, fileCoverage] of Object.entries(
             totalCoverage as Coverage,
@@ -562,31 +560,31 @@ export const createPlugin = ({
           }
         }
 
-        let currentInstruction = instructionQueue.pop();
-        while (currentInstruction !== undefined && currentInstruction.type === UNKNOWN) {
-          const identifiedInstructions = identifyUnknownInstruction(
-            currentInstruction,
-            cache,
-            expressionsSeen
-          );  
-          for await(const instruction of identifiedInstructions) {
-            instructionQueue.push(instruction);
-          }
-          currentInstruction = instructionQueue.pop()!;
-        }
-
-        if (currentInstruction === undefined) {
-          console.log('ending');
-          return;
-        }
-        console.log('done');
-
-        const instruction = currentInstruction;
+        let instruction = instructionQueue.pop();
 
         console.log('processing')
-        let mutationResults = await processInstruction(instruction, cache);
-        while (mutationResults === null || mutationResults.mutations.length <= 0) {
-          mutationResults = await processInstruction(instruction, cache);
+        let mutationResults: any = null;
+        while (instruction !== undefined && (mutationResults === null || mutationResults.mutations.length <= 0)) {
+          if (instruction.type === UNKNOWN) {
+            const identifiedInstructions = identifyUnknownInstruction(
+              instruction,
+              cache,
+              expressionsSeen
+            );  
+            for await(const instruction of identifiedInstructions) {
+              instructionQueue.push(instruction);
+            }  
+          } else {
+            mutationResults = await processInstruction(instruction, cache);
+          }
+          instruction = instructionQueue.pop();
+        }
+        
+        console.log('processed');
+
+        if (mutationResults === null || mutationResults.mutations.length <=0) {
+          console.log('ending');
+          return;
         }
 
         await Promise.all(
