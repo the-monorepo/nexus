@@ -10,6 +10,7 @@ import { tmpdir } from 'os';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import ErrorStackParser from 'error-stack-parser';
 import { reportFaults, Fault, ScorelessFault, recordFaults } from '@fault/record-faults';
+import chalk from 'chalk';
 
 import traverse from '@babel/traverse';
 
@@ -120,20 +121,19 @@ const getParentScope = (path) => {
     return path;
   }
   const parentNode = parentPath.node;
-  if (t.isScopable(parentNode)) {
+  if (t.isFunction(parentNode) || t.isProgram(parentNode)) {
     return path;
   }
   return getParentScope(parentPath);
 }
 
-const expressionKey = (filePath: string, node: BaseNode) => `filePath:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${node.loc!.end.column}`;
+const expressionKey = (filePath: string, node: BaseNode) => `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${node.loc!.end.column}:${node.type}`;
 
 async function* identifyUnknownInstruction(
   instruction: UnknownMutationSite,
   cache: AstCache,
   expressionsSeen: Set<string>
 ): AsyncIterableIterator<Instruction> {
-  console.log(instruction.filePath);
   const ast = await cache.get(instruction.filePath);
   const nodePaths = findNodePathsWithLocation(ast, instruction.location);
   //console.log(nodePaths);
@@ -141,37 +141,40 @@ async function* identifyUnknownInstruction(
   for(const nodePath of nodePaths) {
     const newInstructions: any[] = [];
     const scopedPath = getParentScope(nodePath);
+    console.log(chalk.cyan(scopedPath.type));
 
     const location = nodePath.node.loc;
 
-    traverse(scopedPath, {
+    traverse(scopedPath.node, {
       enter: (path) => {
+        console.log(path.type);
         const key = expressionKey(filePath, path.node);
         if (expressionsSeen.has(key)) {
           return;
         }
         expressionsSeen.add(key);
-        if (t.isAssignmentExpression(nodePath.node)) {
+        if (t.isAssignmentExpression(path.node)) {
           newInstructions.push({
             type: ASSIGNMENT,
             operators: [...assignmentOperations].filter(
-              operator => operator !== nodePath.node.operator,
+              operator => operator !== path.node.operator,
             ),
             filePath,
             location,
           });
-        } else if(t.isBlockStatement(nodePath.node)) {
+        } else if(t.isBlockStatement(path.node)) {
           newInstructions.push({
             type: BLOCK,
-            indexes: nodePath.node.statements.map((stataement, i) => i),
+            indexes: path.node.statements.map((stataement, i) => i),
             location,
             filePath
           });
         }    
       }
-    });
+    }, scopedPath.scope);
+    console.log(newInstructions);
 
-    yield * newInstructions;
+    yield* newInstructions;
   }
 };
 
@@ -560,12 +563,11 @@ export const createPlugin = ({
 
         let currentInstruction = instructionQueue.pop();
         while (currentInstruction !== undefined && currentInstruction.type === UNKNOWN) {
-          console.log('identifying');
           const identifiedInstructions = identifyUnknownInstruction(
             currentInstruction,
             cache,
             expressionsSeen
-          );
+          );  
           for await(const instruction of identifiedInstructions) {
             instructionQueue.push(instruction);
           }
