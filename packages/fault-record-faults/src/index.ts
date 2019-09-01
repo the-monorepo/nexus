@@ -142,7 +142,7 @@ export const recordFaults = (filePath: string, faults: (ScorelessFault | Fault)[
 
 const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
 
-export const reportFaults = async (faults: (Fault | ScorelessFault)[]) => {
+export const reportFaults = async (faults: Fault[]) => {
   const rankedFaults = sortBySuspciousness(
     faults
       .filter(
@@ -158,7 +158,7 @@ export const reportFaults = async (faults: (Fault | ScorelessFault)[]) => {
     console.log(
       `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${
         fault.location.start.column
-      }, ${chalk.cyan(fault.score!.toString())}`,
+      }, ${chalk.cyan(fault.score ? fault.score!.toString() : 'undefined')}`,
     );
     let l = fault.location.start.line - 1;
     let lineCount = 0;

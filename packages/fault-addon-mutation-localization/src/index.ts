@@ -477,7 +477,7 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
 
 export const mutationEvalatuationMapToFaults = (
   evaluations: MutationEvaluation[],
-): ScorelessFault[] => {
+): Fault[] => {
   const sortedEvaluationsLists = evaluations.sort(compareMutationEvaluations);
   const seen: Set<string> = new Set();
   const faults: ScorelessFault[] = [];
@@ -495,7 +495,10 @@ export const mutationEvalatuationMapToFaults = (
     }
   }
 
-  return faults;
+  return faults.map((fault, i) => ({
+    ...fault,
+    score: faults.length - i
+  }));
 };
 
 export type PluginOptions = {
