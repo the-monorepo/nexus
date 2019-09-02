@@ -75,6 +75,7 @@ const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
 const BLOCK = 'block';
 const ASSIGNMENT = 'assignment';
 const UNKNOWN = 'unknown';
+const UNKNOWN_PASSED = 'unknown-passed-only';
 type GenericMutationSite = {
   type: string;
   location: ExpressionLocation;
@@ -82,6 +83,10 @@ type GenericMutationSite = {
 };
 type UnknownMutationSite = {
   type: typeof UNKNOWN;
+} & GenericMutationSite;
+
+type UnknownPassedMutationSite = {
+  type: typeof UNKNOWN_PASSED
 } & GenericMutationSite;
 
 type AssignmentMutationSite = {
@@ -94,7 +99,7 @@ type BlockMutationSite = {
   indexes: number[],
 } & GenericMutationSite;
 
-type Instruction = UnknownMutationSite | AssignmentMutationSite | BlockMutationSite;
+type Instruction = UnknownMutationSite | AssignmentMutationSite | BlockMutationSite | UnknownPassedMutationSite;
 
 const findNodePathsWithLocation = (ast, location: ExpressionLocation) => {
   let nodePaths: any[] = [];
@@ -503,12 +508,20 @@ export const mutationEvalatuationMapToFaults = (
 
 export type PluginOptions = {
   faultFilePath?: string,
-  babelOptions?: ParserOptions
+  babelOptions?: ParserOptions,
+  mutationThreshold?: number,
+  durationThreshold?: number,
+};
+
+type FinishOptions = {
+  
 };
 
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
-  babelOptions
+  babelOptions,
+  durationThreshold,
+  mutationThreshold,
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   const instructionQueue: Instruction[] = [];
@@ -516,7 +529,7 @@ export const createPlugin = ({
   let firstTesterResults: TesterResults;
   const evaluations: MutationEvaluation[] = [];
   const expressionsSeen: Set<string> = new Set();
-
+  let mutationCount = 0;
   return {
     on: {
       start: async () => {
@@ -529,23 +542,40 @@ export const createPlugin = ({
         if (firstRun) {
           firstTesterResults = tester;
           firstRun = false;
-          const coverageMap = createCoverageMap({});
+          const passedCoverageMap = createCoverageMap({});
+          const failedCoverageMap = createCoverageMap({});
           for (const testResult of tester.testResults.values()) {
             // TODO: Maybe don't?
             if (testResult.passed) {
-              continue;
+              passedCoverageMap.merge(testResult.coverage);
+            } else {
+              failedCoverageMap.merge(testResult.coverage);
             }
-            coverageMap.merge(testResult.coverage);
           }
-          const totalCoverage = coverageMap.data;
+          const coverageSeen: Set<string> = new Set();
+          const passedCoverage: Coverage = passedCoverageMap.data;
+          const failedCoverage: Coverage = failedCoverageMap.data;
+          for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
+            for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
+              coverageSeen.add(locationToKey(coveragePath, statementCoverage));
+              instructionQueue.push({
+                type: UNKNOWN,
+                location: statementCoverage,
+                filePath: coveragePath,
+              });
+            }
+          }
           for (const [coveragePath, fileCoverage] of Object.entries(
-            totalCoverage as Coverage,
+            passedCoverage as Coverage,
           )) {
             for (const [key, statementCoverage] of Object.entries(
               fileCoverage.statementMap,
             )) {
+              if (coverageSeen.has(locationToKey(coveragePath, statementCoverage))) {
+                continue;
+              }
               instructionQueue.push({
-                type: UNKNOWN,
+                type: UNKNOWN_PASSED,
                 location: statementCoverage,
                 filePath: coveragePath,
               });
@@ -565,6 +595,14 @@ export const createPlugin = ({
           for (const mutation of previousMutationResults.mutations) {
             await resetFile(mutation.filePath);
           }
+        }
+
+        if (durationThreshold !== undefined && tester.duration >= durationThreshold) {
+          return;
+        }
+
+        if(mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
+          return;
         }
 
         let instruction = instructionQueue.pop();
@@ -594,6 +632,8 @@ export const createPlugin = ({
           return;
         }
 
+        mutationCount++;
+        
         await Promise.all(
           mutationResults.mutations.map(mutation =>
             createTempCopyOfFileIfItDoesntExist(mutation.filePath),
