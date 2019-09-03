@@ -74,7 +74,8 @@ const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
 
 const BLOCK = 'block';
 const ASSIGNMENT = 'assignment';
-const UNKNOWN = 'unknown';
+const FUNCTION = 'function';
+
 type IndirectInfo = {
   distance: number,
   mutationEvalation: MutationEvaluation
@@ -94,6 +95,10 @@ const compareInstructions = (a: Instruction, b: Instruction) => {
     return -1;
   } else if(!a.derivedFromPassingTest && b.derivedFromPassingTest) {
     return 1;
+  } else if  (a.type === FUNCTION && b.type !== FUNCTION) {
+    return 1;
+  } else if(a.type !== FUNCTION && b.type === FUNCTION) {
+    return -1;
   }
   a.mutationEvaluations.sort(compareMutationEvaluations);
   b.mutationEvaluations.sort(compareMutationEvaluations);
@@ -135,7 +140,11 @@ type BlockMutationSite = {
   indexes: number[],
 } & GenericMutationSite;
 
-type Instruction = AssignmentMutationSite | BlockMutationSite;
+type FunctionMutationSite = {
+  type: typeof FUNCTION,
+} & GenericMutationSite;
+
+type Instruction = AssignmentMutationSite | BlockMutationSite | FunctionMutationSite;
 
 const findNodePathsWithLocation = (ast, location: ExpressionLocation) => {
   let nodePaths: any[] = [];
