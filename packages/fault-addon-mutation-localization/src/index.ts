@@ -581,6 +581,7 @@ export type PluginOptions = {
 type DefaultIsFinishedOptions = {
   mutationThreshold?: number,
   durationThreshold?: number,
+  finishOnPassDerviedNonFunctionInstructions?: boolean,
 }
 
 type MiscFinishData = {
@@ -590,6 +591,7 @@ type MiscFinishData = {
 export const createDefaultIsFinishedFn = ({
   mutationThreshold,
   durationThreshold,
+  finishOnPassDerviedNonFunctionInstructions = true
 }: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
   const isFinishedFn: IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData): boolean => {
     if (durationThreshold !== undefined && finishData.testerResults.duration >= durationThreshold) {
@@ -597,6 +599,10 @@ export const createDefaultIsFinishedFn = ({
     }
 
     if(mutationThreshold !== undefined && finishData.mutationCount >= mutationThreshold) {
+      return true;
+    }
+
+    if (finishOnPassDerviedNonFunctionInstructions && instruction.derivedFromPassingTest && instruction.type !== FUNCTION) {
       return true;
     }
 
@@ -619,8 +625,8 @@ export const createPlugin = ({
   const expressionsSeen: Set<string> = new Set();
   let mutationCount = 0;
 
-  const client = {
-    addInstruction: (instruction) => {
+  const client: Client = {
+    addInstruction: (instruction: Instruction) => {
       instructionQueue.push(instruction);
       instructionQueue.sort(compareInstructions);
     }
