@@ -575,6 +575,7 @@ export const createPlugin = ({
   mutationThreshold,
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
+  let previousInstruction: Instruction | undefined = undefined;
   const instructionQueue: Instruction[] = [];
   let firstRun = true;
   let firstTesterResults: TesterResults;
@@ -585,6 +586,7 @@ export const createPlugin = ({
   const client = {
     addInstruction: (instruction) => {
       instructionQueue.push(instruction);
+      instructionQueue.sort(compareInstructions);
     }
   };
   return {
@@ -647,6 +649,9 @@ export const createPlugin = ({
             tester,
             previousMutationResults!,
           );
+          if (previousInstruction !== undefined) {
+            previousInstruction.mutationEvaluations.push(mutationEvaluation);
+          }
           evaluations.push(mutationEvaluation);
         }
 
@@ -664,9 +669,11 @@ export const createPlugin = ({
           return;
         }
 
+        
+        instructionQueue.sort(compareInstructions);
+
         let instruction = instructionQueue.pop();
 
-        instructionQueue.sort(compareInstructions);
         console.log('processing')
         
         let mutationResults: any = null;
@@ -674,6 +681,8 @@ export const createPlugin = ({
           mutationResults = await processInstruction(instruction, cache, client);
           instruction = instructionQueue.pop();
         }
+
+        previousInstruction = instruction;
         
         console.log('processed');
 
