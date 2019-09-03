@@ -571,22 +571,44 @@ export const mutationEvalatuationMapToFaults = (
   }));
 };
 
+type IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData) => boolean;
 export type PluginOptions = {
   faultFilePath?: string,
   babelOptions?: ParserOptions,
-  mutationThreshold?: number,
-  durationThreshold?: number,
+  isFinishedFn: IsFinishedFunction
 };
 
-type FinishOptions = {
-  
-};
+type DefaultIsFinishedOptions = {
+  mutationThreshold?: number,
+  durationThreshold?: number,
+}
+
+type MiscFinishData = {
+  mutationCount: number,
+  testerResults: TesterResults
+}
+export const createDefaultIsFinishedFn = ({
+  mutationThreshold,
+  durationThreshold,
+}: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
+  const isFinishedFn: IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData): boolean => {
+    if (durationThreshold !== undefined && finishData.testerResults.duration >= durationThreshold) {
+      return true;
+    }
+
+    if(mutationThreshold !== undefined && finishData.mutationCount >= mutationThreshold) {
+      return true;
+    }
+
+    return false;
+  };
+  return isFinishedFn;
+}
 
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
-  durationThreshold,
-  mutationThreshold,
+  isFinishedFn = createDefaultIsFinishedFn()
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   let previousInstruction: Instruction | undefined = undefined;
@@ -674,15 +696,6 @@ export const createPlugin = ({
             await resetFile(mutation.filePath);
           }
         }
-
-        if (durationThreshold !== undefined && tester.duration >= durationThreshold) {
-          return;
-        }
-
-        if(mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
-          return;
-        }
-
         
         instructionQueue.sort(compareInstructions);
 
@@ -694,6 +707,14 @@ export const createPlugin = ({
         while (instruction !== undefined && (mutationResults === null || mutationResults.mutations.length <= 0)) {
           mutationResults = await processInstruction(instruction, cache, client);
           instruction = instructionQueue.pop();
+        }
+
+        if (instruction === undefined) {
+          return;
+        }
+
+        if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
+          return;
         }
 
         previousInstruction = instruction;
