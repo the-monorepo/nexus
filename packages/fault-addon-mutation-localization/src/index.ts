@@ -75,14 +75,14 @@ const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
 const BLOCK = 'block';
 const ASSIGNMENT = 'assignment';
 const UNKNOWN = 'unknown';
-const UNKNOWN_PASSED = 'unknown-passed-only';
 type IndirectInfo = {
   distance: number,
-  mutationResult: MutationEvaluation
+  mutationEvalation: MutationEvaluation
 };
 type GenericInstruction = {
   //indirect: IndirectInfo[],
-  mutationResults: MutationEvaluation[]
+  mutationEvaluations: MutationEvaluation[],
+  derivedFromPassingTest: boolean
 };
 
 
@@ -90,40 +90,35 @@ type GenericInstruction = {
  * From least desirable to be processed to most
  */
 const compareInstructions = (a: Instruction, b: Instruction) => {
-  a.mutationResults.sort(compareMutationEvaluations);
-  b.mutationResults.sort(compareMutationEvaluations);
+  a.mutationEvaluations.sort(compareMutationEvaluations);
+  b.mutationEvaluations.sort(compareMutationEvaluations);
   let aI = 0;
   let bI = 0;
-  while(aI < a.mutationResults.length && bI < a.mutationResults.length) {
-    const aMutationResult = a.mutationResults[aI];
-    const bMutationResult = b.mutationResults[bI];
-    const comparison = compareMutationEvaluations(aMutationResult, bMutationResult);
+  while(aI < a.mutationEvaluations.length && bI < a.mutationEvaluations.length) {
+    const aMutationEvaluation = a.mutationEvaluations[aI];
+    const bMutationEvaluation = b.mutationEvaluations[bI];
+    const comparison = compareMutationEvaluations(aMutationEvaluation, bMutationEvaluation);
     if (comparison !== 0) {
       return comparison;
     }
     aI++;
     bI++;
   }
-  if (a.mutationResults.length < b.mutationResults.length) {
+  if (a.mutationEvaluations.length < b.mutationEvaluations.length) {
     return 1;
-  } else if (a.mutationResults.length > b.mutationResults.length) {
+  } else if (a.mutationEvaluations.length > b.mutationEvaluations.length) {
     return -1;
   }
   return 0;
 };
 
-type GenericMutationSite = {
-  type: string;
+type Location = {
   location: ExpressionLocation;
   filePath: string;
-} & GenericInstruction;
-type UnknownMutationSite = {
-  type: typeof UNKNOWN;
-} & GenericMutationSite;
-
-type UnknownPassedMutationSite = {
-  type: typeof UNKNOWN_PASSED
-} & GenericMutationSite;
+}
+type GenericMutationSite = {
+  type: string;
+} & GenericInstruction & Location;
 
 type AssignmentMutationSite = {
   type: typeof ASSIGNMENT;
@@ -135,7 +130,7 @@ type BlockMutationSite = {
   indexes: number[],
 } & GenericMutationSite;
 
-type Instruction = UnknownMutationSite | AssignmentMutationSite | BlockMutationSite | UnknownPassedMutationSite;
+type Instruction = AssignmentMutationSite | BlockMutationSite;
 
 const findNodePathsWithLocation = (ast, location: ExpressionLocation) => {
   let nodePaths: any[] = [];
@@ -170,11 +165,11 @@ const getParentScope = (path) => {
 
 const expressionKey = (filePath: string, node: BaseNode) => `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${node.loc!.end.column}:${node.type}`;
 
-
 async function* identifyUnknownInstruction(
-  instruction: UnknownMutationSite,
+  instruction: Location,
   cache: AstCache,
-  expressionsSeen: Set<string>
+  expressionsSeen: Set<string>,
+  derivedFromPassingTest: boolean
 ): AsyncIterableIterator<Instruction> {
   const ast = await cache.get(instruction.filePath);
   const nodePaths = findNodePathsWithLocation(ast, instruction.location);
@@ -202,6 +197,7 @@ async function* identifyUnknownInstruction(
             operators: [...assignmentOperations].filter(
               operator => operator !== pathNode.operator,
             ),
+            derivedFromPassingTest,
             filePath,
             location,
           });
@@ -209,6 +205,7 @@ async function* identifyUnknownInstruction(
           newInstructions.push({
             type: BLOCK,
             indexes: pathNode.body.map((statement, i) => i),
+            derivedFromPassingTest,
             location,
             filePath
           });
@@ -286,7 +283,7 @@ const processInstruction = async (
     case BLOCK:
       return processBlockInstruction(instruction, cache);
     default:
-      throw new Error(`Unknown instruction type: ${instruction.type}`);
+      throw new Error(`Unknown instruction type: ${(instruction as any).type}`);
   }
 };
 
@@ -598,11 +595,12 @@ export const createPlugin = ({
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
             for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
               coverageSeen.add(locationToKey(coveragePath, statementCoverage));
-              instructionQueue.push({
-                type: UNKNOWN,
+              for await (const instruction of identifyUnknownInstruction({
                 location: statementCoverage,
                 filePath: coveragePath,
-              });
+              }, cache, expressionsSeen, true)) {
+                instructionQueue.push(instruction);
+              }
             }
           }
           for (const [coveragePath, fileCoverage] of Object.entries(
@@ -614,11 +612,12 @@ export const createPlugin = ({
               if (coverageSeen.has(locationToKey(coveragePath, statementCoverage))) {
                 continue;
               }
-              instructionQueue.push({
-                type: UNKNOWN_PASSED,
+              for await (const instruction of identifyUnknownInstruction({
                 location: statementCoverage,
                 filePath: coveragePath,
-              });
+              }, cache, expressionsSeen, true)) {
+                instructionQueue.push(instruction);
+              }
             }
           }
         } else {
@@ -647,21 +646,12 @@ export const createPlugin = ({
 
         let instruction = instructionQueue.pop();
 
+        instructionQueue.sort(compareInstructions);
         console.log('processing')
+        
         let mutationResults: any = null;
         while (instruction !== undefined && (mutationResults === null || mutationResults.mutations.length <= 0)) {
-          if (instruction.type === UNKNOWN) {
-            const identifiedInstructions = identifyUnknownInstruction(
-              instruction,
-              cache,
-              expressionsSeen
-            );  
-            for await(const instruction of identifiedInstructions) {
-              instructionQueue.push(instruction);
-            }  
-          } else {
-            mutationResults = await processInstruction(instruction, cache);
-          }
+          mutationResults = await processInstruction(instruction, cache);
           instruction = instructionQueue.pop();
         }
         
