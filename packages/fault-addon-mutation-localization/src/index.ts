@@ -76,11 +76,47 @@ const BLOCK = 'block';
 const ASSIGNMENT = 'assignment';
 const UNKNOWN = 'unknown';
 const UNKNOWN_PASSED = 'unknown-passed-only';
+type IndirectInfo = {
+  distance: number,
+  mutationResult: MutationEvaluation
+};
+type GenericInstruction = {
+  //indirect: IndirectInfo[],
+  mutationResults: MutationEvaluation[]
+};
+
+
+/**
+ * From least desirable to be processed to most
+ */
+const compareInstructions = (a: Instruction, b: Instruction) => {
+  a.mutationResults.sort(compareMutationEvaluations);
+  b.mutationResults.sort(compareMutationEvaluations);
+  let aI = 0;
+  let bI = 0;
+  while(aI < a.mutationResults.length && bI < a.mutationResults.length) {
+    const aMutationResult = a.mutationResults[aI];
+    const bMutationResult = b.mutationResults[bI];
+    const comparison = compareMutationEvaluations(aMutationResult, bMutationResult);
+    if (comparison !== 0) {
+      return comparison;
+    }
+    aI++;
+    bI++;
+  }
+  if (a.mutationResults.length < b.mutationResults.length) {
+    return 1;
+  } else if (a.mutationResults.length > b.mutationResults.length) {
+    return -1;
+  }
+  return 0;
+};
+
 type GenericMutationSite = {
   type: string;
   location: ExpressionLocation;
   filePath: string;
-};
+} & GenericInstruction;
 type UnknownMutationSite = {
   type: typeof UNKNOWN;
 } & GenericMutationSite;
@@ -133,6 +169,7 @@ const getParentScope = (path) => {
 }
 
 const expressionKey = (filePath: string, node: BaseNode) => `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${node.loc!.end.column}:${node.type}`;
+
 
 async function* identifyUnknownInstruction(
   instruction: UnknownMutationSite,
@@ -265,6 +302,9 @@ type StackEvaluation = {
   stackLineScore: number | null;
 };
 
+/**
+ * From worst evaluation to best evaluation
+ */
 export const compareMutationEvaluations = (
   result1: MutationEvaluation,
   result2: MutationEvaluation,
