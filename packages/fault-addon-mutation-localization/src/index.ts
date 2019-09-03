@@ -90,6 +90,11 @@ type GenericInstruction = {
  * From least desirable to be processed to most
  */
 const compareInstructions = (a: Instruction, b: Instruction) => {
+  if (a.derivedFromPassingTest && !b.derivedFromPassingTest) {
+    return -1;
+  } else if(!a.derivedFromPassingTest && b.derivedFromPassingTest) {
+    return 1;
+  }
   a.mutationEvaluations.sort(compareMutationEvaluations);
   b.mutationEvaluations.sort(compareMutationEvaluations);
   let aI = 0;
