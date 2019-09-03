@@ -620,7 +620,7 @@ export const createPlugin = ({
               for await (const instruction of identifyUnknownInstruction({
                 location: statementCoverage,
                 filePath: coveragePath,
-              }, cache, expressionsSeen, true)) {
+              }, cache, expressionsSeen, false)) {
                 instructionQueue.push(instruction);
               }
             }
