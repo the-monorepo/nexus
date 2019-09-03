@@ -221,6 +221,7 @@ async function* identifyUnknownInstruction(
 const processAssignmentInstruction = async (
   instruction: AssignmentMutationSite,
   cache: AstCache,
+  client: Client
 ): Promise<MutationResults | null> => {
   const ast = await cache.get(instruction.filePath);
 
@@ -231,6 +232,9 @@ const processAssignmentInstruction = async (
   if (instruction.operators.length <= 0) {
     return null;
   }
+
+  client.addInstruction(instruction);
+
   const operators = instruction.operators.pop();
   const nodePath = nodePaths[0];
   nodePath.node.operator = operators;
@@ -244,7 +248,11 @@ const processAssignmentInstruction = async (
   };
 };
 
-const processBlockInstruction = async (instruction: BlockMutationSite, cache: AstCache): Promise<MutationResults | null> => {
+const processBlockInstruction = async (
+  instruction: BlockMutationSite,
+  cache: AstCache,
+  client: Client
+): Promise<MutationResults | null> => {
   const ast = await cache.get(instruction.filePath);
   
   const nodePaths = findNodePathsWithLocation(ast, instruction.location).filter(thePath => t.isBlockStatement(thePath.node));
@@ -255,6 +263,8 @@ const processBlockInstruction = async (instruction: BlockMutationSite, cache: As
   if (instruction.indexes.length <= 0) {
     return null;
   }
+
+  client.addInstruction(instruction);
 
   const index = instruction.indexes.pop();
 
@@ -273,15 +283,19 @@ const processBlockInstruction = async (instruction: BlockMutationSite, cache: As
   }
 };
 
+type Client = {
+  addInstruction(instruction: Instruction);
+}
 const processInstruction = async (
   instruction: Instruction,
   cache: AstCache,
+  client: Client
 ): Promise<MutationResults | null> => {
   switch (instruction.type) {
     case ASSIGNMENT:
-      return processAssignmentInstruction(instruction, cache);
+      return processAssignmentInstruction(instruction, cache, client);
     case BLOCK:
-      return processBlockInstruction(instruction, cache);
+      return processBlockInstruction(instruction, cache, client);
     default:
       throw new Error(`Unknown instruction type: ${(instruction as any).type}`);
   }
@@ -567,6 +581,12 @@ export const createPlugin = ({
   const evaluations: MutationEvaluation[] = [];
   const expressionsSeen: Set<string> = new Set();
   let mutationCount = 0;
+
+  const client = {
+    addInstruction: (instruction) => {
+      instructionQueue.push(instruction);
+    }
+  };
   return {
     on: {
       start: async () => {
@@ -651,7 +671,7 @@ export const createPlugin = ({
         
         let mutationResults: any = null;
         while (instruction !== undefined && (mutationResults === null || mutationResults.mutations.length <= 0)) {
-          mutationResults = await processInstruction(instruction, cache);
+          mutationResults = await processInstruction(instruction, cache, client);
           instruction = instructionQueue.pop();
         }
         
