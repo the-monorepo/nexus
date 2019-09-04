@@ -5,11 +5,12 @@ import * as t from '@babel/types';
 import { TesterResults, TestResult, FailingTestData } from '@fault/types';
 import { readFile, writeFile, mkdtemp, unlink, rmdir } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage';
-import { join, resolve } from 'path';
+import { join, resolve, basename } from 'path';
 import { tmpdir } from 'os';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import ErrorStackParser from 'error-stack-parser';
 import { reportFaults, Fault, ScorelessFault, recordFaults } from '@fault/record-faults';
+import generate from '@babel/generator';
 import chalk from 'chalk';
 
 import traverse from '@babel/traverse';
@@ -592,6 +593,7 @@ type IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData)
 export type PluginOptions = {
   faultFilePath?: string,
   babelOptions?: ParserOptions,
+  onMutation: (mutatatedFiles: string) => Promise<void>,
   isFinishedFn: IsFinishedFunction
 };
 
@@ -651,6 +653,7 @@ export const createDefaultIsFinishedFn = ({
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
+  onMutation,
   isFinishedFn = createDefaultIsFinishedFn()
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
@@ -747,7 +750,7 @@ export const createPlugin = ({
 
         console.log('processing')
         
-        let mutationResults: any = null;
+        let mutationResults: MutationResults | null = null;
         while (instruction !== undefined && (mutationResults === null || mutationResults.mutations.length <= 0)) {
           mutationResults = await processInstruction(instruction, cache, client);
           instruction = instructionQueue.pop();
@@ -778,6 +781,19 @@ export const createPlugin = ({
           ),
         );
 
+        await Promise.all([...new Set(mutationResults.mutations.map(mutation => mutation.filePath))]
+          .map(async filePath => {
+            const ast = await cache.get(filePath);
+            const originalCodeText = await readFile(originalPathToCopyPath.get(filePath)!, 'utf8');
+            const { code } = generate(ast, { retainLines: true, compact: false, filename: basename(filePath) }, originalCodeText);
+            await writeFile(filePath, code, { encoding: 'utf8' });
+          })
+        );
+        
+        await Promise.all(
+          mutationResults.mutations.map(mutation => )
+        )
+
         previousMutationResults = mutationResults;
         const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
         console.log('done')
@@ -790,6 +806,7 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         );
         await rmdir(copyTempDir);
+        console.log(JSON.stringify(evaluations, undefined, 2));
         const faults = mutationEvalatuationMapToFaults(evaluations);
         await recordFaults(faultFilePath, faults);
         await reportFaults(faults);
