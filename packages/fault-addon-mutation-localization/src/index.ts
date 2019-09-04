@@ -667,6 +667,9 @@ export const createPlugin = ({
   const evaluations: MutationEvaluation[] = [];
   const expressionsSeen: Set<string> = new Set();
   let mutationCount = 0;
+  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
+    resolve('./projects', glob).replace(/\\+/g, '/'),
+  );
 
   const client: Client = {
     addInstruction: (instruction: Instruction) => {
@@ -700,7 +703,7 @@ export const createPlugin = ({
           const passedCoverage: Coverage = passedCoverageMap.data;
           const failedCoverage: Coverage = failedCoverageMap.data;
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-            if (micromatch.isMatch(coveragePath, ignoreGlob)) {
+            if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
             for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
@@ -716,7 +719,7 @@ export const createPlugin = ({
           for (const [coveragePath, fileCoverage] of Object.entries(
             passedCoverage as Coverage,
           )) {
-            if (micromatch.isMatch(coveragePath, ignoreGlob)) {
+            if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
             for (const [key, statementCoverage] of Object.entries(
