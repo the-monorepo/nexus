@@ -333,6 +333,10 @@ type StackEvaluation = {
   stackLineScore: number | null;
 };
 
+const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
+  return e.columnDegradationScore === 0 && e.columnImprovementScore === 0 && e.lineDegradationScore === 0 && e.lineImprovementScore === 0;
+};
+
 /**
  * Sorts by worst evaluation to best evaluation
  */
@@ -340,6 +344,13 @@ export const compareMutationStackEvaluation = (
   result1: MutationStackEvaluation,
   result2: MutationStackEvaluation
 ): number => {
+  const result1NothingChanged = nothingChangedMutationStackEvaluation(result1);
+  const result2NothingChanged = nothingChangedMutationStackEvaluation(result2);
+  if (result1NothingChanged && !result2NothingChanged) {
+    return -1;
+  } else if(!result1NothingChanged && result2NothingChanged) {
+    return 1;
+  }
   const lineDegradationScore =
     result2.lineDegradationScore - result1.lineDegradationScore;
   if (lineDegradationScore !== 0) {
@@ -384,12 +395,12 @@ export const compareMutationEvaluations = (
   result1: MutationEvaluation,
   result2: MutationEvaluation,
 ) => {
+  const testsImproved = result1.testsImproved - result2.testsImproved;
   const testsWorsened = result2.testsWorsened - result1.testsWorsened;
-  if (testsWorsened !== 0) {
+  if (testsWorsened !== 0 && (result1.testsWorsened === 0 || result2.testsWorsened === 0)) {
     return testsWorsened;
   }
 
-  const testsImproved = result1.testsImproved - result2.testsImproved;
   if (testsImproved !== 0) {
     return testsImproved;
   }
@@ -405,7 +416,7 @@ export const compareMutationEvaluations = (
     return errorsChanged;
   }
 
-  return 0;
+  return testsWorsened;
 };
 
 export const evaluateStackDifference = (
@@ -634,20 +645,8 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    /**
-     * If the instruction has mutation evaluations then
-     * Finish if there is no evaluation that has:
-     * 1. No tests improved
-     * 2. No stack improvements or had stack degredation
-     * 3. No error changes (where the stack score didn't get worse)
-     */
     if (instruction.mutationEvaluations.length > 0 && !instruction.mutationEvaluations.some(evaluation => {
-      const stackEvaluation = evaluation.stackEvaluation;
-      return (
-        evaluation.testsImproved > 0 || 
-        stackEvaluation.lineImprovementScore > 0 || 
-        (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore > 0) || 
-        (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore === 0 && evaluation.errorsChanged));
+      return evaluation.testsImproved > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
     })) {
       return true;
     }
@@ -805,11 +804,12 @@ export const createPlugin = ({
         await Promise.all(
           mutatedFilePaths
             .map(async filePath => {
+              const originalCodeText = await readFile(filePath, 'utf8');
               const ast = await cache.get(filePath);
               const { code } = generate(
                 ast, 
                 { retainFunctionParens: true, retainLines: true, compact: false, filename: basename(filePath) }, 
-                undefined//originalCodeText
+                originalCodeText
               );
               await writeFile(filePath, code, { encoding: 'utf8' });
             })
