@@ -594,7 +594,7 @@ type IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData)
 export type PluginOptions = {
   faultFilePath?: string,
   babelOptions?: ParserOptions,
-  mutationGlob?: string[] | string,
+  ignoreGlob?: string[] | string,
   onMutation?: (mutatatedFiles: string[]) => any,
   isFinishedFn: IsFinishedFunction
 };
@@ -655,7 +655,7 @@ export const createDefaultIsFinishedFn = ({
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
-  mutationGlob = '**/*',
+  ignoreGlob = '**/*',
   onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn()
 }: PluginOptions): PartialTestHookOptions => {
@@ -700,7 +700,7 @@ export const createPlugin = ({
           const passedCoverage: Coverage = passedCoverageMap.data;
           const failedCoverage: Coverage = failedCoverageMap.data;
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-            if (micromatch.isMatch(coveragePath, mutationGlob)) {
+            if (micromatch.isMatch(coveragePath, ignoreGlob)) {
               continue;
             }
             for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
@@ -716,7 +716,7 @@ export const createPlugin = ({
           for (const [coveragePath, fileCoverage] of Object.entries(
             passedCoverage as Coverage,
           )) {
-            if (micromatch.isMatch(coveragePath, mutationGlob)) {
+            if (micromatch.isMatch(coveragePath, ignoreGlob)) {
               continue;
             }
             for (const [key, statementCoverage] of Object.entries(
