@@ -320,6 +320,7 @@ export type TestEvaluation = {
   errorChanged: boolean;
   // How much better we're doing in terms of whether the test failed/passed
   endResultImprovement: number;
+  previouslyFailing: boolean,
 } & StackEvaluation;
 
 type StackEvaluation = {
@@ -327,23 +328,10 @@ type StackEvaluation = {
   stackLineScore: number | null;
 };
 
-/**
- * From worst evaluation to best evaluation
- */
-export const compareMutationEvaluations = (
-  result1: MutationEvaluation,
-  result2: MutationEvaluation,
-) => {
-  const testsWorsened = result2.testsWorsened - result1.testsWorsened;
-  if (testsWorsened !== 0) {
-    return testsWorsened;
-  }
-
-  const testsImproved = result1.testsImproved - result2.testsImproved;
-  if (testsImproved !== 0) {
-    return testsImproved;
-  }
-
+export const compareMutationStackEvaluation = (
+  result1: MutationStackEvaluation,
+  result2: MutationStackEvaluation
+): number => {
   const lineDegradationScore =
     result2.lineDegradationScore - result1.lineDegradationScore;
   if (lineDegradationScore !== 0) {
@@ -377,11 +365,38 @@ export const compareMutationEvaluations = (
   if (columnImprovementScore !== 0) {
     return columnImprovementScore;
   }
+  
+  return 0;
+}
+
+/**
+ * From worst evaluation to best evaluation
+ */
+export const compareMutationEvaluations = (
+  result1: MutationEvaluation,
+  result2: MutationEvaluation,
+) => {
+  const testsWorsened = result2.testsWorsened - result1.testsWorsened;
+  if (testsWorsened !== 0) {
+    return testsWorsened;
+  }
+
+  const testsImproved = result1.testsImproved - result2.testsImproved;
+  if (testsImproved !== 0) {
+    return testsImproved;
+  }
+
+
+  const stackEvaluationComparison = compareMutationStackEvaluation(result1.stackEvaluation, result2.stackEvaluation);
+  if(stackEvaluationComparison !== 0) {
+    return stackEvaluationComparison;
+  }
 
   const errorsChanged = result1.errorsChanged - result2.errorsChanged;
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
+
   return 0;
 };
 
@@ -456,22 +471,51 @@ export const evaluateModifiedTestResult = (
   return {
     endResultImprovement,
     errorChanged,
+    previouslyFailing: !originalResult.passed,
     ...stackEvaluation,
   };
 };
 
-type MutationEvaluation = {
-  mutations: Mutation[];
-  testsWorsened: number;
-  testsImproved: number;
+type MutationStackEvaluation = {
   lineDegradationScore: number;
   columnDegradationScore: number;
   lineScoreNulls: number;
   columnScoreNulls: number;
   lineImprovementScore: number;
   columnImprovementScore: number;
+}
+const createMutationStackEvaluation = (): MutationStackEvaluation => ({
+  lineDegradationScore: 0,
+  columnDegradationScore: 0,
+  lineScoreNulls: 0,
+  columnScoreNulls: 0,
+  lineImprovementScore: 0,
+  columnImprovementScore: 0
+});
+
+type MutationEvaluation = {
+  mutations: Mutation[];
+  stackEvaluation: MutationStackEvaluation,
+  testsWorsened: number;
+  testsImproved: number;
   errorsChanged: number;
 };
+
+const addToMutationStackEvaluation = (mutationStackEvaluation: MutationStackEvaluation, testEvaluation: TestEvaluation) => {
+  if (testEvaluation.stackLineScore === null) {
+    mutationStackEvaluation.lineScoreNulls++;
+  } else if (testEvaluation.stackLineScore > 0) {
+    mutationStackEvaluation.lineImprovementScore += testEvaluation.stackLineScore;
+  } else if (testEvaluation.stackLineScore < 0) {
+    mutationStackEvaluation.lineDegradationScore -= testEvaluation.stackLineScore;
+  } else if (testEvaluation.stackColumnScore === null) {
+    mutationStackEvaluation.columnScoreNulls++;
+  } else if (testEvaluation.stackColumnScore > 0) {
+    mutationStackEvaluation.columnImprovementScore += testEvaluation.stackColumnScore;
+  } else if (testEvaluation.stackColumnScore < 0) {
+    mutationStackEvaluation.columnDegradationScore -= testEvaluation.stackColumnScore;
+  }
+}
 const evaluateNewMutation = (
   originalResults: TesterResults,
   newResults: TesterResults,
@@ -480,12 +524,7 @@ const evaluateNewMutation = (
   const notSeen = new Set(originalResults.testResults.keys());
   let testsWorsened = 0;
   let testsImproved = 0;
-  let lineDegradationScore = 0;
-  let columnDegradationScore = 0;
-  let lineImprovementScore = 0;
-  let lineScoreNulls = 0;
-  let columnImprovementScore = 0;
-  let columnScoreNulls = 0;
+  let stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
 
   for (const [key, newResult] of newResults.testResults) {
@@ -510,31 +549,13 @@ const evaluateNewMutation = (
       errorsChanged++;
     }
 
-    // Stack scores
-    if (testEvaluation.stackLineScore === null) {
-      lineScoreNulls++;
-    } else if (testEvaluation.stackLineScore > 0) {
-      lineImprovementScore += testEvaluation.stackLineScore;
-    } else if (testEvaluation.stackLineScore < 0) {
-      lineDegradationScore -= testEvaluation.stackLineScore;
-    } else if (testEvaluation.stackColumnScore === null) {
-      columnScoreNulls++;
-    } else if (testEvaluation.stackColumnScore > 0) {
-      columnImprovementScore += testEvaluation.stackColumnScore;
-    } else if (testEvaluation.stackColumnScore < 0) {
-      columnImprovementScore -= testEvaluation.stackColumnScore;
-    }
+    addToMutationStackEvaluation(stackEvaluation, testEvaluation);
   }
   return {
     mutations: mutationResults.mutations,
     testsWorsened,
     testsImproved,
-    lineDegradationScore,
-    columnDegradationScore,
-    lineScoreNulls,
-    columnScoreNulls,
-    lineImprovementScore,
-    columnImprovementScore,
+    stackEvaluation,
     errorsChanged,
   };
 };
@@ -588,6 +609,8 @@ type MiscFinishData = {
   mutationCount: number,
   testerResults: TesterResults
 }
+
+
 export const createDefaultIsFinishedFn = ({
   mutationThreshold,
   durationThreshold,
@@ -605,6 +628,25 @@ export const createDefaultIsFinishedFn = ({
     if (finishOnPassDerviedNonFunctionInstructions && instruction.derivedFromPassingTest && instruction.type !== FUNCTION) {
       return true;
     }
+
+    /**
+     * If the instruction has mutation evaluations then
+     * Finish if there is no evaluation that has:
+     * 1. No tests improved
+     * 2. No stack improvements or had stack degredation
+     * 3. No error changes (where the stack score didn't get worse)
+     */
+    if (instruction.mutationEvaluations.length > 0 && !instruction.mutationEvaluations.some(evaluation => {
+      const stackEvaluation = evaluation.stackEvaluation;
+      if (
+        evaluation.testsImproved > 0 || 
+        stackEvaluation.lineImprovementScore > 0 || 
+        (stackEvaluation.lineDegradationScore === 0 && stackEvaluation.columnImprovementScore > 0) || 
+        (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore === 0 && evaluation.errorsChanged)) {
+        return true;
+      }
+      return false;
+    }))
 
     return false;
   };
