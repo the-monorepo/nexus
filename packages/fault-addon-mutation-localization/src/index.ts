@@ -12,6 +12,7 @@ import ErrorStackParser from 'error-stack-parser';
 import { reportFaults, Fault, ScorelessFault, recordFaults } from '@fault/record-faults';
 import generate from '@babel/generator';
 import chalk from 'chalk';
+import * as micromatch from 'micromatch';
 
 import traverse from '@babel/traverse';
 
@@ -593,7 +594,8 @@ type IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData)
 export type PluginOptions = {
   faultFilePath?: string,
   babelOptions?: ParserOptions,
-  onMutation?: (mutatatedFiles: string[]) => Promise<void>,
+  mutationGlob?: string[] | string,
+  onMutation?: (mutatatedFiles: string[]) => any,
   isFinishedFn: IsFinishedFunction
 };
 
@@ -653,6 +655,7 @@ export const createDefaultIsFinishedFn = ({
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
+  mutationGlob = '**/*',
   onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn()
 }: PluginOptions): PartialTestHookOptions => {
@@ -697,6 +700,9 @@ export const createPlugin = ({
           const passedCoverage: Coverage = passedCoverageMap.data;
           const failedCoverage: Coverage = failedCoverageMap.data;
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
+            if (micromatch.isMatch(coveragePath, mutationGlob)) {
+              continue;
+            }
             for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
               coverageSeen.add(locationToKey(coveragePath, statementCoverage));
               for await (const instruction of identifyUnknownInstruction({
@@ -710,6 +716,9 @@ export const createPlugin = ({
           for (const [coveragePath, fileCoverage] of Object.entries(
             passedCoverage as Coverage,
           )) {
+            if (micromatch.isMatch(coveragePath, mutationGlob)) {
+              continue;
+            }
             for (const [key, statementCoverage] of Object.entries(
               fileCoverage.statementMap,
             )) {
