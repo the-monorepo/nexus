@@ -730,7 +730,7 @@ export const createPlugin = ({
             previousMutationResults!,
           );
           if (previousInstruction !== undefined) {
-            console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, mutationEvaluation.);
+            console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, mutationEvaluation);
             previousInstruction.mutationEvaluations.push(mutationEvaluation);
           }
           evaluations.push(mutationEvaluation);
