@@ -105,17 +105,17 @@ const compareInstructions = (a: Instruction, b: Instruction) => {
   }
   a.mutationEvaluations.sort(compareMutationEvaluations);
   b.mutationEvaluations.sort(compareMutationEvaluations);
-  let aI = 0;
-  let bI = 0;
-  while(aI < a.mutationEvaluations.length && bI < a.mutationEvaluations.length) {
+  let aI = a.mutationEvaluations.length - 1;
+  let bI = b.mutationEvaluations.length - 1;
+  while(aI >= 0 && bI >= 0) {
     const aMutationEvaluation = a.mutationEvaluations[aI];
     const bMutationEvaluation = b.mutationEvaluations[bI];
     const comparison = compareMutationEvaluations(aMutationEvaluation, bMutationEvaluation);
     if (comparison !== 0) {
       return comparison;
     }
-    aI++;
-    bI++;
+    aI--;
+    bI--;
   }
   if (a.mutationEvaluations.length < b.mutationEvaluations.length) {
     return 1;
