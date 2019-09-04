@@ -44,16 +44,16 @@ type MutationResults = {
 };
 
 const assignmentOperations = [
-  '=',
   '!=',
   '&=',
   '^=',
   '<<=',
   '>>=',
-  '-=',
-  '+=',
   '/=',
   '*=',
+  '-=',
+  '+=',
+  '=',
 ];
 const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
