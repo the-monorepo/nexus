@@ -342,6 +342,30 @@ async function testNoBuild() {
             plugins: ['jsx', 'typescript', 'exportDefaultFrom'],
             sourceType: 'module',
           },
+          onMutation: (mutatedFilePaths) => {
+            return new Promise((reject, resolve) => {
+              try {
+                const transpileScriptStream = transpileScript();
+                const transpileEsmStream = transpileEsm();
+                let scriptFinished = false;
+                let esmFinished = false;
+                transpileScriptStream.on('end', () => {
+                  scriptFinished = true;
+                  if (esmFinished && scriptFinished) {
+                    resolve()
+                  }
+                });
+                transpileEsmStream.on('end', () => {
+                  esmFinished = true;
+                  if(esmFinished && scriptFinished) {
+                    resolve();
+                  }
+                })
+              } catch(err) {
+                reject(err);
+              }
+            });
+          }
         }),
       ],
       env: {

@@ -593,7 +593,7 @@ type IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData)
 export type PluginOptions = {
   faultFilePath?: string,
   babelOptions?: ParserOptions,
-  onMutation: (mutatatedFiles: string) => Promise<void>,
+  onMutation: (mutatatedFiles: string[]) => Promise<void>,
   isFinishedFn: IsFinishedFunction
 };
 
@@ -781,19 +781,19 @@ export const createPlugin = ({
           ),
         );
 
-        await Promise.all([...new Set(mutationResults.mutations.map(mutation => mutation.filePath))]
-          .map(async filePath => {
-            const ast = await cache.get(filePath);
-            const originalCodeText = await readFile(originalPathToCopyPath.get(filePath)!, 'utf8');
-            const { code } = generate(ast, { retainLines: true, compact: false, filename: basename(filePath) }, originalCodeText);
-            await writeFile(filePath, code, { encoding: 'utf8' });
-          })
-        );
-        
+        const mutatedFilePaths: string[] = [...new Set(mutationResults.mutations.map(mutation => mutation.filePath))];
         await Promise.all(
-          mutationResults.mutations.map(mutation => )
-        )
+          mutatedFilePaths
+            .map(async filePath => {
+              const ast = await cache.get(filePath);
+              const originalCodeText = await readFile(originalPathToCopyPath.get(filePath)!, 'utf8');
+              const { code } = generate(ast, { retainLines: true, compact: false, filename: basename(filePath) }, originalCodeText);
+              await writeFile(filePath, code, { encoding: 'utf8' });
+            })
+        );
 
+        await onMutation(mutatedFilePaths);
+        
         previousMutationResults = mutationResults;
         const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
         console.log('done')
