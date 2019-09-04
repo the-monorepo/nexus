@@ -405,11 +405,6 @@ export const evaluateStackDifference = (
   originalResult: TestResult,
   newResult: TestResult,
 ): StackEvaluation => {
-  console.log(newResult);
-  console.log(chalk.cyan('new result stack'))
-  console.log(newResult.stack);
-  console.log(chalk.cyan('old result stack'))
-  console.log(originalResult.stack);
   if (newResult.stack == null || originalResult.stack == null) {
     return {
       stackColumnScore: null,
@@ -454,7 +449,7 @@ export const evaluateModifiedTestResult = (
 ): TestEvaluation => {
   const samePassFailResult = originalResult.passed === newResult.passed;
   const endResultImprovement: number = samePassFailResult
-    ? EndResult.WORSE
+    ? EndResult.UNCHANGED
     : newResult.passed
     ? EndResult.BETTER
     : EndResult.WORSE;
@@ -735,7 +730,7 @@ export const createPlugin = ({
             previousMutationResults!,
           );
           if (previousInstruction !== undefined) {
-            console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, mutationEvaluation);
+            console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, mutationEvaluation.);
             previousInstruction.mutationEvaluations.push(mutationEvaluation);
           }
           evaluations.push(mutationEvaluation);
