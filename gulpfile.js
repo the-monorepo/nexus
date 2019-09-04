@@ -348,7 +348,7 @@ async function testNoBuild() {
             plugins: ['jsx', 'typescript', 'exportDefaultFrom'],
             sourceType: 'module',
           },
-          mutationGlob: ['!packages/fault-*/**/*', '**/*'],
+          ignoreGlob: ['packages/fault*/**/*'],
           onMutation: (mutatedFilePaths) => {
             return new Promise((resolve, reject) => {
               let scriptFinish = false;
