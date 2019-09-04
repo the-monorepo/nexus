@@ -254,7 +254,6 @@ const processAssignmentInstruction = async (
 
   const operator = instruction.operators.pop();
   const nodePath = nodePaths[0];
-  console.log(nodePath.node)
   console.log('changing', nodePath.node.operator, operator);
   nodePath.node.operator = operator;
   return {
