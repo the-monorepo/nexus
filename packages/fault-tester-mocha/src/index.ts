@@ -74,8 +74,8 @@ export const initialize = async (options: Options) => {
                 endTime = Date.now();
               });
             } catch (err) {
-              await exit(1);
               console.error(err);
+              await exit(1);
             }
             clearCache();
 
