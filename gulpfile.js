@@ -180,21 +180,27 @@ function transpilePipes(stream, babelOptions, dir, chalkFn) {
     .pipe(sourcemaps.write('.'));
 }
 
-function transpileScript() {
-  return transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright).pipe(
-    gulp.dest('.'),
-  );
+const scriptTranspileStream = (wrapStreamFn = (stream) => stream) => {
+  return wrapStreamFn(transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright)).pipe(gulp.dest('.'))
 }
 
-function transpileEsm() {
-  return transpilePipes(
+const esmTranspileStream = (wrapStreamFn = (stream) => stream) => {
+  return wrapStreamFn(transpilePipes(
     packagesSrcCodeStream(),
     {
       envName: 'esm',
     },
     'esm',
     chalk.cyanBright,
-  ).pipe(gulp.dest('.'));
+  )).pipe(gulp.dest('.'))
+}
+
+function transpileScript() {
+  return scriptTranspileStream()
+}
+
+function transpileEsm() {
+  return esmTranspileStream()
 }
 
 function prettierPipes(stream) {
@@ -343,28 +349,26 @@ async function testNoBuild() {
             sourceType: 'module',
           },
           onMutation: (mutatedFilePaths) => {
-            return new Promise((reject, resolve) => {
-              try {
-                const transpileScriptStream = transpileScript();
-                const transpileEsmStream = transpileEsm();
-                let scriptFinished = false;
-                let esmFinished = false;
-                transpileScriptStream.on('end', () => {
-                  scriptFinished = true;
-                  if (esmFinished && scriptFinished) {
-                    resolve()
-                  }
-                });
-                transpileEsmStream.on('end', () => {
-                  esmFinished = true;
-                  if(esmFinished && scriptFinished) {
-                    resolve();
-                  }
-                })
-              } catch(err) {
-                reject(err);
+            return new Promise((resolve, reject) => {
+              let scriptFinish = false;
+              let esmFinish = false;
+              const checkToFinish = () => {
+                if (scriptFinish && esmFinish) {
+                  resolve();
+                }
               }
-            });
+              const rejectOnStreamError = (stream) => stream.on('error', reject);
+              scriptTranspileStream(rejectOnStreamError)
+                .on('end', () => {
+                  scriptFinish = true;
+                  checkToFinish();
+                });
+              esmTranspileStream(rejectOnStreamError)
+                .on('end', () => {
+                  esmFinish = true;
+                  checkToFinish();
+                });
+            })
           }
         }),
       ],
