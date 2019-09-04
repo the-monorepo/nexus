@@ -93,11 +93,12 @@ type GenericInstruction = {
  * From least desirable to be processed to most
  */
 const compareInstructions = (a: Instruction, b: Instruction) => {
+  // TODO: The most important instructions should be ones that have huge potential to be a fix (E.g. Only improves tests, nothing else)
   if (a.derivedFromPassingTest && !b.derivedFromPassingTest) {
     return -1;
   } else if(!a.derivedFromPassingTest && b.derivedFromPassingTest) {
     return 1;
-  } else if  (a.type === FUNCTION && b.type !== FUNCTION) {
+  } else if(a.type === FUNCTION && b.type !== FUNCTION) {
     return 1;
   } else if(a.type !== FUNCTION && b.type === FUNCTION) {
     return -1;
@@ -343,13 +344,6 @@ export const compareMutationStackEvaluation = (
   result1: MutationStackEvaluation,
   result2: MutationStackEvaluation
 ): number => {
-  const result1NothingChanged = nothingChangedMutationStackEvaluation(result1);
-  const result2NothingChanged = nothingChangedMutationStackEvaluation(result2);
-  if (result1NothingChanged && !result2NothingChanged) {
-    return -1;
-  } else if(!result1NothingChanged && result2NothingChanged) {
-    return 1;
-  }
   const lineDegradationScore =
     result2.lineDegradationScore - result1.lineDegradationScore;
   if (lineDegradationScore !== 0) {
@@ -362,16 +356,6 @@ export const compareMutationStackEvaluation = (
     return columnDegradationScore;
   }
 
-  const lineScoreNulls = result2.lineScoreNulls - result1.lineScoreNulls;
-  if (lineScoreNulls !== 0) {
-    return lineScoreNulls;
-  }
-
-  const columnScoreNulls = result2.columnScoreNulls - result2.columnScoreNulls;
-  if (columnScoreNulls !== 0) {
-    return columnScoreNulls;
-  }
-
   const lineImprovementScore =
     result1.lineImprovementScore - result2.lineImprovementScore;
   if (lineImprovementScore !== 0) {
@@ -382,6 +366,16 @@ export const compareMutationStackEvaluation = (
     result1.columnImprovementScore - result2.columnImprovementScore;
   if (columnImprovementScore !== 0) {
     return columnImprovementScore;
+  }
+
+  const lineScoreNulls = result1.lineScoreNulls - result2.lineScoreNulls;
+  if (lineScoreNulls !== 0) {
+    return lineScoreNulls;
+  }
+
+  const columnScoreNulls = result1.columnScoreNulls - result2.columnScoreNulls;
+  if (columnScoreNulls !== 0) {
+    return columnScoreNulls;
   }
   
   return 0;
@@ -645,7 +639,17 @@ export const createDefaultIsFinishedFn = ({
     }
 
     if (instruction.mutationEvaluations.length > 0 && !instruction.mutationEvaluations.some(evaluation => {
-      return evaluation.testsImproved > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
+      const stackEval = evaluation.stackEvaluation;
+      const improved = 
+        evaluation.testsImproved > 0 
+        || evaluation.errorsChanged > 0 
+        || stackEval.lineImprovementScore > 0
+        || (stackEval.lineImprovementScore === 0 && stackEval.columnImprovementScore > 0);
+      const nothingChanged = evaluation.errorsChanged === 0 
+        && evaluation.testsImproved === 0
+        && evaluation.testsWorsened === 0
+        && nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
+      return improved || (nothingChanged && instruction.derivedFromPassingTest);
     })) {
       return true;
     }
