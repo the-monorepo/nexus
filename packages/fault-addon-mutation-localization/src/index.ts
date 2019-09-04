@@ -19,7 +19,7 @@ import traverse from '@babel/traverse';
 export const createAstCache = (babelOptions?: ParserOptions) => {
   const cache = new Map<string, File>();
   return {
-    get: async (filePath: string, force: boolean = true): Promise<File> => {
+    get: async (filePath: string, force: boolean = false): Promise<File> => {
       if (!force && cache.has(filePath)) {
         return cache.get(filePath)!;
       }
@@ -673,7 +673,7 @@ export const createPlugin = ({
   const expressionsSeen: Set<string> = new Set();
   let mutationCount = 0;
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
-    resolve('./projects', glob).replace(/\\+/g, '/'),
+    resolve('.', glob).replace(/\\+/g, '/'),
   );
 
   const client: Client = {
@@ -708,6 +708,7 @@ export const createPlugin = ({
           const passedCoverage: Coverage = passedCoverageMap.data;
           const failedCoverage: Coverage = failedCoverageMap.data;
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
+            console.log(coveragePath, resolvedIgnoreGlob, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -724,6 +725,7 @@ export const createPlugin = ({
           for (const [coveragePath, fileCoverage] of Object.entries(
             passedCoverage as Coverage,
           )) {
+            console.log(coveragePath, resolvedIgnoreGlob, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -741,6 +743,7 @@ export const createPlugin = ({
               }
             }
           }
+          console.log(coverageSeen);
         } else {
           // TODO: Can't remember if previousMutationResults should never be null or not here :P
           const mutationEvaluation = evaluateNewMutation(
@@ -803,8 +806,11 @@ export const createPlugin = ({
           mutatedFilePaths
             .map(async filePath => {
               const ast = await cache.get(filePath);
-              const originalCodeText = await readFile(originalPathToCopyPath.get(filePath)!, 'utf8');
-              const { code } = generate(ast, { retainFunctionParens: true, retainLines: true, compact: false, filename: basename(filePath) }, originalCodeText);
+              const { code } = generate(
+                ast, 
+                { retainFunctionParens: true, retainLines: true, compact: false, filename: basename(filePath) }, 
+                undefined//originalCodeText
+              );
               await writeFile(filePath, code, { encoding: 'utf8' });
             })
         );
