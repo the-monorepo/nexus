@@ -75,7 +75,7 @@ export const initialize = async (options: Options) => {
               });
             } catch (err) {
               console.error(err);
-              await exit(1);
+              process.exit(1);
             }
             clearCache();
 
