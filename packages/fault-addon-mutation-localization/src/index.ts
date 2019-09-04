@@ -460,7 +460,7 @@ export const evaluateModifiedTestResult = (
     if (newResult.passed) {
       return false;
     }
-    return newResult.stack === (originalResult as FailingTestData).stack;
+    return newResult.stack !== (originalResult as FailingTestData).stack;
   })();
   const stackEvaluation = evaluateStackDifference(originalResult, newResult);
 
