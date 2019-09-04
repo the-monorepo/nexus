@@ -593,7 +593,7 @@ type IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData)
 export type PluginOptions = {
   faultFilePath?: string,
   babelOptions?: ParserOptions,
-  onMutation: (mutatatedFiles: string[]) => Promise<void>,
+  onMutation?: (mutatatedFiles: string[]) => Promise<void>,
   isFinishedFn: IsFinishedFunction
 };
 
@@ -653,7 +653,7 @@ export const createDefaultIsFinishedFn = ({
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
-  onMutation,
+  onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn()
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
@@ -792,7 +792,7 @@ export const createPlugin = ({
             })
         );
 
-        await onMutation(mutatedFilePaths);
+        await Promise.resolve(onMutation(mutatedFilePaths));
         
         previousMutationResults = mutationResults;
         const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
