@@ -209,6 +209,7 @@ async function* identifyUnknownInstruction(
             operators: [...assignmentOperations].filter(
               operator => operator !== pathNode.operator,
             ),
+            mutationEvaluations: [],
             derivedFromPassingTest,
             filePath,
             location,
@@ -218,6 +219,7 @@ async function* identifyUnknownInstruction(
             type: BLOCK,
             indexes: pathNode.body.map((statement, i) => i),
             derivedFromPassingTest,
+            mutationEvaluations: [],
             location,
             filePath
           });
