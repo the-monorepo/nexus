@@ -216,7 +216,13 @@ const runAndRecycleProcesses = async (
                 duration: totalDuration,
               };
 
-              resolve(finalResults);
+              if (testFileQueue.length > 0) {
+                // TODO: Would probably run into a stack overflow if you rerun tests too many times
+                const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, processCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);                
+                resolve(nestedFinalResults);
+              } else {
+                resolve(finalResults);
+              }
             }
             break;
           }
@@ -237,7 +243,6 @@ const runAndRecycleProcesses = async (
             }
 
             if (totalPendingFiles.size <= 0 && testFileQueue.length <= 0) {
-              await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
               const endTime = Date.now();
               const totalDuration = endTime - startTime;
               const results: TesterResults = { testResults, duration: totalDuration };
@@ -255,8 +260,7 @@ const runAndRecycleProcesses = async (
               }
               testFileQueue.push(...newFilesToAdd);
 
-              // TODO: Would probably run into a stack overflow if you rerun tests too many times
-              await runAndRecycleProcesses(tester, testFileQueue, processCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);
+              await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
             }
             break;
           }
