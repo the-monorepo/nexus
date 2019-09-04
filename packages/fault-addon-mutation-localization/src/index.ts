@@ -338,50 +338,6 @@ const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
 };
 
 /**
- * Sorts by worst evaluation to best evaluation
- */
-export const compareMutationStackEvaluation = (
-  result1: MutationStackEvaluation,
-  result2: MutationStackEvaluation
-): number => {
-  const lineDegradationScore =
-    result2.lineDegradationScore - result1.lineDegradationScore;
-  if (lineDegradationScore !== 0) {
-    return lineDegradationScore;
-  }
-
-  const columnDegradationScore =
-    result2.columnDegradationScore - result1.columnDegradationScore;
-  if (columnDegradationScore !== 0) {
-    return columnDegradationScore;
-  }
-
-  const lineImprovementScore =
-    result1.lineImprovementScore - result2.lineImprovementScore;
-  if (lineImprovementScore !== 0) {
-    return lineImprovementScore;
-  }
-
-  const columnImprovementScore =
-    result1.columnImprovementScore - result2.columnImprovementScore;
-  if (columnImprovementScore !== 0) {
-    return columnImprovementScore;
-  }
-
-  const lineScoreNulls = result1.lineScoreNulls - result2.lineScoreNulls;
-  if (lineScoreNulls !== 0) {
-    return lineScoreNulls;
-  }
-
-  const columnScoreNulls = result1.columnScoreNulls - result2.columnScoreNulls;
-  if (columnScoreNulls !== 0) {
-    return columnScoreNulls;
-  }
-  
-  return 0;
-}
-
-/**
  * From worst evaluation to best evaluation
  */
 export const compareMutationEvaluations = (
@@ -398,10 +354,31 @@ export const compareMutationEvaluations = (
     return testsImproved;
   }
 
+  const stackEval1 = result1.stackEvaluation;
+  const stackEval2 = result2.stackEvaluation;
 
-  const stackEvaluationComparison = compareMutationStackEvaluation(result1.stackEvaluation, result2.stackEvaluation);
-  if(stackEvaluationComparison !== 0) {
-    return stackEvaluationComparison;
+  const lineDegradationScore =
+  stackEval2.lineDegradationScore - stackEval1.lineDegradationScore;
+  if (lineDegradationScore !== 0) {
+    return lineDegradationScore;
+  }
+
+  const columnDegradationScore =
+    stackEval2.columnDegradationScore - stackEval1.columnDegradationScore;
+  if (columnDegradationScore !== 0) {
+    return columnDegradationScore;
+  }
+
+  const lineImprovementScore =
+    stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
+  if (lineImprovementScore !== 0) {
+    return lineImprovementScore;
+  }
+
+  const columnImprovementScore =
+    stackEval1.columnImprovementScore - stackEval2.columnImprovementScore;
+  if (columnImprovementScore !== 0) {
+    return columnImprovementScore;
   }
 
   const errorsChanged = result1.errorsChanged - result2.errorsChanged;
@@ -409,7 +386,17 @@ export const compareMutationEvaluations = (
     return errorsChanged;
   }
 
-  return testsWorsened;
+  const lineScoreNulls = stackEval1.lineScoreNulls - stackEval2.lineScoreNulls;
+  if (lineScoreNulls !== 0) {
+    return lineScoreNulls;
+  }
+
+  const columnScoreNulls = stackEval1.columnScoreNulls - stackEval2.columnScoreNulls;
+  if (columnScoreNulls !== 0) {
+    return columnScoreNulls;
+  }
+
+  return 0;
 };
 
 export const evaluateStackDifference = (
@@ -573,7 +560,7 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
 export const mutationEvalatuationMapToFaults = (
   evaluations: MutationEvaluation[],
 ): Fault[] => {
-  const sortedEvaluationsLists = evaluations.sort(compareMutationEvaluations);
+  const sortedEvaluationsLists = evaluations.sort(compareMutationEvaluations).reverse();
   const seen: Set<string> = new Set();
   const faults: ScorelessFault[] = [];
   for (const evaluation of sortedEvaluationsLists) {
