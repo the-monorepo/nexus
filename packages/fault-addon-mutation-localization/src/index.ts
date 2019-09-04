@@ -388,12 +388,12 @@ export const compareMutationEvaluations = (
   result1: MutationEvaluation,
   result2: MutationEvaluation,
 ) => {
-  const testsImproved = result1.testsImproved - result2.testsImproved;
   const testsWorsened = result2.testsWorsened - result1.testsWorsened;
-  if (testsWorsened !== 0 && (result1.testsWorsened === 0 || result2.testsWorsened === 0)) {
+  if (testsWorsened !== 0) {
     return testsWorsened;
   }
 
+  const testsImproved = result1.testsImproved - result2.testsImproved;
   if (testsImproved !== 0) {
     return testsImproved;
   }
@@ -508,21 +508,6 @@ type MutationEvaluation = {
   errorsChanged: number;
 };
 
-const addToMutationStackEvaluation = (mutationStackEvaluation: MutationStackEvaluation, testEvaluation: TestEvaluation) => {
-  if (testEvaluation.stackLineScore === null) {
-    mutationStackEvaluation.lineScoreNulls++;
-  } else if (testEvaluation.stackLineScore > 0) {
-    mutationStackEvaluation.lineImprovementScore += testEvaluation.stackLineScore;
-  } else if (testEvaluation.stackLineScore < 0) {
-    mutationStackEvaluation.lineDegradationScore -= testEvaluation.stackLineScore;
-  } else if (testEvaluation.stackColumnScore === null) {
-    mutationStackEvaluation.columnScoreNulls++;
-  } else if (testEvaluation.stackColumnScore > 0) {
-    mutationStackEvaluation.columnImprovementScore += testEvaluation.stackColumnScore;
-  } else if (testEvaluation.stackColumnScore < 0) {
-    mutationStackEvaluation.columnDegradationScore -= testEvaluation.stackColumnScore;
-  }
-}
 const evaluateNewMutation = (
   originalResults: TesterResults,
   newResults: TesterResults,
@@ -552,11 +537,23 @@ const evaluateNewMutation = (
       testsImproved++;
     } else if (testEvaluation.endResultImprovement === EndResult.WORSE) {
       testsWorsened++;
-    } else if (testEvaluation.errorChanged) {
+    } else if (testEvaluation.errorChanged && testEvaluation.stackLineScore === 0 && testEvaluation.stackColumnScore === 0) {
       errorsChanged++;
     }
 
-    addToMutationStackEvaluation(stackEvaluation, testEvaluation);
+    if (testEvaluation.stackLineScore === null) {
+      stackEvaluation.lineScoreNulls++;
+    } else if (testEvaluation.stackLineScore > 0) {
+      stackEvaluation.lineImprovementScore += testEvaluation.stackLineScore;
+    } else if (testEvaluation.stackLineScore < 0) {
+      stackEvaluation.lineDegradationScore -= testEvaluation.stackLineScore;
+    } else if (testEvaluation.stackColumnScore === null) {
+      stackEvaluation.columnScoreNulls++;
+    } else if (testEvaluation.stackColumnScore > 0) {
+      stackEvaluation.columnImprovementScore += testEvaluation.stackColumnScore;
+    } else if (testEvaluation.stackColumnScore < 0) {
+      stackEvaluation.columnDegradationScore -= testEvaluation.stackColumnScore;
+    }
   }
   return {
     mutations: mutationResults.mutations,
@@ -644,7 +641,7 @@ export const createDefaultIsFinishedFn = ({
         evaluation.testsImproved > 0 
         || evaluation.errorsChanged > 0 
         || stackEval.lineImprovementScore > 0
-        || (stackEval.lineImprovementScore === 0 && stackEval.columnImprovementScore > 0);
+        || stackEval.columnImprovementScore > 0;
       const nothingChanged = evaluation.errorsChanged === 0 
         && evaluation.testsImproved === 0
         && evaluation.testsWorsened === 0
