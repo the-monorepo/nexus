@@ -237,6 +237,7 @@ const runAndRecycleProcesses = async (
             }
 
             if (totalPendingFiles.size <= 0 && testFileQueue.length <= 0) {
+              await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
               const endTime = Date.now();
               const totalDuration = endTime - startTime;
               const results: TesterResults = { testResults, duration: totalDuration };
@@ -254,11 +255,8 @@ const runAndRecycleProcesses = async (
               }
               testFileQueue.push(...newFilesToAdd);
 
-              if (testFileQueue.length <= 0) {
-                await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
-              } else {
-                addInitialTests();
-              }
+              // TODO: Would probably run into a stack overflow if you rerun tests too many times
+              await runAndRecycleProcesses(tester, testFileQueue, processCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);
             }
             break;
           }
