@@ -275,7 +275,7 @@ const runAndRecycleProcesses = async (
           otherWorker.process.kill();
         }
         if (code !== 0) {
-          reject(new Error('An error ocurred while running tests'));
+          reject(new Error(`Something went wrong while running tests. Received ${code} exit code from a worker.`));
         } else if (runningWorkers.has(worker)) {
           reject(new Error('Worker unexpectedly stopped'));
         }
