@@ -195,11 +195,13 @@ async function* identifyUnknownInstruction(
     const newInstructions: any[] = [];
     const scopedPath = getParentScope(nodePath);
 
-    const location = nodePath.node.loc;
 
     traverse(scopedPath.node, {
       enter: (path) => {
         const pathNode = path.node;
+        
+        const location = pathNode.loc;
+        
         const key = expressionKey(filePath, pathNode);
         if (expressionsSeen.has(key)) {
           return;
@@ -211,8 +213,8 @@ async function* identifyUnknownInstruction(
             operators: [...assignmentOperations].filter(
               operator => operator !== pathNode.operator,
             ),
-            mutationEvaluations: [],
             derivedFromPassingTest,
+            mutationEvaluations: [],
             filePath,
             location,
           });
@@ -240,8 +242,8 @@ const processAssignmentInstruction = async (
 ): Promise<MutationResults | null> => {
   const ast = await cache.get(instruction.filePath);
 
-  const nodePaths = findNodePathsWithLocation(ast, instruction.location);
-  if (nodePaths.length <= 0) {
+  const nodePaths = findNodePathsWithLocation(ast, instruction.location).filter(nodePath => t.isAssignmentExpression(nodePath));
+  if (nodePaths.length <= 0) {  
     return null;
   }
   if (instruction.operators.length <= 0) {
@@ -250,9 +252,11 @@ const processAssignmentInstruction = async (
 
   client.addInstruction(instruction);
 
-  const operators = instruction.operators.pop();
+  const operator = instruction.operators.pop();
   const nodePath = nodePaths[0];
-  nodePath.node.operator = operators;
+  console.log(nodePath.node)
+  console.log('changing', nodePath.node.operator, operator);
+  nodePath.node.operator = operator;
   return {
     mutations: [
       {
@@ -286,6 +290,7 @@ const processBlockInstruction = async (
   const nodePath = nodePaths.pop()!;
 
   nodePath.node.body.splice(index, 1);
+  console.log('removed', index);
 
   return {
     mutations: [
@@ -744,7 +749,7 @@ export const createPlugin = ({
             previousMutationResults!,
           );
           if (previousInstruction !== undefined) {
-            console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, mutationEvaluation);
+            console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, { ...mutationEvaluation, mutations: undefined });
             previousInstruction.mutationEvaluations.push(mutationEvaluation);
           }
           evaluations.push(mutationEvaluation);
@@ -799,7 +804,7 @@ export const createPlugin = ({
             .map(async filePath => {
               const ast = await cache.get(filePath);
               const originalCodeText = await readFile(originalPathToCopyPath.get(filePath)!, 'utf8');
-              const { code } = generate(ast, { retainLines: true, compact: false, filename: basename(filePath) }, originalCodeText);
+              const { code } = generate(ast, { retainFunctionParens: true, retainLines: true, compact: false, filename: basename(filePath) }, originalCodeText);
               await writeFile(filePath, code, { encoding: 'utf8' });
             })
         );
