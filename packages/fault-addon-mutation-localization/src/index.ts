@@ -192,14 +192,12 @@ async function* identifyUnknownInstruction(
   for(const nodePath of nodePaths) {
     const newInstructions: any[] = [];
     const scopedPath = getParentScope(nodePath);
-    console.log(chalk.cyan(scopedPath.type));
 
     const location = nodePath.node.loc;
 
     traverse(scopedPath.node, {
       enter: (path) => {
         const pathNode = path.node;
-        console.log(path.type);
         const key = expressionKey(filePath, pathNode);
         if (expressionsSeen.has(key)) {
           return;
@@ -226,7 +224,6 @@ async function* identifyUnknownInstruction(
         }    
       }
     }, scopedPath.scope);
-    newInstructions.forEach(console.log);
 
     yield* newInstructions;
   }
@@ -284,7 +281,6 @@ const processBlockInstruction = async (
 
   const nodePath = nodePaths.pop()!;
 
-  console.log(nodePath);
   nodePath.node.body.splice(index, 1);
 
   return {
@@ -328,6 +324,9 @@ type StackEvaluation = {
   stackLineScore: number | null;
 };
 
+/**
+ * Sorts by worst evaluation to best evaluation
+ */
 export const compareMutationStackEvaluation = (
   result1: MutationStackEvaluation,
   result2: MutationStackEvaluation
@@ -641,7 +640,7 @@ export const createDefaultIsFinishedFn = ({
       if (
         evaluation.testsImproved > 0 || 
         stackEvaluation.lineImprovementScore > 0 || 
-        (stackEvaluation.lineDegradationScore === 0 && stackEvaluation.columnImprovementScore > 0) || 
+        (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore > 0) || 
         (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore === 0 && evaluation.errorsChanged)) {
         return true;
       }
@@ -734,6 +733,7 @@ export const createPlugin = ({
             previousMutationResults!,
           );
           if (previousInstruction !== undefined) {
+            console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, mutationEvaluation);
             previousInstruction.mutationEvaluations.push(mutationEvaluation);
           }
           evaluations.push(mutationEvaluation);
