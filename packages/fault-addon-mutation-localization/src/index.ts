@@ -315,7 +315,7 @@ const processInstruction = async (
 
 export type TestEvaluation = {
   // Whether the exception that was thrown in the test has changed
-  errorChanged: boolean;
+  errorChanged: boolean | null;
   // How much better we're doing in terms of whether the test failed/passed
   endResultImprovement: number;
   previouslyFailing: boolean,
@@ -453,9 +453,9 @@ export const evaluateModifiedTestResult = (
     : newResult.passed
     ? EndResult.BETTER
     : EndResult.WORSE;
-  const errorChanged: boolean = (() => {
+  const errorChanged: boolean | null = (() => {
     if (!samePassFailResult) {
-      return true;
+      return null;
     }
     if (newResult.passed) {
       return false;
@@ -634,15 +634,14 @@ export const createDefaultIsFinishedFn = ({
      */
     if (instruction.mutationEvaluations.length > 0 && !instruction.mutationEvaluations.some(evaluation => {
       const stackEvaluation = evaluation.stackEvaluation;
-      if (
+      return (
         evaluation.testsImproved > 0 || 
         stackEvaluation.lineImprovementScore > 0 || 
         (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore > 0) || 
-        (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore === 0 && evaluation.errorsChanged)) {
-        return true;
-      }
-      return false;
-    }))
+        (stackEvaluation.lineImprovementScore === 0 && stackEvaluation.columnImprovementScore === 0 && evaluation.errorsChanged));
+    })) {
+      return true;
+    }
 
     return false;
   };
