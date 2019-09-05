@@ -646,7 +646,7 @@ export const createDefaultIsFinishedFn = ({
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
-  ignoreGlob = '**/*',
+  ignoreGlob = [],
   onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn()
 }: PluginOptions): PartialTestHookOptions => {
