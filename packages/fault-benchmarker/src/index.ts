@@ -251,6 +251,7 @@ export const run = async () => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
         faultFilePath: faultFilePath(projectDir, name),
+        ignoreGlob: '../fault-*/**/*',
         console,
       });
 

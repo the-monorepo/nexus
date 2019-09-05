@@ -4,6 +4,8 @@ import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { passFailStatsFromTests } from '@fault/localization-util';
 import { recordFaults, reportFaults, Fault } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar';
+import path from 'path';
+import * as micromatch from 'micromatch';
 
 export type Stats = {
   passed: number;
@@ -97,6 +99,7 @@ export type ScoringFn = ExternalScoringFn;
 export const localizeFaults = (
   groupedTestResults: Iterable<TestResult>,
   fileResults: Map<string, FileResult>,
+  ignoreGlob: string[],
   scoringFn: InternalScoringFn,
 ): Fault[] => {
   const faults: Fault[] = [];
@@ -114,6 +117,9 @@ export const localizeFaults = (
 
   // For each expression in each executed file, assign a "suspciousness" score
   for (const sourcePath of selectedSourceFiles) {
+    if (micromatch.isMatch(sourcePath, ignoreGlob)) {
+      continue;
+    }
     const fileResult = fileResults.get(sourcePath)!;
     for (const expression of fileResult.expressions) {
       const { location, sourcePath } = expression;
@@ -131,20 +137,25 @@ export type PluginOptions = {
   scoringFn?: ScoringFn;
   faultFilePath?: string | null | true | false;
   console?: boolean;
+  ignoreGlob?: string | string[]
 };
 
 export const createPlugin = ({
   scoringFn = dStar,
   faultFilePath,
+  ignoreGlob = [],
   console: printToConsole = false,
 }: PluginOptions): PartialTestHookOptions => {
+  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
+    path.resolve('.', glob).replace(/\\+/g, '/'),
+  );
   return {
     on: {
       complete: async (results: FinalTesterResults) => {
         const testResults: TestResult[] = [...results.testResults.values()];
         const fileResults = gatherFileResults(testResults);
         const totalPassFailStats = passFailStatsFromTests(testResults);
-        const faults = localizeFaults(testResults, fileResults, expressionPassFailStats =>
+        const faults = localizeFaults(testResults, fileResults, resolvedIgnoreGlob, expressionPassFailStats =>
           scoringFn(expressionPassFailStats, totalPassFailStats),
         );
         if (printToConsole) {
