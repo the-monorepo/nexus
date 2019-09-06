@@ -2,7 +2,7 @@ import { parse, ParserOptions } from '@babel/parser';
 import { File, AssignmentExpression, Expression, BaseNode, Statement } from '@babel/types';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import * as t from '@babel/types';
-import { TesterResults, TestResult, FailingTestData } from '@fault/types';
+import { TesterResults, TestResult, FailingTestData, FinalTesterResults } from '@fault/types';
 import { readFile, writeFile, mkdtemp, unlink, rmdir } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import { join, resolve, basename } from 'path';
@@ -399,7 +399,7 @@ export const compareMutationEvaluations = (
   return 0;
 };
 
-export const evaluateStackDifference = (
+export const evaluateStackDiffeprence = (
   originalResult: TestResult,
   newResult: TestResult,
 ): StackEvaluation => {
@@ -589,7 +589,8 @@ export type PluginOptions = {
   babelOptions?: ParserOptions,
   ignoreGlob?: string[] | string,
   onMutation?: (mutatatedFiles: string[]) => any,
-  isFinishedFn: IsFinishedFunction
+  isFinishedFn?: IsFinishedFunction,
+  mapToIstanbul?: boolean
 };
 
 type DefaultIsFinishedOptions = {
@@ -643,12 +644,61 @@ export const createDefaultIsFinishedFn = ({
   return isFinishedFn;
 }
 
+export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage): Fault[] => {
+  // TODO: Could make this more efficient
+  const statementsAlreadyUsed: Set<string> = new Set();
+  const mappedFaults: Map<string, Fault> = new Map();
+  const replace = (fault: Fault, location: ExpressionLocation = fault.location) => {
+    const key = locationToKey(fault.sourcePath, location);
+    if (mappedFaults.has(key)) {
+      const previousFault = mappedFaults.get(key)!;
+      if (previousFault.score! > fault.score!) {
+        return;
+      }
+    }
+    mappedFaults.set(key, fault);
+  };
+
+  for (const fault of faults) {
+    const fileCoverage = coverage[fault.sourcePath];
+    if (fileCoverage === undefined) {
+      replace(fault);
+      continue;
+    }
+    
+    let mostRelevantStatement: ExpressionLocation | null = null;
+    const loc = fault.location;
+    for(const statement of Object.values(fileCoverage.statementMap)) {
+      // If the start of the fault is within the bounds of the statement and the statement is smaller than the previously mapped statement, then map it
+      if (statement.start.line >= loc.start.line && statement.end.line <= loc.start.line && statement.end.line >= loc.start.line && statement.end.column >= loc.start.column) {
+        if (mostRelevantStatement === null) {
+          mostRelevantStatement = statement;
+        } else {
+          const originalLineLength = statement.end.line - statement.start.line;
+          const otherLineLength = loc.end.line - loc.start.line;
+          const originalColumnLength = statement.end.column - statement.start.column;
+          const otherColumnLength = loc.end.column - loc.start.column;
+          if (originalLineLength > otherLineLength || (originalLineLength === otherLineLength && originalColumnLength > otherColumnLength)) {
+            mostRelevantStatement = statement;
+          }
+        }
+      }
+    }
+
+    if (mostRelevantStatement !== null) {
+      replace(fault, mostRelevantStatement);
+    }
+  }
+  return [...mappedFaults.values()];
+}
+
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
   ignoreGlob = [],
   onMutation = () => {},
-  isFinishedFn = createDefaultIsFinishedFn()
+  isFinishedFn = createDefaultIsFinishedFn(),
+  mapToIstanbul = false
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   let previousInstruction: Instruction | undefined = undefined;
@@ -810,7 +860,7 @@ export const createPlugin = ({
 
         return testsToBeRerun;
       },
-      complete: async () => {
+      complete: async (tester: FinalTesterResults) => {
         console.log('complete');
         await Promise.all(
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
@@ -818,8 +868,9 @@ export const createPlugin = ({
         await rmdir(copyTempDir);
         console.log(JSON.stringify(evaluations, undefined, 2));
         const faults = mutationEvalatuationMapToFaults(evaluations);
-        await recordFaults(faultFilePath, faults);
-        await reportFaults(faults);
+        const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
+        await recordFaults(faultFilePath, mappedFaults);
+        await reportFaults(mappedFaults);
       },
     },
   };

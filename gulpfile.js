@@ -349,6 +349,7 @@ async function testNoBuild() {
             sourceType: 'module',
           },
           ignoreGlob: 'packages/fault-*/**/*',
+          mapToIstanbul: true,
           onMutation: (mutatedFilePaths) => {
             return new Promise((resolve, reject) => {
               let scriptFinish = false;
