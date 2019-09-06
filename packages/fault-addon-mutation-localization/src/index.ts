@@ -399,7 +399,7 @@ export const compareMutationEvaluations = (
   return 0;
 };
 
-export const evaluateStackDiffeprence = (
+export const evaluateStackDifference = (
   originalResult: TestResult,
   newResult: TestResult,
 ): StackEvaluation => {
