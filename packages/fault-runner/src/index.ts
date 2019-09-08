@@ -267,7 +267,6 @@ const runAndRecycleProcesses = async (
         }
       });
       worker.process.on('exit', code => {
-        console.log(workers.length);
         for (const otherWorker of workers) {
           if (otherWorker === worker) {
             continue;
