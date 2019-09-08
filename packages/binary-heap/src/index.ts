@@ -1,31 +1,31 @@
 export type CompareFn<T> = (a: T, b: T) => number;
-export const parentIndex = (index: number) => (Math.trunc((index - 1) / 2))
+export const parentIndex = (index: number) => Math.trunc((index - 1) / 2);
 export const leftIndex = (index: number) => index * 2 + 1;
 export const rightIndex = (index: number) => index * 2 + 2;
 export const swap = <T>(arr: T[], i1: number, i2: number) => {
   const temp = arr[i1];
   arr[i1] = arr[i2];
   arr[i2] = temp;
-}
+};
 
 export const push = <T>(arr: T[], compareFn: CompareFn<T>, ...items: T[]) => {
-  for(const item of items) {
-    const updateIndex = arr.length;
-    arr[updateIndex] = item;
-    checkSwapWithParent(arr, compareFn, updateIndex);
-  }
-}
+
+
+
+
+
+};
 
 export const pop = <T>(arr: T[], compareFn: CompareFn<T>, index: number = 0) => {
   swap(arr, index, arr.length - 1);
   const poppedItem = arr.pop();
   checkSwapWithParent(arr, compareFn, arr.length - 1);
   return poppedItem;
-}
+};
 
 /**
- * @returns true if swapped, false if not
- */
+    * @returns true if swapped, false if not
+    */
 export const checkSwapWithParent = <T>(arr: T[], compareFn: CompareFn<T>, index: number): boolean => {
   if (index <= 0) {
     return false;
@@ -40,7 +40,7 @@ export const checkSwapWithParent = <T>(arr: T[], compareFn: CompareFn<T>, index:
   }
 
   return false;
-}
+};
 
 export const checkSwapWithChildren = <T>(arr: T[], compareFn: CompareFn<T>, index: number) => {
   const item = arr[index];
@@ -52,8 +52,8 @@ export const checkSwapWithChildren = <T>(arr: T[], compareFn: CompareFn<T>, inde
   const leftIsCandidate = leftI < arr.length && compareFn(item, arr[leftI]) > 0;
 
   if (leftIsCandidate && rightIsCandidate) {
-    const swappedIndex = compareFn(arr[leftI], arr[rightI]) >= 0 ? leftI : rightI
-    swap(arr, index,  swappedIndex);
+    const swappedIndex = compareFn(arr[leftI], arr[rightI]) >= 0 ? leftI : rightI;
+    swap(arr, index, swappedIndex);
     checkSwapWithChildren(arr, compareFn, swappedIndex);
   } else if (leftIsCandidate) {
     swap(arr, index, leftI);
@@ -62,7 +62,7 @@ export const checkSwapWithChildren = <T>(arr: T[], compareFn: CompareFn<T>, inde
     swap(arr, index, rightI);
     checkSwapWithChildren(arr, compareFn, rightI);
   }
-}
+};
 
 export const update = <T>(arr: T[], compareFn: CompareFn<T>, index: number) => {
   const swappedWithParent = checkSwapWithParent(arr, compareFn, index);
@@ -70,7 +70,7 @@ export const update = <T>(arr: T[], compareFn: CompareFn<T>, index: number) => {
     return;
   }
   checkSwapWithChildren(arr, compareFn, index);
-}
+};
 
 export class Heap<T> {
   private readonly arr: T[];
@@ -100,7 +100,7 @@ export class Heap<T> {
 
   [Symbol.iterator]() {
     return this.arr[Symbol.iterator]();
-  }
-}
+  }}
+
 
 export default Heap;
