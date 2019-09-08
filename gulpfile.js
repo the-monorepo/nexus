@@ -348,7 +348,7 @@ async function testNoBuild() {
             plugins: ['jsx', 'typescript', 'exportDefaultFrom'],
             sourceType: 'module',
           },
-          ignoreGlob: 'packages/fault-*/**/*',
+          ignoreGlob: 'packages/{fault-messages,fault-tester-mocha,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*',
           mapToIstanbul: true,
           onMutation: (mutatedFilePaths) => {
             return new Promise((resolve, reject) => {
