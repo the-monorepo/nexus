@@ -75,7 +75,7 @@ export const update = <T>(arr: T[], compareFn: CompareFn<T>, index: number) => {
 export class Heap<T> {
   private readonly arr: T[];
   constructor(private readonly compareFn: CompareFn<T> = (a: any, b: any) => a - b, initial: T[] = []) {
-    this.arr = [...initial].sort();
+    this.arr = [...initial].sort(compareFn);
   }
 
   push(...item: T[]) {
