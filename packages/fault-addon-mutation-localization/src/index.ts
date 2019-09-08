@@ -182,6 +182,7 @@ const getParentScope = (path) => {
 
 const expressionKey = (filePath: string, node: BaseNode) => `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${node.loc!.end.column}:${node.type}`;
 
+
 async function* identifyUnknownInstruction(
   instruction: Location,
   cache: AstCache,
@@ -646,9 +647,8 @@ export const createDefaultIsFinishedFn = ({
 
 export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage): Fault[] => {
   // TODO: Could make this more efficient
-  const statementsAlreadyUsed: Set<string> = new Set();
   const mappedFaults: Map<string, Fault> = new Map();
-  const replace = (fault: Fault, location: ExpressionLocation = fault.location) => {
+  const replace = (fault: Fault, location: ExpressionLocation) => {
     const key = locationToKey(fault.sourcePath, location);
     if (mappedFaults.has(key)) {
       const previousFault = mappedFaults.get(key)!;
@@ -656,13 +656,17 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
         return;
       }
     }
-    mappedFaults.set(key, fault);
+    mappedFaults.set(key, {
+      score: fault.score,
+      sourcePath: fault.sourcePath,
+      location,
+    });
   };
 
   for (const fault of faults) {
     const fileCoverage = coverage[fault.sourcePath];
     if (fileCoverage === undefined) {
-      replace(fault);
+      replace(fault, fault.location);
       continue;
     }
     
