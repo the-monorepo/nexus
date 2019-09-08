@@ -1,5 +1,5 @@
-import { leftIndex, parentIndex, rightIndex, swap } from '../src/heap';
-import Heap from '../src/heap';
+import { leftIndex, parentIndex, rightIndex, swap } from '../src/index';
+import Heap from '../src/index';
 
 describe('heap', () => {
   it('swap', () => {
