@@ -2,8 +2,8 @@ export type CompareFn<T> = (a: T, b: T) => number;
 export const parentIndex = (index: number) => (Math.trunc((index - 1) / 2))
 export const leftIndex = (index: number) => index * 2 + 1;
 export const rightIndex = (index: number) => index * 2 + 2;
-const swap = <T>(arr: T[], i1: number, i2: number) => {
-  let temp = arr[i1];
+export const swap = <T>(arr: T[], i1: number, i2: number) => {
+  const temp = arr[i1];
   arr[i1] = arr[i2];
   arr[i2] = temp;
 }
@@ -27,14 +27,16 @@ export const pop = <T>(arr: T[], compareFn: CompareFn<T>, index: number = 0) => 
  * @returns true if swapped, false if not
  */
 export const checkSwapWithParent = <T>(arr: T[], compareFn: CompareFn<T>, index: number): boolean => {
-  if (index > 0) {
-    const parentI = parentIndex(index);
-    const parentComparison = compareFn(arr[index], arr[parentI]);
-    if (parentComparison < 0) {
-      swap(arr, index, parentI);
-      checkSwapWithParent(arr, compareFn, parentI);
-      return true;
-    }
+  if (index <= 0) {
+    return false;
+  }
+
+  const parentI = parentIndex(index);
+  const parentComparison = compareFn(arr[index], arr[parentI]);
+  if (parentComparison < 0) {
+    swap(arr, index, parentI);
+    update(arr, compareFn, parentI);
+    return true;
   }
 
   return false;
@@ -71,7 +73,7 @@ export const update = <T>(arr: T[], compareFn: CompareFn<T>, index: number) => {
 }
 
 export class Heap<T> {
-  private readonly arr: T[] = [];
+  private readonly arr: T[];
   constructor(private readonly compareFn: CompareFn<T> = (a: any, b: any) => a - b, initial: T[] = []) {
     this.arr = [...initial].sort();
   }
