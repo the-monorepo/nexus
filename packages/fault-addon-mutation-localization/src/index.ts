@@ -866,15 +866,13 @@ export const createPlugin = ({
       },
       complete: async (tester: FinalTesterResults) => {
         console.log('complete');
-        await Promise.all(
+        Promise.all(
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
-        );
-        await rmdir(copyTempDir);
+        ).then(() => rmdir(copyTempDir));
         console.log(JSON.stringify(evaluations, undefined, 2));
         const faults = mutationEvalatuationMapToFaults(evaluations);
         const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
-        await recordFaults(faultFilePath, mappedFaults);
-        await reportFaults(mappedFaults);
+        await Promise.all([recordFaults(faultFilePath, mappedFaults), reportFaults(mappedFaults)]);
       },
     },
   };
