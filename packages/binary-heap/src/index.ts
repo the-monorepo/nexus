@@ -51,7 +51,6 @@ export const checkSwapWithChildren = <T>(arr: T[], compareFn: CompareFn<T>, inde
   const rightIsCandidate = rightI < arr.length && compareFn(item, arr[rightI]) > 0;
   const leftIsCandidate = leftI < arr.length && compareFn(item, arr[leftI]) > 0;
 
-  // TODO: If you swap with a child, the new parent only needs to check against the child that wasn't swapped
   if (leftIsCandidate && rightIsCandidate) {
     const swappedIndex = compareFn(arr[leftI], arr[rightI]) <= 0 ? leftI : rightI
     swap(arr, index,  swappedIndex);
