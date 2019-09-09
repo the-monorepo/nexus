@@ -110,6 +110,10 @@ export class Heap<T> implements Iterable<T> {
     return pop(this.arr, this.compareFn, i);
   }
 
+  peek() {
+    return this.arr[0];
+  }
+
   get length() {
     return this.arr.length;
   }
