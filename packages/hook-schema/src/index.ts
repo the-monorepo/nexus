@@ -67,7 +67,7 @@ export function defaultHooksFromSchema<H extends HookSchema>(
       if (schemaObj[key] === null) {
         hooks[key] = (async () => {}) as any;
       } else if (typeof schemaObj[key] === 'function') {
-        hooks[key] += (schemaObj[key] as HookCallbackFactory)() as any;
+        hooks[key] = (schemaObj[key] as HookCallbackFactory)() as any;
       } else {
         hooks[key] = defaultHooksFromSchema(schemaObj[key] as HookSchema, {}) as any;
       }
