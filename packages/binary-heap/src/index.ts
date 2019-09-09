@@ -75,7 +75,7 @@ export const update = <T>(arr: T[], compareFn: CompareFn<T>, index: number) => {
 /**
  * Attempts to mimic the functionality of Array.prototype.sort
  */
-export const defaultSortFn = (a: any, b: any) => {
+export const defaultCompareFn = (a: any, b: any) => {
   const aStr = `${a}`;
   const bStr = `${b}`;
 
@@ -94,7 +94,7 @@ export const defaultSortFn = (a: any, b: any) => {
 };
 export class Heap<T> implements Iterable<T> {
   private readonly arr: T[] = [];
-  constructor(private readonly compareFn: CompareFn<T> = defaultSortFn, initial: Iterable<T> = []) {
+  constructor(private readonly compareFn: CompareFn<T> = defaultCompareFn, initial: Iterable<T> = []) {
     this.push(...initial);
   }
 
