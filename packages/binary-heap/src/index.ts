@@ -86,6 +86,8 @@ export const defaultSortFn = (a: any, b: any) => {
     if (comparison !== 0) {
       return comparison;
     }
+    aI++;
+    bI++;
   }
 
   return aStr.length - bStr.length;
