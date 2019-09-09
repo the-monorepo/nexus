@@ -7,6 +7,7 @@ module.exports = api => {
   if (test) {
     plugins.push('babel-plugin-istanbul', 'rewiremock/babel');
   }
+  const classPropertyPlugin = ['@babel/plugin-proposal-class-properties', { loose: true }];
   return {
     presets: [
       [
@@ -26,7 +27,9 @@ module.exports = api => {
         },
       ],
     ],
-    plugins,
+    plugins: plugins.concat([
+      classPropertyPlugin
+    ]),
     overrides: [
       {
         test: [
@@ -39,7 +42,7 @@ module.exports = api => {
           '@babel/plugin-syntax-jsx',
           'babel-plugin-transform-mobx-jsx',
           ['@babel/plugin-proposal-decorators', { legacy: true }],
-          ['@babel/plugin-proposal-class-properties', { loose: true }],
+          classPropertyPlugin,
           '@babel/plugin-transform-strict-mode',
         ]),
         presets: [
