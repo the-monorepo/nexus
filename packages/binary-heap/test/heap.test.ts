@@ -36,16 +36,16 @@ describe('heap', () => {
 
   const testCases: [string, number[]][] = [
     ['empty', []],
-    ['single element', [1]],
-    ['already sorted', [1,2,3,4,5]],
-    ['already sorted, repeating elements', [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]],
-    ['unsorted', [3,2,1,5,6]],
-    ['unsorted, repeating elements', [3, 3, 1, 1, 5, 5, 6, 6]],
-    ['large, unsorted, negative numbers, repeating elements', [1,2,3,4,12,31,1,-1,3,6,7,2, -40,1,2,2,22,2,1,5,19, -1, -1, -100, -2,-2,-5]]
+    ['single element', [0]],
+    ['already sorted', [0,1,2,3,4]],
+    ['already sorted, repeating elements', [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]],
+    ['unsorted, multi-digit', [3,2,10,500,0,999,5,]],
+    ['unsorted, repeating elements', [3, 3, 1, 1, 5, 5, 0, 0]],
+    ['large, unsorted, negative numbers, mutli-digit, repeating elements', [1,2,3,4,12,31,1,-1,3,6,7,2, -40,1,2,2,22,2,1,5,19, -1, -1, -100, -2,-2,-5]]
   ];
-  const compareFns: [string, (a, b) => number | undefined][] = [
+  const compareFns: [string, ((a, b) => number) | undefined][] = [
     ['default', undefined],
-    ['reverse', (a, b) => b - a]
+    ['reverse order', (a, b) => b - a]
   ];
   for(const [name, compareFn] of compareFns) {
     describe(name, () => {
@@ -60,7 +60,7 @@ describe('heap', () => {
         expect(heapArr).to.be.deep.equal(sorted);
       });
 
-      describe('push', () => {
+      describe('push and spread', () => {
         for(const [testName, arr] of testCases) {
           it(testName, () => {
             const sorted = [...arr].sort(compareFn);
@@ -79,7 +79,11 @@ describe('heap', () => {
             const sortedArr = [...removalArr].sort(compareFn);
             const heap = new Heap(compareFn, removalArr);
             heap.pop(i);
-            sortedArr.splice(i, 1);
+            if (i === undefined) {
+              sortedArr.pop();
+            } else {
+              sortedArr.splice(i, 1);
+            }
           });
         }
         testSplice(undefined);
