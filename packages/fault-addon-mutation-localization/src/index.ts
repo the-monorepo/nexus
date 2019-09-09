@@ -614,18 +614,22 @@ export const createDefaultIsFinishedFn = ({
 }: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
   const isFinishedFn: IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData): boolean => {
     if (durationThreshold !== undefined && finishData.testerResults.duration >= durationThreshold) {
+      console.log('a');
       return true;
     }
 
     if(mutationThreshold !== undefined && finishData.mutationCount >= mutationThreshold) {
+      console.log('b');
       return true;
     }
 
     if (finishOnPassDerviedNonFunctionInstructions && instruction.derivedFromPassingTest && instruction.type !== FUNCTION) {
+      console.log('c');
       return true;
     }
 
     if (instruction.mutationEvaluations.length > 0 && !instruction.mutationEvaluations.some(evaluation => {
+      console.log('d');
       const stackEval = evaluation.stackEvaluation;
       const improved = 
         evaluation.testsImproved > 0 
@@ -707,7 +711,7 @@ export const createPlugin = ({
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   let previousInstruction: Instruction | undefined = undefined;
-  const instructionQueue: Heap<Instruction> = new Heap();
+  const instructionQueue: Heap<Instruction> = new Heap((a, b) => -compareInstructions(a, b));
   let firstRun = true;  
   let firstTesterResults: TesterResults;
   const evaluations: MutationEvaluation[] = [];
@@ -748,7 +752,7 @@ export const createPlugin = ({
           const passedCoverage: Coverage = passedCoverageMap.data;
           const failedCoverage: Coverage = failedCoverageMap.data;
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-            console.log(coveragePath, resolvedIgnoreGlob, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
+            console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -765,7 +769,7 @@ export const createPlugin = ({
           for (const [coveragePath, fileCoverage] of Object.entries(
             passedCoverage as Coverage,
           )) {
-            console.log(coveragePath, resolvedIgnoreGlob, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
+            console.log('passing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
