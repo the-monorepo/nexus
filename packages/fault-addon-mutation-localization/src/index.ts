@@ -13,6 +13,7 @@ import { reportFaults, Fault, ScorelessFault, recordFaults } from '@fault/record
 import generate from '@babel/generator';
 import chalk from 'chalk';
 import * as micromatch from 'micromatch';
+import Heap from '@pshaw/binary-heap';
 
 import traverse from '@babel/traverse';
 
@@ -706,8 +707,8 @@ export const createPlugin = ({
 }: PluginOptions): PartialTestHookOptions => {
   let previousMutationResults: MutationResults | null = null;
   let previousInstruction: Instruction | undefined = undefined;
-  const instructionQueue: Instruction[] = [];
-  let firstRun = true;
+  const instructionQueue: Heap<Instruction> = new Heap();
+  let firstRun = true;  
   let firstTesterResults: TesterResults;
   const evaluations: MutationEvaluation[] = [];
   const expressionsSeen: Set<string> = new Set();
@@ -719,7 +720,6 @@ export const createPlugin = ({
   const client: Client = {
     addInstruction: (instruction: Instruction) => {
       instructionQueue.push(instruction);
-      instructionQueue.sort(compareInstructions);
     }
   };
   return {
@@ -794,6 +794,9 @@ export const createPlugin = ({
           if (previousInstruction !== undefined) {
             console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, { ...mutationEvaluation, mutations: undefined });
             previousInstruction.mutationEvaluations.push(mutationEvaluation);
+            if (previousInstruction === instructionQueue.peek()) {
+              instructionQueue.update(0);
+            }
           }
           evaluations.push(mutationEvaluation);
         }
@@ -803,8 +806,6 @@ export const createPlugin = ({
             await resetFile(mutation.filePath);
           }
         }
-        
-        instructionQueue.sort(compareInstructions);
 
         let instruction = instructionQueue.pop();
 
