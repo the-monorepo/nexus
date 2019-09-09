@@ -330,6 +330,7 @@ function checkTypesStaged() {
 }
 gulp.task('check-types-staged', checkTypesStaged);
 
+const flIgnoreGlob = 'packages/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*'
 async function testNoBuild() {
   try {
     const runner = require('@fault/runner');
@@ -343,12 +344,17 @@ async function testNoBuild() {
         '!./packages/fault-benchmarker/projects/**',
       ],
       addons: [
+        true ? require('@fault/addon-sbfl').default({
+          scoringFn: require('@fault/sbfl-dstar').default,
+          ignoreGlob: flIgnoreGlob,
+          console: true
+        }) :
         require('@fault/addon-mutation-localization').default({
           babelOptions: {
             plugins: ['jsx', 'typescript', 'exportDefaultFrom'],
             sourceType: 'module',
           },
-          ignoreGlob: 'packages/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*',
+          ignoreGlob: flIgnoreGlob,
           mapToIstanbul: true,
           onMutation: (mutatedFilePaths) => {
             return new Promise((resolve, reject) => {
