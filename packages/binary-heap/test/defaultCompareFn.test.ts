@@ -8,6 +8,6 @@ it(defaultCompareFn.name, () => {
   expect(defaultCompareFn(1, 0)).to.equal(1);
   expect(defaultCompareFn(0, 1)).to.equal(-1);
   expect(defaultCompareFn(100, 1)).to.be.at.least(1);
-  expect(defaultCompareFn(100, 2)).to.be.at.least(1);
+  expect(defaultCompareFn(100, 2)).to.be.at.most(-1);
   expect(defaultCompareFn("aab", "aac")).to.be.at.most(-1);
 });
