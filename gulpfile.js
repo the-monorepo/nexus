@@ -344,14 +344,14 @@ async function testNoBuild() {
         '!./packages/fault-benchmarker/projects/**',
       ],
       addons: [
-        true ? require('@fault/addon-sbfl').default({
+        false ? require('@fault/addon-sbfl').default({
           scoringFn: require('@fault/sbfl-dstar').default,
           ignoreGlob: flIgnoreGlob,
           console: true
         }) :
         require('@fault/addon-mutation-localization').default({
           babelOptions: {
-            plugins: ['jsx', 'typescript', 'exportDefaultFrom'],
+            plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
             sourceType: 'module',
           },
           ignoreGlob: flIgnoreGlob,
