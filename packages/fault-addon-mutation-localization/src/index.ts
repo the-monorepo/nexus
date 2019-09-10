@@ -14,8 +14,11 @@ import generate from '@babel/generator';
 import chalk from 'chalk';
 import * as micromatch from 'micromatch';
 import Heap from '@pshaw/binary-heap';
-
+import PouchDB from 'pouchdb';
+import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 import traverse from '@babel/traverse';
+
+PouchDB.plugin(PouchDBMemoryAdapter);
 
 export const createAstCache = (babelOptions?: ParserOptions) => {
   const cache = new Map<string, File>();
@@ -701,6 +704,8 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
   return [...mappedFaults.values()];
 }
 
+const DOC_EVALUATION = 'evaluation';
+
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
@@ -720,6 +725,12 @@ export const createPlugin = ({
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
     resolve('.', glob).replace(/\\+/g, '/'),
   );
+  const db = new PouchDB('fault-database', { adapter: 'memory' });
+  db.createIndex({
+    index: {
+      fields: ['type']
+    }
+  });
 
   const client: Client = {
     addInstruction: (instruction: Instruction) => {
@@ -738,18 +749,13 @@ export const createPlugin = ({
         if (firstRun) {
           firstTesterResults = tester;
           firstRun = false;
-          const passedCoverageMap = createCoverageMap({});
           const failedCoverageMap = createCoverageMap({});
           for (const testResult of tester.testResults.values()) {
             // TODO: Maybe don't?
-            if (testResult.passed) {
-              passedCoverageMap.merge(testResult.coverage);
-            } else {
+            if (!testResult.passed) {
               failedCoverageMap.merge(testResult.coverage);
             }
           }
-          const coverageSeen: Set<string> = new Set();
-          const passedCoverage: Coverage = passedCoverageMap.data;
           const failedCoverage: Coverage = failedCoverageMap.data;
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
             console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
@@ -757,7 +763,6 @@ export const createPlugin = ({
               continue;
             }
             for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
-              coverageSeen.add(locationToKey(coveragePath, statementCoverage));
               for await (const instruction of identifyUnknownInstruction({
                 location: statementCoverage,
                 filePath: coveragePath,
@@ -766,28 +771,6 @@ export const createPlugin = ({
               }
             }
           }
-          for (const [coveragePath, fileCoverage] of Object.entries(
-            passedCoverage as Coverage,
-          )) {
-            console.log('passing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
-            if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
-              continue;
-            }
-            for (const [key, statementCoverage] of Object.entries(
-              fileCoverage.statementMap,
-            )) {
-              if (coverageSeen.has(locationToKey(coveragePath, statementCoverage))) {
-                continue;
-              }
-              for await (const instruction of identifyUnknownInstruction({
-                location: statementCoverage,
-                filePath: coveragePath,
-              }, cache, expressionsSeen, true)) {
-                instructionQueue.push(instruction);
-              }
-            }
-          }
-          console.log(coverageSeen);
         } else {
           // TODO: Can't remember if previousMutationResults should never be null or not here :P
           const mutationEvaluation = evaluateNewMutation(
@@ -810,6 +793,8 @@ export const createPlugin = ({
             await resetFile(mutation.filePath);
           }
         }
+
+        console.log([...instructionQueue].some(instruction => !instruction.derivedFromPassingTest));
 
         let instruction = instructionQueue.pop();
 
@@ -874,6 +859,12 @@ export const createPlugin = ({
         Promise.all(
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
+        
+        const evaluations = await db.find({
+          selector: {
+            type: { $eq: DOC_EVALUATION }
+          }
+        });
         console.log(JSON.stringify(evaluations, undefined, 2));
         const faults = mutationEvalatuationMapToFaults(evaluations);
         const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;

@@ -346,7 +346,6 @@ async function testNoBuild() {
       addons: [
         false ? require('@fault/addon-sbfl').default({
           scoringFn: require('@fault/sbfl-dstar').default,
-          ignoreGlob: flIgnoreGlob,
           console: true
         }) :
         require('@fault/addon-mutation-localization').default({
