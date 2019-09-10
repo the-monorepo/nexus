@@ -735,7 +735,7 @@ async function* addNewInstructions(evaluation: MutationEvaluation) {
 const shouldRemove = (instruction: Instruction) => {
   switch(instruction.type) {
     case ASSIGNMENT:
-      return instruction.operators <= 0;
+      return instruction.operators.length <= 0;
     default:
       return true;
   }
