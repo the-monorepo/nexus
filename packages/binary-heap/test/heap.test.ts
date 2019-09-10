@@ -39,6 +39,19 @@ describe('heap', () => {
     expect(parentIndex(6)).to.be.equal(2);
   });
 
+  it('empty', () => {
+    const heap = new Heap();
+    expect(heap.pop()).to.be.equal(0);
+    expect(heap.length).to.be.equal(0);
+  });
+
+  it('has', () => {
+    const heap = new Heap(undefined, [1, 2, 3]);
+    expect(heap.has(1)).to.be.equal(true);
+    expect(heap.has(2)).to.be.equal(true);
+    expect(heap.has(3)).to.be.equal(true);
+  })
+
   it('update', () => {
     const compareFn = (a: ScoreHolder, b: ScoreHolder) => a.score - b.score;
     const arr = [{
