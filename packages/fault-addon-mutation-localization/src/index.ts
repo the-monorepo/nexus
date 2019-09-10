@@ -284,9 +284,9 @@ const processBlockInstruction = async (
   // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
   const nodePath = nodePaths.pop()!;
 
-  for(let s = instruction.statements.length; s >= 0; s--) {
+  for(let s = instruction.statements.length - 1; s >= 0; s--) {
     const statementInformation = instruction.statements[s];
-    nodePath.node.body.splice(statementInformation.index);
+    nodePath.node.body.splice(statementInformation.index, 1);
   }
 };
 
