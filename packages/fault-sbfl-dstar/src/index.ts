@@ -9,7 +9,7 @@ export const dStar = (
     return null;
   }
   return (
-    Math.pow(codeElementTestStateCounts.failed, e) +
+    Math.pow(codeElementTestStateCounts.failed, e) /
     (codeElementTestStateCounts.passed +
       (totalTestStateCounts.failed - codeElementTestStateCounts.failed))
   );
