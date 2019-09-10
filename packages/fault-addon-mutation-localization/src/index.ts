@@ -538,8 +538,6 @@ const evaluateNewMutation = (
   };
 };
 
-type LocationKey = string;
-
 const locationToKey = (filePath: string, location: ExpressionLocation) => {
   return `${filePath}:${location.start.line}:${location.start.column}`;
 };
@@ -712,7 +710,7 @@ const extractMutationResults = (instruction: Instruction): MutationResults => {
 
 async function* addNewInstructions(evaluation: MutationEvaluation) {
   switch(evaluation.instruction.type) {
-    case DELETE_STATEMENT:
+    case DELETE_STATEMENT: {
       if (evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation) && evaluation.instruction.statements.length > 1) {
         const location = evaluation.instruction.location;
         const originalStatements = evaluation.instruction.statements;
@@ -741,6 +739,7 @@ async function* addNewInstructions(evaluation: MutationEvaluation) {
         yield instruction2;
       }
       break;
+    }
   }
 }
 
