@@ -190,7 +190,7 @@ const runAndRecycleProcesses = async (
   };
   const workerCoverage: Coverage[] = [];
   return await new Promise((resolve, reject) => {
-    const setupWorkerHandle = (worker: WorkerInfo) => {
+    const setupWorkerHandle = (worker: WorkerInfo, id: number) => {
       worker.process.on('message', async (message: ChildResult) => {
         switch (message.type) {
           case IPC.TEST: {
@@ -275,15 +275,15 @@ const runAndRecycleProcesses = async (
           otherWorker.process.kill();
         }
         if (code !== 0) {
-          reject(new Error(`Something went wrong while running tests. Received ${code} exit code from a worker.`));
+          reject(new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code from a worker.`));
         } else if (runningWorkers.has(worker)) {
-          reject(new Error('Worker unexpectedly stopped'));
+          reject(new Error(`Worker ${id} unexpectedly stopped`));
         }
       });
     };
 
-    for (const worker of workers) {
-      setupWorkerHandle(worker);
+    for (let w = 0; w < workers.length; w++) {
+      setupWorkerHandle(workers[w], w);
     }
     addInitialTests();
   });
