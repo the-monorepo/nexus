@@ -17,6 +17,9 @@ export const push = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareF
 }
 
 export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number = 0) => {
+  if (arr.length < 0) {
+    return undefined;
+  }
   swap(arr, index, arr.length - 1);
   const poppedItem = arr.pop()!;
   locations.delete(poppedItem);
