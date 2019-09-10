@@ -14,11 +14,7 @@ import generate from '@babel/generator';
 import chalk from 'chalk';
 import * as micromatch from 'micromatch';
 import Heap from '@pshaw/binary-heap';
-import PouchDB from 'pouchdb';
-import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 import traverse from '@babel/traverse';
-
-PouchDB.plugin(PouchDBMemoryAdapter);
 
 export const createAstCache = (babelOptions?: ParserOptions) => {
   const cache = new Map<string, File>();
@@ -725,12 +721,6 @@ export const createPlugin = ({
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
     resolve('.', glob).replace(/\\+/g, '/'),
   );
-  const db = new PouchDB('fault-database', { adapter: 'memory' });
-  db.createIndex({
-    index: {
-      fields: ['type']
-    }
-  });
 
   const client: Client = {
     addInstruction: (instruction: Instruction) => {
@@ -860,11 +850,6 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
         
-        const evaluations = await db.find({
-          selector: {
-            type: { $eq: DOC_EVALUATION }
-          }
-        });
         console.log(JSON.stringify(evaluations, undefined, 2));
         const faults = mutationEvalatuationMapToFaults(evaluations);
         const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
