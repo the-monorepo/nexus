@@ -134,7 +134,7 @@ type AssignmentMutationSite = {
 
 type StatementInformation = {
   index: number,
-  location: ExpressionLocation
+  location: ExpressionLocation | null
 }
 type DeleteStatementMutationSite = {
   type: typeof DELETE_STATEMENT,
@@ -225,8 +225,7 @@ async function* identifyUnknownInstruction(
           };
           newInstructions.push(assignmentInstruction);
         } else if(t.isBlockStatement(pathNode)) {
-          const deleteStatements: StatementInformation[] = new Array(pathNode.body.length)
-            .fill(null)
+          const deleteStatements: StatementInformation[] = pathNode.body
             .map((statement, i): StatementInformation => ({
               index: i,
               location: statement.loc
@@ -697,7 +696,9 @@ const extractMutationResults = (instruction: Instruction): MutationResults => {
     case DELETE_STATEMENT:
       return {
         locations: {
-          [instruction.filePath]: instruction.statements.map(({ location }) => location)
+          [instruction.filePath]: instruction.statements.map(
+            ({ location }): ExpressionLocation | null => location
+          ).filter(location => location !== null) as ExpressionLocation[]
         }
       };
     case ASSIGNMENT:
