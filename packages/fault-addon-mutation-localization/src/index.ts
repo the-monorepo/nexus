@@ -781,8 +781,8 @@ export const createPlugin = ({
           if (previousInstruction !== undefined) {
             console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, { ...mutationEvaluation, mutations: undefined });
             previousInstruction.mutationEvaluations.push(mutationEvaluation);
-            if (previousInstruction === instructionQueue.peek()) {
-              instructionQueue.update(0);
+            if (instructionQueue.has(previousInstruction)) {
+              instructionQueue.update(previousInstruction);
             }
           }
           evaluations.push(mutationEvaluation);
