@@ -1,6 +1,9 @@
 import { leftIndex, parentIndex, rightIndex, swap } from '../src/index';
 import Heap from '../src/index';
 
+type ScoreHolder = {
+  score: number
+};
 describe('heap', () => {
   it('swap', () => {
     const arr = [1,2,3];
@@ -16,6 +19,7 @@ describe('heap', () => {
     expect(leftIndex(5)).to.be.equal(11);
     expect(leftIndex(6)).to.be.equal(13);
   });
+  
   it('rightIndex', () => {
     expect(rightIndex(0)).to.be.equal(2);
     expect(rightIndex(1)).to.be.equal(4);
@@ -25,6 +29,7 @@ describe('heap', () => {
     expect(rightIndex(5)).to.be.equal(12);
     expect(rightIndex(6)).to.be.equal(14);
   })
+
   it('parentIndex', () => {
     expect(parentIndex(1)).to.be.equal(0);
     expect(parentIndex(2)).to.be.equal(0);
@@ -34,6 +39,31 @@ describe('heap', () => {
     expect(parentIndex(6)).to.be.equal(2);
   });
 
+  it('update', () => {
+    const compareFn = (a: ScoreHolder, b: ScoreHolder) => a.score - b.score;
+    const arr = [{
+      score: 1
+    }, {
+      score: 2
+    }, {
+      score: 3
+    }, {
+      score: 4
+    }].sort(compareFn);
+
+    const heap = new Heap(compareFn, arr);
+    // Make sure the heap sorts properly
+    expect([...heap]).to.deep.equal(arr);
+
+    const thirdItem = arr[2];
+    // Modifying the 3rd item should break the heap order
+    thirdItem.score = -500;
+    expect([...heap]).to.not.deep.equal(arr);
+
+    // Updating the item should fix the heap order
+    heap.update(thirdItem);
+    expect([...heap]).to.deep.equal(arr);
+  });
   const testCases: [string, number[]][] = [
     ['empty', []],
     ['single element', [0]],
