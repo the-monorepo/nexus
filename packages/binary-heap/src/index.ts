@@ -12,12 +12,13 @@ export const push = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareF
   for(const item of items) {
     const updateIndex = arr.length;
     arr[updateIndex] = item;
+    locations.set(item, updateIndex);
     checkSwapWithParent(arr, locations, compareFn, updateIndex);
   }
 }
 
 export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number = 0) => {
-  if (arr.length < 0) {
+  if (arr.length <= 0) {
     return undefined;
   }
   swap(arr, index, arr.length - 1);

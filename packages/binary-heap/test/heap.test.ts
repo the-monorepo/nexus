@@ -41,7 +41,7 @@ describe('heap', () => {
 
   it('empty', () => {
     const heap = new Heap();
-    expect(heap.pop()).to.be.equal(0);
+    expect(heap.pop()).to.be.equal(undefined);
     expect(heap.length).to.be.equal(0);
   });
 
@@ -50,6 +50,7 @@ describe('heap', () => {
     expect(heap.has(1)).to.be.equal(true);
     expect(heap.has(2)).to.be.equal(true);
     expect(heap.has(3)).to.be.equal(true);
+    expect(heap.has(4)).to.be.equal(false);
   })
 
   it('update', () => {
@@ -71,6 +72,7 @@ describe('heap', () => {
     const thirdItem = arr[2];
     // Modifying the 3rd item should break the heap order
     thirdItem.score = -500;
+    arr.sort(compareFn);
     expect([...heap]).to.not.deep.equal(arr);
 
     // Updating the item should fix the heap order
