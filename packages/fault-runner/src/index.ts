@@ -57,7 +57,7 @@ const isSmallestDuration = (worker: DurationData, workers: DurationData[]) => {
 const runAndRecycleProcesses = async (
   tester: string,
   testMatch: string | string[],
-  processCount: number,
+  workerCount: number,
   setupFiles: string[],
   hooks: TestHookOptions,
   cwd: string = process.cwd(),
@@ -83,6 +83,8 @@ const runAndRecycleProcesses = async (
   // key -> internal test data
   const totalPendingFiles: Map<number, InternalTestData> = new Map();
   const testFileQueue: string[] = await globby(testMatch, { onlyFiles: true });
+  
+  const processCount = Math.min(workerCount, testFileQueue.length);
 
   const durationsPath = resolve(__dirname, '../durations-cache.json');
   const testDurations: TestDurations = await (async () => {
@@ -218,7 +220,7 @@ const runAndRecycleProcesses = async (
 
               if (testFileQueue.length > 0) {
                 // TODO: Would probably run into a stack overflow if you rerun tests too many times
-                const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, processCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);                
+                const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);                
                 resolve(nestedFinalResults);
               } else {
                 resolve(finalResults);

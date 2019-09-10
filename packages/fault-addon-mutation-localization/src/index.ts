@@ -250,7 +250,6 @@ async function* identifyUnknownInstruction(
 const processAssignmentInstruction = async (
   instruction: AssignmentMutationSite,
   cache: AstCache,
-  client: Client
 ) => {
   const ast = await cache.get(instruction.filePath);
 
@@ -261,18 +260,11 @@ const processAssignmentInstruction = async (
   const nodePath = nodePaths[0];
   console.log('changing', nodePath.node.operator, operator);
   nodePath.node.operator = operator;
-
-  if (instruction.operators.length <= 0) {
-    return;
-  }
-
-  client.addInstruction(instruction);
 };
 
 const processBlockInstruction = async (
   instruction: DeleteStatementMutationSite,
   cache: AstCache,
-  client: Client
 ) => {
   const ast = await cache.get(instruction.filePath);
   
@@ -288,19 +280,15 @@ const processBlockInstruction = async (
   }
 };
 
-type Client = {
-  addInstruction(instruction: Instruction);
-}
 const processInstruction = async (
   instruction: Instruction,
   cache: AstCache,
-  client: Client
 ) => {
   switch (instruction.type) {
     case ASSIGNMENT:
-      return processAssignmentInstruction(instruction, cache, client);
+      return processAssignmentInstruction(instruction, cache);
     case DELETE_STATEMENT:
-      return processBlockInstruction(instruction, cache, client);
+      return processBlockInstruction(instruction, cache);
     default:
       throw new Error(`Unknown instruction type: ${(instruction as any).type}`);
   }
@@ -711,7 +699,8 @@ const extractMutationResults = (instruction: Instruction): MutationResults => {
 async function* addNewInstructions(evaluation: MutationEvaluation) {
   switch(evaluation.instruction.type) {
     case DELETE_STATEMENT: {
-      if (evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation) && evaluation.instruction.statements.length > 1) {
+      const deletingStatementsDidSometing = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
+      if (deletingStatementsDidSometing && evaluation.instruction.statements.length > 1) {
         const location = evaluation.instruction.location;
         const originalStatements = evaluation.instruction.statements;
         const middle = Math.trunc(evaluation.instruction.statements.length / 2);
@@ -743,6 +732,15 @@ async function* addNewInstructions(evaluation: MutationEvaluation) {
   }
 }
 
+const shouldRemove = (instruction: Instruction) => {
+  switch(instruction.type) {
+    case ASSIGNMENT:
+      return instruction.operators <= 0;
+    default:
+      return true;
+  }
+};
+
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
@@ -762,11 +760,6 @@ export const createPlugin = ({
     resolve('.', glob).replace(/\\+/g, '/'),
   );
 
-  const client: Client = {
-    addInstruction: (instruction: Instruction) => {
-      instructionQueue.push(instruction);
-    }
-  };
   return {
     on: {
       start: async () => {
@@ -817,8 +810,15 @@ export const createPlugin = ({
           console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, { ...mutationEvaluation, mutations: undefined });
 
           previousInstruction.mutationEvaluations.push(mutationEvaluation);
-          if (instructionQueue.has(previousInstruction)) {
-            instructionQueue.update(previousInstruction);
+
+          if (instructionQueue.peek() !== previousInstruction) {
+            throw new Error(`Expected previousInstruction to be at the start of the instructionQueue`);
+          }
+
+          if (shouldRemove(previousInstruction)) {
+            instructionQueue.pop();
+          } else {
+            instructionQueue.updateIndex(0);
           }
 
           for await(const newInstruction of addNewInstructions(mutationEvaluation)) {
@@ -828,7 +828,7 @@ export const createPlugin = ({
         }
 
 
-        console.log([...instructionQueue].some(instruction => !instruction.derivedFromPassingTest));
+        console.log(`${instructionQueue.length} instructions`);
 
         if (instructionQueue.length <= 0) {
           // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
@@ -836,11 +836,11 @@ export const createPlugin = ({
           return;
         }
 
-        const instruction = instructionQueue.pop()!;
+        const instruction = instructionQueue.peek()!;
 
         console.log('processing')
         
-        await processInstruction(instruction, cache, client);
+        await processInstruction(instruction, cache);
 
         if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
           // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
