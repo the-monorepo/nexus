@@ -891,7 +891,7 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
         
-        console.log(JSON.stringify(evaluations, undefined, 2));
+        console.log(JSON.stringify(evaluations.map(evaluation => ({...evaluation, instruction: undefined})), undefined, 2));
         const faults = mutationEvalatuationMapToFaults(evaluations);
         const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
         await Promise.all([recordFaults(faultFilePath, mappedFaults), reportFaults(mappedFaults)]);

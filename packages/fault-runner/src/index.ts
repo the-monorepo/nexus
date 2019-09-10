@@ -268,18 +268,23 @@ const runAndRecycleProcesses = async (
           }
         }
       });
-      worker.process.on('exit', code => {
-        for (const otherWorker of workers) {
-          if (otherWorker === worker) {
-            continue;
+      worker.process.on('exit', (code, signal)=> {
+        const killAllWorkers = () => {
+          for (const otherWorker of workers) {
+            if (otherWorker === worker) {
+              continue;
+            }
+            otherWorker.process.kill();
           }
-          // TODO: I believe otherWorker might cause this handler to be called yet again before the current handle finishes
-          otherWorker.process.kill();
         }
-        if (code !== 0) {
-          reject(new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code from a worker.`));
-        } else if (runningWorkers.has(worker)) {
-          reject(new Error(`Worker ${id} unexpectedly stopped`));
+        if (code === 0) {
+          if (runningWorkers.has(worker)) {
+            killAllWorkers();
+            reject(new Error(`Worker ${id} unexpectedly stopped`));  
+          }
+        } else {
+          killAllWorkers();
+          reject(new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
         }
       });
     };
