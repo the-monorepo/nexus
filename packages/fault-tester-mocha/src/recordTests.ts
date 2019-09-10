@@ -50,7 +50,6 @@ export class IPCReporter {
         EVENT_TEST_FAIL,
         commonTestHandle((testData, test, err) => {
           let stack = err.stack;
-          console.log(err, stack);
           return submitTestResult({
             ...testData,
             passed: false,
