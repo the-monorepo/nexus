@@ -279,8 +279,6 @@ const processBlockInstruction = async (
   const nodePaths = findNodePathsWithLocation(ast, instruction.location).filter(thePath => t.isBlockStatement(thePath.node));
   assertFoundNodePaths(nodePaths);
 
-  client.addInstruction(instruction);
-
   // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
   const nodePath = nodePaths.pop()!;
 
@@ -712,6 +710,40 @@ const extractMutationResults = (instruction: Instruction): MutationResults => {
   };
 };
 
+async function* addNewInstructions(evaluation: MutationEvaluation) {
+  switch(evaluation.instruction.type) {
+    case DELETE_STATEMENT:
+      if (evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation) && evaluation.instruction.statements.length > 1) {
+        const location = evaluation.instruction.location;
+        const originalStatements = evaluation.instruction.statements;
+        const middle = Math.trunc(evaluation.instruction.statements.length / 2);
+        const statements1 = originalStatements.slice(middle);
+        const statements2 = originalStatements.slice(0, middle);
+        
+        const instruction1: DeleteStatementMutationSite = {
+          type: DELETE_STATEMENT,
+          mutationEvaluations: [],
+          statements: statements1, 
+          derivedFromPassingTest: evaluation.instruction.derivedFromPassingTest,
+          filePath: evaluation.instruction.filePath,
+          location
+        };
+        const instruction2: DeleteStatementMutationSite = {
+          type: DELETE_STATEMENT,
+          mutationEvaluations: [],
+          statements: statements2,
+          derivedFromPassingTest: evaluation.instruction.derivedFromPassingTest,
+          filePath: evaluation.instruction.filePath,
+          location
+        };
+
+        yield instruction1;
+        yield instruction2;
+      }
+      break;
+  }
+}
+
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
@@ -788,6 +820,10 @@ export const createPlugin = ({
           previousInstruction.mutationEvaluations.push(mutationEvaluation);
           if (instructionQueue.has(previousInstruction)) {
             instructionQueue.update(previousInstruction);
+          }
+
+          for await(const newInstruction of addNewInstructions(mutationEvaluation)) {
+            instructionQueue.push(newInstruction);
           }
           evaluations.push(mutationEvaluation);
         }
