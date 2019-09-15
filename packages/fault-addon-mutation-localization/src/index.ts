@@ -72,37 +72,27 @@ const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
   }
 };
 
-const DELETE_STATEMENT = 'delete-statement';
-const ASSIGNMENT = 'assignment';
-
-type GenericInstruction = {
-  //indirect: IndirectInfo[],
-  mutationEvaluations: MutationEvaluation[],
-  derivedFromPassingTest: boolean
-};
-
-
 /**
  * From least desirable to be processed to most
  */
-const compareInstructions = (a: Instruction, b: Instruction) => {
+const compareInstructions = (a: InstructionHolder<unknown>, b: InstructionHolder<unknown>) => {
   // TODO: The most important instructions should be ones that have huge potential to be a fix (E.g. Only improves tests, nothing else)
-  if (a.derivedFromPassingTest && !b.derivedFromPassingTest) {
+  if (a.data.derivedFromPassingTest && !b.data.derivedFromPassingTest) {
     return -1;
-  } else if(!a.derivedFromPassingTest && b.derivedFromPassingTest) {
+  } else if(!a.data.derivedFromPassingTest && b.data.derivedFromPassingTest) {
     return 1;
-  } else if(a.type === DELETE_STATEMENT && b.type !== DELETE_STATEMENT) {
+  } else if(a.processor === deleteStatementProcessor && b.processor !== deleteStatementProcessor) {
     return 1;
-  } else if(a.type !== DELETE_STATEMENT && b.type === DELETE_STATEMENT) {
+  } else if(a.processor !== deleteStatementProcessor && b.processor === deleteStatementProcessor) {
     return -1;
   }
-  a.mutationEvaluations.sort(compareMutationEvaluations);
-  b.mutationEvaluations.sort(compareMutationEvaluations);
-  let aI = a.mutationEvaluations.length - 1;
-  let bI = b.mutationEvaluations.length - 1;
+  a.data.mutationEvaluations.sort(compareMutationEvaluations);
+  b.data.mutationEvaluations.sort(compareMutationEvaluations);
+  let aI = a.data.mutationEvaluations.length - 1;
+  let bI = b.data.mutationEvaluations.length - 1;
   while(aI >= 0 && bI >= 0) {
-    const aMutationEvaluation = a.mutationEvaluations[aI];
-    const bMutationEvaluation = b.mutationEvaluations[bI];
+    const aMutationEvaluation = a.data.mutationEvaluations[aI];
+    const bMutationEvaluation = b.data.mutationEvaluations[bI];
     const comparison = compareMutationEvaluations(aMutationEvaluation, bMutationEvaluation);
     if (comparison !== 0) {
       return comparison;
@@ -110,38 +100,67 @@ const compareInstructions = (a: Instruction, b: Instruction) => {
     aI--;
     bI--;
   }
-  if (a.mutationEvaluations.length < b.mutationEvaluations.length) {
+  if (a.data.mutationEvaluations.length < b.data.mutationEvaluations.length) {
     return 1;
-  } else if (a.mutationEvaluations.length > b.mutationEvaluations.length) {
+  } else if (a.data.mutationEvaluations.length > b.data.mutationEvaluations.length) {
     return -1;
   }
   return 0;
 };
 
 type Location = {
-  location: ExpressionLocation;
   filePath: string;
-}
-
-type GenericMutationSite = {
-  type: string;
-} & GenericInstruction & Location;
+} & ExpressionLocation;
 
 type AssignmentMutationSite = {
-  type: typeof ASSIGNMENT;
   operators: string[];
-} & GenericMutationSite;
+};
 
 type StatementInformation = {
   index: number,
   location: ExpressionLocation | null
 }
-type DeleteStatementMutationSite = {
-  type: typeof DELETE_STATEMENT,
-  statements: StatementInformation[],
-} & GenericMutationSite;
 
-type Instruction = AssignmentMutationSite | DeleteStatementMutationSite;
+type DeleteStatementMutationSite = {
+  statements: StatementInformation[],
+};
+
+type InstructionData = {
+  mutationEvaluations: MutationEvaluation<any>[],
+  derivedFromPassingTest: boolean,
+  location: Location
+};
+
+type InstructionProcessor<T> = {
+  alias: string,
+  isRemovable: (instruction: T, data: InstructionData) => boolean,
+  mutationResults: (instruction: T, data: InstructionData) => MutationResults,
+  process: (instruction: T, data: InstructionData, cache: AstCache) => Promise<any>,
+  onEvaluation: (evaluation: MutationEvaluation<T>, instruction: T, data: InstructionData, cache: AstCache) => AsyncIterableIterator<InstructionHolder<any>>
+};
+
+type InstructionHolder<T> = {
+  data: InstructionData,
+  instruction: T,
+  processor: InstructionProcessor<T>
+};
+
+const createInstructionHolder = <T>(
+  location: Location,
+  processor: InstructionProcessor<T>,
+  instruction: T,
+  derivedFromPassingTest: boolean
+): InstructionHolder<T> => {
+  return {
+    data: {
+      mutationEvaluations: [],
+      derivedFromPassingTest,
+      location,
+    },
+    processor,
+    instruction,
+  }
+}
 
 const findNodePathsWithLocation = (ast, location: ExpressionLocation) => {
   let nodePaths: any[] = [];
@@ -176,121 +195,169 @@ const getParentScope = (path) => {
 
 const expressionKey = (filePath: string, node: BaseNode) => `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${node.loc!.end.column}:${node.type}`;
 
-const assertFoundNodePaths = (nodePaths: any[]) => {
+const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
   if (nodePaths.length <= 0) {
-    throw new Error(`Expected to find a node at location ${locationToKey(instruction.filePath, instruction.location)} but didn't`);
+    throw new Error(`Expected to find a node at location ${locationToKey(location.filePath, location)} but didn't`);
   }
 };
 
+
+
+class AssignmentProcessor implements InstructionProcessor<AssignmentMutationSite> {
+  public readonly alias = 'assignment';
+
+  isRemovable(instruction) {
+    return instruction.operators.length <= 0;    
+  }
+
+  mutationResults(instruction): MutationResults {
+    return {
+      locations: {
+        [instruction.location.filePath]: [instruction.location]
+      }
+    };
+  }
+
+  async process(instruction, data, cache) {
+    const ast = await cache.get(data.location.filePath);
+
+    const nodePaths = findNodePathsWithLocation(ast, data.location).filter(nodePath => t.isAssignmentExpression(nodePath));
+    assertFoundNodePaths(nodePaths, data.location);
+  
+    const operator = instruction.operators.pop();
+    const nodePath = nodePaths[0];
+
+    nodePath.node.operator = operator;  
+  }
+
+  async *onEvaluation() {}
+}
+
+class DeleteStatementProcessor implements InstructionProcessor<DeleteStatementMutationSite> {
+  public readonly alias: string = 'delete-statement';
+
+  isRemovable() {
+    return true;
+  }
+
+  mutationResults(instruction, data): MutationResults {
+    return {
+      locations: {
+        [data.location.filePath]: instruction.statements.map(
+          ({ location }): ExpressionLocation | null => location
+        ).filter(location => location !== null) as ExpressionLocation[]
+      }
+    };
+  }
+
+  async process(instruction, data, cache: AstCache) {
+    const ast = await cache.get(instruction.filePath);
+  
+    const nodePaths = findNodePathsWithLocation(ast, instruction.location).filter(thePath => t.isBlockStatement(thePath.node));
+    assertFoundNodePaths(nodePaths, data.location);
+  
+    // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
+    const nodePath = nodePaths.pop()!;
+  
+    for(let s = instruction.statements.length - 1; s >= 0; s--) {
+      const statementInformation = instruction.statements[s];
+      nodePath.node.body.splice(statementInformation.index, 1);
+    }  
+  }
+
+  async *onEvaluation(evaluation, instruction, data) {
+    const deletingStatementsDidSometing = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
+    if (deletingStatementsDidSometing && evaluation.instruction.statements.length > 1) {
+      const location = evaluation.instruction.location;
+      const originalStatements = evaluation.instruction.statements;
+      const middle = Math.trunc(evaluation.instruction.statements.length / 2);
+      const statements1 = originalStatements.slice(middle);
+      const statements2 = originalStatements.slice(0, middle);
+      
+      const instruction1: DeleteStatementMutationSite = {
+        statements: statements1, 
+      };
+      const instruction2: DeleteStatementMutationSite = {
+        statements: statements2,
+      };
+
+      yield createInstructionHolder(data.location, this, instruction1, data.derivedFromPassingTest);
+      yield createInstructionHolder(data.location, this, instruction2, data.derivedFromPassingTest);
+    }
+  }
+}
+
+const assignmentProcessor = new AssignmentProcessor();
+const deleteStatementProcessor = new DeleteStatementProcessor();
+
+
 async function* identifyUnknownInstruction(
-  instruction: Location,
+  location: Location,
   cache: AstCache,
   expressionsSeen: Set<string>,
   derivedFromPassingTest: boolean
-): AsyncIterableIterator<Instruction> {
-  const ast = await cache.get(instruction.filePath);
+): AsyncIterableIterator<InstructionHolder<any>> {
+  const ast = await cache.get(location.filePath);
   
-  const nodePaths = findNodePathsWithLocation(ast, instruction.location);
+  const nodePaths = findNodePathsWithLocation(ast, location);
   //console.log(nodePaths);
-  const filePath = instruction.filePath;
+  const filePath = location.filePath;
   for(const nodePath of nodePaths) {
     const newInstructions: any[] = [];
     const scopedPath = getParentScope(nodePath);
-
 
     traverse(scopedPath.node, {
       enter: (path) => {
         const pathNode = path.node;
         
-        const location = pathNode.loc;
-        if (location === null) {
+        const loc = pathNode.loc;
+        if (loc === null) {
           return;
         }
+        const location = {
+          filePath,
+          ...loc
+        };
         
         const key = expressionKey(filePath, pathNode);
         if (expressionsSeen.has(key)) {
           return;
         }
         expressionsSeen.add(key);
+        
         if (t.isAssignmentExpression(pathNode)) {
-          const assignmentInstruction: AssignmentMutationSite = {
-            type: ASSIGNMENT,
-            operators: [...assignmentOperations].filter(
-              operator => operator !== pathNode.operator,
-            ),
-            derivedFromPassingTest,
-            mutationEvaluations: [],
-            filePath,
+          const assignmentInstruction: InstructionHolder<AssignmentMutationSite> = createInstructionHolder(
             location,
-          };
+            assignmentProcessor,
+            {
+              operators: [...assignmentOperations].filter(
+                operator => operator !== pathNode.operator,
+              ),  
+            },
+            derivedFromPassingTest
+          );
           newInstructions.push(assignmentInstruction);
         } else if(t.isBlockStatement(pathNode)) {
-          const deleteStatements: StatementInformation[] = pathNode.body
+          const statements: StatementInformation[] = pathNode.body
             .map((statement, i): StatementInformation => ({
               index: i,
               location: statement.loc
             })) as StatementInformation[];
-          const deleteStatementInstruction: DeleteStatementMutationSite = {
-            type: DELETE_STATEMENT,
-            statements: deleteStatements,
-            derivedFromPassingTest,
-            mutationEvaluations: [],
+
+          const deleteStatement = createInstructionHolder(
             location,
-            filePath
-          };
-          newInstructions.push(deleteStatementInstruction);
+            deleteStatementProcessor,
+            {
+              statements
+            },
+            derivedFromPassingTest
+          );
+          newInstructions.push(deleteStatement);
         }    
       }
     }, scopedPath.scope);
 
     yield* newInstructions;
-  }
-};
-
-const processAssignmentInstruction = async (
-  instruction: AssignmentMutationSite,
-  cache: AstCache,
-) => {
-  const ast = await cache.get(instruction.filePath);
-
-  const nodePaths = findNodePathsWithLocation(ast, instruction.location).filter(nodePath => t.isAssignmentExpression(nodePath));
-  assertFoundNodePaths(nodePaths);
-
-  const operator = instruction.operators.pop();
-  const nodePath = nodePaths[0];
-  console.log('changing', nodePath.node.operator, operator);
-  nodePath.node.operator = operator;
-};
-
-const processBlockInstruction = async (
-  instruction: DeleteStatementMutationSite,
-  cache: AstCache,
-) => {
-  const ast = await cache.get(instruction.filePath);
-  
-  const nodePaths = findNodePathsWithLocation(ast, instruction.location).filter(thePath => t.isBlockStatement(thePath.node));
-  assertFoundNodePaths(nodePaths);
-
-  // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-  const nodePath = nodePaths.pop()!;
-
-  for(let s = instruction.statements.length - 1; s >= 0; s--) {
-    const statementInformation = instruction.statements[s];
-    nodePath.node.body.splice(statementInformation.index, 1);
-  }
-};
-
-const processInstruction = async (
-  instruction: Instruction,
-  cache: AstCache,
-) => {
-  switch (instruction.type) {
-    case ASSIGNMENT:
-      return processAssignmentInstruction(instruction, cache);
-    case DELETE_STATEMENT:
-      return processBlockInstruction(instruction, cache);
-    default:
-      throw new Error(`Unknown instruction type: ${(instruction as any).type}`);
   }
 };
 
@@ -315,8 +382,8 @@ const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
  * From worst evaluation to best evaluation
  */
 export const compareMutationEvaluations = (
-  result1: MutationEvaluation,
-  result2: MutationEvaluation,
+  result1: MutationEvaluation<unknown>,
+  result2: MutationEvaluation<unknown>,
 ) => {
   const testsWorsened = result2.testsWorsened - result1.testsWorsened;
   if (testsWorsened !== 0) {
@@ -461,20 +528,20 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
   columnImprovementScore: 0
 });
 
-type MutationEvaluation = {
+type MutationEvaluation<T> = {
   // TODO: This creates a circular reference. Should seperate the mutation evaluations from the instruction
-  instruction: Instruction;
+  data: InstructionHolder<T>;
   stackEvaluation: MutationStackEvaluation,
   testsWorsened: number;
   testsImproved: number;
   errorsChanged: number;
 };
 
-const evaluateNewMutation = (
+const evaluateNewMutation = <T>(
   originalResults: TesterResults,
   newResults: TesterResults,
-  instruction: Instruction,
-): MutationEvaluation => {
+  instruction: InstructionHolder<T>,
+): MutationEvaluation<T> => {
   const notSeen = new Set(originalResults.testResults.keys());
   let testsWorsened = 0;
   let testsImproved = 0;
@@ -518,7 +585,7 @@ const evaluateNewMutation = (
     }
   }
   return {
-    instruction,
+    data: instruction,
     testsWorsened,
     testsImproved,
     stackEvaluation,
@@ -531,13 +598,13 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
 };
 
 export const mutationEvalatuationMapToFaults = (
-  evaluations: MutationEvaluation[],
+  evaluations: MutationEvaluation<any>[],
 ): Fault[] => {
   const sortedEvaluationsLists = evaluations.sort(compareMutationEvaluations).reverse();
   const seen: Set<string> = new Set();
   const faults: ScorelessFault[] = [];
   for (const evaluation of sortedEvaluationsLists) {
-    const mutationResults = extractMutationResults(evaluation.instruction);
+    const mutationResults = evaluation.data.processor.mutationResults(evaluation.data.instruction, evaluation.data.data);
     for(const [filePath, expressionLocations] of Object.entries(mutationResults.locations)) {
       for(const expressionLocation of expressionLocations) {
         const key = locationToKey(filePath, expressionLocation);
@@ -559,7 +626,7 @@ export const mutationEvalatuationMapToFaults = (
   }));
 };
 
-type IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData) => boolean;
+type IsFinishedFunction = (instruction: InstructionHolder<any>, finishData: MiscFinishData) => boolean;
 export type PluginOptions = {
   faultFilePath?: string,
   babelOptions?: ParserOptions,
@@ -586,7 +653,7 @@ export const createDefaultIsFinishedFn = ({
   durationThreshold,
   finishOnPassDerviedNonFunctionInstructions = true
 }: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
-  const isFinishedFn: IsFinishedFunction = (instruction: Instruction, finishData: MiscFinishData): boolean => {
+  const isFinishedFn: IsFinishedFunction = ({ data, processor }: InstructionHolder<any>, finishData: MiscFinishData): boolean => {
     if (durationThreshold !== undefined && finishData.testerResults.duration >= durationThreshold) {
       console.log('a');
       return true;
@@ -597,12 +664,12 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    if (finishOnPassDerviedNonFunctionInstructions && instruction.derivedFromPassingTest && instruction.type !== DELETE_STATEMENT) {
+    if (finishOnPassDerviedNonFunctionInstructions && data.derivedFromPassingTest && processor !== deleteStatementProcessor) {
       console.log('c');
       return true;
     }
 
-    if (instruction.mutationEvaluations.length > 0 && !instruction.mutationEvaluations.some(evaluation => {
+    if (data.mutationEvaluations.length > 0 && !data.mutationEvaluations.some(evaluation => {
       console.log('d');
       const stackEval = evaluation.stackEvaluation;
       const improved = 
@@ -614,7 +681,7 @@ export const createDefaultIsFinishedFn = ({
         && evaluation.testsImproved === 0
         && evaluation.testsWorsened === 0
         && nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
-      return improved || (nothingChanged && instruction.derivedFromPassingTest);
+      return improved || (nothingChanged && data.derivedFromPassingTest);
     })) {
       return true;
     }
@@ -675,72 +742,6 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
   return [...mappedFaults.values()];
 }
 
-const extractMutationResults = (instruction: Instruction): MutationResults => {
-  switch(instruction.type) {
-    case DELETE_STATEMENT:
-      return {
-        locations: {
-          [instruction.filePath]: instruction.statements.map(
-            ({ location }): ExpressionLocation | null => location
-          ).filter(location => location !== null) as ExpressionLocation[]
-        }
-      };
-    case ASSIGNMENT:
-      return {
-        locations: {
-          [instruction.filePath]: [instruction.location]
-        }
-      };
-    default:
-      throw new Error(`Unknown instruction type ${(instruction as any).type}`);
-  };
-};
-
-async function* addNewInstructions(evaluation: MutationEvaluation) {
-  switch(evaluation.instruction.type) {
-    case DELETE_STATEMENT: {
-      const deletingStatementsDidSometing = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
-      if (deletingStatementsDidSometing && evaluation.instruction.statements.length > 1) {
-        const location = evaluation.instruction.location;
-        const originalStatements = evaluation.instruction.statements;
-        const middle = Math.trunc(evaluation.instruction.statements.length / 2);
-        const statements1 = originalStatements.slice(middle);
-        const statements2 = originalStatements.slice(0, middle);
-        
-        const instruction1: DeleteStatementMutationSite = {
-          type: DELETE_STATEMENT,
-          mutationEvaluations: [],
-          statements: statements1, 
-          derivedFromPassingTest: evaluation.instruction.derivedFromPassingTest,
-          filePath: evaluation.instruction.filePath,
-          location
-        };
-        const instruction2: DeleteStatementMutationSite = {
-          type: DELETE_STATEMENT,
-          mutationEvaluations: [],
-          statements: statements2,
-          derivedFromPassingTest: evaluation.instruction.derivedFromPassingTest,
-          filePath: evaluation.instruction.filePath,
-          location
-        };
-
-        yield instruction1;
-        yield instruction2;
-      }
-      break;
-    }
-  }
-}
-
-const shouldRemove = (instruction: Instruction) => {
-  switch(instruction.type) {
-    case ASSIGNMENT:
-      return instruction.operators.length <= 0;
-    default:
-      return true;
-  }
-};
-
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
@@ -749,11 +750,11 @@ export const createPlugin = ({
   isFinishedFn = createDefaultIsFinishedFn(),
   mapToIstanbul = false
 }: PluginOptions): PartialTestHookOptions => {
-  let previousInstruction: Instruction | null = null;
-  const instructionQueue: Heap<Instruction> = new Heap((a, b) => -compareInstructions(a, b));
+  let previousInstruction: InstructionHolder<any> | null = null;
+  const instructionQueue: Heap<InstructionHolder<any>> = new Heap((a, b) => -compareInstructions(a, b));
   let firstRun = true;  
   let firstTesterResults: TesterResults;
-  const evaluations: MutationEvaluation[] = [];
+  const evaluations: MutationEvaluation<any>[] = [];
   const expressionsSeen: Set<string> = new Set();
   let mutationCount = 0;
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
@@ -787,8 +788,8 @@ export const createPlugin = ({
             }
             for(const statementCoverage of Object.values(fileCoverage.statementMap)) {
               for await (const instruction of identifyUnknownInstruction({
-                location: statementCoverage,
                 filePath: coveragePath,
+                ...statementCoverage,
               }, cache, expressionsSeen, false)) {
                 instructionQueue.push(instruction);
               }
@@ -800,28 +801,28 @@ export const createPlugin = ({
             tester,
             previousInstruction,
           );
-          const previousMutationResults = extractMutationResults(previousInstruction);
+          const previousMutationResults = previousInstruction.processor.mutationResults(previousInstruction.instruction, previousInstruction.data);
 
           // Revert all mutated files
           await Promise.all(Object.keys(previousMutationResults.locations).map(
             filePath => resetFile(filePath)
           ));
 
-          console.log(locationToKey(previousInstruction.filePath, previousInstruction.location), previousInstruction.type, { ...mutationEvaluation, mutations: undefined });
+          console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
 
-          previousInstruction.mutationEvaluations.push(mutationEvaluation);
+          previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
 
           if (instructionQueue.peek() !== previousInstruction) {
             throw new Error(`Expected previousInstruction to be at the start of the instructionQueue`);
           }
 
-          if (shouldRemove(previousInstruction)) {
+          if (previousInstruction.processor.isRemovable(previousInstruction.instruction, previousInstruction.data)) {
             instructionQueue.pop();
           } else {
             instructionQueue.updateIndex(0);
           }
 
-          for await(const newInstruction of addNewInstructions(mutationEvaluation)) {
+          for await(const newInstruction of previousInstruction.processor.onEvaluation(mutationEvaluation, previousInstruction.instruction, previousInstruction.data, cache)) {
             instructionQueue.push(newInstruction);
           }
           evaluations.push(mutationEvaluation);
@@ -840,7 +841,7 @@ export const createPlugin = ({
 
         console.log('processing')
         
-        await processInstruction(instruction, cache);
+        await instruction.processor.process(instruction.instruction, instruction.data, cache);
 
         if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
           // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
@@ -852,7 +853,7 @@ export const createPlugin = ({
         
         console.log('processed');
 
-        const mutationResults = extractMutationResults(instruction);
+        const mutationResults = instruction.processor.mutationResults(instruction.instruction, instruction.data);
 
         mutationCount++;
         
