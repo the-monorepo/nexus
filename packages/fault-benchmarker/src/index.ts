@@ -258,10 +258,9 @@ export const run = async () => {
       return sbflAddon;
     });
     // TODO: Don't hard code testerOptions
-    await flRunner.run({
+    const commonRunnerOptions = {
       tester,
       testMatch,
-      addons: sbflAddons,
       cwd: projectDir,
       setupFiles,
       testerOptions: {
@@ -276,13 +275,29 @@ export const run = async () => {
       },
       workers: sandbox ? undefined : 1,
       fileBufferCount: sandbox ? undefined : null,
+    };
+    // SBFL
+    await flRunner.run({
+      ...commonRunnerOptions,
+      addons: sbflAddons,
+    });
+    // MBFL
+    const mbflName = 'mbfl';
+    await flRunner.run({
+      ...commonRunnerOptions,
+      addons: [require('@fault/addon-mutation-localization').default({
+        faultFilePath: faultFilePath(projectDir, mbflName),
+        ignoreGlob: '../fault-*/**/*',
+        mapToIstanbul: true,
+        console: true,
+      })]
     });
 
     const coverage = await readCoverageFile(
       resolve(projectDir, 'coverage/coverage-final.json'),
     );
 
-    for (const { name } of sbflAlgorithms) {
+    for (const { name } of (sbflAlgorithms as any).concat([{ name: mbflName }])) {
       const actualFaults = convertFileFaultDataToFaults(
         require(faultFilePath(projectDir, name)),
       );
