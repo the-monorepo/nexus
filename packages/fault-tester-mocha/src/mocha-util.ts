@@ -14,15 +14,18 @@ export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
 };
 
 export const runMochaInstance = async (mochaInstance, runHandle) => {
-  try {
-    await new Promise(resolve => {
+  return new Promise((resolve, reject) => {
+    try {
       mochaInstance.run(async failures => {
-        await runHandle(failures);
-        resolve(failures);
-      });
-    });
-  } catch (err) {
-    console.log(err);
-    process.exit(1);
-  }
+        try {
+          await runHandle(failures);
+          resolve(failures);
+        } catch(err) {
+          reject(err);
+        }
+      });  
+    } catch(err) {
+      reject(err);
+    }
+  });
 };
