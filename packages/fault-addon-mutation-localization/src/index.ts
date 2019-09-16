@@ -195,7 +195,7 @@ class AssignmentInstruction implements Instruction {
     return this.operators.length <= 0;    
   }
 
-  mutationResults(data): MutationResults {
+  mutationResults(data: InstructionData): MutationResults {
     return {
       locations: {
         [data.location.filePath]: [data.location]
@@ -203,7 +203,7 @@ class AssignmentInstruction implements Instruction {
     };
   }
 
-  async process(data, cache) {
+  async process(data: InstructionData, cache: AstCache) {
     const ast = await cache.get(data.location.filePath);
 
     const nodePaths = findNodePathsWithLocation(ast, data.location).filter(nodePath => t.isAssignmentExpression(nodePath));
@@ -229,7 +229,7 @@ class DeleteStatementInstruction implements Instruction {
     return true;
   }
 
-  mutationResults(data): MutationResults {
+  mutationResults(data: InstructionData): MutationResults {
     return {
       locations: {
         [data.location.filePath]: this.statements.map(
@@ -239,8 +239,8 @@ class DeleteStatementInstruction implements Instruction {
     };
   }
 
-  async process(data, cache: AstCache) {
-    const ast = await cache.get(data.filePath);
+  async process(data: InstructionData, cache: AstCache) {
+    const ast = await cache.get(data.location.filePath);
   
     const nodePaths = findNodePathsWithLocation(ast, data.location).filter(thePath => t.isBlockStatement(thePath.node));
     assertFoundNodePaths(nodePaths, data.location);
@@ -254,16 +254,16 @@ class DeleteStatementInstruction implements Instruction {
     }  
   }
 
-  async *onEvaluation(evaluation, data) {
+  async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData) {
     const deletingStatementsDidSomething = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
-    if (evaluation.instruction.length <= 0) {
-      throw new Error(`There were ${evaluation.instruction.length} statements`);
+    if (evaluation.data.instruction.length <= 0) {
+      throw new Error(`There were ${evaluation.data.instruction.length} statements`);
     }
-    if (evaluation.instruction.length === 1) {
+    if (evaluation.data.instruction.length === 1) {
       yield *this.statements[0].instructions;
     } else if(deletingStatementsDidSomething) {
-      const originalStatements = evaluation.instruction.statements;
-      const middle = Math.trunc(evaluation.instruction.statements.length / 2);
+      const originalStatements = evaluation.data.instruction.statements;
+      const middle = Math.trunc(evaluation.data.instruction.statements.length / 2);
       const statements1 = originalStatements.slice(middle);
       const statements2 = originalStatements.slice(0, middle);
       
@@ -278,9 +278,7 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
 
   *createInstructions(path) {
     const node = path.node;
-    console.log(node.type);
     if(t.isBlockStatement(node)) {
-      console.log('hmmmm')
       const statements: StatementInformation[] = node.body
       .map((statement, i): StatementInformation => {
         const nestedInstructions: Instruction[] = [];
@@ -295,7 +293,7 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
               }
             }
           }
-        });
+        }, path);
         return {
           index: i,
           location: statement.loc,
@@ -776,8 +774,8 @@ export const createPlugin = ({
   isFinishedFn = createDefaultIsFinishedFn(),
   mapToIstanbul = false
 }: PluginOptions): PartialTestHookOptions => {
-  let previousInstruction: InstructionHolder<any> | null = null;
-  const instructionQueue: Heap<InstructionHolder<any>> = new Heap((a, b) => -compareInstructions(a, b));
+  let previousInstruction: InstructionHolder | null = null;
+  const instructionQueue: Heap<InstructionHolder> = new Heap((a, b) => -compareInstructions(a, b));
   let firstRun = true;  
   let firstTesterResults: TesterResults;
   const evaluations: MutationEvaluation[] = [];
@@ -848,7 +846,7 @@ export const createPlugin = ({
             instructionQueue.updateIndex(0);
           }
 
-          for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.instruction, previousInstruction.data, cache)) {
+          for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
             instructionQueue.push(newInstruction);
           }
           evaluations.push(mutationEvaluation);
