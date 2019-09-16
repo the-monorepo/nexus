@@ -256,14 +256,14 @@ class DeleteStatementInstruction implements Instruction {
 
   async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData) {
     const deletingStatementsDidSomething = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
-    if (evaluation.data.instruction.length <= 0) {
-      throw new Error(`There were ${evaluation.data.instruction.length} statements`);
+    if (this.statements.length <= 0) {
+      throw new Error(`There were ${this.statements.length} statements`);
     }
-    if (evaluation.data.instruction.length === 1) {
+    if (this.statements.length === 1) {
       yield *this.statements[0].instructions;
     } else if(deletingStatementsDidSomething) {
-      const originalStatements = evaluation.data.instruction.statements;
-      const middle = Math.trunc(evaluation.data.instruction.statements.length / 2);
+      const originalStatements = this.statements;
+      const middle = Math.trunc(this.statements.length / 2);
       const statements1 = originalStatements.slice(middle);
       const statements2 = originalStatements.slice(0, middle);
       
@@ -916,7 +916,7 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
         
-        console.log(JSON.stringify(evaluations.map(evaluation => ({...evaluation, instruction: undefined})), undefined, 2));
+        console.log(JSON.stringify(evaluations.map(evaluation => ({...evaluation, data: undefined})), undefined, 2));
         const faults = mutationEvalatuationMapToFaults(evaluations);
         const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
         await Promise.all([recordFaults(faultFilePath, mappedFaults), reportFaults(mappedFaults)]);
