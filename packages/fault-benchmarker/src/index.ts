@@ -247,11 +247,12 @@ export const run = async () => {
 
     log.verbose(`Running SBFL algorithms on ${projectDir}`);
 
+    const ignoreGlob = '../{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
     const sbflAddons = sbflAlgorithms.map(({ scoringFn, name, console = false }) => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
         faultFilePath: faultFilePath(projectDir, name),
-        ignoreGlob: '../fault-*/**/*',
+        ignoreGlob,
         console,
       });
 
@@ -281,21 +282,22 @@ export const run = async () => {
       ...commonRunnerOptions,
       addons: sbflAddons,
     });
+
+    const coverage = await readCoverageFile(
+      resolve(projectDir, 'coverage/coverage-final.json'),
+    );
+
     // MBFL
     const mbflName = 'mbfl';
     await flRunner.run({
       ...commonRunnerOptions,
       addons: [require('@fault/addon-mutation-localization').default({
         faultFilePath: faultFilePath(projectDir, mbflName),
-        ignoreGlob: '../fault-*/**/*',
+        ignoreGlob,
         mapToIstanbul: true,
         console: true,
       })]
-    });
-
-    const coverage = await readCoverageFile(
-      resolve(projectDir, 'coverage/coverage-final.json'),
-    );
+    });    
 
     for (const { name } of (sbflAlgorithms as any).concat([{ name: mbflName }])) {
       const actualFaults = convertFileFaultDataToFaults(
