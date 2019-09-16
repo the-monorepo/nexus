@@ -128,7 +128,7 @@ type InstructionHolder<T extends Instruction = Instruction> = {
 
 
 type InstructionFactory<T extends Instruction = Instruction> = {
-  createInstructions(nodePath: NodePath<unknown>, cache: AstCache): IterableIterator<T>;
+  createInstructions(nodePath: NodePath<unknown>): IterableIterator<T>;
 };
 
 
@@ -276,9 +276,11 @@ class DeleteStatementInstruction implements Instruction {
 class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstruction> {
   constructor(private readonly factories: InstructionFactory<any>[]) {}
 
-  *createInstructions(path, cache) {
+  *createInstructions(path) {
     const node = path.node;
+    console.log(node.type);
     if(t.isBlockStatement(node)) {
+      console.log('hmmmm')
       const statements: StatementInformation[] = node.body
       .map((statement, i): StatementInformation => {
         const nestedInstructions: Instruction[] = [];
@@ -287,7 +289,7 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
           enter: (path) => {
             if(!nextBlockFound) {
               for(const factory of this.factories) {
-                for(const instruction of factory.createInstructions(path, cache)) {
+                for(const instruction of factory.createInstructions(path)) {
                   nestedInstructions.push(instruction);
                 }
               }
@@ -373,7 +375,7 @@ async function* identifyUnknownInstruction(
         expressionsSeen.add(key);
         
         for(const instructionFactory of instructionFactories) {
-          for (const instruction of instructionFactory.createInstructions(nodePath, cache)) {
+          for (const instruction of instructionFactory.createInstructions(path)) {
             const holder = createInstructionHolder(location, instruction, derivedFromPassingTest);
             newInstructions.push(holder);
           }
