@@ -9,6 +9,7 @@ import { join, resolve, basename } from 'path';
 import { tmpdir } from 'os';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import ErrorStackParser from 'error-stack-parser';
+import { NodePath } from '@babel/traverse';
 import { reportFaults, Fault, ScorelessFault, recordFaults } from '@fault/record-faults';
 import generate from '@babel/generator';
 import chalk from 'chalk';
@@ -41,18 +42,6 @@ type MutationResults = {
   locations: LocationObject
 };
 
-const assignmentOperations = [
-  '!=',
-  '&=',
-  '^=',
-  '<<=',
-  '>>=',
-  '/=',
-  '*=',
-  '-=',
-  '+=',
-  '=',
-];
 const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
 let copyTempDir: string = null!;
@@ -81,9 +70,9 @@ const compareInstructions = (a: InstructionHolder<any>, b: InstructionHolder<any
     return -1;
   } else if(!a.data.derivedFromPassingTest && b.data.derivedFromPassingTest) {
     return 1;
-  } else if(a.type === DELETE_STATEMENT && b.type !== DELETE_STATEMENT) {
+  } else if(a.instruction.type === DELETE_STATEMENT && b.instruction.type !== DELETE_STATEMENT) {
     return 1;
-  } else if(a.type !== DELETE_STATEMENT && b.type === DELETE_STATEMENT) {
+  } else if(a.instruction.type !== DELETE_STATEMENT && b.instruction.type === DELETE_STATEMENT) {
     return -1;
   }
   a.data.mutationEvaluations.sort(compareMutationEvaluations);
@@ -112,18 +101,11 @@ type Location = {
   filePath: string;
 } & ExpressionLocation;
 
-type AssignmentMutationSite = {
-  operators: string[];
-};
-
 type StatementInformation = {
   index: number,
-  location: ExpressionLocation | null
+  location: ExpressionLocation | null,
+  instructions: Instruction[]
 }
-
-type DeleteStatementMutationSite = {
-  statements: StatementInformation[],
-};
 
 type InstructionData = {
   mutationEvaluations: MutationEvaluation[],
@@ -132,6 +114,7 @@ type InstructionData = {
 };
 
 type Instruction = {
+  type: Symbol;
   isRemovable: (data: InstructionData) => boolean,
   mutationResults: (data: InstructionData) => MutationResults,
   process: (data: InstructionData, cache: AstCache) => Promise<any>,
@@ -139,19 +122,22 @@ type Instruction = {
 }
 
 type InstructionHolder<T extends Instruction = Instruction> = {
-  type: Symbol,
   data: InstructionData,
   instruction: T,
 };
 
+
+type InstructionFactory<T extends Instruction = Instruction> = {
+  createInstructions(nodePath: NodePath<unknown>, cache: AstCache): AsyncIterableIterator<T>;
+};
+
+
 const createInstructionHolder = (
-  type: Symbol,
   location: Location,
   instruction: Instruction,
   derivedFromPassingTest: boolean
 ): InstructionHolder => {
   return {
-    type,
     data: {
       mutationEvaluations: [],
       derivedFromPassingTest,
@@ -202,6 +188,7 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
 
 const ASSIGNMENT = Symbol('assignment');
 class AssignmentInstruction implements Instruction {
+  public readonly type: Symbol = ASSIGNMENT;
   constructor(private readonly operators: string[]) {}
 
   isRemovable() {
@@ -233,9 +220,10 @@ class AssignmentInstruction implements Instruction {
 
 const DELETE_STATEMENT = Symbol('delete-statement');
 class DeleteStatementInstruction implements Instruction {
-  constructor(private readonly statements: StatementInformation[]) {
-
-  }
+  public readonly type = DELETE_STATEMENT;
+  constructor(
+    private readonly statements: StatementInformation[],
+  ) { }
 
   isRemovable() {
     return true;
@@ -267,36 +255,106 @@ class DeleteStatementInstruction implements Instruction {
   }
 
   async *onEvaluation(evaluation, data) {
-    const deletingStatementsDidSometing = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
-    if (deletingStatementsDidSometing && evaluation.instruction.statements.length > 1) {
+    const deletingStatementsDidSomething = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
+    if (evaluation.instruction.length <= 0) {
+      throw new Error(`There were ${evaluation.instruction.length} statements`);
+    }
+    if (evaluation.instruction.length === 1) {
+      yield *this.statements[0].instructions;
+    } else if(deletingStatementsDidSomething) {
       const originalStatements = evaluation.instruction.statements;
       const middle = Math.trunc(evaluation.instruction.statements.length / 2);
       const statements1 = originalStatements.slice(middle);
       const statements2 = originalStatements.slice(0, middle);
       
-      yield createInstructionHolder(DELETE_STATEMENT, data.location, new DeleteStatementInstruction(statements1), data.derivedFromPassingTest);
-      yield createInstructionHolder(DELETE_STATEMENT, data.location, new DeleteStatementInstruction(statements2), data.derivedFromPassingTest);
+      yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements1), data.derivedFromPassingTest);
+      yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements2), data.derivedFromPassingTest);
     }
   }
 }
+
+class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstruction> {
+  constructor(private readonly factories: InstructionFactory<any>[]) {}
+
+  async *createInstructions(path, cache) {
+    const node = path.node;
+    if(t.isBlockStatement(node)) {
+      const statements: StatementInformation[] = node.body
+      .map((statement, i): StatementInformation => {
+        const nestedInstructions: Instruction[] = [];
+        let nextBlockFound = false;
+        traverse(statement, {
+          enter: async (path) => {
+            if(!nextBlockFound) {
+              for(const factory of this.factories) {
+                for await(const instruction of factory.createInstructions(path, cache)) {
+                  nestedInstructions.push(instruction);
+                }
+              }
+            }
+          }
+        });
+        return {
+          index: i,
+          location: statement.loc,
+          instructions: nestedInstructions
+        };
+      }) as StatementInformation[];
+
+      yield new DeleteStatementInstruction(statements);
+    }
+  }
+}
+
+class AssignmentFactory {
+  constructor(private readonly operations: string[]) {}
+  
+  async *createInstructions(path) {
+    const node = path.node;
+    if(t.isAssignmentExpression(node)) {
+      const operators = [...this.operations].filter(
+        operator => operator !== node.operator,
+      );
+      yield new AssignmentInstruction(operators);
+    }
+  }
+}
+
+const allowedOperations = [
+  '!=',
+  '&=',
+  '^=',
+  '<<=',
+  '>>=',
+  '/=',
+  '*=',
+  '-=',
+  '+=',
+  '=',
+];
+const instructionFactories: InstructionFactory<any>[] = [
+  new DeleteStatementFactory([
+    new AssignmentFactory(allowedOperations)
+  ])
+];
 
 async function* identifyUnknownInstruction(
   location: Location,
   cache: AstCache,
   expressionsSeen: Set<string>,
   derivedFromPassingTest: boolean
-): AsyncIterableIterator<InstructionHolder<any>> {
+): AsyncIterableIterator<InstructionHolder> {
   const ast = await cache.get(location.filePath);
   
   const nodePaths = findNodePathsWithLocation(ast, location);
   //console.log(nodePaths);
   const filePath = location.filePath;
   for(const nodePath of nodePaths) {
-    const newInstructions: any[] = [];
+    const newInstructions: InstructionHolder[] = [];
     const scopedPath = getParentScope(nodePath);
 
     traverse(scopedPath.node, {
-      enter: (path) => {
+      enter: async (path) => {
         const pathNode = path.node;
         
         const loc = pathNode.loc;
@@ -314,31 +372,12 @@ async function* identifyUnknownInstruction(
         }
         expressionsSeen.add(key);
         
-        if (t.isAssignmentExpression(pathNode)) {
-          const assignmentInstruction: InstructionHolder = createInstructionHolder(
-            ASSIGNMENT,
-            location,
-            new AssignmentInstruction([...assignmentOperations].filter(
-              operator => operator !== pathNode.operator,
-            )),
-            derivedFromPassingTest
-          );
-          newInstructions.push(assignmentInstruction);
-        } else if(t.isBlockStatement(pathNode)) {
-          const statements: StatementInformation[] = pathNode.body
-            .map((statement, i): StatementInformation => ({
-              index: i,
-              location: statement.loc
-            })) as StatementInformation[];
-
-          const deleteStatement = createInstructionHolder(
-            DELETE_STATEMENT,
-            location,
-            new DeleteStatementInstruction(statements),
-            derivedFromPassingTest
-          );
-          newInstructions.push(deleteStatement);
-        }    
+        for(const instructionFactory of instructionFactories) {
+          for await(const instruction of instructionFactory.createInstructions(nodePath, cache)) {
+            const holder = createInstructionHolder(location, instruction, derivedFromPassingTest);
+            newInstructions.push(holder);
+          }
+        }
       }
     }, scopedPath.scope);
 
@@ -638,7 +677,7 @@ export const createDefaultIsFinishedFn = ({
   durationThreshold,
   finishOnPassDerviedNonFunctionInstructions = true
 }: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
-  const isFinishedFn: IsFinishedFunction = ({ data, type }: InstructionHolder<any>, finishData: MiscFinishData): boolean => {
+  const isFinishedFn: IsFinishedFunction = ({ data, instruction }: InstructionHolder<any>, finishData: MiscFinishData): boolean => {
     if (durationThreshold !== undefined && finishData.testerResults.duration >= durationThreshold) {
       console.log('a');
       return true;
@@ -649,7 +688,7 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    if (finishOnPassDerviedNonFunctionInstructions && data.derivedFromPassingTest && type !== DELETE_STATEMENT) {
+    if (finishOnPassDerviedNonFunctionInstructions && data.derivedFromPassingTest && instruction.type !== DELETE_STATEMENT) {
       console.log('c');
       return true;
     }
