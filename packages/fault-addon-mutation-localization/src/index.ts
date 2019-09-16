@@ -128,7 +128,7 @@ type InstructionHolder<T extends Instruction = Instruction> = {
 
 
 type InstructionFactory<T extends Instruction = Instruction> = {
-  createInstructions(nodePath: NodePath<unknown>, cache: AstCache): AsyncIterableIterator<T>;
+  createInstructions(nodePath: NodePath<unknown>, cache: AstCache): IterableIterator<T>;
 };
 
 
@@ -276,7 +276,7 @@ class DeleteStatementInstruction implements Instruction {
 class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstruction> {
   constructor(private readonly factories: InstructionFactory<any>[]) {}
 
-  async *createInstructions(path, cache) {
+  *createInstructions(path, cache) {
     const node = path.node;
     if(t.isBlockStatement(node)) {
       const statements: StatementInformation[] = node.body
@@ -284,10 +284,10 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
         const nestedInstructions: Instruction[] = [];
         let nextBlockFound = false;
         traverse(statement, {
-          enter: async (path) => {
+          enter: (path) => {
             if(!nextBlockFound) {
               for(const factory of this.factories) {
-                for await(const instruction of factory.createInstructions(path, cache)) {
+                for(const instruction of factory.createInstructions(path, cache)) {
                   nestedInstructions.push(instruction);
                 }
               }
@@ -306,10 +306,10 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
   }
 }
 
-class AssignmentFactory {
+class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: string[]) {}
   
-  async *createInstructions(path) {
+  *createInstructions(path) {
     const node = path.node;
     if(t.isAssignmentExpression(node)) {
       const operators = [...this.operations].filter(
@@ -354,7 +354,7 @@ async function* identifyUnknownInstruction(
     const scopedPath = getParentScope(nodePath);
 
     traverse(scopedPath.node, {
-      enter: async (path) => {
+      enter: (path) => {
         const pathNode = path.node;
         
         const loc = pathNode.loc;
@@ -373,7 +373,7 @@ async function* identifyUnknownInstruction(
         expressionsSeen.add(key);
         
         for(const instructionFactory of instructionFactories) {
-          for await(const instruction of instructionFactory.createInstructions(nodePath, cache)) {
+          for (const instruction of instructionFactory.createInstructions(nodePath, cache)) {
             const holder = createInstructionHolder(location, instruction, derivedFromPassingTest);
             newInstructions.push(holder);
           }
