@@ -29,6 +29,7 @@ type DurationData = {
   pendingUnknownTestCount: number;
 };
 type WorkerInfo = {
+  expirationTimer: NodeJS.Timeout | null;
   process: ChildProcess;
 } & DurationData;
 type InternalTestData = {
@@ -146,6 +147,7 @@ const runAndRecycleProcesses = async (
   const workers: WorkerInfo[] = [];
   for (let w = 0; w < processCount; w++) {
     const worker: WorkerInfo = {
+      expirationTimer: null,
       process: forkForTest(),
       totalPendingDuration: 0,
       pendingUnknownTestCount: 0,
@@ -193,10 +195,11 @@ const runAndRecycleProcesses = async (
   };
   const workerCoverage: Coverage[] = [];
   // TODO: This is getting way too messy. Clean this whole thing up. Needs to be much easier to understand
-  let rerunTests = false;
+  let alreadyRerunTests = false;
   return await new Promise((resolve, reject) => {
-    const killAllWorkers = async (allWorkers: WorkerInfo[], err) => {
-      for (const otherWorker of allWorkers) {
+    const killWorkers = async (someWorkers: WorkerInfo[], err) => {
+      for (const otherWorker of someWorkers) {
+        clearTimeout(otherWorker.expirationTimer!);
         otherWorker.process.kill();
       }
       // TODO: DRY (see tester results creation above)
@@ -210,33 +213,38 @@ const runAndRecycleProcesses = async (
           rerun = true;
         }
       }
-      if (rerun && !rerunTests) {
+      if (rerun) {
+        if (alreadyRerunTests) {
+          reject(new Error('Tests have already been rerun'));
+        }
         const nestedFinalResults = await runAndRecycleProcesses(tester, testMatch, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount, timeout);
-        rerunTests = true;
-        resolve(nestedFinalResults);  
-      } else {
+        alreadyRerunTests = true;
+        resolve(nestedFinalResults);    
+    } else {
         reject(err);            
       }
     }
 
     const setupWorkerHandle = (worker: WorkerInfo, id: number) => {
-      const createExpirationTimer = () => {
-        return setTimeout(() => {
-          killAllWorkers(workers.filter(otherWorker => otherWorker !== worker), new Error(`Worker ${id} took longer than ${timeout}ms.`));
+      const replaceExpirationTimer = (worker: WorkerInfo) => {
+        // TODO: Didn't actually check if clearTimeout(null) does anything weird
+        clearTimeout(worker.expirationTimer!);
+        worker.expirationTimer = setTimeout(() => {
+          console.log('timeout', id)
+          killWorkers(workers.filter(otherWorker => otherWorker !== worker), new Error(`Worker ${id} took longer than ${timeout}ms.`));
         }, timeout);
       }
-      let expirationTimer = createExpirationTimer();
       worker.process.on('message', async (message: ChildResult) => {
         switch (message.type) {
           case IPC.TEST: {
-            clearTimeout(expirationTimer);
-            expirationTimer = createExpirationTimer();
+            replaceExpirationTimer(worker);
             testResults.set(message.key, message);
             await hooks.on.testResult(message);
             break;
           }
           case IPC.STOPPED_WORKER: {
-            clearTimeout(expirationTimer);
+            console.log('stopped worker', id)
+            clearTimeout(worker.expirationTimer!);
             workerCoverage.push(message.coverage);
             runningWorkers.delete(worker);
             if (runningWorkers.size <= 0) {
@@ -254,10 +262,14 @@ const runAndRecycleProcesses = async (
                 duration: totalDuration,
               };
 
-              if (testFileQueue.length > 0 && !rerunTests) {
+              if (testFileQueue.length > 0) {
+                if (alreadyRerunTests) {
+                  reject(new Error('Tests have already been rerun'));
+                }
                 // TODO: Would probably run into a stack overflow if you rerun tests too many times
-                const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount, timeout);                
-                rerunTests = true;
+                console.log(testFileQueue);
+                const nestedFinalResults = await runAndRecycleProcesses(tester, [...testFileQueue], workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount, timeout);                
+                alreadyRerunTests = true;
                 resolve(nestedFinalResults);
               } else {
                 resolve(finalResults);
@@ -306,13 +318,12 @@ const runAndRecycleProcesses = async (
       });
       // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
       worker.process.on('exit', (code, signal)=> {
+        console.log('worker exit', id, code, signal);
+        clearTimeout(worker.expirationTimer!);
         const otherWorkers = workers.filter(otherWorker => otherWorker !== worker);
-        if (code === 0) {
-          if (runningWorkers.has(worker)) {
-            killAllWorkers(otherWorkers, new Error(`Worker ${id} unexpectedly stopped`));
-          }
-        } else {
-          killAllWorkers(otherWorkers, new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
+        if (code !== 0) {
+          console.log('killing cause bad code', id);
+          killWorkers(otherWorkers, new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
         }
       });
     };
