@@ -10,6 +10,7 @@ type Options = {
   sandbox?: boolean;
   require?: string[];
   timeout?: number;
+  bail?: boolean;
 };
 
 let running = false;
@@ -24,6 +25,7 @@ export const initialize = async (options: Options) => {
     sandbox = false,
     require: relativeRequireFiles = [],
     timeout,
+    bail = false
   } = options;
 
   const requireFiles = relativeRequireFiles.map(filePath =>
@@ -48,7 +50,7 @@ export const initialize = async (options: Options) => {
       }
     }
   };
-
+  const mochaOptions = { timeout, bail, allowUncaught: false };
   const queue: RunTestsPayload[] = [];
   const runQueue = () => {
     if (running) {
@@ -61,7 +63,7 @@ export const initialize = async (options: Options) => {
         const data = queue.pop()!;
         if (sandbox) {
           for (const { testPath, key } of data.testsToRun) {
-            const mochaInstance = createMochaInstance(Mocha, { timeout }, requireFiles);
+            const mochaInstance = createMochaInstance(Mocha, mochaOptions, requireFiles);
             mochaInstance.addFile(testPath);
 
             const startTime = Date.now();
@@ -87,7 +89,7 @@ export const initialize = async (options: Options) => {
           data.testsToRun.sort((a, b) =>
             a.testPath.localeCompare(b.testPath, 'en', { sensitivity: 'base' }),
           );
-          const mochaInstance = createMochaInstance(Mocha, { timeout }, requireFiles);
+          const mochaInstance = createMochaInstance(Mocha, mochaOptions, requireFiles);
           for (const { testPath } of data.testsToRun) {
             mochaInstance.addFile(testPath);
           }
