@@ -64,6 +64,7 @@ const runAndRecycleProcesses = async (
   env: { [s: string]: any },
   testerOptions = {},
   bufferCount: number,
+  timeout: number
 ): Promise<FinalTesterResults> => {
   const startTime = Date.now();
 
@@ -194,15 +195,48 @@ const runAndRecycleProcesses = async (
   // TODO: This is getting way too messy. Clean this whole thing up. Needs to be much easier to understand
   let rerunTests = false;
   return await new Promise((resolve, reject) => {
+    const killAllWorkers = async (allWorkers: WorkerInfo[], err) => {
+      for (const otherWorker of allWorkers) {
+        otherWorker.process.kill();
+      }
+      // TODO: DRY (see tester results creation above)
+      const endTime = Date.now();
+      const totalDuration = endTime - startTime;
+      const results: TesterResults = { testResults, duration: totalDuration };
+
+      let rerun = false;
+      for await(const shouldRerun of hooks.on.exit(results)) {
+        if (shouldRerun) {
+          rerun = true;
+        }
+      }
+      if (rerun && !rerunTests) {
+        const nestedFinalResults = await runAndRecycleProcesses(tester, testMatch, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount, timeout);
+        rerunTests = true;
+        resolve(nestedFinalResults);  
+      } else {
+        reject(err);            
+      }
+    }
+
     const setupWorkerHandle = (worker: WorkerInfo, id: number) => {
+      const createExpirationTimer = () => {
+        return setTimeout(() => {
+          killAllWorkers(workers.filter(otherWorker => otherWorker !== worker), new Error(`Worker ${id} took longer than ${timeout}ms.`));
+        }, timeout);
+      }
+      let expirationTimer = createExpirationTimer();
       worker.process.on('message', async (message: ChildResult) => {
         switch (message.type) {
           case IPC.TEST: {
+            clearTimeout(expirationTimer);
+            expirationTimer = createExpirationTimer();
             testResults.set(message.key, message);
             await hooks.on.testResult(message);
             break;
           }
           case IPC.STOPPED_WORKER: {
+            clearTimeout(expirationTimer);
             workerCoverage.push(message.coverage);
             runningWorkers.delete(worker);
             if (runningWorkers.size <= 0) {
@@ -222,7 +256,7 @@ const runAndRecycleProcesses = async (
 
               if (testFileQueue.length > 0 && !rerunTests) {
                 // TODO: Would probably run into a stack overflow if you rerun tests too many times
-                const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);                
+                const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount, timeout);                
                 rerunTests = true;
                 resolve(nestedFinalResults);
               } else {
@@ -272,38 +306,13 @@ const runAndRecycleProcesses = async (
       });
       // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
       worker.process.on('exit', (code, signal)=> {
-        const killAllWorkers = async (err) => {
-          for (const otherWorker of workers) {
-            if (otherWorker === worker) {
-              continue;
-            }
-            otherWorker.process.kill();
-          }
-          // TODO: DRY (see tester results creation above)
-          const endTime = Date.now();
-          const totalDuration = endTime - startTime;
-          const results: TesterResults = { testResults, duration: totalDuration };
-
-          let rerun = false;
-          for await(const shouldRerun of hooks.on.exit(results)) {
-            if (shouldRerun) {
-              rerun = true;
-            }
-          }
-          if (rerun && !rerunTests) {
-            const nestedFinalResults = await runAndRecycleProcesses(tester, testMatch, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);
-            rerunTests = true;
-            resolve(nestedFinalResults);  
-          } else {
-            reject(err);            
-          }
-        }
+        const otherWorkers = workers.filter(otherWorker => otherWorker !== worker);
         if (code === 0) {
           if (runningWorkers.has(worker)) {
-            killAllWorkers(new Error(`Worker ${id} unexpectedly stopped`));
+            killAllWorkers(otherWorkers, new Error(`Worker ${id} unexpectedly stopped`));
           }
         } else {
-          killAllWorkers(new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
+          killAllWorkers(otherWorkers, new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
         }
       });
     };
@@ -326,6 +335,7 @@ export type RunOptions = {
   env?: { [s: string]: any };
   testerOptions?: any;
   fileBufferCount?: number | null;
+  timeout?: number
 };
 export const run = async ({
   tester,
@@ -338,6 +348,7 @@ export const run = async ({
   env = process.env,
   testerOptions,
   fileBufferCount = 2,
+  timeout = 20000
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -357,6 +368,7 @@ export const run = async ({
     env,
     testerOptions,
     fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount,
+    timeout
   );
 
   await hooks.on.complete(results);
