@@ -191,6 +191,8 @@ const runAndRecycleProcesses = async (
     addTestsToWorker(worker, [testPath]);
   };
   const workerCoverage: Coverage[] = [];
+  // TODO: This is getting way too messy. Clean this whole thing up. Needs to be much easier to understand
+  let rerunTests = false;
   return await new Promise((resolve, reject) => {
     const setupWorkerHandle = (worker: WorkerInfo, id: number) => {
       worker.process.on('message', async (message: ChildResult) => {
@@ -218,9 +220,10 @@ const runAndRecycleProcesses = async (
                 duration: totalDuration,
               };
 
-              if (testFileQueue.length > 0) {
+              if (testFileQueue.length > 0 && !rerunTests) {
                 // TODO: Would probably run into a stack overflow if you rerun tests too many times
                 const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);                
+                rerunTests = true;
                 resolve(nestedFinalResults);
               } else {
                 resolve(finalResults);
@@ -251,8 +254,7 @@ const runAndRecycleProcesses = async (
 
               const newFilesToAdd: Set<string> = new Set();
               await writeFile(durationsPath, JSON.stringify(testDurations));
-              for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
-                const filePathIterator = await allFilesFinishedPromise;
+              for await (const filePathIterator of hooks.on.allFilesFinished(results)) {
                 if (filePathIterator === undefined || filePathIterator === null) {
                   continue;
                 }
@@ -268,6 +270,7 @@ const runAndRecycleProcesses = async (
           }
         }
       });
+      // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
       worker.process.on('exit', (code, signal)=> {
         const killAllWorkers = async (err) => {
           for (const otherWorker of workers) {
@@ -287,8 +290,9 @@ const runAndRecycleProcesses = async (
               rerun = true;
             }
           }
-          if (rerun) {
+          if (rerun && !rerunTests) {
             const nestedFinalResults = await runAndRecycleProcesses(tester, testMatch, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);
+            rerunTests = true;
             resolve(nestedFinalResults);  
           } else {
             reject(err);            
