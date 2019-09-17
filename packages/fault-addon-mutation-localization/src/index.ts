@@ -282,7 +282,7 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
 
   *createInstructions(path) {
     const node = path.node;
-    if(t.isBlockStatement(node)) {
+    if(t.isBlockStatement(node) && node.body.length > 0) {
       const statements: StatementInformation[] = node.body
       .map((statement, i): StatementInformation => {
         const nestedInstructions: Instruction[] = [];
@@ -809,7 +809,8 @@ export const createPlugin = ({
   isFinishedFn = createDefaultIsFinishedFn(),
   mapToIstanbul = false
 }: PluginOptions): PartialTestHookOptions => {
-  let previousInstruction: InstructionHolder | null = null;
+  let previousInstruction: InstructionHolder = null!;
+  let finished = false;
   const instructionQueue: Heap<InstructionHolder> = new Heap((a, b) => -compareInstructions(a, b));
   let firstRun = true;  
   let firstTesterResults: TesterResults;
@@ -821,7 +822,7 @@ export const createPlugin = ({
   );
   const runEvaluation = async (tester: TesterResults, crashed: boolean, cache: AstCache) => {    
     if (previousInstruction !== null) {
-      const mutationEvaluation: MutationEvaluation = crashed ? evaluateNewMutation(
+      const mutationEvaluation: MutationEvaluation = !crashed ? evaluateNewMutation(
         firstTesterResults,
         tester,
         previousInstruction,
@@ -840,26 +841,21 @@ export const createPlugin = ({
         filePath => resetFile(filePath)
       ));
 
-      console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
+      //console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
 
       previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
 
-      const headInstruction = instructionQueue.peek();
-      if (headInstruction !== previousInstruction) {
-        for(const instruction of instructionQueue) {
-          console.log(`${locationToKey(instruction.data.location.filePath, instruction.data.location)}:${instruction.instruction.type.toString()}`);
-        }
-        throw new Error(`Expected previousInstruction to be at the start of the instructionQueue\n    Expected: ${locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location)}:${previousInstruction.instruction.type.toString()}\n    Received: ${locationToKey(headInstruction.data.location.filePath, headInstruction.data.location)}:${headInstruction.instruction.type.toString()}`);
-      }
-
       if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
-        const popped = instructionQueue.pop();
-        console.log(`Popped: ${locationToKey(popped!.data.location.filePath, popped!.data.location)}:${popped!.instruction.type.toString()}`);
+        console.log('popping');
+        // Can't assume it's at the top of the heap because any new instruction (onEvaluation) could technically end up at the top too
+        instructionQueue.delete(previousInstruction);
       } else {
-        instructionQueue.updateIndex(0);
+        console.log('updating')
+        instructionQueue.update(previousInstruction);
       }
 
       for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
+        console.log('pushing');
         instructionQueue.push(newInstruction);
       }
       evaluations.push(mutationEvaluation);
@@ -870,26 +866,23 @@ export const createPlugin = ({
     console.log(`${instructionQueue.length} instructions`);
 
     if (instructionQueue.length <= 0) {
-      // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
-      previousInstruction = null;
+      finished = true;
       return null;
     }
 
+    console.log('set peaking')
     const instruction = instructionQueue.peek()!;
+    previousInstruction = instruction;
 
-    console.log('processing')
+    //console.log('processing')
     
     await instruction.instruction.process(instruction.data, cache);
 
     if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
       // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
-      previousInstruction = null;
+      finished = true;
       return null;
     }
-
-    previousInstruction = instruction;
-    
-    console.log('processed');
 
     const mutationResults = instruction.instruction.mutationResults(instruction.data);
 
@@ -919,8 +912,8 @@ export const createPlugin = ({
 
     await Promise.resolve(onMutation(mutatedFilePaths));
     
-    const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
-    console.log('done')
+    const testsToBeRerun = [...firstTesterResults.testResults.values()].map(result => result.file);
+    //console.log('done')
 
     return testsToBeRerun;
   }
@@ -932,7 +925,10 @@ export const createPlugin = ({
         copyTempDir = await (mkdtemp as any)(join(tmpdir(), 'fault-addon-mutation-localization-'));
       },
       allFilesFinished: async (tester: TesterResults) => {
-        console.log('finished all files')
+        if(finished) {
+          return null;
+        }
+        //console.log('finished all files')
         const cache = createAstCache(babelOptions);
         if (firstRun) {
           firstTesterResults = tester;
@@ -946,7 +942,7 @@ export const createPlugin = ({
           }
           const failedCoverage: Coverage = failedCoverageMap.data;
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-            console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
+            //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -969,6 +965,9 @@ export const createPlugin = ({
         return await runInstruction(tester, cache);
       },
       async exit(tester: FinalTesterResults) {
+        if (finished) {
+          return false;
+        }
         if (firstRun) {
           return false;
         }
