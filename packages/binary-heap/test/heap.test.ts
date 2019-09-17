@@ -1,5 +1,6 @@
 import { leftIndex, parentIndex, rightIndex, swap } from '../src/index';
 import Heap from '../src/index';
+import { exceptions } from 'winston';
 
 type ScoreHolder = {
   score: number
@@ -53,7 +54,7 @@ describe('heap', () => {
     expect(heap.has(4)).to.be.equal(false);
   })
 
-  it('update', () => {
+  it('update & updateIndex + position', () => {
     const compareFn = (a: ScoreHolder, b: ScoreHolder) => a.score - b.score;
     const arr = [{
       score: 1
@@ -83,7 +84,7 @@ describe('heap', () => {
     const firstItem = arr[2];
     firstItem.score = 5000;
     arr.sort(compareFn);
-    heap.update(thirdItem);
+    heap.updateIndex(heap.position(thirdItem)!);
     expect([...heap]).to.deep.equal(arr);
   });
 
@@ -116,11 +117,16 @@ describe('heap', () => {
         expect(new Heap(compareFn, [1,2,3,4]).length).to.be.equal(4);
       });
 
-      it('constructed', () => {
+      describe('constructed', () => {
         const arr = [4,2,1,-5,3];
         const sorted = [...arr].sort(compareFn);
-        const heapArr = [...new Heap(compareFn, arr)];
-        expect(heapArr).to.be.deep.equal(sorted);
+        const heap = new Heap(compareFn, arr);
+        it('spread', () => {
+          expect([...heap]).to.be.deep.equal(sorted);
+        });
+        it('spread, unsorted iterator', () => {
+          expect([...heap.unsortedIterator()]).to.include.members(sorted);
+        });
       });
 
       describe('push and spread', () => {
