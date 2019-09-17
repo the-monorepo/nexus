@@ -269,22 +269,37 @@ const runAndRecycleProcesses = async (
         }
       });
       worker.process.on('exit', (code, signal)=> {
-        const killAllWorkers = () => {
+        const killAllWorkers = async (err) => {
           for (const otherWorker of workers) {
             if (otherWorker === worker) {
               continue;
             }
             otherWorker.process.kill();
           }
+          // TODO: DRY (see tester results creation above)
+          const endTime = Date.now();
+          const totalDuration = endTime - startTime;
+          const results: TesterResults = { testResults, duration: totalDuration };
+
+          let rerun = false;
+          for await(const shouldRerun of hooks.on.exit(results)) {
+            if (shouldRerun) {
+              rerun = true;
+            }
+          }
+          if (rerun) {
+            const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);
+            resolve(nestedFinalResults);  
+          } else {
+            reject(err);            
+          }
         }
         if (code === 0) {
           if (runningWorkers.has(worker)) {
-            killAllWorkers();
-            reject(new Error(`Worker ${id} unexpectedly stopped`));  
+            killAllWorkers(new Error(`Worker ${id} unexpectedly stopped`));
           }
         } else {
-          killAllWorkers();
-          reject(new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
+          killAllWorkers(new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
         }
       });
     };

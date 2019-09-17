@@ -255,13 +255,13 @@ class DeleteStatementInstruction implements Instruction {
   }
 
   async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData) {
-    const deletingStatementsDidSomething = evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
+    const deletingStatementsDidSomethingGood = !evaluation.crashed && (evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
     if (this.statements.length <= 0) {
       throw new Error(`There were ${this.statements.length} statements`);
     }
     if (this.statements.length === 1) {
       yield *this.statements[0].instructions;
-    } else if(deletingStatementsDidSomething) {
+    } else if(deletingStatementsDidSomethingGood) {
       const originalStatements = this.statements;
       const middle = Math.trunc(this.statements.length / 2);
       const statements1 = originalStatements.slice(middle);
@@ -389,7 +389,7 @@ export type TestEvaluation = {
   // Whether the exception that was thrown in the test has changed
   errorChanged: boolean | null;
   // How much better we're doing in terms of whether the test failed/passed
-  endResultImprovement: number;
+  endResultChange: number;
   previouslyFailing: boolean,
 } & StackEvaluation;
 
@@ -406,9 +406,20 @@ const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
  * From worst evaluation to best evaluation
  */
 export const compareMutationEvaluations = (
-  result1: MutationEvaluation,
-  result2: MutationEvaluation,
+  r1: MutationEvaluation,
+  r2: MutationEvaluation,
 ) => {
+  if (r1.crashed && r2.crashed) {
+    return 0;
+  } else if (r1.crashed && !r2.crashed) {
+    return -1
+  } else if (!r1.crashed && r2.crashed) {
+    return 1;
+  }
+  // TODO: TypeScript should have inferred that this would be the case..
+  const result1 = r1 as NormalMutationEvaluation;
+  const result2 = r2 as NormalMutationEvaluation;
+
   const testsWorsened = result2.testsWorsened - result1.testsWorsened;
   if (testsWorsened !== 0) {
     return testsWorsened;
@@ -511,7 +522,7 @@ export const evaluateModifiedTestResult = (
   newResult: TestResult,
 ): TestEvaluation => {
   const samePassFailResult = originalResult.passed === newResult.passed;
-  const endResultImprovement: number = samePassFailResult
+  const endResultChange: number = samePassFailResult
     ? EndResult.UNCHANGED
     : newResult.passed
     ? EndResult.BETTER
@@ -523,16 +534,21 @@ export const evaluateModifiedTestResult = (
     if (newResult.passed) {
       return false;
     }
+    console.log(newResult.stack);
+    console.log('vs')
+    console.log(originalResult.stack);
     return newResult.stack !== (originalResult as FailingTestData).stack;
   })();
   const stackEvaluation = evaluateStackDifference(originalResult, newResult);
 
-  return {
-    endResultImprovement,
+  const evaluation = {
+    ...stackEvaluation,
+    endResultChange,
     errorChanged,
     previouslyFailing: !originalResult.passed,
-    ...stackEvaluation,
   };
+  console.log(evaluation);
+  return evaluation;
 };
 
 type MutationStackEvaluation = {
@@ -552,14 +568,24 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
   columnImprovementScore: 0
 });
 
-type MutationEvaluation = {
+type CrashedMutationEvaluation = {
+  data: InstructionHolder;
+  stackEvaluation: null,
+  testsWorsened: null;
+  testsImproved: null;
+  errorsChanged: null;
+  crashed: true;
+}
+type NormalMutationEvaluation = {
   // TODO: This creates a circular reference. Should seperate the mutation evaluations from the instruction
   data: InstructionHolder;
   stackEvaluation: MutationStackEvaluation,
   testsWorsened: number;
   testsImproved: number;
   errorsChanged: number;
-};
+  crashed: false;
+}
+type MutationEvaluation = CrashedMutationEvaluation | NormalMutationEvaluation;
 
 const evaluateNewMutation = (
   originalResults: TesterResults,
@@ -584,13 +610,12 @@ const evaluateNewMutation = (
       continue;
     }
     const testEvaluation = evaluateModifiedTestResult(oldResult, newResult);
-
     // End result scores
-    if (testEvaluation.endResultImprovement === EndResult.BETTER) {
+    if (testEvaluation.endResultChange === EndResult.BETTER) {
       testsImproved++;
-    } else if (testEvaluation.endResultImprovement === EndResult.WORSE) {
+    } else if (testEvaluation.endResultChange === EndResult.WORSE) {
       testsWorsened++;
-    } else if (testEvaluation.errorChanged && testEvaluation.stackLineScore === 0 && testEvaluation.stackColumnScore === 0) {
+    } else if (testEvaluation.errorChanged && (testEvaluation.stackLineScore === 0 || testEvaluation.stackColumnScore === null) && (testEvaluation.stackColumnScore === 0 || testEvaluation.stackColumnScore === null)) {
       errorsChanged++;
     }
 
@@ -614,6 +639,7 @@ const evaluateNewMutation = (
     testsImproved,
     stackEvaluation,
     errorsChanged,
+    crashed: false
   };
 };
 
@@ -668,7 +694,7 @@ type DefaultIsFinishedOptions = {
 
 type MiscFinishData = {
   mutationCount: number,
-  testerResults: TesterResults
+  testerResults: TesterResults,
 }
 
 
@@ -695,12 +721,12 @@ export const createDefaultIsFinishedFn = ({
 
     if (data.mutationEvaluations.length > 0 && !data.mutationEvaluations.some(evaluation => {
       console.log('d');
-      const stackEval = evaluation.stackEvaluation;
       const improved = 
+        !evaluation.crashed && (
         evaluation.testsImproved > 0 
         || evaluation.errorsChanged > 0 
-        || stackEval.lineImprovementScore > 0
-        || stackEval.columnImprovementScore > 0;
+        || evaluation.stackEvaluation.lineImprovementScore > 0
+        || evaluation.stackEvaluation.columnImprovementScore > 0);
       const nothingChanged = evaluation.errorsChanged === 0 
         && evaluation.testsImproved === 0
         && evaluation.testsWorsened === 0
@@ -784,6 +810,106 @@ export const createPlugin = ({
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
     resolve('.', glob).replace(/\\+/g, '/'),
   );
+  const runEvaluation = async (tester: TesterResults, crashed: boolean, cache: AstCache) => {    
+    if (previousInstruction !== null) {
+      const mutationEvaluation: MutationEvaluation = crashed ? evaluateNewMutation(
+        firstTesterResults,
+        tester,
+        previousInstruction,
+      ) : {
+        data: previousInstruction,
+        testsWorsened: null,
+        testsImproved: null,
+        stackEvaluation: null,
+        errorsChanged: null,
+        crashed: true
+      };
+      const previousMutationResults = previousInstruction.instruction.mutationResults(previousInstruction.data);
+
+      // Revert all mutated files
+      await Promise.all(Object.keys(previousMutationResults.locations).map(
+        filePath => resetFile(filePath)
+      ));
+
+      console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
+
+      previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
+
+      if (instructionQueue.peek() !== previousInstruction) {
+        throw new Error(`Expected previousInstruction to be at the start of the instructionQueue`);
+      }
+
+      if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
+        instructionQueue.pop();
+      } else {
+        instructionQueue.updateIndex(0);
+      }
+
+      for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
+        instructionQueue.push(newInstruction);
+      }
+      evaluations.push(mutationEvaluation);
+    }
+  }
+
+  const runInstruction = async (tester: TesterResults, cache: AstCache): Promise<string[] | null> => {
+    console.log(`${instructionQueue.length} instructions`);
+
+    if (instructionQueue.length <= 0) {
+      // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
+      previousInstruction = null;
+      return null;
+    }
+
+    const instruction = instructionQueue.peek()!;
+
+    console.log('processing')
+    
+    await instruction.instruction.process(instruction.data, cache);
+
+    if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
+      // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
+      previousInstruction = null;
+      return null;
+    }
+
+    previousInstruction = instruction;
+    
+    console.log('processed');
+
+    const mutationResults = instruction.instruction.mutationResults(instruction.data);
+
+    mutationCount++;
+    
+    const mutatedFilePaths = Object.keys(mutationResults.locations);
+
+    await Promise.all(
+      mutatedFilePaths.map(filePath =>
+        createTempCopyOfFileIfItDoesntExist(filePath),
+      ),
+    );
+
+    await Promise.all(
+      mutatedFilePaths
+        .map(async filePath => {
+          const originalCodeText = await readFile(filePath, 'utf8');
+          const ast = await cache.get(filePath);
+          const { code } = generate(
+            ast, 
+            { retainFunctionParens: true, retainLines: true, compact: false, filename: basename(filePath) }, 
+            originalCodeText
+          );
+          await writeFile(filePath, code, { encoding: 'utf8' });
+        })
+    );
+
+    await Promise.resolve(onMutation(mutatedFilePaths));
+    
+    const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
+    console.log('done')
+
+    return testsToBeRerun;
+  }
 
   return {
     on: {
@@ -819,96 +945,19 @@ export const createPlugin = ({
               }
             }
           }
-        } else if (previousInstruction !== null) {
-          const mutationEvaluation = evaluateNewMutation(
-            firstTesterResults,
-            tester,
-            previousInstruction,
-          );
-          const previousMutationResults = previousInstruction.instruction.mutationResults(previousInstruction.data);
-
-          // Revert all mutated files
-          await Promise.all(Object.keys(previousMutationResults.locations).map(
-            filePath => resetFile(filePath)
-          ));
-
-          console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
-
-          previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
-
-          if (instructionQueue.peek() !== previousInstruction) {
-            throw new Error(`Expected previousInstruction to be at the start of the instructionQueue`);
-          }
-
-          if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
-            instructionQueue.pop();
-          } else {
-            instructionQueue.updateIndex(0);
-          }
-
-          for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
-            instructionQueue.push(newInstruction);
-          }
-          evaluations.push(mutationEvaluation);
         }
 
-
-        console.log(`${instructionQueue.length} instructions`);
-
-        if (instructionQueue.length <= 0) {
-          // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
-          previousInstruction = null;
-          return;
+        await runEvaluation(tester, false, cache);
+        return await runInstruction(tester, cache);
+      },
+      async exit(tester: FinalTesterResults) {
+        if (firstRun) {
+          return false;
         }
-
-        const instruction = instructionQueue.peek()!;
-
-        console.log('processing')
-        
-        await instruction.instruction.process(instruction.data, cache);
-
-        if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
-          // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
-          previousInstruction = null;
-          return;
-        }
-
-        previousInstruction = instruction;
-        
-        console.log('processed');
-
-        const mutationResults = instruction.instruction.mutationResults(instruction.data);
-
-        mutationCount++;
-        
-        const mutatedFilePaths = Object.keys(mutationResults.locations);
-
-        await Promise.all(
-          mutatedFilePaths.map(filePath =>
-            createTempCopyOfFileIfItDoesntExist(filePath),
-          ),
-        );
-
-        await Promise.all(
-          mutatedFilePaths
-            .map(async filePath => {
-              const originalCodeText = await readFile(filePath, 'utf8');
-              const ast = await cache.get(filePath);
-              const { code } = generate(
-                ast, 
-                { retainFunctionParens: true, retainLines: true, compact: false, filename: basename(filePath) }, 
-                originalCodeText
-              );
-              await writeFile(filePath, code, { encoding: 'utf8' });
-            })
-        );
-
-        await Promise.resolve(onMutation(mutatedFilePaths));
-        
-        const testsToBeRerun = [...tester.testResults.values()].map(result => result.file);
-        console.log('done')
-
-        return testsToBeRerun;
+        const cache = createAstCache();
+        await runEvaluation(tester, false, cache);
+        await runInstruction(tester, cache);
+        return true;
       },
       complete: async (tester: FinalTesterResults) => {
         console.log('complete');
