@@ -255,13 +255,17 @@ class DeleteStatementInstruction implements Instruction {
   }
 
   async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData) {
-    const deletingStatementsDidSomethingGood = !evaluation.crashed && (evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
     if (this.statements.length <= 0) {
       throw new Error(`There were ${this.statements.length} statements`);
     }
+ 
+    const deletingStatementsDidSomethingGood = !evaluation.crashed && (evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
+    if (!deletingStatementsDidSomethingGood) {
+      return;
+    }
     if (this.statements.length === 1) {
       yield *this.statements[0].instructions;
-    } else if(deletingStatementsDidSomethingGood) {
+    } else {
       const originalStatements = this.statements;
       const middle = Math.trunc(this.statements.length / 2);
       const statements1 = originalStatements.slice(middle);
@@ -534,9 +538,6 @@ export const evaluateModifiedTestResult = (
     if (newResult.passed) {
       return false;
     }
-    console.log(newResult.stack);
-    console.log('vs')
-    console.log(originalResult.stack);
     return newResult.stack !== (originalResult as FailingTestData).stack;
   })();
   const stackEvaluation = evaluateStackDifference(originalResult, newResult);
@@ -547,7 +548,6 @@ export const evaluateModifiedTestResult = (
     errorChanged,
     previouslyFailing: !originalResult.passed,
   };
-  console.log(evaluation);
   return evaluation;
 };
 
@@ -792,6 +792,15 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
   return [...mappedFaults.values()];
 }
 
+const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
+  const previousMutationResults = instruction.instruction.mutationResults(instruction.data);
+
+  // Revert all mutated files
+  await Promise.all(Object.keys(previousMutationResults.locations).map(
+    filePath => resetFile(filePath)
+  ));
+}
+
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
@@ -835,12 +844,17 @@ export const createPlugin = ({
 
       previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
 
-      if (instructionQueue.peek() !== previousInstruction) {
-        throw new Error(`Expected previousInstruction to be at the start of the instructionQueue`);
+      const headInstruction = instructionQueue.peek();
+      if (headInstruction !== previousInstruction) {
+        for(const instruction of instructionQueue) {
+          console.log(`${locationToKey(instruction.data.location.filePath, instruction.data.location)}:${instruction.instruction.type.toString()}`);
+        }
+        throw new Error(`Expected previousInstruction to be at the start of the instructionQueue\n    Expected: ${locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location)}:${previousInstruction.instruction.type.toString()}\n    Received: ${locationToKey(headInstruction.data.location.filePath, headInstruction.data.location)}:${headInstruction.instruction.type.toString()}`);
       }
 
       if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
-        instructionQueue.pop();
+        const popped = instructionQueue.pop();
+        console.log(`Popped: ${locationToKey(popped!.data.location.filePath, popped!.data.location)}:${popped!.instruction.type.toString()}`);
       } else {
         instructionQueue.updateIndex(0);
       }
@@ -947,6 +961,10 @@ export const createPlugin = ({
           }
         }
 
+        if (previousInstruction !== null) {
+          await resetMutationsInInstruction(previousInstruction);
+        }
+
         await runEvaluation(tester, false, cache);
         return await runInstruction(tester, cache);
       },
@@ -954,10 +972,18 @@ export const createPlugin = ({
         if (firstRun) {
           return false;
         }
+
         const cache = createAstCache();
-        await runEvaluation(tester, false, cache);
-        await runInstruction(tester, cache);
-        return true;
+        if (previousInstruction !== null) {
+          await resetMutationsInInstruction(previousInstruction);
+        }
+        await runEvaluation(tester, true, cache);
+
+        // TODO: Would be better if the exit hook could be told which tests to rerun. Maybe :P
+        const testsToRerun = await runInstruction(tester, cache);
+        const shouldRerun = testsToRerun !== null && testsToRerun.length > 0 ? true : false;
+
+        return shouldRerun;
       },
       complete: async (tester: FinalTesterResults) => {
         console.log('complete');
