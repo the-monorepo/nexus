@@ -17,10 +17,11 @@ export const push = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareF
   }
 }
 
-export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number = 0) => {
+export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>) => {
   if (arr.length <= 0) {
     return undefined;
   }
+  const index = 0;
   swap(arr, index, arr.length - 1);
   const poppedItem = arr.pop()!;
   locations.delete(poppedItem);
@@ -126,8 +127,8 @@ export class Heap<T> implements Iterable<T> {
     return update(this.arr, this.locations, this.compareFn, item)
   }
 
-  pop(i?: number) {
-    return pop(this.arr, this.locations, this.compareFn, i);
+  pop() {
+    return pop(this.arr, this.locations, this.compareFn);
   }
 
   has(item: T) {
