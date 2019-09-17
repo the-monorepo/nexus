@@ -253,7 +253,7 @@ const runAndRecycleProcesses = async (
               await writeFile(durationsPath, JSON.stringify(testDurations));
               for (const allFilesFinishedPromise of hooks.on.allFilesFinished(results)) {
                 const filePathIterator = await allFilesFinishedPromise;
-                if (filePathIterator === undefined) {
+                if (filePathIterator === undefined || filePathIterator === null) {
                   continue;
                 }
                 for (const filePath of filePathIterator) {
@@ -288,7 +288,7 @@ const runAndRecycleProcesses = async (
             }
           }
           if (rerun) {
-            const nestedFinalResults = await runAndRecycleProcesses(tester, testFileQueue, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);
+            const nestedFinalResults = await runAndRecycleProcesses(tester, testMatch, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount);
             resolve(nestedFinalResults);  
           } else {
             reject(err);            

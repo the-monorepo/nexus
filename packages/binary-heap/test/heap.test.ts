@@ -70,7 +70,7 @@ describe('heap', () => {
     expect([...heap]).to.deep.equal(arr);
 
     const thirdItem = arr[2];
-    // Modifying the 3rd item should break the heap order
+    // Modifying the 3rd item should break the heap order, it'll need to be swapped all the way to the top
     thirdItem.score = -500;
     arr.sort(compareFn);
     expect([...heap]).to.not.deep.equal(arr);
@@ -78,6 +78,13 @@ describe('heap', () => {
     // Updating the item should fix the heap order
     heap.update(thirdItem);
     expect([...heap]).to.deep.equal(arr);
+
+    // Breaking the first item, will need to be swapped to the bottom
+    const firstItem = arr[2];
+    firstItem.score = 5000;
+    arr.sort(compareFn);
+    heap.update(thirdItem);
+    expect([...heap]).to.not.deep.equal(arr);
   });
   const testCases: [string, number[]][] = [
     ['empty', []],
@@ -86,7 +93,7 @@ describe('heap', () => {
     ['already sorted, repeating elements', [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]],
     ['unsorted, multi-digit', [3,2,10,500,0,999,5,]],
     ['unsorted, repeating elements', [3, 3, 1, 1, 5, 5, 0, 0]],
-    ['large, unsorted, negative numbers, mutli-digit, repeating elements', [1,2,3,4,12,31,1,-1,3,6,7,2, -40,1,2,2,22,2,1,5,19, -1, -1, -100, -2,-2,-5]]
+    ['large, unsorted, negative numbers, mutli-digit, repeating elements', [1,2,3,4,12,31,1,-1,3,6,7,2, -40,1,2,2,22,2,1,5,19, -1, -1, -100, -2,-2,-5]],
   ];
   const compareFns: [string, ((a, b) => number) | undefined][] = [
     ['default', undefined],
