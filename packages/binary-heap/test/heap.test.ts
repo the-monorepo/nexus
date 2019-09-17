@@ -84,7 +84,7 @@ describe('heap', () => {
     firstItem.score = 5000;
     arr.sort(compareFn);
     heap.update(thirdItem);
-    expect([...heap]).to.not.deep.equal(arr);
+    expect([...heap]).to.deep.equal(arr);
   });
   const testCases: [string, number[]][] = [
     ['empty', []],
