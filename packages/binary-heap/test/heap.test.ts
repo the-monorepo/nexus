@@ -86,6 +86,7 @@ describe('heap', () => {
     heap.update(thirdItem);
     expect([...heap]).to.deep.equal(arr);
   });
+
   const testCases: [string, number[]][] = [
     ['empty', []],
     ['single element', [0]],
@@ -101,6 +102,16 @@ describe('heap', () => {
   ];
   for(const [name, compareFn] of compareFns) {
     describe(name, () => {
+      it('peek and pop', () => {
+        const sortedArr = [1,2,3,4,5];
+        const heap = new Heap(compareFn, sortedArr);
+        sortedArr.sort(compareFn);
+        while(sortedArr.length > 0) {
+          expect(heap.peek()).to.be.equal(sortedArr[0]);
+          expect(heap.pop()).to.be.equal(sortedArr.shift());
+        }
+      });
+
       it('length', () => {
         expect(new Heap(compareFn, [1,2,3,4]).length).to.be.equal(4);
       });
@@ -123,26 +134,6 @@ describe('heap', () => {
           })
         }
       });
-
-      describe('pop', () => {
-        const testSplice = (i: number | undefined) => {
-          it(`${i}`, () => {
-            const removalArr = [-1,2,3,1,0];
-            const sortedArr = [...removalArr].sort(compareFn);
-            const heap = new Heap(compareFn, removalArr);
-            heap.pop(i);
-            if (i === undefined) {
-              sortedArr.pop();
-            } else {
-              sortedArr.splice(i, 1);
-            }
-          });
-        }
-        testSplice(undefined);
-        for(let i = 0; i < 5; i++) {
-          testSplice(i);
-        }
-      })
     });
   }
 });
