@@ -29,6 +29,21 @@ export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn
   return poppedItem;
 }
 
+export const deleteIndex = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number) => {
+  if (arr.length <= 0) {
+    return undefined;
+  }
+  swap(arr, index, arr.length - 1);
+  const poppedItem = arr.pop()!;
+  locations.delete(poppedItem);
+  updateIndex(arr, locations, compareFn, index);
+  return poppedItem;
+}
+
+export const deleteItem = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, item: T) => {
+  deleteIndex(arr, locations, compareFn, locations.get(item)!);
+}
+
 /**
  * @returns true if swapped, false if not
  */
@@ -137,6 +152,14 @@ export class Heap<T> implements Iterable<T> {
 
   position(item: T) {
     return this.locations.get(item);
+  }
+
+  delete(item: T) {
+    return deleteItem(this.arr, this.locations, this.compareFn, item);
+  }
+
+  deleteIndex(index: number) {
+    return deleteIndex(this.arr, this.locations, this.compareFn, index);
   }
 
   peek() {

@@ -344,7 +344,7 @@ async function testNoBuild() {
         '!./packages/fault-benchmarker/projects/**',
       ],
       addons: [
-        true ? require('@fault/addon-sbfl').default({
+        false ? require('@fault/addon-sbfl').default({
           scoringFn: require('@fault/sbfl-dstar').default,
           console: true
         }) :

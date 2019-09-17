@@ -15,10 +15,6 @@ type Options = {
 
 let running = false;
 
-const exit = async (exitCode: number) => {
-  await stoppedWorker({ coverage: global[COVERAGE_KEY] });
-  process.exit(exitCode);
-};
 export const initialize = async (options: Options) => {
   const {
     mocha = 'mocha',
@@ -77,7 +73,7 @@ export const initialize = async (options: Options) => {
               });
             } catch (err) {
               console.error(err);
-              await exit(1);
+              process.exit(1);
             }
             clearCache();
 
@@ -106,7 +102,7 @@ export const initialize = async (options: Options) => {
             });
           } catch (err) {
             console.error(err);
-            await exit(1);
+            process.exit(1);
           }
         }
       }
@@ -116,7 +112,9 @@ export const initialize = async (options: Options) => {
   process.on('message', (data: ParentResult) => {
     switch (data.type) {
       case IPC.STOP_WORKER: {
-        exit(0);
+        stoppedWorker({ coverage: global[COVERAGE_KEY] }).then(() => {
+          process.exit(0);
+        });
         break;
       }
       case IPC.RUN_TEST: {
