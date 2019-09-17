@@ -254,7 +254,7 @@ class DeleteStatementInstruction implements Instruction {
     }  
   }
 
-  async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData) {
+  async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData): AsyncIterableIterator<InstructionHolder> {
     if (this.statements.length <= 0) {
       throw new Error(`There were ${this.statements.length} statements`);
     }
@@ -264,7 +264,14 @@ class DeleteStatementInstruction implements Instruction {
       return;
     }
     if (this.statements.length === 1) {
-      yield *this.statements[0].instructions;
+      const statement = this.statements[0];
+      for(const instruction of statement.instructions) {
+        // TODO: Handle or don't have these in the first place
+        if (statement.location === null) {
+          continue;
+        }
+        yield createInstructionHolder({...statement.location, filePath: data.location.filePath }, instruction, data.derivedFromPassingTest);
+      }
     } else {
       const originalStatements = this.statements;
       const middle = Math.trunc(this.statements.length / 2);
@@ -683,7 +690,7 @@ export type PluginOptions = {
   ignoreGlob?: string[] | string,
   onMutation?: (mutatatedFiles: string[]) => any,
   isFinishedFn?: IsFinishedFunction,
-  mapToIstanbul?: boolean
+  mapToIstanbul?: boolean,
 };
 
 type DefaultIsFinishedOptions = {
@@ -720,7 +727,6 @@ export const createDefaultIsFinishedFn = ({
     }
 
     if (data.mutationEvaluations.length > 0 && !data.mutationEvaluations.some(evaluation => {
-      console.log('d');
       const improved = 
         !evaluation.crashed && (
         evaluation.testsImproved > 0 
@@ -733,6 +739,7 @@ export const createDefaultIsFinishedFn = ({
         && nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
       return improved || (nothingChanged && data.derivedFromPassingTest);
     })) {
+      console.log('d');
       return true;
     }
 
@@ -879,6 +886,7 @@ export const createPlugin = ({
     await instruction.instruction.process(instruction.data, cache);
 
     if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
+      console.log('finished');
       // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
       finished = true;
       return null;
@@ -966,13 +974,13 @@ export const createPlugin = ({
       },
       async exit(tester: FinalTesterResults) {
         if (finished) {
-          return false;
+          return { rerun: false, allow: false };
         }
         if (firstRun) {
-          return false;
+          return { rerun: false, allow: false, };
         }
 
-        const cache = createAstCache();
+        const cache = createAstCache(babelOptions);
         if (previousInstruction !== null) {
           await resetMutationsInInstruction(previousInstruction);
         }
@@ -982,7 +990,7 @@ export const createPlugin = ({
         const testsToRerun = await runInstruction(tester, cache);
         const shouldRerun = testsToRerun !== null && testsToRerun.length > 0 ? true : false;
 
-        return shouldRerun;
+        return { rerun: shouldRerun, allow: true };
       },
       complete: async (tester: FinalTesterResults) => {
         console.log('complete');

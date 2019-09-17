@@ -67,6 +67,7 @@ const runAndRecycleProcesses = async (
   bufferCount: number,
   timeout: number
 ): Promise<FinalTesterResults> => {
+  console.log();
   const startTime = Date.now();
 
   let globalTestId = 0;
@@ -187,6 +188,14 @@ const runAndRecycleProcesses = async (
 
   const runningWorkers = new Set(workers);
 
+  const getTotalCoverage = () =>{
+    const totalCoverage = createCoverageMap({});
+    for (const coverage of workerCoverage) {
+      totalCoverage.merge(coverage);
+    }
+    return totalCoverage;
+  }
+
   const addAQueuedTestWorker = (worker: WorkerInfo) => {
     const testPath = isSmallestDuration(worker, workers)
       ? testFileQueue.pop()!
@@ -198,6 +207,7 @@ const runAndRecycleProcesses = async (
   let alreadyRerunTests = false;
   return await new Promise((resolve, reject) => {
     const killWorkers = async (someWorkers: WorkerInfo[], err) => {
+      console.log('Killing workers');
       for (const otherWorker of someWorkers) {
         clearTimeout(otherWorker.expirationTimer!);
         otherWorker.process.kill();
@@ -207,21 +217,30 @@ const runAndRecycleProcesses = async (
       const totalDuration = endTime - startTime;
       const results: TesterResults = { testResults, duration: totalDuration };
 
-      let rerun = false;
-      for await(const shouldRerun of hooks.on.exit(results)) {
-        if (shouldRerun) {
-          rerun = true;
+      let shouldRerun = false;
+      let allowed = false;
+      for await(const { rerun, allow } of hooks.on.exit(results)) {
+        if (rerun) {
+          shouldRerun = true;
+        }
+        if (allow) {
+          allowed = true;
         }
       }
-      if (rerun) {
+      if (shouldRerun) {
         if (alreadyRerunTests) {
           reject(new Error('Tests have already been rerun'));
         }
+        console.log('rerunning')
         const nestedFinalResults = await runAndRecycleProcesses(tester, testMatch, workerCount, setupFiles, hooks, cwd, env, testerOptions, bufferCount, timeout);
         alreadyRerunTests = true;
         resolve(nestedFinalResults);    
-    } else {
-        reject(err);            
+      } else if(allowed) {
+        console.log('allowing kill');
+        resolve({ ...results, coverage: getTotalCoverage() });
+      } else {
+        console.log('rejecting with kill')
+        reject(err);
       }
     }
 
@@ -234,6 +253,7 @@ const runAndRecycleProcesses = async (
           killWorkers(workers.filter(otherWorker => otherWorker !== worker), new Error(`Worker ${id} took longer than ${timeout}ms.`));
         }, timeout);
       }
+      replaceExpirationTimer(worker);
       worker.process.on('message', async (message: ChildResult) => {
         switch (message.type) {
           case IPC.TEST: {
@@ -248,13 +268,11 @@ const runAndRecycleProcesses = async (
             workerCoverage.push(message.coverage);
             runningWorkers.delete(worker);
             if (runningWorkers.size <= 0) {
+              console.log('finished test run');
               const endTime = Date.now();
               const totalDuration = endTime - startTime;
 
-              const totalCoverage = createCoverageMap({});
-              for (const coverage of workerCoverage) {
-                totalCoverage.merge(coverage);
-              }
+              const totalCoverage = getTotalCoverage();
 
               const finalResults: FinalTesterResults = {
                 coverage: totalCoverage,
@@ -278,6 +296,7 @@ const runAndRecycleProcesses = async (
             break;
           }
           case IPC.FILE_FINISHED: {
+            console.log('files left in queue:', testFileQueue.length);
             const testData = totalPendingFiles.get(message.key)!;
             testDurations[testData.testPath] = message.duration;
             if (testData.estimatedDuration === undefined) {
@@ -319,10 +338,9 @@ const runAndRecycleProcesses = async (
       // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
       worker.process.on('exit', (code, signal)=> {
         console.log('worker exit', id, code, signal);
-        clearTimeout(worker.expirationTimer!);
         const otherWorkers = workers.filter(otherWorker => otherWorker !== worker);
         if (code !== 0) {
-          console.log('killing cause bad code', id);
+          console.log('killing cause bad code', code, 'worker', id);
           killWorkers(otherWorkers, new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
         }
       });
