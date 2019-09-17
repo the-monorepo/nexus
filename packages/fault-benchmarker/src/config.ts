@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import { ParserOptions } from '@babel/parser';
 export type ProjectConfig = {
   // Setup files to use (E.g. Babel register to transpile files)
   setupFiles?: string[];
@@ -10,6 +11,7 @@ export type ProjectConfig = {
   testOptions?: {
     [s: string]: any;
   };
+  babelOptions?: ParserOptions
 };
 
 export type GlobbedConfig = {
@@ -30,6 +32,9 @@ export const config: BenchmarkConfig = [
     glob: 'quixbugs-*',
     testOptions: {
       sandbox: true,
+    },
+    babelOptions: {
+      sourceType: 'module'
     },
     artificial: true,
   },

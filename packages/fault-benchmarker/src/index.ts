@@ -143,8 +143,8 @@ export const calculateExamScore = (
       nonFaultElementsInspected++;
     }
   }
-  sum += expectedExactLocations.size * nonFaultElementsInspected;
-  sum += withinLocations.length * nonFaultElementsInspected;
+  sum += expectedExactLocations.size * totalExecutableStatements;
+  sum += withinLocations.length * totalExecutableStatements;
 
   return sum / expectedFaults.length / totalExecutableStatements;
 };
@@ -222,6 +222,7 @@ export const run = async () => {
       setupFiles = [resolve(__dirname, 'babel')],
       tester = '@fault/tester-mocha',
       testOptions,
+      babelOptions
     } = projectConfig;
     const { sandbox = false, mocha = require.resolve('mocha') } =
       testOptions === undefined ? {} : testOptions;
@@ -276,6 +277,7 @@ export const run = async () => {
       },
       workers: sandbox ? undefined : 1,
       fileBufferCount: sandbox ? undefined : null,
+      timeout: 100000,
     };
     // SBFL
     await flRunner.run({
@@ -296,6 +298,7 @@ export const run = async () => {
         ignoreGlob,
         mapToIstanbul: true,
         console: true,
+        babelOptions
       })]
     });    
 
