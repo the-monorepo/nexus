@@ -721,26 +721,35 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    if (finishOnPassDerviedNonFunctionInstructions && data.derivedFromPassingTest && instruction.type !== DELETE_STATEMENT) {
+    // TODO: Should just never add them to the queue in the first place
+    if (finishOnPassDerviedNonFunctionInstructions && data.derivedFromPassingTest) {
       console.log('c');
       return true;
     }
 
-    if (data.mutationEvaluations.length > 0 && !data.mutationEvaluations.some(evaluation => {
-      const improved = 
-        !evaluation.crashed && (
-        evaluation.testsImproved > 0 
-        || evaluation.errorsChanged > 0 
-        || evaluation.stackEvaluation.lineImprovementScore > 0
-        || evaluation.stackEvaluation.columnImprovementScore > 0);
-      const nothingChanged = evaluation.errorsChanged === 0 
-        && evaluation.testsImproved === 0
-        && evaluation.testsWorsened === 0
-        && nothingChangedMutationStackEvaluation(evaluation.stackEvaluation);
-      return improved || (nothingChanged && data.derivedFromPassingTest);
-    })) {
-      console.log('d');
-      return true;
+    if (data.mutationEvaluations.length > 0) {
+      const onlyContainsDeleteStatementCrashes = data.mutationEvaluations.filter(evaluation => evaluation.crashed && evaluation.data.instruction.type === DELETE_STATEMENT).length === data.mutationEvaluations.length;
+      if (!onlyContainsDeleteStatementCrashes) {
+        const containsUsefulMutations = data.mutationEvaluations.some(evaluation => {
+          const improved = 
+            !evaluation.crashed && (
+            evaluation.testsImproved > 0 
+            || evaluation.errorsChanged > 0 
+            || evaluation.stackEvaluation.lineImprovementScore > 0
+            || evaluation.stackEvaluation.columnImprovementScore > 0);
+          const nothingChangedInNonDeleteStatement = !evaluation.crashed && (evaluation.errorsChanged === 0 
+            && evaluation.testsImproved === 0
+            && evaluation.testsWorsened === 0
+            && nothingChangedMutationStackEvaluation(evaluation.stackEvaluation)
+            && evaluation.data.instruction.type !== DELETE_STATEMENT
+          );
+          return improved || nothingChangedInNonDeleteStatement;
+        })
+        if (!containsUsefulMutations) {
+          console.log('d');
+          return true;
+        }
+      }
     }
 
     return false;
