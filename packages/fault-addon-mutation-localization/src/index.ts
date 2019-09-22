@@ -104,7 +104,7 @@ type Location = {
 type StatementInformation = {
   index: number,
   location: ExpressionLocation | null,
-  instructions: Instruction[]
+  instructionHolders: InstructionHolder[]
 }
 
 type InstructionData = {
@@ -128,15 +128,15 @@ type InstructionHolder<T extends Instruction = Instruction> = {
 
 
 type InstructionFactory<T extends Instruction = Instruction> = {
-  createInstructions(nodePath: NodePath<unknown>): IterableIterator<T>;
+  createInstructions(nodePath: NodePath<unknown>, filePath: string, derivedFromPassingTest: boolean): IterableIterator<InstructionHolder<T>>;
 };
 
 
-const createInstructionHolder = (
+const createInstructionHolder = <T>(
   location: Location,
-  instruction: Instruction,
+  instruction: T,
   derivedFromPassingTest: boolean
-): InstructionHolder => {
+): InstructionHolder<T> => {
   return {
     data: {
       mutationEvaluations: [],
@@ -265,13 +265,7 @@ class DeleteStatementInstruction implements Instruction {
     }
     if (this.statements.length === 1) {
       const statement = this.statements[0];
-      for(const instruction of statement.instructions) {
-        // TODO: Handle or don't have these in the first place
-        if (statement.location === null) {
-          continue;
-        }
-        yield createInstructionHolder({...statement.location, filePath: data.location.filePath }, instruction, data.derivedFromPassingTest);
-      }
+      yield* statement.instructionHolders;
     } else {
       const originalStatements = this.statements;
       const middle = Math.trunc(this.statements.length / 2);
@@ -287,18 +281,18 @@ class DeleteStatementInstruction implements Instruction {
 class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstruction> {
   constructor(private readonly factories: InstructionFactory<any>[]) {}
 
-  *createInstructions(path) {
+  *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
-    if(t.isBlockStatement(node) && node.body.length > 0) {
+    if(t.isBlockStatement(node) && node.body.length > 0 && node.loc !== null) {
       const statements: StatementInformation[] = node.body
       .map((statement, i): StatementInformation => {
-        const nestedInstructions: Instruction[] = [];
+        const nestedInstructions: InstructionHolder[] = [];
         let nextBlockFound = false;
         traverse(statement, {
           enter: (path) => {
             if(!nextBlockFound) {
               for(const factory of this.factories) {
-                for(const instruction of factory.createInstructions(path)) {
+                for(const instruction of factory.createInstructions(path, filePath, derivedFromPassingTest)) {
                   nestedInstructions.push(instruction);
                 }
               }
@@ -308,11 +302,11 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
         return {
           index: i,
           location: statement.loc,
-          instructions: nestedInstructions
+          instructionHolders: nestedInstructions
         };
       }) as StatementInformation[];
 
-      yield new DeleteStatementInstruction(statements);
+      yield createInstructionHolder({ ...node.loc, filePath }, new DeleteStatementInstruction(statements), derivedFromPassingTest);
     }
   }
 }
@@ -320,13 +314,13 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
 class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: string[]) {}
   
-  *createInstructions(path) {
+  *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
-    if(t.isAssignmentExpression(node)) {
+    if(t.isAssignmentExpression(node) && node.loc !== null) {
       const operators = [...this.operations].filter(
         operator => operator !== node.operator,
       );
-      yield new AssignmentInstruction(operators);
+      yield createInstructionHolder({ ...node.loc, filePath}, new AssignmentInstruction(operators), derivedFromPassingTest);
     }
   }
 }
@@ -384,9 +378,8 @@ async function* identifyUnknownInstruction(
         expressionsSeen.add(key);
         
         for(const instructionFactory of instructionFactories) {
-          for (const instruction of instructionFactory.createInstructions(path)) {
-            const holder = createInstructionHolder(location, instruction, derivedFromPassingTest);
-            newInstructions.push(holder);
+          for (const instruction of instructionFactory.createInstructions(path, filePath, derivedFromPassingTest)) {
+            newInstructions.push(instruction);
           }
         }
       }

@@ -8,6 +8,7 @@ export const dStar = (
   if (codeElementTestStateCounts.failed === 0) {
     return null;
   }
+  let a = {}.a.a + 6;
   return (
     Math.pow(codeElementTestStateCounts.failed, e) /
     (codeElementTestStateCounts.passed +
