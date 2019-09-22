@@ -349,7 +349,7 @@ const runAndRecycleProcesses = async (
                 pendingFileClient.addAnotherTestToWorker(worker);
               }
   
-              if (pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
+              if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
                 const endTime = Date.now();
                 const totalDuration = endTime - startTime;
                 const results: TesterResults = { testResults, duration: totalDuration };
