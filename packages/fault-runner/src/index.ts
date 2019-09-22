@@ -222,17 +222,20 @@ const createWorkers = (tester: string, testerOptions: any, setupFiles: string[],
 }
 
 const runAndRecycleProcesses = async (
-  tester: string,
-  testMatch: string | string[],
-  workerCount: number,
-  setupFiles: string[],
-  hooks: TestHookOptions,
-  cwd: string = process.cwd(),
-  env: { [s: string]: any },
-  testerOptions = {},
-  bufferCount: number,
-  timeout: number
+  options: InternalRunOptions,
 ): Promise<FinalTesterResults> => {
+  const {
+    tester,
+    testMatch,
+    workerCount,
+    setupFiles,
+    hooks,
+    cwd,
+    env,
+    testerOptions,
+    bufferCount,
+    timeout  
+  } = options;
   console.log();
   const startTime = Date.now();
 
@@ -409,6 +412,19 @@ export type RunOptions = {
   fileBufferCount?: number | null;
   timeout?: number
 };
+
+type InternalRunOptions = {
+  tester: string,
+  testMatch: string[],
+  workerCount: number,
+  setupFiles: string[],
+  hooks: TestHookOptions,
+  cwd: string,
+  env: { [s: string]: any },
+  testerOptions: any,
+  bufferCount: number,
+  timeout: number
+};
 export const run = async ({
   tester,
   testMatch,
@@ -418,7 +434,7 @@ export const run = async ({
   cwd = process.cwd(),
   reporters = [defaultReporter.createPlugin({ dir: join(cwd, 'coverage') })],
   env = process.env,
-  testerOptions,
+  testerOptions = {},
   fileBufferCount = 2,
   timeout = 20000
 }: RunOptions) => {
@@ -430,18 +446,19 @@ export const run = async ({
 
   await hooks.on.start();
 
-  const results: FinalTesterResults = await runAndRecycleProcesses(
+  const internalOptions: InternalRunOptions = {
     tester,
-    testMatch,
-    processCount,
+    testMatch: Array.isArray(testMatch) ? testMatch : [testMatch],
+    workerCount: processCount,
     setupFiles,
     hooks,
     cwd,
     env,
     testerOptions,
-    fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount,
+    bufferCount: fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount,
     timeout
-  );
+  };
+  const results: FinalTesterResults = await runAndRecycleProcesses(internalOptions);
 
   await hooks.on.complete(results);
 
