@@ -132,7 +132,7 @@ type InstructionFactory<T extends Instruction = Instruction> = {
 };
 
 
-const createInstructionHolder = <T>(
+const createInstructionHolder = <T extends Instruction>(
   location: Location,
   instruction: T,
   derivedFromPassingTest: boolean
@@ -327,26 +327,32 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
       const operators = [...this.operations].filter(
         operator => operator !== node.operator,
       );
-      yield createInstructionHolder({ ...node.loc, filePath}, new AssignmentInstruction(operators), derivedFromPassingTest);
+      if (operators.length > 0) {
+        yield createInstructionHolder({ ...node.loc, filePath}, new AssignmentInstruction(operators), derivedFromPassingTest);
+      }
     }
   }
 }
 
-const allowedOperations = [
-  '!=',
-  '&=',
-  '^=',
-  '<<=',
-  '>>=',
+const arithmeticOperations = [
   '/=',
   '*=',
   '-=',
   '+=',
-  '=',
 ];
+const bitOperations = [
+  '!=',
+  '&=',
+  '^=',
+  '|=',
+  '<<=',
+  '>>=',
+]
 const instructionFactories: InstructionFactory<any>[] = [
   new DeleteStatementFactory([
-    new AssignmentFactory(allowedOperations)
+    new AssignmentFactory(arithmeticOperations),
+    new AssignmentFactory(bitOperations),
+    new AssignmentFactory(['='])
   ], 1)
 ];
 
