@@ -223,6 +223,8 @@ class DeleteStatementInstruction implements Instruction {
   public readonly type = DELETE_STATEMENT;
   constructor(
     private readonly statements: StatementInformation[],
+    private readonly currentRetries: number,
+    private readonly maxRetries: number
   ) { }
 
   isRemovable() {
@@ -254,32 +256,37 @@ class DeleteStatementInstruction implements Instruction {
     }  
   }
 
+  private *yieldSplitDeleteStatements(data: InstructionData, currentRetries: number) {
+    const originalStatements = this.statements;
+    const middle = Math.trunc(this.statements.length / 2);
+    const statements1 = originalStatements.slice(middle);
+    const statements2 = originalStatements.slice(0, middle);
+    
+    yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements1, currentRetries, this.maxRetries), data.derivedFromPassingTest);
+    yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements2, currentRetries, this.maxRetries), data.derivedFromPassingTest);
+  }
+
   async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData): AsyncIterableIterator<InstructionHolder> {
     if (this.statements.length <= 0) {
       throw new Error(`There were ${this.statements.length} statements`);
     }
  
-    const deletingStatementsDidSomethingGood = !evaluation.crashed && (evaluation.testsImproved > 0 || evaluation.errorsChanged || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
-    if (!deletingStatementsDidSomethingGood) {
-      return;
-    }
-    if (this.statements.length === 1) {
-      const statement = this.statements[0];
-      yield* statement.instructionHolders;
-    } else {
-      const originalStatements = this.statements;
-      const middle = Math.trunc(this.statements.length / 2);
-      const statements1 = originalStatements.slice(middle);
-      const statements2 = originalStatements.slice(0, middle);
-      
-      yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements1), data.derivedFromPassingTest);
-      yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements2), data.derivedFromPassingTest);
+    const deletingStatementsDidSomethingGoodOrCrashed = evaluation.crashed || (evaluation.testsImproved > 0 || evaluation.errorsChanged > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
+    if (deletingStatementsDidSomethingGoodOrCrashed) {
+      if (this.statements.length <= 1) {
+        const statement = this.statements[0];
+        yield* statement.instructionHolders;
+      } else {
+        yield* this.yieldSplitDeleteStatements(data, this.maxRetries);
+      }
+    } else if(this.statements.length > 1 && this.currentRetries > 0) {
+      yield* this.yieldSplitDeleteStatements(data, this.currentRetries - 1);
     }
   }
 }
 
 class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstruction> {
-  constructor(private readonly factories: InstructionFactory<any>[]) {}
+  constructor(private readonly factories: InstructionFactory<any>[], private readonly maxRetries: number) {}
 
   *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
@@ -306,7 +313,7 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
         };
       }) as StatementInformation[];
 
-      yield createInstructionHolder({ ...node.loc, filePath }, new DeleteStatementInstruction(statements), derivedFromPassingTest);
+      yield createInstructionHolder({ ...node.loc, filePath }, new DeleteStatementInstruction(statements, this.maxRetries, this.maxRetries), derivedFromPassingTest);
     }
   }
 }
@@ -340,7 +347,7 @@ const allowedOperations = [
 const instructionFactories: InstructionFactory<any>[] = [
   new DeleteStatementFactory([
     new AssignmentFactory(allowedOperations)
-  ])
+  ], 1)
 ];
 
 async function* identifyUnknownInstruction(
