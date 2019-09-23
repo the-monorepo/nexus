@@ -1,0 +1,24 @@
+extends: eslint:recommended
+
+env:
+  es6: true
+  mocha: true
+  node: true
+
+rules:
+  # As long as support Node.js v0.10 and v0.12 we can't support strict mode
+  # (since it conflicts with the usage of the "const" declaration).
+  strict: [2, "never"]
+
+  no-array-constructor: 2
+  no-unused-vars: [2, {"args": "none"}]
+  quotes: [2, single, avoid-escape]
+  no-fallthrough: 2
+  default-case: 2
+  no-process-exit: 2
+  no-sync: 2
+  consistent-return: 0
+  indent: [2, 2]
+  camelcase: 0
+  new-cap: 0
+  no-underscore-dangle: 0
