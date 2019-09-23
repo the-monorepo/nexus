@@ -1,0 +1,20 @@
+{
+  "./lib/convict.js": [
+    {
+      "location": {
+        "start": {
+          "line": 224,
+          "column": 6
+        }
+      }
+    },
+    {
+      "location": {
+        "start": {
+          "line": 237,
+          "column": 4
+        }
+      }
+    }
+  ]
+}
