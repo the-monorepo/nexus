@@ -294,15 +294,23 @@ class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstru
       const statements: StatementInformation[] = node.body
       .map((statement, i): StatementInformation => {
         const nestedInstructions: InstructionHolder[] = [];
-        let nextBlockFound = false;
+        let currentNestedBlockCount = 0;
         traverse(statement, {
           enter: (path) => {
-            if(!nextBlockFound) {
+            if(t.isBlockStatement(path.node)) {
+              currentNestedBlockCount++;
+            }
+            if(currentNestedBlockCount <= 0) {
               for(const factory of this.factories) {
                 for(const instruction of factory.createInstructions(path, filePath, derivedFromPassingTest)) {
                   nestedInstructions.push(instruction);
                 }
               }
+            }
+          },
+          exit: (path) => {
+            if(t.isBlockStatement(path.node)) {
+              currentNestedBlockCount--;
             }
           }
         }, path);
@@ -374,15 +382,6 @@ async function* identifyUnknownInstruction(
     traverse(scopedPath.node, {
       enter: (path) => {
         const pathNode = path.node;
-        
-        const loc = pathNode.loc;
-        if (loc === null) {
-          return;
-        }
-        const location = {
-          filePath,
-          ...loc
-        };
         
         const key = expressionKey(filePath, pathNode);
         if (expressionsSeen.has(key)) {
