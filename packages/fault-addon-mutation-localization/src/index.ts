@@ -269,10 +269,12 @@ class DeleteStatementInstruction implements Instruction {
       const statement = this.statements[s];
       const ast = await cache.get(statement.filePath);
       console.log(locationToKey(statement.filePath, statement.location!));
-      const nodePaths = findNodePathsWithLocation(ast, statement.location!).filter(path => path.parentPath && t.isBlockStatement(path.parentPath.node));
+      const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
+      const filteredNodePaths = nodePaths.filter(path => path.parentPath && t.isBlockStatement(path.parentPath.node));
+      assertFoundNodePaths(filteredNodePaths, { ...statement.location!, filePath: statement.filePath });
       // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-      const node = nodePaths.pop()!.parentPath!.node;
+      const node = filteredNodePaths.pop()!.parentPath!.node;
       node.body.splice(statement.index, 1);
     }
   }
@@ -356,7 +358,7 @@ async function* identifyUnknownInstruction(
   for(const nodePath of nodePaths) {
     const scopedPath = getParentScope(nodePath);
     const statements: StatementInformation[] = [];
-    const currentStatementStack: StatementInformation[] = [];
+    const currentStatementStack: StatementInformation[][] = [];
     const expressionSeenThisTimeRound = new Set()
     traverse(scopedPath.node, {
       enter: (path) => {
@@ -371,15 +373,21 @@ async function* identifyUnknownInstruction(
         if (!parentPath) {
           return;
         }
-        if(t.isBlockStatement(parentPath.node) && node.loc && typeof path.key === 'number') {
-          currentStatementStack.push({
+        if (t.isBlockStatement(node)) {
+          console.log('blok');
+          currentStatementStack.push([]);
+        } else if(t.isBlockStatement(parentPath.node) && node.loc && typeof path.key === 'number') {
+          console.log('statement')
+          currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
             instructionHolders: [],
             location: node.loc
           });
         } else if(currentStatementStack.length > 0) {
-          const statement = currentStatementStack[currentStatementStack.length - 1];
+          console.log('instruction');
+          const statementStack = currentStatementStack[currentStatementStack.length - 1];
+          const statement = statementStack[statementStack.length - 1];
           for(const factory of instructionFactories) {
             statement.instructionHolders.push(...factory.createInstructions(path, filePath, derivedFromPassingTest));
           }
@@ -387,17 +395,26 @@ async function* identifyUnknownInstruction(
       },
       exit: (path) => {
         const node = path.node;
-        const parentPath = path.parentPath;
         const key = expressionKey(filePath, node);
         if (!expressionSeenThisTimeRound.has(key)) {
           return
         }
-        if (t.isBlockStatement(parentPath.node) && node.loc && typeof path.key === 'number') {
-          statements.push(currentStatementStack.pop()!);
+        if (t.isBlockStatement(node)) {
+          console.log('adding');
+          const poppedStatementInfo = currentStatementStack.pop()!;
+          
+          if (currentStatementStack.length <= 0) {
+            statements.push(...poppedStatementInfo);
+          } else {
+            const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
+            const lastStatement = newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
+            lastStatement.instructionHolders.push(
+              createInstructionHolder(null as any, new DeleteStatementInstruction(poppedStatementInfo, 1, 1), derivedFromPassingTest)
+            );
+          }
         }
       }
     }, scopedPath.scope, undefined, scopedPath.parentPath);
-    console.log(statements);
     yield * statements;
   }
 };
