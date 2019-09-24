@@ -343,6 +343,7 @@ const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(bitOperations),
   new AssignmentFactory(['='])
 ];
+const RETRIES = 1;
 
 async function* identifyUnknownInstruction(
   location: Location,
@@ -409,7 +410,7 @@ async function* identifyUnknownInstruction(
             const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
             const lastStatement = newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
             lastStatement.instructionHolders.push(
-              createInstructionHolder(null as any, new DeleteStatementInstruction(poppedStatementInfo, 1, 1), derivedFromPassingTest)
+              createInstructionHolder(null as any, new DeleteStatementInstruction(poppedStatementInfo, RETRIES, RETRIES), derivedFromPassingTest)
             );
           }
         }
@@ -700,7 +701,7 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
     let bI = 0;
     // Assumption: All arrays are at least .length > 0
     do {
-      const comparison = compareMutationEvaluations(a[aI], b[bI]);
+      const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutaitonsOnly[bI]);
       if (comparison !== 0) {
         return comparison;
       }
@@ -722,6 +723,7 @@ export const mutationEvalatuationMapToFaults = (
 ): Fault[] => {
   const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
   locationEvaluationsList.sort(compareLocationEvaluations);
+  console.log(locationEvaluationsList.map(e => e.evaluations))
   const faults = locationEvaluationsList.map((lE, i): Fault => {
     return {
       score: i,
@@ -1048,12 +1050,12 @@ export const createPlugin = ({
           }
           if (statements.length > 1) {
             const middle = Math.trunc(statements.length / 2);
-            const deletionInstruction1 = new DeleteStatementInstruction(statements.slice(0, middle), 1, 1);
-            const deletionInstruction2 = new DeleteStatementInstruction(statements.slice(middle), 1, 1);
+            const deletionInstruction1 = new DeleteStatementInstruction(statements.slice(0, middle), RETRIES, RETRIES);
+            const deletionInstruction2 = new DeleteStatementInstruction(statements.slice(middle), RETRIES, RETRIES);
             instructionQueue.push(createInstructionHolder(null as any, deletionInstruction1, false));
             instructionQueue.push(createInstructionHolder(null as any, deletionInstruction2, false));
           } else if (statements.length === 1) {
-            const deletionInstruction = new DeleteStatementInstruction(statements, 1, 1);
+            const deletionInstruction = new DeleteStatementInstruction(statements, RETRIES, RETRIES);
             instructionQueue.push(createInstructionHolder(null as any, deletionInstruction, false));
           }
         }
