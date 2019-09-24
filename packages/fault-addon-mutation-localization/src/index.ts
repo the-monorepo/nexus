@@ -99,6 +99,7 @@ type Location = {
 
 type StatementInformation = {
   index: number,
+  filePath: string,
   location: ExpressionLocation | null,
   instructionHolders: InstructionHolder[]
 }
@@ -237,22 +238,23 @@ class DeleteStatementInstruction implements Instruction {
     };
   }
 
-  async process(data: InstructionData, cache: AstCache) {
-    const ast = await cache.get(data.location.filePath);
-  
-    const nodePaths = findNodePathsWithLocation(ast, data.location).filter(thePath => t.isBlockStatement(thePath.node));
-    assertFoundNodePaths(nodePaths, data.location);
-  
-    // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-    const nodePath = nodePaths.pop()!;
-  
-    for(let s = this.statements.length - 1; s >= 0; s--) {
-      const statementInformation = this.statements[s];
-      nodePath.node.body.splice(statementInformation.index, 1);
+  async process(data: InstructionData, cache: AstCache) {  
+    for(const statement of this.statements) {
+      const ast = await cache.get(statement.filePath);
+      const nodePaths = findNodePathsWithLocation(ast, statement.location!).filter(path => path.parentPath && t.isBlockStatement(path.parentPath.node));
+      assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
+
+      // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
+      const nodePath = nodePaths.pop()!;
+    
+      for(let s = this.statements.length - 1; s >= 0; s--) {
+        const statementInformation = this.statements[s];
+        nodePath.node.body.splice(statementInformation.index, 1);
+      }  
     }  
   }
 
-  private *yieldSplitDeleteStatements(data: InstructionData, currentRetries: number) {
+  public *yieldSplitDeleteStatements(data: InstructionData, currentRetries: number) {
     const originalStatements = this.statements;
     const middle = Math.trunc(this.statements.length / 2);
     const statements1 = originalStatements.slice(middle);
@@ -277,47 +279,6 @@ class DeleteStatementInstruction implements Instruction {
       }
     } else if(this.statements.length > 1 && this.currentRetries > 0) {
       yield* this.yieldSplitDeleteStatements(data, this.currentRetries - 1);
-    }
-  }
-}
-
-class DeleteStatementFactory implements InstructionFactory<DeleteStatementInstruction> {
-  constructor(private readonly factories: InstructionFactory<any>[], private readonly maxRetries: number) {}
-
-  *createInstructions(path, filePath, derivedFromPassingTest) {
-    const node = path.node;
-    if(t.isBlockStatement(node) && node.body.length > 0 && node.loc !== null) {
-      const statements: StatementInformation[] = node.body
-      .map((statement, i): StatementInformation => {
-        const nestedInstructions: InstructionHolder[] = [];
-        let currentNestedBlockCount = 0;
-        traverse(statement, {
-          enter: (path) => {
-            if(t.isBlockStatement(path.node)) {
-              currentNestedBlockCount++;
-            }
-            if(currentNestedBlockCount <= 0) {
-              for(const factory of this.factories) {
-                for(const instruction of factory.createInstructions(path, filePath, derivedFromPassingTest)) {
-                  nestedInstructions.push(instruction);
-                }
-              }
-            }
-          },
-          exit: (path) => {
-            if(t.isBlockStatement(path.node)) {
-              currentNestedBlockCount--;
-            }
-          }
-        }, path);
-        return {
-          index: i,
-          location: statement.loc,
-          instructionHolders: nestedInstructions
-        };
-      }) as StatementInformation[];
-
-      yield createInstructionHolder({ ...node.loc, filePath }, new DeleteStatementInstruction(statements, this.maxRetries, this.maxRetries), derivedFromPassingTest);
     }
   }
 }
@@ -353,11 +314,9 @@ const bitOperations = [
   '>>=',
 ]
 const instructionFactories: InstructionFactory<any>[] = [
-  new DeleteStatementFactory([
-    new AssignmentFactory(arithmeticOperations),
-    new AssignmentFactory(bitOperations),
-    new AssignmentFactory(['='])
-  ], 1)
+  new AssignmentFactory(arithmeticOperations),
+  new AssignmentFactory(bitOperations),
+  new AssignmentFactory(['='])
 ];
 
 async function* identifyUnknownInstruction(
@@ -365,35 +324,54 @@ async function* identifyUnknownInstruction(
   cache: AstCache,
   expressionsSeen: Set<string>,
   derivedFromPassingTest: boolean
-): AsyncIterableIterator<InstructionHolder> {
+): AsyncIterableIterator<StatementInformation> {
   const ast = await cache.get(location.filePath);
   
   const nodePaths = findNodePathsWithLocation(ast, location);
   //console.log(nodePaths);
   const filePath = location.filePath;
   for(const nodePath of nodePaths) {
-    const newInstructions: InstructionHolder[] = [];
     const scopedPath = getParentScope(nodePath);
-
+    const statements: StatementInformation[] = [];
+    const currentStatementStack: StatementInformation[] = [];
     traverse(scopedPath.node, {
       enter: (path) => {
-        const pathNode = path.node;
-        
-        const key = expressionKey(filePath, pathNode);
+        const node = path.node;
+        const parentPath = path.parentPath;
+        const key = expressionKey(filePath, node);
         if (expressionsSeen.has(key)) {
-          return;
+          return
         }
         expressionsSeen.add(key);
-        
-        for(const instructionFactory of instructionFactories) {
-          for (const instruction of instructionFactory.createInstructions(path, filePath, derivedFromPassingTest)) {
-            newInstructions.push(instruction);
+        if (!parentPath) {
+          return;
+        }
+        if(t.isBlockStatement(parentPath.node) && node.loc && typeof path.key === 'number') {
+          currentStatementStack.push({
+            index: path.key,
+            filePath,
+            instructionHolders: [],
+            location: node.loc
+          });
+        } else if(currentStatementStack.length > 0) {
+          const statement = currentStatementStack[currentStatementStack.length - 1];
+          for(const factory of instructionFactories) {
+            statement.instructionHolders.push(...factory.createInstructions(path, filePath, derivedFromPassingTest));
           }
         }
+      },
+      exit: (path) => {
+        const node = path.node;
+        const parentPath = path.parentPath;
+        const key = expressionKey(filePath, node);
+        if (expressionsSeen.has(key)) {
+          return
+        }
+        if (t.isBlockStatement(parentPath.node) && node.loc && typeof path.key === 'number') {
+          statements.push(currentStatementStack.pop()!);
+        }
       }
-    }, scopedPath.scope);
-
-    yield* newInstructions;
+    });
   }
 };
 
@@ -1004,19 +982,30 @@ export const createPlugin = ({
             }
           }
           const failedCoverage: Coverage = failedCoverageMap.data;
+          const statements: StatementInformation[] = [];
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
             //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
             for(const statementCoverage of Object.values(fileCoverage.statementMap)) {
-              for await (const instruction of identifyUnknownInstruction({
+              for await (const statement of identifyUnknownInstruction({
                 filePath: coveragePath,
                 ...statementCoverage,
               }, cache, expressionsSeen, false)) {
-                instructionQueue.push(instruction);
+                statements.push(statement);
               }
             }
+          }
+          if (statements.length > 1) {
+            const middle = Math.trunc(statements.length / 2);
+            const deletionInstruction1 = new DeleteStatementInstruction(statements.slice(0, middle), 1, 1);
+            const deletionInstruction2 = new DeleteStatementInstruction(statements.slice(middle), 1, 1);
+            instructionQueue.push(createInstructionHolder(null as any, deletionInstruction1, false));
+            instructionQueue.push(createInstructionHolder(null as any, deletionInstruction2, false));
+          } else if (statements.length === 1) {
+            const deletionInstruction = new DeleteStatementInstruction(statements, 1, 1);
+            instructionQueue.push(createInstructionHolder(null as any, deletionInstruction, false));
           }
         }
 
