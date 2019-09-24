@@ -177,7 +177,7 @@ function validate(instance, schema, strictValidation) {
     if (schemaItem.format === 'object' || typeof schemaItem.default === 'object') {
       Object.keys(flatInstance).
       filter(function (key) {
-
+        return key.lastIndexOf(name + '.', 0) === 0;
       }).forEach(function (key) {
         delete flatInstance[key];
       });
@@ -290,7 +290,7 @@ function normalizeSchema(name, node, props, fullName, env, argv, sensitive) {
     }
 
     // use a predefined type
-    newFormat = types[format];
+    newFormat += types[format];
 
   } else if (Array.isArray(format)) {
     // assert that the value is a valid option
