@@ -253,11 +253,37 @@ class DeleteStatementInstruction implements Instruction {
 
   get mutationResults(): MutationResults {
     const locationsObj: LocationObject = {};
+    const locationsAdded: Set<string> = new Set();
     for(const statement of this.statements) {
+      const key = locationToKey(statement.filePath, statement.location!);
+      if (locationsAdded.has(key)) {
+        continue;
+      }
       if(locationsObj[statement.filePath] === undefined) {
         locationsObj[statement.filePath] = [];
       }
       locationsObj[statement.filePath].push(statement.location!);
+      locationsAdded.add(key);
+      for(const instruction of statement.instructionHolders) {
+        if (instruction.instruction.type !== DELETE_STATEMENT) {
+          continue;
+        }
+        const mutationResult = instruction.instruction.mutationResults;
+        for(const [filePath, locations] of Object.entries(mutationResult.locations)) {
+          if (locationsObj[filePath] === undefined) {
+            locationsObj[filePath] = locations;
+          } else {
+            for(const location of locations) {
+              const nestedKey = locationToKey(filePath, location);
+              if (locationsAdded.has(nestedKey)) {
+                continue;
+              }
+              locationsObj[filePath].push(location);
+              locationsAdded.add(nestedKey);
+            }
+          }
+        }
+      }
     }
     return {
       locations: locationsObj
