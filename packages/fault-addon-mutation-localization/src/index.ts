@@ -42,6 +42,14 @@ type MutationResults = {
   locations: LocationObject
 };
 
+const totalMutations = (mutationResults: MutationResults) => {
+  let count = 0;
+  for(const location of Object.values(mutationResults.locations)) {
+    count += location.length;
+  }
+  return count;
+}
+
 const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
 let copyTempDir: string = null!;
@@ -115,6 +123,7 @@ type Instruction = {
   isRemovable: (data: InstructionData) => boolean,
   mutationResults: (data: InstructionData) => MutationResults,
   process: (data: InstructionData, cache: AstCache) => Promise<any>,
+  mutationsLeft: number,
   onEvaluation: (evaluation: MutationEvaluation, data: InstructionData, cache: AstCache) => AsyncIterableIterator<InstructionHolder<any>>
 }
 
@@ -169,7 +178,7 @@ const getParentScope = (path) => {
     return path;
   }
   const parentNode = parentPath.node;
-  if (t.isFunction(parentNode) || t.isProgram(parentNode)) {
+  if (t.isScopable(parentNode) || t.isProgram(parentNode)) {
     return path;
   }
   return getParentScope(parentPath);
@@ -190,6 +199,10 @@ class AssignmentInstruction implements Instruction {
 
   isRemovable() {
     return this.operators.length <= 0;    
+  }
+
+  get mutationsLeft() {
+    return this.operators.length;
   }
 
   mutationResults(data: InstructionData): MutationResults {
@@ -228,30 +241,40 @@ class DeleteStatementInstruction implements Instruction {
     return true;
   }
 
-  mutationResults(data: InstructionData): MutationResults {
-    return {
-      locations: {
-        [data.location.filePath]: this.statements.map(
-          ({ location }): ExpressionLocation | null => location
-        ).filter(location => location !== null) as ExpressionLocation[]
+  get mutationsLeft() {
+    let count = this.statements.length * 2 - 1;
+    for(const statement of this.statements) {
+      for(const instructionHolder of statement.instructionHolders) {
+        count += instructionHolder.instruction.mutationsLeft;
       }
+    }
+    return count;
+  }
+
+  mutationResults(data: InstructionData): MutationResults {
+    const locationsObj: LocationObject = {};
+    for(const statement of this.statements) {
+      if(locationsObj[statement.filePath] === undefined) {
+        locationsObj[statement.filePath] = [];
+      }
+      locationsObj[statement.filePath].push(statement.location!);
+    }
+    return {
+      locations: locationsObj
     };
   }
 
   async process(data: InstructionData, cache: AstCache) {  
-    for(const statement of this.statements) {
+    for(let s = this.statements.length - 1; s >= 0; s--) {
+      const statement = this.statements[s];
       const ast = await cache.get(statement.filePath);
+      console.log(locationToKey(statement.filePath, statement.location!));
       const nodePaths = findNodePathsWithLocation(ast, statement.location!).filter(path => path.parentPath && t.isBlockStatement(path.parentPath.node));
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
-
       // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-      const nodePath = nodePaths.pop()!;
-    
-      for(let s = this.statements.length - 1; s >= 0; s--) {
-        const statementInformation = this.statements[s];
-        nodePath.node.body.splice(statementInformation.index, 1);
-      }  
-    }  
+      const node = nodePaths.pop()!.parentPath!.node;
+      node.body.splice(statement.index, 1);
+    }
   }
 
   public *yieldSplitDeleteStatements(data: InstructionData, currentRetries: number) {
@@ -334,6 +357,7 @@ async function* identifyUnknownInstruction(
     const scopedPath = getParentScope(nodePath);
     const statements: StatementInformation[] = [];
     const currentStatementStack: StatementInformation[] = [];
+    const expressionSeenThisTimeRound = new Set()
     traverse(scopedPath.node, {
       enter: (path) => {
         const node = path.node;
@@ -343,6 +367,7 @@ async function* identifyUnknownInstruction(
           return
         }
         expressionsSeen.add(key);
+        expressionSeenThisTimeRound.add(key);
         if (!parentPath) {
           return;
         }
@@ -364,14 +389,16 @@ async function* identifyUnknownInstruction(
         const node = path.node;
         const parentPath = path.parentPath;
         const key = expressionKey(filePath, node);
-        if (expressionsSeen.has(key)) {
+        if (!expressionSeenThisTimeRound.has(key)) {
           return
         }
         if (t.isBlockStatement(parentPath.node) && node.loc && typeof path.key === 'number') {
           statements.push(currentStatementStack.pop()!);
         }
       }
-    });
+    }, scopedPath.scope, undefined, scopedPath.parentPath);
+    console.log(statements);
+    yield * statements;
   }
 };
 
@@ -636,22 +663,22 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
 const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
   const a = aL.evaluations;
   const b = bL.evaluations;
-  const aHasNonDeleteStatements = a.some(e => e.data.instruction.type !== DELETE_STATEMENT);
-  const bHasNonDeleteStatements = b.some(e => e.data.instruction.type !== DELETE_STATEMENT);
-  if (aHasNonDeleteStatements && !bHasNonDeleteStatements) {
+  const aHasSingleMutation = a.some(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1);
+  const bHasSingleMutation = b.some(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1);
+  if (aHasSingleMutation && !bHasSingleMutation) {
     // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
     return 1;
-  } else if (!aHasNonDeleteStatements && bHasNonDeleteStatements) {
+  } else if (!aHasSingleMutation && bHasSingleMutation) {
     // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
     return -1;
-  } else if (!aHasNonDeleteStatements && !bHasNonDeleteStatements) {
+  } else if (!aHasSingleMutation && !bHasSingleMutation) {
     // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
     // Justification: a has more room to experiment with if it wasn't evaluated as much.
     // TODO: Replace with instructions left
     return b.length - a.length;
   } else {
-    const aSingleMutationsOnly = a.filter(e => Object.keys(e.data.instruction.mutationResults(e.data.data).locations).length === 1).sort(compareMutationEvaluations).reverse();
-    const bSingleMutaitonsOnly = b.filter(e => Object.keys(e.data.instruction.mutationResults(e.data.data).locations).length === 1).sort(compareMutationEvaluations).reverse();
+    const aSingleMutationsOnly = a.filter(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1).sort(compareMutationEvaluations).reverse();
+    const bSingleMutaitonsOnly = b.filter(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1).sort(compareMutationEvaluations).reverse();
     let aI = 0;
     let bI = 0;
     // Assumption: All arrays are at least .length > 0
@@ -860,6 +887,7 @@ export const createPlugin = ({
         errorsChanged: null,
         crashed: true
       };
+      console.log({ ...mutationEvaluation, data: undefined });
       const previousMutationResults = previousInstruction.instruction.mutationResults(previousInstruction.data);
 
       // Revert all mutated files
@@ -903,7 +931,11 @@ export const createPlugin = ({
   }
 
   const runInstruction = async (tester: TesterResults, cache: AstCache): Promise<string[] | null> => {
-    console.log(`${instructionQueue.length} instructions`);
+    let count = 0;
+    for(const instruction of instructionQueue) {
+      count += instruction.instruction.mutationsLeft;
+    }
+    console.log(`${count} instructions`);
 
     if (instructionQueue.length <= 0) {
       finished = true;
