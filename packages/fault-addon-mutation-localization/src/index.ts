@@ -121,7 +121,7 @@ type InstructionData = {
 type Instruction = {
   type: Symbol;
   isRemovable: (data: InstructionData) => boolean,
-  mutationResults: (data: InstructionData) => MutationResults,
+  mutationResults: MutationResults,
   process: (data: InstructionData, cache: AstCache) => Promise<any>,
   mutationsLeft: number,
   onEvaluation: (evaluation: MutationEvaluation, data: InstructionData, cache: AstCache) => AsyncIterableIterator<InstructionHolder<any>>
@@ -195,7 +195,7 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
 const ASSIGNMENT = Symbol('assignment');
 class AssignmentInstruction implements Instruction {
   public readonly type: Symbol = ASSIGNMENT;
-  constructor(private readonly operators: string[]) {}
+  constructor(private readonly location: Location, private readonly operators: string[]) {}
 
   isRemovable() {
     return this.operators.length <= 0;    
@@ -205,10 +205,10 @@ class AssignmentInstruction implements Instruction {
     return this.operators.length;
   }
 
-  mutationResults(data: InstructionData): MutationResults {
+  get mutationResults(): MutationResults {
     return {
       locations: {
-        [data.location.filePath]: [data.location]
+        [this.location.filePath]: [this.location]
       }
     };
   }
@@ -251,7 +251,7 @@ class DeleteStatementInstruction implements Instruction {
     return count;
   }
 
-  mutationResults(data: InstructionData): MutationResults {
+  get mutationResults(): MutationResults {
     const locationsObj: LocationObject = {};
     for(const statement of this.statements) {
       if(locationsObj[statement.filePath] === undefined) {
@@ -318,7 +318,7 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
         operator => operator !== node.operator,
       );
       if (operators.length > 0) {
-        yield createInstructionHolder({ ...node.loc, filePath}, new AssignmentInstruction(operators), derivedFromPassingTest);
+        yield createInstructionHolder({ ...node.loc, filePath}, new AssignmentInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
       }
     }
   }
@@ -681,8 +681,8 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
 const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
   const a = aL.evaluations;
   const b = bL.evaluations;
-  const aHasSingleMutation = a.some(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1);
-  const bHasSingleMutation = b.some(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1);
+  const aHasSingleMutation = a.some(e => totalMutations(e.data.instruction.mutationResults) === 1);
+  const bHasSingleMutation = b.some(e => totalMutations(e.data.instruction.mutationResults) === 1);
   if (aHasSingleMutation && !bHasSingleMutation) {
     // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
     return 1;
@@ -695,8 +695,8 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
     // TODO: Replace with instructions left
     return b.length - a.length;
   } else {
-    const aSingleMutationsOnly = a.filter(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1).sort(compareMutationEvaluations).reverse();
-    const bSingleMutaitonsOnly = b.filter(e => totalMutations(e.data.instruction.mutationResults(e.data.data)) === 1).sort(compareMutationEvaluations).reverse();
+    const aSingleMutationsOnly = a.filter(e => totalMutations(e.data.instruction.mutationResults) === 1).sort(compareMutationEvaluations).reverse();
+    const bSingleMutaitonsOnly = b.filter(e => totalMutations(e.data.instruction.mutationResults) === 1).sort(compareMutationEvaluations).reverse();
     let aI = 0;
     let bI = 0;
     // Assumption: All arrays are at least .length > 0
@@ -863,7 +863,7 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
 }
 
 const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
-  const previousMutationResults = instruction.instruction.mutationResults(instruction.data);
+  const previousMutationResults = instruction.instruction.mutationResults;
 
   // Revert all mutated files
   await Promise.all(Object.keys(previousMutationResults.locations).map(
@@ -907,7 +907,7 @@ export const createPlugin = ({
         crashed: true
       };
       console.log({ ...mutationEvaluation, data: undefined });
-      const previousMutationResults = previousInstruction.instruction.mutationResults(previousInstruction.data);
+      const previousMutationResults = previousInstruction.instruction.mutationResults;
 
       // Revert all mutated files
       await Promise.all(Object.keys(previousMutationResults.locations).map(resetFile));
@@ -976,7 +976,7 @@ export const createPlugin = ({
       return null;
     }
 
-    const mutationResults = instruction.instruction.mutationResults(instruction.data);
+    const mutationResults = instruction.instruction.mutationResults;
 
     mutationCount++;
     
