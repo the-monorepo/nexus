@@ -70,10 +70,6 @@ const compareInstructions = (a: InstructionHolder<any>, b: InstructionHolder<any
     return -1;
   } else if(!a.data.derivedFromPassingTest && b.data.derivedFromPassingTest) {
     return 1;
-  } else if(a.instruction.type === DELETE_STATEMENT && b.instruction.type !== DELETE_STATEMENT) {
-    return 1;
-  } else if(a.instruction.type !== DELETE_STATEMENT && b.instruction.type === DELETE_STATEMENT) {
-    return -1;
   }
   a.data.mutationEvaluations.sort(compareMutationEvaluations);
   b.data.mutationEvaluations.sort(compareMutationEvaluations);
@@ -659,33 +655,62 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
   return `${filePath}:${location.start.line}:${location.start.column}`;
 };
 
-export const mutationEvalatuationMapToFaults = (
-  evaluations: MutationEvaluation[],
-): Fault[] => {
-  const sortedEvaluationsLists = evaluations.sort(compareMutationEvaluations).reverse();
-  const seen: Set<string> = new Set();
-  const faults: ScorelessFault[] = [];
-  for (const evaluation of sortedEvaluationsLists) {
-    const mutationResults = evaluation.data.instruction.mutationResults(evaluation.data.data);
-    for(const [filePath, expressionLocations] of Object.entries(mutationResults.locations)) {
-      for(const expressionLocation of expressionLocations) {
-        const key = locationToKey(filePath, expressionLocation);
-        if (seen.has(key)) {
-          continue;
-        }
-        seen.add(key);
-        faults.push({
-          sourcePath: filePath,
-          location: expressionLocation,
-        });
+const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
+  const a = aL.evaluations;
+  const b = bL.evaluations;
+  const aHasNonDeleteStatements = a.some(e => e.data.instruction.type !== DELETE_STATEMENT);
+  const bHasNonDeleteStatements = b.some(e => e.data.instruction.type !== DELETE_STATEMENT);
+  if (aHasNonDeleteStatements && !bHasNonDeleteStatements) {
+    // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
+    return 1;
+  } else if (!aHasNonDeleteStatements && bHasNonDeleteStatements) {
+    // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
+    return -1;
+  } else if (!aHasNonDeleteStatements && !bHasNonDeleteStatements) {
+    // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
+    // Justification: a has more room to experiment with if it wasn't evaluated as much.
+    // TODO: Replace with instructions left
+    return b.length - a.length;
+  } else {
+    const aSingleMutationsOnly = a.filter(e => Object.keys(e.data.instruction.mutationResults(e.data.data).locations).length === 1).sort(compareMutationEvaluations).reverse();
+    const bSingleMutaitonsOnly = b.filter(e => Object.keys(e.data.instruction.mutationResults(e.data.data).locations).length === 1).sort(compareMutationEvaluations).reverse();
+    let aI = 0;
+    let bI = 0;
+    // Assumption: All arrays are at least .length > 0
+    do {
+      const comparison = compareMutationEvaluations(a[aI], b[bI]);
+      if (comparison !== 0) {
+        return comparison;
       }
-    }
+      aI++;
+      bI++;
+    } while(aI < aSingleMutationsOnly.length && bI < bSingleMutaitonsOnly.length)
+    // Justification: a has more room to experiment with if it wasn't evaluated as much.
+    // TODO: Replace with instructions left
+    return b.length - a.length;
   }
+}
 
-  return faults.map((fault, i) => ({
-    ...fault,
-    score: faults.length - i
-  }));
+type LocationEvaluation = {
+  evaluations: MutationEvaluation[],
+  location: Location
+}
+export const mutationEvalatuationMapToFaults = (
+  locationEvaluations: Map<string, LocationEvaluation>,
+): Fault[] => {
+  const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
+  locationEvaluationsList.sort(compareLocationEvaluations);
+  const faults = locationEvaluationsList.map((lE, i): Fault => {
+    return {
+      score: i,
+      sourcePath: lE.location.filePath,
+      location: {
+        start: lE.location.start,
+        end: lE.location.end,
+      }
+    };
+  });
+  return faults;
 };
 
 type IsFinishedFunction = (instruction: InstructionHolder<any>, finishData: MiscFinishData) => boolean;
@@ -822,6 +847,7 @@ const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
   ));
 }
 
+type LocationKey = string;
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
@@ -835,7 +861,8 @@ export const createPlugin = ({
   const instructionQueue: Heap<InstructionHolder> = new Heap((a, b) => -compareInstructions(a, b));
   let firstRun = true;  
   let firstTesterResults: TesterResults;
-  const evaluations: MutationEvaluation[] = [];
+
+  const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
   const expressionsSeen: Set<string> = new Set();
   let mutationCount = 0;
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
@@ -858,13 +885,28 @@ export const createPlugin = ({
       const previousMutationResults = previousInstruction.instruction.mutationResults(previousInstruction.data);
 
       // Revert all mutated files
-      await Promise.all(Object.keys(previousMutationResults.locations).map(
-        filePath => resetFile(filePath)
-      ));
+      await Promise.all(Object.keys(previousMutationResults.locations).map(resetFile));
 
       //console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
 
       previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
+
+      for(const [filePath, expressionLocations] of Object.entries(previousMutationResults.locations)) {
+        for(const expressionLocation of expressionLocations) {
+          const key = locationToKey(filePath, expressionLocation);
+          if (locationEvaluations.has(key)) {
+            locationEvaluations.get(key)!.evaluations.push(mutationEvaluation);
+          } else {
+            locationEvaluations.set(key, {
+              evaluations: [mutationEvaluation],
+              location: {
+                filePath,
+                ...expressionLocation
+              }
+            });
+          }
+        }
+      }
 
       if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
         console.log('popping');
@@ -879,7 +921,6 @@ export const createPlugin = ({
         console.log('pushing');
         instructionQueue.push(newInstruction);
       }
-      evaluations.push(mutationEvaluation);
     }
   }
 
@@ -1012,8 +1053,7 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
         
-        console.log(JSON.stringify(evaluations.map(evaluation => ({...evaluation, data: undefined})), undefined, 2));
-        const faults = mutationEvalatuationMapToFaults(evaluations);
+        const faults = mutationEvalatuationMapToFaults(locationEvaluations);
         const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
         await Promise.all([recordFaults(faultFilePath, mappedFaults), reportFaults(mappedFaults)]);
       },
