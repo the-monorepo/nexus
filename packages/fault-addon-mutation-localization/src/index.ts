@@ -195,7 +195,17 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
 const ASSIGNMENT = Symbol('assignment');
 class AssignmentInstruction implements Instruction {
   public readonly type: Symbol = ASSIGNMENT;
-  constructor(private readonly location: Location, private readonly operators: string[]) {}
+  public readonly mutationResults: MutationResults;
+  constructor(
+    private readonly location: Location,
+    private readonly operators: string[],
+  ) {
+    this.mutationResults = {
+      locations: {
+        [this.location.filePath]: [this.location]        
+      }
+    }
+  }
 
   isRemovable() {
     return this.operators.length <= 0;    
@@ -203,14 +213,6 @@ class AssignmentInstruction implements Instruction {
 
   get mutationsLeft() {
     return this.operators.length;
-  }
-
-  get mutationResults(): MutationResults {
-    return {
-      locations: {
-        [this.location.filePath]: [this.location]
-      }
-    };
   }
 
   async process(data: InstructionData, cache: AstCache) {
@@ -231,27 +233,14 @@ class AssignmentInstruction implements Instruction {
 const DELETE_STATEMENT = Symbol('delete-statement');
 class DeleteStatementInstruction implements Instruction {
   public readonly type = DELETE_STATEMENT;
+  public readonly mutationResults: MutationResults;
+  public mutationsLeft: number;
   constructor(
     private readonly statements: StatementInformation[],
     private readonly currentRetries: number,
     private readonly maxRetries: number
-  ) { }
+  ) {
 
-  isRemovable() {
-    return true;
-  }
-
-  get mutationsLeft() {
-    let count = this.statements.length * 2 - 1;
-    for(const statement of this.statements) {
-      for(const instructionHolder of statement.instructionHolders) {
-        count += instructionHolder.instruction.mutationsLeft;
-      }
-    }
-    return count;
-  }
-
-  get mutationResults(): MutationResults {
     const locationsObj: LocationObject = {};
     const locationsAdded: Set<string> = new Set();
     for(const statement of this.statements) {
@@ -285,9 +274,21 @@ class DeleteStatementInstruction implements Instruction {
         }
       }
     }
-    return {
+    this.mutationResults = {
       locations: locationsObj
     };
+    
+    let count = this.statements.length * 2 - 1;
+    for(const statement of this.statements) {
+      for(const instructionHolder of statement.instructionHolders) {
+        count += instructionHolder.instruction.mutationsLeft;
+      }
+    }
+    this.mutationsLeft = count;
+  }
+
+  isRemovable() {
+    return true;
   }
 
   async process(data: InstructionData, cache: AstCache) {  
@@ -377,6 +378,7 @@ async function* identifyUnknownInstruction(
   expressionsSeen: Set<string>,
   derivedFromPassingTest: boolean
 ): AsyncIterableIterator<StatementInformation> {
+  console.log('identifying for' + location.filePath);
   const ast = await cache.get(location.filePath);
   
   const nodePaths = findNodePathsWithLocation(ast, location);
