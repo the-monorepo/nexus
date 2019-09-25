@@ -918,7 +918,8 @@ export const createPlugin = ({
   let finished = false;
   const instructionQueue: Heap<InstructionHolder> = new Heap(heapComparisonFn);
   let firstRun = true;  
-  let firstTesterResults: TesterResults;
+  let firstTesterResults: TesterResults;;
+  let previousRunWasPartial = false;
 
   const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
   let mutationCount = 0;
