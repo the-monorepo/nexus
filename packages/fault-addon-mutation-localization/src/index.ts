@@ -115,7 +115,6 @@ type StatementInformation = {
 type InstructionData = {
   mutationEvaluations: MutationEvaluation[],
   derivedFromPassingTest: boolean,
-  location: Location
 };
 
 type Instruction = {
@@ -139,7 +138,6 @@ type InstructionFactory<T extends Instruction = Instruction> = {
 
 
 const createInstructionHolder = <T extends Instruction>(
-  location: Location,
   instruction: T,
   derivedFromPassingTest: boolean
 ): InstructionHolder<T> => {
@@ -147,7 +145,6 @@ const createInstructionHolder = <T extends Instruction>(
     data: {
       mutationEvaluations: [],
       derivedFromPassingTest,
-      location,
     },
     instruction,
   }
@@ -216,10 +213,10 @@ class AssignmentInstruction implements Instruction {
   }
 
   async process(data: InstructionData, cache: AstCache) {
-    const ast = await cache.get(data.location.filePath);
+    const ast = await cache.get(this.location.filePath);
 
-    const nodePaths = findNodePathsWithLocation(ast, data.location).filter(nodePath => t.isAssignmentExpression(nodePath));
-    assertFoundNodePaths(nodePaths, data.location);
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath => t.isAssignmentExpression(nodePath));
+    assertFoundNodePaths(nodePaths, this.location);
   
     const operator = this.operators.pop();
     const nodePath = nodePaths[0];
@@ -312,8 +309,8 @@ class DeleteStatementInstruction implements Instruction {
     const statements1 = originalStatements.slice(middle);
     const statements2 = originalStatements.slice(0, middle);
     
-    yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements1, currentRetries, this.maxRetries), data.derivedFromPassingTest);
-    yield createInstructionHolder(data.location, new DeleteStatementInstruction(statements2, currentRetries, this.maxRetries), data.derivedFromPassingTest);
+    yield createInstructionHolder(new DeleteStatementInstruction(statements1, currentRetries, this.maxRetries), data.derivedFromPassingTest);
+    yield createInstructionHolder(new DeleteStatementInstruction(statements2, currentRetries, this.maxRetries), data.derivedFromPassingTest);
   }
 
   async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData): AsyncIterableIterator<InstructionHolder> {
@@ -345,7 +342,7 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
         operator => operator !== node.operator,
       );
       if (operators.length > 0) {
-        yield createInstructionHolder({ ...node.loc, filePath}, new AssignmentInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
+        yield createInstructionHolder(new AssignmentInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
       }
     }
   }
@@ -438,7 +435,7 @@ async function* identifyUnknownInstruction(
             const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
             const lastStatement = newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
             lastStatement.instructionHolders.push(
-              createInstructionHolder(null as any, new DeleteStatementInstruction(poppedStatementInfo, RETRIES, RETRIES), derivedFromPassingTest)
+              createInstructionHolder(new DeleteStatementInstruction(poppedStatementInfo, RETRIES, RETRIES), derivedFromPassingTest)
             );
           }
         }
@@ -1080,11 +1077,11 @@ export const createPlugin = ({
             const middle = Math.trunc(statements.length / 2);
             const deletionInstruction1 = new DeleteStatementInstruction(statements.slice(0, middle), RETRIES, RETRIES);
             const deletionInstruction2 = new DeleteStatementInstruction(statements.slice(middle), RETRIES, RETRIES);
-            instructionQueue.push(createInstructionHolder(null as any, deletionInstruction1, false));
-            instructionQueue.push(createInstructionHolder(null as any, deletionInstruction2, false));
+            instructionQueue.push(createInstructionHolder(deletionInstruction1, false));
+            instructionQueue.push(createInstructionHolder(deletionInstruction2, false));
           } else if (statements.length === 1) {
             const deletionInstruction = new DeleteStatementInstruction(statements, RETRIES, RETRIES);
-            instructionQueue.push(createInstructionHolder(null as any, deletionInstruction, false));
+            instructionQueue.push(createInstructionHolder(deletionInstruction, false));
           }
         }
 
