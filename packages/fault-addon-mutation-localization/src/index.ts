@@ -326,8 +326,10 @@ class DeleteStatementInstruction implements Instruction {
       if (this.statements.length <= 1) {
         const statement = this.statements[0];
         yield* statement.instructionHolders;
-      } else {
+      } else if (!evaluation.crashed){
         yield* this.yieldSplitDeleteStatements(data, this.maxRetries);
+      } else {
+        yield* this.yieldSplitDeleteStatements(data, this.currentRetries);
       }
     } else if(this.statements.length > 1 && this.currentRetries > 0) {
       yield* this.yieldSplitDeleteStatements(data, this.currentRetries - 1);
@@ -938,7 +940,7 @@ export const createPlugin = ({
         errorsChanged: null,
         crashed: true
       };
-      console.log({ ...mutationEvaluation, data: undefined });
+      console.log(mutationEvaluation);
       const previousMutationResults = previousInstruction.instruction.mutationResults;
 
       // Revert all mutated files
