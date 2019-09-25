@@ -298,7 +298,8 @@ export const run = async () => {
         ignoreGlob,
         mapToIstanbul: true,
         console: true,
-        babelOptions
+        babelOptions,
+        allowPartialTestRuns: sandbox,
       })]
     });    
 
