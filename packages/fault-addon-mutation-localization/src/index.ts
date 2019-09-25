@@ -1010,7 +1010,7 @@ export const createPlugin = ({
 
     if (instructionQueue.length <= 0) {
       finished = true;
-      return null;
+      return false;
     }
 
     console.log('set peaking')
