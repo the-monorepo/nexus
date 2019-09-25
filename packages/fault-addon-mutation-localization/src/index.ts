@@ -229,6 +229,10 @@ class AssignmentInstruction implements Instruction {
   async *onEvaluation() {}
 }
 
+const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => {
+  return evaluation.crashed || (evaluation.testsImproved > 0 || evaluation.errorsChanged > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
+}
+
 const DELETE_STATEMENT = Symbol('delete-statement');
 class DeleteStatementInstruction implements Instruction {
   public readonly type = DELETE_STATEMENT;
@@ -298,11 +302,16 @@ class DeleteStatementInstruction implements Instruction {
       console.log(locationToKey(statement.filePath, statement.location!));
       const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
-      const filteredNodePaths = nodePaths.filter(path => path.parentPath && t.isBlockStatement(path.parentPath.node));
+      const filteredNodePaths = nodePaths.filter(path => path.parentPath && path.parentPath.node.body !== undefined);
       assertFoundNodePaths(filteredNodePaths, { ...statement.location!, filePath: statement.filePath });
       // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-      const node = filteredNodePaths.pop()!.parentPath!.node;
-      node.body.splice(statement.index, 1);
+      const path = filteredNodePaths.pop()!.parentPath;
+      const node = path!.node;
+      if(!t.isBlockStatement(node)) {
+        node.body = t.blockStatement([]);
+      } else {
+        node.body.splice(statement.index, 1);
+      }
     }
   }
 
@@ -321,7 +330,7 @@ class DeleteStatementInstruction implements Instruction {
       throw new Error(`There were ${this.statements.length} statements`);
     }
  
-    const deletingStatementsDidSomethingGoodOrCrashed = evaluation.crashed || (evaluation.testsImproved > 0 || evaluation.errorsChanged > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
+    const deletingStatementsDidSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(evaluation);
     if (deletingStatementsDidSomethingGoodOrCrashed) {
       if (this.statements.length <= 1) {
         const statement = this.statements[0];
@@ -404,10 +413,17 @@ async function* identifyUnknownInstruction(
         if (!parentPath) {
           return;
         }
-        if (t.isBlockStatement(node)) {
+        if (node.body !== undefined && !t.isBlockStatement(node.body) && node.loc && node.body.loc) {
+          currentStatementStack.push([{
+            index: 0,
+            filePath,
+            instructionHolders: [],
+            location: node.body.loc
+          }]);
+        } else if (t.isBlock(node)) {
           console.log('blok');
           currentStatementStack.push([]);
-        } else if(t.isBlockStatement(parentPath.node) && node.loc && typeof path.key === 'number') {
+        } else if(t.isBlock(parentPath.node) && node.loc && typeof path.key === 'number') {
           console.log('statement')
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
@@ -430,7 +446,7 @@ async function* identifyUnknownInstruction(
         if (!expressionSeenThisTimeRound.has(key)) {
           return
         }
-        if (t.isBlockStatement(node)) {
+        if (t.isBlock(node) || (node.body !== undefined && !t.isBlockStatement(node.body))) {
           console.log('adding');
           const poppedStatementInfo = currentStatementStack.pop()!;
           
@@ -711,6 +727,15 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
   return `${filePath}:${location.start.line}:${location.start.column}`;
 };
 
+const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvaluation, b: MutationEvaluation) => {
+  if (a.mutationCount > b.mutationCount) {
+    return -1;
+  } else if (a.mutationCount < b.mutationCount) {
+    return 1;
+  }
+  return compareMutationEvaluations(a, b);
+}
+
 const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
   const a = aL.evaluations;
   const b = bL.evaluations;
@@ -728,19 +753,19 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
     // TODO: Replace with instructions left
     return b.length - a.length;
   } else {
-    const aSingleMutationsOnly = a.filter(e => e.mutationCount === 1).sort(compareMutationEvaluations).reverse();
-    const bSingleMutaitonsOnly = b.filter(e => e.mutationCount === 1).sort(compareMutationEvaluations).reverse();
+    const aSingleMutationsOnly = a.sort(compareMutationEvaluationsWithLargeMutationCountsFirst).reverse();
+    const bSingleMutationsOnly = b.sort(compareMutationEvaluationsWithLargeMutationCountsFirst).reverse();
     let aI = 0;
     let bI = 0;
     // Assumption: All arrays are at least .length > 0
     do {
-      const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutaitonsOnly[bI]);
+      const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
       if (comparison !== 0) {
         return comparison;
       }
       aI++;
       bI++;
-    } while(aI < aSingleMutationsOnly.length && bI < bSingleMutaitonsOnly.length)
+    } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
     // Justification: a has more room to experiment with if it wasn't evaluated as much.
     // TODO: Replace with instructions left
     return b.length - a.length;
