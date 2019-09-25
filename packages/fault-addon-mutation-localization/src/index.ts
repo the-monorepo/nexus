@@ -296,10 +296,10 @@ class DeleteStatementInstruction implements Instruction {
   }
 
   async process(data: InstructionData, cache: AstCache) {  
+    console.log(`Deleting ${this.statements.length} statements`);
     for(let s = this.statements.length - 1; s >= 0; s--) {
       const statement = this.statements[s];
       const ast = await cache.get(statement.filePath);
-      console.log(locationToKey(statement.filePath, statement.location!));
       const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
       const filteredNodePaths = nodePaths.filter(path => path.parentPath && path.parentPath.node.body !== undefined);
@@ -389,7 +389,6 @@ async function* identifyUnknownInstruction(
   expressionsSeen: Set<string>,
   derivedFromPassingTest: boolean
 ): AsyncIterableIterator<StatementInformation> {
-  console.log('identifying for' + location.filePath);
   const ast = await cache.get(location.filePath);
   
   const nodePaths = findNodePathsWithLocation(ast, location);
@@ -421,10 +420,8 @@ async function* identifyUnknownInstruction(
             location: node.body.loc
           }]);
         } else if (t.isBlock(node)) {
-          console.log('blok');
           currentStatementStack.push([]);
         } else if(t.isBlock(parentPath.node) && node.loc && typeof path.key === 'number') {
-          console.log('statement')
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
@@ -432,7 +429,6 @@ async function* identifyUnknownInstruction(
             location: node.loc
           });
         } else if(currentStatementStack.length > 0) {
-          console.log('instruction');
           const statementStack = currentStatementStack[currentStatementStack.length - 1];
           const statement = statementStack[statementStack.length - 1];
           for(const factory of instructionFactories) {
@@ -447,7 +443,6 @@ async function* identifyUnknownInstruction(
           return
         }
         if (t.isBlock(node) || (node.body !== undefined && !t.isBlockStatement(node.body))) {
-          console.log('adding');
           const poppedStatementInfo = currentStatementStack.pop()!;
           
           if (currentStatementStack.length <= 0) {
@@ -1030,7 +1025,7 @@ export const createPlugin = ({
       console.log('finished');
       // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
       finished = true;
-      return null;
+      return false;
     }
 
     const mutationResults = instruction.instruction.mutationResults;
@@ -1061,6 +1056,7 @@ export const createPlugin = ({
 
     await Promise.resolve(onMutation(mutatedFilePaths));
     
+    return true;
   }
 
   return {
@@ -1124,6 +1120,7 @@ export const createPlugin = ({
           if (previousRunWasPartial && evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
             const testsToBeRerun = [...firstTesterResults.testResults.values()].map(result => result.file);
             previousRunWasPartial = false;
+            console.log('proceeding with full test run');
             return testsToBeRerun;
           }
   
@@ -1132,15 +1129,18 @@ export const createPlugin = ({
           await analyzeEvaluation(mutationEvaluation, cache); 
         }
         
-        await runInstruction(tester, cache);
-        
+        const rerun = await runInstruction(tester, cache);
+        if (!rerun) {
+          return;
+        }
         if (allowPartialTestRuns) {
+          console.log('Running partial test run');
+          previousRunWasPartial = true;
+          return [...failingTestFiles];
+        } else {
           // TODO: DRY
           const testsToBeRerun = [...firstTesterResults.testResults.values()].map(result => result.file);
           return testsToBeRerun;
-        } else {
-          previousRunWasPartial = true;
-          return [...failingTestFiles];
         }
       },
       async exit(tester: FinalTesterResults) {
@@ -1172,10 +1172,9 @@ export const createPlugin = ({
         await analyzeEvaluation(mutationEvaluation, cache);
 
         // TODO: Would be better if the exit hook could be told which tests to rerun. Maybe :P
-        const testsToRerun = await runInstruction(tester, cache);
-        const shouldRerun = testsToRerun !== null && testsToRerun.length > 0 ? true : false;
-
-        return { rerun: shouldRerun, allow: true };
+        const rerun = await runInstruction(tester, cache);
+        
+        return { rerun, allow: true };
       },
       complete: async (tester: FinalTesterResults) => {
         console.log('complete');
