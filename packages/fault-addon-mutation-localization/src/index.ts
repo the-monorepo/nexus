@@ -121,6 +121,7 @@ type Instruction = {
   type: Symbol;
   isRemovable: (data: InstructionData) => boolean,
   mutationResults: MutationResults,
+  mutationCount: number,
   process: (data: InstructionData, cache: AstCache) => Promise<any>,
   mutationsLeft: number,
   onEvaluation: (evaluation: MutationEvaluation, data: InstructionData, cache: AstCache) => AsyncIterableIterator<InstructionHolder<any>>
@@ -193,6 +194,7 @@ const ASSIGNMENT = Symbol('assignment');
 class AssignmentInstruction implements Instruction {
   public readonly type: Symbol = ASSIGNMENT;
   public readonly mutationResults: MutationResults;
+  public readonly mutationCount: number = 1;
   constructor(
     private readonly location: Location,
     private readonly operators: string[],
@@ -232,12 +234,12 @@ class DeleteStatementInstruction implements Instruction {
   public readonly type = DELETE_STATEMENT;
   public readonly mutationResults: MutationResults;
   public mutationsLeft: number;
+  public readonly mutationCount: number;
   constructor(
     private readonly statements: StatementInformation[],
     private readonly currentRetries: number,
-    private readonly maxRetries: number
+    private readonly maxRetries: number,
   ) {
-
     const locationsObj: LocationObject = {};
     const locationsAdded: Set<string> = new Set();
     for(const statement of this.statements) {
@@ -274,6 +276,7 @@ class DeleteStatementInstruction implements Instruction {
     this.mutationResults = {
       locations: locationsObj
     };
+    this.mutationCount = totalMutations(this.mutationResults);
     
     let count = this.statements.length * 2 - 1;
     for(const statement of this.statements) {
@@ -624,23 +627,25 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
   columnImprovementScore: 0
 });
 
+type CommonMutationEvaluation = {
+  type: Symbol,
+  mutationCount: number
+};
 type CrashedMutationEvaluation = {
-  data: InstructionHolder;
   stackEvaluation: null,
   testsWorsened: null;
   testsImproved: null;
   errorsChanged: null;
   crashed: true;
-}
+} & CommonMutationEvaluation;
 type NormalMutationEvaluation = {
-  // TODO: This creates a circular reference. Should seperate the mutation evaluations from the instruction
-  data: InstructionHolder;
   stackEvaluation: MutationStackEvaluation,
   testsWorsened: number;
   testsImproved: number;
   errorsChanged: number;
   crashed: false;
-}
+} & CommonMutationEvaluation;
+
 type MutationEvaluation = CrashedMutationEvaluation | NormalMutationEvaluation;
 
 const evaluateNewMutation = (
@@ -690,7 +695,8 @@ const evaluateNewMutation = (
     }
   }
   return {
-    data: instruction,
+    type: instruction.instruction.type,
+    mutationCount: instruction.instruction.mutationCount,
     testsWorsened,
     testsImproved,
     stackEvaluation,
@@ -706,8 +712,8 @@ const locationToKey = (filePath: string, location: ExpressionLocation) => {
 const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
   const a = aL.evaluations;
   const b = bL.evaluations;
-  const aHasSingleMutation = a.some(e => totalMutations(e.data.instruction.mutationResults) === 1);
-  const bHasSingleMutation = b.some(e => totalMutations(e.data.instruction.mutationResults) === 1);
+  const aHasSingleMutation = a.some(e => e.mutationCount === 1);
+  const bHasSingleMutation = b.some(e => e.mutationCount === 1);
   if (aHasSingleMutation && !bHasSingleMutation) {
     // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
     return 1;
@@ -720,8 +726,8 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
     // TODO: Replace with instructions left
     return b.length - a.length;
   } else {
-    const aSingleMutationsOnly = a.filter(e => totalMutations(e.data.instruction.mutationResults) === 1).sort(compareMutationEvaluations).reverse();
-    const bSingleMutaitonsOnly = b.filter(e => totalMutations(e.data.instruction.mutationResults) === 1).sort(compareMutationEvaluations).reverse();
+    const aSingleMutationsOnly = a.filter(e => e.mutationCount === 1).sort(compareMutationEvaluations).reverse();
+    const bSingleMutaitonsOnly = b.filter(e => e.mutationCount === 1).sort(compareMutationEvaluations).reverse();
     let aI = 0;
     let bI = 0;
     // Assumption: All arrays are at least .length > 0
@@ -807,7 +813,7 @@ export const createDefaultIsFinishedFn = ({
     }
 
     if (data.mutationEvaluations.length > 0) {
-      const onlyContainsDeleteStatementCrashes = data.mutationEvaluations.filter(evaluation => evaluation.crashed && evaluation.data.instruction.type === DELETE_STATEMENT).length === data.mutationEvaluations.length;
+      const onlyContainsDeleteStatementCrashes = data.mutationEvaluations.filter(evaluation => evaluation.crashed && evaluation.type === DELETE_STATEMENT).length === data.mutationEvaluations.length;
       if (!onlyContainsDeleteStatementCrashes) {
         const containsUsefulMutations = data.mutationEvaluations.some(evaluation => {
           const improved = 
@@ -820,7 +826,7 @@ export const createDefaultIsFinishedFn = ({
             && evaluation.testsImproved === 0
             && evaluation.testsWorsened === 0
             && nothingChangedMutationStackEvaluation(evaluation.stackEvaluation)
-            && evaluation.data.instruction.type !== DELETE_STATEMENT
+            && evaluation.type !== DELETE_STATEMENT
           );
           return improved || nothingChangedInNonDeleteStatement;
         })
@@ -897,6 +903,7 @@ const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
 }
 
 type LocationKey = string;
+const heapComparisonFn = (a, b) => -compareInstructions(a, b);
 export const createPlugin = ({
   faultFilePath = './faults/faults.json',
   babelOptions,
@@ -907,12 +914,11 @@ export const createPlugin = ({
 }: PluginOptions): PartialTestHookOptions => {
   let previousInstruction: InstructionHolder = null!;
   let finished = false;
-  const instructionQueue: Heap<InstructionHolder> = new Heap((a, b) => -compareInstructions(a, b));
+  const instructionQueue: Heap<InstructionHolder> = new Heap(heapComparisonFn);
   let firstRun = true;  
   let firstTesterResults: TesterResults;
 
   const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
-  const expressionsSeen: Set<string> = new Set();
   let mutationCount = 0;
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
     resolve('.', glob).replace(/\\+/g, '/'),
@@ -924,7 +930,8 @@ export const createPlugin = ({
         tester,
         previousInstruction,
       ) : {
-        data: previousInstruction,
+        type: previousInstruction.instruction.type,
+        mutationCount: previousInstruction.instruction.mutationCount,
         testsWorsened: null,
         testsImproved: null,
         stackEvaluation: null,
@@ -1059,6 +1066,7 @@ export const createPlugin = ({
           }
           const failedCoverage: Coverage = failedCoverageMap.data;
           const statements: StatementInformation[] = [];
+          const expressionsSeen: Set<string> = new Set();
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
             //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
