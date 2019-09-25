@@ -490,6 +490,10 @@ export const compareMutationEvaluations = (
   r1: MutationEvaluation,
   r2: MutationEvaluation,
 ) => {
+  const partialComparison = r2.partial - r1.partial;
+  if (partialComparison !== 0) {
+    return partialComparison;
+  }
   if (r1.crashed && r2.crashed) {
     return 0;
   } else if (r1.crashed && !r2.crashed) {
@@ -647,7 +651,8 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
 
 type CommonMutationEvaluation = {
   type: Symbol,
-  mutationCount: number
+  mutationCount: number,
+  partial: boolean,
 };
 type CrashedMutationEvaluation = {
   stackEvaluation: null,
@@ -670,6 +675,7 @@ const evaluateNewMutation = (
   originalResults: TesterResults,
   newResults: TesterResults,
   instruction: InstructionHolder,
+  partial: boolean,
 ): MutationEvaluation => {
   const notSeen = new Set(originalResults.testResults.keys());
   let testsWorsened = 0;
@@ -719,7 +725,8 @@ const evaluateNewMutation = (
     testsImproved,
     stackEvaluation,
     errorsChanged,
-    crashed: false
+    crashed: false,
+    partial
   };
 };
 
@@ -803,6 +810,7 @@ export type PluginOptions = {
   onMutation?: (mutatatedFiles: string[]) => any,
   isFinishedFn?: IsFinishedFunction,
   mapToIstanbul?: boolean,
+  allowPartialTestRuns?: boolean
 };
 
 type DefaultIsFinishedOptions = {
@@ -937,13 +945,15 @@ export const createPlugin = ({
   ignoreGlob = [],
   onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn(),
-  mapToIstanbul = false
+  mapToIstanbul = false,
+  allowPartialTestRuns = true
 }: PluginOptions): PartialTestHookOptions => {
   let previousInstruction: InstructionHolder = null!;
   let finished = false;
   const instructionQueue: Heap<InstructionHolder> = new Heap(heapComparisonFn);
   let firstRun = true;  
-  let firstTesterResults: TesterResults;;
+  let firstTesterResults: TesterResults;
+  const failingTestFiles: Set<string> = new Set();
   let previousRunWasPartial = false;
 
   const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
@@ -951,21 +961,8 @@ export const createPlugin = ({
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
     resolve('.', glob).replace(/\\+/g, '/'),
   );
-  const runEvaluation = async (tester: TesterResults, crashed: boolean, cache: AstCache) => {    
+  const analyzeEvaluation = async (mutationEvaluation: MutationEvaluation, cache: AstCache) => {    
     if (previousInstruction !== null) {
-      const mutationEvaluation: MutationEvaluation = !crashed ? evaluateNewMutation(
-        firstTesterResults,
-        tester,
-        previousInstruction,
-      ) : {
-        type: previousInstruction.instruction.type,
-        mutationCount: previousInstruction.instruction.mutationCount,
-        testsWorsened: null,
-        testsImproved: null,
-        stackEvaluation: null,
-        errorsChanged: null,
-        crashed: true
-      };
       console.log(mutationEvaluation);
       const previousMutationResults = previousInstruction.instruction.mutationResults;
 
@@ -1009,7 +1006,7 @@ export const createPlugin = ({
     }
   }
 
-  const runInstruction = async (tester: TesterResults, cache: AstCache): Promise<string[] | null> => {
+  const runInstruction = async (tester: TesterResults, cache: AstCache) => {
     let count = 0;
     for(const instruction of instructionQueue) {
       count += instruction.instruction.mutationsLeft;
@@ -1064,10 +1061,6 @@ export const createPlugin = ({
 
     await Promise.resolve(onMutation(mutatedFilePaths));
     
-    const testsToBeRerun = [...firstTesterResults.testResults.values()].map(result => result.file);
-    //console.log('done')
-
-    return testsToBeRerun;
   }
 
   return {
@@ -1089,6 +1082,7 @@ export const createPlugin = ({
           for (const testResult of tester.testResults.values()) {
             // TODO: Maybe don't?
             if (!testResult.passed) {
+              failingTestFiles.add(testResult.file);
               failedCoverageMap.merge(testResult.coverage);
             }
           }
@@ -1119,14 +1113,35 @@ export const createPlugin = ({
             const deletionInstruction = new DeleteStatementInstruction(statements, RETRIES, RETRIES);
             instructionQueue.push(createInstructionHolder(deletionInstruction, false));
           }
-        }
-
-        if (previousInstruction !== null) {
+        } else {
+          const mutationEvaluation = evaluateNewMutation(
+            firstTesterResults,
+            tester,
+            previousInstruction,
+            previousRunWasPartial
+          );
+  
+          if (previousRunWasPartial && evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+            const testsToBeRerun = [...firstTesterResults.testResults.values()].map(result => result.file);
+            previousRunWasPartial = false;
+            return testsToBeRerun;
+          }
+  
           await resetMutationsInInstruction(previousInstruction);
+ 
+          await analyzeEvaluation(mutationEvaluation, cache); 
         }
-
-        await runEvaluation(tester, false, cache);
-        return await runInstruction(tester, cache);
+        
+        await runInstruction(tester, cache);
+        
+        if (allowPartialTestRuns) {
+          // TODO: DRY
+          const testsToBeRerun = [...firstTesterResults.testResults.values()].map(result => result.file);
+          return testsToBeRerun;
+        } else {
+          previousRunWasPartial = true;
+          return [...failingTestFiles];
+        }
       },
       async exit(tester: FinalTesterResults) {
         if (finished) {
@@ -1135,12 +1150,26 @@ export const createPlugin = ({
         if (firstRun) {
           return { rerun: false, allow: false, };
         }
+        const mutationEvaluation: MutationEvaluation = {
+          type: previousInstruction.instruction.type,
+          mutationCount: previousInstruction.instruction.mutationCount,
+          testsWorsened: null,
+          testsImproved: null,
+          stackEvaluation: null,
+          errorsChanged: null,
+          crashed: true,
+          partial: previousRunWasPartial
+        };
+
+        if (previousRunWasPartial) {
+          previousRunWasPartial = false;
+        }
 
         const cache = createAstCache(babelOptions);
         if (previousInstruction !== null) {
           await resetMutationsInInstruction(previousInstruction);
         }
-        await runEvaluation(tester, true, cache);
+        await analyzeEvaluation(mutationEvaluation, cache);
 
         // TODO: Would be better if the exit hook could be told which tests to rerun. Maybe :P
         const testsToRerun = await runInstruction(tester, cache);
