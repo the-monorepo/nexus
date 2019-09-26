@@ -52,6 +52,7 @@ export const deleteItem = <T>(arr: T[], locations: Map<T, number>, compareFn: Co
  */
 export const checkSwapWithParent = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number): boolean => {
   if (index <= 0) {
+    locations.set(arr[index], index);
     return false;
   }
 
