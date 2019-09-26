@@ -41,6 +41,9 @@ export const deleteIndex = <T>(arr: T[], locations: Map<T, number>, compareFn: C
 }
 
 export const deleteItem = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, item: T) => {
+  if (!locations.has(item)) {
+    throw new Error(`Heap did not have item "${item}"`);
+  }
   deleteIndex(arr, locations, compareFn, locations.get(item)!);
 }
 
@@ -100,6 +103,9 @@ export const updateIndex = <T>(arr: T[], locations: Map<T, number>, compareFn: C
 }
 
 export const update = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, item: T) => {
+  if (!locations.has(item)) {
+    throw new Error(`Heap did not have item "${item}"`);
+  }
   return updateIndex(arr, locations, compareFn, locations.get(item)!);
 };
 
@@ -173,6 +179,9 @@ export class Heap<T> implements Iterable<T> {
   clone(): Heap<T> {
     const clonedHeap = new Heap(this.compareFn);
     clonedHeap.arr.push(...this.arr);
+    for(const [key, value] of this.locations) {
+      clonedHeap.locations.set(key, value);
+    }
     return clonedHeap;
   }
 
