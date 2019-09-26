@@ -797,7 +797,10 @@ const evaluateNewMutation = (
   };
 };
 
-const locationToKey = (filePath: string, location: ExpressionLocation) => {
+const locationToKey = (filePath: string, location?: ExpressionLocation | null) => {
+  if (!location) {
+    return filePath;
+  }
   return `${filePath}:${location.start.line}:${location.start.column}`;
 };
 
