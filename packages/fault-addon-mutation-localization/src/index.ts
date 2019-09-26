@@ -191,6 +191,80 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
   }
 };
 
+const OPERATOR = Symbol('');
+const logicalExpressionOperators = new Set([
+  '||',
+  '&&'
+]);
+const arithmeticOperators = [
+  '/',
+  '*',
+  '-',
+  '+',
+  '%',
+  '**',
+];
+const bitOperators = [
+  '&',
+  '|',
+  '>>',
+  '>>>',
+  '<<',
+  '<<<',
+  '^',
+]
+const conditionalOperators = [
+  '&&',
+  '||',
+  '===',
+  '==',
+  '!=',
+  '!==',
+  '<',
+  '<=',
+  '>',
+  '>='
+];
+
+class BinaryInstruction implements Instruction {
+  public readonly type: Symbol = OPERATOR;
+  public readonly mutationResults: MutationResults;
+  public readonly mutationCount = 1;
+  constructor(
+    private readonly location: Location,
+    private readonly operators: string[],
+  ) {
+    this.mutationResults = {
+      locations: {
+        [this.location.filePath]: [this.location]        
+      }
+    }
+  }
+
+  isRemovable() {
+    return this.operators.length <= 0;    
+  }
+
+  get mutationsLeft() {
+    return this.operators.length;
+  }
+
+  async process(data: InstructionData, cache: AstCache) {
+    const ast = await cache.get(this.location.filePath);
+
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath => t.isLogicalExpression(nodePath) || t.isBinaryExpression(nodePath));
+    assertFoundNodePaths(nodePaths, this.location);
+  
+    const operator = this.operators.pop();
+    const nodePath = nodePaths[0];
+    const node = nodePath.node as (t.BinaryExpression | t.LogicalExpression);
+    
+    node.operator = operator as any;  
+  }
+
+  async *onEvaluation() {}
+}
+
 const ASSIGNMENT = Symbol('assignment');
 class AssignmentInstruction implements Instruction {
   public readonly type: Symbol = ASSIGNMENT;
@@ -363,13 +437,13 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   }
 }
 
-const arithmeticOperations = [
+const arithmeticAssignments = [
   '/=',
   '*=',
   '-=',
   '+=',
 ];
-const bitOperations = [
+const bitAssignments = [
   '!=',
   '&=',
   '^=',
@@ -378,8 +452,8 @@ const bitOperations = [
   '>>=',
 ]
 const instructionFactories: InstructionFactory<any>[] = [
-  new AssignmentFactory(arithmeticOperations),
-  new AssignmentFactory(bitOperations),
+  new AssignmentFactory(arithmeticAssignments),
+  new AssignmentFactory(bitAssignments),
   new AssignmentFactory(['='])
 ];
 const RETRIES = 1;
@@ -402,15 +476,16 @@ async function* identifyUnknownInstruction(
     const expressionSeenThisTimeRound: Set<string> = new Set();
     traverse(scopedPath.node, {
       enter: (path) => {
-        const node = path.node;
+        const node: any = path.node;
         const parentPath = path.parentPath;
+        const parentNode: any = parentPath.node;
         const key = expressionKey(filePath, node);
         if (expressionsSeen.has(key)) {
           return;
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
-        if (parentPath && parentPath.node.body && currentStatementStack.length > 0 && node.loc) {
+        if (parentPath && parentNode.body! && currentStatementStack.length > 0 && node.loc) {
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
@@ -432,7 +507,7 @@ async function* identifyUnknownInstruction(
         }
       },
       exit: (path) => {
-        const node = path.node;
+        const node: any = path.node;
         const key = expressionKey(filePath, node);
         if (!expressionSeenThisTimeRound.has(key)) {
           return
@@ -480,9 +555,10 @@ export const compareMutationEvaluations = (
   r1: MutationEvaluation,
   r2: MutationEvaluation,
 ) => {
-  const partialComparison = r2.partial - r1.partial;
-  if (partialComparison !== 0) {
-    return partialComparison;
+  if (r1.partial && !r2.partial) {
+    return -1;
+  } else if (!r1.partial && r2.partial) {
+    return 1;
   }
   if (r1.crashed && r2.crashed) {
     return 0;
@@ -554,14 +630,15 @@ export const evaluateStackDifference = (
   originalResult: TestResult,
   newResult: TestResult,
 ): StackEvaluation => {
-  if (newResult.stack == null || originalResult.stack == null) {
+  // TODO: Just make passing test cases have null as the stack property
+  if ((newResult as any).stack == null || (originalResult as any).stack == null) {
     return {
       stackColumnScore: null,
       stackLineScore: null,
     };
   }
-  const newStackInfo = ErrorStackParser.parse({ stack: newResult.stack });
-  const oldStackInfo = ErrorStackParser.parse({ stack: originalResult.stack });
+  const newStackInfo = ErrorStackParser.parse({ stack: (newResult as any).stack } as Error);
+  const oldStackInfo = ErrorStackParser.parse({ stack: (originalResult as any).stack } as Error);
 
   const firstNewStackFrame = newStackInfo[0];
   const firstOldStackFrame = oldStackInfo[0];
@@ -609,7 +686,7 @@ export const evaluateModifiedTestResult = (
     if (newResult.passed) {
       return false;
     }
-    return newResult.stack !== (originalResult as FailingTestData).stack;
+    return (newResult as any).stack !== (originalResult as FailingTestData).stack;
   })();
   const stackEvaluation = evaluateStackDifference(originalResult, newResult);
 
@@ -991,6 +1068,9 @@ export const createPlugin = ({
 
       for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
         console.log('pushing');
+        if (!newInstruction) {
+          throw new Error(`Instruction was ${newInstruction}`);
+        }
         instructionQueue.push(newInstruction);
       }
     }
