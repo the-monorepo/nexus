@@ -72,12 +72,17 @@ const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
 /**
  * From least desirable to be processed to most
  */
-const compareInstructions = (a: InstructionHolder<any>, b: InstructionHolder<any>) => {
+const compareInstructions = (a: InstructionHolder, b: InstructionHolder) => {
   // TODO: The most important instructions should be ones that have huge potential to be a fix (E.g. Only improves tests, nothing else)
   if (a.data.derivedFromPassingTest && !b.data.derivedFromPassingTest) {
     return -1;
   } else if(!a.data.derivedFromPassingTest && b.data.derivedFromPassingTest) {
     return 1;
+  }
+  // TODO: This only works because, at the moment, the only multi instructions are deletion statements and deletion statements with less mutations have successfully been vetted through more test runs.
+  const mutationCountComparison = b.instruction.mutationCount - a.instruction.mutationCount ;
+  if (mutationCountComparison !== 0) {
+    return mutationCountComparison;
   }
   a.data.mutationEvaluations.sort(compareMutationEvaluations);
   b.data.mutationEvaluations.sort(compareMutationEvaluations);
@@ -1062,7 +1067,7 @@ export const createPlugin = ({
 
       if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
         console.log('popping');
-        // Can't assume it's at the top of the heap because any new instruction (onEvaluation) could technically end up at the top too
+        // Can't assume it's at the top of the heap and therefore can't use pop because any new instruction (onEvaluation) could technically end up at the top too
         instructionQueue.delete(previousInstruction);
       } else {
         console.log('updating')
