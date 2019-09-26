@@ -415,10 +415,10 @@ class DeleteStatementInstruction implements Instruction {
       if (this.statements.length <= 1) {
         const statement = this.statements[0];
         yield* statement.instructionHolders;
-      } else if (!evaluation.crashed){
-        yield* this.yieldSplitDeleteStatements(data, this.maxRetries);
-      } else {
+      } else if (evaluation.crashed){
         yield* this.yieldSplitDeleteStatements(data, this.currentRetries);
+      } else {
+        yield* this.yieldSplitDeleteStatements(data, this.maxRetries);
       }
     } else if(this.statements.length > 1 && this.currentRetries > 0) {
       yield* this.yieldSplitDeleteStatements(data, this.currentRetries - 1);
