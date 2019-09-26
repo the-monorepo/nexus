@@ -378,7 +378,6 @@ class DeleteStatementInstruction implements Instruction {
   async process(data: InstructionData, cache: AstCache) {  
     for(let s = this.statements.length - 1; s >= 0; s--) {
       const statement = this.statements[s];
-      console.log('deleting', locationToKey(statement.filePath, statement.location), statement.index);
       const ast = await cache.get(statement.filePath);
       const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
@@ -863,7 +862,6 @@ export const mutationEvalatuationMapToFaults = (
 ): Fault[] => {
   const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
   locationEvaluationsList.sort(compareLocationEvaluations);
-  console.log(locationEvaluationsList.map(e => e.evaluations))
   const faults = locationEvaluationsList.map((lE, i): Fault => {
     return {
       score: i,
