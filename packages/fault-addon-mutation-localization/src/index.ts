@@ -106,7 +106,7 @@ type Location = {
 } & ExpressionLocation;
 
 type StatementInformation = {
-  index: number,
+  index: any,
   filePath: string,
   location: ExpressionLocation | null,
   instructionHolders: InstructionHolder[]
@@ -156,8 +156,9 @@ const findNodePathsWithLocation = (ast, location: ExpressionLocation) => {
   traverse(ast, {
     enter(path) {
       const loc1 = location;
-      const loc2 = path.node.loc!;
+      const loc2 = path.node.loc;
       if (
+        loc2 &&
         loc1.start.column === loc2.start.column &&
         loc1.start.line === loc2.start.line &&
         loc1.end.column === loc2.end.column &&
@@ -176,7 +177,7 @@ const getParentScope = (path) => {
     return path;
   }
   const parentNode = parentPath.node;
-  if (t.isScopable(parentNode) || t.isProgram(parentNode)) {
+  if (t.isBlock(parentNode)) {
     return path;
   }
   return getParentScope(parentPath);
@@ -296,21 +297,21 @@ class DeleteStatementInstruction implements Instruction {
   }
 
   async process(data: InstructionData, cache: AstCache) {  
-    console.log(`Deleting ${this.statements.length} statements`);
     for(let s = this.statements.length - 1; s >= 0; s--) {
       const statement = this.statements[s];
+      console.log('deleting', locationToKey(statement.filePath, statement.location), statement.index);
       const ast = await cache.get(statement.filePath);
       const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
-      const filteredNodePaths = nodePaths.filter(path => path.parentPath && path.parentPath.node.body !== undefined);
+      const filteredNodePaths = nodePaths.filter(path => path.parentPath && path.parentPath.node.body);
       assertFoundNodePaths(filteredNodePaths, { ...statement.location!, filePath: statement.filePath });
       // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-      const path = filteredNodePaths.pop()!.parentPath;
-      const node = path!.node;
-      if(!t.isBlockStatement(node)) {
-        node.body = t.blockStatement([]);
+      const parentPath = filteredNodePaths.pop()!.parentPath;
+      const parentNode = parentPath!.node;
+      if(Array.isArray(parentNode.body)) {
+        parentNode.body.splice(statement.index, 1);
       } else {
-        node.body.splice(statement.index, 1);
+        parentNode.body = t.blockStatement([]);
       }
     }
   }
@@ -351,7 +352,7 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   
   *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
-    if(t.isAssignmentExpression(node) && node.loc !== null) {
+    if(t.isAssignmentExpression(node) && node.loc) {
       const operators = [...this.operations].filter(
         operator => operator !== node.operator,
       );
@@ -398,41 +399,35 @@ async function* identifyUnknownInstruction(
     const scopedPath = getParentScope(nodePath);
     const statements: StatementInformation[] = [];
     const currentStatementStack: StatementInformation[][] = [];
-    const expressionSeenThisTimeRound = new Set()
+    const expressionSeenThisTimeRound: Set<string> = new Set();
     traverse(scopedPath.node, {
       enter: (path) => {
         const node = path.node;
         const parentPath = path.parentPath;
         const key = expressionKey(filePath, node);
         if (expressionsSeen.has(key)) {
-          return
+          return;
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
-        if (!parentPath) {
-          return;
-        }
-        if (node.body !== undefined && !t.isBlockStatement(node.body) && node.loc && node.body.loc) {
-          currentStatementStack.push([{
-            index: 0,
-            filePath,
-            instructionHolders: [],
-            location: node.body.loc
-          }]);
-        } else if (t.isBlock(node)) {
-          currentStatementStack.push([]);
-        } else if(t.isBlock(parentPath.node) && node.loc && typeof path.key === 'number') {
+        if (parentPath && parentPath.node.body && currentStatementStack.length > 0 && node.loc) {
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
             instructionHolders: [],
-            location: node.loc
-          });
-        } else if(currentStatementStack.length > 0) {
+            location: node.loc,
+          })
+        }
+        if (node.body) {
+          currentStatementStack.push([]);
+        }
+        if(currentStatementStack.length > 0) {
           const statementStack = currentStatementStack[currentStatementStack.length - 1];
-          const statement = statementStack[statementStack.length - 1];
-          for(const factory of instructionFactories) {
-            statement.instructionHolders.push(...factory.createInstructions(path, filePath, derivedFromPassingTest));
+          if (statementStack.length > 0) {
+            const statement = statementStack[statementStack.length - 1];
+            for(const factory of instructionFactories) {
+              statement.instructionHolders.push(...factory.createInstructions(path, filePath, derivedFromPassingTest));
+            }  
           }
         }
       },
@@ -442,7 +437,7 @@ async function* identifyUnknownInstruction(
         if (!expressionSeenThisTimeRound.has(key)) {
           return
         }
-        if (t.isBlock(node) || (node.body !== undefined && !t.isBlockStatement(node.body))) {
+        if (node.body) {
           const poppedStatementInfo = currentStatementStack.pop()!;
           
           if (currentStatementStack.length <= 0) {
