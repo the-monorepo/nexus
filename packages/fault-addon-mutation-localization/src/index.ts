@@ -974,7 +974,6 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
   for (const fault of faults) {
     const fileCoverage = coverage[fault.sourcePath];
     if (fileCoverage === undefined) {
-      replace(fault, fault.location);
       continue;
     }
     
@@ -982,14 +981,17 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
     const loc = fault.location;
     for(const statement of Object.values(fileCoverage.statementMap)) {
       // If the start of the fault is within the bounds of the statement and the statement is smaller than the previously mapped statement, then map it
-      if (statement.start.line >= loc.start.line && statement.end.line <= loc.start.line && statement.end.line >= loc.start.line && statement.end.column >= loc.start.column) {
+      const lineWithin = loc.start.line > statement.start.line && loc.start.line < statement.start.line;
+      const onStartLineBound = loc.start.line === statement.start.line && loc.start.column >= statement.start.column && (loc.start.line !== loc.end.line || loc.start.column <= statement.end.column);
+      const onEndLineBound = loc.start.line === statement.end.line && loc.start.column <= loc.end.column && (loc.start.line !== statemnt.start.line || loc.start.column >= statement.start.column);
+      if (lineWithin || onStartLineBound || onEndLineBound) {
         if (mostRelevantStatement === null) {
           mostRelevantStatement = statement;
         } else {
-          const originalLineLength = statement.end.line - statement.start.line;
-          const otherLineLength = loc.end.line - loc.start.line;
-          const originalColumnLength = statement.end.column - statement.start.column;
-          const otherColumnLength = loc.end.column - loc.start.column;
+          const originalLineLength = mostRelevantStatement.end.line - mostRelevantStatement.start.line;
+          const otherLineLength = statement.end.line - statement.start.line;
+          const originalColumnLength = mostRelevantStatement.end.column - mostRelevantStatement.start.column;
+          const otherColumnLength = statement.end.column - statement.start.column;
           if (originalLineLength > otherLineLength || (originalLineLength === otherLineLength && originalColumnLength > otherColumnLength)) {
             mostRelevantStatement = statement;
           }

@@ -123,7 +123,7 @@ export const calculateExamScore = (
   for (const actualFault of actualFaults) {
     let removedSomething = false;
 
-    for (let w = 0; w < withinLocations.length; w++) {
+    for (let w = withinLocations.length - 1; w >= 0; w--) {
       if (isWithinLocation(projectDir, withinLocations[w], actualFault)) {
         removedSomething = true;
         sum += nonFaultElementsInspected;
