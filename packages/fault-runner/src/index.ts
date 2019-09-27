@@ -101,7 +101,7 @@ const createFileComparer = (testDurations: TestDurations) => {
 const mergeCoverage = (workerCoverage: Coverage[]) =>{
   const totalCoverage = createCoverageMap({});
   for (const coverage of workerCoverage) {
-    totalCoverage.merge(coverage);
+    totalCoverage.merge(createCoverageMap(coverage));
   }
   return totalCoverage;
 }
@@ -282,7 +282,7 @@ const runAndRecycleProcesses = async (
           // TODO: DRY (see tester results creation above)
           const endTime = Date.now();
           const totalDuration = endTime - startTime;
-          const results: FinalTesterResults = { testResults, duration: totalDuration, coverage: mergeCoverage(workerCoverage) };
+          const results: FinalTesterResults = { testResults, duration: totalDuration, coverage: mergeCoverage(workerCoverage).data };
     
           let shouldRerun = false;
           let allowed = false;
@@ -336,7 +336,7 @@ const runAndRecycleProcesses = async (
                   const totalCoverage = mergeCoverage(workerCoverage);
     
                   const finalResults: FinalTesterResults = {
-                    coverage: totalCoverage,
+                    coverage: totalCoverage.data,
                     testResults,
                     duration: totalDuration,
                   };
@@ -380,6 +380,7 @@ const runAndRecycleProcesses = async (
           // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
           worker.process.on('exit', (code, signal) => {
             console.log('worker exit', id, code, signal);
+            clearTimeout(worker.expirationTimer);
             if (code !== 0) {
               const otherWorkers = workers.filter(otherWorker => otherWorker !== worker);
               killWorkers(otherWorkers, new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));

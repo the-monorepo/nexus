@@ -981,9 +981,10 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
     const loc = fault.location;
     for(const statement of Object.values(fileCoverage.statementMap)) {
       // If the start of the fault is within the bounds of the statement and the statement is smaller than the previously mapped statement, then map it
-      const lineWithin = loc.start.line > statement.start.line && loc.start.line < statement.start.line;
-      const onStartLineBound = loc.start.line === statement.start.line && loc.start.column >= statement.start.column && (loc.start.line !== loc.end.line || loc.start.column <= statement.end.column);
-      const onEndLineBound = loc.start.line === statement.end.line && loc.start.column <= loc.end.column && (loc.start.line !== statemnt.start.line || loc.start.column >= statement.start.column);
+      const lineWithin = loc.start.line > statement.start.line && loc.start.line < statement.end.line;
+      const onStartLineBound = loc.start.line === statement.start.line && loc.start.column >= statement.start.column && (loc.start.line !== statement.end.line || loc.start.column <= statement.end.column);
+      const onEndLineBound = loc.start.line === statement.end.line && loc.start.column <= loc.end.column && (loc.start.line !== statement.start.line || loc.start.column >= statement.start.column);
+      console.log(lineWithin, onStartLineBound, onEndLineBound)
       if (lineWithin || onStartLineBound || onEndLineBound) {
         if (mostRelevantStatement === null) {
           mostRelevantStatement = statement;
