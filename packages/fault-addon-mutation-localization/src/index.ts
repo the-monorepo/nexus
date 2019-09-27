@@ -460,7 +460,7 @@ const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(bitAssignments),
   new AssignmentFactory(['='])
 ];
-const RETRIES = 1;
+const RETRIES = 2;
 
 async function* identifyUnknownInstruction(
   location: Location,
@@ -921,8 +921,11 @@ export const createDefaultIsFinishedFn = ({
     }
 
     if (data.mutationEvaluations.length > 0) {
-      const onlyContainsDeleteStatementCrashes = data.mutationEvaluations.filter(evaluation => evaluation.crashed && evaluation.type === DELETE_STATEMENT).length === data.mutationEvaluations.length;
-      if (!onlyContainsDeleteStatementCrashes) {
+      // TODO: Might need to rethink using mutationCount if multi mutation instructions exist outside the delete statement phase
+      const mostSpecificMutationCount = Math.min(...data.mutationEvaluations.map(e => e.mutationCount));
+      const mostSpecificMutations = data.mutationEvaluations.filter(e =>e.mutationCount === mostSpecificMutationCount);
+      const mostSpecificMutationsOnlyContainCrashes = mostSpecificMutations.filter(evaluation => evaluation.crashed).length === mostSpecificMutations.length;
+      if (!mostSpecificMutationsOnlyContainCrashes) {
         const containsUsefulMutations = data.mutationEvaluations.some(evaluation => {
           const improved = 
             !evaluation.crashed && (
