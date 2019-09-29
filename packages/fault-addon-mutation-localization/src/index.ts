@@ -114,6 +114,7 @@ type StatementInformation = {
   index: any,
   filePath: string,
   location: ExpressionLocation | null,
+  innerStatements: StatementInformation[],
   instructionHolders: InstructionHolder[]
 }
 
@@ -313,20 +314,39 @@ const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => 
   return evaluation.crashed || (evaluation.testsImproved > 0 || evaluation.errorsChanged > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
 }
 
+type StatementBlock = { 
+  statements: StatementInformation[],
+  retries: number,
+}
 const DELETE_STATEMENT = Symbol('delete-statement');
 class DeleteStatementInstruction implements Instruction {
   public readonly type = DELETE_STATEMENT;
-  public readonly mutationResults: MutationResults;
+  public mutationResults: MutationResults;
   public mutationsLeft: number;
-  public readonly mutationCount: number;
+  public mutationCount: number;
+  private readonly statementBlocks: Heap<StatementBlock> = new Heap((a, b) => b.statements.length - a.statements.length);
+  private lastProcessedStatementBlock: StatementBlock= undefined!;
   constructor(
-    private readonly statements: StatementInformation[],
-    private readonly currentRetries: number,
+    statements: StatementInformation[],
     private readonly maxRetries: number,
   ) {
+    this.statementBlocks.push({
+      statements,
+      retries: maxRetries,
+    })
+    // TODO: This doesn't really make sense, need to make this less hacky
+    this.lastProcessedStatementBlock = this.statementBlocks.peek();
+    this.recalculateMutationResults();
+  }
+
+  /**
+   * Managing state like this is gross, refactor
+   */
+  recalculateMutationResults() {
     const locationsObj: LocationObject = {};
     const locationsAdded: Set<string> = new Set();
-    for(const statement of this.statements) {
+    const statements = this.lastProcessedStatementBlock.statements;
+    for(const statement of statements) {
       const key = locationToKey(statement.filePath, statement.location!);
       if (locationsAdded.has(key)) {
         continue;
@@ -360,32 +380,37 @@ class DeleteStatementInstruction implements Instruction {
     this.mutationResults = {
       locations: locationsObj
     };
-    this.mutationCount = totalMutations(this.mutationResults);
-    
-    let count = this.statements.length * 2 - 1;
-    for(const statement of this.statements) {
+
+    let count = statements.length * 2 - 1;
+    for(const statement of statements) {
       for(const instructionHolder of statement.instructionHolders) {
         count += instructionHolder.instruction.mutationsLeft;
       }
     }
     this.mutationsLeft = count;
+    this.mutationCount = totalMutations(this.mutationResults);
   }
 
   isRemovable() {
-    return true;
+    return this.statementBlocks.length <= 0;
   }
 
   async process(data: InstructionData, cache: AstCache) {  
-    for(let s = this.statements.length - 1; s >= 0; s--) {
-      const statement = this.statements[s];
+    const statements = this.statementBlocks.pop()!;
+    this.lastProcessedStatementBlock = statements;
+    // TODO: Really shouldn't have to rely on the order of statements for this to work
+    for(let s = statements.statements.length - 1; s >= 0; s--) {
+      const statement = statements.statements[s];
       const ast = await cache.get(statement.filePath);
       const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
       const filteredNodePaths = nodePaths.filter(path => path.parentPath && path.parentPath.node.body);
       assertFoundNodePaths(filteredNodePaths, { ...statement.location!, filePath: statement.filePath });
       // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-      const parentPath = filteredNodePaths.pop()!.parentPath;
+      const node = filteredNodePaths.pop()!;
+      const parentPath = node.parentPath;
       const parentNode = parentPath!.node;
+      console.log(`${locationToKey(statement.filePath, statement.location)}`,statement.index,  parentNode.type, node.type);
       if(Array.isArray(parentNode.body)) {
         parentNode.body.splice(statement.index, 1);
       } else {
@@ -394,33 +419,67 @@ class DeleteStatementInstruction implements Instruction {
     }
   }
 
-  public *yieldSplitDeleteStatements(data: InstructionData, currentRetries: number) {
-    const originalStatements = this.statements;
-    const middle = Math.trunc(this.statements.length / 2);
-    const statements1 = originalStatements.slice(middle);
-    const statements2 = originalStatements.slice(0, middle);
-    
-    yield createInstructionHolder(new DeleteStatementInstruction(statements1, currentRetries, this.maxRetries), data.derivedFromPassingTest);
-    yield createInstructionHolder(new DeleteStatementInstruction(statements2, currentRetries, this.maxRetries), data.derivedFromPassingTest);
+  private splitStatementBlock(statements: StatementBlock, retries: number) {
+    const middle = Math.trunc(statements.statements.length / 2);
+    const statements1 = statements.statements.slice(middle);
+    const statements2 = statements.statements.slice(0, middle);
+    this.statementBlocks.push({
+      statements: statements1,
+      retries
+    });
+    this.statementBlocks.push({
+      statements: statements2,
+      retries
+    });
   }
 
-  async *onEvaluation(evaluation: MutationEvaluation, data: InstructionData): AsyncIterableIterator<InstructionHolder> {
-    if (this.statements.length <= 0) {
-      throw new Error(`There were ${this.statements.length} statements`);
+  mergeStatementsWithLargestStatementBlock(statements: StatementInformation[], retries: number) {
+    if (this.statementBlocks.length <= 0) {
+      this.statementBlocks.push({
+        statements,
+        retries
+      });
+      return;
+    }
+    let largestStatementBlock: StatementBlock = this.statementBlocks.peek();
+    for(const statementBlock of this.statementBlocks.unsortedIterator()) {
+      if (statementBlock.statements.length > largestStatementBlock.statements.length) {
+        largestStatementBlock = statementBlock;
+      }
+    } 
+    largestStatementBlock.statements.push(...statements);
+    if(retries > largestStatementBlock.retries) {
+      largestStatementBlock.retries = retries;
+    }
+  }
+
+  async *onEvaluation(evaluation: MutationEvaluation): AsyncIterableIterator<InstructionHolder> {
+    const statements = this.lastProcessedStatementBlock;
+    if (statements.statements.length <= 0) {
+      throw new Error(`There were ${statements.statements.length} statements`);
     }
  
     const deletingStatementsDidSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(evaluation);
     if (deletingStatementsDidSomethingGoodOrCrashed) {
-      if (this.statements.length <= 1) {
-        const statement = this.statements[0];
+      if (statements.statements.length === 1) {
+        const statement = statements.statements[0];
         yield* statement.instructionHolders;
-      } else if (evaluation.crashed){
-        yield* this.yieldSplitDeleteStatements(data, this.currentRetries);
+        if (statement.innerStatements.length > 0) {
+          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, statements.retries);
+        }
       } else {
-        yield* this.yieldSplitDeleteStatements(data, this.maxRetries);
+        this.splitStatementBlock(statements, this.maxRetries);
       }
-    } else if(this.statements.length > 1 && this.currentRetries > 0) {
-      yield* this.yieldSplitDeleteStatements(data, this.currentRetries - 1);
+    } else if (statements.retries > 0) {
+      if (statements.statements.length === 1) {
+        const statement = statements.statements[0];
+        if (statement.innerStatements.length > 0) {
+          yield* statement.instructionHolders;
+          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, statements.retries - 1);
+        }
+      } else {
+        this.splitStatementBlock(statements, statements.retries - 1);
+      }
     }
   }
 }
@@ -489,15 +548,16 @@ async function* identifyUnknownInstruction(
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
-        if (parentPath && parentNode.body! && currentStatementStack.length > 0 && node.loc) {
+        if (parentPath && parentNode.body! && (!node.body || Array.isArray(parentNode.body)) && currentStatementStack.length > 0 && node.loc && (typeof path.key === 'number' || path.key === 'body')) {
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
             instructionHolders: [],
+            innerStatements: [],
             location: node.loc,
           })
         }
-        if (node.body) {
+        if (node.body && (!node.body.body || Array.isArray(node.body))) {
           currentStatementStack.push([]);
         }
         if(currentStatementStack.length > 0) {
@@ -516,7 +576,7 @@ async function* identifyUnknownInstruction(
         if (!expressionSeenThisTimeRound.has(key)) {
           return
         }
-        if (node.body) {
+        if (node.body && !node.body.body) {
           const poppedStatementInfo = currentStatementStack.pop()!;
           
           if (currentStatementStack.length <= 0) {
@@ -524,9 +584,7 @@ async function* identifyUnknownInstruction(
           } else {
             const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
             const lastStatement = newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
-            lastStatement.instructionHolders.push(
-              createInstructionHolder(new DeleteStatementInstruction(poppedStatementInfo, RETRIES, RETRIES), derivedFromPassingTest)
-            );
+            lastStatement.innerStatements.push(...poppedStatementInfo);
           }
         }
       }
@@ -984,7 +1042,6 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
       const lineWithin = loc.start.line > statement.start.line && loc.start.line < statement.end.line;
       const onStartLineBound = loc.start.line === statement.start.line && loc.start.column >= statement.start.column && (loc.start.line !== statement.end.line || loc.start.column <= statement.end.column);
       const onEndLineBound = loc.start.line === statement.end.line && loc.start.column <= loc.end.column && (loc.start.line !== statement.start.line || loc.start.column >= statement.start.column);
-      console.log(lineWithin, onStartLineBound, onEndLineBound)
       if (lineWithin || onStartLineBound || onEndLineBound) {
         if (mostRelevantStatement === null) {
           mostRelevantStatement = statement;
@@ -1188,12 +1245,12 @@ export const createPlugin = ({
           }
           if (statements.length > 1) {
             const middle = Math.trunc(statements.length / 2);
-            const deletionInstruction1 = new DeleteStatementInstruction(statements.slice(0, middle), RETRIES, RETRIES);
-            const deletionInstruction2 = new DeleteStatementInstruction(statements.slice(middle), RETRIES, RETRIES);
+            const deletionInstruction1 = new DeleteStatementInstruction(statements.slice(0, middle), RETRIES);
+            const deletionInstruction2 = new DeleteStatementInstruction(statements.slice(middle), RETRIES);
             instructionQueue.push(createInstructionHolder(deletionInstruction1, false));
             instructionQueue.push(createInstructionHolder(deletionInstruction2, false));
           } else if (statements.length === 1) {
-            const deletionInstruction = new DeleteStatementInstruction(statements, RETRIES, RETRIES);
+            const deletionInstruction = new DeleteStatementInstruction(statements, RETRIES);
             instructionQueue.push(createInstructionHolder(deletionInstruction, false));
           }
         } else {
