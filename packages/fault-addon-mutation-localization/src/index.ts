@@ -324,7 +324,7 @@ class DeleteStatementInstruction implements Instruction {
   public mutationResults: MutationResults;
   public mutationsLeft: number;
   public mutationCount: number;
-  private readonly statementBlocks: Heap<StatementBlock> = new Heap((a, b) => b.statements.length - a.statements.length);
+  private readonly statementBlocks: Heap<StatementBlock> = new Heap((a, b) => a.statements.length - b.statements.length);
   private lastProcessedStatementBlock: StatementBlock= undefined!;
   constructor(
     statements: StatementInformation[],
@@ -550,7 +550,7 @@ async function* identifyUnknownInstruction(
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
-        if (parentPath && parentNode.body! && (!node.body || Array.isArray(parentNode.body)) && currentStatementStack.length > 0 && node.loc && (typeof path.key === 'number' || path.key === 'body')) {
+        if (parentPath && parentNode.body! && ((Array.isArray(parentNode.body) && typeof path.key === 'number') || typeof path.key === 'number') && (!node.body || Array.isArray(parentNode.body)) && currentStatementStack.length > 0 && node.loc) {
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
