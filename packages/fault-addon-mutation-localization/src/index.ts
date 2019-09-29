@@ -330,10 +330,7 @@ class DeleteStatementInstruction implements Instruction {
     statements: StatementInformation[],
     private readonly maxRetries: number,
   ) {
-    this.statementBlocks.push({
-      statements,
-      retries: maxRetries,
-    })
+    this.splitStatementBlock(statements, maxRetries);
     // TODO: This doesn't really make sense, need to make this less hacky
     this.lastProcessedStatementBlock = this.statementBlocks.peek();
     this.recalculateMutationResults();
@@ -421,10 +418,10 @@ class DeleteStatementInstruction implements Instruction {
     }
   }
 
-  private splitStatementBlock(statements: StatementBlock, retries: number) {
-    const middle = Math.trunc(statements.statements.length / 2);
-    const statements1 = statements.statements.slice(middle);
-    const statements2 = statements.statements.slice(0, middle);
+  private splitStatementBlock(statements: StatementInformation[], retries: number) {
+    const middle = Math.trunc(statements.length / 2);
+    const statements1 = statements.slice(middle);
+    const statements2 = statements.slice(0, middle);
     this.statementBlocks.push({
       statements: statements1,
       retries
@@ -470,7 +467,7 @@ class DeleteStatementInstruction implements Instruction {
           this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, statements.retries);
         }
       } else {
-        this.splitStatementBlock(statements, this.maxRetries);
+        this.splitStatementBlock(statements.statements, this.maxRetries);
       }
     } else if (statements.retries > 0) {
       if (statements.statements.length === 1) {
@@ -480,7 +477,7 @@ class DeleteStatementInstruction implements Instruction {
           this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, statements.retries - 1);
         }
       } else {
-        this.splitStatementBlock(statements, statements.retries - 1);
+        this.splitStatementBlock(statements.statements, statements.retries - 1);
       }
     }
   }
@@ -869,10 +866,12 @@ const locationToKey = (filePath: string, location?: ExpressionLocation | null) =
 };
 
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvaluation, b: MutationEvaluation) => {
-  if (a.mutationCount > b.mutationCount) {
-    return -1;
-  } else if (a.mutationCount < b.mutationCount) {
-    return 1;
+  if (a.partial === b.partial) {
+    if (a.mutationCount > b.mutationCount) {
+      return -1;
+    } else if (a.mutationCount < b.mutationCount) {
+      return 1;
+    }  
   }
   return compareMutationEvaluations(a, b);
 }
@@ -1086,6 +1085,7 @@ export const createPlugin = ({
   mapToIstanbul = false,
   allowPartialTestRuns = true
 }: PluginOptions): PartialTestHookOptions => {
+  const nestedAstNodeCount: Map<LocationKey, number> = new Map();
   let previousInstruction: InstructionHolder = null!;
   let finished = false;
   const instructionQueue: Heap<InstructionHolder> = new Heap(heapComparisonFn);
@@ -1247,16 +1247,7 @@ export const createPlugin = ({
               }
             }
           }
-          if (statements.length > 1) {
-            const middle = Math.trunc(statements.length / 2);
-            const deletionInstruction1 = new DeleteStatementInstruction(statements.slice(0, middle), RETRIES);
-            const deletionInstruction2 = new DeleteStatementInstruction(statements.slice(middle), RETRIES);
-            instructionQueue.push(createInstructionHolder(deletionInstruction1, false));
-            instructionQueue.push(createInstructionHolder(deletionInstruction2, false));
-          } else if (statements.length === 1) {
-            const deletionInstruction = new DeleteStatementInstruction(statements, RETRIES);
-            instructionQueue.push(createInstructionHolder(deletionInstruction, false));
-          }
+          instructionQueue.push(createInstructionHolder(new DeleteStatementInstruction(statements, RETRIES), false));
         } else {
           const mutationEvaluation = evaluateNewMutation(
             firstTesterResults,
