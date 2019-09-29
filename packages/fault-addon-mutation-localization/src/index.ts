@@ -336,6 +336,9 @@ class DeleteStatementInstruction implements Instruction {
     this.recalculateMutationResults();
   }
 
+  gatherMutationResults(obj: LocationObject, statements: StatementInformation[]) {
+
+  }
   /**
    * Managing state like this is gross, refactor
    */
@@ -343,7 +346,10 @@ class DeleteStatementInstruction implements Instruction {
     const locationsObj: LocationObject = {};
     const locationsAdded: Set<string> = new Set();
     const statements = this.lastProcessedStatementBlock.statements;
-    for(const statement of statements) {
+    const stack: StatementInformation[] = [...statements];
+    let s = 0;
+    while (s < stack.length) {
+      const statement = stack[s];
       const key = locationToKey(statement.filePath, statement.location!);
       if (locationsAdded.has(key)) {
         continue;
@@ -353,26 +359,10 @@ class DeleteStatementInstruction implements Instruction {
       }
       locationsObj[statement.filePath].push(statement.location!);
       locationsAdded.add(key);
-      for(const instruction of statement.instructionHolders) {
-        if (instruction.instruction.type !== DELETE_STATEMENT) {
-          continue;
-        }
-        const mutationResult = instruction.instruction.mutationResults;
-        for(const [filePath, locations] of Object.entries(mutationResult.locations)) {
-          if (locationsObj[filePath] === undefined) {
-            locationsObj[filePath] = locations;
-          } else {
-            for(const location of locations) {
-              const nestedKey = locationToKey(filePath, location);
-              if (locationsAdded.has(nestedKey)) {
-                continue;
-              }
-              locationsObj[filePath].push(location);
-              locationsAdded.add(nestedKey);
-            }
-          }
-        }
+      if(statement.innerStatements.length > 0) {
+        stack.push(...statement.innerStatements);
       }
+      s++;
     }
     this.mutationResults = {
       locations: locationsObj
@@ -684,7 +674,9 @@ export const compareMutationEvaluations = (
     return columnScoreNulls;
   }
 
-  return 0;
+  const mutationCount = result2.mutationCount - result1.mutationCount;
+  
+  return mutationCount;
 };
 
 export const evaluateStackDifference = (
