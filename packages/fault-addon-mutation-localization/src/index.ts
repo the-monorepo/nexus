@@ -398,6 +398,8 @@ class DeleteStatementInstruction implements Instruction {
   async process(data: InstructionData, cache: AstCache) {  
     const statements = this.statementBlocks.pop()!;
     this.lastProcessedStatementBlock = statements;
+    this.recalculateMutationResults();
+
     // TODO: Really shouldn't have to rely on the order of statements for this to work
     for(let s = statements.statements.length - 1; s >= 0; s--) {
       const statement = statements.statements[s];
@@ -1107,7 +1109,9 @@ export const createPlugin = ({
 
       //console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
 
-      previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
+      if (!(previousInstruction.instruction instanceof DeleteStatementInstruction)) {
+        previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
+      }
 
       for(const [filePath, expressionLocations] of Object.entries(previousMutationResults.locations)) {
         for(const expressionLocation of expressionLocations) {
@@ -1126,6 +1130,14 @@ export const createPlugin = ({
         }
       }
 
+      for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
+        console.log('pushing');
+        if (!newInstruction) {
+          throw new Error(`Instruction was ${newInstruction}`);
+        }
+        instructionQueue.push(newInstruction);
+      }
+
       if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
         console.log('popping');
         // Can't assume it's at the top of the heap and therefore can't use pop because any new instruction (onEvaluation) could technically end up at the top too
@@ -1133,14 +1145,6 @@ export const createPlugin = ({
       } else {
         console.log('updating')
         instructionQueue.update(previousInstruction);
-      }
-
-      for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
-        console.log('pushing');
-        if (!newInstruction) {
-          throw new Error(`Instruction was ${newInstruction}`);
-        }
-        instructionQueue.push(newInstruction);
       }
     }
   }
