@@ -1004,6 +1004,13 @@ export const createDefaultIsFinishedFn = ({
   return isFinishedFn;
 }
 
+const isLocationWithinBounds = (loc: ExpressionLocation, statement: ExpressionLocation) => {
+  const lineWithin = loc.start.line > statement.start.line && loc.start.line < statement.end.line;
+  const onStartLineBound = loc.start.line === statement.start.line && loc.start.column >= statement.start.column && (loc.start.line !== statement.end.line || loc.start.column <= statement.end.column);
+  const onEndLineBound = loc.start.line === statement.end.line && loc.start.column <= loc.end.column && (loc.start.line !== statement.start.line || loc.start.column >= statement.start.column);
+  return lineWithin || onStartLineBound || onEndLineBound;
+}
+
 export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage): Fault[] => {
   // TODO: Could make this more efficient
   const mappedFaults: Map<string, Fault> = new Map();
@@ -1030,23 +1037,33 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
     
     let mostRelevantStatement: ExpressionLocation | null = null;
     const loc = fault.location;
+    const locLineWidth = loc.end.line - loc.start.line;
+    const locColumnWidth = loc.end.column - loc.start.column;
     for(const statement of Object.values(fileCoverage.statementMap)) {
-      // If the start of the fault is within the bounds of the statement and the statement is smaller than the previously mapped statement, then map it
-      const lineWithin = loc.start.line > statement.start.line && loc.start.line < statement.end.line;
-      const onStartLineBound = loc.start.line === statement.start.line && loc.start.column >= statement.start.column && (loc.start.line !== statement.end.line || loc.start.column <= statement.end.column);
-      const onEndLineBound = loc.start.line === statement.end.line && loc.start.column <= loc.end.column && (loc.start.line !== statement.start.line || loc.start.column >= statement.start.column);
-      if (lineWithin || onStartLineBound || onEndLineBound) {
+      if (isLocationWithinBounds(loc, statement) || isLocationWithinBounds(statement, loc)) {
         if (mostRelevantStatement === null) {
           mostRelevantStatement = statement;
         } else {
-          const originalLineLength = mostRelevantStatement.end.line - mostRelevantStatement.start.line;
-          const otherLineLength = statement.end.line - statement.start.line;
-          const originalColumnLength = mostRelevantStatement.end.column - mostRelevantStatement.start.column;
-          const otherColumnLength = statement.end.column - statement.start.column;
-          if (originalLineLength > otherLineLength || (originalLineLength === otherLineLength && originalColumnLength > otherColumnLength)) {
+          const lineDistance = Math.abs(statement.start.line - loc.start.line);
+          const columnDistance = Math.abs(statement.start.column - loc.start.column);
+          const oLineDistance = Math.abs(mostRelevantStatement.start.line - loc.start.line);
+          const oColumnDistance = Math.abs(mostRelevantStatement.start.column - loc.start.column);
+          if (lineDistance < oLineDistance || (lineDistance === oLineDistance && columnDistance < oColumnDistance)) {
             mostRelevantStatement = statement;
+          } else {
+            const lineWidth = Math.abs(statement.end.line - statement.start.line);
+            const columnWidth = Math.abs(statement.end.column - statement.start.column);
+            const oLineWidth = Math.abs(mostRelevantStatement.end.line - mostRelevantStatement.start.line);
+            const oColumnWidth = Math.abs(mostRelevantStatement.end.column - mostRelevantStatement.start.column);              
+            const lineDisimilarity = Math.abs(locLineWidth - lineWidth);
+            const columnDisimilarity = Math.abs(locColumnWidth - columnWidth);
+            const oLineDisimilarity = Math.abs(locLineWidth - oLineWidth);
+            const oColumnDisimilarity = Math.abs(locColumnWidth - oColumnWidth);
+            if (lineDisimilarity < oLineDisimilarity || (lineDisimilarity === oLineDisimilarity && columnDisimilarity < oColumnDisimilarity)) {
+              mostRelevantStatement = statement;
+            }
           }
-        }
+        }  
       }
     }
 
