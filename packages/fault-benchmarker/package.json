@@ -6,7 +6,7 @@
   "module": "./esm/index.js",
   "main": "./lib/index.js",
   "scripts": {
-    "start": "node ./lib/index.js --max-old-space-size=4096",
+    "start": "node --max-old-space-size=4096 ./lib/index.js",
     "results": "node ./lib/results.js",
     "build": "yarn start && yarn results",
     "report": "webpack-dev-server --watch --mode development",
