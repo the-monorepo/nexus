@@ -547,7 +547,7 @@ async function* identifyUnknownInstruction(
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
-        if (parentPath && parentNode.body! && ((Array.isArray(parentNode.body) && typeof path.key === 'number') || typeof path.key === 'number') && (!node.body || Array.isArray(parentNode.body)) && currentStatementStack.length > 0 && node.loc) {
+        if (parentPath && parentNode.body! && ((Array.isArray(parentNode.body) && typeof path.key === 'number') || path.key === 'body') && (!node.body || Array.isArray(parentNode.body)) && currentStatementStack.length > 0 && node.loc) {
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
