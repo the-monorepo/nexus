@@ -613,6 +613,47 @@ const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
   return e.columnDegradationScore === 0 && e.columnImprovementScore === 0 && e.lineDegradationScore === 0 && e.lineImprovementScore === 0;
 };
 
+export const compareMutationEvaluationsWithLesserProperties = (r1: MutationEvaluation, r2: MutationEvaluation) => {
+  const comparison = compareMutationEvaluations(r1, r2);
+  if (comparison !== 0) {
+    return comparison;
+  }
+  if (!r1.crashed && !r2.crashed) {
+    const result1 = r1 as NormalMutationEvaluation;
+    const result2 = r2 as NormalMutationEvaluation;
+  
+    const mutationCount = result1.mutationCount - result2.mutationCount;
+    if (mutationCount !== 0) {
+      return mutationCount
+    }
+  
+    const lineWidth = result1.lineWidth - result2.lineWidth;
+    if(lineWidth !== 0) {
+      return lineWidth;
+    }
+  
+    const columnWidth = result1.lineWidth - result2.lineWidth;
+    if(columnWidth !== 0) {
+      return columnWidth;
+    }
+  
+    const stackEval1 = result1.stackEvaluation;
+    const stackEval2 = result2.stackEvaluation;
+  
+    // TODO: stack null scores tell us very little but maybe more is better? Verify
+    const lineScoreNulls = stackEval1.lineScoreNulls - stackEval2.lineScoreNulls;
+    if (lineScoreNulls !== 0) {
+      return lineScoreNulls;
+    }
+  
+    const columnScoreNulls = stackEval1.columnScoreNulls - stackEval2.columnScoreNulls;
+    if (columnScoreNulls !== 0) {
+      return columnScoreNulls;
+    }  
+  }
+  return 0;
+}
+
 /**
  * From worst evaluation to best evaluation
  */
@@ -677,33 +718,6 @@ export const compareMutationEvaluations = (
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
-
-  const mutationCount = result1.mutationCount - result2.mutationCount;
-  if (mutationCount !== 0) {
-    return mutationCount
-  }
-
-  const lineWidth = result1.lineWidth - result2.lineWidth;
-  if(lineWidth !== 0) {
-    return lineWidth;
-  }
-
-  const columnWidth = result1.lineWidth - result2.lineWidth;
-  if(columnWidth !== 0) {
-    return columnWidth;
-  }
-
-  // TODO: stack null scores tell us very little but maybe more is better? Verify
-  const lineScoreNulls = stackEval1.lineScoreNulls - stackEval2.lineScoreNulls;
-  if (lineScoreNulls !== 0) {
-    return lineScoreNulls;
-  }
-
-  const columnScoreNulls = stackEval1.columnScoreNulls - stackEval2.columnScoreNulls;
-  if (columnScoreNulls !== 0) {
-    return columnScoreNulls;
-  }
-
   return 0;
 };
 
@@ -897,7 +911,7 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvalu
       return 1;
     }
   }
-  return compareMutationEvaluations(a, b);
+  return compareMutationEvaluationsWithLesserProperties(a, b);
 }
 
 const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
@@ -910,6 +924,17 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
   // Assumption: All arrays are at least .length > 0
   do {
     const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
+    if (comparison !== 0) {
+      return comparison;
+    }
+    aI++;
+    bI++;
+  } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
+  let aI2 = 0;
+  let bI2 = 0;
+  // Assumption: All arrays are at least .length > 0
+  do {
+    const comparison = compareMutationEvaluationsWithLesserProperties(aSingleMutationsOnly[aI2], bSingleMutationsOnly[bI2]);
     if (comparison !== 0) {
       return comparison;
     }
