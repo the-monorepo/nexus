@@ -39,6 +39,8 @@ type LocationObject = {
 };
 
 type MutationResults = {
+  lineWidth: number,
+  columnWidth: number,
   locations: LocationObject
 };
 
@@ -113,7 +115,7 @@ type Location = {
 type StatementInformation = {
   index: any,
   filePath: string,
-  location: ExpressionLocation | null,
+  location: ExpressionLocation,
   innerStatements: StatementInformation[],
   instructionHolders: InstructionHolder[]
 }
@@ -241,6 +243,8 @@ class BinaryInstruction implements Instruction {
     private readonly operators: string[],
   ) {
     this.mutationResults = {
+      lineWidth: this.location.end.line - this.location.start.line,
+      columnWidth: this.location.end.column - this.location.start.column,
       locations: {
         [this.location.filePath]: [this.location]        
       }
@@ -281,6 +285,8 @@ class AssignmentInstruction implements Instruction {
     private readonly operators: string[],
   ) {
     this.mutationResults = {
+      lineWidth: this.location.end.line - this.location.start.line,
+      columnWidth: this.location.end.column - this.location.start.column,
       locations: {
         [this.location.filePath]: [this.location]        
       }
@@ -364,7 +370,15 @@ class DeleteStatementInstruction implements Instruction {
       }
       s++;
     }
+    let lineWidth = 0;
+    let columnWidth = 0;
+    for(const statement of statements) {
+      lineWidth += statement.location.end.line - statement.location.start.line;
+      columnWidth += statement.location.end.column - statement.location.start.column;
+    }
     this.mutationResults = {
+      lineWidth,
+      columnWidth,
       locations: locationsObj
     };
 
@@ -664,6 +678,22 @@ export const compareMutationEvaluations = (
     return errorsChanged;
   }
 
+  const mutationCount = result1.mutationCount - result2.mutationCount;
+  if (mutationCount !== 0) {
+    return mutationCount
+  }
+
+  const lineWidth = result1.lineWidth - result2.lineWidth;
+  if(lineWidth !== 0) {
+    return lineWidth;
+  }
+
+  const columnWidth = result1.lineWidth - result2.lineWidth;
+  if(columnWidth !== 0) {
+    return columnWidth;
+  }
+
+  // TODO: stack null scores tell us very little but maybe more is better? Verify
   const lineScoreNulls = stackEval1.lineScoreNulls - stackEval2.lineScoreNulls;
   if (lineScoreNulls !== 0) {
     return lineScoreNulls;
@@ -674,9 +704,7 @@ export const compareMutationEvaluations = (
     return columnScoreNulls;
   }
 
-  const mutationCount = result2.mutationCount - result1.mutationCount;
-  
-  return mutationCount;
+  return 0;
 };
 
 export const evaluateStackDifference = (
@@ -773,6 +801,8 @@ type CommonMutationEvaluation = {
   type: Symbol,
   mutationCount: number,
   partial: boolean,
+  lineWidth: number,
+  columnWidth: number,
 };
 type CrashedMutationEvaluation = {
   stackEvaluation: null,
@@ -846,7 +876,9 @@ const evaluateNewMutation = (
     stackEvaluation,
     errorsChanged,
     crashed: false,
-    partial
+    partial,
+    lineWidth: instruction.instruction.mutationResults.lineWidth,
+    columnWidth: instruction.instruction.mutationResults.columnWidth
   };
 };
 
@@ -863,7 +895,7 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvalu
       return -1;
     } else if (a.mutationCount < b.mutationCount) {
       return 1;
-    }  
+    }
   }
   return compareMutationEvaluations(a, b);
 }
@@ -871,37 +903,22 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvalu
 const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
   const a = aL.evaluations;
   const b = bL.evaluations;
-  const aHasSingleMutation = a.some(e => e.mutationCount === 1);
-  const bHasSingleMutation = b.some(e => e.mutationCount === 1);
-  if (aHasSingleMutation && !bHasSingleMutation) {
-    // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
-    return 1;
-  } else if (!aHasSingleMutation && bHasSingleMutation) {
-    // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
-    return -1;
-  } else if (!aHasSingleMutation && !bHasSingleMutation) {
-    // TODO: This bit only works because non delete statements only appear if the delete statements had good enough evaluations
-    // Justification: a has more room to experiment with if it wasn't evaluated as much.
-    // TODO: Replace with instructions left
-    return b.length - a.length;
-  } else {
-    const aSingleMutationsOnly = a.sort(compareMutationEvaluationsWithLargeMutationCountsFirst).reverse();
-    const bSingleMutationsOnly = b.sort(compareMutationEvaluationsWithLargeMutationCountsFirst).reverse();
-    let aI = 0;
-    let bI = 0;
-    // Assumption: All arrays are at least .length > 0
-    do {
-      const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
-      if (comparison !== 0) {
-        return comparison;
-      }
-      aI++;
-      bI++;
-    } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
-    // Justification: a has more room to experiment with if it wasn't evaluated as much.
-    // TODO: Replace with instructions left
-    return b.length - a.length;
-  }
+  const aSingleMutationsOnly = a.sort(compareMutationEvaluationsWithLargeMutationCountsFirst).reverse();
+  const bSingleMutationsOnly = b.sort(compareMutationEvaluationsWithLargeMutationCountsFirst).reverse();
+  let aI = 0;
+  let bI = 0;
+  // Assumption: All arrays are at least .length > 0
+  do {
+    const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
+    if (comparison !== 0) {
+      return comparison;
+    }
+    aI++;
+    bI++;
+  } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
+  // Justification: a has more room to experiment with if it wasn't evaluated as much.
+  // TODO: Replace with instructions left
+  return b.length - a.length;
 }
 
 type LocationEvaluation = {
@@ -1306,7 +1323,9 @@ export const createPlugin = ({
           stackEvaluation: null,
           errorsChanged: null,
           crashed: true,
-          partial: previousRunWasPartial
+          partial: previousRunWasPartial,
+          lineWidth: previousInstruction.instruction.mutationResults.lineWidth,
+          columnWidth: previousInstruction.instruction.mutationResults.columnWidth,
         };
 
         if (previousRunWasPartial) {
