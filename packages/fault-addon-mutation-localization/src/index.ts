@@ -403,6 +403,7 @@ class DeleteStatementInstruction implements Instruction {
     const statements = this.statementBlocks.pop()!;
     this.lastProcessedStatementBlock = statements;
     this.recalculateMutationResults();
+    console.log(`${this.mutationsLeft} left in statement & ${this.statementBlocks.length + 1} blocks left`);
 
     // TODO: Really shouldn't have to rely on the order of statements for this to work
     for(let s = statements.statements.length - 1; s >= 0; s--) {
