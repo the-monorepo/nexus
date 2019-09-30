@@ -450,14 +450,18 @@ class DeleteStatementInstruction implements Instruction {
     }
     let largestStatementBlock: StatementBlock = this.statementBlocks.peek();
     for(const statementBlock of this.statementBlocks.unsortedIterator()) {
-      if (statementBlock.statements.length > largestStatementBlock.statements.length) {
+      if (statementBlock.statements.length > largestStatementBlock.statements.length && statementBlock.retries === statementBlock.retries) {
         largestStatementBlock = statementBlock;
       }
     } 
-    largestStatementBlock.statements.push(...statements);
-    this.statementBlocks.update(largestStatementBlock);
-    if(retries > largestStatementBlock.retries) {
-      largestStatementBlock.retries = retries;
+    if(retries === largestStatementBlock.retries) {
+      largestStatementBlock.statements.push(...statements);
+      this.statementBlocks.update(largestStatementBlock);
+    } else {
+      this.statementBlocks.push({
+        statements,
+        retries
+      });
     }
   }
 
@@ -474,7 +478,10 @@ class DeleteStatementInstruction implements Instruction {
         const statement = statements.statements[0];
         yield* statement.instructionHolders;
         if (statement.innerStatements.length > 0) {
-          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, childRetryCount);
+          this.statementBlocks.push({
+            statements: statement.innerStatements,
+            retries: childRetryCount,
+          });
         }
       } else {
         this.splitStatementBlock(statements.statements, childRetryCount);
