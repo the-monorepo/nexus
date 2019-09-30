@@ -104,7 +104,7 @@ const compareInstructions = (a: InstructionHolder, b: InstructionHolder) => {
     aI--;
   }
   while(bI >= 0) {
-    const bMutationEvaluation = a.data.mutationEvaluations[bI];
+    const bMutationEvaluation = b.data.mutationEvaluations[bI];
     const didSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(bMutationEvaluation);
     if (didSomethingGoodOrCrashed) {
       return -1;
@@ -498,7 +498,10 @@ class DeleteStatementInstruction implements Instruction {
         const statement = statements.statements[0];
         if (statement.innerStatements.length > 0) {
           yield* statement.instructionHolders;
-          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements);
+          this.statementBlocks.push({
+            statements: statement.innerStatements,
+          });
+          //this.mergeStatementsWithLargestStatementBlock(statement.innerStatements);
         }
       }
     }
@@ -540,7 +543,7 @@ const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(bitAssignments),
   new AssignmentFactory(['='])
 ];
-const RETRIES = 2;
+const RETRIES = 1;
 
 async function* identifyUnknownInstruction(
   location: Location,
