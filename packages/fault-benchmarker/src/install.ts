@@ -14,7 +14,7 @@ const main = async () => {
     const resolvedProjectDir = resolve(__dirname, '..', projectDir);
     console.log(`Installing for ${resolvedProjectDir}`);
     const packagePaths = await globby(resolve(resolvedProjectDir, 'yarn.lock'), { onlyFiles: true });
-    const command = `${packagePaths.length > 0 ? 'yarn' : 'npm'} install ${packagePaths.length > 0 ? '--pure-lockfile' : '--no-package-lock'}`;
+    const command = `${packagePaths.length > 0 ? 'yarn' : 'npm'} install ${packagePaths.length > 0 ? '--pure-lockfile' : '--no-package-lock --no-save'}`;
     console.log(command);
     const p = exec(command, { cwd: resolvedProjectDir });
     await new Promise((resolve, reject) => {
