@@ -81,11 +81,6 @@ const compareInstructions = (a: InstructionHolder, b: InstructionHolder) => {
   } else if(!a.data.derivedFromPassingTest && b.data.derivedFromPassingTest) {
     return 1;
   }
-  // TODO: This only works because, at the moment, the only multi instructions are deletion statements and deletion statements with less mutations have successfully been vetted through more test runs.
-  const mutationCountComparison = b.instruction.mutationCount - a.instruction.mutationCount ;
-  if (mutationCountComparison !== 0) {
-    return mutationCountComparison;
-  }
   a.data.mutationEvaluations.sort(compareMutationEvaluations);
   b.data.mutationEvaluations.sort(compareMutationEvaluations);
   let aI = a.data.mutationEvaluations.length - 1;
@@ -100,12 +95,23 @@ const compareInstructions = (a: InstructionHolder, b: InstructionHolder) => {
     aI--;
     bI--;
   }
-  if (a.data.mutationEvaluations.length < b.data.mutationEvaluations.length) {
-    return 1;
-  } else if (a.data.mutationEvaluations.length > b.data.mutationEvaluations.length) {
-    return -1;
+  while(aI >= 0) {
+    const aMutationEvaluation = a.data.mutationEvaluations[aI];
+    const didSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(aMutationEvaluation);
+    if (didSomethingGoodOrCrashed) {
+      return 1;
+    }
+    aI--;
   }
-  return 0;
+  while(bI >= 0) {
+    const bMutationEvaluation = a.data.mutationEvaluations[bI];
+    const didSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(bMutationEvaluation);
+    if (didSomethingGoodOrCrashed) {
+      return -1;
+    }
+    bI--;
+  }
+  return b.data.mutationEvaluations.length - a.data.mutationEvaluations.length;
 };
 
 type Location = {
@@ -342,9 +348,6 @@ class DeleteStatementInstruction implements Instruction {
     this.recalculateMutationResults();
   }
 
-  gatherMutationResults(obj: LocationObject, statements: StatementInformation[]) {
-
-  }
   /**
    * Managing state like this is gross, refactor
    */
@@ -363,7 +366,7 @@ class DeleteStatementInstruction implements Instruction {
       if(locationsObj[statement.filePath] === undefined) {
         locationsObj[statement.filePath] = [];
       }
-      locationsObj[statement.filePath].push(statement.location!);
+      locationsObj[statement.filePath].push(statement.location);
       locationsAdded.add(key);
       if(statement.innerStatements.length > 0) {
         stack.push(...statement.innerStatements);
