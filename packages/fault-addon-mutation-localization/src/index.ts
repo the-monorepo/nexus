@@ -651,7 +651,7 @@ export const compareMutationEvaluationsWithLesserProperties = (r1: MutationEvalu
       return lineWidth;
     }
   
-    const columnWidth = result1.lineWidth - result2.lineWidth;
+    const columnWidth = result1.columnWidth - result2.columnWidth;
     if(columnWidth !== 0) {
       return columnWidth;
     }
