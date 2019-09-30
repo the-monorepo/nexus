@@ -941,20 +941,11 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
   let aI = 0;
   let bI = 0;
   // Assumption: All arrays are at least .length > 0
-  console.log(aSingleMutationsOnly.length, bSingleMutationsOnly.length)
   do {
     const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
     if (comparison !== 0) {
       return comparison;
     }
-    while((aI + 1 < aSingleMutationsOnly.length) && compareMutationEvaluations(aSingleMutationsOnly[aI], aSingleMutationsOnly[aI + 1]) === 0) {
-      aI++;
-    }
-    while((bI + 1 < bSingleMutationsOnly.length) && compareMutationEvaluations(bSingleMutationsOnly[bI], bSingleMutationsOnly[bI + 1]) === 0) {
-      bI++;
-    }
-    console.log(aI);
-    console.log(bI);
     aI++;
     bI++;
   } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
