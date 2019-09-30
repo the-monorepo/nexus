@@ -342,7 +342,7 @@ class DeleteStatementInstruction implements Instruction {
     statements: StatementInformation[],
     private readonly maxRetries: number,
   ) {
-    this.splitStatementBlock(statements, maxRetries);
+    this.splitStatementBlock(statements);
     // TODO: This doesn't really make sense, need to make this less hacky
     this.lastProcessedStatementBlock = this.statementBlocks.peek();
     this.recalculateMutationResults();
@@ -946,6 +946,12 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
     if (comparison !== 0) {
       return comparison;
     }
+    while(aI + 1 < aSingleMutationsOnly.length && compareMutationEvaluations(aSingleMutationsOnly[aI], aSingleMutationsOnly[aI + 1]) === 0) {
+      aI++;
+    }
+    while(bI + 1 < bSingleMutationsOnly.length && compareMutationEvaluations(bSingleMutationsOnly[bI], aSingleMutationsOnly[bI + 1]) === 0) {
+      bI++;
+    }
     aI++;
     bI++;
   } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
@@ -957,9 +963,9 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
     if (comparison !== 0) {
       return comparison;
     }
-    aI++;
-    bI++;
-  } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
+    aI2++;
+    bI2++;
+  } while(aI2 < aSingleMutationsOnly.length && bI2 < bSingleMutationsOnly.length)
   // Justification: a has more room to experiment with if it wasn't evaluated as much.
   // TODO: Replace with instructions left
   return b.length - a.length;
