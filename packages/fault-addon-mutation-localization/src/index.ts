@@ -455,6 +455,7 @@ class DeleteStatementInstruction implements Instruction {
       }
     } 
     largestStatementBlock.statements.push(...statements);
+    this.statementBlocks.update(largestStatementBlock);
     if(retries > largestStatementBlock.retries) {
       largestStatementBlock.retries = retries;
     }
