@@ -488,14 +488,14 @@ class DeleteStatementInstruction implements Instruction {
           statement.retries--;
         }
       }
-      if (statements.statements.length === 1) {
+      if (statements.statements.length > 1) {
+        this.splitStatementBlock(statements.statements);
+      } else if (statements.statements.length === 1) {
         const statement = statements.statements[0];
         if (statement.innerStatements.length > 0) {
           yield* statement.instructionHolders;
           this.mergeStatementsWithLargestStatementBlock(statement.innerStatements);
         }
-      } else {
-        this.splitStatementBlock(statements.statements);
       }
     }
   }
