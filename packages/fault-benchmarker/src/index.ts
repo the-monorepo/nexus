@@ -13,8 +13,8 @@ import {
   getTotalExecutedStatements,
   ExpressionLocation,
 } from '@fault/istanbul-util';
-import { ScorelessFault, createPlugin } from '@fault/addon-sbfl';
-import { convertFileFaultDataToFaults } from '@fault/record-faults';
+import { createPlugin } from '@fault/addon-sbfl';
+import { convertFileFaultDataToFaults, ScorelessFault } from '@fault/record-faults';
 import { dStar } from '@fault/sbfl-dstar';
 import { tarantula } from '@fault/sbfl-tarantula';
 import { ochiai } from '@fault/sbfl-ochiai';
@@ -90,7 +90,7 @@ export const isWithinLocation = (
   if (!withinStart) {
     return false;
   }
-  if (withinLocation.location.end == undefined) {
+  if (withinLocation.location.end === undefined) {
     return true;
   }
   const withinEnd =
@@ -242,7 +242,7 @@ export const run = async () => {
 
     const expectedFaults = convertFileFaultDataToFaults(
       require(resolve(projectDir, 'expected-faults.json')),
-    );
+    ) as any as ExpectedFault[];
 
     const projectOutput = {};
 
