@@ -69,8 +69,8 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
     const sourceFileFaults = faultData[sourceFilePath];
     for (const fileFault of sourceFileFaults) {
       const fault: Fault = {
-        sourcePath: sourceFilePath,
         ...fileFault,
+        sourcePath: sourceFilePath,
         score:
           fileFault.score === true
             ? Number.POSITIVE_INFINITY
