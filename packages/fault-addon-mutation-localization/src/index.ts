@@ -122,6 +122,7 @@ type StatementInformation = {
   index: any,
   filePath: string,
   location: ExpressionLocation,
+  retries: number,
   innerStatements: StatementInformation[],
   instructionHolders: InstructionHolder[]
 }
@@ -328,7 +329,6 @@ const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => 
 
 type StatementBlock = { 
   statements: StatementInformation[],
-  retries: number,
 }
 const DELETE_STATEMENT = Symbol('delete-statement');
 class DeleteStatementInstruction implements Instruction {
@@ -426,43 +426,33 @@ class DeleteStatementInstruction implements Instruction {
     }
   }
 
-  private splitStatementBlock(statements: StatementInformation[], retries: number) {
+  private splitStatementBlock(statements: StatementInformation[]) {
     const middle = Math.trunc(statements.length / 2);
     const statements1 = statements.slice(middle);
     const statements2 = statements.slice(0, middle);
     this.statementBlocks.push({
       statements: statements1,
-      retries
     });
     this.statementBlocks.push({
       statements: statements2,
-      retries
     });
   }
 
-  mergeStatementsWithLargestStatementBlock(statements: StatementInformation[], retries: number) {
+  mergeStatementsWithLargestStatementBlock(statements: StatementInformation[]) {
     if (this.statementBlocks.length <= 0) {
       this.statementBlocks.push({
         statements,
-        retries
       });
       return;
     }
     let largestStatementBlock: StatementBlock = this.statementBlocks.peek();
     for(const statementBlock of this.statementBlocks.unsortedIterator()) {
-      if (statementBlock.statements.length > largestStatementBlock.statements.length && statementBlock.retries === statementBlock.retries) {
+      if (statementBlock.statements.length > largestStatementBlock.statements.length) {
         largestStatementBlock = statementBlock;
       }
     } 
-    if(retries === largestStatementBlock.retries) {
-      largestStatementBlock.statements.push(...statements);
-      this.statementBlocks.update(largestStatementBlock);
-    } else {
-      this.statementBlocks.push({
-        statements,
-        retries
-      });
-    }
+    largestStatementBlock.statements.push(...statements);
+    this.statementBlocks.update(largestStatementBlock);
   }
 
   async *onEvaluation(evaluation: MutationEvaluation): AsyncIterableIterator<InstructionHolder> {
@@ -473,28 +463,39 @@ class DeleteStatementInstruction implements Instruction {
  
     const deletingStatementsDidSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(evaluation);
     if (deletingStatementsDidSomethingGoodOrCrashed) {
-      const childRetryCount = evaluation.crashed ? statements.retries : this.maxRetries;
+      if (!evaluation.crashed) {
+        for(const statement of statements.statements) {
+          statement.retries = this.maxRetries;
+        }  
+      }
       if (statements.statements.length === 1) {
         const statement = statements.statements[0];
         yield* statement.instructionHolders;
         if (statement.innerStatements.length > 0) {
           this.statementBlocks.push({
             statements: statement.innerStatements,
-            retries: childRetryCount,
           });
         }
       } else {
-        this.splitStatementBlock(statements.statements, childRetryCount);
+        this.splitStatementBlock(statements.statements);
       }
-    } else if (statements.retries > 0) {
+    } else {
+      for(let s = statements.statements.length - 1; s >= 0; s--) {
+        const statement = statements.statements[s];
+        if(statement.retries <= 0) {
+          statements.statements.splice(s, 1);
+        } else {
+          statement.retries--;
+        }
+      }
       if (statements.statements.length === 1) {
         const statement = statements.statements[0];
         if (statement.innerStatements.length > 0) {
           yield* statement.instructionHolders;
-          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, statements.retries - 1);
+          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements);
         }
       } else {
-        this.splitStatementBlock(statements.statements, statements.retries - 1);
+        this.splitStatementBlock(statements.statements);
       }
     }
   }
@@ -571,6 +572,7 @@ async function* identifyUnknownInstruction(
             instructionHolders: [],
             innerStatements: [],
             location: node.loc,
+            retries: RETRIES,
           })
         }
         if (node.body && (!node.body.body || Array.isArray(node.body))) {
