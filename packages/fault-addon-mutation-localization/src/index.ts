@@ -467,14 +467,15 @@ class DeleteStatementInstruction implements Instruction {
  
     const deletingStatementsDidSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(evaluation);
     if (deletingStatementsDidSomethingGoodOrCrashed) {
+      const childRetryCount = evaluation.crashed ? statements.retries : this.maxRetries;
       if (statements.statements.length === 1) {
         const statement = statements.statements[0];
         yield* statement.instructionHolders;
         if (statement.innerStatements.length > 0) {
-          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, statements.retries);
+          this.mergeStatementsWithLargestStatementBlock(statement.innerStatements, childRetryCount);
         }
       } else {
-        this.splitStatementBlock(statements.statements, this.maxRetries);
+        this.splitStatementBlock(statements.statements, childRetryCount);
       }
     } else if (statements.retries > 0) {
       if (statements.statements.length === 1) {
