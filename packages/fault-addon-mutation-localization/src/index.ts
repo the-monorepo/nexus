@@ -445,14 +445,18 @@ class DeleteStatementInstruction implements Instruction {
       });
       return;
     }
-    let largestStatementBlock: StatementBlock = this.statementBlocks.peek();
+    let largestStatementBlock: StatementBlock | null = null;
     for(const statementBlock of this.statementBlocks.unsortedIterator()) {
-      if (statementBlock.statements.length > largestStatementBlock.statements.length) {
-        largestStatementBlock = statementBlock;
+      if(!statementBlock.statements.some(statement => statement.retries >= this.maxRetries)) {
+        if (largestStatementBlock === null || statementBlock.statements.length > largestStatementBlock.statements.length) {
+          largestStatementBlock = statementBlock;
+        }  
       }
-    } 
-    largestStatementBlock.statements.push(...statements);
-    this.statementBlocks.update(largestStatementBlock);
+    }
+    if (largestStatementBlock !== null) {
+      largestStatementBlock.statements.push(...statements);
+      this.statementBlocks.update(largestStatementBlock);  
+    }
   }
 
   async *onEvaluation(evaluation: MutationEvaluation): AsyncIterableIterator<InstructionHolder> {
