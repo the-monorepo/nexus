@@ -447,7 +447,7 @@ class DeleteStatementInstruction implements Instruction {
     }
     let largestStatementBlock: StatementBlock | null = null;
     for(const statementBlock of this.statementBlocks.unsortedIterator()) {
-      if(!statementBlock.statements.some(statement => statement.retries >= this.maxRetries)) {
+      if(statementBlock.statements[0].retries < this.maxRetries) {
         if (largestStatementBlock === null || statementBlock.statements.length > largestStatementBlock.statements.length) {
           largestStatementBlock = statementBlock;
         }  
