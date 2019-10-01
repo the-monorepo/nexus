@@ -1299,6 +1299,7 @@ export const createPlugin = ({
           for (const testResult of tester.testResults.values()) {
             // TODO: Maybe don't?
             if (!testResult.passed) {
+              console.log(testResult);
               failingTestFiles.add(testResult.file);
               failedCoverageMap.merge(testResult.coverage);
             }
@@ -1306,7 +1307,9 @@ export const createPlugin = ({
           const failedCoverage: Coverage = failedCoverageMap.data;
           const statements: StatementInformation[] = [];
           const expressionsSeen: Set<string> = new Set();
+          console.log('failing coverage')
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
+            console.log(coveragePath)
             //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
