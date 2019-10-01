@@ -25,7 +25,7 @@ export const config: BenchmarkConfig = [
     glob: 'sinon-*',
     testMatch: './test/**/*-test.js',
     testOptions: {
-      sandbox: false,
+      sandbox: true,
     },
   },
   {
