@@ -221,6 +221,8 @@ const createWorkers = (tester: string, testerOptions: any, setupFiles: string[],
   return workers;
 }
 
+const ERROR_SIGNAL = 'SIGKILL';
+
 const runAndRecycleProcesses = async (
   options: InternalRunOptions,
 ): Promise<FinalTesterResults> => {
@@ -277,7 +279,7 @@ const runAndRecycleProcesses = async (
           console.log('Killing workers');
           for (const otherWorker of someWorkers) {
             clearTimeout(otherWorker.expirationTimer!);
-            otherWorker.process.kill();
+            otherWorker.process.kill(ERROR_SIGNAL);
           }
           // TODO: DRY (see tester results creation above)
           const endTime = Date.now();
@@ -311,7 +313,7 @@ const runAndRecycleProcesses = async (
             clearTimeout(worker.expirationTimer!);
             worker.expirationTimer = setTimeout(() => {
               console.log('timeout', id)
-              killWorkers(workers.filter(otherWorker => otherWorker !== worker), new Error(`Worker ${id} took longer than ${timeout}ms.`));
+              killWorkers(workers, new Error(`Worker ${id} took longer than ${timeout}ms.`));
             }, timeout);
           }
           replaceExpirationTimer(worker);
