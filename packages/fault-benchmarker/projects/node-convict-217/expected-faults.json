@@ -1,10 +1,15 @@
 {
   "./lib/convict.js": [
     {
+      "type": "within",
       "location": {
         "start": {
           "line": 318,
           "column": 4
+        },
+        "end": {
+          "line": 318,
+          "column": 30
         }
       }
     }
