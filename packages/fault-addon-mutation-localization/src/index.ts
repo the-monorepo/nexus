@@ -1299,7 +1299,6 @@ export const createPlugin = ({
           for (const testResult of tester.testResults.values()) {
             // TODO: Maybe don't?
             if (!testResult.passed) {
-              console.log(testResult);
               failingTestFiles.add(testResult.file);
               failedCoverageMap.merge(testResult.coverage);
             }
