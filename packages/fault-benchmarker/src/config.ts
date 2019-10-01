@@ -39,10 +39,17 @@ export const config: BenchmarkConfig = [
     artificial: true,
   },
   {
-    glob: 'node-convict-*',
+    glob: 'node-convict-{217,269}',
     testMatch: './test/*-tests.js',
     testOptions: {
       sandbox: false,
+    },
+  },
+  {
+    glob: 'node-convict-*',
+    testMatch: './test/*-tests.js',
+    testOptions: {
+      sandbox: true,
     },
   },
   {
