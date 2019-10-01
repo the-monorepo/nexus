@@ -277,7 +277,7 @@ export const run = async () => {
       },
       workers: sandbox ? undefined : 1,
       fileBufferCount: sandbox ? undefined : null,
-      timeout: 100000,
+      timeout: 60000,
     };
     // SBFL
     await flRunner.run({
