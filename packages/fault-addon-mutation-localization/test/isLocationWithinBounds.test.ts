@@ -53,27 +53,39 @@ it('isLocationWithinBounds',() => {
         ]
     ]
     for(const [isWithinBounds, loc1, loc2] of testInputs) {
+        const startLine1 = loc1[0];
+        const startColumn1 = loc1[1];
+        const endLine1 = loc1[2];
+        const endColumn1 = loc1[3];
+        
+        const startLine2 = loc2[0];
+        const startColumn2 = loc2[1];
+        const endLine2 = loc2[2];
+        const endColumn2 = loc2[3];
+        
         const location1: ExpressionLocation = {
             start: {
-                line: loc1[0],
-                column: loc1[1]
+                line: startLine1,
+                column: startColumn1
             },
             end: {
-                line: loc1[2],
-                column: loc1[3]
+                line: endLine1,
+                column: endColumn1,
             }
         }
         const location2: ExpressionLocation = {
             start: {
-                line: loc2[0],
-                column: loc2[1]
+                line: startLine2,
+                column: startColumn2,
             },
             end: {
-                line: loc2[2],
-                column: loc2[3]
+                line: endLine2,
+                column: endColumn2,
             }
         }
-        expect(isLocationWithinBounds(location1, location2)).to.equal(isWithinBounds);
-        expect(isLocationWithinBounds(location2, location1)).to.equal(isWithinBounds);
+        it(`${startLine1}:${startColumn1}:${endLine1}:${endColumn1} vs ${startLine2}:${startColumn2}:${endLine2}:${endColumn2}`, () =>{
+            expect(isLocationWithinBounds(location1, location2)).to.equal(isWithinBounds);
+            expect(isLocationWithinBounds(location2, location1)).to.equal(isWithinBounds);    
+        })
     }
 })
