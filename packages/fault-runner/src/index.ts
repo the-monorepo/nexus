@@ -69,15 +69,16 @@ const readDurationsFile = async () => {
   }
 }
 
-const forkForTest = (tester: string, testerOptions: any, setupFiles: string[], env: any, cwd: string): ChildProcess =>
-fork(
-  addonEntryPath,
-  [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)],
-  {
-    env,
-    cwd,
-    stdio: 'inherit',
-  },
+const forkForTest = (tester: string, testerOptions: any, setupFiles: string[], env: any, cwd: string): ChildProcess => (
+  fork(
+    addonEntryPath,
+    [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)],
+    {
+      env,
+      cwd,
+      stdio: 'inherit',
+    },
+  )
 );
 
 const createFileComparer = (testDurations: TestDurations) => {
@@ -244,7 +245,6 @@ const runAndRecycleProcesses = async (
   const originalTestFiles: string[] = await globby(testMatch, { onlyFiles: true });
   const testFileQueue: string[] = [...originalTestFiles];
 
-  const processCount = Math.min(workerCount, testFileQueue.length);
   const workerFileQueueSize = bufferCount + 1;
 
   const testDurations: TestDurations = await readDurationsFile();
@@ -260,6 +260,8 @@ const runAndRecycleProcesses = async (
     resortFileQueue();
     const testResults: Map<string, TestResult> = new Map();
     
+    const processCount = Math.min(workerCount, testFileQueue.length);
+
     const workers: WorkerInfo[] = createWorkers(tester, testerOptions, setupFiles, env, cwd, processCount);
 
     const pendingFileClient = createStateClient(testDurations, workers, testFileQueue, workerFileQueueSize);
@@ -279,6 +281,9 @@ const runAndRecycleProcesses = async (
           console.log('Killing workers');
           for (const otherWorker of someWorkers) {
             clearTimeout(otherWorker.expirationTimer!);
+            if(otherWorker.process.connected) {
+              otherWorker.process.disconnect();
+            }
             otherWorker.process.kill(ERROR_SIGNAL);
           }
           // TODO: DRY (see tester results creation above)
@@ -313,7 +318,7 @@ const runAndRecycleProcesses = async (
             clearTimeout(worker.expirationTimer!);
             worker.expirationTimer = setTimeout(() => {
               console.log('timeout', id)
-              killWorkers(workers, new Error(`Worker ${id} took longer than ${timeout}ms.`));
+              killWorkers([...runningWorkers], new Error(`Worker ${id} took longer than ${timeout}ms.`));
             }, timeout);
           }
           replaceExpirationTimer(worker);
@@ -330,6 +335,10 @@ const runAndRecycleProcesses = async (
                 clearTimeout(worker.expirationTimer!);
                 workerCoverage.push(message.coverage);
                 runningWorkers.delete(worker);
+                if(worker.process.connected) {
+                  worker.process.disconnect();
+                }
+                worker.process.kill();
                 if (runningWorkers.size <= 0) {
                   console.log('finished test run');
                   const endTime = Date.now();
@@ -381,10 +390,17 @@ const runAndRecycleProcesses = async (
           });
           // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
           worker.process.on('exit', (code, signal) => {
+            if(worker.process.connected) {
+              worker.process.disconnect();
+            }
+
             console.log('worker exit', id, code, signal);
             clearTimeout(worker.expirationTimer);
-            if (code !== 0) {
-              const otherWorkers = workers.filter(otherWorker => otherWorker !== worker);
+            if (signal === 'SIGTERM' && !runningWorkers.has(worker)) {
+              return;
+            }
+            if (code !== 0 || runningWorkers.has(worker)) {
+              const otherWorkers = [...runningWorkers].filter(otherWorker => otherWorker !== worker);
               killWorkers(otherWorkers, new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
             }
           });
