@@ -202,7 +202,7 @@ const expressionKey = (filePath: string, node: BaseNode) => `${filePath}:${node.
 
 const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
   if (nodePaths.length <= 0) {
-    throw new Error(`Expected to find a node at location ${locationToKey(location.filePath, location)} but didn't`);
+    throw new Error(`Expected to find a node at location ${locationToKeyIncludingEnd(location.filePath, location)} but didn't`);
   }
 };
 
@@ -363,21 +363,27 @@ class DeleteStatementInstruction implements Instruction {
       if(statement.innerStatements.length > 0) {
         stack.push(...statement.innerStatements);
       }
-      if (locationsAdded.has(key)) {
-        continue;
+      if (statement.location.start.line === 71) {
+        let i =0;
+        while (i < 100) {
+          console.log('yes')
+          i++;
+        }
       }
-      if(locationsObj[statement.filePath] === undefined) {
-        locationsObj[statement.filePath] = [];
+      if (!locationsAdded.has(key)) {
+        if(locationsObj[statement.filePath] === undefined) {
+          locationsObj[statement.filePath] = [];
+        }
+        locationsObj[statement.filePath].push(statement.location);
+        locationsAdded.add(key);
       }
-      locationsObj[statement.filePath].push(statement.location);
-      locationsAdded.add(key);
       s++;
     }
     let lineWidth = 0;
     let columnWidth = 0;
     for(const statement of statements) {
-      lineWidth += statement.location.end.line - statement.location.start.line;
-      columnWidth += statement.location.end.column - statement.location.start.column;
+      lineWidth += Math.abs(statement.location.end.line - statement.location.start.line);
+      columnWidth += Math.abs(statement.location.end.column - statement.location.start.column);
     }
     this.mutationResults = {
       lineWidth,
@@ -411,14 +417,17 @@ class DeleteStatementInstruction implements Instruction {
       const ast = await cache.get(statement.filePath);
       const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
-      const filteredNodePaths = nodePaths.filter(path => path.parentPath && path.parentPath.node.body);
+      const filteredNodePaths = nodePaths.filter(path => path.parentPath && (path.parentPath.node.body || path.parentPath.node.consequent));
       assertFoundNodePaths(filteredNodePaths, { ...statement.location!, filePath: statement.filePath });
       // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-      const node = filteredNodePaths.pop()!;
-      const parentPath = node.parentPath;
+      const path = filteredNodePaths.pop()!;
+      const node = path.node;
+      const parentPath = path.parentPath;
       const parentNode = parentPath!.node;
-      console.log(`${locationToKey(statement.filePath, statement.location)}`,statement.index,  parentNode.type, node.type);
-      if(Array.isArray(parentNode.body)) {
+      console.log(`${locationToKeyIncludingEnd(statement.filePath, statement.location)}`,statement.index,  parentNode.type, node.type);
+      if(t.isIfStatement(parentNode)) {
+        parentNode[path.key] = t.blockStatement([]);
+      } else if(Array.isArray(parentNode.body)) {
         parentNode.body.splice(statement.index, 1);
       } else {
         parentNode.body = t.blockStatement([]);
@@ -572,7 +581,18 @@ async function* identifyUnknownInstruction(
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
-        if (parentPath && parentNode.body! && ((Array.isArray(parentNode.body) && typeof path.key === 'number') || path.key === 'body') && (!node.body || Array.isArray(parentNode.body)) && currentStatementStack.length > 0 && node.loc) {
+        if (
+          parentPath && (
+            (t.isIfStatement(parentNode) && !node.body && ['consequent', 'alternate'].includes(path.key)) || (
+              parentNode.body! && (
+                (Array.isArray(parentNode.body) && typeof path.key === 'number') || 
+                path.key === 'body'
+              ) && 
+              (!node.body || Array.isArray(parentNode.body))
+            )
+          ) && 
+          currentStatementStack.length > 0 && 
+          node.loc) {
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath,
@@ -582,7 +602,7 @@ async function* identifyUnknownInstruction(
             retries: RETRIES,
           })
         }
-        if (node.body && (!node.body.body || Array.isArray(node.body))) {
+        if ((t.isIfStatement(node) && (!node.consequent || !node.consequent.body) && (!node.alternate || !node.alternate.body)) || (node.body && (!node.body.body || Array.isArray(node.body)))) {
           currentStatementStack.push([]);
         }
         if(currentStatementStack.length > 0) {
@@ -601,7 +621,7 @@ async function* identifyUnknownInstruction(
         if (!expressionSeenThisTimeRound.has(key)) {
           return
         }
-        if (node.body && !node.body.body) {
+        if ((t.isIfStatement(node) && (!node.consequent || !node.consequent.body) && (!node.alternate || !node.alternate.body)) || (node.body && (!node.body.body || Array.isArray(node.body)))) {
           const poppedStatementInfo = currentStatementStack.pop()!;
           
           if (currentStatementStack.length <= 0) {
@@ -928,7 +948,7 @@ const locationToKeyIncludingEnd = (filePath: string, location?: ExpressionLocati
   if (!location) {
     return filePath;
   }
-  const withStart = `${filePath}:${location.start.line}:${location.start.column}`;
+  const withStart = locationToKey(filePath, location);
   if (location.end === null) {
      return withStart;
   }
@@ -1111,8 +1131,8 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
     
     let mostRelevantStatement: ExpressionLocation | null = null;
     const loc = fault.location;
-    const locLineWidth = loc.end.line - loc.start.line;
-    const locColumnWidth = loc.end.column - loc.start.column;
+    const locLineWidth = Math.abs(loc.end.line - loc.start.line);
+    const locColumnWidth = Math.abs(loc.end.column - loc.start.column);
     for(const statement of Object.values(fileCoverage.statementMap)) {
       if (isLocationWithinBounds(loc, statement) || isLocationWithinBounds(statement, loc)) {
         if (mostRelevantStatement === null) {
@@ -1120,19 +1140,26 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
         } else {
           const lineDistance = Math.abs(statement.start.line - loc.start.line);
           const columnDistance = Math.abs(statement.start.column - loc.start.column);
+
           const oLineDistance = Math.abs(mostRelevantStatement.start.line - loc.start.line);
           const oColumnDistance = Math.abs(mostRelevantStatement.start.column - loc.start.column);
+
           if (lineDistance < oLineDistance || (lineDistance === oLineDistance && columnDistance < oColumnDistance)) {
             mostRelevantStatement = statement;
           } else {
             const lineWidth = Math.abs(statement.end.line - statement.start.line);
             const columnWidth = Math.abs(statement.end.column - statement.start.column);
+
             const oLineWidth = Math.abs(mostRelevantStatement.end.line - mostRelevantStatement.start.line);
             const oColumnWidth = Math.abs(mostRelevantStatement.end.column - mostRelevantStatement.start.column);              
+
+
             const lineDisimilarity = Math.abs(locLineWidth - lineWidth);
             const columnDisimilarity = Math.abs(locColumnWidth - columnWidth);
+
             const oLineDisimilarity = Math.abs(locLineWidth - oLineWidth);
             const oColumnDisimilarity = Math.abs(locColumnWidth - oColumnWidth);
+
             if (lineDisimilarity < oLineDisimilarity || (lineDisimilarity === oLineDisimilarity && columnDisimilarity < oColumnDisimilarity)) {
               mostRelevantStatement = statement;
             }
@@ -1198,7 +1225,7 @@ export const createPlugin = ({
 
       for(const [filePath, expressionLocations] of Object.entries(previousMutationResults.locations)) {
         for(const expressionLocation of expressionLocations) {
-          const key = locationToKey(filePath, expressionLocation);
+          const key = locationToKeyIncludingEnd(filePath, expressionLocation);
           if (locationEvaluations.has(key)) {
             locationEvaluations.get(key)!.evaluations.push(mutationEvaluation);
           } else {
@@ -1233,8 +1260,9 @@ export const createPlugin = ({
   }
 
   const runInstruction = async (tester: TesterResults, cache: AstCache) => {
+    console.log('Processing instruction')
     let count = 0;
-    for(const instruction of instructionQueue) {
+    for(const instruction of instructionQueue.unsortedIterator()) {
       count += instruction.instruction.mutationsLeft;
     }
     console.log(`${count} instructions`);
@@ -1332,6 +1360,7 @@ export const createPlugin = ({
               }
             }
           }
+          console.log('Pushing instruction')
           instructionQueue.push(createInstructionHolder(new DeleteStatementInstruction(statements, RETRIES), false));
         } else {
           const mutationEvaluation = evaluateNewMutation(
