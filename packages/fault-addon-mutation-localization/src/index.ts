@@ -359,7 +359,10 @@ class DeleteStatementInstruction implements Instruction {
     let s = 0;
     while (s < stack.length) {
       const statement = stack[s];
-      const key = locationToKey(statement.filePath, statement.location!);
+      const key = locationToKeyIncludingEnd(statement.filePath, statement.location!);
+      if(statement.innerStatements.length > 0) {
+        stack.push(...statement.innerStatements);
+      }
       if (locationsAdded.has(key)) {
         continue;
       }
@@ -368,9 +371,6 @@ class DeleteStatementInstruction implements Instruction {
       }
       locationsObj[statement.filePath].push(statement.location);
       locationsAdded.add(key);
-      if(statement.innerStatements.length > 0) {
-        stack.push(...statement.innerStatements);
-      }
       s++;
     }
     let lineWidth = 0;
@@ -924,6 +924,16 @@ const locationToKey = (filePath: string, location?: ExpressionLocation | null) =
   }
   return `${filePath}:${location.start.line}:${location.start.column}`;
 };
+const locationToKeyIncludingEnd = (filePath: string, location?: ExpressionLocation | null) => {
+  if (!location) {
+    return filePath;
+  }
+  const withStart = `${filePath}:${location.start.line}:${location.start.column}`;
+  if (location.end === null) {
+     return withStart;
+  }
+   return `${withStart}:${location.end.line}:${location.end.column}`;
+};
 
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvaluation, b: MutationEvaluation) => {
   if (a.partial === b.partial) {
@@ -1068,7 +1078,7 @@ export const createDefaultIsFinishedFn = ({
   return isFinishedFn;
 }
 
-const isLocationWithinBounds = (loc: ExpressionLocation, statement: ExpressionLocation) => {
+export const isLocationWithinBounds = (loc: ExpressionLocation, statement: ExpressionLocation) => {
   const lineWithin = loc.start.line > statement.start.line && loc.start.line < statement.end.line;
   const onStartLineBound = loc.start.line === statement.start.line && loc.start.column >= statement.start.column && (loc.start.line !== statement.end.line || loc.start.column <= statement.end.column);
   const onEndLineBound = loc.start.line === statement.end.line && loc.start.column <= loc.end.column && (loc.start.line !== statement.start.line || loc.start.column >= statement.start.column);
@@ -1079,7 +1089,7 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
   // TODO: Could make this more efficient
   const mappedFaults: Map<string, Fault> = new Map();
   const replace = (fault: Fault, location: ExpressionLocation) => {
-    const key = locationToKey(fault.sourcePath, location);
+    const key = locationToKeyIncludingEnd(fault.sourcePath, location);
     if (mappedFaults.has(key)) {
       const previousFault = mappedFaults.get(key)!;
       if (previousFault.score! > fault.score!) {
