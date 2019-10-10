@@ -56,6 +56,7 @@ const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
 let copyTempDir: string = null!;
 const resetFile = async (filePath: string) => {
+  console.log(filePath);
   const copyPath = originalPathToCopyPath.get(filePath)!;
   const fileContents = await readFile(copyPath, 'utf8');
   await writeFile(filePath, fileContents, 'utf8');
@@ -327,6 +328,10 @@ const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => 
   return evaluation.crashed || (evaluation.testsImproved > 0 || evaluation.errorsChanged > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
 }
 
+const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
+  return evaluation.testsWorsened === 0 && evaluation.stackEvaluation.lineDegradationScore === 0 && evaluation.stackEvaluation.columnDegradationScore === 0;
+}
+
 type StatementBlock = { 
   statements: StatementInformation[],
 }
@@ -336,13 +341,13 @@ class DeleteStatementInstruction implements Instruction {
   public mutationResults: MutationResults;
   public mutationsLeft: number;
   public mutationCount: number;
-  private readonly statementBlocks: Heap<StatementBlock> = new Heap((a, b) => a.statements.length - b.statements.length);
   private lastProcessedStatementBlock: StatementBlock= undefined!;
+  private statementBlocks: Heap<StatementBlock>; 
   constructor(
-    statements: StatementInformation[],
+    statements: StatementBlock[],
     private readonly maxRetries: number,
   ) {
-    this.splitStatementBlock(statements);
+    this.statementBlocks = new Heap((a, b) => a.statements.length - b.statements.length, statements);
     // TODO: This doesn't really make sense, need to make this less hacky
     this.lastProcessedStatementBlock = this.statementBlocks.peek();
     this.recalculateMutationResults();
@@ -362,13 +367,6 @@ class DeleteStatementInstruction implements Instruction {
       const key = locationToKeyIncludingEnd(statement.filePath, statement.location!);
       if(statement.innerStatements.length > 0) {
         stack.push(...statement.innerStatements);
-      }
-      if (statement.location.start.line === 71) {
-        let i =0;
-        while (i < 100) {
-          console.log('yes')
-          i++;
-        }
       }
       if (!locationsAdded.has(key)) {
         if(locationsObj[statement.filePath] === undefined) {
@@ -410,10 +408,33 @@ class DeleteStatementInstruction implements Instruction {
     this.lastProcessedStatementBlock = statements;
     this.recalculateMutationResults();
     console.log(`${this.mutationsLeft} left in statement & ${this.statementBlocks.length + 1} blocks left`);
-
+    const sortedStatements = [...statements.statements].sort((a, b) => {
+      const comparison = a.filePath.localeCompare(b.filePath);
+      if (comparison !== 0) {
+        return comparison;
+      }
+    
+      const startLine = a.location.start.line - b.location.start.line;
+      if (startLine !== 0) {
+        return startLine;
+      }
+      const startColumn = a.location.start.column - b.location.start.column;
+      if (startColumn !== 0) {
+        return startColumn;
+      }
+      const endLine = a.location.end.line - b.location.end.line;
+      if (endLine !== 0) {
+        return endLine;
+      }
+      const endColumn = a.location.end.column - b.location.end.column;
+      if (endColumn !== 0) {
+        return endColumn;
+      }
+      return 0;
+    })
     // TODO: Really shouldn't have to rely on the order of statements for this to work
-    for(let s = statements.statements.length - 1; s >= 0; s--) {
-      const statement = statements.statements[s];
+    for(let s = sortedStatements.length - 1; s >= 0; s--) {
+      const statement = sortedStatements[s];
       const ast = await cache.get(statement.filePath);
       const nodePaths = findNodePathsWithLocation(ast, statement.location!);
       assertFoundNodePaths(nodePaths, { ...statement.location!, filePath: statement.filePath });
@@ -484,11 +505,6 @@ class DeleteStatementInstruction implements Instruction {
       if (statements.statements.length === 1) {
         const statement = statements.statements[0];
         yield* statement.instructionHolders;
-        if (statement.innerStatements.length > 0) {
-          this.statementBlocks.push({
-            statements: statement.innerStatements,
-          });
-        }
       } else {
         this.splitStatementBlock(statements.statements);
       }
@@ -505,13 +521,7 @@ class DeleteStatementInstruction implements Instruction {
         this.splitStatementBlock(statements.statements);
       } else if (statements.statements.length === 1) {
         const statement = statements.statements[0];
-        if (statement.innerStatements.length > 0) {
-          yield* statement.instructionHolders;
-          this.statementBlocks.push({
-            statements: statement.innerStatements,
-          });
-          //this.mergeStatementsWithLargestStatementBlock(statement.innerStatements);
-        }
+        yield* statement.instructionHolders;
       }
     }
   }
@@ -554,20 +564,48 @@ const instructionFactories: InstructionFactory<any>[] = [
 ];
 const RETRIES = 1;
 
+const statementDepth = (statements: StatementInformation[]) => {
+  if (statements.length <= 0) {
+    return 0;
+  }
+  let largestInnerDepth = 0;
+  for(const statement of statements) {
+    const depth = statementDepth(statement.innerStatements);
+    if (depth > largestInnerDepth) {
+      largestInnerDepth = depth;
+    }
+  }
+  return largestInnerDepth + 1;
+}
+
+const findAllNodePaths= async (cache: AstCache, locations: Location[]) => {
+  const nodePaths: any = [];
+  for(const location of locations) {
+    const ast = await cache.get(location.filePath);
+  
+    nodePaths.push(...findNodePathsWithLocation(ast, location).map(nodePath => ({ ...nodePath, filePath: location.filePath })));  
+  }
+  return nodePaths;
+}
+
+const shuffleArray = (statementBlock: any[]) => {
+  for(let i = 0; i < Math.trunc(statementBlock.length / 2); i += 2) {
+    const temp = statementBlock[i];
+    const mirroredI = statementBlock.length - (i + 1);
+    statementBlock[i] = statementBlock[mirroredI];
+    statementBlock[mirroredI] = temp;
+  } 
+}
+
 async function* identifyUnknownInstruction(
-  location: Location,
-  cache: AstCache,
+  nodePaths: any[],
   expressionsSeen: Set<string>,
   derivedFromPassingTest: boolean
-): AsyncIterableIterator<StatementInformation> {
-  const ast = await cache.get(location.filePath);
-  
-  const nodePaths = findNodePathsWithLocation(ast, location);
+): AsyncIterableIterator<StatementInformation[]> {
   //console.log(nodePaths);
-  const filePath = location.filePath;
+  const statements: StatementInformation[] = [];
   for(const nodePath of nodePaths) {
     const scopedPath = getParentScope(nodePath);
-    const statements: StatementInformation[] = [];
     const currentStatementStack: StatementInformation[][] = [];
     const expressionSeenThisTimeRound: Set<string> = new Set();
     traverse(scopedPath.node, {
@@ -575,34 +613,28 @@ async function* identifyUnknownInstruction(
         const node: any = path.node;
         const parentPath = path.parentPath;
         const parentNode: any = parentPath.node;
-        const key = expressionKey(filePath, node);
+        const key = expressionKey(nodePath.filePath, node);
         if (expressionsSeen.has(key)) {
           return;
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
-        if (
-          parentPath && (
-            (t.isIfStatement(parentNode) && !node.body && ['consequent', 'alternate'].includes(path.key)) || (
-              parentNode.body! && (
-                (Array.isArray(parentNode.body) && typeof path.key === 'number') || 
-                path.key === 'body'
-              ) && 
-              (!node.body || Array.isArray(parentNode.body))
-            )
+        if (parentPath && 
+          (
+            (parentNode.body && (path.key === 'body' || (Array.isArray(parentNode.body) && typeof path.key === 'number'))) ||
+            (t.isIfStatement(parentNode) && parentNode.consequent && (!parentNode.consequent.body || (parentNode.alternate && !parentNode.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
           ) && 
-          currentStatementStack.length > 0 && 
-          node.loc) {
+          node.loc && currentStatementStack.length > 0) {
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
-            filePath,
+            filePath: nodePath.filePath,
             instructionHolders: [],
             innerStatements: [],
             location: node.loc,
             retries: RETRIES,
-          })
+          });
         }
-        if ((t.isIfStatement(node) && (!node.consequent || !node.consequent.body) && (!node.alternate || !node.alternate.body)) || (node.body && (!node.body.body || Array.isArray(node.body)))) {
+        if (node.body || (t.isIfStatement(node) && ((node.alternate && !node.alternate.body) || !node.consequent.body))) {
           currentStatementStack.push([]);
         }
         if(currentStatementStack.length > 0) {
@@ -610,20 +642,19 @@ async function* identifyUnknownInstruction(
           if (statementStack.length > 0) {
             const statement = statementStack[statementStack.length - 1];
             for(const factory of instructionFactories) {
-              statement.instructionHolders.push(...factory.createInstructions(path, filePath, derivedFromPassingTest));
+              statement.instructionHolders.push(...factory.createInstructions(path, nodePath.filePath, derivedFromPassingTest));
             }  
           }
         }
       },
       exit: (path) => {
         const node: any = path.node;
-        const key = expressionKey(filePath, node);
+        const key = expressionKey(nodePath.filePath, node);
         if (!expressionSeenThisTimeRound.has(key)) {
           return
         }
-        if ((t.isIfStatement(node) && (!node.consequent || !node.consequent.body) && (!node.alternate || !node.alternate.body)) || (node.body && (!node.body.body || Array.isArray(node.body)))) {
+        if (node.body || (t.isIfStatement(node) && ((node.alternate && !node.alternate.body) || !node.consequent.body))) {
           const poppedStatementInfo = currentStatementStack.pop()!;
-          
           if (currentStatementStack.length <= 0) {
             statements.push(...poppedStatementInfo);
           } else {
@@ -634,8 +665,35 @@ async function* identifyUnknownInstruction(
         }
       }
     }, scopedPath.scope, undefined, scopedPath.parentPath);
-    yield * statements;
   }
+  const maxDepth = statementDepth(statements);
+  console.log(maxDepth);
+  const comparator = (a, b) => b.length - a.length;
+  const statementBlocks: StatementInformation[][] = [];
+  for(let d = 0; d < maxDepth; d++) {
+    statementBlocks.push([]);
+  }
+  for(const statement of statements) {
+    let stack = [statement];
+    const statementLayers: StatementInformation[][] = [];
+    do {
+      const nextStack: StatementInformation[] = [];
+      for(const item of stack) {
+        nextStack.push(...item.innerStatements);
+      }
+      statementLayers.push(stack);
+      stack = nextStack;
+    } while(stack.length > 0)
+    statementLayers.sort(comparator);
+    for(let b = 0; b < statementLayers.length; b++) {
+      statementBlocks[b].push(...statementLayers[b]);
+    }
+    statementBlocks.sort(comparator);
+  }
+  for(const statementBlock of statementBlocks) {
+    shuffleArray(statementBlock);
+  }
+  yield* statementBlocks;
 };
 
 export type TestEvaluation = {
@@ -663,22 +721,7 @@ export const compareMutationEvaluationsWithLesserProperties = (r1: MutationEvalu
   if (!r1.crashed && !r2.crashed) {
     const result1 = r1 as NormalMutationEvaluation;
     const result2 = r2 as NormalMutationEvaluation;
-  
-    const mutationCount = result1.mutationCount - result2.mutationCount;
-    if (mutationCount !== 0) {
-      return mutationCount
-    }
-  
-    const lineWidth = result1.lineWidth - result2.lineWidth;
-    if(lineWidth !== 0) {
-      return lineWidth;
-    }
-  
-    const columnWidth = result1.columnWidth - result2.columnWidth;
-    if(columnWidth !== 0) {
-      return columnWidth;
-    }
-  
+    
     const stackEval1 = result1.stackEvaluation;
     const stackEval2 = result2.stackEvaluation;
   
@@ -715,39 +758,63 @@ export const compareMutationEvaluations = (
   } else if (!r1.crashed && r2.crashed) {
     return 1;
   }
+  const goodThingsHappened1 = evaluationDidSomethingGoodOrCrashed(r1) ? 1 : -1;
+  const goodThingsHappened2 = evaluationDidSomethingGoodOrCrashed(r2) ? 1 : -1;
+  const goodThingsHappenedComparison = goodThingsHappened1 - goodThingsHappened2;
+  if (goodThingsHappenedComparison !== 0) {
+    return goodThingsHappenedComparison;
+  }
+
+  const nothingBadHappened1 = evaluationDidNothingBad(r1) ? 1 : -1;
+  const nothingBadHappened2 = evaluationDidNothingBad(r2) ? 1 : -1;
+  const nothingBadHappenedComparison = nothingBadHappened1 - nothingBadHappened2;
+  if (nothingBadHappenedComparison !== 0) {
+    return nothingBadHappenedComparison;
+  }
+
   // TODO: TypeScript should have inferred that this would be the case..
   const result1 = r1 as NormalMutationEvaluation;
   const result2 = r2 as NormalMutationEvaluation;
 
-  const testsWorsened = result2.testsWorsened - result1.testsWorsened;
-  if (testsWorsened !== 0) {
-    return testsWorsened;
+  const stackEval1 = result1.stackEvaluation;
+  const stackEval2 = result2.stackEvaluation;
+
+
+  const netTestImprovement1 = result1.testsImproved - result1.testsWorsened;
+  const netTestImprovement2 = result2.testsImproved - result2.testsWorsened;
+
+  const netTestImprovementComparison = netTestImprovement1 - netTestImprovement2;
+  if (netTestImprovementComparison !== 0) {
+    return netTestImprovementComparison;
   }
+
 
   const testsImproved = result1.testsImproved - result2.testsImproved;
   if (testsImproved !== 0) {
     return testsImproved;
   }
 
-  const stackEval1 = result1.stackEvaluation;
-  const stackEval2 = result2.stackEvaluation;
 
-  const lineDegradationScore =
-  stackEval2.lineDegradationScore - stackEval1.lineDegradationScore;
-  if (lineDegradationScore !== 0) {
-    return lineDegradationScore;
+  const netLineImprovement1 = stackEval1.lineImprovementScore - stackEval1.lineDegradationScore;
+  const netLineImprovement2 = stackEval2.lineImprovementScore - stackEval2.lineDegradationScore;
+
+  const netLineImprovementComparison = netLineImprovement1 - netLineImprovement2;
+  if (netLineImprovementComparison !== 0) {
+    return netLineImprovementComparison;
   }
-
-  const columnDegradationScore =
-    stackEval2.columnDegradationScore - stackEval1.columnDegradationScore;
-  if (columnDegradationScore !== 0) {
-    return columnDegradationScore;
-  }
-
-  const lineImprovementScore =
-    stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
+  
+  const lineImprovementScore = stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
   if (lineImprovementScore !== 0) {
     return lineImprovementScore;
+  }
+
+  
+  const netColumnImprovement1 = stackEval1.columnImprovementScore - stackEval1.columnDegradationScore;
+  const netColumnImprovement2 = stackEval2.columnImprovementScore - stackEval2.columnDegradationScore;
+
+  const netColumnImprovementComparison = netColumnImprovement1 - netColumnImprovement2;
+  if (netColumnImprovementComparison !== 0) {
+    return netColumnImprovementComparison;
   }
 
   const columnImprovementScore =
@@ -756,10 +823,29 @@ export const compareMutationEvaluations = (
     return columnImprovementScore;
   }
 
+
   const errorsChanged = result1.errorsChanged - result2.errorsChanged;
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
+
+
+  const mutationCount = result1.mutationCount - result2.mutationCount;
+  if (mutationCount !== 0) {
+    return mutationCount
+  }
+
+
+  const lineWidth = result1.lineWidth - result2.lineWidth;
+  if(lineWidth !== 0) {
+    return lineWidth;
+  }
+
+  const columnWidth = result1.columnWidth - result2.columnWidth;
+  if(columnWidth !== 0) {
+    return columnWidth;
+  }
+
   return 0;
 };
 
@@ -853,21 +939,21 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
   columnImprovementScore: 0
 });
 
-type CommonMutationEvaluation = {
+export type CommonMutationEvaluation = {
   type: Symbol,
   mutationCount: number,
   partial: boolean,
   lineWidth: number,
   columnWidth: number,
 };
-type CrashedMutationEvaluation = {
+export type CrashedMutationEvaluation = {
   stackEvaluation: null,
   testsWorsened: null;
   testsImproved: null;
   errorsChanged: null;
   crashed: true;
 } & CommonMutationEvaluation;
-type NormalMutationEvaluation = {
+export type NormalMutationEvaluation = {
   stackEvaluation: MutationStackEvaluation,
   testsWorsened: number;
   testsImproved: number;
@@ -875,7 +961,7 @@ type NormalMutationEvaluation = {
   crashed: false;
 } & CommonMutationEvaluation;
 
-type MutationEvaluation = CrashedMutationEvaluation | NormalMutationEvaluation;
+export type MutationEvaluation = CrashedMutationEvaluation | NormalMutationEvaluation;
 
 const evaluateNewMutation = (
   originalResults: TesterResults,
@@ -1014,6 +1100,9 @@ export const mutationEvalatuationMapToFaults = (
       location: {
         start: lE.location.start,
         end: lE.location.end,
+      },
+      other: {
+        evaluation: lE.evaluations
       }
     };
   });
@@ -1120,6 +1209,7 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
       score: fault.score,
       sourcePath: fault.sourcePath,
       location,
+      other: fault.other
     });
   };
 
@@ -1131,7 +1221,7 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
     
     let mostRelevantStatement: ExpressionLocation | null = null;
     const loc = fault.location;
-    const locLineWidth = Math.abs(loc.end.line - loc.start.line);
+    const locLineWidth = Math.abs(loc.end.line - loc.start.line) + 1; // + 1 cause the line it's on counts as one
     const locColumnWidth = Math.abs(loc.end.column - loc.start.column);
     for(const statement of Object.values(fileCoverage.statementMap)) {
       if (isLocationWithinBounds(loc, statement) || isLocationWithinBounds(statement, loc)) {
@@ -1292,7 +1382,7 @@ export const createPlugin = ({
     mutationCount++;
     
     const mutatedFilePaths = Object.keys(mutationResults.locations);
-
+    console.log(mutatedFilePaths);
     await Promise.all(
       mutatedFilePaths.map(filePath =>
         createTempCopyOfFileIfItDoesntExist(filePath),
@@ -1342,9 +1432,10 @@ export const createPlugin = ({
             }
           }
           const failedCoverage: Coverage = failedCoverageMap.data;
-          const statements: StatementInformation[] = [];
+          const statements: StatementBlock[] = [];
           const expressionsSeen: Set<string> = new Set();
           console.log('failing coverage')
+          const locations: Location[] = [];
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
             console.log(coveragePath)
             //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
@@ -1352,13 +1443,17 @@ export const createPlugin = ({
               continue;
             }
             for(const statementCoverage of Object.values(fileCoverage.statementMap)) {
-              for await (const statement of identifyUnknownInstruction({
+              locations.push({
                 filePath: coveragePath,
-                ...statementCoverage,
-              }, cache, expressionsSeen, false)) {
-                statements.push(statement);
-              }
+                ...statementCoverage
+              })
             }
+          }
+          const allNodePaths= await findAllNodePaths(cache, locations);
+          for await (const statement of identifyUnknownInstruction(allNodePaths, expressionsSeen, false)) {
+            statements.push({
+              statements: statement
+            });
           }
           console.log('Pushing instruction')
           instructionQueue.push(createInstructionHolder(new DeleteStatementInstruction(statements, RETRIES), false));
@@ -1370,7 +1465,7 @@ export const createPlugin = ({
             previousRunWasPartial
           );
   
-          if (previousRunWasPartial && evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+          if (previousRunWasPartial && !mutationEvaluation.crashed) {
             const testsToBeRerun = [...firstTesterResults.testResults.values()].map(result => result.file);
             previousRunWasPartial = false;
             console.log('proceeding with full test run');

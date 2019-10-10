@@ -8,6 +8,9 @@ import chalk from 'chalk';
 export type ScorelessFault = {
   location: ExpressionLocation;
   sourcePath: string;
+  other?: {
+    [s: string]: any
+  }
 };
 
 export type ScoreHolder = {
@@ -127,6 +130,7 @@ export const recordFaults = (filePath: string, faults: Fault[]) => {
           ? false
           : fault.score,
       location: fault.location,
+      other: fault.other,
     };
     if (faultsData[fault.sourcePath] === undefined) {
       faultsData[fault.sourcePath] = [recordedItem];
