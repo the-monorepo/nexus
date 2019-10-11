@@ -268,6 +268,7 @@ abstract class SingleLocationInstruction implements Instruction {
   public abstract type: Symbol;  
   public readonly mutationCount = 1
   private readonly retryHandler = new RetryHandler();
+  public readonly mutationResults: MutationResults;
   constructor(private readonly location: Location) {
     this.mutationResults = locationToMutationResults(location);
   }
@@ -292,7 +293,7 @@ class BinaryInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = OPERATOR;
   public readonly mutationCount = 1;
   constructor(
-    private readonly location: Location,
+    location: Location,
     private readonly operators: string[],
   ) {
     super(location);
@@ -588,19 +589,22 @@ interface CategoryData<T> extends Array<T | CategoryData<T>> {};
 export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryData<T>) => {
   const stack: (CategoryData<T> | T)[] = [categories];
   const flattened: T[] = [];
-  while(stack.length > 0) {
-    const popped = stack.pop();
-    if (Array.isArray(popped)) {
-      if (popped.includes(match)) {
-        flattened.unshift(...popped.filter(element => element !== match).reverse() as T[]);
+  let s = 0;
+  while(s < stack.length) {
+    const value = stack[s];
+    if (Array.isArray(value)) {
+      if (value.includes(match)) {
+        stack.push(...value.filter(element => element !== match));
+        s++;
       } else {
-        stack.push(...popped);
+        stack.splice(s, 1, ...value);
       }
     } else {
-      flattened.push(popped as T);
+      flattened.push(value as T);
+      s++;
     }
   }
-  return flattened.reverse();
+  return flattened;
 };
 class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
@@ -615,6 +619,21 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
     }
   }
 }
+
+class BinaryFactory implements InstructionFactory<BinaryInstruction>{
+  constructor(private readonly operations: CategoryData<string>) {}
+
+  *createInstructions(path, filePath, derivedFromPassingTest) {
+    const node = path.node;
+    if((t.isBinaryExpression(node) || t.isLogicalExpression(node)) && node.loc) {
+      const operators = matchAndFlattenCategoryData(node.operator, this.operations);
+      if (operators.length > 0) {
+        yield createInstructionHolder(new BinaryInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
+      }
+    }
+  }
+}
+
 
 const arithmeticAssignments = [
   '/=',
