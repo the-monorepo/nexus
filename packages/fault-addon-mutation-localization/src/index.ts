@@ -189,11 +189,11 @@ const findNodePathsWithLocation = (ast, location: ExpressionLocation) => {
 
 const getParentScope = (path) => {
   const parentPath = path.parentPath;
-  if (parentPath) {
+  if (!parentPath) {
     return path;
   }
   const parentNode = parentPath.node;
-  if (t.isBlock(parentNode)) {
+  if (t.isScopable(parentNode)) {
     return path;
   }
   return getParentScope(parentPath);
@@ -585,7 +585,30 @@ const findAllNodePaths= async (cache: AstCache, locations: Location[]) => {
   
     nodePaths.push(...findNodePathsWithLocation(ast, location).map(nodePath => ({ ...nodePath, filePath: location.filePath })));  
   }
-  return nodePaths;
+  return nodePaths.sort((path1, path2) => {
+    const filePathComparison = path1.filePath.localeCompare(path2.filePath)
+    if (filePathComparison !== 0) {
+      return filePathComparison;
+    }
+    const startLineComparison = path1.node.loc.start.line - path2.node.loc.start.line;
+    if (startLineComparison !== 0) {
+      return startLineComparison;
+    }
+    const startColumnComparison = path1.node.loc.start.column - path2.node.loc.start.column;
+    if (startColumnComparison !== 0) {
+      startColumnComparison
+    }
+    
+    const endLineComparison = path2.node.loc.end.line - path1.node.loc.end.line;
+    if (endLineComparison !== 0) {
+      return endLineComparison;
+    }
+    const endColumnComparison = path2.node.loc.end.column - path1.node.loc.end.column;
+    if (endColumnComparison !== 0) {
+      return endColumnComparison;
+    }
+    return 0;
+  });
 }
 
 const shuffleArray = (statementBlock: any[]) => {
@@ -605,9 +628,11 @@ async function* identifyUnknownInstruction(
   //console.log(nodePaths);
   const statements: StatementInformation[] = [];
   for(const nodePath of nodePaths) {
+    console.log('SCANNING', expressionKey(nodePath.filePath, nodePath.node));
     const scopedPath = getParentScope(nodePath);
     const currentStatementStack: StatementInformation[][] = [];
     const expressionSeenThisTimeRound: Set<string> = new Set();
+    console.log('SCOPEd', expressionKey(nodePath.filePath, scopedPath.node));
     traverse(scopedPath.node, {
       enter: (path) => {
         const node: any = path.node;
@@ -619,12 +644,16 @@ async function* identifyUnknownInstruction(
         }
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
+        if (parentNode.body) {
+          console.log(path.key, typeof parentNode.body, key)
+        }
         if (parentPath && 
           (
             (parentNode.body && (path.key === 'body' || (Array.isArray(parentNode.body) && typeof path.key === 'number'))) ||
             (t.isIfStatement(parentNode) && parentNode.consequent && (!parentNode.consequent.body || (parentNode.alternate && !parentNode.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
           ) && 
           node.loc && currentStatementStack.length > 0) {
+          console.log(key);
           currentStatementStack[currentStatementStack.length - 1].push({
             index: path.key,
             filePath: nodePath.filePath,
