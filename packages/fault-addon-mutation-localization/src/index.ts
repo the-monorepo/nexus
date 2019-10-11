@@ -135,7 +135,7 @@ type InstructionData = {
 
 type Instruction = {
   type: Symbol;
-  isRemovable: (data: InstructionData) => boolean,
+  isRemovable: (evaluation: MutationEvaluation, data: InstructionData) => boolean,
   mutationResults: MutationResults,
   mutationCount: number,
   process: (data: InstructionData, cache: AstCache) => Promise<any>,
@@ -208,59 +208,87 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
 };
 
 const OPERATOR = Symbol('');
-const logicalExpressionOperators = new Set([
-  '||',
-  '&&'
-]);
+
 const arithmeticOperators = [
+  '**',
+  '%',
   '/',
   '*',
   '-',
   '+',
-  '%',
-  '**',
-];
-const bitOperators = [
-  '&',
-  '|',
-  '>>',
-  '>>>',
-  '<<',
-  '<<<',
-  '^',
-]
-const conditionalOperators = [
-  '&&',
-  '||',
-  '===',
-  '==',
-  '!=',
-  '!==',
-  '<',
-  '<=',
-  '>',
-  '>='
 ];
 
-class BinaryInstruction implements Instruction {
+const otherBitOperators = [
+  '^',
+];
+
+const increaseBitOperators = [
+  '<<<',
+  '|',
+  '<<',
+];
+
+const decreaseBitOperators = [
+  '>>>',
+  '&',
+  '>>',
+]
+
+const logicalExpressionOperators = [
+  '||',
+  '&&'
+];
+
+const equalityOperators = [
+  '!=',
+  '==',
+  '!==',
+  '===',
+]
+
+const comparisonOperators = [
+  '<=',
+  '>=',
+  '<',
+  '>',
+];
+
+const conditionalOperators = [
+  logicalExpressionOperators,
+  comparisonOperators,
+  equalityOperators
+];
+const numericalOperators = [
+
+]
+const categories = [
+]
+
+abstract class SingleLocationInstruction implements Instruction {
+  public abstract type: Symbol;  
+  public readonly mutationCount = 1
+  private readonly retryHandler = new RetryHandler();
+  constructor(location: Location) {
+    this.mutationResults = locationToMutationResults(location);
+  }
+
+  isRemovable(evaluation: MutationEvaluation) {
+    return this.retryHandler.evaluate(evaluation);
+  }
+}
+
+class BinaryInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = OPERATOR;
-  public readonly mutationResults: MutationResults;
   public readonly mutationCount = 1;
   constructor(
     private readonly location: Location,
     private readonly operators: string[],
   ) {
-    this.mutationResults = {
-      lineWidth: this.location.end.line - this.location.start.line,
-      columnWidth: this.location.end.column - this.location.start.column,
-      locations: {
-        [this.location.filePath]: [this.location]        
-      }
-    }
+    super(location);
   }
 
-  isRemovable() {
-    return this.operators.length <= 0;    
+  isRemovable(evaluation) {
+    return this.operators.length <= 0 || super.isRemovable(evaluation);    
   }
 
   get mutationsLeft() {
@@ -283,26 +311,28 @@ class BinaryInstruction implements Instruction {
   async *onEvaluation() {}
 }
 
+const locationToMutationResults = (location: Location) => {
+  return {
+    lineWidth: location.end.line - location.start.line,
+    columnWidth: location.end.column - location.start.column,
+    locations: {
+      [location.filePath]: [location]        
+    }
+  }
+}
+
 const ASSIGNMENT = Symbol('assignment');
-class AssignmentInstruction implements Instruction {
+class AssignmentInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = ASSIGNMENT;
-  public readonly mutationResults: MutationResults;
-  public readonly mutationCount: number = 1;
   constructor(
     private readonly location: Location,
     private readonly operators: string[],
   ) {
-    this.mutationResults = {
-      lineWidth: this.location.end.line - this.location.start.line,
-      columnWidth: this.location.end.column - this.location.start.column,
-      locations: {
-        [this.location.filePath]: [this.location]        
-      }
-    }
+    super(location);
   }
 
-  isRemovable() {
-    return this.operators.length <= 0;    
+  isRemovable(evaluation) {
+    return this.operators.length <= 0 || super.isRemovable(evaluation);
   }
 
   get mutationsLeft() {
@@ -324,8 +354,11 @@ class AssignmentInstruction implements Instruction {
   async *onEvaluation() {}
 }
 
+const didSomethingGood = (evaluation: MutationEvaluation) => {
+  return !evaluation.crashed && (evaluation.testsImproved > 0 || evaluation.errorsChanged > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation)); 
+}
 const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => {
-  return evaluation.crashed || (evaluation.testsImproved > 0 || evaluation.errorsChanged > 0 || !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation));
+  return evaluation.crashed || didSomethingGood(evaluation);
 }
 
 const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
@@ -527,15 +560,54 @@ class DeleteStatementInstruction implements Instruction {
   }
 }
 
+class RetryHandler {
+  private retries: number = RETRIES;
+
+  /**
+   * @param evaluation The mutation evaluation
+   * @returns whether the instruction needs to be removed or not
+   */
+  evaluate(evaluation): boolean {
+    if (!didSomethingGood(evaluation)) {
+      if (this.retries > 0) {
+        this.retries--;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+interface CategoryData<T> extends Array<T | CategoryData<T>> {};
+/**
+ * Creates the ordering for the operation and assignment arrays based off what the 
+ * current value of the assignment/operation node is
+ */
+export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryData<T>) => {
+  const stack: (CategoryData<T> | T)[] = [categories];
+  const flattened: T[] = [];
+  while(stack.length > 0) {
+    const popped = stack.pop();
+    if (Array.isArray(popped)) {
+      if (popped.includes(match)) {
+        flattened.unshift(...popped.filter(element => element !== match).reverse() as T[]);
+      } else {
+        stack.push(...popped);
+      }
+    } else {
+      flattened.push(popped as T);
+    }
+  }
+  return flattened.reverse();
+};
 class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
-  constructor(private readonly operations: string[]) {}
-  
+  constructor(private readonly operations: CategoryData<string>) {}
+
   *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
     if(t.isAssignmentExpression(node) && node.loc) {
-      const operators = [...this.operations].filter(
-        operator => operator !== node.operator,
-      );
+      const operators = matchAndFlattenCategoryData(node.operator, this.operations);
       if (operators.length > 0) {
         yield createInstructionHolder(new AssignmentInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
       }
@@ -545,22 +617,24 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
 
 const arithmeticAssignments = [
   '/=',
-  '*=',
   '-=',
+  '*=',
   '+=',
 ];
-const bitAssignments = [
-  '!=',
+const increaseBitAssignments = [
   '&=',
-  '^=',
+  '>>=',
+];
+const decreaseBitAssignments = [
   '|=',
   '<<=',
-  '>>=',
-]
+];
+const otherBitAssignments = [
+  '^=',
+];
+const assignmentCategories = [arithmeticAssignments, [[increaseBitAssignments, decreaseBitAssignments], otherBitAssignments]];
 const instructionFactories: InstructionFactory<any>[] = [
-  new AssignmentFactory(arithmeticAssignments),
-  new AssignmentFactory(bitAssignments),
-  new AssignmentFactory(['='])
+  new AssignmentFactory(assignmentCategories),
 ];
 const RETRIES = 1;
 
@@ -1367,7 +1441,7 @@ export const createPlugin = ({
         instructionQueue.push(newInstruction);
       }
 
-      if (previousInstruction.instruction.isRemovable(previousInstruction.data)) {
+      if (previousInstruction.instruction.isRemovable(mutationEvaluation, previousInstruction.data)) {
         console.log('popping');
         // Can't assume it's at the top of the heap and therefore can't use pop because any new instruction (onEvaluation) could technically end up at the top too
         instructionQueue.delete(previousInstruction);
@@ -1433,10 +1507,11 @@ export const createPlugin = ({
     );
 
     await Promise.resolve(onMutation(mutatedFilePaths));
-    
+    mutationsAttempted++;
     return true;
   }
 
+  let mutationsAttempted = 0;
   return {
     on: {
       start: async () => {
@@ -1557,6 +1632,7 @@ export const createPlugin = ({
       },
       complete: async (tester: FinalTesterResults) => {
         console.log('complete');
+        console.log(`Mutations attempted: ${mutationsAttempted}`)
         Promise.all(
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
