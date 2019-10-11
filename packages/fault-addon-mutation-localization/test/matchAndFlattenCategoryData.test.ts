@@ -14,5 +14,7 @@ describe(matchAndFlattenCategoryData.name, () => {
   });
   it('with double nested array', () => {
     expect(matchAndFlattenCategoryData('1', [['a', 'b'], ['c', ['1', '2'], 'd']])).to.deep.equal(['a', 'b', 'c', 'd', '2']);
+    expect(matchAndFlattenCategoryData('d', [['a', 'b'], ['c', ['1', '2'], 'd']])).to.deep.equal(['a', 'b', 'c', '1', '2']);
+    expect(matchAndFlattenCategoryData('a', [['a', 'b'], ['c', ['1', '2'], 'd']])).to.deep.equal(['c', '1', '2', 'd', 'b']);
   })
 });
