@@ -268,12 +268,23 @@ abstract class SingleLocationInstruction implements Instruction {
   public abstract type: Symbol;  
   public readonly mutationCount = 1
   private readonly retryHandler = new RetryHandler();
-  constructor(location: Location) {
+  constructor(private readonly location: Location) {
     this.mutationResults = locationToMutationResults(location);
   }
 
   isRemovable(evaluation: MutationEvaluation) {
     return this.retryHandler.evaluate(evaluation);
+  }
+
+  protected abstract processNodePaths(nodePaths: any[]);
+
+  async process(data, cache) {
+    const ast = await cache.get(this.location.filePath);
+
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath => t.isAssignmentExpression(nodePath));
+    assertFoundNodePaths(nodePaths, this.location);
+
+    this.processNodePaths(nodePaths);
   }
 }
 
@@ -295,12 +306,7 @@ class BinaryInstruction extends SingleLocationInstruction {
     return this.operators.length;
   }
 
-  async process(data: InstructionData, cache: AstCache) {
-    const ast = await cache.get(this.location.filePath);
-
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath => t.isLogicalExpression(nodePath) || t.isBinaryExpression(nodePath));
-    assertFoundNodePaths(nodePaths, this.location);
-  
+  async processNodePaths(nodePaths) {
     const operator = this.operators.pop();
     const nodePath = nodePaths[0];
     const node = nodePath.node as (t.BinaryExpression | t.LogicalExpression);
@@ -325,7 +331,7 @@ const ASSIGNMENT = Symbol('assignment');
 class AssignmentInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = ASSIGNMENT;
   constructor(
-    private readonly location: Location,
+    location: Location,
     private readonly operators: string[],
   ) {
     super(location);
@@ -339,12 +345,7 @@ class AssignmentInstruction extends SingleLocationInstruction {
     return this.operators.length;
   }
 
-  async process(data: InstructionData, cache: AstCache) {
-    const ast = await cache.get(this.location.filePath);
-
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath => t.isAssignmentExpression(nodePath));
-    assertFoundNodePaths(nodePaths, this.location);
-  
+  processNodePaths(nodePaths) {
     const operator = this.operators.pop();
     const nodePath = nodePaths[0];
 
