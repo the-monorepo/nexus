@@ -208,67 +208,8 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
 };
 
 const OPERATOR = Symbol('');
-
-const arithmeticOperators = [
-  '**',
-  '%',
-  ['/', '*'],
-  ['-', '+']  
-];
-
-const otherBitOperators = [
-  '^',
-];
-
-const increaseBitOperators = [
-  '<<<',
-  '|',
-  '<<',
-];
-
-const decreaseBitOperators = [
-  '>>>',
-  '&',
-  '>>',
-]
-
-const logicalExpressionOperators = [
-  '||',
-  '&&'
-];
-
-const equalityOperators = [
-  [
-    '!=',
-    '=='
-  ],
-  [
-    '!==',
-    '===',
-  ]
-]
-
-const comparisonOperators = [
-  ['>=',
-  '>'],
-  ['<=',
-  '<']
-];
-
-const conditionalOperators = [
-  logicalExpressionOperators,
-  comparisonOperators,
-  equalityOperators
-];
-const binaryOperationCategories = [
-  [
-    '**',
-    '%',
-    ['/',
-    '*']
-    ['-',
-    '+']  
-  ]
+export const binaryOperationCategories = [
+  [['&', '&&']], [['|', '||']], ['^', ['&', '>>>', '>>'], ['|', '<<<', '<<']] ,[['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]], ['**', '%', ['/', '*'], ['-', '+']]
 ];
 
 abstract class SingleLocationInstruction implements Instruction {
@@ -610,18 +551,29 @@ export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryDat
       // Could probably not constantly recursively check if the value is in the array
       // Also constantly pushing new elements onto the stack results in some nasty memory complexity
       if (recursiveIncludes(match, value)) {
-        stack.push(...value.filter(element => element !== match));
+        stack.push(...value);
         s++;
       } else {
         stack.splice(s, 1, ...value);
       }
     } else {
-      flattened.push(value as T);
+      if(match !== value) {
+        flattened.push(value as T);
+      }
       s++;
     }
   }
-  return flattened;
+  const alreadyAddedSet = new Set();
+  return flattened.reverse().filter(item => {
+    if (alreadyAddedSet.has(item)) {
+      return false;
+    } else {
+      alreadyAddedSet.add(item);
+      return true;
+    }
+  }).reverse();
 };
+
 class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
 
@@ -650,25 +602,9 @@ class BinaryFactory implements InstructionFactory<BinaryInstruction>{
   }
 }
 
-
-const arithmeticAssignments = [
-  '/=',
-  '-=',
-  '*=',
-  '+=',
+export const assignmentCategories = [
+  ['^=', ['&=', '>>='], ['|=', '<<=']], [['/=', '*='],['-=', '+=']]
 ];
-const increaseBitAssignments = [
-  '&=',
-  '>>=',
-];
-const decreaseBitAssignments = [
-  '|=',
-  '<<=',
-];
-const otherBitAssignments = [
-  '^=',
-];
-const assignmentCategories = [arithmeticAssignments, [[increaseBitAssignments, decreaseBitAssignments], otherBitAssignments]];
 const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(assignmentCategories),
 ];
