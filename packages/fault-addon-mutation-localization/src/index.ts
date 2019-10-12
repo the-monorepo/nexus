@@ -56,7 +56,6 @@ const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
 let copyTempDir: string = null!;
 const resetFile = async (filePath: string) => {
-  console.log(filePath);
   const copyPath = originalPathToCopyPath.get(filePath)!;
   const fileContents = await readFile(copyPath, 'utf8');
   await writeFile(filePath, fileContents, 'utf8');
@@ -150,6 +149,7 @@ type InstructionHolder<T extends Instruction = Instruction> = {
 
 
 type InstructionFactory<T extends Instruction = Instruction> = {
+  onInitialPass(nodePath: NodePath<unknown>, filePath: string, derivedFromPassingTest: boolean);
   createInstructions(nodePath: NodePath<unknown>, filePath: string, derivedFromPassingTest: boolean): IterableIterator<InstructionHolder<T>>;
 };
 
@@ -194,7 +194,8 @@ const getParentScope = (path) => {
   }
   const parentNode = parentPath.node;
   if (t.isScopable(parentNode)) {
-    return path;
+    console.log(locationToKey(path.filePath, path.node.loc));
+    return parentPath;
   }
   return getParentScope(parentPath);
 }
@@ -227,10 +228,12 @@ abstract class SingleLocationInstruction implements Instruction {
 
   protected abstract processNodePaths(nodePaths: any[]);
 
+  abstract filterNodePath(nodePath): boolean;
+
   async process(data, cache) {
     const ast = await cache.get(this.location.filePath);
 
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath => t.isAssignmentExpression(nodePath));
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath => this.filterNodePath(nodePath));
     assertFoundNodePaths(nodePaths, this.location);
 
     this.processNodePaths(nodePaths);
@@ -240,6 +243,11 @@ abstract class SingleLocationInstruction implements Instruction {
 class BinaryInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = OPERATOR;
   public readonly mutationCount = 1;
+
+  filterNodePath(nodePath) {
+    return t.isBinaryExpression(nodePath.node) || t.isLogicalExpression(nodePath.node);
+  }
+
   constructor(
     location: Location,
     private readonly operators: string[],
@@ -258,7 +266,14 @@ class BinaryInstruction extends SingleLocationInstruction {
   async processNodePaths(nodePaths) {
     const operator = this.operators.pop();
     const nodePath = nodePaths[0];
+
     const node = nodePath.node as (t.BinaryExpression | t.LogicalExpression);
+
+    if (['||', '&&'].includes(operator)) {
+      nodePath.replaceWith(t.logicalExpression(operator, node.left, node.right));
+    } else {
+      nodePath.replaceWith(t.assignmentExpression(operator, node.left, node.right));
+    }
     
     node.operator = operator as any;  
   }
@@ -292,6 +307,10 @@ class AssignmentInstruction extends SingleLocationInstruction {
 
   get mutationsLeft() {
     return this.operators.length;
+  }
+
+  filterNodePath(nodePath) {
+    return t.isAssignmentExpression(nodePath.node);
   }
 
   processNodePaths(nodePaths) {
@@ -524,6 +543,8 @@ class RetryHandler {
       } else {
         return true;
       }
+    } else {
+      this.retries = 0;
     }
     return false;
   }
@@ -574,8 +595,63 @@ export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryDat
   }).reverse();
 };
 
+const REPLACE_STRING = Symbol('replace-string');
+class ReplaceStringInstruction extends SingleLocationInstruction {
+  public readonly type: Symbol = REPLACE_STRING;
+  public readonly mutationsLeft: number = 1;
+
+  constructor(location: Location, private readonly values: string[]) {
+    super(location);
+  }
+
+  filterNodePath(nodePath) {
+    if (t.isStringLiteral(nodePath.node)) {
+      return true;
+    }
+    return false;
+  }
+
+  isRemovable(evaluation) {
+    return this.values.length <= 0 || super.isRemovable(evaluation);
+  }
+
+  processNodePaths(nodePaths) {
+    const nodePath = nodePaths[0];
+    const node = nodePath.node;
+    node.value = this.values.pop();
+  }
+
+  async *onEvaluation() {}
+}
+
+class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstruction> {
+  private readonly filePathToStringValues: Map<string, Set<string>> = new Map();
+
+  onInitialPass(nodePath, filePath: string) {
+    const node = nodePath.node;
+    if(t.isStringLiteral(node)) {
+      console.log('the node', node);
+      if (!this.filePathToStringValues.has(filePath)) {
+        this.filePathToStringValues.set(filePath, new Set());
+      }
+      this.filePathToStringValues.get(filePath)!.add(node.value);
+    }
+  }
+
+  *createInstructions(nodePath, filePath, derivedFromPassingTest) {
+    const node = nodePath.node;
+    if(t.isStringLiteral(node) && node.loc) {
+      const values = [...this.filePathToStringValues.get(filePath)!].filter(value => value !== node.value);
+      if(values.length > 0) {
+        yield createInstructionHolder(new ReplaceStringInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
+      }
+    }
+  }
+}
+
 class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
+  onInitialPass() { }
 
   *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
@@ -590,6 +666,8 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
 
 class BinaryFactory implements InstructionFactory<BinaryInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
+  
+  onInitialPass() { }
 
   *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
@@ -607,6 +685,8 @@ export const assignmentCategories = [
 ];
 const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(assignmentCategories),
+  new BinaryFactory(binaryOperationCategories),
+  new ReplaceStringFactory()
 ];
 const RETRIES = 1;
 
@@ -668,9 +748,25 @@ const shuffleArray = (statementBlock: any[]) => {
 
 async function* identifyUnknownInstruction(
   nodePaths: any[],
-  expressionsSeen: Set<string>,
   derivedFromPassingTest: boolean
 ): AsyncIterableIterator<StatementInformation[]> {
+  const initialExpressionsSeen: Set<string> = new Set();
+  for(const nodePath of nodePaths) {
+    const scopedPath = getParentScope(nodePath);
+    traverse(scopedPath.node, {
+      enter: (path) => {
+        const key = expressionKey(nodePath.filePath, path.node);
+        if (initialExpressionsSeen.has(key)) {
+          return;
+        }
+        initialExpressionsSeen.add(key);
+        for(const instructionFactory of instructionFactories) {
+          instructionFactory.onInitialPass(path, nodePath.filePath, derivedFromPassingTest);
+        }
+      }
+    }, scopedPath.scope, undefined, scopedPath.parentPath);
+  }
+  const expressionsSeen: Set<string> = new Set();
   //console.log(nodePaths);
   const statements: StatementInformation[] = [];
   for(const nodePath of nodePaths) {
@@ -691,7 +787,7 @@ async function* identifyUnknownInstruction(
         expressionsSeen.add(key);
         expressionSeenThisTimeRound.add(key);
         if (parentNode.body) {
-          console.log(path.key, typeof parentNode.body, key)
+          console.log(path.key, typeof parentNode.body, key);
         }
         if (parentPath && 
           (
@@ -1509,7 +1605,6 @@ export const createPlugin = ({
           }
           const failedCoverage: Coverage = failedCoverageMap.data;
           const statements: StatementBlock[] = [];
-          const expressionsSeen: Set<string> = new Set();
           console.log('failing coverage')
           const locations: Location[] = [];
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
@@ -1526,7 +1621,7 @@ export const createPlugin = ({
             }
           }
           const allNodePaths= await findAllNodePaths(cache, locations);
-          for await (const statement of identifyUnknownInstruction(allNodePaths, expressionsSeen, false)) {
+          for await (const statement of identifyUnknownInstruction(allNodePaths, false)) {
             statements.push({
               statements: statement
             });
