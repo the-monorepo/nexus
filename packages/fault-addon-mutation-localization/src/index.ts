@@ -212,10 +212,8 @@ const OPERATOR = Symbol('');
 const arithmeticOperators = [
   '**',
   '%',
-  '/',
-  '*',
-  '-',
-  '+',
+  ['/', '*'],
+  ['-', '+']  
 ];
 
 const otherBitOperators = [
@@ -240,17 +238,21 @@ const logicalExpressionOperators = [
 ];
 
 const equalityOperators = [
-  '!=',
-  '==',
-  '!==',
-  '===',
+  [
+    '!=',
+    '=='
+  ],
+  [
+    '!==',
+    '===',
+  ]
 ]
 
 const comparisonOperators = [
-  '<=',
-  '>=',
-  '<',
-  '>',
+  ['>=',
+  '>'],
+  ['<=',
+  '<']
 ];
 
 const conditionalOperators = [
@@ -258,11 +260,16 @@ const conditionalOperators = [
   comparisonOperators,
   equalityOperators
 ];
-const numericalOperators = [
-
-]
-const categories = [
-]
+const binaryOperationCategories = [
+  [
+    '**',
+    '%',
+    ['/',
+    '*']
+    ['-',
+    '+']  
+  ]
+];
 
 abstract class SingleLocationInstruction implements Instruction {
   public abstract type: Symbol;  
@@ -582,6 +589,13 @@ class RetryHandler {
 }
 
 interface CategoryData<T> extends Array<T | CategoryData<T>> {};
+const recursiveIncludes = (match: any, arr: any) => {
+  if (match === arr) {
+    return true;
+  } else if (Array.isArray(arr)) {
+    return arr.some(item => recursiveIncludes(match, item));
+  }
+}
 /**
  * Creates the ordering for the operation and assignment arrays based off what the 
  * current value of the assignment/operation node is
@@ -593,7 +607,9 @@ export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryDat
   while(s < stack.length) {
     const value = stack[s];
     if (Array.isArray(value)) {
-      if (value.includes(match)) {
+      // Could probably not constantly recursively check if the value is in the array
+      // Also constantly pushing new elements onto the stack results in some nasty memory complexity
+      if (recursiveIncludes(match, value)) {
         stack.push(...value.filter(element => element !== match));
         s++;
       } else {
