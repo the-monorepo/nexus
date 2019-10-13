@@ -646,6 +646,45 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
   }
 }
 
+const REPLACE_BOOLEAN = Symbol('replace-boolean');
+class InvertBooleanLiteralInstruction implements Instruction {
+	public readonly mutationResults: MutationResults;
+	public readonly mutationsLeft: number = 1;
+  public readonly mutationCount: number = 1;
+  public readonly type = REPLACE_BOOLEAN;
+	constructor(private readonly location: Location) {
+		this.mutationResults = locationToMutationResults(this.location);
+	}
+
+	isRemovable() {
+		return true;
+	}
+	
+	async process(data, cache) {
+    const ast = cache.get(this.location.filePath);
+
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(path => path.isBooleanLiteral());
+    assertFoundNodePaths(nodePaths, this.location);
+    const nodePath = nodePaths[0] as NodePath<t.BooleanLiteral>;
+    nodePath.node.value = !nodePath.node.value; 
+	}
+	
+	async *onEvaluation() {
+	}
+}
+
+class InvertBooleanLiteralInstructionFactory implements InstructionFactory<InvertBooleanLiteralInstruction> {
+	*createInstructions(nodePath, filePath, derivedFromPassingTests) {
+		if (nodePath.isBooleanLiteral()) {
+      yield createInstructionHolder(new InvertBooleanLiteralInstruction({...nodePath.node.loc, filePath}, !nodePath.node.value), derivedFromPassingTests);
+    }
+  }
+
+  onInitialPass() {
+
+  }
+}
+
 class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
 
@@ -684,7 +723,8 @@ export const assignmentCategories = [
 const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(assignmentCategories),
   new BinaryFactory(binaryOperationCategories),
-  new ReplaceStringFactory()
+  new ReplaceStringFactory(),
+  new InvertBooleanLiteralInstructionFactory(),
 ];
 const RETRIES = 1;
 
