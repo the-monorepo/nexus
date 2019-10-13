@@ -56,7 +56,7 @@ const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
 let copyTempDir: string = null!;
 const resetFile = async (filePath: string) => {
-  const copyPath = originalPathToCopyPath.get(filePath)!;
+  const copyPath = await originalPathToCopyPath.get(filePath)!;
   const fileContents = await readFile(copyPath, 'utf8');
   await writeFile(filePath, fileContents, 'utf8');
 };
@@ -149,10 +149,10 @@ type InstructionHolder<T extends Instruction = Instruction> = {
 
 
 type InstructionFactory<T extends Instruction = Instruction> = {
-  onInitialPass(nodePath: NodePath<unknown>, filePath: string, derivedFromPassingTest: boolean);
-  createInstructions(nodePath: NodePath<unknown>, filePath: string, derivedFromPassingTest: boolean): IterableIterator<InstructionHolder<T>>;
+  onInitialPass(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean);
+  createPreBlockInstructions(nodePath: NodePath, filePath: string, derivedFromPassingTests: boolean);
+  createInstructions(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean): IterableIterator<InstructionHolder<T>>;
 };
-
 
 const createInstructionHolder = <T extends Instruction>(
   instruction: T,
@@ -192,7 +192,7 @@ const getParentScope = (path: NodePath<t.Node>): (NodePath<t.Scopable> | NodePat
   if (!parentPath) {
     return path;
   }
-  if (parentPath.isScopable()) {
+  if (isStatementContainer(parentPath)) {
     return parentPath as NodePath<t.Scopable>;
   }
   return getParentScope(parentPath);
@@ -206,7 +206,7 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
   }
 };
 
-const OPERATOR = Symbol('');
+const OPERATOR = Symbol('operation');
 export const binaryOperationCategories = [
   [['&', '&&']], [['|', '||']], ['^', ['&', '>>>', '>>'], ['|', '<<<', '<<']] ,[['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]], ['**', '%', ['/', '*'], ['-', '+']]
 ];
@@ -635,6 +635,10 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
     }
   }
 
+  *createPreBlockInstructions() {
+
+  }
+
   *createInstructions(nodePath, filePath, derivedFromPassingTest) {
     const node = nodePath.node;
     if(nodePath.isStringLiteral() && node.loc) {
@@ -673,11 +677,115 @@ class InvertBooleanLiteralInstruction implements Instruction {
 	}
 }
 
+const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
+type SwapFunctionInformation = {
+  location: ExpressionLocation,
+  index: number,
+};
+
+class SwapFunctionParametersInstruction implements Instruction {
+  public readonly type: Symbol = SWAP_FUNCTION_PARAMS;
+  public readonly mutationCount: number = 2;
+  public readonly mutationsLeft: number = 1;
+  public readonly mutationResults: MutationResults;
+
+  constructor(
+    private readonly location: Location,
+    private readonly param1: SwapFunctionInformation,
+    private readonly param2: SwapFunctionInformation
+  ) {
+    let columnWidth = 0;
+    let lineWidth = 0;
+
+    lineWidth += param1.location.end.line - param1.location.start.line;
+    lineWidth += param2.location.end.line - param2.location.start.line;
+
+    columnWidth += param1.location.end.column - param1.location.start.column;
+    columnWidth += param2.location.end.column - param2.location.start.column;
+
+    this.mutationResults = {
+      columnWidth,
+      lineWidth,
+      locations: {
+        [location.filePath]: [
+          param1.location,
+          param2.location,
+        ]  
+      }
+    };
+  }
+
+  isRemovable() {
+    return true;
+  }
+
+  async *onEvaluation() {}
+
+  async process(data, cache: AstCache) {
+    const ast = await cache.get(this.location.filePath);
+    
+    const nodePaths = findNodePathsWithLocation(ast, this.location)
+      .filter(path => path.isFunction());
+    assertFoundNodePaths(nodePaths, this.location);
+
+    const nodePath = nodePaths[0] as NodePath<t.Function>;
+ 
+    if (nodePath) {
+      const params = nodePath.node.params;
+      const temp = params[this.param1.index];
+      params[this.param1.index] = params[this.param2.index];
+      params[this.param2.index] = temp;
+    }
+  }
+}
+
+class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionParametersInstruction> {
+  *createInstructions() {
+
+  }
+
+  *createPreBlockInstructions(nodePath: NodePath, filePath, derivedFromPassingTests) {
+    console.log('?', nodePath.node.type, nodePath.isFunction());
+    if(nodePath.isFunction() && nodePath.node.loc) {
+      console.log('function :O')
+      const node = nodePath.node;
+      const params = node.params;
+      for(let p = 1; p < node.params.length; p++) {
+        const param1 = params[p - 1];
+        const param2 = params[p];
+        if (param1.loc && param2.loc) {
+          yield createInstructionHolder(
+            new SwapFunctionParametersInstruction(
+              { ...node.loc, filePath }, 
+              {
+                index: p - 1,
+                location: param1.loc
+              }, {
+                index: p,
+                location: param2.loc
+              }
+            ), 
+            derivedFromPassingTests
+          );
+        }
+      }
+    }
+  }
+
+  onInitialPass() {
+
+  }
+}
+
 class InvertBooleanLiteralInstructionFactory implements InstructionFactory<InvertBooleanLiteralInstruction> {
 	*createInstructions(nodePath, filePath, derivedFromPassingTests) {
 		if (nodePath.isBooleanLiteral()) {
       yield createInstructionHolder(new InvertBooleanLiteralInstruction({...nodePath.node.loc, filePath}, !nodePath.node.value), derivedFromPassingTests);
     }
+  }
+
+  *createPreBlockInstructions() {
+
   }
 
   onInitialPass() {
@@ -689,6 +797,10 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
 
   onInitialPass() { }
+
+  *createPreBlockInstructions() {
+    
+  }
 
   *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
@@ -705,6 +817,10 @@ class BinaryFactory implements InstructionFactory<BinaryInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
   
   onInitialPass() { }
+
+  *createPreBlockInstructions() {
+
+  }
 
   *createInstructions(path, filePath, derivedFromPassingTest) {
     const node = path.node;
@@ -725,6 +841,7 @@ const instructionFactories: InstructionFactory<any>[] = [
   new BinaryFactory(binaryOperationCategories),
   new ReplaceStringFactory(),
   new InvertBooleanLiteralInstructionFactory(),
+  new SwapFunctionParametersFactory(),
 ];
 const RETRIES = 1;
 
@@ -775,6 +892,11 @@ const findAllNodePaths= async (cache: AstCache, locations: Location[]) => {
   });
 }
 
+const isStatementContainer = (path: NodePath<any>) => {
+  const node = path.node;
+  return node.body || (path.isIfStatement() && ((node.alternate && !node.alternate.body) || !node.consequent.body));
+}
+
 async function* identifyUnknownInstruction(
   nodePaths: any[],
   derivedFromPassingTest: boolean, cache: AstCache
@@ -782,17 +904,19 @@ async function* identifyUnknownInstruction(
   const initialExpressionsSeen: Set<string> = new Set();
   for(const nodePath of nodePaths) {
     const scopedPath = getParentScope(nodePath);
-    scopedPath.traverse({
-      enter: (path) => {
-        const key = expressionKey(nodePath.filePath, path.node);
-        if (initialExpressionsSeen.has(key)) {
-          return;
-        }
-        initialExpressionsSeen.add(key);
-        for(const instructionFactory of instructionFactories) {
-          instructionFactory.onInitialPass(path, nodePath.filePath, derivedFromPassingTest);
-        }
+    const enter = (path) => {
+      const key = expressionKey(nodePath.filePath, path.node);
+      if (initialExpressionsSeen.has(key)) {
+        return;
       }
+      initialExpressionsSeen.add(key);
+      for(const instructionFactory of instructionFactories) {
+        instructionFactory.onInitialPass(path, nodePath.filePath, derivedFromPassingTest);
+      }
+    };
+    enter(scopedPath);
+    scopedPath.traverse({
+      enter
     });
   }
   const expressionsSeen: Set<string> = new Set();
@@ -804,69 +928,80 @@ async function* identifyUnknownInstruction(
     const currentStatementStack: StatementInformation[][] = [];
     const expressionSeenThisTimeRound: Set<string> = new Set();
     console.log('SCOPEd', expressionKey(nodePath.filePath, scopedPath.node));
-    scopedPath.traverse({
-      enter: (path) => {
-        const node: any = path.node;
-        const parentPath = path.parentPath;
-        const parentNode: any = parentPath.node;
-        const key = expressionKey(nodePath.filePath, node);
-        console.log('checking',key);
-        if (expressionsSeen.has(key)) {
-          console.log('seen');
-          return;
-        }
-        expressionsSeen.add(key);
-        expressionSeenThisTimeRound.add(key);
-        if (parentNode.body) {
-          console.log('could be added', path.key, typeof parentNode.body, key);
-        }
-        if (parentPath && 
-          (
-            (parentNode.body && (path.key === 'body' || (Array.isArray(parentNode.body) && typeof path.key === 'number'))) ||
-            (parentPath.isIfStatement() && parentNode.consequent && (!parentNode.consequent.body || (parentNode.alternate && !parentNode.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
-          ) && 
-          node.loc && currentStatementStack.length > 0) {
-          console.log('added', key);
-          currentStatementStack[currentStatementStack.length - 1].push({
-            index: path.key,
-            filePath: nodePath.filePath,
-            instructionHolders: [],
-            innerStatements: [],
-            location: node.loc,
-            retries: RETRIES,
-          });
-        }
-        if (node.body || (path.isIfStatement() && ((node.alternate && !node.alternate.body) || !node.consequent.body))) {
-          currentStatementStack.push([]);
-        }
-        if(currentStatementStack.length > 0) {
-          const statementStack = currentStatementStack[currentStatementStack.length - 1];
-          if (statementStack.length > 0) {
-            const statement = statementStack[statementStack.length - 1];
-            for(const factory of instructionFactories) {
-              statement.instructionHolders.push(...factory.createInstructions(path, nodePath.filePath, derivedFromPassingTest));
-            }  
-          }
-        }
-      },
-      exit: (path) => {
-        const node: any = path.node;
-        const key = expressionKey(nodePath.filePath, node);
-        if (!expressionSeenThisTimeRound.has(key)) {
-          return
-        }
-        if (node.body || (path.isIfStatement() && ((node.alternate && !node.alternate.body) || !node.consequent.body))) {
-          const poppedStatementInfo = currentStatementStack.pop()!;
-          if (currentStatementStack.length <= 0) {
-            statements.push(...poppedStatementInfo);
-          } else {
-            const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
-            const lastStatement = newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
-            lastStatement.innerStatements.push(...poppedStatementInfo);
-          }
+    const enter = (path) => {
+      const node: any = path.node;
+      const parentPath = path.parentPath;
+      const parentNode: any = parentPath.node;
+      const key = expressionKey(nodePath.filePath, node);
+      if (expressionsSeen.has(key)) {
+        return;
+      }
+      console.log(node.type, currentStatementStack.length);
+      expressionsSeen.add(key);
+      expressionSeenThisTimeRound.add(key);
+      if (parentPath && 
+        (
+          (parentNode.body && (path.key === 'body' || (Array.isArray(parentNode.body) && typeof path.key === 'number'))) ||
+          (parentPath.isIfStatement() && parentNode.consequent && (!parentNode.consequent.body || (parentNode.alternate && !parentNode.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
+        ) && 
+        node.loc && currentStatementStack.length > 0) {
+        console.log('statement')
+        currentStatementStack[currentStatementStack.length - 1].push({
+          index: path.key,
+          filePath: nodePath.filePath,
+          instructionHolders: [],
+          innerStatements: [],
+          location: node.loc,
+          retries: RETRIES,
+        });
+      }
+      if(currentStatementStack.length > 0) {
+        const statementStack = currentStatementStack[currentStatementStack.length - 1];
+        if (statementStack.length > 0) {
+          const statement = statementStack[statementStack.length - 1];
+          for(const factory of instructionFactories) {
+            statement.instructionHolders.push(...factory.createPreBlockInstructions(path, nodePath.filePath, derivedFromPassingTest));
+          }  
         }
       }
+
+      if (isStatementContainer(path)) {
+        console.log('block');
+        currentStatementStack.push([]);
+      }
+      if(currentStatementStack.length > 0) {
+        const statementStack = currentStatementStack[currentStatementStack.length - 1];
+        if (statementStack.length > 0) {
+          const statement = statementStack[statementStack.length - 1];
+          for(const factory of instructionFactories) {
+            statement.instructionHolders.push(...factory.createInstructions(path, nodePath.filePath, derivedFromPassingTest));
+          }  
+        }
+      }
+    };
+    const exit = (path) => {
+      const node: any = path.node;
+      const key = expressionKey(nodePath.filePath, node);
+      if (!expressionSeenThisTimeRound.has(key)) {
+        return
+      }
+      if (isStatementContainer(path)) {
+        const poppedStatementInfo = currentStatementStack.pop()!;
+        if (currentStatementStack.length <= 0) {
+          statements.push(...poppedStatementInfo);
+        } else {
+          const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
+          const lastStatement = newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
+          lastStatement.innerStatements.push(...poppedStatementInfo);
+        }
+      }
+    };
+    enter(scopedPath);
+    scopedPath.traverse({
+      enter,
+      exit
     });
+    exit(scopedPath);
   }
   const maxDepth = statementDepth(statements);
   console.log(maxDepth);
@@ -1571,6 +1706,7 @@ export const createPlugin = ({
 
     console.log('set peaking')
     const instruction = instructionQueue.peek()!;
+    console.log(instruction.instruction.type);
     previousInstruction = instruction;
 
     //console.log('processing')
