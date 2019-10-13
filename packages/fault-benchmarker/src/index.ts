@@ -299,7 +299,7 @@ export const run = async () => {
         mapToIstanbul: true,
         console: true,
         babelOptions,
-        allowPartialTestRuns: sandbox,
+        // allowPartialTestRuns: sandbox,
       })]
     });    
 
