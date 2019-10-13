@@ -677,6 +677,60 @@ class InvertBooleanLiteralInstruction implements Instruction {
 	}
 }
 
+const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
+class SwapFunctionCallArgumentsInstruction implements Instruction {
+  public readonly type: Symbol = SWAP_FUNCTION_CALL;
+  public readonly mutationCount = 1;
+  public readonly mutationsLeft = 1;
+  public readonly mutationResults: MutationResults;
+
+  isRemovable() {
+    return true;
+  }
+
+  constructor(
+    private readonly location: Location,
+    private readonly arg1: SwapFunctionInformation,
+    private readonly arg2: SwapFunctionInformation,
+  ) {
+    let columnWidth = 0;
+    columnWidth += arg1.location.end.column - arg1.location.start.column;
+    columnWidth += arg2.location.end.column - arg2.location.start.column;
+
+    let lineWidth = 0;
+    lineWidth += arg1.location.end.line - arg1.location.start.line;
+    lineWidth += arg2.location.end.line - arg2.location.start.line;
+
+    this.mutationResults = {
+      columnWidth,
+      lineWidth,
+      locations: {
+        [location.filePath]: [
+          arg1.location,
+          arg2.location,
+        ]  
+      }
+    };
+  }
+
+  async *onEvaluation() { }
+
+  async process(data, cache: AstCache) {
+    const ast = await cache.get(this.location.filePath);
+
+    const nodePaths = findNodePathsWithLocation(ast, this.location)
+      .filter(path => path.isCallExpression());
+    assertFoundNodePaths(nodePaths, this.location);
+
+    const nodePath = nodePaths[0] as NodePath<t.CallExpression>;
+    const args = nodePath.node.arguments;
+
+    const temp = args[this.arg1.index];
+    args[this.arg1.index] = args[this.arg2.index];
+    args[this.arg2.index] = temp;
+  }
+}
+
 const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
 type SwapFunctionInformation = {
   location: ExpressionLocation,
@@ -740,9 +794,7 @@ class SwapFunctionParametersInstruction implements Instruction {
 }
 
 class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionParametersInstruction> {
-  *createInstructions() {
-
-  }
+  *createInstructions() { }
 
   *createPreBlockInstructions(nodePath: NodePath, filePath, derivedFromPassingTests) {
     console.log('?', nodePath.node.type, nodePath.isFunction());
@@ -756,6 +808,38 @@ class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionPa
         if (param1.loc && param2.loc) {
           yield createInstructionHolder(
             new SwapFunctionParametersInstruction(
+              { ...nodePath.node.loc, filePath }, 
+              {
+                index: p - 1,
+                location: param1.loc
+              }, {
+                index: p,
+                location: param2.loc
+              }
+            ), 
+            derivedFromPassingTests
+          );
+        }
+      }
+    }
+  }
+
+  onInitialPass() { }
+}
+
+class SwapFunctionCallArgumentsFactory implements InstructionFactory<SwapFunctionCallArgumentsInstruction> {
+  *createInstructions() { }
+
+  *createPreBlockInstructions(nodePath: NodePath, filePath: string, derivedFromPassingTests) {
+    if(nodePath.isCallExpression() && nodePath.node.loc) {
+      const node = nodePath.node;
+      const params = node.arguments;
+      for(let p = 1; p < node.arguments.length; p++) {
+        const param1 = params[p - 1];
+        const param2 = params[p];
+        if (param1.loc && param2.loc) {
+          yield createInstructionHolder(
+            new SwapFunctionCallArgumentsInstruction(
               { ...node.loc, filePath }, 
               {
                 index: p - 1,
@@ -772,9 +856,7 @@ class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionPa
     }
   }
 
-  onInitialPass() {
-
-  }
+  onInitialPass() { }
 }
 
 class InvertBooleanLiteralInstructionFactory implements InstructionFactory<InvertBooleanLiteralInstruction> {
@@ -842,6 +924,7 @@ const instructionFactories: InstructionFactory<any>[] = [
   new ReplaceStringFactory(),
   new InvertBooleanLiteralInstructionFactory(),
   new SwapFunctionParametersFactory(),
+  new SwapFunctionCallArgumentsFactory(),
 ];
 const RETRIES = 1;
 
