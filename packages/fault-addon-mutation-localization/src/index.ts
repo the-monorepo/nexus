@@ -633,7 +633,7 @@ class ReplaceNumberInstruction extends SingleLocationInstruction {
   }
 
   filterNodePath(nodePath) {
-    return nodePath.isNumberLiteral();
+    return nodePath.isNumericLiteral();
   }
 
   isRemovable(evaluation) {
@@ -654,7 +654,7 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
   private readonly filePathToNumberValues: Map<string, Set<number>> = new Map();
 
   onInitialPass(nodePath: NodePath, filePath: string) {
-    if(nodePath.isNumberLiteral()) {
+    if(nodePath.isNumericLiteral()) {
       if (!this.filePathToNumberValues.has(filePath)) {
         this.filePathToNumberValues.set(filePath, new Set());
       }
@@ -668,7 +668,7 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
 
   *createInstructions(nodePath, filePath, derivedFromPassingTest) {
     const node = nodePath.node;
-    if(nodePath.isNumberLiteral() && node.loc) {
+    if(nodePath.isNumericLiteral() && node.loc) {
       const values = [...new Set([...this.filePathToNumberValues.get(filePath)!, node.value - 1, node.value + 1])]
         .filter(value => value !== node.value)
         .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
@@ -1032,7 +1032,7 @@ const findAllNodePaths= async (cache: AstCache, locations: Location[]) => {
 
 const isStatementContainer = (path: NodePath<any>) => {
   const node = path.node;
-  return node.body || (path.isIfStatement() && ((node.alternate && !node.alternate.body) || !node.consequent.body));
+  return (node.body && (Array.isArray(node.body) || !node.body.body)) || (path.isIfStatement() && ((node.alternate && !node.alternate.body) || !node.consequent.body));
 }
 
 async function* identifyUnknownInstruction(
@@ -1066,10 +1066,9 @@ async function* identifyUnknownInstruction(
     const currentStatementStack: StatementInformation[][] = [];
     const expressionSeenThisTimeRound: Set<string> = new Set();
     console.log('SCOPEd', expressionKey(nodePath.filePath, scopedPath.node));
-    const enter = (path) => {
-      const node: any = path.node;
+    const enter = (path: NodePath) => {
+      const node = path.node;
       const parentPath = path.parentPath;
-      const parentNode: any = parentPath.node;
       const key = expressionKey(nodePath.filePath, node);
       if (expressionsSeen.has(key)) {
         return;
@@ -1079,8 +1078,8 @@ async function* identifyUnknownInstruction(
       expressionSeenThisTimeRound.add(key);
       if (parentPath && 
         (
-          (parentNode.body && (path.key === 'body' || (Array.isArray(parentNode.body) && typeof path.key === 'number'))) ||
-          (parentPath.isIfStatement() && parentNode.consequent && (!parentNode.consequent.body || (parentNode.alternate && !parentNode.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
+          (parentPath.node.body && ((path.key === 'body' && !node.body) || (Array.isArray(parentPath.node.body) && typeof path.key === 'number'))) ||
+          (parentPath.isIfStatement() && parentPath.node.consequent && (!parentPath.node.consequent.body || (parentPath.node.alternate && !parentPath.node.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
         ) && 
         node.loc && currentStatementStack.length > 0) {
         console.log('statement')
@@ -1117,8 +1116,8 @@ async function* identifyUnknownInstruction(
         }
       }
     };
-    const exit = (path) => {
-      const node: any = path.node;
+    const exit = (path: NodePath) => {
+      const node = path.node;
       const key = expressionKey(nodePath.filePath, node);
       if (!expressionSeenThisTimeRound.has(key)) {
         return
