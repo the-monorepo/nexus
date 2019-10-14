@@ -124,7 +124,8 @@ type StatementInformation = {
   location: ExpressionLocation,
   retries: number,
   innerStatements: StatementInformation[],
-  instructionHolders: InstructionHolder[]
+  instructionHolders: InstructionHolder[],
+  totalNodes: number,
 }
 
 type InstructionData = {
@@ -136,8 +137,9 @@ type Instruction = {
   type: Symbol;
   isRemovable: (evaluation: MutationEvaluation, data: InstructionData) => boolean,
   mutationResults: MutationResults,
-  mutationCount: number,
   process: (data: InstructionData, cache: AstCache) => Promise<any>,
+  totalNodes: number,
+  atomicMutation: boolean,
   mutationsLeft: number,
   onEvaluation: (evaluation: MutationEvaluation, data: InstructionData, cache: AstCache) => AsyncIterableIterator<InstructionHolder<any>>
 }
@@ -208,7 +210,7 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
 
 const OPERATOR = Symbol('operation');
 export const binaryOperationCategories = [
-  [['&', '&&']], [['|', '||']], ['^', ['&', '>>>', '>>'], ['|', '<<<', '<<']] ,[['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]], ['**', '%', ['/', '*'], ['-', '+']]
+  [['&', '&&']], [['|', '||']], ['^', ['&', '>>>', '>>'], ['|', '<<']] ,[['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]], ['**', '%', ['/', '*'], ['-', '+']]
 ];
 
 abstract class SingleLocationInstruction implements Instruction {
@@ -216,6 +218,7 @@ abstract class SingleLocationInstruction implements Instruction {
   public readonly mutationCount = 1
   private readonly retryHandler = new RetryHandler();
   public readonly mutationResults: MutationResults;
+  public readonly atomicMutation: boolean = true;
   constructor(private readonly location: Location) {
     this.mutationResults = locationToMutationResults(location);
   }
@@ -249,6 +252,7 @@ class BinaryInstruction extends SingleLocationInstruction {
   constructor(
     location: Location,
     private readonly operators: string[],
+    public readonly totalNodes: number
   ) {
     super(location);
   }
@@ -268,9 +272,9 @@ class BinaryInstruction extends SingleLocationInstruction {
     const node = nodePath.node as (t.BinaryExpression | t.LogicalExpression);
 
     if (['||', '&&'].includes(operator)) {
-      nodePath.replaceWith(t.logicalExpression(operator, node.left, node.right));
+      nodePath.replaceWith(t.logicalExpression(operator as any, node.left, node.right));
     } else {
-      nodePath.replaceWith(t.assignmentExpression(operator, node.left, node.right));
+      nodePath.replaceWith(t.binaryExpression(operator as any, node.left, node.right));
     }
     
     node.operator = operator as any;  
@@ -295,6 +299,7 @@ class AssignmentInstruction extends SingleLocationInstruction {
   constructor(
     location: Location,
     private readonly operators: string[],
+    public readonly totalNodes: number,
   ) {
     super(location);
   }
@@ -340,7 +345,8 @@ class DeleteStatementInstruction implements Instruction {
   public readonly type = DELETE_STATEMENT;
   public mutationResults: MutationResults;
   public mutationsLeft: number;
-  public mutationCount: number;
+  public totalNodes: number;
+  public atomicMutation: boolean;
   private lastProcessedStatementBlock: StatementBlock= undefined!;
   private statementBlocks: Heap<StatementBlock>; 
   constructor(
@@ -360,7 +366,13 @@ class DeleteStatementInstruction implements Instruction {
     const locationsObj: LocationObject = {};
     const locationsAdded: Set<string> = new Set();
     const statements = this.lastProcessedStatementBlock.statements;
+    this.atomicMutation = statements.length <= 1;
     const stack: StatementInformation[] = [...statements];
+    let totalNodes = 0;
+    for(const outerStatement of statements) {
+      totalNodes += outerStatement.totalNodes;
+    }
+    this.totalNodes = totalNodes;
     let s = 0;
     while (s < stack.length) {
       const statement = stack[s];
@@ -396,7 +408,6 @@ class DeleteStatementInstruction implements Instruction {
       }
     }
     this.mutationsLeft = count;
-    this.mutationCount = totalMutations(this.mutationResults);
   }
 
   isRemovable() {
@@ -407,7 +418,7 @@ class DeleteStatementInstruction implements Instruction {
     const statements = this.statementBlocks.pop()!;
     this.lastProcessedStatementBlock = statements;
     this.recalculateMutationResults();
-    console.log(`${this.mutationsLeft} left in statement & ${this.statementBlocks.length + 1} blocks left`);
+    console.log(`${statements.statements.length} left in statement & ${this.statementBlocks.length + 1} blocks left`);
     const sortedStatements = [...statements.statements].sort((a, b) => {
       const comparison = a.filePath.localeCompare(b.filePath);
       if (comparison !== 0) {
@@ -519,9 +530,6 @@ class DeleteStatementInstruction implements Instruction {
       }
       if (statements.statements.length > 1) {
         this.splitStatementBlock(statements.statements);
-      } else if (statements.statements.length === 1) {
-        const statement = statements.statements[0];
-        yield* statement.instructionHolders;
       }
     }
   }
@@ -599,7 +607,7 @@ class ReplaceStringInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = REPLACE_STRING;
   public readonly mutationsLeft: number = 1;
 
-  constructor(location: Location, private readonly values: string[]) {
+  constructor(location: Location, private readonly values: string[], public readonly totalNodes: number) {
     super(location);
   }
 
@@ -628,7 +636,7 @@ class ReplaceNumberInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = REPLACE_NUMBER;
   public readonly mutationsLeft: number = 1;
 
-  constructor(location: Location, private readonly values: number[]) {
+  constructor(location: Location, private readonly values: number[], public readonly totalNodes: number) {
     super(location);
   }
 
@@ -672,7 +680,7 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
       const values = [...new Set([...this.filePathToNumberValues.get(filePath)!, node.value - 1, node.value + 1])]
         .filter(value => value !== node.value)
         .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
-      yield createInstructionHolder(new ReplaceNumberInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
+      yield createInstructionHolder(new ReplaceNumberInstruction({ ...node.loc, filePath }, values, node[TOTAL_NODES]), derivedFromPassingTest);
     }
   }
 }
@@ -705,27 +713,25 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
 }
 
 const REPLACE_BOOLEAN = Symbol('replace-boolean');
-class InvertBooleanLiteralInstruction implements Instruction {
-	public readonly mutationResults: MutationResults;
+class InvertBooleanLiteralInstruction extends SingleLocationInstruction {
 	public readonly mutationsLeft: number = 1;
-  public readonly mutationCount: number = 1;
   public readonly type = REPLACE_BOOLEAN;
-	constructor(private readonly location: Location) {
-		this.mutationResults = locationToMutationResults(this.location);
+	constructor(location: Location, public readonly totalNodes: number) {
+    super(location);
 	}
 
 	isRemovable() {
 		return true;
-	}
-	
-	async process(data, cache) {
-    const ast = cache.get(this.location.filePath);
-
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(path => path.isBooleanLiteral());
-    assertFoundNodePaths(nodePaths, this.location);
+  }
+  
+  filterNodePath(path: NodePath) {
+    return path.isBooleanLiteral();
+  }
+  
+  async processNodePaths(nodePaths) {
     const nodePath = nodePaths[0] as NodePath<t.BooleanLiteral>;
-    nodePath.node.value = !nodePath.node.value; 
-	}
+    nodePath.node.value = !nodePath.node.value;
+  }
 	
 	async *onEvaluation() {
 	}
@@ -734,9 +740,9 @@ class InvertBooleanLiteralInstruction implements Instruction {
 const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
 class SwapFunctionCallArgumentsInstruction implements Instruction {
   public readonly type: Symbol = SWAP_FUNCTION_CALL;
-  public readonly mutationCount = 1;
   public readonly mutationsLeft = 1;
   public readonly mutationResults: MutationResults;
+  public readonly atomicMutation: boolean = true;
 
   isRemovable() {
     return true;
@@ -746,6 +752,7 @@ class SwapFunctionCallArgumentsInstruction implements Instruction {
     private readonly location: Location,
     private readonly arg1: SwapFunctionInformation,
     private readonly arg2: SwapFunctionInformation,
+    public readonly totalNodes: number,
   ) {
     let columnWidth = 0;
     columnWidth += arg1.location.end.column - arg1.location.start.column;
@@ -796,11 +803,13 @@ class SwapFunctionParametersInstruction implements Instruction {
   public readonly mutationCount: number = 2;
   public readonly mutationsLeft: number = 1;
   public readonly mutationResults: MutationResults;
+  public readonly atomicMutation: boolean = true;
 
   constructor(
     private readonly location: Location,
     private readonly param1: SwapFunctionInformation,
-    private readonly param2: SwapFunctionInformation
+    private readonly param2: SwapFunctionInformation,
+    public readonly totalNodes: number,
   ) {
     let columnWidth = 0;
     let lineWidth = 0;
@@ -851,9 +860,7 @@ class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionPa
   *createInstructions() { }
 
   *createPreBlockInstructions(nodePath: NodePath, filePath, derivedFromPassingTests) {
-    console.log('?', nodePath.node.type, nodePath.isFunction());
     if(nodePath.isFunction() && nodePath.node.loc) {
-      console.log('function :O')
       const node = nodePath.node;
       const params = node.params;
       for(let p = 1; p < node.params.length; p++) {
@@ -869,7 +876,8 @@ class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionPa
               }, {
                 index: p,
                 location: param2.loc
-              }
+              },
+              param1[TOTAL_NODES] + param2[TOTAL_NODES]
             ), 
             derivedFromPassingTests
           );
@@ -894,14 +902,15 @@ class SwapFunctionCallArgumentsFactory implements InstructionFactory<SwapFunctio
         if (param1.loc && param2.loc) {
           yield createInstructionHolder(
             new SwapFunctionCallArgumentsInstruction(
-              { ...node.loc, filePath }, 
+              { ...nodePath.node.loc, filePath }, 
               {
                 index: p - 1,
                 location: param1.loc
               }, {
                 index: p,
                 location: param2.loc
-              }
+              },
+              param1[TOTAL_NODES] + param2[TOTAL_NODES]
             ), 
             derivedFromPassingTests
           );
@@ -916,7 +925,7 @@ class SwapFunctionCallArgumentsFactory implements InstructionFactory<SwapFunctio
 class InvertBooleanLiteralInstructionFactory implements InstructionFactory<InvertBooleanLiteralInstruction> {
 	*createInstructions(nodePath, filePath, derivedFromPassingTests) {
 		if (nodePath.isBooleanLiteral()) {
-      yield createInstructionHolder(new InvertBooleanLiteralInstruction({...nodePath.node.loc, filePath}, !nodePath.node.value), derivedFromPassingTests);
+      yield createInstructionHolder(new InvertBooleanLiteralInstruction({...nodePath.node.loc, filePath}, nodePath.node[TOTAL_NODES]), derivedFromPassingTests);
     }
   }
 
@@ -943,7 +952,7 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
     if(path.isAssignmentExpression() && node.loc) {
       const operators = matchAndFlattenCategoryData(node.operator, this.operations);
       if (operators.length > 0) {
-        yield createInstructionHolder(new AssignmentInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
+        yield createInstructionHolder(new AssignmentInstruction({ filePath, ...node.loc }, operators, node[TOTAL_NODES]), derivedFromPassingTest);
       }
     }
   }
@@ -963,7 +972,7 @@ class BinaryFactory implements InstructionFactory<BinaryInstruction>{
     if((path.isBinaryExpression() || path.isLogicalExpression()) && node.loc) {
       const operators = matchAndFlattenCategoryData(node.operator, this.operations);
       if (operators.length > 0) {
-        yield createInstructionHolder(new BinaryInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
+        yield createInstructionHolder(new BinaryInstruction({ filePath, ...node.loc }, operators, node[TOTAL_NODES]), derivedFromPassingTest);
       }
     }
   }
@@ -1035,27 +1044,55 @@ const isStatementContainer = (path: NodePath<any>) => {
   return (node.body && (Array.isArray(node.body) || !node.body.body)) || (path.isIfStatement() && ((node.alternate && !node.alternate.body) || !node.consequent.body));
 }
 
-async function* identifyUnknownInstruction(
+const stubLocationEvaluation = (location: Location, totalNodes: number): LocationEvaluation => {
+  return {
+    totalAtomicMutationsPerformed: 0,
+    totalNodes,
+    location,
+    evaluations: [],
+  }
+}
+
+const TOTAL_NODES = Symbol('total-nodes');
+function identifyUnknownInstruction(
   nodePaths: any[],
-  derivedFromPassingTest: boolean, cache: AstCache
-): AsyncIterableIterator<StatementInformation[]> {
+  derivedFromPassingTest: boolean, 
+): StatementInformation[][] {
   const initialExpressionsSeen: Set<string> = new Set();
   for(const nodePath of nodePaths) {
     const scopedPath = getParentScope(nodePath);
+    const nodeCounts: number[] = [];
     const enter = (path) => {
       const key = expressionKey(nodePath.filePath, path.node);
       if (initialExpressionsSeen.has(key)) {
         return;
       }
-      initialExpressionsSeen.add(key);
+      nodeCounts.push(1);
       for(const instructionFactory of instructionFactories) {
         instructionFactory.onInitialPass(path, nodePath.filePath, derivedFromPassingTest);
       }
     };
+    const exit = (path) => {
+      const key = expressionKey(nodePath.filePath, path.node);
+      if (initialExpressionsSeen.has(key)) {
+        if (nodeCounts.length > 0 && path.parentPath && !path.parentPath.node[TOTAL_NODES]) {
+          nodeCounts[nodeCounts.length - 1] += path.node[TOTAL_NODES];
+        }
+        return;
+      }
+      initialExpressionsSeen.add(key);
+      const totalNodes = nodeCounts.pop()!;
+      if (nodeCounts.length > 0) {
+        nodeCounts[nodeCounts.length - 1] += totalNodes;
+      }
+      path.node[TOTAL_NODES] = totalNodes;
+    }
     enter(scopedPath);
     scopedPath.traverse({
-      enter
+      enter,
+      exit
     });
+    exit(scopedPath);
   }
   const expressionsSeen: Set<string> = new Set();
   //console.log(nodePaths);
@@ -1064,7 +1101,6 @@ async function* identifyUnknownInstruction(
     console.log('SCANNING', expressionKey(nodePath.filePath, nodePath.node));
     const scopedPath = getParentScope(nodePath);
     const currentStatementStack: StatementInformation[][] = [];
-    const expressionSeenThisTimeRound: Set<string> = new Set();
     console.log('SCOPEd', expressionKey(nodePath.filePath, scopedPath.node));
     const enter = (path: NodePath) => {
       const node = path.node;
@@ -1073,16 +1109,13 @@ async function* identifyUnknownInstruction(
       if (expressionsSeen.has(key)) {
         return;
       }
-      console.log(node.type, currentStatementStack.length);
-      expressionsSeen.add(key);
-      expressionSeenThisTimeRound.add(key);
       if (parentPath && 
         (
           (parentPath.node.body && ((path.key === 'body' && !node.body) || (Array.isArray(parentPath.node.body) && typeof path.key === 'number'))) ||
           (parentPath.isIfStatement() && parentPath.node.consequent && (!parentPath.node.consequent.body || (parentPath.node.alternate && !parentPath.node.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
         ) && 
         node.loc && currentStatementStack.length > 0) {
-        console.log('statement')
+        console.log('statement', expressionKey(nodePath.filePath, node), currentStatementStack.length, node[TOTAL_NODES])
         currentStatementStack[currentStatementStack.length - 1].push({
           index: path.key,
           filePath: nodePath.filePath,
@@ -1090,6 +1123,7 @@ async function* identifyUnknownInstruction(
           innerStatements: [],
           location: node.loc,
           retries: RETRIES,
+          totalNodes: node[TOTAL_NODES]
         });
       }
       if(currentStatementStack.length > 0) {
@@ -1098,12 +1132,12 @@ async function* identifyUnknownInstruction(
           const statement = statementStack[statementStack.length - 1];
           for(const factory of instructionFactories) {
             statement.instructionHolders.push(...factory.createPreBlockInstructions(path, nodePath.filePath, derivedFromPassingTest));
-          }  
+          }
         }
       }
 
       if (isStatementContainer(path)) {
-        console.log('block');
+        console.log('block', node.type, currentStatementStack.length);
         currentStatementStack.push([]);
       }
       if(currentStatementStack.length > 0) {
@@ -1119,9 +1153,10 @@ async function* identifyUnknownInstruction(
     const exit = (path: NodePath) => {
       const node = path.node;
       const key = expressionKey(nodePath.filePath, node);
-      if (!expressionSeenThisTimeRound.has(key)) {
+      if (expressionsSeen.has(key)) {
         return
       }
+      expressionsSeen.add(key);
       if (isStatementContainer(path)) {
         const poppedStatementInfo = currentStatementStack.pop()!;
         if (currentStatementStack.length <= 0) {
@@ -1141,7 +1176,6 @@ async function* identifyUnknownInstruction(
     exit(scopedPath);
   }
   const maxDepth = statementDepth(statements);
-  console.log(maxDepth);
   const comparator = (a, b) => b.length - a.length;
   const statementBlocks: StatementInformation[][] = [];
   for(let d = 0; d < maxDepth; d++) {
@@ -1172,7 +1206,8 @@ async function* identifyUnknownInstruction(
       statementBlocks.push(statementBlock.splice(mid));
     }
   }
-  yield* statementBlocks;
+
+  return statementBlocks;
 };
 
 export type TestEvaluation = {
@@ -1241,6 +1276,7 @@ export const compareMutationEvaluations = (
   const goodThingsHappened2 = evaluationDidSomethingGoodOrCrashed(r2) ? 1 : -1;
   const goodThingsHappenedComparison = goodThingsHappened1 - goodThingsHappened2;
   if (goodThingsHappenedComparison !== 0) {
+    console.log('x', goodThingsHappened1, goodThingsHappened2);
     return goodThingsHappenedComparison;
   }
 
@@ -1248,6 +1284,7 @@ export const compareMutationEvaluations = (
   const nothingBadHappened2 = evaluationDidNothingBad(r2) ? 1 : -1;
   const nothingBadHappenedComparison = nothingBadHappened1 - nothingBadHappened2;
   if (nothingBadHappenedComparison !== 0) {
+    console.log('y', nothingBadHappened1, nothingBadHappened2);
     return nothingBadHappenedComparison;
   }
 
@@ -1302,28 +1339,22 @@ export const compareMutationEvaluations = (
     return columnImprovementScore;
   }
 
-
   const errorsChanged = result1.errorsChanged - result2.errorsChanged;
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
 
-
-  const mutationCount = result1.mutationCount - result2.mutationCount;
-  if (mutationCount !== 0) {
-    return mutationCount
+  const atomicMutation = (result1.atomicMutation ? -1 : 1) - (result2.atomicMutation ? -1 : 1);
+  if (atomicMutation !== 0) {
+    console.log('z', result1.atomicMutation, result2.atomicMutation);
+    return atomicMutation
   }
 
-
-  const lineWidth = result1.lineWidth - result2.lineWidth;
-  if(lineWidth !== 0) {
-    return lineWidth;
-  }
-
-  const columnWidth = result1.columnWidth - result2.columnWidth;
-  if(columnWidth !== 0) {
-    return columnWidth;
-  }
+  /*
+  const totalNodes = result1.totalNodes - result2.totalNodes;
+  if (totalNodes !== 0) {
+    return totalNodes;
+  }*/
 
   return 0;
 };
@@ -1420,10 +1451,9 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
 
 export type CommonMutationEvaluation = {
   type: Symbol,
-  mutationCount: number,
+  totalNodes: number,
+  atomicMutation: boolean,
   partial: boolean,
-  lineWidth: number,
-  columnWidth: number,
 };
 export type CrashedMutationEvaluation = {
   stackEvaluation: null,
@@ -1491,15 +1521,14 @@ const evaluateNewMutation = (
   }
   return {
     type: instruction.instruction.type,
-    mutationCount: instruction.instruction.mutationCount,
+    atomicMutation: instruction.instruction.atomicMutation,
+    totalNodes: instruction.instruction.totalNodes,
     testsWorsened,
     testsImproved,
     stackEvaluation,
     errorsChanged,
     crashed: false,
     partial,
-    lineWidth: instruction.instruction.mutationResults.lineWidth,
-    columnWidth: instruction.instruction.mutationResults.columnWidth
   };
 };
 
@@ -1522,16 +1551,12 @@ const locationToKeyIncludingEnd = (filePath: string, location?: ExpressionLocati
 
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvaluation, b: MutationEvaluation) => {
   if (a.partial === b.partial) {
-    if (a.mutationCount > b.mutationCount) {
-      return -1;
-    } else if (a.mutationCount < b.mutationCount) {
-      return 1;
-    }
+    return (a.atomicMutation ? 1 : -1) - (b.atomicMutation ? 1 : -1)
   }
   return compareMutationEvaluationsWithLesserProperties(a, b);
 }
 
-const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
+export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
   const a = aL.evaluations;
   const b = bL.evaluations;
   const aSingleMutationsOnly = a.sort(compareMutationEvaluationsWithLargeMutationCountsFirst).reverse();
@@ -1539,33 +1564,41 @@ const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluati
   let aI = 0;
   let bI = 0;
   // Assumption: All arrays are at least .length > 0
+  const key1 = locationToKeyIncludingEnd(aL.location.filePath, aL.location);
+  const key2 = locationToKeyIncludingEnd(bL.location.filePath, bL.location);
+  console.log(key1, key2);
   do {
     const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
     if (comparison !== 0) {
+      console.log(aSingleMutationsOnly[aI]);
+      console.log(bSingleMutationsOnly[bI]);
+      console.log('a', comparison);
       return comparison;
     }
+
+    const roomForMutationComparison = (aL.totalNodes - aL.totalAtomicMutationsPerformed) - (bL.totalNodes - bL.totalAtomicMutationsPerformed);
+    if (roomForMutationComparison !== 0) {
+      console.log('b', roomForMutationComparison)
+      return roomForMutationComparison;
+    }
+
+    const comparison2 = compareMutationEvaluationsWithLesserProperties(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
+    if (comparison2 !== 0) {
+      console.log('c', comparison2)
+      return comparison2;
+    }
+
     aI++;
     bI++;
   } while(aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length)
-  let aI2 = 0;
-  let bI2 = 0;
-  // Assumption: All arrays are at least .length > 0
-  do {
-    const comparison = compareMutationEvaluationsWithLesserProperties(aSingleMutationsOnly[aI2], bSingleMutationsOnly[bI2]);
-    if (comparison !== 0) {
-      return comparison;
-    }
-    aI2++;
-    bI2++;
-  } while(aI2 < aSingleMutationsOnly.length && bI2 < bSingleMutationsOnly.length)
-  // Justification: a has more room to experiment with if it wasn't evaluated as much.
-  // TODO: Replace with instructions left
-  return b.length - a.length;
+  return bSingleMutationsOnly.length - aSingleMutationsOnly.length;
 }
 
 type LocationEvaluation = {
   evaluations: MutationEvaluation[],
-  location: Location
+  location: Location,
+  totalNodes: number,
+  totalAtomicMutationsPerformed: number
 }
 export const mutationEvalatuationMapToFaults = (
   locationEvaluations: Map<string, LocationEvaluation>,
@@ -1581,6 +1614,8 @@ export const mutationEvalatuationMapToFaults = (
         end: lE.location.end,
       },
       other: {
+        totalAtomicMutationsPerformed: lE.totalAtomicMutationsPerformed,
+        totalNodes: lE.totalNodes,
         evaluation: lE.evaluations
       }
     };
@@ -1635,8 +1670,8 @@ export const createDefaultIsFinishedFn = ({
 
     if (data.mutationEvaluations.length > 0) {
       // TODO: Might need to rethink using mutationCount if multi mutation instructions exist outside the delete statement phase
-      const mostSpecificMutationCount = Math.min(...data.mutationEvaluations.map(e => e.mutationCount));
-      const mostSpecificMutations = data.mutationEvaluations.filter(e =>e.mutationCount === mostSpecificMutationCount);
+      const hasAtomicMutations = data.mutationEvaluations.some(e => e.atomicMutation);
+      const mostSpecificMutations = data.mutationEvaluations.filter(e =>e.atomicMutation === hasAtomicMutations);
       const mostSpecificMutationsOnlyContainCrashes = mostSpecificMutations.filter(evaluation => evaluation.crashed).length === mostSpecificMutations.length;
       if (!mostSpecificMutationsOnlyContainCrashes) {
         const containsUsefulMutations = data.mutationEvaluations.some(evaluation => {
@@ -1673,33 +1708,37 @@ export const isLocationWithinBounds = (loc: ExpressionLocation, statement: Expre
   return lineWithin || onStartLineBound || onEndLineBound;
 }
 
-export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage): Fault[] => {
+export const mapLocationEvaluationsToIstanbulCoverage = (originalMap: Map<string, LocationEvaluation>, coverage: Coverage): Map<string, LocationEvaluation> => {
   // TODO: Could make this more efficient
-  const mappedFaults: Map<string, Fault> = new Map();
-  const replace = (fault: Fault, location: ExpressionLocation) => {
-    const key = locationToKeyIncludingEnd(fault.sourcePath, location);
-    if (mappedFaults.has(key)) {
-      const previousFault = mappedFaults.get(key)!;
-      if (previousFault.score! > fault.score!) {
-        return;
-      }
+  const mappedLocations: Map<string, LocationEvaluation> = new Map();
+  const replace = (originalEvaluation: LocationEvaluation, location: ExpressionLocation) => {
+    const key = locationToKeyIncludingEnd(originalEvaluation.location.filePath, location);
+    if (!mappedLocations.has(key)) {
+      // TODO: Super gross that i'm assuming the original map had the location
+      const original = originalMap.get(key)!;
+      mappedLocations.set(key, {
+        evaluations: [],
+        totalAtomicMutationsPerformed: 0,
+        totalNodes: 0,
+        location: original.location,
+      });
     }
-    mappedFaults.set(key, {
-      score: fault.score,
-      sourcePath: fault.sourcePath,
-      location,
-      other: fault.other
-    });
+    const locationEvaluation = mappedLocations.get(key)!;
+    locationEvaluation.evaluations.push(...originalEvaluation.evaluations)
+    locationEvaluation.totalAtomicMutationsPerformed += originalEvaluation.totalAtomicMutationsPerformed;
+    if(originalEvaluation.totalNodes > locationEvaluation.totalNodes) {
+      locationEvaluation.totalNodes = originalEvaluation.totalNodes;
+    }
   };
 
-  for (const fault of faults) {
-    const fileCoverage = coverage[fault.sourcePath];
+  for (const locationEvaluation of originalMap.values()) {
+    const loc = locationEvaluation.location;
+    const fileCoverage = coverage[loc.filePath];
     if (fileCoverage === undefined) {
       continue;
     }
     
     let mostRelevantStatement: ExpressionLocation | null = null;
-    const loc = fault.location;
     const locLineWidth = Math.abs(loc.end.line - loc.start.line) + 1; // + 1 cause the line it's on counts as one
     const locColumnWidth = Math.abs(loc.end.column - loc.start.column);
     for(const statement of Object.values(fileCoverage.statementMap)) {
@@ -1738,10 +1777,10 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
     }
 
     if (mostRelevantStatement !== null) {
-      replace(fault, mostRelevantStatement);
+      replace(locationEvaluation, mostRelevantStatement);
     }
   }
-  return [...mappedFaults.values()];
+  return mappedLocations;
 }
 
 const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
@@ -1794,22 +1833,15 @@ export const createPlugin = ({
       for(const [filePath, expressionLocations] of Object.entries(previousMutationResults.locations)) {
         for(const expressionLocation of expressionLocations) {
           const key = locationToKeyIncludingEnd(filePath, expressionLocation);
-          if (locationEvaluations.has(key)) {
-            locationEvaluations.get(key)!.evaluations.push(mutationEvaluation);
-          } else {
-            locationEvaluations.set(key, {
-              evaluations: [mutationEvaluation],
-              location: {
-                filePath,
-                ...expressionLocation
-              }
-            });
+          const locationEvaluation = locationEvaluations.get(key)!;
+          locationEvaluation.evaluations.push(mutationEvaluation);
+          if (mutationEvaluation.atomicMutation) {
+            locationEvaluation.totalAtomicMutationsPerformed++;
           }
         }
       }
 
       for await(const newInstruction of previousInstruction.instruction.onEvaluation(mutationEvaluation, previousInstruction.data, cache)) {
-        console.log('pushing');
         if (!newInstruction) {
           throw new Error(`Instruction was ${newInstruction}`);
         }
@@ -1817,11 +1849,9 @@ export const createPlugin = ({
       }
 
       if (previousInstruction.instruction.isRemovable(mutationEvaluation, previousInstruction.data)) {
-        console.log('popping');
         // Can't assume it's at the top of the heap and therefore can't use pop because any new instruction (onEvaluation) could technically end up at the top too
         instructionQueue.delete(previousInstruction);
       } else {
-        console.log('updating')
         instructionQueue.update(previousInstruction);
       }
     }
@@ -1929,11 +1959,52 @@ export const createPlugin = ({
             }
           }
           const allNodePaths= await findAllNodePaths(cache, locations);
-          for await (const statement of identifyUnknownInstruction(allNodePaths, false, cache)) {
+          const statementBlocks = identifyUnknownInstruction(allNodePaths, false);
+          for(const statement of statementBlocks) {
             statements.push({
               statements: statement
-            });
+            })
           }
+
+          const allLocations: Map<string, Location> = new Map();
+          const stack: StatementInformation[]= [];
+          for(const block of statementBlocks) {
+            stack.push(...block);
+          }
+
+          while(stack.length > 0) {
+            const popped = stack.pop()!;
+            const key = locationToKeyIncludingEnd(popped.filePath, popped.location);
+            allLocations.set(key, { filePath: popped.filePath, ...popped.location });
+            stack.push(...popped.innerStatements);
+            for(const instructionHolder of popped.instructionHolders) {
+              for(const [filePath, locations] of Object.entries(instructionHolder.instruction.mutationResults.locations)) {
+                for(const location of locations) {
+                  const instructionKey = locationToKeyIncludingEnd(filePath, location);
+                  allLocations.set(instructionKey, {...location, filePath});
+                }
+              }
+            }
+          }
+
+          // TODO: This includes istanbul coverage which isn't even necessarily covered. But we have to keep it for now cause mapToIstanbul assumes that they're included in the evaluations
+          const nodePaths = await findAllNodePaths(cache, [...allLocations.values(), ...locations]);
+          for(const nodePath of nodePaths) {
+            const key = locationToKeyIncludingEnd(nodePath.filePath, nodePath.node.loc!);
+            const totalNodes = nodePath.node[TOTAL_NODES];
+            if (locationEvaluations.has(key)) {
+              const locationEvaluation = locationEvaluations.get(key)!;
+              if (totalNodes > locationEvaluation.totalNodes) {
+                locationEvaluation.totalNodes = totalNodes;
+              }
+            } else {
+              locationEvaluations.set(key, stubLocationEvaluation({
+                filePath: nodePath.filePath,
+                ...nodePath.node.loc!
+              }, totalNodes));  
+            }
+          }
+
           if (statements.length > 0) {
             console.log('Pushing instruction')
             instructionQueue.push(createInstructionHolder(new DeleteStatementInstruction(statements, RETRIES), false));  
@@ -1983,15 +2054,14 @@ export const createPlugin = ({
         }
         const mutationEvaluation: MutationEvaluation = {
           type: previousInstruction.instruction.type,
-          mutationCount: previousInstruction.instruction.mutationCount,
+          atomicMutation: previousInstruction.instruction.atomicMutation,
+          totalNodes: previousInstruction.instruction.totalNodes,
           testsWorsened: null,
           testsImproved: null,
           stackEvaluation: null,
           errorsChanged: null,
           crashed: true,
           partial: previousRunWasPartial,
-          lineWidth: previousInstruction.instruction.mutationResults.lineWidth,
-          columnWidth: previousInstruction.instruction.mutationResults.columnWidth,
         };
 
         if (previousRunWasPartial) {
@@ -2016,9 +2086,15 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
         
-        const faults = mutationEvalatuationMapToFaults(locationEvaluations);
-        const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
-        await Promise.all([recordFaults(faultFilePath, mappedFaults), reportFaults(mappedFaults)]);
+        const mappedLocationEvaluations = mapToIstanbul ? mapLocationEvaluationsToIstanbulCoverage(locationEvaluations, tester.coverage) : locationEvaluations;
+        const locationEvaluationsThatArentEmpty: Map<string, LocationEvaluation> = new Map();
+        for(const [key, value] of mappedLocationEvaluations) {
+          if (value.evaluations.length > 0) {
+            locationEvaluationsThatArentEmpty.set(key, value);
+          }
+        }
+        const faults = mutationEvalatuationMapToFaults(locationEvaluationsThatArentEmpty);
+        await Promise.all([recordFaults(faultFilePath, faults), reportFaults(faults)]);
       },
     },
   };
