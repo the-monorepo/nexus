@@ -23,7 +23,7 @@ describe(matchAndFlattenCategoryData.name, () => {
     expect(matchAndFlattenCategoryData('1', [['c', ['1', '2'], 'd'], [['1', 'a', 'b']]])).to.deep.equal(['c', 'd', '2', 'a', 'b',]);
   });
   it('operation categories', () => {
-    expect(matchAndFlattenCategoryData('||', binaryOperationCategories)).to.deep.equal(['^', '&', '>>>', '>>', '<<<', '<<', '**', '%', '/', '*', '-', '+', '>=', '>', '<=', '<', '!=', '==', '!==', '===', '|', '&&']);
+    expect(matchAndFlattenCategoryData('||', binaryOperationCategories)).to.deep.equal(['^', '&', '>>>', '>>', '<<', '**', '%', '/', '*', '-', '+', '>=', '>', '<=', '<', '!=', '==', '!==', '===', '|', '&&']);
   });
   it('assignment categories', () => {
     expect(matchAndFlattenCategoryData('+=', assignmentCategories)).to.deep.equal(
