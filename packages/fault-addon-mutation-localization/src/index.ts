@@ -1276,7 +1276,6 @@ export const compareMutationEvaluations = (
   const goodThingsHappened2 = evaluationDidSomethingGoodOrCrashed(r2) ? 1 : -1;
   const goodThingsHappenedComparison = goodThingsHappened1 - goodThingsHappened2;
   if (goodThingsHappenedComparison !== 0) {
-    console.log('x', goodThingsHappened1, goodThingsHappened2);
     return goodThingsHappenedComparison;
   }
 
@@ -1284,7 +1283,6 @@ export const compareMutationEvaluations = (
   const nothingBadHappened2 = evaluationDidNothingBad(r2) ? 1 : -1;
   const nothingBadHappenedComparison = nothingBadHappened1 - nothingBadHappened2;
   if (nothingBadHappenedComparison !== 0) {
-    console.log('y', nothingBadHappened1, nothingBadHappened2);
     return nothingBadHappenedComparison;
   }
 
@@ -1551,7 +1549,10 @@ const locationToKeyIncludingEnd = (filePath: string, location?: ExpressionLocati
 
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvaluation, b: MutationEvaluation) => {
   if (a.partial === b.partial) {
-    return (a.atomicMutation ? 1 : -1) - (b.atomicMutation ? 1 : -1)
+    const atomicMutation = (a.atomicMutation ? 1 : -1) - (b.atomicMutation ? 1 : -1)
+    if (atomicMutation !== 0) {
+      return atomicMutation;
+    }
   }
   return compareMutationEvaluationsWithLesserProperties(a, b);
 }
@@ -1564,15 +1565,10 @@ export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationE
   let aI = 0;
   let bI = 0;
   // Assumption: All arrays are at least .length > 0
-  const key1 = locationToKeyIncludingEnd(aL.location.filePath, aL.location);
-  const key2 = locationToKeyIncludingEnd(bL.location.filePath, bL.location);
-  console.log(key1, key2);
   do {
     const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
     if (comparison !== 0) {
-      console.log(aSingleMutationsOnly[aI]);
-      console.log(bSingleMutationsOnly[bI]);
-      console.log('a', comparison);
+      console.log('a', comparison, aI, bI);
       return comparison;
     }
 
@@ -1606,6 +1602,7 @@ export const mutationEvalatuationMapToFaults = (
   const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
   locationEvaluationsList.sort(compareLocationEvaluations);
   const faults = locationEvaluationsList.map((lE, i): Fault => {
+    console.log(lE.evaluations.map(e => e.atomicMutation))
     return {
       score: i,
       sourcePath: lE.location.filePath,
