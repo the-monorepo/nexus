@@ -1,4 +1,4 @@
-import { compareMutationEvaluations, MutationEvaluation } from '../src/index';
+import { compareMutationEvaluations, MutationEvaluation, mutationEvalatuationMapToFaults } from '../src/index';
 const arrToString = (arr: number[]) => `[${arr.join(', ')}]`
 
 const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
@@ -55,4 +55,17 @@ describe(compareMutationEvaluations.name, () => {
       })
     }
   }
+  it('array stays the same when sorted', () => {
+    const sorted = [...orderedEvaluations].map(arrayToMutationEvaluation);
+    const copy = [...sorted];
+    copy.sort(compareMutationEvaluations);
+    expect(copy).to.deep.equal(sorted);
+
+    copy.sort(compareMutationEvaluations);
+    expect(copy).to.deep.equal(sorted);
+
+    copy.reverse();
+    copy.sort(compareMutationEvaluations);
+    expect(copy).to.deep.equal(sorted);    
+  })
 });
