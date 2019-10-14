@@ -623,6 +623,62 @@ class ReplaceStringInstruction extends SingleLocationInstruction {
   async *onEvaluation() {}
 }
 
+const REPLACE_NUMBER = Symbol('replace-number');
+class ReplaceNumberInstruction extends SingleLocationInstruction {
+  public readonly type: Symbol = REPLACE_NUMBER;
+  public readonly mutationsLeft: number = 1;
+
+  constructor(location: Location, private readonly values: number[]) {
+    super(location);
+  }
+
+  filterNodePath(nodePath) {
+    return nodePath.isNumberLiteral();
+  }
+
+  isRemovable(evaluation) {
+    return this.values.length <= 0 || super.isRemovable(evaluation);
+  }
+
+  processNodePaths(nodePaths) {
+    const nodePath = nodePaths[0] as NodePath<t.NumberLiteral>;
+
+    const node = nodePath.node;
+    node.value = this.values.pop()!;
+  }
+
+  async *onEvaluation() {}
+}
+
+class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstruction> {
+  private readonly filePathToNumberValues: Map<string, Set<number>> = new Map();
+
+  onInitialPass(nodePath: NodePath, filePath: string) {
+    if(nodePath.isNumberLiteral()) {
+      if (!this.filePathToNumberValues.has(filePath)) {
+        this.filePathToNumberValues.set(filePath, new Set());
+      }
+      this.filePathToNumberValues.get(filePath)!.add(nodePath.node.value);
+    }
+  }
+
+  *createPreBlockInstructions() {
+
+  }
+
+  *createInstructions(nodePath, filePath, derivedFromPassingTest) {
+    const node = nodePath.node;
+    if(nodePath.isNumberLiteral() && node.loc) {
+      const values = [...new Set([...this.filePathToNumberValues.get(filePath)!, node.value - 1, node.value + 1])]
+        .filter(value => value !== node.value)
+        .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
+      if(values.length > 0) {
+        yield createInstructionHolder(new ReplaceNumberInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
+      }
+    }
+  }
+}
+
 class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstruction> {
   private readonly filePathToStringValues: Map<string, Set<string>> = new Map();
 
@@ -631,7 +687,7 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
       if (!this.filePathToStringValues.has(filePath)) {
         this.filePathToStringValues.set(filePath, new Set());
       }
-      this.filePathToStringValues.get(filePath)!.add(node.value);
+      this.filePathToStringValues.get(filePath)!.add(nodePath.value);
     }
   }
 
@@ -925,6 +981,7 @@ const instructionFactories: InstructionFactory<any>[] = [
   new InvertBooleanLiteralInstructionFactory(),
   new SwapFunctionParametersFactory(),
   new SwapFunctionCallArgumentsFactory(),
+  new ReplaceNumberFactory(),
 ];
 const RETRIES = 1;
 
@@ -1708,9 +1765,8 @@ export const createPlugin = ({
   onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn(),
   mapToIstanbul = false,
-  allowPartialTestRuns = true
+  allowPartialTestRuns = false
 }: PluginOptions): PartialTestHookOptions => {
-  const nestedAstNodeCount: Map<LocationKey, number> = new Map();
   let previousInstruction: InstructionHolder = null!;
   let finished = false;
   const instructionQueue: Heap<InstructionHolder> = new Heap(heapComparisonFn);
