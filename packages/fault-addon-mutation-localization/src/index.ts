@@ -672,9 +672,7 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
       const values = [...new Set([...this.filePathToNumberValues.get(filePath)!, node.value - 1, node.value + 1])]
         .filter(value => value !== node.value)
         .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
-      if(values.length > 0) {
-        yield createInstructionHolder(new ReplaceNumberInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
-      }
+      yield createInstructionHolder(new ReplaceNumberInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
     }
   }
 }
