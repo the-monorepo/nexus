@@ -49,7 +49,8 @@ type ProjectResultProps = {
   name: string,
   min: number,
   max: number,
-  results: (number | undefined | null)[]
+  results: (number | undefined | null)[],
+  invertColors: boolean
 };
 const ProjectResult = (project: ProjectResultProps) => {
   const range = project.max - project.min;
@@ -61,10 +62,11 @@ const ProjectResult = (project: ProjectResultProps) => {
       {project.results.map(result => {
         const colorWeight =
           range === 0 ? 0 : ((result != null ? result : 0) - project.min) / range;
+        const invertColorWeight = project.invertColors ? 1 - colorWeight : colorWeight;
         const offset = 120;
         const factor = 255 - offset - 10;
-        const red = offset + factor * Math.min(1, colorWeight);
-        const green = offset + factor * Math.max(0, 1 - colorWeight);
+        const red = offset + factor * Math.min(1, invertColorWeight);
+        const green = offset + factor * Math.max(0, 1 - invertColorWeight);
         const blue = offset * 0.8;
         return (
           <td style={`background-color: rgb(${red}, ${green}, ${blue});`}>
@@ -77,14 +79,25 @@ const ProjectResult = (project: ProjectResultProps) => {
 };
 
 type ResultsTableProps = {
-  projectResults: ProjectResultProps[]
+  projectResults: ProjectResultProps[],
+  invertColors: boolean,
 };
-export const ResultsTable = ({ projectResults }: ResultsTableProps) => {
-  const averageResults: number[] = projectResults.map(result =>
-    result != null ? result : 0,
-  ) as number[];
-  const averageMin = Math.min(...averageResults);
-  const averageMax = Math.max(...averageResults);
+export const ResultsTable = ({ projectResults, invertColors }: ResultsTableProps) => {
+  let sum = 0;
+  let count = 0;
+  const averages: number[] = [];
+  for(let i = 0; i < algorithmNames.length; i++) {
+    for(const projectResult of projectResults) {
+      const result = projectResult.results[i];
+      if (result != null) {
+        sum += result;
+        count++;        
+      }
+    }
+    averages.push(count !== 0 ? sum / count : 0);
+  }
+  const averageMin = Math.min(...averages);
+  const averageMax = Math.max(...averages);
   
   return (
   <table className="table">
@@ -92,6 +105,7 @@ export const ResultsTable = ({ projectResults }: ResultsTableProps) => {
     <TableHeader />
     {projectResults.map(result => (
       <ProjectResult
+        invertColors={invertColors}
         name={result.name}
         min={result.min}
         max={result.max}
@@ -99,10 +113,11 @@ export const ResultsTable = ({ projectResults }: ResultsTableProps) => {
       />
     ))}
     <ProjectResult
+      invertColors={invertColors}
       name='Average'
       min={averageMin}
       max={averageMax}
-      results={averageResults}
+      results={averages}
     />
   </tbody>
   </table>
@@ -138,12 +153,8 @@ const projectResultsToExamResults = (projectResults: ProjectResult[]): ResultsTa
   }
 
   return {
-    projectResults: tableProps.concat({
-      name: 'Average',
-      min: Math.min(...averages),
-      max: Math.max(...averages),
-      results: averages
-    })
+    projectResults: tableProps,
+    invertColors: false,
   }
 };
 
@@ -176,7 +187,8 @@ const projectResultsToRankings = (projectResults: ProjectResult[]): ResultsTable
   }
 
   return {
-    projectResults: props
+    projectResults: props,
+    invertColors: true,
   };
 };
 
@@ -211,6 +223,7 @@ const Main = () => {
       tableResults.map(tableResult => (
         <ResultsTable
           projectResults={tableResult.projectResults}
+          invertColors={tableResult.invertColors}
         />  
       ))
     }
