@@ -215,12 +215,8 @@ const Main = () => {
     <input
       type="checkbox"
       name="separate-sandboxed"
-      $$click={e=> {
-        console.log('??')
-      }}
       $$change={e => {
         state.separateArtificial = e.target.checked;
-        console.log('??', state.separateArtificial);
         rerender();
       }}
       checked={true}

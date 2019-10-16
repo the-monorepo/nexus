@@ -3,10 +3,11 @@ import { File, AssignmentExpression, Expression, BaseNode, Statement } from '@ba
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import * as t from '@babel/types';
 import { TesterResults, TestResult, FailingTestData, FinalTesterResults } from '@fault/types';
-import { readFile, writeFile, mkdtemp, unlink, rmdir } from 'mz/fs';
+import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import { join, resolve, basename } from 'path';
 import { tmpdir } from 'os';
+import del from 'del';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import ErrorStackParser from 'error-stack-parser';
 import { NodePath } from '@babel/traverse';
@@ -1622,7 +1623,7 @@ export const mutationEvalatuationMapToFaults = (
 
 type IsFinishedFunction = (instruction: InstructionHolder<any>, finishData: MiscFinishData) => boolean;
 export type PluginOptions = {
-  faultFilePath?: string,
+  faultFileDir?: string,
   babelOptions?: ParserOptions,
   ignoreGlob?: string[] | string,
   onMutation?: (mutatatedFiles: string[]) => any,
@@ -1789,10 +1790,13 @@ const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
   ));
 }
 
+let solutionCounter = 0;
+
 type LocationKey = string;
+const faultFileName = 'faults.json';
 const heapComparisonFn = (a, b) => -compareInstructions(a, b);
 export const createPlugin = ({
-  faultFilePath = './faults/faults.json',
+  faultFileDir = './faults/',
   babelOptions,
   ignoreGlob = [],
   onMutation = () => {},
@@ -1800,6 +1804,9 @@ export const createPlugin = ({
   mapToIstanbul = false,
   allowPartialTestRuns = false
 }: PluginOptions): PartialTestHookOptions => {
+  const solutionsDir = resolve(faultFileDir, 'solutions');
+  
+  const faultFilePath = resolve(faultFileDir, faultFileName);
   let previousInstruction: InstructionHolder = null!;
   let finished = false;
   const instructionQueue: Heap<InstructionHolder> = new Heap(heapComparisonFn);
@@ -1918,6 +1925,8 @@ export const createPlugin = ({
   return {
     on: {
       start: async () => {
+        await del(resolve(solutionsDir, '**/*'));
+        await mkdir(solutionsDir, { recursive: true });
         // TODO: Types appear to be broken with mkdtemp
         copyTempDir = await (mkdtemp as any)(join(tmpdir(), 'fault-addon-mutation-localization-'));
       },
@@ -2021,6 +2030,19 @@ export const createPlugin = ({
             previousRunWasPartial = false;
             console.log('proceeding with full test run');
             return testsToBeRerun;
+          }
+
+          if (mutationEvaluation.testsImproved === failingTestFiles.size && previousInstruction) {
+            const locationObj: LocationObject = previousInstruction.instruction.mutationResults.locations;
+            const newSolutionDir = resolve(solutionsDir, (solutionCounter++)).toString();
+            await mkdir(newSolutionDir, { recursive: true });
+            // TODO: Use folders + the actual file name or something
+            let i = 0;
+            for(const filePath of Object.keys(locationObj)) {
+              const code = await readFile(filePath, 'utf8');
+              await writeFile(resolve(newSolutionDir, i.toString()), code, 'utf8');
+              i++;              
+            }
           }
   
           await resetMutationsInInstruction(previousInstruction);
