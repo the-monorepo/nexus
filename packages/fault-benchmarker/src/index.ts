@@ -178,9 +178,13 @@ const log = logger().add(
   }),
 );
 
-const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
-  const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName, 'faults.json');
+const faultFileDir = (projectDir: string, sbflModuleFolderName: string) => {
+  const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName);
   return faultPath;
+}
+
+const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
+  return resolve(faultFileDir(projectDir, sbflModuleFolderName), 'faults.json');
 };
 
 const findConfig = (
@@ -288,7 +292,7 @@ export const run = async () => {
     await flRunner.run({
       ...commonRunnerOptions,
       addons: [require('@fault/addon-mutation-localization').default({
-        faultFilePath: faultFilePath(projectDir, mbflName),
+        faultFileDir: faultFileDir(projectDir, mbflName),
         ignoreGlob,
         mapToIstanbul: true,
         console: true,
