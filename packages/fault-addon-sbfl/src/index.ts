@@ -152,7 +152,7 @@ export const createPlugin = ({
   return {
     on: {
       complete: async (results: FinalTesterResults) => {
-        const testResults: TestResult[] = [...results.testResults.values()];
+        const testResults: TestResult[] = [...results.testResults.entries()].sort(([key], [key2]) => key.localeCompare(key2)).map(([key, value]) => value);
         const fileResults = gatherFileResults(testResults);
         const totalPassFailStats = passFailStatsFromTests(testResults);
         const faults = localizeFaults(testResults, fileResults, resolvedIgnoreGlob, expressionPassFailStats =>
