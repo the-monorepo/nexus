@@ -125,7 +125,7 @@ export const ResultsTable = ({ projectResults, invertColors }: ResultsTableProps
 };
 
 const state = {
-  separateArtificial: false,
+  separateArtificial: true,
 };
 
 const projectResultsToExamResults = (projectResults: ProjectResult[]): ResultsTableProps => {
@@ -203,21 +203,28 @@ const Main = () => {
     tableResults.push(projectResultsToExamResults(projectResults));
     tableResults.push(projectResultsToRankings(projectResults));
   }
+  // TODO: JSX comments aren't working
+  // TODO: JSX spread not working
+  // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
   return (
   <div className="page">
     <header className="page-title">
       <h1>Fault.js benchmark results</h1>
     </header>
+    <label htmlFor="separate-sandboxed">Separate sandboxed</label>
     <input
       type="checkbox"
       name="separate-sandboxed"
-      $$click={e => {
+      $$click={e=> {
+        console.log('??')
+      }}
+      $$change={e => {
         state.separateArtificial = e.target.checked;
+        console.log('??', state.separateArtificial);
         rerender();
       }}
-      checked
+      checked={true}
     >
-      <label htmlFor="separate-sandboxed">Separate sandboxed</label>
     </input>
     {
       tableResults.map(tableResult => (
