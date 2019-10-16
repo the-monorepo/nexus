@@ -7,7 +7,10 @@ const { writeFile } = fs.promises;
 type ProjectResult = {
   name: string;
   results: {
-    [s: string]: number;
+    [s: string]: {
+      exam: number;
+      rankings: number[],
+    }
   };
 };
 
