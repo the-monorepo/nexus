@@ -27,7 +27,7 @@ const projectResults: ProjectResult[] = benchmarkResults.projects.map((project):
   const min = Math.min(...(results.filter(a => a != null).map(a => a.exam) as number[]));
   return {
     name: project.name,
-    artificial: false,
+    artificial: project.artificial,
     max: Number.isNaN(max) ? 1 : max,
     min: Number.isNaN(min) ? 1 : min,
     results,
@@ -83,10 +83,10 @@ type ResultsTableProps = {
   invertColors: boolean,
 };
 export const ResultsTable = ({ projectResults, invertColors }: ResultsTableProps) => {
-  let sum = 0;
-  let count = 0;
   const averages: number[] = [];
-  for(let i = 0; i < algorithmNames.length; i++) {
+  for(let i = 0; i < algorithmNames.length; i++) {  
+    let sum = 0;
+    let count = 0;
     for(const projectResult of projectResults) {
       const result = projectResult.results[i];
       if (result != null) {
@@ -194,6 +194,7 @@ const projectResultsToRankings = (projectResults: ProjectResult[]): ResultsTable
 
 const Main = () => {
   const tableResults: ResultsTableProps[] = [];
+  console.log(projectResults)
   if (state.separateArtificial) {
     tableResults.push(projectResultsToExamResults(projectResults.filter(projectResult => !projectResult.artificial)));
     tableResults.push(projectResultsToExamResults(projectResults.filter(projectResult => projectResult.artificial)));
