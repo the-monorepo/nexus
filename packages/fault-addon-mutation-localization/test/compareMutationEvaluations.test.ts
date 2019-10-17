@@ -18,6 +18,7 @@ const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
         partial: false,
         crashed: false,
         totalNodes: 0,
+        mutationCount: 0,
         atomicMutation: arr[7],
     };
 }
