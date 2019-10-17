@@ -35,8 +35,12 @@ export const createAstCache = (babelOptions?: ParserOptions) => {
 };
 type AstCache = ReturnType<typeof createAstCache>;
 
+type MutationResultLocation = {
+  direct: boolean,
+  location: ExpressionLocation
+};
 type LocationObject = {
-  [filePath: string]: ExpressionLocation[]
+  [filePath: string]: MutationResultLocation[]
 };
 
 type MutationResults = {
@@ -223,7 +227,7 @@ abstract class SingleLocationInstruction implements Instruction {
   public readonly mutationResults: MutationResults;
   public readonly atomicMutation: boolean = true;
   constructor(private readonly location: Location) {
-    this.mutationResults = locationToMutationResults(location);
+    this.mutationResults = locationToMutationResults(location, true);
   }
 
   isRemovable(evaluation: MutationEvaluation) {
@@ -286,12 +290,12 @@ class BinaryInstruction extends SingleLocationInstruction {
   async *onEvaluation() {}
 }
 
-const locationToMutationResults = (location: Location) => {
+const locationToMutationResults = (location: Location, direct: boolean): MutationResults => {
   return {
     lineWidth: location.end.line - location.start.line,
     columnWidth: location.end.column - location.start.column,
     locations: {
-      [location.filePath]: [location]        
+      [location.filePath]: [{ location, direct }]
     }
   }
 }
@@ -376,6 +380,7 @@ class DeleteStatementInstruction implements Instruction {
     for(const outerStatement of statements) {
       totalNodes += outerStatement.totalNodes;
     }
+    let originalStackLength = stack.length;
     this.totalNodes = totalNodes;
     let s = 0;
     while (s < stack.length) {
@@ -388,7 +393,10 @@ class DeleteStatementInstruction implements Instruction {
         if(locationsObj[statement.filePath] === undefined) {
           locationsObj[statement.filePath] = [];
         }
-        locationsObj[statement.filePath].push(statement.location);
+        locationsObj[statement.filePath].push({
+          location: statement.location,
+          direct: s < originalStackLength
+        });
         locationsAdded.add(key);
       }
       s++;
@@ -560,7 +568,7 @@ class RetryHandler {
     } else {
       this.retries = this.maxRetries;
     }
-    if (this.previousEvaluation == null || compareMutationEvaluations(this.previousEvaluation, evaluation) > 0) {
+    if (this.previousEvaluation == null || compareMutationEvaluations(this.previousEvaluation, evaluation) < 0) {
       this.previousEvaluation = evaluation;
     }
     return removeInstruction;
@@ -726,7 +734,7 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
     if(nodePath.isStringLiteral() && node.loc) {
       const values = [...this.filePathToStringValues.get(filePath)!].filter(value => value !== node.value);
       if(values.length > 0) {
-        yield createInstructionHolder(new ReplaceStringInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
+        yield createInstructionHolder(new ReplaceStringInstruction({ ...node.loc, filePath }, values, node[TOTAL_NODES]), derivedFromPassingTest);
       }
     }
   }
@@ -849,8 +857,14 @@ class SwapFunctionCallArgumentsInstruction implements Instruction {
       lineWidth,
       locations: {
         [location.filePath]: [
-          arg1.location,
-          arg2.location,
+          {
+            location: arg1.location,
+            direct: true
+          },
+          {
+            location: arg2.location,
+            direct: true
+          }
         ]  
       }
     };
@@ -907,8 +921,14 @@ class SwapFunctionParametersInstruction implements Instruction {
       lineWidth,
       locations: {
         [location.filePath]: [
-          param1.location,
-          param2.location,
+          {
+            location: param1.location,
+            direct: true
+          },
+          {
+            location: param2.location,
+            direct: true
+          }
         ]  
       }
     };
@@ -1370,8 +1390,8 @@ export const compareMutationEvaluations = (
   } else if (!r1.crashed && r2.crashed) {
     return 1;
   }
-  const goodThingsHappened1 = evaluationDidSomethingGoodOrCrashed(r1) ? 1 : -1;
-  const goodThingsHappened2 = evaluationDidSomethingGoodOrCrashed(r2) ? 1 : -1;
+  const goodThingsHappened1 = didSomethingGood(r1) ? 1 : -1;
+  const goodThingsHappened2 = didSomethingGood(r2) ? 1 : -1;
   const goodThingsHappenedComparison = goodThingsHappened1 - goodThingsHappened2;
   if (goodThingsHappenedComparison !== 0) {
     return goodThingsHappenedComparison;
@@ -1391,42 +1411,29 @@ export const compareMutationEvaluations = (
   const stackEval1 = result1.stackEvaluation;
   const stackEval2 = result2.stackEvaluation;
 
-
-  const netTestImprovement1 = result1.testsImproved - result1.testsWorsened;
-  const netTestImprovement2 = result2.testsImproved - result2.testsWorsened;
-
-  const netTestImprovementComparison = netTestImprovement1 - netTestImprovement2;
-  if (netTestImprovementComparison !== 0) {
-    return netTestImprovementComparison;
+  const testsWorsened = result2.testsWorsened - result1.testsWorsened;
+  if(testsWorsened !== 0) {
+    return testsWorsened;
   }
 
+  const lineDegradationScore = stackEval2.lineDegradationScore - stackEval1.lineDegradationScore;
+  if (lineDegradationScore !== 0) {
+    return lineDegradationScore;
+  }
+
+  const columnDegradationScore = stackEval2.columnDegradationScore - stackEval1.columnDegradationScore;
+  if (columnDegradationScore !== 0) {
+    return columnDegradationScore;
+  }
 
   const testsImproved = result1.testsImproved - result2.testsImproved;
   if (testsImproved !== 0) {
     return testsImproved;
   }
 
-
-  const netLineImprovement1 = stackEval1.lineImprovementScore - stackEval1.lineDegradationScore;
-  const netLineImprovement2 = stackEval2.lineImprovementScore - stackEval2.lineDegradationScore;
-
-  const netLineImprovementComparison = netLineImprovement1 - netLineImprovement2;
-  if (netLineImprovementComparison !== 0) {
-    return netLineImprovementComparison;
-  }
-  
   const lineImprovementScore = stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
   if (lineImprovementScore !== 0) {
     return lineImprovementScore;
-  }
-
-  
-  const netColumnImprovement1 = stackEval1.columnImprovementScore - stackEval1.columnDegradationScore;
-  const netColumnImprovement2 = stackEval2.columnImprovementScore - stackEval2.columnDegradationScore;
-
-  const netColumnImprovementComparison = netColumnImprovement1 - netColumnImprovement2;
-  if (netColumnImprovementComparison !== 0) {
-    return netColumnImprovementComparison;
   }
 
   const columnImprovementScore =
@@ -1440,11 +1447,11 @@ export const compareMutationEvaluations = (
     return errorsChanged;
   }
 
+  /*
   const mutationCount = result1.mutationCount - result2.mutationCount;
   if (mutationCount !== 0) {
     return mutationCount;
   }
-  /*
   const totalNodes = result1.totalNodes - result2.totalNodes;
   if (totalNodes !== 0) {
     return totalNodes;
@@ -1555,6 +1562,8 @@ export type CrashedMutationEvaluation = {
   testsWorsened: null;
   testsImproved: null;
   errorsChanged: null;
+  overallPositiveEffect: null;
+  overallNegativeEffect: null;
   crashed: true;
 } & CommonMutationEvaluation;
 export type NormalMutationEvaluation = {
@@ -1562,10 +1571,17 @@ export type NormalMutationEvaluation = {
   testsWorsened: number;
   testsImproved: number;
   errorsChanged: number;
+  overallPositiveEffect: number;
+  overallNegativeEffect: number;
   crashed: false;
 } & CommonMutationEvaluation;
 
 export type MutationEvaluation = CrashedMutationEvaluation | NormalMutationEvaluation;
+
+export type LocationMutationEvaluation = {
+  evaluation: MutationEvaluation,
+  direct: boolean
+}
 
 const evaluateNewMutation = (
   originalResults: TesterResults,
@@ -1578,6 +1594,8 @@ const evaluateNewMutation = (
   let testsImproved = 0;
   let stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
+  let overallPositiveEffect = 0;
+  let overallNegativeEffect = 0;
 
   for (const [key, newResult] of newResults.testResults) {
     if (!notSeen.has(key)) {
@@ -1594,23 +1612,30 @@ const evaluateNewMutation = (
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
       testsImproved++;
+      overallPositiveEffect++
     } else if (testEvaluation.endResultChange === EndResult.WORSE) {
       testsWorsened++;
+      overallNegativeEffect++;
     } else if (testEvaluation.errorChanged && (testEvaluation.stackLineScore === 0 || testEvaluation.stackColumnScore === null) && (testEvaluation.stackColumnScore === 0 || testEvaluation.stackColumnScore === null)) {
       errorsChanged++;
+      overallPositiveEffect++
     }
 
     if (testEvaluation.stackLineScore === null) {
       stackEvaluation.lineScoreNulls++;
     } else if (testEvaluation.stackLineScore > 0) {
+      overallPositiveEffect++;
       stackEvaluation.lineImprovementScore += testEvaluation.stackLineScore;
     } else if (testEvaluation.stackLineScore < 0) {
       stackEvaluation.lineDegradationScore -= testEvaluation.stackLineScore;
+      overallNegativeEffect++;
     } else if (testEvaluation.stackColumnScore === null) {
       stackEvaluation.columnScoreNulls++;
     } else if (testEvaluation.stackColumnScore > 0) {
+      overallPositiveEffect++;
       stackEvaluation.columnImprovementScore += testEvaluation.stackColumnScore;
     } else if (testEvaluation.stackColumnScore < 0) {
+      overallNegativeEffect++;
       stackEvaluation.columnDegradationScore -= testEvaluation.stackColumnScore;
     }
   }
@@ -1619,6 +1644,8 @@ const evaluateNewMutation = (
     atomicMutation: instruction.instruction.atomicMutation,
     mutationCount: instruction.instruction.mutationCount,
     totalNodes: instruction.instruction.totalNodes,
+    overallPositiveEffect,
+    overallNegativeEffect,
     testsWorsened,
     testsImproved,
     stackEvaluation,
@@ -1645,14 +1672,23 @@ export const locationToKeyIncludingEnd = (filePath: string, location?: Expressio
    return `${withStart}:${location.end.line}:${location.end.column}`;
 };
 
-const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvaluation, b: MutationEvaluation) => {
-  if (a.partial === b.partial) {
-    const mutationCount = b.mutationCount - a.mutationCount;
-    if (mutationCount !== 0) {
-      return mutationCount;
-    }
+const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: LocationMutationEvaluation, b: LocationMutationEvaluation) => {
+  const partial = (b.evaluation.partial ? 1 : -1) - (a.evaluation.partial ? 1 : -1);
+  if(partial !== 0) {
+    return partial;
   }
-  return compareMutationEvaluationsWithLesserProperties(a, b);
+
+  const direct = (a.direct ? 1 : -1) - (b.direct ? 1 : -1);
+  if (direct !== 0) {
+    return direct;
+  }
+
+  const mutationCount = b.evaluation.mutationCount - a.evaluation.mutationCount;
+  if (mutationCount !== 0) {
+    return mutationCount;
+  }
+
+  return compareMutationEvaluationsWithLesserProperties(a.evaluation, b.evaluation);
 }
 
 export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationEvaluation) => {
@@ -1664,7 +1700,7 @@ export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationE
   let bI = 0;
   // Assumption: All arrays are at least .length > 0
   do {
-    const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
+    const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI].evaluation, bSingleMutationsOnly[bI].evaluation);
     if (comparison !== 0) {
       return comparison;
     }
@@ -1675,7 +1711,7 @@ export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationE
       return roomForMutationComparison;
     }
 
-    const comparison2 = compareMutationEvaluationsWithLesserProperties(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
+    const comparison2 = compareMutationEvaluationsWithLesserProperties(aSingleMutationsOnly[aI].evaluation, bSingleMutationsOnly[bI].evaluation);
     if (comparison2 !== 0) {
       return comparison2;
     }
@@ -1687,7 +1723,7 @@ export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationE
 }
 
 type LocationEvaluation = {
-  evaluations: MutationEvaluation[],
+  evaluations: LocationMutationEvaluation[],
   location: Location,
   totalNodes: number,
   totalAtomicMutationsPerformed: number
@@ -1926,9 +1962,12 @@ export const createPlugin = ({
 
       for(const [filePath, expressionLocations] of Object.entries(previousMutationResults.locations)) {
         for(const expressionLocation of expressionLocations) {
-          const key = locationToKeyIncludingEnd(filePath, expressionLocation);
+          const key = locationToKeyIncludingEnd(filePath, expressionLocation.location);
           const locationEvaluation = locationEvaluations.get(key)!;
-          locationEvaluation.evaluations.push(mutationEvaluation);
+          locationEvaluation.evaluations.push({
+            evaluation: mutationEvaluation,
+            direct: expressionLocation.direct
+          });
           if (mutationEvaluation.atomicMutation) {
             locationEvaluation.totalAtomicMutationsPerformed++;
           }
@@ -2076,8 +2115,8 @@ export const createPlugin = ({
             for(const instructionHolder of popped.instructionHolders) {
               for(const [filePath, locations] of Object.entries(instructionHolder.instruction.mutationResults.locations)) {
                 for(const location of locations) {
-                  const instructionKey = locationToKeyIncludingEnd(filePath, location);
-                  allLocations.set(instructionKey, {...location, filePath});
+                  const instructionKey = locationToKeyIncludingEnd(filePath, location.location);
+                  allLocations.set(instructionKey, {...location.location, filePath});
                 }
               }
             }
@@ -2170,6 +2209,8 @@ export const createPlugin = ({
           testsImproved: null,
           stackEvaluation: null,
           errorsChanged: null,
+          overallPositiveEffect: null,
+          overallNegativeEffect: null,
           crashed: true,
           partial: previousRunWasPartial,
         };
