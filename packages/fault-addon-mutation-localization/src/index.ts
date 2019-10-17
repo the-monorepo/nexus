@@ -11,7 +11,7 @@ import del from 'del';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import ErrorStackParser from 'error-stack-parser';
 import { NodePath } from '@babel/traverse';
-import { reportFaults, Fault, ScorelessFault, recordFaults } from '@fault/record-faults';
+import { reportFaults, Fault, ScorelessFault, recordFaults, sortBySuspciousness } from '@fault/record-faults';
 import generate from '@babel/generator';
 import chalk from 'chalk';
 import * as micromatch from 'micromatch';
@@ -142,6 +142,7 @@ type Instruction = {
   totalNodes: number,
   atomicMutation: boolean,
   mutationsLeft: number,
+  mutationCount: number,
   onEvaluation: (evaluation: MutationEvaluation, data: InstructionData, cache: AstCache) => AsyncIterableIterator<InstructionHolder<any>>
 }
 
@@ -152,7 +153,8 @@ type InstructionHolder<T extends Instruction = Instruction> = {
 
 
 type InstructionFactory<T extends Instruction = Instruction> = {
-  onInitialPass(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean);
+  enter(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean);
+  onInitialEnter(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean);
   createPreBlockInstructions(nodePath: NodePath, filePath: string, derivedFromPassingTests: boolean);
   createInstructions(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean): IterableIterator<InstructionHolder<T>>;
 };
@@ -348,6 +350,7 @@ class DeleteStatementInstruction implements Instruction {
   public mutationsLeft: number;
   public totalNodes: number;
   public atomicMutation: boolean;
+  public mutationCount: number;
   private lastProcessedStatementBlock: StatementBlock= undefined!;
   private statementBlocks: Heap<StatementBlock>; 
   constructor(
@@ -409,6 +412,7 @@ class DeleteStatementInstruction implements Instruction {
       }
     }
     this.mutationsLeft = count;
+    this.mutationCount = totalMutations(this.mutationResults);
   }
 
   isRemovable() {
@@ -539,22 +543,27 @@ class DeleteStatementInstruction implements Instruction {
 class RetryHandler {
   private readonly maxRetries: number = RETRIES;
   private retries: number = this.maxRetries;
+  private previousEvaluation: MutationEvaluation | null = null;
 
   /**
    * @param evaluation The mutation evaluation
    * @returns whether the instruction needs to be removed or not
    */
-  evaluate(evaluation): boolean {
-    if (!didSomethingGood(evaluation)) {
+  evaluate(evaluation: MutationEvaluation): boolean {
+    let removeInstruction = false;
+    if (!didSomethingGood(evaluation) || (this.previousEvaluation && (evaluation.crashed || (evaluation.testsImproved <= 0 && evaluation.stackEvaluation.lineImprovementScore <= 0 && evaluation.stackEvaluation.columnImprovementScore <= 0 && compareMutationEvaluations(evaluation, this.previousEvaluation) <= 0)))) {
       if (this.retries > 0) {
         this.retries--;
       } else {
-        return true;
+        removeInstruction = true;
       }
     } else {
       this.retries = this.maxRetries;
     }
-    return false;
+    if (this.previousEvaluation == null || compareMutationEvaluations(this.previousEvaluation, evaluation) > 0) {
+      this.previousEvaluation = evaluation;
+    }
+    return removeInstruction;
   }
 }
 
@@ -606,10 +615,13 @@ export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryDat
 const REPLACE_STRING = Symbol('replace-string');
 class ReplaceStringInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = REPLACE_STRING;
-  public readonly mutationsLeft: number = 1;
 
   constructor(location: Location, private readonly values: string[], public readonly totalNodes: number) {
     super(location);
+  }
+
+  get mutationsLeft() {
+    return this.values.length;
   }
 
   filterNodePath(nodePath) {
@@ -635,10 +647,13 @@ class ReplaceStringInstruction extends SingleLocationInstruction {
 const REPLACE_NUMBER = Symbol('replace-number');
 class ReplaceNumberInstruction extends SingleLocationInstruction {
   public readonly type: Symbol = REPLACE_NUMBER;
-  public readonly mutationsLeft: number = 1;
 
   constructor(location: Location, private readonly values: number[], public readonly totalNodes: number) {
     super(location);
+  }
+
+  get mutationsLeft() {
+    return this.values.length;
   }
 
   filterNodePath(nodePath) {
@@ -662,7 +677,9 @@ class ReplaceNumberInstruction extends SingleLocationInstruction {
 class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstruction> {
   private readonly filePathToNumberValues: Map<string, Set<number>> = new Map();
 
-  onInitialPass(nodePath: NodePath, filePath: string) {
+  enter() {}
+
+  onInitialEnter(nodePath: NodePath, filePath: string) {
     if(nodePath.isNumericLiteral()) {
       if (!this.filePathToNumberValues.has(filePath)) {
         this.filePathToNumberValues.set(filePath, new Set());
@@ -689,7 +706,9 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
 class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstruction> {
   private readonly filePathToStringValues: Map<string, Set<string>> = new Map();
 
-  onInitialPass(nodePath, filePath: string) {
+  enter() {}
+
+  onInitialEnter(nodePath, filePath: string) {
     if(nodePath.isStringLiteral()) {
       if (!this.filePathToStringValues.has(filePath)) {
         this.filePathToStringValues.set(filePath, new Set());
@@ -738,12 +757,74 @@ class InvertBooleanLiteralInstruction extends SingleLocationInstruction {
 	}
 }
 
+const REPLACE_IDENTIFIER = Symbol('replace-identifier');
+class ReplaceIdentifierInstruction extends SingleLocationInstruction {
+  public readonly totalNodes: number = 1;
+  public readonly type: Symbol = REPLACE_IDENTIFIER;
+  constructor(location: Location, public readonly names: string[]) {
+    super(location);
+  }
+
+  async *onEvaluation() {}
+
+  get mutationsLeft() {
+    return this.names.length;
+  }
+
+  isRemovable(evaluation) {
+    return this.names.length <= 0 || super.isRemovable(evaluation);
+  }
+
+  filterNodePath(nodePath: NodePath) {
+    return nodePath.isIdentifier();
+  }
+
+  processNodePaths(nodePaths: NodePath[]) {
+    const nodePath = nodePaths[0] as NodePath<t.Identifier>;
+    const name = this.names.pop()!;
+    nodePath.node.name = name;
+  }
+}
+
+const ALLOWED_NAMES = Symbol('allowed-names');
+class ReplaceIdentifierFactory implements InstructionFactory<ReplaceIdentifierInstruction> {
+  private readonly allowedNames: {
+    [s: string]: Set<string>
+  } = {};
+
+  enter() {
+
+  }
+
+  onInitialEnter(path: NodePath, filePath, derivedFromPassingTest) {
+    const allowedNamesForFile = this.allowedNames[filePath];
+    if (path.isIdentifier() && path.parentPath && path.isVariableDeclaration()) {
+      allowedNamesForFile.add(path.node.name);
+    }
+  }
+
+  *createPreBlockInstructions() {
+    
+  }
+
+  *createInstructions(path: NodePath, filePath, derivedFromPassingTest) {
+    if (path.isIdentifier() && path.node.loc && path.parentPath && !path.parentPath.isVariableDeclaration() && !path.parentPath.isMemberExpression() && (!path.parentPath.isCallExpression() || path.key === 'arguments') && !path.parentPath.isFunction()) {
+      const possibleNamesSet = new Set(this.allowedNames[filePath]);
+      possibleNamesSet.delete(path.node.name);
+      if (possibleNamesSet.size > 0) {
+        yield createInstructionHolder(new ReplaceIdentifierInstruction({ filePath, ...path.node.loc }, [...possibleNamesSet]), derivedFromPassingTest);
+      }
+    }
+  }
+}
+
 const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
 class SwapFunctionCallArgumentsInstruction implements Instruction {
   public readonly type: Symbol = SWAP_FUNCTION_CALL;
   public readonly mutationsLeft = 1;
   public readonly mutationResults: MutationResults;
   public readonly atomicMutation: boolean = true;
+  public readonly mutationCount: number = 2;
 
   isRemovable() {
     return true;
@@ -797,7 +878,7 @@ const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
 type SwapFunctionInformation = {
   location: ExpressionLocation,
   index: number,
-};
+};  
 
 class SwapFunctionParametersInstruction implements Instruction {
   public readonly type: Symbol = SWAP_FUNCTION_PARAMS;
@@ -860,6 +941,8 @@ class SwapFunctionParametersInstruction implements Instruction {
 class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionParametersInstruction> {
   *createInstructions() { }
 
+  enter() {}
+
   *createPreBlockInstructions(nodePath: NodePath, filePath, derivedFromPassingTests) {
     if(nodePath.isFunction() && nodePath.node.loc) {
       const node = nodePath.node;
@@ -887,11 +970,13 @@ class SwapFunctionParametersFactory implements InstructionFactory<SwapFunctionPa
     }
   }
 
-  onInitialPass() { }
+  onInitialEnter() { }
 }
 
 class SwapFunctionCallArgumentsFactory implements InstructionFactory<SwapFunctionCallArgumentsInstruction> {
   *createInstructions() { }
+
+  enter() {}
 
   *createPreBlockInstructions(nodePath: NodePath, filePath: string, derivedFromPassingTests) {
     if(nodePath.isCallExpression() && nodePath.node.loc) {
@@ -920,11 +1005,13 @@ class SwapFunctionCallArgumentsFactory implements InstructionFactory<SwapFunctio
     }
   }
 
-  onInitialPass() { }
+  onInitialEnter() { }
 }
 
 class InvertBooleanLiteralInstructionFactory implements InstructionFactory<InvertBooleanLiteralInstruction> {
-	*createInstructions(nodePath, filePath, derivedFromPassingTests) {
+  enter() {}
+
+  *createInstructions(nodePath, filePath, derivedFromPassingTests) {
 		if (nodePath.isBooleanLiteral()) {
       yield createInstructionHolder(new InvertBooleanLiteralInstruction({...nodePath.node.loc, filePath}, nodePath.node[TOTAL_NODES]), derivedFromPassingTests);
     }
@@ -934,7 +1021,7 @@ class InvertBooleanLiteralInstructionFactory implements InstructionFactory<Inver
 
   }
 
-  onInitialPass() {
+  onInitialEnter() {
 
   }
 }
@@ -942,7 +1029,9 @@ class InvertBooleanLiteralInstructionFactory implements InstructionFactory<Inver
 class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
 
-  onInitialPass() { }
+  enter() {}
+
+  onInitialEnter() { }
 
   *createPreBlockInstructions() {
     
@@ -961,8 +1050,10 @@ class AssignmentFactory implements InstructionFactory<AssignmentInstruction>{
 
 class BinaryFactory implements InstructionFactory<BinaryInstruction>{
   constructor(private readonly operations: CategoryData<string>) {}
-  
-  onInitialPass() { }
+
+  enter() {}
+
+  onInitialEnter() { }
 
   *createPreBlockInstructions() {
 
@@ -1068,9 +1159,9 @@ function identifyUnknownInstruction(
       if (initialExpressionsSeen.has(key)) {
         return;
       }
-      nodeCounts.push(1);
+      nodeCounts.push((path.isBlockStatement() || path.isExpressionStatement()) ? 0 : 1);
       for(const instructionFactory of instructionFactories) {
-        instructionFactory.onInitialPass(path, nodePath.filePath, derivedFromPassingTest);
+        instructionFactory.onInitialEnter(path, nodePath.filePath, derivedFromPassingTest);
       }
     };
     const exit = (path) => {
@@ -1141,6 +1232,20 @@ function identifyUnknownInstruction(
         console.log('block', node.type, currentStatementStack.length);
         currentStatementStack.push([]);
       }
+
+      
+      for(const factory of instructionFactories) {
+        factory.enter(path, nodePath.filePath, derivedFromPassingTest);
+      }  
+    };
+    const exit = (path: NodePath) => {
+      const node = path.node;
+      const key = expressionKey(nodePath.filePath, node);
+      if (expressionsSeen.has(key)) {
+        return
+      }
+      expressionsSeen.add(key);
+      
       if(currentStatementStack.length > 0) {
         const statementStack = currentStatementStack[currentStatementStack.length - 1];
         if (statementStack.length > 0) {
@@ -1150,14 +1255,6 @@ function identifyUnknownInstruction(
           }  
         }
       }
-    };
-    const exit = (path: NodePath) => {
-      const node = path.node;
-      const key = expressionKey(nodePath.filePath, node);
-      if (expressionsSeen.has(key)) {
-        return
-      }
-      expressionsSeen.add(key);
       if (isStatementContainer(path)) {
         const poppedStatementInfo = currentStatementStack.pop()!;
         if (currentStatementStack.length <= 0) {
@@ -1343,12 +1440,10 @@ export const compareMutationEvaluations = (
     return errorsChanged;
   }
 
-  const atomicMutation = (result1.atomicMutation ? -1 : 1) - (result2.atomicMutation ? -1 : 1);
-  if (atomicMutation !== 0) {
-    console.log('z', result1.atomicMutation, result2.atomicMutation);
-    return atomicMutation
+  const mutationCount = result1.mutationCount - result2.mutationCount;
+  if (mutationCount !== 0) {
+    return mutationCount;
   }
-
   /*
   const totalNodes = result1.totalNodes - result2.totalNodes;
   if (totalNodes !== 0) {
@@ -1453,6 +1548,7 @@ export type CommonMutationEvaluation = {
   totalNodes: number,
   atomicMutation: boolean,
   partial: boolean,
+  mutationCount: number
 };
 export type CrashedMutationEvaluation = {
   stackEvaluation: null,
@@ -1521,6 +1617,7 @@ const evaluateNewMutation = (
   return {
     type: instruction.instruction.type,
     atomicMutation: instruction.instruction.atomicMutation,
+    mutationCount: instruction.instruction.mutationCount,
     totalNodes: instruction.instruction.totalNodes,
     testsWorsened,
     testsImproved,
@@ -1537,7 +1634,7 @@ const locationToKey = (filePath: string, location?: ExpressionLocation | null) =
   }
   return `${filePath}:${location.start.line}:${location.start.column}`;
 };
-const locationToKeyIncludingEnd = (filePath: string, location?: ExpressionLocation | null) => {
+export const locationToKeyIncludingEnd = (filePath: string, location?: ExpressionLocation | null) => {
   if (!location) {
     return filePath;
   }
@@ -1550,9 +1647,9 @@ const locationToKeyIncludingEnd = (filePath: string, location?: ExpressionLocati
 
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: MutationEvaluation, b: MutationEvaluation) => {
   if (a.partial === b.partial) {
-    const atomicMutation = (a.atomicMutation ? 1 : -1) - (b.atomicMutation ? 1 : -1)
-    if (atomicMutation !== 0) {
-      return atomicMutation;
+    const mutationCount = b.mutationCount - a.mutationCount;
+    if (mutationCount !== 0) {
+      return mutationCount;
     }
   }
   return compareMutationEvaluationsWithLesserProperties(a, b);
@@ -1569,19 +1666,17 @@ export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationE
   do {
     const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
     if (comparison !== 0) {
-      console.log('a', comparison, aI, bI);
       return comparison;
     }
 
-    const roomForMutationComparison = (aL.totalNodes - aL.totalAtomicMutationsPerformed) - (bL.totalNodes - bL.totalAtomicMutationsPerformed);
-    if (roomForMutationComparison !== 0) {
-      console.log('b', roomForMutationComparison)
+
+    // TODO: This doesn't need to be in the loop - it's the same in each iteration
+    const roomForMutationComparison = (aL.totalNodes / (1 + aL.totalAtomicMutationsPerformed)) - (bL.totalNodes / (1 + bL.totalAtomicMutationsPerformed));    if (roomForMutationComparison !== 0) {
       return roomForMutationComparison;
     }
 
     const comparison2 = compareMutationEvaluationsWithLesserProperties(aSingleMutationsOnly[aI], bSingleMutationsOnly[bI]);
     if (comparison2 !== 0) {
-      console.log('c', comparison2)
       return comparison2;
     }
 
@@ -1603,7 +1698,6 @@ export const mutationEvalatuationMapToFaults = (
   const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
   locationEvaluationsList.sort(compareLocationEvaluations);
   const faults = locationEvaluationsList.map((lE, i): Fault => {
-    console.log(lE.evaluations.map(e => e.atomicMutation))
     return {
       score: i,
       sourcePath: lE.location.filePath,
@@ -1706,37 +1800,33 @@ export const isLocationWithinBounds = (loc: ExpressionLocation, statement: Expre
   return lineWithin || onStartLineBound || onEndLineBound;
 }
 
-export const mapLocationEvaluationsToIstanbulCoverage = (originalMap: Map<string, LocationEvaluation>, coverage: Coverage): Map<string, LocationEvaluation> => {
+export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage): Fault[] => {
   // TODO: Could make this more efficient
-  const mappedLocations: Map<string, LocationEvaluation> = new Map();
-  const replace = (originalEvaluation: LocationEvaluation, location: ExpressionLocation) => {
-    const key = locationToKeyIncludingEnd(originalEvaluation.location.filePath, location);
-    if (!mappedLocations.has(key)) {
-      // TODO: Super gross that i'm assuming the original map had the location
-      const original = originalMap.get(key)!;
-      mappedLocations.set(key, {
-        evaluations: [],
-        totalAtomicMutationsPerformed: 0,
-        totalNodes: 0,
-        location: original.location,
-      });
+  const mappedFaults: Map<string, Fault> = new Map();
+  const replace = (fault: Fault, location: ExpressionLocation) => {
+    const key = locationToKeyIncludingEnd(fault.sourcePath, location);
+    if (mappedFaults.has(key)) {
+      const previousFault = mappedFaults.get(key)!;
+      if (previousFault.score! > fault.score!) {
+        return;
+      }
     }
-    const locationEvaluation = mappedLocations.get(key)!;
-    locationEvaluation.evaluations.push(...originalEvaluation.evaluations)
-    locationEvaluation.totalAtomicMutationsPerformed += originalEvaluation.totalAtomicMutationsPerformed;
-    if(originalEvaluation.totalNodes > locationEvaluation.totalNodes) {
-      locationEvaluation.totalNodes = originalEvaluation.totalNodes;
-    }
+    mappedFaults.set(key, {
+      score: fault.score,
+      sourcePath: fault.sourcePath,
+      location,
+      other: fault.other
+    });
   };
 
-  for (const locationEvaluation of originalMap.values()) {
-    const loc = locationEvaluation.location;
-    const fileCoverage = coverage[loc.filePath];
+  for (const fault of faults) {
+    const fileCoverage = coverage[fault.sourcePath];
     if (fileCoverage === undefined) {
       continue;
     }
     
     let mostRelevantStatement: ExpressionLocation | null = null;
+    const loc = fault.location;
     const locLineWidth = Math.abs(loc.end.line - loc.start.line) + 1; // + 1 cause the line it's on counts as one
     const locColumnWidth = Math.abs(loc.end.column - loc.start.column);
     for(const statement of Object.values(fileCoverage.statementMap)) {
@@ -1775,10 +1865,10 @@ export const mapLocationEvaluationsToIstanbulCoverage = (originalMap: Map<string
     }
 
     if (mostRelevantStatement !== null) {
-      replace(locationEvaluation, mostRelevantStatement);
+      replace(fault, mostRelevantStatement);
     }
   }
-  return mappedLocations;
+  return [...mappedFaults.values()];
 }
 
 const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
@@ -2032,9 +2122,9 @@ export const createPlugin = ({
             return testsToBeRerun;
           }
 
-          if (mutationEvaluation.testsImproved === failingTestFiles.size && previousInstruction) {
+          if (mutationEvaluation.testsImproved === [...firstTesterResults.testResults.values()].filter(a => !a.passed).length && mutationEvaluation.testsWorsened === 0 && previousInstruction) {
             const locationObj: LocationObject = previousInstruction.instruction.mutationResults.locations;
-            const newSolutionDir = resolve(solutionsDir, (solutionCounter++)).toString();
+            const newSolutionDir = resolve(solutionsDir, (solutionCounter++).toString());
             await mkdir(newSolutionDir, { recursive: true });
             // TODO: Use folders + the actual file name or something
             let i = 0;
@@ -2074,6 +2164,7 @@ export const createPlugin = ({
         const mutationEvaluation: MutationEvaluation = {
           type: previousInstruction.instruction.type,
           atomicMutation: previousInstruction.instruction.atomicMutation,
+          mutationCount: previousInstruction.instruction.mutationCount,
           totalNodes: previousInstruction.instruction.totalNodes,
           testsWorsened: null,
           testsImproved: null,
@@ -2105,15 +2196,18 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
         
-        const mappedLocationEvaluations = mapToIstanbul ? mapLocationEvaluationsToIstanbulCoverage(locationEvaluations, tester.coverage) : locationEvaluations;
         const locationEvaluationsThatArentEmpty: Map<string, LocationEvaluation> = new Map();
-        for(const [key, value] of mappedLocationEvaluations) {
+        for(const [key, value] of locationEvaluations) {
           if (value.evaluations.length > 0) {
             locationEvaluationsThatArentEmpty.set(key, value);
           }
         }
+
         const faults = mutationEvalatuationMapToFaults(locationEvaluationsThatArentEmpty);
-        await Promise.all([recordFaults(faultFilePath, faults), reportFaults(faults)]);
+        
+        const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
+        sortBySuspciousness(mappedFaults);
+        await Promise.all([recordFaults(faultFilePath, mappedFaults), reportFaults(mappedFaults)]);
       },
     },
   };
