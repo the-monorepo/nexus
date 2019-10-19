@@ -61,7 +61,11 @@ const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
 let copyTempDir: string = null!;
 const resetFile = async (filePath: string) => {
-  const copyPath = await originalPathToCopyPath.get(filePath)!;
+  const copyPath = originalPathToCopyPath.get(filePath)!;
+  if(copyPath === undefined) {
+    console.error(originalPathToCopyPath);
+    throw new Error(`Copied/cached path for ${filePath} was ${copyPath}`);
+  }
   const fileContents = await readFile(copyPath, 'utf8');
   await writeFile(filePath, fileContents, 'utf8');
 };
@@ -203,15 +207,14 @@ const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) =>
   return nodePaths;
 };
 
-const getParentScope = (path: NodePath<t.Node>): (NodePath<t.Scopable> | NodePath<t.Node>) => {
-  const parentPath = path.parentPath;
-  if (!parentPath) {
+const getStatementOrBlock = (path: NodePath<t.Node>): (NodePath<t.Scopable> | NodePath<t.Node>) => {
+  if (path.isStatement() || path.isBlock()) {
+    return path;
+  } else if (path.parentPath) {
+    return getStatementOrBlock(path.parentPath);
+  } else {
     return path;
   }
-  if (isStatementContainer(parentPath)) {
-    return parentPath as NodePath<t.Scopable>;
-  }
-  return getParentScope(parentPath);
 }
 
 const expressionKey = (filePath: string, node: BaseNode) => `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${node.loc!.end.column}:${node.type}`;
@@ -584,7 +587,7 @@ class DeleteStatementInstruction implements Instruction {
 }
 
 class RetryHandler {
-  private readonly maxRetries: number = RETRIES;
+  private readonly maxRetries: number = 1;
   private retries: number = this.maxRetries;
   private previousEvaluation: MutationEvaluation | null = null;
 
@@ -594,7 +597,7 @@ class RetryHandler {
    */
   evaluate(evaluation: MutationEvaluation): boolean {
     let removeInstruction = false;
-    if (!didSomethingGood(evaluation) || (this.previousEvaluation && (evaluation.crashed || (evaluation.testsImproved <= 0 && evaluation.stackEvaluation.lineImprovementScore <= 0 && evaluation.stackEvaluation.columnImprovementScore <= 0 && compareMutationEvaluations(evaluation, this.previousEvaluation) <= 0)))) {
+    if (!didSomethingGood(evaluation) || (this.previousEvaluation && compareMutationEvaluations(evaluation, this.previousEvaluation) <= 0)) {
       if (this.retries > 0) {
         this.retries--;
       } else {
@@ -772,16 +775,16 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
 }
 
 class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstruction> {
-  private readonly filePathToStringValues: Map<string, Set<string>> = new Map();
+  private readonly filePathToStringValues: Map<string, string[]> = new Map();
 
   enter() {}
 
   onInitialEnter(nodePath, filePath: string) {
     if(nodePath.isStringLiteral()) {
       if (!this.filePathToStringValues.has(filePath)) {
-        this.filePathToStringValues.set(filePath, new Set());
+        this.filePathToStringValues.set(filePath, []);
       }
-      this.filePathToStringValues.get(filePath)!.add(nodePath.value);
+      this.filePathToStringValues.get(filePath)!.push(nodePath.value);
     }
   }
 
@@ -792,9 +795,18 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
   *createInstructions(nodePath, filePath, derivedFromPassingTest) {
     const node = nodePath.node;
     if(nodePath.isStringLiteral() && node.loc) {
-      const values = [...this.filePathToStringValues.get(filePath)!].filter(value => value !== node.value);
+      const alreadySeen = new Set();
+      const values = this.filePathToStringValues.get(filePath)!.filter(value => value !== node.value).reverse();
+      const filteredValues = values.filter(value => {
+        if(alreadySeen.has(value)) {
+          return false;
+        }
+        alreadySeen.add(value);
+        return true;
+      })
+      filteredValues.reverse();
       if(values.length > 0) {
-        yield createInstructionHolder(new ReplaceStringInstruction({ ...node.loc, filePath }, values, node[TOTAL_NODES]), derivedFromPassingTest);
+        yield createInstructionHolder(new ReplaceStringInstruction({ ...node.loc, filePath }, filteredValues, node[TOTAL_NODES]), derivedFromPassingTest);
       }
     }
   }
@@ -844,7 +856,7 @@ class ReplaceIdentifierInstruction extends SingleLocationInstruction {
   }
 
   filterNodePath(nodePath: NodePath) {
-    return nodePath.isIdentifier();
+    return nodePath.isIdentifier() && nodePath.node.loc !== null && (nodePath.parentPath === null || !nodePath.parentPath.isVariableDeclarator());
   }
 
   processNodePaths(nodePaths: NodePath[]) {
@@ -854,33 +866,52 @@ class ReplaceIdentifierInstruction extends SingleLocationInstruction {
   }
 }
 
-const ALLOWED_NAMES = Symbol('allowed-names');
-class ReplaceIdentifierFactory implements InstructionFactory<ReplaceIdentifierInstruction> {
-  private readonly allowedNames: {
-    [s: string]: Set<string>
-  } = {};
+const couldBeVariableNameReplaceable = (path: NodePath): boolean => (
+  path.isIdentifier() && path.node.loc !== null && (
+    path.parentPath === null || (
+      !path.parentPath.isVariableDeclarator() && 
+      !path.parentPath.isMemberExpression() && 
+      !path.parentPath.isFunction() &&
+      (
+        !path.parentPath.isCallExpression() || 
+        typeof path.key === 'number'
+      )
+    )
+  )
+);
 
+class ReplaceIdentifierFactory implements InstructionFactory<ReplaceIdentifierInstruction> {
   enter() {
 
-  }
-
-  onInitialEnter(path: NodePath, filePath, derivedFromPassingTest) {
-    const allowedNamesForFile = this.allowedNames[filePath];
-    if (path.isIdentifier() && path.parentPath && path.isVariableDeclaration()) {
-      allowedNamesForFile.add(path.node.name);
-    }
   }
 
   *createPreBlockInstructions() {
     
   }
 
+  *onInitialEnter() {
+
+  }
+
   *createInstructions(path: NodePath, filePath, derivedFromPassingTest) {
-    if (path.isIdentifier() && path.node.loc && path.parentPath && !path.parentPath.isVariableDeclaration() && !path.parentPath.isMemberExpression() && (!path.parentPath.isCallExpression() || path.key === 'arguments') && !path.parentPath.isFunction()) {
-      const possibleNamesSet = new Set(this.allowedNames[filePath]);
-      possibleNamesSet.delete(path.node.name);
-      if (possibleNamesSet.size > 0) {
-        yield createInstructionHolder(new ReplaceIdentifierInstruction({ filePath, ...path.node.loc }, [...possibleNamesSet]), derivedFromPassingTest);
+    const node = path.node as t.Identifier;
+    if (couldBeVariableNameReplaceable(path) && node.loc) {
+      const possibleNames = [...path.node[PREVIOUS_IDENTIFIER_NAMES]].reverse();
+
+      const alreadySeen: Set<string> = new Set([node.name]);
+
+      const filteredNames = possibleNames.filter(name => {
+        if (alreadySeen.has(name)) {
+          return false;
+        }
+        alreadySeen.add(name);
+        return true;
+      });
+
+      filteredNames.reverse();
+
+      if (filteredNames.length > 0) {
+        yield createInstructionHolder(new ReplaceIdentifierInstruction({ filePath, ...node.loc }, filteredNames), derivedFromPassingTest);
       }
     }
   }
@@ -1167,11 +1198,12 @@ export const assignmentCategories = [
 const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(assignmentCategories),
   new BinaryFactory(binaryOperationCategories),
-  new ReplaceStringFactory(),
   new InvertBooleanLiteralInstructionFactory(),
-  new SwapFunctionParametersFactory(),
+  new ReplaceStringFactory(),
   new SwapFunctionCallArgumentsFactory(),
+  new SwapFunctionParametersFactory(),
   new ReplaceNumberFactory(),
+  new ReplaceIdentifierFactory(),
 ];
 const RETRIES = 1;
 
@@ -1190,36 +1222,33 @@ const statementDepth = (statements: StatementInformation[]) => {
 }
 
 const findAllNodePaths= async (cache: AstCache, locations: Location[]) => {
-  const nodePaths: any = [];
-  for(const location of locations) {
-    const ast = await cache.get(location.filePath);
-  
-    nodePaths.push(...findNodePathsWithLocation(ast, location).map(nodePath => ({ ...nodePath, filePath: location.filePath })));  
+  const nodePaths: NodePath[] = [];
+  const filePaths: Set<string> = new Set(locations.map(location => location.filePath));
+  for(const filePath of filePaths) {
+    const fileLocationPaths: Set<string> = new Set(
+      locations
+        .filter(location => filePath === location.filePath)
+        .map(location => locationToKeyIncludingEnd(location.filePath, location)
+      )
+    );
+
+    const ast = await cache.get(filePath);
+
+    traverse(ast, {
+      enter(path: NodePath) {
+        const loc = path.node.loc;
+        if (loc) {
+          const key = locationToKeyIncludingEnd(filePath, loc);
+          if (fileLocationPaths.has(key)) {
+            path.filePath = filePath;
+            fileLocationPaths.delete(key);
+            nodePaths.push(path);
+          }
+        }
+      },
+    });
   }
-  return nodePaths.sort((path1, path2) => {
-    const filePathComparison = path1.filePath.localeCompare(path2.filePath)
-    if (filePathComparison !== 0) {
-      return filePathComparison;
-    }
-    const startLineComparison = path1.node.loc.start.line - path2.node.loc.start.line;
-    if (startLineComparison !== 0) {
-      return startLineComparison;
-    }
-    const startColumnComparison = path1.node.loc.start.column - path2.node.loc.start.column;
-    if (startColumnComparison !== 0) {
-      startColumnComparison
-    }
-    
-    const endLineComparison = path2.node.loc.end.line - path1.node.loc.end.line;
-    if (endLineComparison !== 0) {
-      return endLineComparison;
-    }
-    const endColumnComparison = path2.node.loc.end.column - path1.node.loc.end.column;
-    if (endColumnComparison !== 0) {
-      return endColumnComparison;
-    }
-    return 0;
-  });
+  return nodePaths;
 }
 
 const isStatementContainer = (path: NodePath<any>) => {
@@ -1236,26 +1265,83 @@ const stubLocationEvaluation = (location: Location, totalNodes: number): Locatio
   }
 }
 
+type IdentifierData = {
+  order: number,
+  name: string
+}
+type PreviousIdentifiersData = {
+  references: IdentifierData[],
+  declarations: IdentifierData[],
+}
+
 const TOTAL_NODES = Symbol('total-nodes');
+const PREVIOUS_IDENTIFIER_NAMES = Symbol('previous-identifer-names');
 function identifyUnknownInstruction(
   nodePaths: any[],
   derivedFromPassingTest: boolean, 
 ): StatementInformation[][] {
   const initialExpressionsSeen: Set<string> = new Set();
   for(const nodePath of nodePaths) {
-    const scopedPath = getParentScope(nodePath);
+    const scopedPath = getStatementOrBlock(nodePath);
     const nodeCounts: number[] = [];
-    const enter = (path) => {
+    const names: PreviousIdentifiersData[] = [{
+      references: [],
+      declarations: [],
+    }];
+    let identifierCount = 0;
+    const enter = (path: NodePath) => {
       const key = expressionKey(nodePath.filePath, path.node);
       if (initialExpressionsSeen.has(key)) {
         return;
       }
+      
+      // TODO: Logic for identifier replacement is all over the place. Need to refactor
+      if(path.isIdentifier()) {
+        if (
+          path.parentPath && (
+            path.parentPath.isVariableDeclarator() || (
+              path.parentPath.isFunction() && typeof path.key === 'number'
+            )
+          )
+        ) {
+          names[names.length - 1].declarations.push({
+            name: path.node.name,
+            order: identifierCount,
+          });
+          identifierCount++;
+        }
+        if(couldBeVariableNameReplaceable(path)) {
+          // Little confusing to read
+          path.node[PREVIOUS_IDENTIFIER_NAMES] = 
+            ([] as string[])
+              .concat(
+                ...names.map(info => (
+                  [...info.declarations, ...info.references]
+                    .sort((a, b) => a.order - b.order)
+                    .map(nameData => nameData.name)
+                ))
+              );
+          names[names.length - 1].references.push({
+            name: path.node.name,
+            order: identifierCount,
+          });
+          identifierCount++;
+        }
+      }
+
+      if (isStatementContainer(path)) {
+        names.push({
+          references: [],
+          declarations: [],
+        });
+      }
+      
       nodeCounts.push((path.isBlockStatement() || path.isExpressionStatement()) ? 0 : 1);
       for(const instructionFactory of instructionFactories) {
         instructionFactory.onInitialEnter(path, nodePath.filePath, derivedFromPassingTest);
       }
     };
-    const exit = (path) => {
+    const exit = (path: NodePath) => {
       const key = expressionKey(nodePath.filePath, path.node);
       if (initialExpressionsSeen.has(key)) {
         if (nodeCounts.length > 0 && path.parentPath && !path.parentPath.node[TOTAL_NODES]) {
@@ -1263,6 +1349,16 @@ function identifyUnknownInstruction(
         }
         return;
       }
+      
+      if (isStatementContainer(path)) {
+        const popped = names.pop()!;
+        const declarationNameSet = new Set(popped.declarations.map(nameData => nameData.name));
+        const referencesThatWerentDeclaredInScope = popped.references.filter(nameData => !declarationNameSet.has(nameData.name));
+        names[names.length - 1].references.push(
+          ...referencesThatWerentDeclaredInScope
+        );
+      }
+
       initialExpressionsSeen.add(key);
       const totalNodes = nodeCounts.pop()!;
       if (nodeCounts.length > 0) {
@@ -1282,7 +1378,7 @@ function identifyUnknownInstruction(
   const statements: StatementInformation[] = [];
   for(const nodePath of nodePaths) {
     console.log('SCANNING', expressionKey(nodePath.filePath, nodePath.node));
-    const scopedPath = getParentScope(nodePath);
+    const scopedPath = getStatementOrBlock(nodePath);
     const currentStatementStack: StatementInformation[][] = [];
     console.log('SCOPEd', expressionKey(nodePath.filePath, scopedPath.node));
     const enter = (path: NodePath) => {
@@ -1333,7 +1429,7 @@ function identifyUnknownInstruction(
     const exit = (path: NodePath) => {
       const node = path.node;
       const key = expressionKey(nodePath.filePath, node);
-      if (expressionsSeen.has(key)) {
+      if (expressionsSeen.has(key)) { 
         return
       }
       expressionsSeen.add(key);
@@ -1475,16 +1571,23 @@ export const compareMutationEvaluations = (
   }
 
   if (r1.crashed && !r2.crashed) {
-    if (r1.type === DELETE_STATEMENT && !goodThingsHappened2) {
+    if (r1.type === DELETE_STATEMENT && !goodThingsHappened2 && !nothingBadHappened2) {
       return 1
     }
     return -1;
   }
   if (!r1.crashed && r2.crashed) {
-    if (r2.type === DELETE_STATEMENT && !goodThingsHappened1) {
+    if (r2.type === DELETE_STATEMENT && !goodThingsHappened1 && !nothingBadHappened1) {
       return -1;
     }
     return 1;
+  }
+
+  if (!goodThingsHappened1 && !goodThingsHappened2 && nothingBadHappened1 && nothingBadHappened2) {
+    const isDeleteStatement = (r2.type === DELETE_STATEMENT ? 1 : -1) - (r1.type === DELETE_STATEMENT ? 1: -1);
+    if (isDeleteStatement !== 0) {
+      return isDeleteStatement;
+    }
   }
 
   // TODO: TypeScript should have inferred that this would be the case..
@@ -2177,15 +2280,14 @@ export const createPlugin = ({
           console.log('failing coverage')
           const locations: Location[] = [];
           for(const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-            console.log(coveragePath)
             //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
             for(const statementCoverage of Object.values(fileCoverage.statementMap)) {
               locations.push({
+                ...statementCoverage,
                 filePath: coveragePath,
-                ...statementCoverage
               })
             }
           }
@@ -2206,7 +2308,7 @@ export const createPlugin = ({
           while(stack.length > 0) {
             const popped = stack.pop()!;
             const key = locationToKeyIncludingEnd(popped.filePath, popped.location);
-            allLocations.set(key, { filePath: popped.filePath, ...popped.location });
+            allLocations.set(key, { ...popped.location, filePath: popped.filePath });
             stack.push(...popped.innerStatements);
             for(const instructionHolder of popped.instructionHolders) {
               for(const [filePath, locations] of Object.entries(instructionHolder.instruction.mutationResults.locations)) {
