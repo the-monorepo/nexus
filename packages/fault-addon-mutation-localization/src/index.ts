@@ -123,8 +123,15 @@ type Location = {
   filePath: string;
 } & ExpressionLocation;
 
+const IF_TRUE = 'if-true';
+const IF_FALSE = 'if-false';
+const STATEMENT = 'statement';
+
+type StatementInformationType = typeof IF_TRUE | typeof IF_FALSE | typeof STATEMENT;
+
 type StatementInformation = {
   index: any,
+  type: StatementInformationType,
   filePath: string,
   location: ExpressionLocation,
   retries: number,
@@ -259,6 +266,8 @@ class BinaryInstruction extends SingleLocationInstruction {
   constructor(
     location: Location,
     private readonly operators: string[],
+    private nullifyLeft: boolean,
+    private nullifyRight: boolean,
     public readonly totalNodes: number
   ) {
     super(location);
@@ -277,14 +286,29 @@ class BinaryInstruction extends SingleLocationInstruction {
     const nodePath = nodePaths[0];
 
     const node = nodePath.node as (t.BinaryExpression | t.LogicalExpression);
-
+    if (this.nullifyLeft) {
+      this.nullifyLeft = false;
+      // TODO: Wasn't sure if it's always possible to do this but need results :P. Remove the try
+      try {
+        nodePath.replaceWith(node.left); 
+        return;
+      } catch(err) {
+        console.error(err);
+      }
+    } else if (this.nullifyRight) {
+      this.nullifyRight = false;
+      try {
+        nodePath.replaceWith(node.right);
+        return;
+      } catch(err) {
+        console.error(err);
+      }
+    }
     if (['||', '&&'].includes(operator)) {
       nodePath.replaceWith(t.logicalExpression(operator as any, node.left, node.right));
     } else {
       nodePath.replaceWith(t.binaryExpression(operator as any, node.left, node.right));
     }
-    
-    node.operator = operator as any;  
   }
 
   async *onEvaluation() {}
@@ -386,7 +410,7 @@ class DeleteStatementInstruction implements Instruction {
     while (s < stack.length) {
       const statement = stack[s];
       const key = locationToKeyIncludingEnd(statement.filePath, statement.location!);
-      if(statement.innerStatements.length > 0) {
+      if(statement.innerStatements.length > 0 && statement.type !== IF_TRUE) {
         stack.push(...statement.innerStatements);
       }
       if (!locationsAdded.has(key)) {
@@ -470,7 +494,18 @@ class DeleteStatementInstruction implements Instruction {
       const parentPath = path.parentPath;
       const parentNode = parentPath!.node;
       console.log(`${locationToKeyIncludingEnd(statement.filePath, statement.location)}`,statement.index,  parentNode.type, node.type);
-      if(parentPath.isIfStatement()) {
+      if (statement.type !== STATEMENT) {
+        if (!path.isIfStatement()) {
+          throw new Error(`Statement type was ${statement.type} but node type was ${path.node.type}`);
+        }
+        if (statement.type === IF_TRUE) {
+          path.node.test = t.booleanLiteral(true);
+        } else if(statement.type === IF_FALSE) {
+          path.node.test = t.booleanLiteral(false);
+        } else {
+          throw new Error(`Statement type not recognized ${statement.type}`);
+        }
+      } else if(parentPath.isIfStatement()) {
         parentNode[path.key] = t.blockStatement([]);
       } else if(Array.isArray(parentNode.body)) {
         parentNode.body.splice(statement.index, 1);
@@ -700,13 +735,38 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
 
   }
 
-  *createInstructions(nodePath, filePath, derivedFromPassingTest) {
-    const node = nodePath.node;
-    if(nodePath.isNumericLiteral() && node.loc) {
+  *createInstructions(nodePath: NodePath, filePath, derivedFromPassingTest) {
+    if(nodePath.isNumericLiteral() && nodePath.node.loc) {
+      const node = nodePath.node;
+      const filterOut: Set<number> = new Set();
+      if (nodePath.parentPath && nodePath.parentPath.isBinaryExpression()) {
+        const operator = nodePath.parentPath.node.operator;
+        if (['-', '+', '*', '/', '%', '>>>', '>>'].includes(operator)) {
+          filterOut.add(0);
+        }
+        if ('**' === operator) {
+          filterOut.add(1);
+        }
+        if ('/' === operator && nodePath.key === 'right') {
+          filterOut.add(1);
+        }
+        if ('*' === operator) {
+          filterOut.add(1);
+        }
+        if ('<<' === operator && nodePath.key === 'right') {
+          filterOut.add(0);
+        }
+        if ('%' === operator && nodePath.key === 'right') {
+          filterOut.add(0);
+          filterOut.add(1);
+        }
+      }
+      filterOut.add(node.value);
+
       const values = [...new Set([...this.filePathToNumberValues.get(filePath)!, node.value - 1, node.value + 1])]
-        .filter(value => value !== node.value)
+        .filter(value => !filterOut.has(value))
         .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
-      yield createInstructionHolder(new ReplaceNumberInstruction({ ...node.loc, filePath }, values, node[TOTAL_NODES]), derivedFromPassingTest);
+      yield createInstructionHolder(new ReplaceNumberInstruction({ ...nodePath.node.loc, filePath }, values, node[TOTAL_NODES]), derivedFromPassingTest);
     }
   }
 }
@@ -1084,7 +1144,18 @@ class BinaryFactory implements InstructionFactory<BinaryInstruction>{
     if((path.isBinaryExpression() || path.isLogicalExpression()) && node.loc) {
       const operators = matchAndFlattenCategoryData(node.operator, this.operations);
       if (operators.length > 0) {
-        yield createInstructionHolder(new BinaryInstruction({ filePath, ...node.loc }, operators, node[TOTAL_NODES]), derivedFromPassingTest);
+        const operator = node.operator;
+        const nullify = !['<','>','>=','<=','==','==='].includes(operator);
+        yield createInstructionHolder(
+          new BinaryInstruction(
+            { filePath, ...node.loc },
+            operators,
+            nullify,
+            nullify,
+            node[TOTAL_NODES]
+          ),
+          derivedFromPassingTest
+        );
       }
     }
   }
@@ -1230,6 +1301,7 @@ function identifyUnknownInstruction(
         console.log('statement', expressionKey(nodePath.filePath, node), currentStatementStack.length, node[TOTAL_NODES])
         currentStatementStack[currentStatementStack.length - 1].push({
           index: path.key,
+          type: path.isIfStatement() ? IF_TRUE : STATEMENT,
           filePath: nodePath.filePath,
           instructionHolders: [],
           innerStatements: [],
