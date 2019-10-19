@@ -647,6 +647,7 @@ const removeEvent = (el: Element, key: string, eventObject) => {
 
 const setEvent = (el: Element, key: string, state, newValue) => {
   removeEvent(el, key, state);
+
   if (newValue != null) {
     if (typeof newValue === 'function') {
       el.addEventListener(key, newValue);

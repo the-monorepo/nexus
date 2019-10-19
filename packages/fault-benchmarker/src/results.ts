@@ -6,8 +6,12 @@ const { writeFile } = fs.promises;
 
 type ProjectResult = {
   name: string;
+  artificial: boolean,
   results: {
-    [s: string]: number;
+    [s: string]: {
+      exam: number;
+      rankings: number[],
+    }
   };
 };
 
@@ -20,9 +24,11 @@ export const run = async () => {
   for (const projectDir of projectDirs) {
     try {
       const faultResults = require(resolve(projectDir, 'fault-results.json'));
+      const packageJson = require(resolve(projectDir, 'package.json'));
       projectResults.push({
         name: basename(projectDir),
         results: faultResults,
+        artificial: packageJson.artificial ? packageJson.artificial : false
       });
     } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND') {
