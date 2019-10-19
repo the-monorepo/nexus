@@ -118,8 +118,15 @@ type Location = {
   filePath: string;
 } & ExpressionLocation;
 
+const IF_TRUE = 'if-true';
+const IF_FALSE = 'if-false';
+const STATEMENT = 'statement';
+
+type StatementInformationType = typeof IF_TRUE | typeof IF_FALSE | typeof STATEMENT;
+
 type StatementInformation = {
   index: any,
+  type: StatementInformationType,
   filePath: string,
   location: ExpressionLocation,
   retries: number,
@@ -365,7 +372,7 @@ class DeleteStatementInstruction implements Instruction {
     while (s < stack.length) {
       const statement = stack[s];
       const key = locationToKeyIncludingEnd(statement.filePath, statement.location!);
-      if(statement.innerStatements.length > 0) {
+      if(statement.innerStatements.length > 0 && statement.type !== IF_TRUE) {
         stack.push(...statement.innerStatements);
       }
       if (!locationsAdded.has(key)) {
@@ -446,7 +453,18 @@ class DeleteStatementInstruction implements Instruction {
       const parentPath = path.parentPath;
       const parentNode = parentPath!.node;
       console.log(`${locationToKeyIncludingEnd(statement.filePath, statement.location)}`,statement.index,  parentNode.type, node.type);
-      if(parentPath.isIfStatement()) {
+      if (statement.type !== STATEMENT) {
+        if (!path.isIfStatement()) {
+          throw new Error(`Statement type was ${statement.type} but node type was ${path.node.type}`);
+        }
+        if (statement.type === IF_TRUE) {
+          path.node.test = t.booleanLiteral(true);
+        } else if(statement.type === IF_FALSE) {
+          path.node.test = t.booleanLiteral(false);
+        } else {
+          throw new Error(`Statement type not recognized ${statment.type}`);
+        }
+      } else if(parentPath.isIfStatement()) {
         parentNode[path.key] = t.blockStatement([]);
       } else if(Array.isArray(parentNode.body)) {
         parentNode.body.splice(statement.index, 1);
@@ -894,7 +912,7 @@ class SwapFunctionCallArgumentsFactory implements InstructionFactory<SwapFunctio
         if (param1.loc && param2.loc) {
           yield createInstructionHolder(
             new SwapFunctionCallArgumentsInstruction(
-              { ...node.loc, filePath }, 
+              { ...nodePath.node.loc, filePath }, 
               {
                 index: p - 1,
                 location: param1.loc
@@ -1085,6 +1103,7 @@ async function* identifyUnknownInstruction(
         console.log('statement')
         currentStatementStack[currentStatementStack.length - 1].push({
           index: path.key,
+          type: path.isIfStatement() ? IF_TRUE : STATEMENT,
           filePath: nodePath.filePath,
           instructionHolders: [],
           innerStatements: [],
