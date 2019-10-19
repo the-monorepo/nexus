@@ -1,18 +1,15 @@
 {
   "./lib/chai.js": [
     { 
+      "type": "within",
       "location": {
         "start": {
           "line": 40,
           "column": 4
-        }
-      }
-    },
-    { 
-      "location": {
-        "start": {
-          "line": 44,
-          "column": 2
+        },
+        "end": {
+          "line": 40,
+          "column": 19
         }
       }
     }
