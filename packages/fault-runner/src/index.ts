@@ -243,6 +243,7 @@ const runAndRecycleProcesses = async (
   const startTime = Date.now();
 
   const originalTestFiles: string[] = await globby(testMatch, { onlyFiles: true });
+  originalTestFiles.sort();
   const testFileQueue: string[] = [...originalTestFiles];
 
   const workerFileQueueSize = bufferCount + 1;
