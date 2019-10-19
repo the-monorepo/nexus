@@ -1383,25 +1383,36 @@ export const compareMutationEvaluations = (
   } else if (!r1.partial && r2.partial) {
     return 1;
   }
+
   if (r1.crashed && r2.crashed) {
     return 0;
-  } else if (r1.crashed && !r2.crashed) {
-    return -1
-  } else if (!r1.crashed && r2.crashed) {
-    return 1;
   }
-  const goodThingsHappened1 = didSomethingGood(r1) ? 1 : -1;
-  const goodThingsHappened2 = didSomethingGood(r2) ? 1 : -1;
-  const goodThingsHappenedComparison = goodThingsHappened1 - goodThingsHappened2;
+
+  const goodThingsHappened1 = didSomethingGood(r1);
+  const goodThingsHappened2 = didSomethingGood(r2);
+  const goodThingsHappenedComparison = (goodThingsHappened1 ? 1 : -1) - (goodThingsHappened2 ? 1 : -1);
   if (goodThingsHappenedComparison !== 0) {
     return goodThingsHappenedComparison;
   }
 
-  const nothingBadHappened1 = evaluationDidNothingBad(r1) ? 1 : -1;
-  const nothingBadHappened2 = evaluationDidNothingBad(r2) ? 1 : -1;
-  const nothingBadHappenedComparison = nothingBadHappened1 - nothingBadHappened2;
+  const nothingBadHappened1 = evaluationDidNothingBad(r1);
+  const nothingBadHappened2 = evaluationDidNothingBad(r2);
+  const nothingBadHappenedComparison = (nothingBadHappened1 ? 1 : -1) - (nothingBadHappened2 ? 1 : -1);
   if (nothingBadHappenedComparison !== 0) {
     return nothingBadHappenedComparison;
+  }
+
+  if (r1.crashed && !r2.crashed) {
+    if (r1.type === DELETE_STATEMENT && !goodThingsHappened2) {
+      return 1
+    }
+    return -1;
+  }
+  if (!r1.crashed && r2.crashed) {
+    if (r2.type === DELETE_STATEMENT && !goodThingsHappened1) {
+      return -1;
+    }
+    return 1;
   }
 
   // TODO: TypeScript should have inferred that this would be the case..
@@ -1412,8 +1423,20 @@ export const compareMutationEvaluations = (
   const stackEval2 = result2.stackEvaluation;
 
   const testsWorsened = result2.testsWorsened - result1.testsWorsened;
-  if(testsWorsened !== 0) {
+  if (testsWorsened !== 0) {
     return testsWorsened;
+  }
+
+
+  const testsImproved = result1.testsImproved - result2.testsImproved;
+  if (testsImproved !== 0) {
+    return testsImproved;
+  }
+
+
+  const lineImprovementScore = stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
+  if (lineImprovementScore !== 0) {
+    return lineImprovementScore;
   }
 
   const lineDegradationScore = stackEval2.lineDegradationScore - stackEval1.lineDegradationScore;
@@ -1421,41 +1444,34 @@ export const compareMutationEvaluations = (
     return lineDegradationScore;
   }
 
+  
+  const columnImprovementScore = stackEval1.columnImprovementScore - stackEval2.columnImprovementScore;
+  if (columnImprovementScore !== 0) {
+    return columnImprovementScore;
+  }
+
   const columnDegradationScore = stackEval2.columnDegradationScore - stackEval1.columnDegradationScore;
   if (columnDegradationScore !== 0) {
     return columnDegradationScore;
   }
 
-  const testsImproved = result1.testsImproved - result2.testsImproved;
-  if (testsImproved !== 0) {
-    return testsImproved;
-  }
-
-  const lineImprovementScore = stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
-  if (lineImprovementScore !== 0) {
-    return lineImprovementScore;
-  }
-
-  const columnImprovementScore =
-    stackEval1.columnImprovementScore - stackEval2.columnImprovementScore;
-  if (columnImprovementScore !== 0) {
-    return columnImprovementScore;
-  }
 
   const errorsChanged = result1.errorsChanged - result2.errorsChanged;
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
 
+
   /*
   const mutationCount = result1.mutationCount - result2.mutationCount;
   if (mutationCount !== 0) {
     return mutationCount;
   }
-  const totalNodes = result1.totalNodes - result2.totalNodes;
+  const totalNodes = result2.totalNodes - result1.totalNodes;
   if (totalNodes !== 0) {
     return totalNodes;
-  }*/
+  }
+  */
 
   return 0;
 };
@@ -1678,14 +1694,19 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (a: LocationMutat
     return partial;
   }
 
+  const atomicMutation = (a.evaluation.atomicMutation ? 1 : -1) - (b.evaluation.atomicMutation ? 1 : -1);
+  if (atomicMutation !== 0) {
+    return atomicMutation;
+  }
+
   const direct = (a.direct ? 1 : -1) - (b.direct ? 1 : -1);
   if (direct !== 0) {
     return direct;
   }
 
-  const mutationCount = b.evaluation.mutationCount - a.evaluation.mutationCount;
-  if (mutationCount !== 0) {
-    return mutationCount;
+  const crashed = (b.evaluation.crashed ? 1 : -1) - (a.evaluation.crashed ? 1 : -1);
+  if (crashed !== 0) {
+    return crashed;
   }
 
   return compareMutationEvaluationsWithLesserProperties(a.evaluation, b.evaluation);
@@ -1744,7 +1765,10 @@ export const mutationEvalatuationMapToFaults = (
       other: {
         totalAtomicMutationsPerformed: lE.totalAtomicMutationsPerformed,
         totalNodes: lE.totalNodes,
-        evaluation: lE.evaluations
+        evaluation: lE.evaluations.map(e => ({
+          type: e.evaluation.type.toString(),
+          ...e,
+        }))
       }
     };
   });
@@ -2233,6 +2257,7 @@ export const createPlugin = ({
       complete: async (tester: FinalTesterResults) => {
         console.log('complete');
         console.log(`Mutations attempted: ${mutationsAttempted}`)
+        await writeFile(resolve(faultFileDir, 'mutations-attempted.txt'), mutationsAttempted.toString());
         Promise.all(
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
