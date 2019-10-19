@@ -256,6 +256,8 @@ class BinaryInstruction extends SingleLocationInstruction {
   constructor(
     location: Location,
     private readonly operators: string[],
+    private nullifyLeft: boolean,
+    private nullifyRight: boolen,
   ) {
     super(location);
   }
@@ -273,14 +275,29 @@ class BinaryInstruction extends SingleLocationInstruction {
     const nodePath = nodePaths[0];
 
     const node = nodePath.node as (t.BinaryExpression | t.LogicalExpression);
-
+    if (this.nullifyLeft) {
+      this.nullifyLeft = false;
+      // TODO: Wasn't sure if it's always possible to do this but need results :P. Remove the try
+      try {
+        nodePath.replaceWith(node.left); 
+        return;
+      } catch(err) {
+        console.error(err);
+      }
+    } else if (this.nullifyRight) {
+      this.nullifyRight = false;
+      try {
+        nodePath.replaceWith(node.right);
+        return;
+      } catch(err) {
+        console.error(err);
+      }
+    }
     if (['||', '&&'].includes(operator)) {
       nodePath.replaceWith(t.logicalExpression(operator, node.left, node.right));
     } else {
       nodePath.replaceWith(t.assignmentExpression(operator, node.left, node.right));
     }
-    
-    node.operator = operator as any;  
   }
 
   async *onEvaluation() {}
@@ -684,13 +701,38 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
 
   }
 
-  *createInstructions(nodePath, filePath, derivedFromPassingTest) {
-    const node = nodePath.node;
-    if(nodePath.isNumericLiteral() && node.loc) {
+  *createInstructions(nodePath: NodePath, filePath, derivedFromPassingTest) {
+    if(nodePath.isNumericLiteral() && nodePath.node.loc) {
+      const node = nodePath.node;
+      const filterOut: Set<number> = new Set();
+      if (nodePath.parentPath && nodePath.parentPath.isBinaryExpression()) {
+        const operator = nodePath.parentPath.node.operator;
+        if (['-', '+', '*', '/', '%', '>>>', '>>'].includes(operator)) {
+          filterOut.add(0);
+        }
+        if ('**' === operator) {
+          filterOut.add(1);
+        }
+        if ('/' === operator && nodePath.key === 'right') {
+          filterOut.add(1);
+        }
+        if ('*' === operator) {
+          filterOut.add(1);
+        }
+        if ('<<' === operator && nodePath.key === 'right') {
+          filterOut.add(0);
+        }
+        if ('%' === operator && nodePath.key === 'right') {
+          filterOut.add(0);
+          filterOut.add(1);
+        }
+      }
+      filterOut.add(node.value);
+
       const values = [...new Set([...this.filePathToNumberValues.get(filePath)!, node.value - 1, node.value + 1])]
-        .filter(value => value !== node.value)
+        .filter(value => !filterOut.has(value))
         .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
-      yield createInstructionHolder(new ReplaceNumberInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
+      yield createInstructionHolder(new ReplaceNumberInstruction({ ...nodePath.node.loc, filePath }, values), derivedFromPassingTest);
     }
   }
 }
@@ -981,7 +1023,17 @@ class BinaryFactory implements InstructionFactory<BinaryInstruction>{
     if((path.isBinaryExpression() || path.isLogicalExpression()) && node.loc) {
       const operators = matchAndFlattenCategoryData(node.operator, this.operations);
       if (operators.length > 0) {
-        yield createInstructionHolder(new BinaryInstruction({ filePath, ...node.loc }, operators), derivedFromPassingTest);
+        const operator = node.operator;
+        const nullify = !['<','>','>=','<=','==','==='].includes(operator);
+        yield createInstructionHolder(
+          new BinaryInstruction(
+            { filePath, ...node.loc },
+            operators,
+            nullify,
+            nullify
+          ),
+          derivedFromPassingTest
+        );
       }
     }
   }
