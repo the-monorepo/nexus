@@ -151,7 +151,7 @@ export const calculateExamScore = (
   sum += withinLocations.length * totalExecutableStatements;
 
   return {
-    exam: sum / expectedFaults.length / totalExecutableStatements,
+    exam: (sum / expectedFaults.length) / totalExecutableStatements,
     rankings: [...rankings.values()]
   };
 };
@@ -273,7 +273,7 @@ export const run = async () => {
         ...process.env,
         ...optionsEnv,
       },
-      workers: sandbox ? undefined : 1,
+      workers: sandbox ? 1 : 1,
       fileBufferCount: sandbox ? undefined : null,
       timeout: 60000,
     };
