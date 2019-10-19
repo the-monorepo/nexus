@@ -161,7 +161,7 @@ const projectResultsToExamResults = (projectResults: ProjectResult[]): ResultsTa
 const projectResultsToRankings = (projectResults: ProjectResult[]): ResultsTableProps => {
   const props: ProjectResultProps[] =[];
 
-  for(const ranking of [1, 5, 10, 50, 100]) {
+  for(const ranking of [1, 3, 5, 10, 100]) {
     const algoRankings: number[] = algorithmNames.map((algorithmName, i) => {
       let count = 0;
       for(const projectResult of projectResults) {
