@@ -5,7 +5,8 @@ export const dStar = (
   totalTestStateCounts: Stats,
   e = 2,
 ) => {
-  if (codeElementTestStateCounts.failed === 0) {
+  if ((codeElementTestStateCounts.passed +
+      (totalTestStateCounts.failed - codeElementTestStateCounts.failed)) === 0) {
     return null;
   }
   return (
