@@ -23,6 +23,7 @@ import { op2 } from '@fault/sbfl-op2';
 
 import { BenchmarkConfig, ProjectConfig } from './config';
 import benchmarkConfig from './config';
+import { requestProjectDirs } from './requestProjectDirs';
 
 const WITHIN = 'within';
 const EXACT = 'exact';
@@ -119,7 +120,8 @@ export const calculateExamScore = (
   ) as WithinFault[];
   let sum = 0;
   let nonFaultElementsInspected = 0; // The first fault will still need to be counted as 1 line so start with 1
-
+  // Note: Rank starts from 0
+  const rankings: Map<any, number> = new Map();
   for (const actualFault of actualFaults) {
     let removedSomething = false;
 
@@ -127,6 +129,7 @@ export const calculateExamScore = (
       if (isWithinLocation(projectDir, withinLocations[w], actualFault)) {
         removedSomething = true;
         sum += nonFaultElementsInspected;
+        rankings.set(withinLocations[w], nonFaultElementsInspected);
         withinLocations.splice(w, 1);
       }
     }
@@ -134,6 +137,7 @@ export const calculateExamScore = (
     for (const key of faultKeys(projectDir, actualFault)) {
       if (expectedExactLocations.has(key)) {
         sum += nonFaultElementsInspected;
+        rankings.set(key, nonFaultElementsInspected);
         expectedExactLocations.delete(key);
         removedSomething = true;
       }
@@ -146,20 +150,14 @@ export const calculateExamScore = (
   sum += expectedExactLocations.size * totalExecutableStatements;
   sum += withinLocations.length * totalExecutableStatements;
 
-  return sum / expectedFaults.length / totalExecutableStatements;
+  return {
+    exam: sum / expectedFaults.length / totalExecutableStatements,
+    rankings: [...rankings.values()]
+  };
 };
 
 export type BenchmarkData = {
   [algorithmName: string]: number;
-};
-
-export const getProjectPaths = async (path: string | string[] = '*') => {
-  const projectsDir = './projects';
-  const resolved =
-    typeof path === 'string'
-      ? resolve(projectsDir, path)
-      : path.map(glob => resolve(projectsDir, glob));
-  return await globby(resolved, { onlyDirectories: true, expandDirectories: false });
 };
 
 const sbflAlgorithms = [
@@ -180,9 +178,13 @@ const log = logger().add(
   }),
 );
 
-const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
-  const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName, 'faults.json');
+const faultFileDir = (projectDir: string, sbflModuleFolderName: string) => {
+  const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName);
   return faultPath;
+}
+
+const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
+  return resolve(faultFileDir(projectDir, sbflModuleFolderName), 'faults.json');
 };
 
 const findConfig = (
@@ -206,7 +208,7 @@ const findConfig = (
 };
 
 export const run = async () => {
-  const projectDirs = await getProjectPaths(
+  const projectDirs = await requestProjectDirs(
     process.argv.length <= 2 ? undefined : process.argv.slice(2),
   );
 
@@ -239,10 +241,6 @@ export const run = async () => {
         return resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}');
       }
     })();
-
-    const expectedFaults = convertFileFaultDataToFaults(
-      require(resolve(projectDir, 'expected-faults.json')),
-    ) as any as ExpectedFault[];
 
     const projectOutput = {};
 
@@ -294,7 +292,7 @@ export const run = async () => {
     await flRunner.run({
       ...commonRunnerOptions,
       addons: [require('@fault/addon-mutation-localization').default({
-        faultFilePath: faultFilePath(projectDir, mbflName),
+        faultFileDir: faultFileDir(projectDir, mbflName),
         ignoreGlob,
         mapToIstanbul: true,
         console: true,
@@ -302,6 +300,10 @@ export const run = async () => {
         // allowPartialTestRuns: sandbox,
       })]
     });    
+
+    const expectedFaults = convertFileFaultDataToFaults(
+      require(resolve(projectDir, 'expected-faults.json')),
+    ) as any as ExpectedFault[];
 
     for (const { name } of (sbflAlgorithms as any).concat([{ name: mbflName }])) {
       const actualFaults = convertFileFaultDataToFaults(
@@ -315,6 +317,7 @@ export const run = async () => {
         expectedFaults,
         totalExecutableStatements,
       );
+      
 
       projectOutput[name] = examScore;
     }
