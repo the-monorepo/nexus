@@ -120,7 +120,11 @@ export const localizeFaults = (
     if (micromatch.isMatch(sourcePath, ignoreGlob)) {
       continue;
     }
-    const fileResult = fileResults.get(sourcePath)!;
+    const fileResult = fileResults.get(sourcePath);
+    if (fileResult === undefined) {
+      console.warn(`Warning: No file result for ${sourcePath}`);
+      continue;
+    }
     for (const expression of fileResult.expressions) {
       const { location, sourcePath } = expression;
       faults.push({
