@@ -786,7 +786,7 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
     if(nodePath.isStringLiteral() && node.loc) {
       const values = [...this.filePathToStringValues.get(filePath)!].filter(value => value !== node.value);
       if(values.length > 0) {
-        yield createInstructionHolder(new ReplaceStringInstruction({ ...node.loc, filePath }, values), derivedFromPassingTest);
+        yield createInstructionHolder(new ReplaceStringInstruction({ ...node.loc, filePath }, values, node[TOTAL_NODES]), derivedFromPassingTest);
       }
     }
   }
