@@ -257,7 +257,7 @@ class BinaryInstruction extends SingleLocationInstruction {
     location: Location,
     private readonly operators: string[],
     private nullifyLeft: boolean,
-    private nullifyRight: boolen,
+    private nullifyRight: boolean,
   ) {
     super(location);
   }
@@ -479,7 +479,7 @@ class DeleteStatementInstruction implements Instruction {
         } else if(statement.type === IF_FALSE) {
           path.node.test = t.booleanLiteral(false);
         } else {
-          throw new Error(`Statement type not recognized ${statment.type}`);
+          throw new Error(`Statement type not recognized ${statement.type}`);
         }
       } else if(parentPath.isIfStatement()) {
         parentNode[path.key] = t.blockStatement([]);
