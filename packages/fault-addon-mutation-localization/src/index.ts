@@ -142,6 +142,7 @@ type StatementInformation = {
   innerStatements: StatementInformation[],
   instructionHolders: InstructionHolder[],
   totalNodes: number,
+  yielded: boolean
 }
 
 type InstructionData = {
@@ -566,21 +567,41 @@ class DeleteStatementInstruction implements Instruction {
       }
       if (statements.statements.length === 1) {
         const statement = statements.statements[0];
-        yield* statement.instructionHolders;
+        if (!statement.yielded) {
+          yield* statement.instructionHolders;
+          statement.yielded = true;
+        }
+        if (statement.type === IF_TRUE) {
+          statement.type = IF_FALSE;
+          this.statementBlocks.push({
+            statements: [statement]
+          });
+        }
       } else {
         this.splitStatementBlock(statements.statements);
       }
     } else {
+      const originallySingleStatement = statements.statements.length === 1;
+      let statementStateAltered = false;
       for(let s = statements.statements.length - 1; s >= 0; s--) {
         const statement = statements.statements[s];
         if(statement.retries <= 0) {
-          statements.statements.splice(s, 1);
+          if (statement.type === IF_TRUE) {
+            statement.type = IF_FALSE;
+            statementStateAltered = true;
+          } else {
+            statements.statements.splice(s, 1);
+          }
         } else {
           statement.retries--;
         }
       }
       if (statements.statements.length > 1) {
         this.splitStatementBlock(statements.statements);
+      } else if (statements.statements.length === 1 && (!originallySingleStatement || statementStateAltered)) {
+        this.statementBlocks.push({
+          statements: [statements.statements[0]]
+        });
       }
     }
   }
@@ -775,18 +796,9 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
 }
 
 class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstruction> {
-  private readonly filePathToStringValues: Map<string, string[]> = new Map();
-
   enter() {}
 
-  onInitialEnter(nodePath, filePath: string) {
-    if(nodePath.isStringLiteral()) {
-      if (!this.filePathToStringValues.has(filePath)) {
-        this.filePathToStringValues.set(filePath, []);
-      }
-      this.filePathToStringValues.get(filePath)!.push(nodePath.value);
-    }
-  }
+  onInitialEnter() {}
 
   *createPreBlockInstructions() {
 
@@ -796,7 +808,7 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
     const node = nodePath.node;
     if(nodePath.isStringLiteral() && node.loc) {
       const alreadySeen = new Set();
-      const values = this.filePathToStringValues.get(filePath)!.filter(value => value !== node.value).reverse();
+      const values = node[STRINGS]!.filter(value => value !== node.value).reverse();
       const filteredValues = values.filter(value => {
         if(alreadySeen.has(value)) {
           return false;
@@ -1274,27 +1286,29 @@ type PreviousIdentifiersData = {
   declarations: IdentifierData[],
 }
 
+const STRINGS = Symbol('strings');
 const TOTAL_NODES = Symbol('total-nodes');
 const PREVIOUS_IDENTIFIER_NAMES = Symbol('previous-identifer-names');
-function identifyUnknownInstruction(
+async function identifyUnknownInstruction(
   nodePaths: any[],
   derivedFromPassingTest: boolean, 
-): StatementInformation[][] {
-  const initialExpressionsSeen: Set<string> = new Set();
-  for(const nodePath of nodePaths) {
-    const scopedPath = getStatementOrBlock(nodePath);
+  cache: AstCache
+): Promise<StatementInformation[][]> {
+  const filePaths = new Set(nodePaths.map(nodePath => nodePath.filePath));
+  for(const filePath of filePaths) {
     const nodeCounts: number[] = [];
     const names: PreviousIdentifiersData[] = [{
       references: [],
       declarations: [],
     }];
+    const stringBlocks: string[][] = [[]];
     let identifierCount = 0;
-    const enter = (path: NodePath) => {
-      const key = expressionKey(nodePath.filePath, path.node);
-      if (initialExpressionsSeen.has(key)) {
-        return;
+    const enter = (path: NodePath) => {      
+      // TODO: String logic is all over the place
+      if(path.isStringLiteral()) {
+        path.node[STRINGS] = ([] as string[]).concat(...stringBlocks);
+        stringBlocks[stringBlocks.length - 1].push(path.node.value);
       }
-      
       // TODO: Logic for identifier replacement is all over the place. Need to refactor
       if(path.isIdentifier()) {
         if (
@@ -1330,6 +1344,7 @@ function identifyUnknownInstruction(
       }
 
       if (isStatementContainer(path)) {
+        stringBlocks.push([]);
         names.push({
           references: [],
           declarations: [],
@@ -1338,18 +1353,10 @@ function identifyUnknownInstruction(
       
       nodeCounts.push((path.isBlockStatement() || path.isExpressionStatement()) ? 0 : 1);
       for(const instructionFactory of instructionFactories) {
-        instructionFactory.onInitialEnter(path, nodePath.filePath, derivedFromPassingTest);
+        instructionFactory.onInitialEnter(path, filePath, derivedFromPassingTest);
       }
     };
-    const exit = (path: NodePath) => {
-      const key = expressionKey(nodePath.filePath, path.node);
-      if (initialExpressionsSeen.has(key)) {
-        if (nodeCounts.length > 0 && path.parentPath && !path.parentPath.node[TOTAL_NODES]) {
-          nodeCounts[nodeCounts.length - 1] += path.node[TOTAL_NODES];
-        }
-        return;
-      }
-      
+    const exit = (path: NodePath) => {      
       if (isStatementContainer(path)) {
         const popped = names.pop()!;
         const declarationNameSet = new Set(popped.declarations.map(nameData => nameData.name));
@@ -1357,62 +1364,74 @@ function identifyUnknownInstruction(
         names[names.length - 1].references.push(
           ...referencesThatWerentDeclaredInScope
         );
+        stringBlocks.pop();
       }
 
-      initialExpressionsSeen.add(key);
       const totalNodes = nodeCounts.pop()!;
       if (nodeCounts.length > 0) {
         nodeCounts[nodeCounts.length - 1] += totalNodes;
       }
       path.node[TOTAL_NODES] = totalNodes;
     }
-    enter(scopedPath);
-    scopedPath.traverse({
+
+    const ast = await cache.get(filePath);
+    traverse(ast, {
       enter,
       exit
     });
-    exit(scopedPath);
   }
-  const expressionsSeen: Set<string> = new Set();
   //console.log(nodePaths);
   const statements: StatementInformation[] = [];
-  for(const nodePath of nodePaths) {
-    console.log('SCANNING', expressionKey(nodePath.filePath, nodePath.node));
-    const scopedPath = getStatementOrBlock(nodePath);
-    const currentStatementStack: StatementInformation[][] = [];
-    console.log('SCOPEd', expressionKey(nodePath.filePath, scopedPath.node));
+  for (const filePath of filePaths) {
+    const expressionKeys: Set<string> = new Set(nodePaths
+      .filter(nodePath => nodePath.filePath === filePath)
+      .map(nodePath => {
+        const statement = getStatementOrBlock(nodePath);
+        if (statement.node.loc) {
+          return expressionKey(filePath, statement.node);
+        } else {
+          return expressionKey(filePath, nodePath.node);
+        }
+      }));
+    console.log(expressionKeys);
+    let insideImportantStatementCount = 0;
+    const currentStatementStack: StatementInformation[][] = [[]];
     const enter = (path: NodePath) => {
       const node = path.node;
       const parentPath = path.parentPath;
-      const key = expressionKey(nodePath.filePath, node);
-      if (expressionsSeen.has(key)) {
+      const key = expressionKey(filePath, node);
+      if (expressionKeys.has(key)) {
+        insideImportantStatementCount++;
+      }
+      if (insideImportantStatementCount <= 0) {
         return;
       }
+
       if (parentPath && 
         (
           (parentPath.node.body && ((path.key === 'body' && !node.body) || (Array.isArray(parentPath.node.body) && typeof path.key === 'number'))) ||
           (parentPath.isIfStatement() && parentPath.node.consequent && (!parentPath.node.consequent.body || (parentPath.node.alternate && !parentPath.node.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
         ) && 
-        node.loc && currentStatementStack.length > 0) {
-        console.log('statement', expressionKey(nodePath.filePath, node), currentStatementStack.length, node[TOTAL_NODES])
+        node.loc) {
+        console.log('statement', expressionKey(filePath, node), currentStatementStack.length, node[TOTAL_NODES])
         currentStatementStack[currentStatementStack.length - 1].push({
           index: path.key,
           type: path.isIfStatement() ? IF_TRUE : STATEMENT,
-          filePath: nodePath.filePath,
+          filePath: filePath,
           instructionHolders: [],
           innerStatements: [],
           location: node.loc,
           retries: RETRIES,
-          totalNodes: node[TOTAL_NODES]
+          totalNodes: node[TOTAL_NODES],
+          yielded: false
         });
       }
-      if(currentStatementStack.length > 0) {
-        const statementStack = currentStatementStack[currentStatementStack.length - 1];
-        if (statementStack.length > 0) {
-          const statement = statementStack[statementStack.length - 1];
-          for(const factory of instructionFactories) {
-            statement.instructionHolders.push(...factory.createPreBlockInstructions(path, nodePath.filePath, derivedFromPassingTest));
-          }
+
+      const statementStack = currentStatementStack[currentStatementStack.length - 1];
+      if (statementStack.length > 0) {
+        const statement = statementStack[statementStack.length - 1];
+        for(const factory of instructionFactories) {
+          statement.instructionHolders.push(...factory.createPreBlockInstructions(path, filePath, derivedFromPassingTest));
         }
       }
 
@@ -1423,43 +1442,51 @@ function identifyUnknownInstruction(
 
       
       for(const factory of instructionFactories) {
-        factory.enter(path, nodePath.filePath, derivedFromPassingTest);
+        factory.enter(path, filePath, derivedFromPassingTest);
       }  
     };
     const exit = (path: NodePath) => {
       const node = path.node;
-      const key = expressionKey(nodePath.filePath, node);
-      if (expressionsSeen.has(key)) { 
-        return
+      const key = expressionKey(filePath, node);
+      if (insideImportantStatementCount <= 0) {
+        return;
       }
-      expressionsSeen.add(key);
-      
-      if(currentStatementStack.length > 0) {
-        const statementStack = currentStatementStack[currentStatementStack.length - 1];
-        if (statementStack.length > 0) {
-          const statement = statementStack[statementStack.length - 1];
-          for(const factory of instructionFactories) {
-            statement.instructionHolders.push(...factory.createInstructions(path, nodePath.filePath, derivedFromPassingTest));
-          }  
-        }
+
+      if (expressionKeys.has(key)) { 
+        insideImportantStatementCount--;
+      }
+
+      const statementStack = currentStatementStack[currentStatementStack.length - 1];
+      if (statementStack.length > 0) {
+        const statement = statementStack[statementStack.length - 1];
+        for(const factory of instructionFactories) {
+          statement.instructionHolders.push(...factory.createInstructions(path, filePath, derivedFromPassingTest));
+        }  
       }
       if (isStatementContainer(path)) {
         const poppedStatementInfo = currentStatementStack.pop()!;
-        if (currentStatementStack.length <= 0) {
-          statements.push(...poppedStatementInfo);
+        const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
+        if (newTopStackStatementInfo.length <= 0) {
+          newTopStackStatementInfo.push(...poppedStatementInfo);
         } else {
-          const newTopStackStatementInfo = currentStatementStack[currentStatementStack.length - 1];
           const lastStatement = newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
-          lastStatement.innerStatements.push(...poppedStatementInfo);
+          lastStatement.innerStatements.push(...poppedStatementInfo);  
         }
       }
     };
-    enter(scopedPath);
-    scopedPath.traverse({
-      enter,
-      exit
-    });
-    exit(scopedPath);
+
+    const ast = await cache.get(filePath);
+    traverse(
+      ast, {
+        enter,
+        exit
+      }
+    );
+    if (currentStatementStack.length !== 1) {
+      console.error(currentStatementStack);
+      throw new Error(`currentStatementStack was of length ${currentStatementStack.length} instead of 1`);
+    }
+    statements.push(...currentStatementStack[0]);
   }
   const maxDepth = statementDepth(statements);
   const comparator = (a, b) => b.length - a.length;
@@ -1597,17 +1624,17 @@ export const compareMutationEvaluations = (
   const stackEval1 = result1.stackEvaluation;
   const stackEval2 = result2.stackEvaluation;
 
-  const testsWorsened = result2.testsWorsened - result1.testsWorsened;
-  if (testsWorsened !== 0) {
-    return testsWorsened;
+  const netTestsImproved1 = result1.testsImproved - result1.testsWorsened;
+  const netTestsImproved2 = result2.testsImproved - result2.testsWorsened;
+  const netTestsImprovedComparison = netTestsImproved1 - netTestsImproved2;
+  if (netTestsImprovedComparison !== 0) {
+    return netTestsImprovedComparison;    
   }
-
 
   const testsImproved = result1.testsImproved - result2.testsImproved;
   if (testsImproved !== 0) {
     return testsImproved;
   }
-
 
   const lineImprovementScore = stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
   if (lineImprovementScore !== 0) {
@@ -2292,7 +2319,7 @@ export const createPlugin = ({
             }
           }
           const allNodePaths= await findAllNodePaths(cache, locations);
-          const statementBlocks = identifyUnknownInstruction(allNodePaths, false);
+          const statementBlocks = await identifyUnknownInstruction(allNodePaths, false, cache);
           for(const statement of statementBlocks) {
             statements.push({
               statements: statement
@@ -2300,7 +2327,7 @@ export const createPlugin = ({
           }
 
           const allLocations: Map<string, Location> = new Map();
-          const stack: StatementInformation[]= [];
+          const stack: StatementInformation[] = [];
           for(const block of statementBlocks) {
             stack.push(...block);
           }
@@ -2310,6 +2337,7 @@ export const createPlugin = ({
             const key = locationToKeyIncludingEnd(popped.filePath, popped.location);
             allLocations.set(key, { ...popped.location, filePath: popped.filePath });
             stack.push(...popped.innerStatements);
+
             for(const instructionHolder of popped.instructionHolders) {
               for(const [filePath, locations] of Object.entries(instructionHolder.instruction.mutationResults.locations)) {
                 for(const location of locations) {
