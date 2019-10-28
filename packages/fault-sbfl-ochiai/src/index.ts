@@ -4,16 +4,16 @@ export const ochiai = (
   codeElementTestStateCounts: Stats,
   totalTestStateCounts: Stats,
 ) => {
-  if (codeElementTestStateCounts.failed === 0 && totalTestStateCounts.failed === 0) {
+  if (totalTestStateCounts.failed === 0) {
     return null;
   }
-  if (codeElementTestStateCounts.failed && codeElementTestStateCounts.passed === 0) {
+  if (codeElementTestStateCounts.failed === 0 && codeElementTestStateCounts.passed === 0) {
     return null;
   }
   return (
     codeElementTestStateCounts.failed /
     Math.sqrt(
-      (codeElementTestStateCounts.failed + totalTestStateCounts.failed) *
+      totalTestStateCounts.failed *
         (codeElementTestStateCounts.failed + codeElementTestStateCounts.passed),
     )
   );
