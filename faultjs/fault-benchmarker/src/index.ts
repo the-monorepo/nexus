@@ -9,10 +9,10 @@ import * as micromatch from 'micromatch';
 import chalk from 'chalk';
 
 import {
-  readCoverageFile,
-  getTotalExecutedStatements,
-  ExpressionLocation,
-} from '@fault/istanbul-util';
+readCoverageFile,
+getTotalExecutedStatements,
+ExpressionLocation } from
+'@fault/istanbul-util';
 import { createPlugin } from '@fault/addon-sbfl';
 import { convertFileFaultDataToFaults, ScorelessFault } from '@fault/record-faults';
 import { dStar } from '@fault/sbfl-dstar';
@@ -29,12 +29,12 @@ const WITHIN = 'within';
 const EXACT = 'exact';
 
 export type WithinFault = {
-  type: typeof WITHIN;
-} & ScorelessFault;
+  type: typeof WITHIN;} &
+ScorelessFault;
 
 export type ExactFault = {
-  type: typeof EXACT | undefined;
-} & ScorelessFault;
+  type: typeof EXACT | undefined;} &
+ScorelessFault;
 
 export type ExpectedFault = WithinFault & ExactFault;
 
@@ -43,10 +43,10 @@ export const normalizeKeyPath = (projectDir: string, sourcePath: string) => {
 };
 
 export const mostSpecificFaultKey = (
-  projectDir: string,
-  fault: ScorelessFault,
-): string => {
-  let lastKey: string = undefined as any;
+projectDir: string,
+fault: ScorelessFault)
+: string => {
+  let lastKey: string = (undefined as any);
   for (const key of faultKeys(projectDir, fault)) {
     lastKey = key;
   }
@@ -54,9 +54,9 @@ export const mostSpecificFaultKey = (
 };
 
 export function* faultKeys(
-  projectDir: string,
-  fault: ScorelessFault,
-): IterableIterator<string> {
+projectDir: string,
+fault: ScorelessFault)
+: IterableIterator<string> {
   const justFile = `${normalizeKeyPath(projectDir, fault.sourcePath)}`;
   yield justFile;
   if (fault.location !== undefined) {
@@ -70,13 +70,13 @@ export function* faultKeys(
 }
 
 export const isWithinLocation = (
-  projectDir: string,
-  withinLocation: WithinFault,
-  fault: ScorelessFault,
-): boolean => {
+projectDir: string,
+withinLocation: WithinFault,
+fault: ScorelessFault)
+: boolean => {
   const sameFile =
-    normalizeKeyPath(projectDir, withinLocation.sourcePath) ===
-    normalizeKeyPath(projectDir, fault.sourcePath);
+  normalizeKeyPath(projectDir, withinLocation.sourcePath) ===
+  normalizeKeyPath(projectDir, fault.sourcePath);
   if (!sameFile) {
     return false;
   }
@@ -84,10 +84,10 @@ export const isWithinLocation = (
     return true;
   }
   const withinStart =
-    sameFile &&
-    (fault.location.start.line > withinLocation.location.start.line ||
-      (fault.location.start.line === withinLocation.location.start.line &&
-        fault.location.start.column >= withinLocation.location.start.column));
+  sameFile && (
+  fault.location.start.line > withinLocation.location.start.line ||
+  fault.location.start.line === withinLocation.location.start.line &&
+  fault.location.start.column >= withinLocation.location.start.column);
   if (!withinStart) {
     return false;
   }
@@ -95,29 +95,29 @@ export const isWithinLocation = (
     return true;
   }
   const withinEnd =
-    withinStart &&
-    (fault.location.start.line < withinLocation.location.end.line ||
-      (fault.location.start.line === withinLocation.location.end.line &&
-        fault.location.start.column <= withinLocation.location.end.column));
+  withinStart && (
+  fault.location.start.line < withinLocation.location.end.line ||
+  fault.location.start.line === withinLocation.location.end.line &&
+  fault.location.start.column <= withinLocation.location.end.column);
   return withinEnd;
 };
 
 export const calculateExamScore = (
-  projectDir: string,
-  actualFaults: ScorelessFault[],
-  expectedFaults: ExpectedFault[],
-  totalExecutableStatements: number,
-) => {
+projectDir: string,
+actualFaults: ScorelessFault[],
+expectedFaults: ExpectedFault[],
+totalExecutableStatements: number) =>
+{
   const expectedExactLocations: Set<string> = new Set(
-    expectedFaults
-      .filter(
-        expectedFault => expectedFault.type === EXACT || expectedFault.type === undefined,
-      )
-      .map(expectedFault => mostSpecificFaultKey(projectDir, expectedFault)),
-  );
-  const withinLocations: WithinFault[] = expectedFaults.filter(
-    expectedFault => expectedFault.type === WITHIN,
-  ) as WithinFault[];
+  expectedFaults.
+  filter(
+  expectedFault => expectedFault.type === EXACT || expectedFault.type === undefined).
+
+  map(expectedFault => mostSpecificFaultKey(projectDir, expectedFault)));
+
+  const withinLocations: WithinFault[] = (expectedFaults.filter(
+  expectedFault => expectedFault.type === WITHIN) as
+  WithinFault[]);
   let sum = 0;
   let nonFaultElementsInspected = 0; // The first fault will still need to be counted as 1 line so start with 1
   // Note: Rank starts from 0
@@ -152,31 +152,31 @@ export const calculateExamScore = (
 
   return {
     exam: sum / expectedFaults.length / totalExecutableStatements,
-    rankings: [...rankings.values()],
-  };
+    rankings: [...rankings.values()] };
+
 };
 
 export type BenchmarkData = {
-  [algorithmName: string]: number;
-};
+  [algorithmName: string]: number;};
+
 
 const sbflAlgorithms = [
-  { name: 'dstar-1', scoringFn: (a, b) => dStar(a, b, 1) },
-  { name: 'dstar-2', scoringFn: dStar, console: true },
-  { name: 'dstar-3', scoringFn: (a, b) => dStar(a, b, 3) },
-  { name: 'dstar-4', scoringFn: (a, b) => dStar(a, b, 4) },
-  { name: 'dstar-5', scoringFn: (a, b) => dStar(a, b, 5) },
-  { name: 'ochiai', scoringFn: ochiai },
-  { name: 'tarantula', scoringFn: tarantula },
-  { name: 'barinel', scoringFn: barinel },
-  { name: 'op2', scoringFn: op2 },
-];
+{ name: 'dstar-1', scoringFn: (a, b) => dStar(a, b, 1) },
+{ name: 'dstar-2', scoringFn: dStar, console: true },
+{ name: 'dstar-3', scoringFn: (a, b) => dStar(a, b, 3) },
+{ name: 'dstar-4', scoringFn: (a, b) => dStar(a, b, 4) },
+{ name: 'dstar-5', scoringFn: (a, b) => dStar(a, b, 5) },
+{ name: 'ochiai', scoringFn: ochiai },
+{ name: 'tarantula', scoringFn: tarantula },
+{ name: 'barinel', scoringFn: barinel },
+{ name: 'op2', scoringFn: op2 }];
+
 
 const log = logger().add(
-  consoleTransport({
-    level: 'verbose',
-  }),
-);
+consoleTransport({
+  level: 'verbose' }));
+
+
 
 const faultFileDir = (projectDir: string, sbflModuleFolderName: string) => {
   const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName);
@@ -188,17 +188,17 @@ const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
 };
 
 const findConfig = (
-  benchmarkConfig: BenchmarkConfig,
-  path: string,
-): ProjectConfig | null => {
+benchmarkConfig: BenchmarkConfig,
+path: string)
+: ProjectConfig | null => {
   for (const projectConfig of benchmarkConfig) {
-    const globs = Array.isArray(projectConfig.glob)
-      ? projectConfig.glob
-      : [projectConfig.glob];
+    const globs = Array.isArray(projectConfig.glob) ?
+    projectConfig.glob :
+    [projectConfig.glob];
 
-    const resolvedGlobs = globs.map(glob =>
-      resolve('./projects', glob).replace(/\\+/g, '/'),
-    );
+    const resolvedGlobs = globs.map((glob) =>
+    resolve('./projects', glob).replace(/\\+/g, '/'));
+
 
     if (micromatch.isMatch(path, resolvedGlobs)) {
       return projectConfig;
@@ -209,8 +209,8 @@ const findConfig = (
 
 export const run = async () => {
   const projectDirs = await requestProjectDirs(
-    process.argv.length <= 2 ? undefined : process.argv.slice(2),
-  );
+  process.argv.length <= 2 ? undefined : process.argv.slice(2));
+
 
   const runOnProject = async (projectDir: string) => {
     log.verbose(`Starting ${projectDir}...`);
@@ -224,10 +224,10 @@ export const run = async () => {
       setupFiles = [resolve(__dirname, 'babel')],
       tester = '@fault/tester-mocha',
       testOptions,
-      babelOptions,
-    } = projectConfig;
+      babelOptions } =
+    projectConfig;
     const { sandbox = false, mocha = require.resolve('mocha') } =
-      testOptions === undefined ? {} : testOptions;
+    testOptions === undefined ? {} : testOptions;
     const optionsEnv = projectConfig.env ? projectConfig.env : {};
 
     const testMatch = (() => {
@@ -235,7 +235,7 @@ export const run = async () => {
         if (typeof projectConfig.testMatch === 'string') {
           return resolve(projectDir, projectConfig.testMatch);
         } else {
-          return projectConfig.testMatch.map(glob => resolve(projectDir, glob));
+          return projectConfig.testMatch.map(glob => {});
         }
       } else {
         return resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}');
@@ -247,14 +247,14 @@ export const run = async () => {
     log.verbose(`Running SBFL algorithms on ${projectDir}`);
 
     const ignoreGlob =
-      '../{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+    '../{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
     const sbflAddons = sbflAlgorithms.map(({ scoringFn, name, console = false }) => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
         faultFilePath: faultFilePath(projectDir, name),
         ignoreGlob,
-        console,
-      });
+        console });
+
 
       return sbflAddon;
     });
@@ -268,62 +268,62 @@ export const run = async () => {
         timeout: 15000,
         ...testOptions,
         sandbox,
-        mocha,
-      },
+        mocha },
+
       env: {
         ...process.env,
-        ...optionsEnv,
-      },
+        ...optionsEnv },
+
       workers: sandbox ? 1 : 1,
       fileBufferCount: sandbox ? undefined : null,
-      timeout: 60000,
-    };
+      timeout: 60000 };
+
     // SBFL
     await flRunner.run({
       ...commonRunnerOptions,
-      addons: sbflAddons,
-    });
+      addons: sbflAddons });
+
 
     const coverage = await readCoverageFile(
-      resolve(projectDir, 'coverage/coverage-final.json'),
-    );
+    resolve(projectDir, 'coverage/coverage-final.json'));
+
 
     // MBFL
     const mbflName = 'mbfl';
     await flRunner.run({
       ...commonRunnerOptions,
       addons: [
-        require('@fault/addon-mutation-localization').default({
-          faultFileDir: faultFileDir(projectDir, mbflName),
-          ignoreGlob,
-          mapToIstanbul: true,
-          console: true,
-          babelOptions,
-          // allowPartialTestRuns: sandbox,
-        }),
-      ],
-    });
+      require('@fault/addon-mutation-localization').default({
+        faultFileDir: faultFileDir(projectDir, mbflName),
+        ignoreGlob,
+        mapToIstanbul: true,
+        console: true,
+        babelOptions
+        // allowPartialTestRuns: sandbox,
+      })] });
 
-    const expectedFaults = (convertFileFaultDataToFaults(
-      require(resolve(projectDir, 'expected-faults.json')),
-    ) as any) as ExpectedFault[];
+
+
+    const expectedFaults = ((convertFileFaultDataToFaults(
+    require(resolve(projectDir, 'expected-faults.json'))) as
+    any) as ExpectedFault[]);
 
     for (const { name } of (sbflAlgorithms as any).concat([
-      { name: mbflName },
-      { name: 'mbfl-dstar-2' },
-      { name: 'mbfl-op2' },
-    ])) {
+    { name: mbflName },
+    { name: 'mbfl-dstar-2' },
+    { name: 'mbfl-op2' }]))
+    {
       const actualFaults = convertFileFaultDataToFaults(
-        require(faultFilePath(projectDir, name)),
-      );
+      require(faultFilePath(projectDir, name)));
+
 
       const totalExecutableStatements = getTotalExecutedStatements(coverage);
       const examScore = calculateExamScore(
-        projectDir,
-        actualFaults,
-        expectedFaults,
-        totalExecutableStatements,
-      );
+      projectDir,
+      actualFaults,
+      expectedFaults,
+      totalExecutableStatements);
+
 
       projectOutput[name] = examScore;
     }

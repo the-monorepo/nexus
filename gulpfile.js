@@ -129,7 +129,7 @@ async function clean() {
     ...globBuildOutputFromPackagesDirName(packagesDirName),
     ...globBuildOutputFromPackagesDirName(buildPackagesDirName),
     './README.md',
-    './{build-packages,packages}/*/README.md',
+    './{build-packages,faultjs,misc}/*/README.md',
     './faultjs/fault-benchmarker/projects/*/{faults,coverage,fault-results.json}',
     './faultjs/fault-benchmarker/benchmark-results.json'
   ]);
@@ -282,7 +282,7 @@ gulp.task('watch', function watch() {
 
 gulp.task('default', build);
 
-function formatPrettier() {
+function formatPrettr() {
   return prettierPipes(codeStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format:prettier', formatPrettier);
@@ -343,14 +343,14 @@ async function testNoBuild() {
     const passed = await runner.run({
       tester: '@fault/tester-mocha',
       testMatch: [
-        './{packages,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
+        './{faultjs,misc,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
         '!./**/node_modules/**',
         '!./coverage',
-        '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
+        '!./{faultjs,misc,build-packages}/*/{dist,lib,esm}/**/*',
         '!./faultjs/fault-benchmarker/projects/**',
       ],
       addons: [
-        false
+        true
           ? require('@fault/addon-sbfl').default({
               scoringFn: require('@fault/sbfl-dstar').default,
               console: true,
