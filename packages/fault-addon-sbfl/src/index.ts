@@ -141,7 +141,7 @@ export type PluginOptions = {
   scoringFn?: ScoringFn;
   faultFilePath?: string | null | true | false;
   console?: boolean;
-  ignoreGlob?: string | string[]
+  ignoreGlob?: string | string[];
 };
 
 export const createPlugin = ({
@@ -150,17 +150,23 @@ export const createPlugin = ({
   ignoreGlob = [],
   console: printToConsole = false,
 }: PluginOptions): PartialTestHookOptions => {
-  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
-    path.resolve('.', glob).replace(/\\+/g, '/'),
+  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(
+    glob => path.resolve('.', glob).replace(/\\+/g, '/'),
   );
   return {
     on: {
       complete: async (results: FinalTesterResults) => {
-        const testResults: TestResult[] = [...results.testResults.entries()].sort(([key], [key2]) => key.localeCompare(key2)).map(([key, value]) => value);
+        const testResults: TestResult[] = [...results.testResults.entries()]
+          .sort(([key], [key2]) => key.localeCompare(key2))
+          .map(([key, value]) => value);
         const fileResults = gatherFileResults(testResults);
         const totalPassFailStats = passFailStatsFromTests(testResults);
-        const faults = localizeFaults(testResults, fileResults, resolvedIgnoreGlob, expressionPassFailStats =>
-          scoringFn(expressionPassFailStats, totalPassFailStats),
+        const faults = localizeFaults(
+          testResults,
+          fileResults,
+          resolvedIgnoreGlob,
+          expressionPassFailStats =>
+            scoringFn(expressionPassFailStats, totalPassFailStats),
         );
         if (printToConsole) {
           await reportFaults(faults);

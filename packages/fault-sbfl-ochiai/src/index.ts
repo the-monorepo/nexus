@@ -7,7 +7,10 @@ export const ochiai = (
   if (totalTestStateCounts.failed === 0) {
     return null;
   }
-  if (codeElementTestStateCounts.failed === 0 && codeElementTestStateCounts.passed === 0) {
+  if (
+    codeElementTestStateCounts.failed === 0 &&
+    codeElementTestStateCounts.passed === 0
+  ) {
     return null;
   }
   return (

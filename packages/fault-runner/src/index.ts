@@ -34,7 +34,7 @@ type WorkerInfo = {
   process: ChildProcess;
 } & DurationData;
 type InternalTestData = {
-  worker: WorkerInfo,
+  worker: WorkerInfo;
   testPath: string;
   estimatedDuration?: number;
 };
@@ -67,9 +67,15 @@ const readDurationsFile = async () => {
   } catch (err) {
     return {};
   }
-}
+};
 
-const forkForTest = (tester: string, testerOptions: any, setupFiles: string[], env: any, cwd: string): ChildProcess => (
+const forkForTest = (
+  tester: string,
+  testerOptions: any,
+  setupFiles: string[],
+  env: any,
+  cwd: string,
+): ChildProcess =>
   fork(
     addonEntryPath,
     [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)],
@@ -78,8 +84,7 @@ const forkForTest = (tester: string, testerOptions: any, setupFiles: string[], e
       cwd,
       stdio: 'inherit',
     },
-  )
-);
+  );
 
 const createFileComparer = (testDurations: TestDurations) => {
   return (a: string, b: string) => {
@@ -96,19 +101,24 @@ const createFileComparer = (testDurations: TestDurations) => {
     } else {
       return 1;
     }
-  }
-}
+  };
+};
 
-const mergeCoverage = (workerCoverage: Coverage[]) =>{
+const mergeCoverage = (workerCoverage: Coverage[]) => {
   const totalCoverage = createCoverageMap({});
   for (const coverage of workerCoverage) {
     totalCoverage.merge(createCoverageMap(coverage));
   }
   return totalCoverage;
-}
+};
 
 type TestId = number;
-const createStateClient = (testDurations: TestDurations, workers: WorkerInfo[], testFileQueue: string[], workerFileQueueSize: number) => {
+const createStateClient = (
+  testDurations: TestDurations,
+  workers: WorkerInfo[],
+  testFileQueue: string[],
+  workerFileQueueSize: number,
+) => {
   const pendingFiles: Map<TestId, InternalTestData> = new Map();
   let nextTestId = 0;
 
@@ -125,16 +135,16 @@ const createStateClient = (testDurations: TestDurations, workers: WorkerInfo[], 
     pendingFiles.set(id, {
       worker,
       estimatedDuration,
-      testPath
+      testPath,
     });
-          
+
     nextTestId++;
     return id;
-  }
+  };
 
   const deregisterRunningTest = (message: FileFinishedData) => {
     const testData = pendingFiles.get(message.key)!;
-    
+
     testDurations[testData.testPath] = message.duration;
     if (testData.estimatedDuration === undefined) {
       testData.worker.pendingUnknownTestCount--;
@@ -155,24 +165,24 @@ const createStateClient = (testDurations: TestDurations, workers: WorkerInfo[], 
       testsToRun.push(externalTestData);
     }
     return runTests(worker.process, { testsToRun });
-  };    
+  };
 
   const isTestsPending = () => {
     return pendingFiles.size > 0;
-  }
+  };
 
   const addAnotherTestToWorker = (worker: WorkerInfo) => {
     const testPath = isSmallestDuration(worker, workers)
-    ? testFileQueue.pop()!
-    : testFileQueue.shift()!;
+      ? testFileQueue.pop()!
+      : testFileQueue.shift()!;
     return addTestsToWorker(worker, [testPath]);
-  }
+  };
 
   const addInitialTests = async () => {
     const workerTests: ({ paths: string[] } & DurationData)[] = workers.map(() => ({
       pendingUnknownTestCount: 0,
       totalPendingDuration: 0,
-      paths: []
+      paths: [],
     }));
 
     let i = 0;
@@ -194,21 +204,29 @@ const createStateClient = (testDurations: TestDurations, workers: WorkerInfo[], 
       }
       i++;
     }
-    await Promise.all(workers.map((worker, w) => addTestsToWorker(worker, workerTests[w].paths)));
-  };  
+    await Promise.all(
+      workers.map((worker, w) => addTestsToWorker(worker, workerTests[w].paths)),
+    );
+  };
 
- 
   return {
     addTestsToWorker,
     deregisterRunningTest,
     isTestsPending,
     addAnotherTestToWorker,
-    addInitialTests
-  }
-}
+    addInitialTests,
+  };
+};
 type StateClient = ReturnType<typeof createStateClient>;
 
-const createWorkers = (tester: string, testerOptions: any, setupFiles: string[], env: any, cwd: string, workerCount: number) => {
+const createWorkers = (
+  tester: string,
+  testerOptions: any,
+  setupFiles: string[],
+  env: any,
+  cwd: string,
+  workerCount: number,
+) => {
   const workers: WorkerInfo[] = [];
   for (let w = 0; w < workerCount; w++) {
     const worker: WorkerInfo = {
@@ -220,7 +238,7 @@ const createWorkers = (tester: string, testerOptions: any, setupFiles: string[],
     workers[w] = worker;
   }
   return workers;
-}
+};
 
 const ERROR_SIGNAL = 'SIGKILL';
 
@@ -237,7 +255,7 @@ const runAndRecycleProcesses = async (
     env,
     testerOptions,
     bufferCount,
-    timeout  
+    timeout,
   } = options;
   console.log();
   const startTime = Date.now();
@@ -256,16 +274,28 @@ const runAndRecycleProcesses = async (
   };
 
   let firstResults: FinalTesterResults = null!;
-  
-  while(true) {
+
+  while (true) {
     resortFileQueue();
     const testResults: Map<string, TestResult> = new Map();
-    
+
     const processCount = Math.min(workerCount, testFileQueue.length);
 
-    const workers: WorkerInfo[] = createWorkers(tester, testerOptions, setupFiles, env, cwd, processCount);
+    const workers: WorkerInfo[] = createWorkers(
+      tester,
+      testerOptions,
+      setupFiles,
+      env,
+      cwd,
+      processCount,
+    );
 
-    const pendingFileClient = createStateClient(testDurations, workers, testFileQueue, workerFileQueueSize);
+    const pendingFileClient = createStateClient(
+      testDurations,
+      workers,
+      testFileQueue,
+      workerFileQueueSize,
+    );
 
     const runningWorkers = new Set(workers);
     const workerCoverage: Coverage[] = [];
@@ -282,7 +312,7 @@ const runAndRecycleProcesses = async (
           console.log('Killing workers');
           for (const otherWorker of someWorkers) {
             clearTimeout(otherWorker.expirationTimer!);
-            if(otherWorker.process.connected) {
+            if (otherWorker.process.connected) {
               otherWorker.process.disconnect();
             }
             otherWorker.process.kill(ERROR_SIGNAL);
@@ -290,11 +320,15 @@ const runAndRecycleProcesses = async (
           // TODO: DRY (see tester results creation above)
           const endTime = Date.now();
           const totalDuration = endTime - startTime;
-          const results: FinalTesterResults = { testResults, duration: totalDuration, coverage: mergeCoverage(workerCoverage).data };
-    
+          const results: FinalTesterResults = {
+            testResults,
+            duration: totalDuration,
+            coverage: mergeCoverage(workerCoverage).data,
+          };
+
           let shouldRerun = false;
           let allowed = false;
-          for await(const { rerun, allow } of hooks.on.exit(results)) {
+          for await (const { rerun, allow } of hooks.on.exit(results)) {
             if (rerun) {
               shouldRerun = true;
             }
@@ -305,11 +339,11 @@ const runAndRecycleProcesses = async (
           if (shouldRerun) {
             testFileQueue.push(...originalTestFiles);
             resolve(results);
-          } else if(allowed) {
+          } else if (allowed) {
             console.log('allowing kill');
             resolve(results);
           } else {
-            console.log('rejecting with kill')
+            console.log('rejecting with kill');
             reject(err);
           }
         };
@@ -318,10 +352,13 @@ const runAndRecycleProcesses = async (
             // TODO: Didn't actually check if clearTimeout(null) does anything weird
             clearTimeout(worker.expirationTimer!);
             worker.expirationTimer = setTimeout(() => {
-              console.log('timeout', id)
-              killWorkers([...runningWorkers], new Error(`Worker ${id} took longer than ${timeout}ms.`));
+              console.log('timeout', id);
+              killWorkers(
+                [...runningWorkers],
+                new Error(`Worker ${id} took longer than ${timeout}ms.`),
+              );
             }, timeout);
-          }
+          };
           replaceExpirationTimer(worker);
           worker.process.on('message', async (message: ChildResult) => {
             switch (message.type) {
@@ -332,11 +369,11 @@ const runAndRecycleProcesses = async (
                 break;
               }
               case IPC.STOPPED_WORKER: {
-                console.log('stopped worker', id)
+                console.log('stopped worker', id);
                 clearTimeout(worker.expirationTimer!);
                 workerCoverage.push(message.coverage);
                 runningWorkers.delete(worker);
-                if(worker.process.connected) {
+                if (worker.process.connected) {
                   worker.process.disconnect();
                 }
                 worker.process.kill();
@@ -344,36 +381,38 @@ const runAndRecycleProcesses = async (
                   console.log('finished test run');
                   const endTime = Date.now();
                   const totalDuration = endTime - startTime;
-    
+
                   const totalCoverage = mergeCoverage(workerCoverage);
-    
+
                   const finalResults: FinalTesterResults = {
                     coverage: totalCoverage.data,
                     testResults,
                     duration: totalDuration,
                   };
                   resolve(finalResults);
-                 }
+                }
                 break;
               }
               case IPC.FILE_FINISHED: {
                 console.log('files left in queue:', testFileQueue.length);
                 pendingFileClient.deregisterRunningTest(message);
-    
+
                 await hooks.on.fileFinished();
-    
+
                 if (testFileQueue.length > 0) {
                   pendingFileClient.addAnotherTestToWorker(worker);
                 }
-    
+
                 if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
                   const endTime = Date.now();
                   const totalDuration = endTime - startTime;
                   const results: TesterResults = { testResults, duration: totalDuration };
-    
+
                   const newFilesToAdd: Set<string> = new Set();
                   await writeFile(durationsPath, JSON.stringify(testDurations));
-                  for await (const filePathIterator of hooks.on.allFilesFinished(results)) {
+                  for await (const filePathIterator of hooks.on.allFilesFinished(
+                    results,
+                  )) {
                     if (filePathIterator === undefined || filePathIterator === null) {
                       continue;
                     }
@@ -382,8 +421,10 @@ const runAndRecycleProcesses = async (
                     }
                   }
                   testFileQueue.push(...newFilesToAdd);
-    
-                  await Promise.all(workers.map(worker => stopWorker(worker.process, {})));
+
+                  await Promise.all(
+                    workers.map(worker => stopWorker(worker.process, {})),
+                  );
                 }
                 break;
               }
@@ -391,7 +432,7 @@ const runAndRecycleProcesses = async (
           });
           // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
           worker.process.on('exit', (code, signal) => {
-            if(worker.process.connected) {
+            if (worker.process.connected) {
               worker.process.disconnect();
             }
 
@@ -401,16 +442,23 @@ const runAndRecycleProcesses = async (
               return;
             }
             if (code !== 0 || runningWorkers.has(worker)) {
-              const otherWorkers = [...runningWorkers].filter(otherWorker => otherWorker !== worker);
-              killWorkers(otherWorkers, new Error(`Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`));
+              const otherWorkers = [...runningWorkers].filter(
+                otherWorker => otherWorker !== worker,
+              );
+              killWorkers(
+                otherWorkers,
+                new Error(
+                  `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`,
+                ),
+              );
             }
           });
         };
-    
+
         for (let w = 0; w < workers.length; w++) {
           setupWorkerHandle(workers[w], w);
         }
-        
+
         pendingFileClient.addInitialTests();
       });
       if (firstResults === null) {
@@ -418,8 +466,8 @@ const runAndRecycleProcesses = async (
       }
       if (testFileQueue.length <= 0) {
         break;
-      }  
-    } catch(err) {
+      }
+    } catch (err) {
       console.error(err);
       break;
     }
@@ -441,20 +489,20 @@ export type RunOptions = {
   env?: { [s: string]: any };
   testerOptions?: any;
   fileBufferCount?: number | null;
-  timeout?: number
+  timeout?: number;
 };
 
 type InternalRunOptions = {
-  tester: string,
-  testMatch: string[],
-  workerCount: number,
-  setupFiles: string[],
-  hooks: TestHookOptions,
-  cwd: string,
-  env: { [s: string]: any },
-  testerOptions: any,
-  bufferCount: number,
-  timeout: number
+  tester: string;
+  testMatch: string[];
+  workerCount: number;
+  setupFiles: string[];
+  hooks: TestHookOptions;
+  cwd: string;
+  env: { [s: string]: any };
+  testerOptions: any;
+  bufferCount: number;
+  timeout: number;
 };
 export const run = async ({
   tester,
@@ -467,7 +515,7 @@ export const run = async ({
   env = process.env,
   testerOptions = {},
   fileBufferCount = 2,
-  timeout = 20000
+  timeout = 20000,
 }: RunOptions) => {
   addons.push(...reporters);
 
@@ -487,7 +535,7 @@ export const run = async ({
     env,
     testerOptions,
     bufferCount: fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount,
-    timeout
+    timeout,
   };
   const results: FinalTesterResults = await runAndRecycleProcesses(internalOptions);
 

@@ -9,8 +9,8 @@ export type ScorelessFault = {
   location: ExpressionLocation;
   sourcePath: string;
   other?: {
-    [s: string]: any
-  }
+    [s: string]: any;
+  };
 };
 
 export type ScoreHolder = {
@@ -162,7 +162,11 @@ export const reportFaults = async (faults: Fault[]) => {
     console.log(
       `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${
         fault.location.start.column
-      }, ${chalk.cyan(fault.score !== null && fault.score !== undefined ? fault.score!.toString() : 'undefined')}`,
+      }, ${chalk.cyan(
+        fault.score !== null && fault.score !== undefined
+          ? fault.score!.toString()
+          : 'undefined',
+      )}`,
     );
     let l = fault.location.start.line - 1;
     let lineCount = 0;

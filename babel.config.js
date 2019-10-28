@@ -7,7 +7,10 @@ module.exports = api => {
   if (test) {
     plugins.push('babel-plugin-istanbul', 'rewiremock/babel');
   }
-  const classPropertyPlugin = ['@babel/plugin-proposal-class-properties', { loose: true }];
+  const classPropertyPlugin = [
+    '@babel/plugin-proposal-class-properties',
+    { loose: true },
+  ];
   return {
     presets: [
       [
@@ -27,9 +30,7 @@ module.exports = api => {
         },
       ],
     ],
-    plugins: plugins.concat([
-      classPropertyPlugin
-    ]),
+    plugins: plugins.concat([classPropertyPlugin]),
     overrides: [
       {
         test: [
