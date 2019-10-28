@@ -3,31 +3,31 @@ module.exports = {
     overrides: [
       {
         category: 'UI',
-        test: './{build-packages,packages}/mobx*/',
+        test: './{build-packages,misc,faultjs}/mobx*/',
       },
       {
         category: 'Build tooling',
-        test: './{build-packages,packages}/{build-util,gulp-*}',
+        test: './{build-packages,misc,faultjs}/{build-util,gulp-*}',
       },
       {
         category: 'Documentation',
-        test: './{build-packages,packages}/{writeme-*,markdown-util}',
+        test: './{build-packages,misc,faultjs}/{writeme-*,markdown-util}',
       },
       {
         category: 'Logging',
-        test: './{build-packages,packages}/{winston-formats,logger}',
+        test: './{build-packages,misc,faultjs}/{winston-formats,logger}',
       },
       {
         category: 'ESLint',
-        test: './{build-packages,packages}/tslint*',
+        test: './{build-packages,misc,faultjs}/tslint*',
       },
       {
         category: 'TSLint',
-        test: './{build-packages,packages}/eslint*',
+        test: './{build-packages,misc,faultjs}/eslint*',
       },
       {
         category: 'Fault localization',
-        test: ['./{build-packages,packages}/fault-*'],
+        test: ['./{build-packages,misc,faultjs}/fault-*'],
       },
     ],
   },

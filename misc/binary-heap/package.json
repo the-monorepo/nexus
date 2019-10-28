@@ -1,0 +1,40 @@
+{
+  "name": "@pshaw/binary-heap",
+  "description": "A implementation of a binary heap",
+  "keywords": [
+    "heap",
+    "typescript",
+    "binary-heap",
+    "algorithm",
+    "data-structure"
+  ],
+  "version": "1.0.0-alpha.0",
+  "main": "./lib/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "private": false,
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "misc/binary-heap"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "mockdate": "^2.0.2",
+    "winston": "^3.1.0"
+  },
+  "peerDependencies": {
+    "@pshaw/winston-formats": "^1.0.3",
+    "winston": "^3.1.0"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

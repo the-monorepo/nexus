@@ -17,7 +17,7 @@ const through = require('through2');
 
 const PluginError = require('plugin-error');
 
-const packagesDirName = 'packages';
+const packagesDirName = '{misc,faultjs}';
 const buildPackagesDirName = 'build-packages';
 
 function swapSrcWith(srcPath, newDirName) {
@@ -106,8 +106,8 @@ function codeStream(options) {
       '**/*.{js,jsx,ts,tsx}',
       '!**/node_modules/**',
       '!coverage/**',
-      '!{build-packages,packages}/*/{dist,lib,esm,coverage}/**',
-      '!packages/fault-benchmarker/projects/**',
+      '!{build-packages,misc,faultjs}/*/{dist,lib,esm,coverage}/**',
+      '!faultjs/fault-benchmarker/projects/**',
     ],
     {
       base: '.',
@@ -129,9 +129,9 @@ async function clean() {
   await del(globBuildOutputFromPackagesDirName(buildPackagesDirName));
   await del(['./README.md', './{build-packages,packages}/*/README.md']);
   await del([
-    './packages/fault-benchmarker/projects/*/{faults,coverage,fault-results.json}',
+    './faultjs/fault-benchmarker/projects/*/{faults,coverage,fault-results.json}',
   ]);
-  await del(['./packages/fault-benchmarker/benchmark-results.json']);
+  await del(['./faultjs/fault-benchmarker/benchmark-results.json']);
 }
 gulp.task('clean', clean);
 
@@ -335,7 +335,7 @@ function checkTypesStaged() {
 gulp.task('check-types-staged', checkTypesStaged);
 
 const flIgnoreGlob =
-  'packages/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+  'faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
 async function testNoBuild() {
   try {
     const runner = require('@fault/runner');
@@ -346,7 +346,7 @@ async function testNoBuild() {
         '!./**/node_modules/**',
         '!./coverage',
         '!./{packages,build-packages}/*/{dist,lib,esm}/**/*',
-        '!./packages/fault-benchmarker/projects/**',
+        '!./faultjs/fault-benchmarker/projects/**',
       ],
       addons: [
         false
