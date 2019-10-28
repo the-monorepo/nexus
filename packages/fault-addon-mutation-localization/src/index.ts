@@ -228,7 +228,7 @@ const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
 
 const OPERATOR = Symbol('operation');
 export const binaryOperationCategories = [
-  [['&', '&&']], [['|', '||']], ['^', ['&', '>>>', '>>'], ['|', '<<']] ,[['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]], ['**', '%', ['/', '*'], ['-', '+']]
+  ['^', ['&', '<<', '>>>', '>>'], ['|', '>>', '<<']], [['&', '&&']], [['|', '||']] ,[['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]], [['**', '*'], '%', ['/', '*'], ['-', '+']]
 ];
 
 abstract class SingleLocationInstruction implements Instruction {
@@ -375,7 +375,7 @@ const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
 type StatementBlock = { 
   statements: StatementInformation[],
 }
-const DELETE_STATEMENT = Symbol('delete-statement');
+export const DELETE_STATEMENT = Symbol('delete-statement');
 class DeleteStatementInstruction implements Instruction {
   public readonly type = DELETE_STATEMENT;
   public mutationResults: MutationResults;
@@ -1205,7 +1205,7 @@ class BinaryFactory implements InstructionFactory<BinaryInstruction>{
 }
 
 export const assignmentCategories = [
-  ['^=', ['&=', '>>='], ['|=', '<<=']], [['/=', '*='],['-=', '+=']]
+  [['^=', '&=', '|='], ['>>>=', '&=', '>>='], ['|=', '<<='], ['&=', '|='], ['>>>=', '>>=', '<<=']], ['&=', ['/=', '*='],['-=', '+=']]
 ];
 const instructionFactories: InstructionFactory<any>[] = [
   new AssignmentFactory(assignmentCategories),
@@ -1393,7 +1393,7 @@ async function identifyUnknownInstruction(
           return expressionKey(filePath, nodePath.node);
         }
       }));
-    console.log(expressionKeys);
+    //console.log(expressionKeys);
     let insideImportantStatementCount = 0;
     const currentStatementStack: StatementInformation[][] = [[]];
     const enter = (path: NodePath) => {
@@ -1413,7 +1413,7 @@ async function identifyUnknownInstruction(
           (parentPath.isIfStatement() && parentPath.node.consequent && (!parentPath.node.consequent.body || (parentPath.node.alternate && !parentPath.node.alternate.body)) && ['consequent', 'alternate'].includes(path.key))
         ) && 
         node.loc) {
-        console.log('statement', expressionKey(filePath, node), currentStatementStack.length, node[TOTAL_NODES])
+        //console.log('statement', expressionKey(filePath, node), currentStatementStack.length, node[TOTAL_NODES])
         currentStatementStack[currentStatementStack.length - 1].push({
           index: path.key,
           type: path.isIfStatement() ? IF_TRUE : STATEMENT,
@@ -1436,7 +1436,7 @@ async function identifyUnknownInstruction(
       }
 
       if (isStatementContainer(path)) {
-        console.log('block', node.type, currentStatementStack.length);
+        //console.log('block', node.type, currentStatementStack.length);
         currentStatementStack.push([]);
       }
 
@@ -1519,7 +1519,7 @@ async function identifyUnknownInstruction(
       statementBlocks.push(statementBlock.splice(mid));
     }
   }
-
+  console.log('statement blocks', statementBlocks.map(statementBlock => statementBlock.length))
   return statementBlocks;
 };
 
@@ -1873,6 +1873,11 @@ const evaluateNewMutation = (
   };
 };
 
+const isInCoverage = (filePath: string, location: ExpressionLocation, locationKeys: Set<string>) => {
+  const key = locationToKeyIncludingEnd(filePath, location);
+  return locationKeys.has(key);
+}
+
 const locationToKey = (filePath: string, location?: ExpressionLocation | null) => {
   if (!location) {
     return filePath;
@@ -1923,20 +1928,17 @@ export const compareLocationEvaluations = (aL: LocationEvaluation, bL: LocationE
   let bI = 0;
   // Assumption: All arrays are at least .length > 0
   do {
-    const comparison = compareMutationEvaluations(aSingleMutationsOnly[aI].evaluation, bSingleMutationsOnly[bI].evaluation);
+    const a = aSingleMutationsOnly[aI];
+    const b = bSingleMutationsOnly[bI];
+    const comparison = compareMutationEvaluations(a.evaluation, b.evaluation);
     if (comparison !== 0) {
       return comparison;
     }
 
-
     // TODO: This doesn't need to be in the loop - it's the same in each iteration
-    const roomForMutationComparison = (aL.totalNodes / (1 + aL.totalAtomicMutationsPerformed)) - (bL.totalNodes / (1 + bL.totalAtomicMutationsPerformed));    if (roomForMutationComparison !== 0) {
+    const roomForMutationComparison = (aL.totalNodes / (1 + aL.totalAtomicMutationsPerformed)) - (bL.totalNodes / (1 + bL.totalAtomicMutationsPerformed));
+    if (roomForMutationComparison !== 0) {
       return roomForMutationComparison;
-    }
-
-    const comparison2 = compareMutationEvaluationsWithLesserProperties(aSingleMutationsOnly[aI].evaluation, bSingleMutationsOnly[bI].evaluation);
-    if (comparison2 !== 0) {
-      return comparison2;
     }
 
     aI++;
@@ -1953,9 +1955,11 @@ type LocationEvaluation = {
 }
 export const mutationEvalatuationMapToFaults = (
   locationEvaluations: Map<string, LocationEvaluation>,
+  failingLocationKeys: Set<string>
 ): Fault[] => {
   const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
   locationEvaluationsList.sort(compareLocationEvaluations);
+
   const faults = locationEvaluationsList.map((lE, i): Fault => {
     return {
       score: i,
@@ -1965,6 +1969,7 @@ export const mutationEvalatuationMapToFaults = (
         end: lE.location.end,
       },
       other: {
+        isInCoverage: isInCoverage(lE.location.filePath, lE.location, failingLocationKeys),
         totalAtomicMutationsPerformed: lE.totalAtomicMutationsPerformed,
         totalNodes: lE.totalNodes,
         evaluation: lE.evaluations.map(e => ({
@@ -2062,7 +2067,7 @@ export const isLocationWithinBounds = (loc: ExpressionLocation, statement: Expre
   return lineWithin || onStartLineBound || onEndLineBound;
 }
 
-export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage): Fault[] => {
+export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage, failingLocationKeys: Set<string>): Fault[] => {
   // TODO: Could make this more efficient
   const mappedFaults: Map<string, Fault> = new Map();
   const replace = (fault: Fault, location: ExpressionLocation) => {
@@ -2092,6 +2097,9 @@ export const mapFaultsToIstanbulCoverage = (faults: Fault[], coverage: Coverage)
     const locLineWidth = Math.abs(loc.end.line - loc.start.line) + 1; // + 1 cause the line it's on counts as one
     const locColumnWidth = Math.abs(loc.end.column - loc.start.column);
     for(const statement of Object.values(fileCoverage.statementMap)) {
+      if (!isInCoverage(fault.sourcePath, statement, failingLocationKeys)) {
+        continue;
+      }
       if (isLocationWithinBounds(loc, statement) || isLocationWithinBounds(statement, loc)) {
         if (mostRelevantStatement === null) {
           mostRelevantStatement = statement;
@@ -2165,10 +2173,12 @@ export const createPlugin = ({
   let firstRun = true;  
   let firstTesterResults: TesterResults;
   const failingTestFiles: Set<string> = new Set();
+  const failingLocationKeys: Set<string> = new Set();
   let previousRunWasPartial = false;
 
   const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
   let mutationCount = 0;
+
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(glob =>
     resolve('.', glob).replace(/\\+/g, '/'),
   );
@@ -2302,7 +2312,7 @@ export const createPlugin = ({
               failedCoverageMap.merge(testResult.coverage);
             }
           }
-          const failedCoverage: Coverage = failedCoverageMap.data;
+          const failedCoverage = failedCoverageMap.data;
           const statements: StatementBlock[] = [];
           console.log('failing coverage')
           const locations: Location[] = [];
@@ -2311,7 +2321,11 @@ export const createPlugin = ({
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
-            for(const statementCoverage of Object.values(fileCoverage.statementMap)) {
+            for(const [key, statementCoverage] of Object.entries(fileCoverage.statementMap)) {
+              if (fileCoverage.s[key] <= 0) {
+                continue;
+              }
+              failingLocationKeys.add(locationToKeyIncludingEnd(coveragePath, statementCoverage));
               locations.push({
                 ...statementCoverage,
                 filePath: coveragePath,
@@ -2464,6 +2478,7 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
         
+        console.log(failingLocationKeys);
         const locationEvaluationsThatArentEmpty: Map<string, LocationEvaluation> = new Map();
         for(const [key, value] of locationEvaluations) {
           if (value.evaluations.length > 0) {
@@ -2471,10 +2486,11 @@ export const createPlugin = ({
           }
         }
 
-        const faults = mutationEvalatuationMapToFaults(locationEvaluationsThatArentEmpty);
+        const faults = mutationEvalatuationMapToFaults(locationEvaluationsThatArentEmpty, failingLocationKeys);
         
-        const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage) : faults;
+        const mappedFaults = mapToIstanbul ? mapFaultsToIstanbulCoverage(faults, tester.coverage, failingLocationKeys) : faults;
         sortBySuspciousness(mappedFaults);
+        // TODO: Temporary hack to ensure failed coverage comes first but should just use dStar sorting or something instead
         await Promise.all([recordFaults(faultFilePath, mappedFaults), reportFaults(mappedFaults)]);
       },
     },
