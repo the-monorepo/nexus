@@ -282,7 +282,7 @@ gulp.task('watch', function watch() {
 
 gulp.task('default', build);
 
-function formatPrettr() {
+function formatPrettier() {
   return prettierPipes(codeStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format:prettier', formatPrettier);
