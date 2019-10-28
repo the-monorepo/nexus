@@ -125,13 +125,14 @@ function simplePipeLogger(l, verb) {
 
 async function clean() {
   const del = require('del');
-  await del(globBuildOutputFromPackagesDirName(packagesDirName));
-  await del(globBuildOutputFromPackagesDirName(buildPackagesDirName));
-  await del(['./README.md', './{build-packages,packages}/*/README.md']);
   await del([
+    ...globBuildOutputFromPackagesDirName(packagesDirName),
+    ...globBuildOutputFromPackagesDirName(buildPackagesDirName),
+    './README.md',
+    './{build-packages,packages}/*/README.md',
     './faultjs/fault-benchmarker/projects/*/{faults,coverage,fault-results.json}',
+    './faultjs/fault-benchmarker/benchmark-results.json'
   ]);
-  await del(['./faultjs/fault-benchmarker/benchmark-results.json']);
 }
 gulp.task('clean', clean);
 

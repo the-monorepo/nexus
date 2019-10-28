@@ -20,11 +20,11 @@ export const runMochaInstance = async (mochaInstance, runHandle) => {
         try {
           await runHandle(failures);
           resolve(failures);
-        } catch(err) {
+        } catch (err) {
           reject(err);
         }
-      });  
-    } catch(err) {
+      });
+    } catch (err) {
       reject(err);
     }
   });
