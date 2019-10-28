@@ -151,8 +151,8 @@ export const calculateExamScore = (
   sum += withinLocations.length * totalExecutableStatements;
 
   return {
-    exam: (sum / expectedFaults.length) / totalExecutableStatements,
-    rankings: [...rankings.values()]
+    exam: sum / expectedFaults.length / totalExecutableStatements,
+    rankings: [...rankings.values()],
   };
 };
 
@@ -181,7 +181,7 @@ const log = logger().add(
 const faultFileDir = (projectDir: string, sbflModuleFolderName: string) => {
   const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName);
   return faultPath;
-}
+};
 
 const faultFilePath = (projectDir: string, sbflModuleFolderName: string) => {
   return resolve(faultFileDir(projectDir, sbflModuleFolderName), 'faults.json');
@@ -224,7 +224,7 @@ export const run = async () => {
       setupFiles = [resolve(__dirname, 'babel')],
       tester = '@fault/tester-mocha',
       testOptions,
-      babelOptions
+      babelOptions,
     } = projectConfig;
     const { sandbox = false, mocha = require.resolve('mocha') } =
       testOptions === undefined ? {} : testOptions;
@@ -246,7 +246,8 @@ export const run = async () => {
 
     log.verbose(`Running SBFL algorithms on ${projectDir}`);
 
-    const ignoreGlob = '../{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+    const ignoreGlob =
+      '../{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
     const sbflAddons = sbflAlgorithms.map(({ scoringFn, name, console = false }) => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
@@ -291,21 +292,27 @@ export const run = async () => {
     const mbflName = 'mbfl';
     await flRunner.run({
       ...commonRunnerOptions,
-      addons: [require('@fault/addon-mutation-localization').default({
-        faultFileDir: faultFileDir(projectDir, mbflName),
-        ignoreGlob,
-        mapToIstanbul: true,
-        console: true,
-        babelOptions,
-        // allowPartialTestRuns: sandbox,
-      })]
-    });  
+      addons: [
+        require('@fault/addon-mutation-localization').default({
+          faultFileDir: faultFileDir(projectDir, mbflName),
+          ignoreGlob,
+          mapToIstanbul: true,
+          console: true,
+          babelOptions,
+          // allowPartialTestRuns: sandbox,
+        }),
+      ],
+    });
 
-    const expectedFaults = convertFileFaultDataToFaults(
+    const expectedFaults = (convertFileFaultDataToFaults(
       require(resolve(projectDir, 'expected-faults.json')),
-    ) as any as ExpectedFault[];
+    ) as any) as ExpectedFault[];
 
-    for (const { name } of (sbflAlgorithms as any).concat([{ name: mbflName }, { name: 'mbfl-dstar-2' }, { name: 'mbfl-op2' }])) {
+    for (const { name } of (sbflAlgorithms as any).concat([
+      { name: mbflName },
+      { name: 'mbfl-dstar-2' },
+      { name: 'mbfl-op2' },
+    ])) {
       const actualFaults = convertFileFaultDataToFaults(
         require(faultFilePath(projectDir, name)),
       );
@@ -317,7 +324,6 @@ export const run = async () => {
         expectedFaults,
         totalExecutableStatements,
       );
-      
 
       projectOutput[name] = examScore;
     }

@@ -6,12 +6,12 @@ const { writeFile } = fs.promises;
 
 type ProjectResult = {
   name: string;
-  artificial: boolean,
+  artificial: boolean;
   results: {
     [s: string]: {
       exam: number;
-      rankings: number[],
-    }
+      rankings: number[];
+    };
   };
 };
 
@@ -28,7 +28,7 @@ export const run = async () => {
       projectResults.push({
         name: basename(projectDir),
         results: faultResults,
-        artificial: packageJson.artificial ? packageJson.artificial : false
+        artificial: packageJson.artificial ? packageJson.artificial : false,
       });
     } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND') {

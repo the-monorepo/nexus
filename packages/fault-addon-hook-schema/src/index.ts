@@ -7,7 +7,7 @@ const onHookSchema = {
   testResult: null,
   start: null,
   allFilesFinished: [null, { yield: true }],
-  exit: [null, { yield: true }]
+  exit: [null, { yield: true }],
 };
 export type PartialTestHookOptions = HookOptions<
   typeof beforeAfterHookSchema,
