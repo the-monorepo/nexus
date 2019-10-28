@@ -299,13 +299,13 @@ export const run = async () => {
         babelOptions,
         // allowPartialTestRuns: sandbox,
       })]
-    });    
+    });  
 
     const expectedFaults = convertFileFaultDataToFaults(
       require(resolve(projectDir, 'expected-faults.json')),
     ) as any as ExpectedFault[];
 
-    for (const { name } of (sbflAlgorithms as any).concat([{ name: mbflName }])) {
+    for (const { name } of (sbflAlgorithms as any).concat([{ name: mbflName }, { name: 'mbfl-dstar-2' }, { name: 'mbfl-op2' }])) {
       const actualFaults = convertFileFaultDataToFaults(
         require(faultFilePath(projectDir, name)),
       );
