@@ -70,7 +70,7 @@ const ProjectResult = (project: ProjectResultProps) => {
         const blue = offset * 0.8;
         return (
           <td style={`background-color: rgb(${red}, ${green}, ${blue});`}>
-            <p>{result != null ? Math.round(result * 1000) / 1000 : 'unknown'}</p>
+            <p>{result != null ? Math.round(result * 1000) / 1000 : 'unknown'}{project.total ? ` (${Math.round(result / project.total * 100)}%)` : ''}</p>
           </td>
         );
       })}
@@ -78,11 +78,17 @@ const ProjectResult = (project: ProjectResultProps) => {
   );
 };
 
+type PercentageData = {
+
+}
 type ResultsTableProps = {
   projectResults: ProjectResultProps[],
+  // TODO: Kind of hacked, refactor
   invertColors: boolean,
+  total?: number,
+  title: string
 };
-export const ResultsTable = ({ projectResults, invertColors }: ResultsTableProps) => {
+export const ResultsTable = ({ projectResults, invertColors, total }: ResultsTableProps) => {
   const averages: number[] = [];
   for(let i = 0; i < algorithmNames.length; i++) {  
     let sum = 0;
@@ -100,7 +106,7 @@ export const ResultsTable = ({ projectResults, invertColors }: ResultsTableProps
   const averageMax = Math.max(...averages);
   
   return (
-  <table className="table">
+  <table class="table">
   <tbody>
     <TableHeader />
     {projectResults.map(result => (
@@ -109,6 +115,7 @@ export const ResultsTable = ({ projectResults, invertColors }: ResultsTableProps
         name={result.name}
         min={result.min}
         max={result.max}
+        total={total}
         results={result.results.map(item => item)}
       />
     ))}
@@ -117,6 +124,7 @@ export const ResultsTable = ({ projectResults, invertColors }: ResultsTableProps
       name='Average'
       min={averageMin}
       max={averageMax}
+      total={total}
       results={averages}
     />
   </tbody>
@@ -128,10 +136,10 @@ const state = {
   separateArtificial: true,
 };
 
-const projectResultsToExamResults = (projectResults: ProjectResult[]): ResultsTableProps => {
+const projectResultsToExamResults = (projectResults: ProjectResult[], title: string, clazz: string): ResultsTableProps => {
   const tableProps = projectResults.map(projectResult => ({
     ...projectResult,
-    results: projectResult.results.map(result => result.exam)
+    results: projectResult.results.map(result => result ? result.exam : 1)
   }));
 
   const averages: number[] = [];
@@ -139,11 +147,13 @@ const projectResultsToExamResults = (projectResults: ProjectResult[]): ResultsTa
     let sum = 0;
     let count = 0;
     for(const projectResult of projectResults) {
-      const exam = projectResult.results[i].exam;
-      if (exam != null) {
-        sum += exam;
-        count++;
-      } 
+      if (projectResult.results[i] != null) {
+        const exam = projectResult.results[i].exam;
+        if (exam != null) {
+          sum += exam;
+          count++;
+        } 
+      }
     }
     if (count !== 0) {
       averages.push(sum / count);
@@ -155,16 +165,25 @@ const projectResultsToExamResults = (projectResults: ProjectResult[]): ResultsTa
   return {
     projectResults: tableProps,
     invertColors: false,
+    title,
+    class: clazz
   }
 };
 
-const projectResultsToRankings = (projectResults: ProjectResult[]): ResultsTableProps => {
+const projectResultsToRankings = (projectResults: ProjectResult[], title: string, clazz: string): ResultsTableProps => {
   const props: ProjectResultProps[] =[];
 
+  let totalRanks = 0;
+  for(const projectResult of projectResults) {
+    totalRanks += Math.max(...projectResult.results.map(result => result ? result.rankings.length : 0));
+  }
   for(const ranking of [1, 3, 5, 10, 100]) {
     const algoRankings: number[] = algorithmNames.map((algorithmName, i) => {
       let count = 0;
       for(const projectResult of projectResults) {
+        if (projectResult.results[i] == null) {
+          continue;
+        }
         const rankings = projectResult.results[i].rankings;
         for(const rank of rankings) {
           if (rank < ranking) {
@@ -185,10 +204,13 @@ const projectResultsToRankings = (projectResults: ProjectResult[]): ResultsTable
       results: algoRankings,
     });
   }
-
+console.log(totalRanks);
   return {
     projectResults: props,
     invertColors: true,
+    total: totalRanks,
+    title,
+    clazz
   };
 };
 
@@ -196,23 +218,23 @@ const Main = () => {
   const tableResults: ResultsTableProps[] = [];
   console.log(projectResults)
   if (state.separateArtificial) {
-    tableResults.push(projectResultsToExamResults(projectResults.filter(projectResult => !projectResult.artificial)));
-    tableResults.push(projectResultsToExamResults(projectResults.filter(projectResult => projectResult.artificial)));
-    tableResults.push(projectResultsToRankings(projectResults.filter(projectResults => !projectResults.artificial)));
-    tableResults.push(projectResultsToRankings(projectResults.filter(projectResults => projectResults.artificial)));
+    tableResults.push(projectResultsToExamResults(projectResults.filter(projectResult => !projectResult.artificial), 'Real-world EXAM scores', 'big'));
+    tableResults.push(projectResultsToExamResults(projectResults.filter(projectResult => projectResult.artificial), 'Artificial EXAM scores'));
+    tableResults.push(projectResultsToRankings(projectResults.filter(projectResults => !projectResults.artificial), 'Real-world Einspect@n scores'));
+    tableResults.push(projectResultsToRankings(projectResults.filter(projectResults => projectResults.artificial), 'Artificial Einspect@n scores'));
   } else {
-    tableResults.push(projectResultsToExamResults(projectResults));
-    tableResults.push(projectResultsToRankings(projectResults));
+    tableResults.push(projectResultsToExamResults(projectResults, 'Exam scores'));
+    tableResults.push(projectResultsToRankings(projectResults, 'Einspect@n scores'));
   }
   // TODO: JSX comments aren't working
   // TODO: JSX spread not working
   // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
   return (
-  <div className="page">
-    <header className="page-title">
-      <h1>Fault.js benchmark results</h1>
-    </header>
-    <label htmlFor="separate-sandboxed">Separate sandboxed</label>
+    <div>
+      <header class="page-title">
+        <h1>Fault.js benchmark results</h1>
+      </header>
+      <label htmlFor="separate-sandboxed">Separate sandboxed</label>
     <input
       type="checkbox"
       name="separate-sandboxed"
@@ -223,15 +245,23 @@ const Main = () => {
       checked={true}
     >
     </input>
+
+      <div class="page">
     {
       tableResults.map(tableResult => (
-        <ResultsTable
-          projectResults={tableResult.projectResults}
-          invertColors={tableResult.invertColors}
-        />  
+        <section class={tableResult.class}>
+          <h2>{tableResult.title}</h2>
+            <ResultsTable
+            projectResults={tableResult.projectResults}
+            invertColors={tableResult.invertColors}
+            total={tableResult.total}
+          />  
+        </section>
       ))
     }
   </div>
+
+    </div>
   );
 };
 

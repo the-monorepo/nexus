@@ -2,6 +2,11 @@
   --dark-primary: rgba(0, 0, 0, 0.87);
   --dark-secondary: rgba(0, 0, 0, 0.53);
   --dark-ternary: rgba(0, 0, 0, 0.17);
+  padding: 100px;
+}
+section {
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 * {
@@ -12,7 +17,13 @@
 }
 
 .page {
-  padding: 60px;
+  grid-template-columns: auto auto;
+  grid-auto-flow: row;
+  display: grid;
+  gap: 20px;
+}
+.big {
+  grid-row: 1 / span 3
 }
 
 .page-title {
@@ -30,10 +41,10 @@
 
 .table > tbody > * > * {
   border: 1px solid #AAAAAA;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   width: 70px;
   text-align: center;
   vertical-align: middle;
