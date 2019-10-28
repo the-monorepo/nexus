@@ -40,7 +40,7 @@
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
-    "files": ["packages/jest-mock-functions/**"],
+    "files": ["misc/jest-mock-functions/**"],
     "env": {
       "jest": true
     }

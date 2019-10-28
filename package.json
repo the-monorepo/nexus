@@ -3,7 +3,8 @@
   "description": "An assortment of miscellaneous libraries - Saves me time on rewriting build tooling",
   "workspaces": {
     "packages": [
-      "packages/*",
+      "misc/*",
+      "faultjs/*",
       "build-packages/*"
     ]
   },

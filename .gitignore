@@ -57,11 +57,14 @@ typings/
 # dotenv environment variables file
 .env
 
-packages/*/lib/
-packages/*/esm/
-packages/*/dist/
 .cache
-
-packages/*/stats.html
+faultjs/*/lib/
+faultjs/*/esm/
+faultjs/*/dist/
+faultjs/*/stats.html
+misc/*/lib/
+misc/*/esm/
+misc/*/dist/
+misc/*/stats.html
 
 faults

@@ -1,0 +1,38 @@
+{
+  "name": "@fault/addon-mutation-localization",
+  "version": "1.0.0-alpha.0",
+  "description": "Fault AST localization",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "faultjs/fault-mutation-localization"
+  },
+  "keywords": [
+    "sinon",
+    "stub",
+    "testing",
+    "test",
+    "typescript",
+    "util",
+    "helper",
+    "function"
+  ],
+  "dependencies": {
+    "@babel/parser": "^7.5.0",
+    "@types/pouchdb": "^6.4.0",
+    "error-stack-parser": "^2.0.3",
+    "pouchdb": "^7.1.1",
+    "pouchdb-adapter-memory": "^7.1.1",
+    "pouchdb-find": "^7.1.1"
+  }
+}

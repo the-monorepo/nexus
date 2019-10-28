@@ -34,10 +34,10 @@ module.exports = api => {
     overrides: [
       {
         test: [
-          './packages/my-resume',
-          './packages/resume-template',
-          './packages/mobx-dom',
-          './packages/fault-benchmarker/src/frontend',
+          './misc/my-resume',
+          './misc/resume-template',
+          './misc/mobx-dom',
+          './faultjs/fault-benchmarker/src/frontend',
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
