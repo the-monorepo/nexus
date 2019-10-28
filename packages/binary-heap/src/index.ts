@@ -1,21 +1,26 @@
 export type CompareFn<T> = (a: T, b: T) => number;
-export const parentIndex = (index: number) => (Math.trunc((index - 1) / 2))
+export const parentIndex = (index: number) => Math.trunc((index - 1) / 2);
 export const leftIndex = (index: number) => index * 2 + 1;
 export const rightIndex = (index: number) => index * 2 + 2;
 export const swap = <T>(arr: T[], i1: number, i2: number) => {
   const temp = arr[i1];
   arr[i1] = arr[i2];
   arr[i2] = temp;
-}
+};
 
-export const push = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, ...items: T[]) => {
-  for(const item of items) {
+export const push = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  ...items: T[]
+) => {
+  for (const item of items) {
     const updateIndex = arr.length;
     arr[updateIndex] = item;
     locations.set(item, updateIndex);
     checkSwapWithParent(arr, locations, compareFn, updateIndex);
   }
-}
+};
 
 export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>) => {
   if (arr.length <= 0) {
@@ -27,9 +32,14 @@ export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn
   locations.delete(poppedItem);
   checkSwapWithChildren(arr, locations, compareFn, index);
   return poppedItem;
-}
+};
 
-export const deleteIndex = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number) => {
+export const deleteIndex = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  index: number,
+) => {
   if (arr.length <= 0) {
     return undefined;
   }
@@ -38,19 +48,29 @@ export const deleteIndex = <T>(arr: T[], locations: Map<T, number>, compareFn: C
   locations.delete(poppedItem);
   updateIndex(arr, locations, compareFn, index);
   return poppedItem;
-}
+};
 
-export const deleteItem = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, item: T) => {
+export const deleteItem = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  item: T,
+) => {
   if (!locations.has(item)) {
     throw new Error(`Heap did not have item "${item}"`);
   }
   deleteIndex(arr, locations, compareFn, locations.get(item)!);
-}
+};
 
 /**
  * @returns true if swapped, false if not
  */
-export const checkSwapWithParent = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number): boolean => {
+export const checkSwapWithParent = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  index: number,
+): boolean => {
   if (index <= 0) {
     locations.set(arr[index], index);
     return false;
@@ -68,9 +88,14 @@ export const checkSwapWithParent = <T>(arr: T[], locations: Map<T, number>, comp
   }
 
   return false;
-}
+};
 
-export const checkSwapWithChildren = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number) => {
+export const checkSwapWithChildren = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  index: number,
+) => {
   const rightI = rightIndex(index);
   const leftI = leftIndex(index);
 
@@ -78,9 +103,9 @@ export const checkSwapWithChildren = <T>(arr: T[], locations: Map<T, number>, co
   const leftIsCandidate = leftI < arr.length && compareFn(arr[index], arr[leftI]) > 0;
 
   if (leftIsCandidate && rightIsCandidate) {
-    const swappedIndex = compareFn(arr[leftI], arr[rightI]) <= 0 ? leftI : rightI
+    const swappedIndex = compareFn(arr[leftI], arr[rightI]) <= 0 ? leftI : rightI;
     locations.set(arr[swappedIndex], index);
-    swap(arr, index,  swappedIndex);
+    swap(arr, index, swappedIndex);
     checkSwapWithChildren(arr, locations, compareFn, swappedIndex);
   } else if (leftIsCandidate) {
     locations.set(arr[leftI], index);
@@ -93,17 +118,27 @@ export const checkSwapWithChildren = <T>(arr: T[], locations: Map<T, number>, co
   } else {
     locations.set(arr[index], index);
   }
-}
+};
 
-export const updateIndex = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, index: number) => {
+export const updateIndex = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  index: number,
+) => {
   const swappedWithParent = checkSwapWithParent(arr, locations, compareFn, index);
   if (swappedWithParent) {
     return;
   }
   checkSwapWithChildren(arr, locations, compareFn, index);
-}
+};
 
-export const update = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn<T>, item: T) => {
+export const update = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  item: T,
+) => {
   if (!locations.has(item)) {
     throw new Error(`Heap did not have item "${item}"`);
   }
@@ -119,7 +154,7 @@ export const defaultCompareFn = (a: any, b: any) => {
 
   let aI = 0;
   let bI = 0;
-  while(aI < aStr.length && bI < bStr.length) {
+  while (aI < aStr.length && bI < bStr.length) {
     const comparison = aStr.charCodeAt(aI) - bStr.charCodeAt(bI);
     if (comparison !== 0) {
       return comparison;
@@ -133,7 +168,10 @@ export const defaultCompareFn = (a: any, b: any) => {
 export class Heap<T> implements Iterable<T> {
   private readonly arr: T[] = [];
   private readonly locations: Map<T, number> = new Map();
-  constructor(private readonly compareFn: CompareFn<T> = defaultCompareFn, initial: Iterable<T> = []) {
+  constructor(
+    private readonly compareFn: CompareFn<T> = defaultCompareFn,
+    initial: Iterable<T> = [],
+  ) {
     this.push(...initial);
   }
 
@@ -146,7 +184,7 @@ export class Heap<T> implements Iterable<T> {
   }
 
   update(item: T) {
-    return update(this.arr, this.locations, this.compareFn, item)
+    return update(this.arr, this.locations, this.compareFn, item);
   }
 
   pop() {
@@ -180,7 +218,7 @@ export class Heap<T> implements Iterable<T> {
   clone(): Heap<T> {
     const clonedHeap = new Heap(this.compareFn);
     clonedHeap.arr.push(...this.arr);
-    for(const [key, value] of this.locations) {
+    for (const [key, value] of this.locations) {
       clonedHeap.locations.set(key, value);
     }
     return clonedHeap;
@@ -190,9 +228,9 @@ export class Heap<T> implements Iterable<T> {
     return this.arr[Symbol.iterator]();
   }
 
-  *[Symbol.iterator](): IterableIterator<T>{
+  *[Symbol.iterator](): IterableIterator<T> {
     const clonedHeap = this.clone();
-    while(clonedHeap.length > 0) {
+    while (clonedHeap.length > 0) {
       yield clonedHeap.pop()!;
     }
   }

@@ -7,6 +7,9 @@ export const requestProjectDirs = async (path: string | string[] = '*') => {
     typeof path === 'string'
       ? resolve(projectsDir, path)
       : path.map(glob => resolve(projectsDir, glob));
-  const dirs = await globby(resolved, { onlyDirectories: true, expandDirectories: false });
+  const dirs = await globby(resolved, {
+    onlyDirectories: true,
+    expandDirectories: false,
+  });
   return dirs;
 };

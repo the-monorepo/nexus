@@ -180,27 +180,31 @@ function transpilePipes(stream, babelOptions, dir, chalkFn) {
     .pipe(sourcemaps.write('.'));
 }
 
-const scriptTranspileStream = (wrapStreamFn = (stream) => stream) => {
-  return wrapStreamFn(transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright)).pipe(gulp.dest('.'))
-}
+const scriptTranspileStream = (wrapStreamFn = stream => stream) => {
+  return wrapStreamFn(
+    transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright),
+  ).pipe(gulp.dest('.'));
+};
 
-const esmTranspileStream = (wrapStreamFn = (stream) => stream) => {
-  return wrapStreamFn(transpilePipes(
-    packagesSrcCodeStream(),
-    {
-      envName: 'esm',
-    },
-    'esm',
-    chalk.cyanBright,
-  )).pipe(gulp.dest('.'))
-}
+const esmTranspileStream = (wrapStreamFn = stream => stream) => {
+  return wrapStreamFn(
+    transpilePipes(
+      packagesSrcCodeStream(),
+      {
+        envName: 'esm',
+      },
+      'esm',
+      chalk.cyanBright,
+    ),
+  ).pipe(gulp.dest('.'));
+};
 
 function transpileScript() {
-  return scriptTranspileStream()
+  return scriptTranspileStream();
 }
 
 function transpileEsm() {
-  return esmTranspileStream()
+  return esmTranspileStream();
 }
 
 function prettierPipes(stream) {
@@ -330,7 +334,8 @@ function checkTypesStaged() {
 }
 gulp.task('check-types-staged', checkTypesStaged);
 
-const flIgnoreGlob = 'packages/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*'
+const flIgnoreGlob =
+  'packages/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
 async function testNoBuild() {
   try {
     const runner = require('@fault/runner');
@@ -344,40 +349,39 @@ async function testNoBuild() {
         '!./packages/fault-benchmarker/projects/**',
       ],
       addons: [
-        false ? require('@fault/addon-sbfl').default({
-          scoringFn: require('@fault/sbfl-dstar').default,
-          console: true
-        }) :
-        require('@fault/addon-mutation-localization').default({
-          babelOptions: {
-            plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
-            sourceType: 'module',
-          },
-          ignoreGlob: flIgnoreGlob,
-          mapToIstanbul: true,
-          onMutation: (mutatedFilePaths) => {
-            return new Promise((resolve, reject) => {
-              let scriptFinish = false;
-              let esmFinish = false;
-              const checkToFinish = () => {
-                if (scriptFinish && esmFinish) {
-                  resolve();
-                }
-              }
-              const rejectOnStreamError = (stream) => stream.on('error', reject);
-              scriptTranspileStream(rejectOnStreamError)
-                .on('end', () => {
-                  scriptFinish = true;
-                  checkToFinish();
-                });
-              esmTranspileStream(rejectOnStreamError)
-                .on('end', () => {
-                  esmFinish = true;
-                  checkToFinish();
-                });
+        false
+          ? require('@fault/addon-sbfl').default({
+              scoringFn: require('@fault/sbfl-dstar').default,
+              console: true,
             })
-          }
-        }),
+          : require('@fault/addon-mutation-localization').default({
+              babelOptions: {
+                plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
+                sourceType: 'module',
+              },
+              ignoreGlob: flIgnoreGlob,
+              mapToIstanbul: true,
+              onMutation: mutatedFilePaths => {
+                return new Promise((resolve, reject) => {
+                  let scriptFinish = false;
+                  let esmFinish = false;
+                  const checkToFinish = () => {
+                    if (scriptFinish && esmFinish) {
+                      resolve();
+                    }
+                  };
+                  const rejectOnStreamError = stream => stream.on('error', reject);
+                  scriptTranspileStream(rejectOnStreamError).on('end', () => {
+                    scriptFinish = true;
+                    checkToFinish();
+                  });
+                  esmTranspileStream(rejectOnStreamError).on('end', () => {
+                    esmFinish = true;
+                    checkToFinish();
+                  });
+                });
+              },
+            }),
       ],
       env: {
         ...process.env,

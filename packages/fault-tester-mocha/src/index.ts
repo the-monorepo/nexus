@@ -21,7 +21,7 @@ export const initialize = async (options: Options) => {
     sandbox = false,
     require: relativeRequireFiles = [],
     timeout,
-    bail = false
+    bail = false,
   } = options;
 
   const requireFiles = relativeRequireFiles.map(filePath =>

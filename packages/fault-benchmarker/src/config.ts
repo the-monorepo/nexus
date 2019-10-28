@@ -11,7 +11,7 @@ export type ProjectConfig = {
   testOptions?: {
     [s: string]: any;
   };
-  babelOptions?: ParserOptions,
+  babelOptions?: ParserOptions;
 };
 
 export type GlobbedConfig = {
@@ -34,7 +34,7 @@ export const config: BenchmarkConfig = [
       sandbox: true,
     },
     babelOptions: {
-      sourceType: 'module'
+      sourceType: 'module',
     },
     artificial: true,
   },
