@@ -4,7 +4,7 @@ import { consoleTransport, logger } from '@pshaw/logger';
 import { writeFile } from 'mz/fs';
 import * as flRunner from '@fault/runner';
 import { resolve, normalize } from 'path';
-import globby from 'globby';
+
 import * as micromatch from 'micromatch';
 import chalk from 'chalk';
 
@@ -199,7 +199,7 @@ path: string)
     const resolvedGlobs = globs.map((glob) =>
     resolve('./projects', glob).replace(/\\+/g, '/'));
 
-
+  
     if (micromatch.isMatch(path, resolvedGlobs)) {
       return projectConfig;
     }
@@ -230,17 +230,8 @@ export const run = async () => {
     testOptions === undefined ? {} : testOptions;
     const optionsEnv = projectConfig.env ? projectConfig.env : {};
 
-    const testMatch = (() => {
-      if (projectConfig.testMatch) {
-        if (typeof projectConfig.testMatch === 'string') {
-          return resolve(projectDir, projectConfig.testMatch);
-        } else {
-          return projectConfig.testMatch.map(glob => {});
-        }
-      } else {
-        return resolve(projectDir, '**/*.test.{js,jsx,ts,tsx}');
-      }
-    })();
+    const testMatch = (projectConfig.testMatch ? Array.isArray(projectConfig.testMatch) ? projectConfig.testMatch : [projectConfig.testMatch] : ['**/*.test.{js,jsx,ts,tsx}'])
+      .map(filePath => resolve(projectDir, filePath).replace(/\\+/g, '/'));
 
     const projectOutput = {};
 
@@ -285,7 +276,8 @@ export const run = async () => {
 
 
     const coverage = await readCoverageFile(
-    resolve(projectDir, 'coverage/coverage-final.json'));
+      resolve(projectDir, 'coverage/coverage-final.json')
+    );
 
 
     // MBFL
@@ -335,7 +327,7 @@ export const run = async () => {
   };
 
   for (const projectDir of projectDirs) {
-    await runOnProject(resolve(__dirname, '..', projectDir));
+    await runOnProject(resolve(__dirname, projectDir));
   }
 };
 run().catch(console.error);
