@@ -5,7 +5,13 @@ module.exports = api => {
   const development = env === 'development';
   const plugins = [];
   if (test) {
-    plugins.push('babel-plugin-istanbul', 'rewiremock/babel');
+    plugins.push(['babel-plugin-istanbul', {
+      exclude: [
+        '**/*.test.{js,jsx,ts,tsx}',
+        './{faultjs,misc}/*/test/**',
+        './test/**'
+      ]
+    }], 'rewiremock/babel');
   }
   const classPropertyPlugin = [
     '@babel/plugin-proposal-class-properties',
