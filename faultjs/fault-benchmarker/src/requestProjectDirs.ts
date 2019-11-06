@@ -1,15 +1,17 @@
 import { resolve } from 'path';
-import globby from 'globby';
-
+import * as micromatch from 'micromatch';
+import { readdir } from 'mz/fs';
 export const requestProjectDirs = async (path: string | string[] = '*') => {
-  const projectsDir = './projects';
-  const resolved =
-    typeof path === 'string'
-      ? resolve(projectsDir, path)
-      : path.map(glob => resolve(projectsDir, glob));
-  const dirs = await globby(resolved, {
-    onlyDirectories: true,
-    expandDirectories: false,
-  });
-  return dirs;
+  const projectsDir = resolve(__dirname, '../projects');
+
+  const projectNames = Array.isArray(path) ? path : [path];
+  const globs = projectNames.map(name => `${name}*`)
+
+  const projectDirs = await readdir(projectsDir);
+
+  const matched = micromatch.default(projectDirs, globs);
+
+  const resolved = matched.map(projectDir => resolve(projectsDir, projectDir));
+  
+  return resolved;
 };
