@@ -442,10 +442,14 @@ const webpackCompilers = () => {
   const webpackConfigs = require('./webpack.config');
 
   return webpackConfigs.filter(config => micromatch.isMatch(config.name, names)).map(config => {
-    return webpack({
+    const mergedConfig = {
       mode: mode === 'prod' ? 'production' : 'development',
       ...config,
-    });
+    };
+    return {
+      config: mergedConfig,
+      compiler: webpack(mergedConfig),
+    };
   });
 }
 
@@ -459,9 +463,9 @@ const bundleWebpack = async () => {
 
   const compilers = webpackCompilers();
 
-  const compilersStatsPromises = compilers.map((compiler) => {
+  const compilersStatsPromises = compilers.map((info) => {
     return new Promise((resolve, reject) => {
-      compiler.run((err, stats) => {
+      info.compiler.run((err, stats) => {
         if (err) {
           reject(err);
         } else {
@@ -508,3 +512,20 @@ const bundleWebpack = async () => {
 };
 
 gulp.task('webpack', bundleWebpack);
+
+const serveBundles = () => {
+  const WebpackDevServer = require('webpack-dev-server');
+  const compilers = webpackCompilers();
+  let port = 3000;
+  const l = logger.child({ tags: [chalk.magenta('webpack')]});
+  for(const {compiler, config} of compilers) {
+    const mergedDevServerConfig = config.devServer;
+    const server = new WebpackDevServer(compiler, mergedDevServerConfig);
+    const serverPort = port;
+    server.listen(serverPort, 'localhost', () => {
+      l.info(`Serving '${chalk.cyan(config.name)}' on port ${chalk.cyan(serverPort.toString())}...`);
+    });
+    port++;
+  }
+}
+gulp.task('serve', serveBundles);
