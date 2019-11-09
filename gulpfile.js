@@ -11,6 +11,8 @@ const changed = require('gulp-changed');
 const staged = require('gulp-staged');
 const rename = require('gulp-rename');
 
+const { promisify } = require('util');
+
 const spawn = require('cross-spawn');
 
 const through = require('through2');
@@ -422,3 +424,87 @@ const prepublish = gulp.series(
 gulp.task('prepublish', prepublish);
 
 gulp.task('ci-test', prepublish);
+
+const webpackCompilers = () => {
+  const minimist = require('minimist');
+  const webpack = require('webpack');
+  const globby = require('globby');
+  const { resolve } = require('path');
+  const micromatch = require('micromatch');
+  const { access, readFile } = require('mz/fs');
+
+  const args = minimist(process.argv.slice(2));
+
+  const { name = ['*'], mode = process.NODE_ENV ? process.NODE_ENV === 'production' ? 'prod' : 'dev' : 'dev' } = args;
+
+  const names = Array.isArray(name) ? name : [name];
+
+  const webpackConfigs = require('./webpack.config');
+
+  return webpackConfigs.filter(config => micromatch.isMatch(config.name, names)).map(config => {
+    return webpack({
+      mode: mode === 'prod' ? 'production' : 'development',
+      ...config,
+    });
+  });
+}
+
+// From: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
+const humanReadableFileSize = (size) => {
+  const i = Math.floor( Math.log(size) / Math.log(1024) );
+  return `${(size / Math.pow(1024, i)).toFixed(2) * 1} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
+};
+
+const bundleWebpack = async () => {
+
+  const compilers = webpackCompilers();
+
+  const compilersStatsPromises = compilers.map((compiler) => {
+    return new Promise((resolve, reject) => {
+      compiler.run((err, stats) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(stats);
+        }
+      })
+    });
+  });
+
+  const l = logger.child({ tags: [chalk.magenta('webpack')] });
+  for await(const stats of compilersStatsPromises) {
+    const compilation = stats.compilation;
+    const timeTaken = (stats.endTime - stats.startTime) / 1000;
+
+    const messages = [];
+
+    const filesMessage = Object.values(compilation.assets).map(asset => ` - ${chalk.cyan(asset.existsAt)} ${chalk.magenta(humanReadableFileSize(asset.size()))}`).join('\n');
+    const bundleMessage= `Bundled: '${chalk.cyan(`${compilation.name}`)}' ${chalk.magenta(`${timeTaken} s`)}`;
+    messages.push(bundleMessage, filesMessage);
+
+    if(stats.hasWarnings()) {
+      messages.push(
+        `${compilation.warnings.length} warnings:`,
+        compilation.warnings
+          .map(warning => warning.stack)
+          .map(chalk.yellow)
+          .join('\n\n'), 
+      );
+    }
+
+    if (stats.hasErrors()) {
+      messages.push(
+        `${compilation.errors.length} errors:`,
+        compilation.errors
+          .map(chalk.redBright)
+          .map(error => error.stack)
+          .join('\n\n'),
+      )
+    }
+    const outputMessage = messages.join('\n');
+
+    l.info(outputMessage);
+  }
+};
+
+gulp.task('webpack', bundleWebpack);

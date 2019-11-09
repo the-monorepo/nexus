@@ -11,7 +11,6 @@ module.exports.errors = format(info => {
       TODO: Winston 3.0.0 removes .message for errors for some reason.
       Using a workaround found here: https://github.com/winstonjs/winston/issues/1243 to preserve the message
     */
-
     if (info.stack) {
       info.errorMessage = info.stack;
     } else {
