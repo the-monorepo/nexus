@@ -24,6 +24,7 @@
     "build": "gulp build",
     "watch": "gulp watch",
     "writeme": "gulp writeme",
+    "webpack": "gulp webpack",
     "prepublish": "gulp prepublish",
     "ci-test": "gulp ci-test"
   },
