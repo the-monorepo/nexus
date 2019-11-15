@@ -9,7 +9,7 @@ export const getFactors = (n) => {
     }
   }
 
-  return [];
+  return [n];
 }
 
 /*
