@@ -5,13 +5,19 @@ module.exports = api => {
   const development = env === 'development';
   const plugins = [];
   if (test) {
-    plugins.push(['babel-plugin-istanbul', {
-      exclude: [
-        '**/*.test.{js,jsx,ts,tsx}',
-        './{faultjs,misc}/*/test/**',
-        './test/**'
-      ]
-    }], 'rewiremock/babel');
+    plugins.push(
+      [
+        'babel-plugin-istanbul',
+        {
+          exclude: [
+            '**/*.test.{js,jsx,ts,tsx}',
+            './{faultjs,misc}/*/test/**',
+            './test/**',
+          ],
+        },
+      ],
+      'rewiremock/babel',
+    );
   }
   const classPropertyPlugin = [
     '@babel/plugin-proposal-class-properties',
@@ -57,7 +63,12 @@ module.exports = api => {
             '@babel/preset-env',
             {
               modules: esm ? false : undefined,
-              targets: { esmodules: esm },
+              targets: { 
+                esmodules: esm,
+                browsers: [
+                  'last 1 Chrome versions',
+                ]
+              },
             },
           ],
         ],

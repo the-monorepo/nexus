@@ -4,11 +4,11 @@ import { createLogger, format, transports } from 'winston';
 
 import * as psFormats from '@pshaw/winston-formats';
 
-export interface TransportOptions {
+export type TransportOptions = {
   level?: string;
   colors?: boolean;
   timestamp?: string | null | boolean;
-}
+};
 
 export type FileTransportOptions = {
   path?: string;

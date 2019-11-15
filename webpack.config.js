@@ -24,7 +24,7 @@ const sourceMapRule = {
       loader: 'source-map-loader',
     },
   ],
-}
+};
 
 const babelRule = {
   test: /\.[jt]sx?$/,
@@ -36,7 +36,7 @@ const babelRule = {
       },
     },
   ],
-}
+};
 
 const tsxExtensions = ['.tsx', '.ts', '.jsx', '.js'];
 
@@ -50,15 +50,15 @@ const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmarker');
 
 const resumeDir = resolve(miscDir, 'my-resume');
 
-const createDistOutput = (packageDir) => {
+const createDistOutput = packageDir => {
   return {
     filename: '[name].js',
     path: resolve(packageDir, 'dist'),
     publicPath: '/',
-  }; 
-}
+  };
+};
 
-const defaultHtmlWebpackPlugin = (options) => {
+const defaultHtmlWebpackPlugin = options => {
   return new HtmlWebpackPlugin({
     inject: false,
     template: HtmlWebpackTemplate,
@@ -73,9 +73,9 @@ const defaultBundleAnalyzerPlugin = (packageDir, options) => {
     openAnalyzer: false,
     analyzerMode: 'static',
     reportFilename: resolve(packageDir, 'stats.html'),
-    ...options
+    ...options,
   });
-}
+};
 
 const resumeConfig = {
   name: 'Resume',
@@ -84,11 +84,7 @@ const resumeConfig = {
     extensions: tsxExtensions,
   },
   module: {
-    rules: [
-      svgRule,
-      sourceMapRule,
-      babelRule
-    ],
+    rules: [svgRule, sourceMapRule, babelRule],
   },
   entry: resolve(resumeDir, 'src/index.tsx'),
   output: createDistOutput(resumeDir),
@@ -119,19 +115,14 @@ const faultjsBenchmarkConfig = {
   },
   devtool: 'source-map',
   module: {
-    rules: [
-      svgRule,
-      cssRule,
-      sourceMapRule,
-      babelRule,
-    ],
+    rules: [svgRule, cssRule, sourceMapRule, babelRule],
   },
   entry: resolve(faultjsBenchmarkDir, 'src/frontend/index.tsx'),
   output: createDistOutput(faultjsBenchmarkDir),
   plugins: [
     defaultHtmlWebpackPlugin({
-      title: `Fault.js benchmark results`, 
-      links: [openSansUrl],     
+      title: `Fault.js benchmark results`,
+      links: [openSansUrl],
     }),
     new HotModuleReplacementPlugin(),
     defaultBundleAnalyzerPlugin(faultjsBenchmarkDir),
@@ -140,9 +131,6 @@ const faultjsBenchmarkConfig = {
     port: 3001,
     compress: true,
   },
-}
+};
 
-module.exports = [
-  resumeConfig,
-  faultjsBenchmarkConfig,
-]
+module.exports = [resumeConfig, faultjsBenchmarkConfig];

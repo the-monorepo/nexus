@@ -3,24 +3,19 @@ export type HookCallbackFactory<P extends any[] = any[], T = any> = () => HookCa
   P,
   T
 >;
-export interface Hook<
-  B extends any[] = any[],
-  BR = any,
-  A extends any[] = any[],
-  AR = any
-> {
+export type Hook<B extends any[] = any[], BR = any, A extends any[] = any[], AR = any> = {
   before: HookCallback<B, BR>;
   after: HookCallback<A, AR>;
-}
+};
 
 type NonArrayHookSchemaValue = null | HookSchema | HookCallbackFactory;
 export type HookSchemaValue =
   | NonArrayHookSchemaValue
   | (NonArrayHookSchemaValue | MergeOptions)[]; // TODO: Could use a tuple but array literals don't get interpreted as tuples which causes type errors when there aren't any
 
-export interface HookSchema {
+export type HookSchema = {
   [k: string]: HookSchemaValue;
-}
+};
 
 export type Hooks<H extends HookSchema> = {
   [K in keyof H]: H[K] extends HookSchema
@@ -38,17 +33,17 @@ type RecursivePartial<T> = {
     : T[P];
 };
 
-export interface CompleteHooksOptions<K extends HookSchema, O extends HookSchema> {
+export type CompleteHooksOptions<K extends HookSchema, O extends HookSchema> = {
   before: Hooks<K>;
   after: Hooks<K>;
   on: Hooks<O>;
-}
+};
 
-export interface HookOptions<K extends HookSchema, O extends HookSchema> {
+export type HookOptions<K extends HookSchema, O extends HookSchema> = {
   before?: RecursivePartial<Hooks<K>>;
   after?: RecursivePartial<Hooks<K>>;
   on?: RecursivePartial<Hooks<O>>;
-}
+};
 
 export type HookOptionsOf<T extends any> = Parameters<T['withNoops']>[0];
 export type CompleteHookOptionsOf<T extends any> = ReturnType<T['withNoops']>;

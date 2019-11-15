@@ -38,7 +38,7 @@ import traverse from '@babel/traverse';
 export const createAstCache = (babelOptions?: ParserOptions) => {
   const cache = new Map<string, File>();
   return {
-    get: async (filePath: string, force: boolean = false): Promise<File> => {
+    get: async (filePath: string, force = false): Promise<File> => {
       if (!force && cache.has(filePath)) {
         return cache.get(filePath)!;
       }
@@ -224,7 +224,7 @@ const createInstructionHolder = <T extends Instruction>(
 };
 
 const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) => {
-  let nodePaths: NodePath[] = [];
+  const nodePaths: NodePath[] = [];
   traverse(ast, {
     enter(path) {
       const loc1 = location;
@@ -471,7 +471,7 @@ class DeleteStatementInstruction implements Instruction {
     for (const outerStatement of statements) {
       totalNodes += outerStatement.totalNodes;
     }
-    let originalStackLength = stack.length;
+    const originalStackLength = stack.length;
     this.totalNodes = totalNodes;
     let s = 0;
     while (s < stack.length) {
@@ -2001,7 +2001,7 @@ const evaluateNewMutation = (
   const notSeen = new Set(originalResults.testResults.keys());
   let testsWorsened = 0;
   let testsImproved = 0;
-  let stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
+  const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
   let overallPositiveEffect = 0;
   let overallNegativeEffect = 0;
