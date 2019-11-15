@@ -1,0 +1,30 @@
+{
+  "name": "@pshaw/html-template",
+  "version": "1.0.0-alpha.0",
+  "description": "A HTML template generator",
+  "keywords": [
+    "hooks",
+    "schema",
+    "util"
+  ],
+  "main": "./lib/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "misc/hook-schema"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

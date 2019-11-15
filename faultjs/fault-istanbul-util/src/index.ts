@@ -22,9 +22,9 @@ export const diffExpressionObjectCount = (from, amount) => {
   return diff;
 };
 
-export interface BCoverage {
+export type BCoverage = {
   [s: string]: number[];
-}
+};
 
 export const diffBranchObjectCount = (from: BCoverage, amount: BCoverage) => {
   const diff: BCoverage = {};
@@ -45,36 +45,36 @@ export const diffBranchObjectCount = (from: BCoverage, amount: BCoverage) => {
 
 const notZero = value => value !== 0;
 
-export interface FCoverage {
+export type FCoverage = {
   [s: string]: number;
-}
+};
 
-export interface SCoverage {
+export type SCoverage = {
   [s: string]: number;
-}
+};
 
 export type TextLocation = {
   line: number;
   column: number;
 };
 
-export interface ExpressionLocation {
+export type ExpressionLocation = {
   start: TextLocation;
   end: TextLocation;
-}
-export interface StatementMap {
+};
+export type StatementMap = {
   [s: string]: ExpressionLocation;
-}
-export interface FunctionCoverage {
+};
+export type FunctionCoverage = {
   name: string;
   decl: ExpressionLocation;
   loc: ExpressionLocation;
   line: number;
-}
-export interface FunctionMap {
+};
+export type FunctionMap = {
   [s: string]: FunctionCoverage;
-}
-export interface Coverage {
+};
+export type Coverage = {
   [s: string]: {
     path: string;
     statementMap: StatementMap;
@@ -86,7 +86,7 @@ export interface Coverage {
     _coverageSchema: string;
     hash: string;
   };
-}
+};
 export const subtractCoverage = (from: Coverage = {}, amount: Coverage | undefined) => {
   if (amount === undefined) {
     return cloneCoverage(from);
@@ -123,7 +123,7 @@ export const subtractCoverage = (from: Coverage = {}, amount: Coverage | undefin
 };
 
 export const readCoverageFile = async (
-  filePath: string = './coverage/coverage-final.json',
+  filePath = './coverage/coverage-final.json',
 ): Promise<Coverage> => {
   const coverageText = await readFile(filePath, 'utf8');
   const coverage = JSON.parse(coverageText);

@@ -16,17 +16,17 @@ function section(title, content) {
   return md;
 }
 
-export interface Sections {
+export type Sections = {
   examples?: string;
   howTo?: string;
   development?: string;
-}
+};
 
 export type Projects = {
   overrides: Project[];
 } & Project;
 
-export interface PackageOptions {
+export type PackageOptions = {
   dir: string;
   title: string;
   name: string;
@@ -37,7 +37,7 @@ export interface PackageOptions {
   peerDependencies?: { [s: string]: string };
   isDevPackage?: boolean;
   sections?: Sections;
-}
+};
 
 const suffixedVersionRegex = /\d+\.\d+\.\d+-/;
 
@@ -74,12 +74,12 @@ function installationInstructions(isDevPackage, allDependenciesToInstall) {
   return md;
 }
 
-export interface Project {
+export type Project = {
   category: string;
   description?: string;
   packages: PackageOptions[];
   [s: string]: any;
-}
+};
 
 function packagesToProjectMd(packages: PackageOptions[], rootDir: string) {
   let md = 'Version | Package | Description\n';

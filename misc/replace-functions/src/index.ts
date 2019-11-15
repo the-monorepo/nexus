@@ -1,7 +1,7 @@
-export interface RecursionOptionsObject {
+export type RecursionOptionsObject = {
   // Mock the methods of class instances too?
   classInstances?: boolean;
-}
+};
 
 export type RecursionOptions = RecursionOptionsObject | boolean;
 

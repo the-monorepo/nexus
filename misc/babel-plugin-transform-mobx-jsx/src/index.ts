@@ -13,7 +13,8 @@ const mbxCallExpression = (functionName, args) => {
   return t.callExpression(mbxMemberExpression(functionName), args);
 };
 
-const attributeLiteralToHTMLAttributeString = (name: string, literal) => {
+const attributeLiteralToHTMLAttributeString = (field) => {
+  const { key: name, expression: literal } = field;
   if (literal === false) {
     /*
       To represent a false value, the attribute has to be omitted altogether.
@@ -32,6 +33,8 @@ const attributeLiteralToHTMLAttributeString = (name: string, literal) => {
       return literal.value ? name : '';
     case 'NumericLiteral':
       return `${name}="${literal.value}"`;
+    case 'TemplateLiteral':
+      return literal.quasis[0];
     default:
       return `${name}="${literal.value.toString()}"`;
   }
@@ -47,53 +50,53 @@ const SPREAD_TYPE = 'spread';
 const EVENT_TYPE = 'event';
 const ATTRIBUTE_TYPE = 'attribute';
 
-interface PropertyField {
+type PropertyField = {
   type: typeof PROPERTY_TYPE;
   key: string;
   expression: any;
   setterId: any;
-}
-interface SpreadField {
+};
+type SpreadField = {
   type: typeof SPREAD_TYPE;
   expression: any;
-}
-interface EventField {
+};
+type EventField = {
   type: typeof EVENT_TYPE;
   key: string;
   expression: any;
-}
-interface AttributeField {
+};
+type AttributeField = {
   type: typeof ATTRIBUTE_TYPE;
   key: string;
   expression: any;
-}
+};
 type ElementField = AttributeField | PropertyField | EventField; // TODO: SpreadType
 
 /**
  * We have no idea how many node will be in this section.
  * Could be 0, could be 100
  */
-interface DynamicSection {
+type DynamicSection = {
   type: typeof DYNAMIC_TYPE;
   expression: any;
-}
+};
 /**
  * Just a typical HTML/XML element
  */
-interface ElementNode {
+type ElementNode = {
   type: typeof ELEMENT_TYPE;
   tag: string;
   children: Node[];
   fields: ElementField[];
   id: any;
-}
+};
 
 const SUBCOMPONENT_PROPERTY_TYPE = 'subcomponent_property';
-interface SubcomponentPropertyField {
+type SubcomponentPropertyField = {
   type: typeof SUBCOMPONENT_PROPERTY_TYPE;
   key: string;
   expression: any;
-}
+};
 
 type SubcomponentField = SubcomponentPropertyField | SpreadField;
 
@@ -104,21 +107,21 @@ type SubcomponentField = SubcomponentPropertyField | SpreadField;
  * no idea how many root nodes the subcomponent represents:
  * Could be 0, could 100
  */
-interface SubcomponentNode {
+type SubcomponentNode = {
   type: typeof SUBCOMPONENT_TYPE;
   nameExpression: any;
   children: Node[];
   childrenTemplateId: any;
   fields: SubcomponentField[];
-}
+};
 /**
  * Just a text node
  */
-interface TextNode {
+type TextNode = {
   type: typeof TEXT_TYPE;
   text: string;
   id?: any;
-}
+};
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
 function domNodeFromJSXText(jsxText: JSXText, previousIsDynamic: boolean, scope) {
   return domNodeFromString(jsxText.value, previousIsDynamic, scope);
@@ -128,7 +131,7 @@ const isElementTag = (tag: string) => {
   return tag[0].toLowerCase() === tag[0];
 };
 
-const isLiteral = (value): boolean => value && value.type.match(/Literal$/);
+const isLiteral = (value): boolean => value && value.type.match(/Literal$/) && (value.type !== 'TemplateLiteral' || value.expressions.length <= 0);
 
 const isStatic = value => {
   return (
@@ -464,7 +467,7 @@ const htmlFromNode = (node: Node): string => {
       const attributeString: string = (node.fields.filter(
         field => field.type === ATTRIBUTE_TYPE && isLiteral(field.expression),
       ) as AttributeField[])
-        .map(field => attributeLiteralToHTMLAttributeString(field.key, field.expression))
+        .map(field => attributeLiteralToHTMLAttributeString(field))
         .join(' ');
       const childrenString: string = node.children
         .map(field => {

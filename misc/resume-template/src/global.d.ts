@@ -1,5 +1,5 @@
 declare namespace JSX {
-  interface IntrinsicElements {
+  type IntrinsicElements = {
     [elemName: string]: any;
-  }
+  };
 }
