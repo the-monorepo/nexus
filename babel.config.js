@@ -63,11 +63,9 @@ module.exports = api => {
             '@babel/preset-env',
             {
               modules: esm ? false : undefined,
-              targets: { 
+              targets: {
                 esmodules: esm,
-                browsers: [
-                  'last 1 Chrome versions',
-                ]
+                browsers: ['last 1 Chrome versions'],
               },
             },
           ],
