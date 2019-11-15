@@ -1,0 +1,12 @@
+{
+  "./index.js": [
+    {
+      "location": {
+        "start": {
+          "line": 6,
+          "column": 4
+        }
+      }
+    }
+  ]
+}
