@@ -19,8 +19,10 @@ const through = require('through2');
 
 const PluginError = require('plugin-error');
 
-const packagesDirName = '{misc,faultjs}';
-const buildPackagesDirName = 'build-packages';
+const monorepo = require('./monorepo.config');
+
+const packagesDirNames = monorepo.projectsDirs;
+const buildPackagesDirNames = monorepo.projectsDirs;
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -54,24 +56,24 @@ function mockGlob(dirName, folderName) {
   return `${packageSubDirGlob(dirName, folderName)}/__mocks__/*`;
 }
 
-function globSrcMiscFromPackagesDirName(dirName) {
-  return [
+function globSrcMiscFromPackagesDirName(dirNames) {
+  return dirNames.map(dirName => ([
     packageSubDirGlob(dirName, 'src'),
     `!${srcTranspiledGlob(dirName, 'src')}`,
     `!${mockGlob(dirName, 'src')}`,
-  ];
+  ])).flat();
 }
 
-function globSrcCodeFromPackagesDirName(dirName) {
-  return [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`];
+function globSrcCodeFromPackagesDirName(dirNames) {
+  return dirNames.map(dirName => [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`]).flat();
 }
 
-function globBuildOutputFromPackagesDirName(dirName) {
-  return [
+function globBuildOutputFromPackagesDirName(dirNames) {
+  return dirNames.map(dirName => ([
     packageSubDirGlob(dirName, 'lib'),
     packageSubDirGlob(dirName, 'esm'),
     packageSubDirGlob(dirName, 'dist'),
-  ];
+  ])).flat();
 }
 
 function sourceGlobFromPackagesDirName(dirName) {
@@ -82,21 +84,21 @@ const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream(options) {
-  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirName), {
+  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirNames), {
     base: '.',
     ...options,
   });
 }
 
 function packagesSrcCodeStream(options) {
-  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName), {
+  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirNames), {
     base: `.`,
     ...options,
   });
 }
 
 function packagesSrcCodeWithTsDefinitionsStream(options) {
-  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirName).concat('**/*.d.ts'), {
+  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirNames).concat('**/*.d.ts'), {
     base: `.`,
     ...options,
   });
@@ -128,8 +130,8 @@ function simplePipeLogger(l, verb) {
 async function clean() {
   const del = require('del');
   await del([
-    ...globBuildOutputFromPackagesDirName(packagesDirName),
-    ...globBuildOutputFromPackagesDirName(buildPackagesDirName),
+    ...globBuildOutputFromPackagesDirName(packagesDirNames),
+    ...globBuildOutputFromPackagesDirName(buildPackagesDirNames),
     './README.md',
     './{build-packages,faultjs,misc}/*/README.md',
     './faultjs/fault-benchmarker/projects/*/{faults,coverage,fault-results.json}',
@@ -276,7 +278,7 @@ gulp.task('build', build);
 
 gulp.task('watch', function watch() {
   gulp.watch(
-    sourceGlobFromPackagesDirName(packagesDirName),
+    packagesDirNames.map(dirName => sourceGlobFromPackagesDirName(dirName)),
     { ignoreInitial: false, events: 'all' },
     gulp.parallel(copy, transpile),
   );
@@ -459,6 +461,14 @@ const humanReadableFileSize = (size) => {
   return `${(size / Math.pow(1024, i)).toFixed(2) * 1} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
 };
 
+const bundleRollup = async () => {
+  const rollup = require('rollup');
+
+  const bundle = await rollup.rollup({
+    
+  });
+}
+
 const bundleWebpack = async () => {
 
   const compilers = webpackCompilers();
@@ -529,3 +539,123 @@ const serveBundles = () => {
   }
 }
 gulp.task('serve', serveBundles);
+
+const rollupCompilers = () => {
+  const minimist = require('minimist');
+  const rollup = require('rollup');
+  const globby = require('globby');
+  const { resolve } = require('path');
+  const micromatch = require('micromatch');
+  const { access, readFile } = require('mz/fs');
+
+  const args = minimist(process.argv.slice(2));
+
+  const { name = ['*'], mode = process.NODE_ENV ? process.NODE_ENV === 'production' ? 'prod' : 'dev' : 'dev' } = args;
+
+  const names = Array.isArray(name) ? name : [name];
+
+  const configs = require('./rollup.config');
+
+  return configs.filter(config => micromatch.isMatch(config.input, names)).map(config => {
+    const mergedConfig = {
+      ...config,
+    };
+    return {
+      config: mergedConfig,
+      compiler: rollup.rollup(mergedConfig),
+    };
+  });
+}
+
+const moreServes = async () => {
+  const express = require('express');
+
+  let port = 2999;
+  const rollup = require('rollup');
+
+  const url = require('rollup-plugin-url');
+
+  const babel = require('rollup-plugin-babel');
+
+  const nodeResolvePlugin = require('rollup-plugin-node-resolve');
+
+  const json = require('rollup-plugin-json');
+
+  const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
+
+  const tsxExtensions = ['.tsx', '.ts', '.jsx', '.js'];
+
+  const urlPlugin = url({
+    limit: 10 * 1024,
+    include: ['**/*.svg'],
+  });
+  
+  const babelPlugin = babel({
+    exclude: ['**/node_modules/**'],
+    extensions: tsxExtensions,
+  });
+  
+  const resolvePlugin = nodeResolvePlugin({
+    preferBuiltins: false,
+    extensions: tsxExtensions,
+    browser: true,
+  });
+  
+  const jsonPlugin = json();
+    
+  await Promise.all(monorepo.serve.servers.map(async ({ input }) => {
+    const l = logger.child({ tags: [chalk.magenta('rollup'), chalk.gray(input)] });
+    l.info('Creating bundle...');
+    port++;
+    const serverPort = port;
+    try {
+      console.log('q');
+      const bundle = await rollup.rollup({
+        input,
+        plugins: [resolvePlugin, babelPlugin, jsonPlugin],
+      });
+      console.log('b')
+      l.info('Outputting bundle...');
+      const outputObj = await bundle.generate({
+        format: 'es',
+        sourcemap: true,
+      });
+      
+      const app = express();
+      outputObj.output.map(output => {
+        app.get(`/${output.fileName}`, (req,res) => {
+          res.send(output.code);
+        });
+      });
+      app.get('/index.html', (req, res) => {
+        res.send(`
+        <!DOCTYPE html>
+<html>
+  <body>
+    <div id="root"></div>
+    <script type="text/javascript" src="/index.js"></script>
+  </body>
+</html>
+
+        `);
+      });
+      app.get('/', (res) => {
+        res.redirect('/index.html');
+      });
+      await new Promise((resolve, reject) => {
+        app.listen(serverPort, (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            l.info(`Serving on port ${chalk.cyan(serverPort.toString())}`);
+            resolve();  
+          }
+        });
+      });        
+    } catch(err) {
+      l.error(err.stack);
+    }
+  }));
+
+}
+gulp.task('moreserves', moreServes);
