@@ -13,7 +13,7 @@ const mbxCallExpression = (functionName, args) => {
   return t.callExpression(mbxMemberExpression(functionName), args);
 };
 
-const attributeLiteralToHTMLAttributeString = (field) => {
+const attributeLiteralToHTMLAttributeString = field => {
   const { key: name, expression: literal } = field;
   if (literal === false) {
     /*
@@ -131,7 +131,10 @@ const isElementTag = (tag: string) => {
   return tag[0].toLowerCase() === tag[0];
 };
 
-const isLiteral = (value): boolean => value && value.type.match(/Literal$/) && (value.type !== 'TemplateLiteral' || value.expressions.length <= 0);
+const isLiteral = (value): boolean =>
+  value &&
+  value.type.match(/Literal$/) &&
+  (value.type !== 'TemplateLiteral' || value.expressions.length <= 0);
 
 const isStatic = value => {
   return (

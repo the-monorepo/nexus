@@ -57,23 +57,29 @@ function mockGlob(dirName, folderName) {
 }
 
 function globSrcMiscFromPackagesDirName(dirNames) {
-  return dirNames.map(dirName => ([
-    packageSubDirGlob(dirName, 'src'),
-    `!${srcTranspiledGlob(dirName, 'src')}`,
-    `!${mockGlob(dirName, 'src')}`,
-  ])).flat();
+  return dirNames
+    .map(dirName => [
+      packageSubDirGlob(dirName, 'src'),
+      `!${srcTranspiledGlob(dirName, 'src')}`,
+      `!${mockGlob(dirName, 'src')}`,
+    ])
+    .flat();
 }
 
 function globSrcCodeFromPackagesDirName(dirNames) {
-  return dirNames.map(dirName => [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`]).flat();
+  return dirNames
+    .map(dirName => [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`])
+    .flat();
 }
 
 function globBuildOutputFromPackagesDirName(dirNames) {
-  return dirNames.map(dirName => ([
-    packageSubDirGlob(dirName, 'lib'),
-    packageSubDirGlob(dirName, 'esm'),
-    packageSubDirGlob(dirName, 'dist'),
-  ])).flat();
+  return dirNames
+    .map(dirName => [
+      packageSubDirGlob(dirName, 'lib'),
+      packageSubDirGlob(dirName, 'esm'),
+      packageSubDirGlob(dirName, 'dist'),
+    ])
+    .flat();
 }
 
 function sourceGlobFromPackagesDirName(dirName) {
@@ -135,7 +141,7 @@ async function clean() {
     './README.md',
     './{build-packages,faultjs,misc}/*/README.md',
     './faultjs/fault-benchmarker/projects/*/{faults,coverage,fault-results.json}',
-    './faultjs/fault-benchmarker/benchmark-results.json'
+    './faultjs/fault-benchmarker/benchmark-results.json',
   ]);
 }
 gulp.task('clean', clean);
@@ -437,43 +443,51 @@ const webpackCompilers = () => {
 
   const args = minimist(process.argv.slice(2));
 
-  const { name = ['*'], mode = process.NODE_ENV ? process.NODE_ENV === 'production' ? 'prod' : 'dev' : 'dev' } = args;
+  const {
+    name = ['*'],
+    mode = process.NODE_ENV
+      ? process.NODE_ENV === 'production'
+        ? 'prod'
+        : 'dev'
+      : 'dev',
+  } = args;
 
   const names = Array.isArray(name) ? name : [name];
 
   const webpackConfigs = require('./webpack.config');
 
-  return webpackConfigs.filter(config => micromatch.isMatch(config.name, names)).map(config => {
-    const mergedConfig = {
-      mode: mode === 'prod' ? 'production' : 'development',
-      ...config,
-    };
-    return {
-      config: mergedConfig,
-      compiler: webpack(mergedConfig),
-    };
-  });
-}
+  return webpackConfigs
+    .filter(config => micromatch.isMatch(config.name, names))
+    .map(config => {
+      const mergedConfig = {
+        mode: mode === 'prod' ? 'production' : 'development',
+        ...config,
+      };
+      return {
+        config: mergedConfig,
+        compiler: webpack(mergedConfig),
+      };
+    });
+};
 
 // From: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
-const humanReadableFileSize = (size) => {
-  const i = Math.floor( Math.log(size) / Math.log(1024) );
-  return `${(size / Math.pow(1024, i)).toFixed(2) * 1} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
+const humanReadableFileSize = size => {
+  const i = Math.floor(Math.log(size) / Math.log(1024));
+  return `${(size / Math.pow(1024, i)).toFixed(2) * 1} ${
+    ['B', 'kB', 'MB', 'GB', 'TB'][i]
+  }`;
 };
 
 const bundleRollup = async () => {
   const rollup = require('rollup');
 
-  const bundle = await rollup.rollup({
-    
-  });
-}
+  const bundle = await rollup.rollup({});
+};
 
 const bundleWebpack = async () => {
-
   const compilers = webpackCompilers();
 
-  const compilersStatsPromises = compilers.map((info) => {
+  const compilersStatsPromises = compilers.map(info => {
     return new Promise((resolve, reject) => {
       info.compiler.run((err, stats) => {
         if (err) {
@@ -481,28 +495,37 @@ const bundleWebpack = async () => {
         } else {
           resolve(stats);
         }
-      })
+      });
     });
   });
 
   const l = logger.child({ tags: [chalk.magenta('webpack')] });
-  for await(const stats of compilersStatsPromises) {
+  for await (const stats of compilersStatsPromises) {
     const compilation = stats.compilation;
     const timeTaken = (stats.endTime - stats.startTime) / 1000;
 
     const messages = [];
 
-    const filesMessage = Object.values(compilation.assets).map(asset => ` - ${chalk.cyan(asset.existsAt)} ${chalk.magenta(humanReadableFileSize(asset.size()))}`).join('\n');
-    const bundleMessage= `Bundled: '${chalk.cyan(`${compilation.name}`)}' ${chalk.magenta(`${timeTaken} s`)}`;
+    const filesMessage = Object.values(compilation.assets)
+      .map(
+        asset =>
+          ` - ${chalk.cyan(asset.existsAt)} ${chalk.magenta(
+            humanReadableFileSize(asset.size()),
+          )}`,
+      )
+      .join('\n');
+    const bundleMessage = `Bundled: '${chalk.cyan(
+      `${compilation.name}`,
+    )}' ${chalk.magenta(`${timeTaken} s`)}`;
     messages.push(bundleMessage, filesMessage);
 
-    if(stats.hasWarnings()) {
+    if (stats.hasWarnings()) {
       messages.push(
         `${compilation.warnings.length} warnings:`,
         compilation.warnings
           .map(warning => warning.stack)
           .map(chalk.yellow)
-          .join('\n\n'), 
+          .join('\n\n'),
       );
     }
 
@@ -513,7 +536,7 @@ const bundleWebpack = async () => {
           .map(chalk.redBright)
           .map(error => error.stack)
           .join('\n\n'),
-      )
+      );
     }
     const outputMessage = messages.join('\n');
 
@@ -527,17 +550,21 @@ const serveBundles = () => {
   const WebpackDevServer = require('webpack-dev-server');
   const compilers = webpackCompilers();
   let port = 3000;
-  const l = logger.child({ tags: [chalk.magenta('webpack')]});
-  for(const {compiler, config} of compilers) {
+  const l = logger.child({ tags: [chalk.magenta('webpack')] });
+  for (const { compiler, config } of compilers) {
     const mergedDevServerConfig = config.devServer;
     const server = new WebpackDevServer(compiler, mergedDevServerConfig);
     const serverPort = port;
     server.listen(serverPort, 'localhost', () => {
-      l.info(`Serving '${chalk.cyan(config.name)}' on port ${chalk.cyan(serverPort.toString())}...`);
+      l.info(
+        `Serving '${chalk.cyan(config.name)}' on port ${chalk.cyan(
+          serverPort.toString(),
+        )}...`,
+      );
     });
     port++;
   }
-}
+};
 gulp.task('serve', serveBundles);
 
 const rollupCompilers = () => {
@@ -550,22 +577,31 @@ const rollupCompilers = () => {
 
   const args = minimist(process.argv.slice(2));
 
-  const { name = ['*'], mode = process.NODE_ENV ? process.NODE_ENV === 'production' ? 'prod' : 'dev' : 'dev' } = args;
+  const {
+    name = ['*'],
+    mode = process.NODE_ENV
+      ? process.NODE_ENV === 'production'
+        ? 'prod'
+        : 'dev'
+      : 'dev',
+  } = args;
 
   const names = Array.isArray(name) ? name : [name];
 
   const configs = require('./rollup.config');
 
-  return configs.filter(config => micromatch.isMatch(config.input, names)).map(config => {
-    const mergedConfig = {
-      ...config,
-    };
-    return {
-      config: mergedConfig,
-      compiler: rollup.rollup(mergedConfig),
-    };
-  });
-}
+  return configs
+    .filter(config => micromatch.isMatch(config.input, names))
+    .map(config => {
+      const mergedConfig = {
+        ...config,
+      };
+      return {
+        config: mergedConfig,
+        compiler: rollup.rollup(mergedConfig),
+      };
+    });
+};
 
 const moreServes = async () => {
   const express = require('express');
@@ -589,46 +625,47 @@ const moreServes = async () => {
     limit: 10 * 1024,
     include: ['**/*.svg'],
   });
-  
+
   const babelPlugin = babel({
     exclude: ['**/node_modules/**'],
     extensions: tsxExtensions,
   });
-  
+
   const resolvePlugin = nodeResolvePlugin({
     preferBuiltins: false,
     extensions: tsxExtensions,
     browser: true,
   });
-  
+
   const jsonPlugin = json();
-    
-  await Promise.all(monorepo.serve.servers.map(async ({ input }) => {
-    const l = logger.child({ tags: [chalk.magenta('rollup'), chalk.gray(input)] });
-    l.info('Creating bundle...');
-    port++;
-    const serverPort = port;
-    try {
-      console.log('q');
-      const bundle = await rollup.rollup({
-        input,
-        plugins: [resolvePlugin, babelPlugin, jsonPlugin],
-      });
-      console.log('b')
-      l.info('Outputting bundle...');
-      const outputObj = await bundle.generate({
-        format: 'es',
-        sourcemap: true,
-      });
-      
-      const app = express();
-      outputObj.output.map(output => {
-        app.get(`/${output.fileName}`, (req,res) => {
-          res.send(output.code);
+
+  await Promise.all(
+    monorepo.serve.servers.map(async ({ input }) => {
+      const l = logger.child({ tags: [chalk.magenta('rollup'), chalk.gray(input)] });
+      l.info('Creating bundle...');
+      port++;
+      const serverPort = port;
+      try {
+        console.log('q');
+        const bundle = await rollup.rollup({
+          input,
+          plugins: [resolvePlugin, babelPlugin, jsonPlugin],
         });
-      });
-      app.get('/index.html', (req, res) => {
-        res.send(`
+        console.log('b');
+        l.info('Outputting bundle...');
+        const outputObj = await bundle.generate({
+          format: 'es',
+          sourcemap: true,
+        });
+
+        const app = express();
+        outputObj.output.map(output => {
+          app.get(`/${output.fileName}`, (req, res) => {
+            res.send(output.code);
+          });
+        });
+        app.get('/index.html', (req, res) => {
+          res.send(`
         <!DOCTYPE html>
 <html>
   <body>
@@ -638,24 +675,24 @@ const moreServes = async () => {
 </html>
 
         `);
-      });
-      app.get('/', (res) => {
-        res.redirect('/index.html');
-      });
-      await new Promise((resolve, reject) => {
-        app.listen(serverPort, (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            l.info(`Serving on port ${chalk.cyan(serverPort.toString())}`);
-            resolve();  
-          }
         });
-      });        
-    } catch(err) {
-      l.error(err.stack);
-    }
-  }));
-
-}
+        app.get('/', res => {
+          res.redirect('/index.html');
+        });
+        await new Promise((resolve, reject) => {
+          app.listen(serverPort, err => {
+            if (err) {
+              reject(err);
+            } else {
+              l.info(`Serving on port ${chalk.cyan(serverPort.toString())}`);
+              resolve();
+            }
+          });
+        });
+      } catch (err) {
+        l.error(err.stack);
+      }
+    }),
+  );
+};
 gulp.task('moreserves', moreServes);

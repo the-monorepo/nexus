@@ -1,4 +1,4 @@
-console.log('TODO')
+console.log('TODO');
 /*import { createResume } from '@pshaw/resume-template';
 import * as mbx from 'mobx-dom';
 import * as data from './data';
