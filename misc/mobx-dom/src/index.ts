@@ -7,35 +7,35 @@ export type MountFn<V, R extends StatelessCloneInfo<any> | RenderData<any, any>>
   before: Node | null,
 ) => R;
 export type Id = number | any;
-export interface StatelessCloneInfo<N extends Node> {
+export type StatelessCloneInfo<N extends Node> = {
   first: N;
   state: undefined;
-}
+};
 export type Unmount<C> = (cloneValue: C) => any;
 export type UnmountHolder<C> = {
   unmount: Unmount<C>;
 };
-export interface StatelessComponentBlueprint<
+export type StatelessComponentBlueprint<
   V,
   N extends Node,
   D = Unmount<any> | undefined
-> {
+> = {
   id: Id;
   mount: MountFn<V, StatelessCloneInfo<N>>;
   update: undefined;
   unmount: D;
-}
-export interface StatefulComponentBlueprint<
+};
+export type StatefulComponentBlueprint<
   C,
   V,
   N extends Node,
   D = Unmount<any> | undefined
-> {
+> = {
   id: Id;
   mount: MountFn<V, RenderData<C, N>>;
   update: SetFn<C, V>;
   unmount: D;
-}
+};
 export type GenericBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
   | StatelessComponentBlueprint<V, N, D>
   | StatefulComponentBlueprint<C, V, N, D>;
@@ -46,7 +46,7 @@ export type ComponentBlueprint<
   D = undefined | Unmount<C>
 > = GenericBlueprint<C, V, N, D>;
 
-export interface CreateBlueprintFunction {
+export type CreateBlueprintFunction = {
   <V, N extends Node>(
     clone: MountFn<V, StatelessCloneInfo<N>>,
   ): StatelessComponentBlueprint<V, N> & UnmountHolder<undefined>;
@@ -64,12 +64,12 @@ export interface CreateBlueprintFunction {
     update: SetFn<C, V>,
     unmount: Unmount<C>,
   ): StatefulComponentBlueprint<C, V, N> & UnmountHolder<C>;
-}
+};
 
-export interface CloneInfoFunction {
+export type CloneInfoFunction = {
   <N extends Node>(first: N): StatelessCloneInfo<N>;
   <N extends Node, C>(first: N, state: C): RenderData<C, N>;
-}
+};
 export const renderData: CloneInfoFunction = <C, N extends Node | null>(
   first: N,
   state?: C,
@@ -166,9 +166,9 @@ const textBlueprint = createBlueprint(
   },
 );
 
-export interface MapBlueprintState<C, N extends Node = Node> {
+export type MapBlueprintState<C, N extends Node = Node> = {
   results: (RenderResult<C, N> | null)[];
-}
+};
 
 export const renderResult = <C, N extends Node>(
   id: number,
@@ -334,7 +334,7 @@ const mapBlueprint: GenericBlueprint<
     container,
     before,
   ): RenderData<MapBlueprintState<unknown>> => {
-    let results: RenderResult<unknown>[] = [];
+    const results: RenderResult<unknown>[] = [];
     let j = 0;
     const marker = document.createComment('');
     container.insertBefore(marker, before);
@@ -367,8 +367,8 @@ const mapBlueprint: GenericBlueprint<
     const newLength = newComponentResults.length;
 
     // Head and tail pointers to old parts and new values
-    let oldHead = 0;
-    let newHead = 0;
+    const oldHead = 0;
+    const newHead = 0;
     state.state.results = updateComponentResultsArray(
       newComponentResults,
       results,
@@ -587,20 +587,20 @@ export const spread = (el: Element) => {
   return new SpreadField(el);
 };
 
-export interface ComponentResult<C, V, N extends Node = Node> {
+export type ComponentResult<C, V, N extends Node = Node> = {
   blueprint: ComponentBlueprint<C, V, N>;
   value: V;
-}
+};
 
 export type RenderData<C, N extends Node = Node> = {
   first: N;
   state: C;
 };
-export interface RenderResult<C, N extends Node = Node> {
+export type RenderResult<C, N extends Node = Node> = {
   id: Id;
   unmount?: Unmount<C>;
   data: RenderData<C, N>;
-}
+};
 
 export const removeUntilBefore = (
   container: Node,
@@ -746,12 +746,12 @@ const generateMap = (list: unknown[], start: number, end: number) => {
   return map;
 };
 
-interface RepeatBlueprintInput<V, C, R, N extends Node = Node> {
+type RepeatBlueprintInput<V, C, R, N extends Node = Node> = {
   values: Iterable<V>;
   mapFn: MapFn<V, ComponentResult<C, R, N>>;
   keyFn: KeyFn<V>;
   recycle: boolean;
-}
+};
 
 const movePart = (
   oldResult: RenderResult<any, any>,
@@ -790,10 +790,10 @@ const canReuseRemovedPart = (
   );
 };
 
-interface RepeatBlueprintCache<C, N extends Node> {
+type RepeatBlueprintCache<C, N extends Node> = {
   results: (RenderResult<C, N> | null)[];
   keys: any[];
-}
+};
 export const repeatBlueprint = createBlueprint(
   (initialInput: RepeatBlueprintInput<any, any, any>, initialContainer, before) => {
     const results: RenderResult<any, any>[] = [];

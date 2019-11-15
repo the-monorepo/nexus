@@ -1,5 +1,4 @@
 /// <reference path="global.d.ts" />
-import './styles.css';
 import * as mbx from 'mobx-dom';
 import benchmarkResults from '../../benchmark-results.json';
 type Ranking = {
@@ -95,7 +94,7 @@ type ResultsTableProps = {
   total?: number;
   title: string;
 };
-export const ResultsTable = ({
+const ResultsTable = ({
   projectResults,
   invertColors,
   total,
