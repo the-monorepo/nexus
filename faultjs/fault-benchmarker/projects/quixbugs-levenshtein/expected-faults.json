@@ -1,0 +1,17 @@
+{
+  "./index.js": [
+    {
+      "type": "within",
+      "location": {
+        "start": {
+          "line": 7,
+          "column": 4
+        },
+        "end": {
+          "line": 11,
+          "column": 6
+        }
+      }
+    }
+  ]
+}
