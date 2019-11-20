@@ -24,8 +24,8 @@ export const shortestPaths = (source, weightByEdge) => {
 export const shortestPaths = (source, weightByEdge) => {
   const weightByNode = new Map();
   for(const edge of weightByEdge.keys()) {
-    weightByNode.set(edge[1], Math.INFINITY);
-    weightByNode.set(edge[0], Math.INFINITY);
+    weightByNode.set(edge[0], Number.POSITIVE_INFINITY);
+    weightByNode.set(edge[1], Number.POSITIVE_INFINITY);
   }
 
   weightByNode.set(source, 0);
