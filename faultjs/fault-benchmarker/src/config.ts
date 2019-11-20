@@ -36,6 +36,7 @@ export const config: BenchmarkConfig = [
     babelOptions: {
       sourceType: 'module',
     },
+    setupFiles: [resolve(__dirname, 'babel'), resolve(__dirname, './hooks/full-error-message')],
     artificial: true,
   },
   {
