@@ -1,35 +1,53 @@
-export const kth = (arr, k) => {
-  const pivot = arr[0];
-  const below = arr.filter(x => x < pivot);
-  const above = arr.filter(x => x > pivot);
+export const breadthFirstSearch = (startNode, goalNode) => {
+  const queue = [];
+  queue.push(startNode);
 
-  const numLess = below.length;
-  const numLessOrReq = arr.length - above.length;
+  const nodesSeen = new Set();
+  nodesSeen.add(startNode);
 
-  if (k < numLess) {
-    return kth(below, k);
-  } else if (k >= numLessOrReq) {
-    return kth(above, k - numLessOrReq);
-  } else {
-    return pivot;
+  while (queue.length > 0) {
+    const node = queue.shift();
+    
+    if (node === goalNode) {
+      return true;
+    } else {
+      for(const successor of node.successors) {
+        if(nodesSeen.has(successor)) {
+          continue;
+        }
+        queue.push(successor);
+        nodesSeen.add(successor);
+      }
+    }
   }
+
+  return false;
 }
 
 /*
-export const kth = (arr, k) => {
-  const pivot = arr[0];
-  const below = arr.filter(x => x < pivot);
-  const above = arr.filter(x => x > pivot);
+export const breadthFirstSearch = (startNode, goalNode) => {
+  const queue = [];
+  queue.push(startNode);
 
-  const numLess = below.length;
-  const numLessOrReq = arr.length - above.length;
+  const nodesSeen = new Set();
+  nodesSeen.add(startNode);
 
-  if (k < numLess) {
-    return kth(below, k);
-  } else if (k >= numLessOrReq) {
-    return kth(above, k - numLessOrReq);
-  } else {
-    return pivot;
+  while (queue.length > 0) {
+    const node = queue.shift();
+    
+    if (node === goalNode) {
+      return true;
+    } else {
+      for(const successor of node.successors) {
+        if(nodesSeen.has(successor)) {
+          continue;
+        }
+        queue.push(successor);
+        nodesSeen.add(successor);
+      }
+    }
   }
+
+  return false;
 }
 */

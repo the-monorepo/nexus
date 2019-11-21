@@ -1,12 +1,47 @@
 import { expect } from 'chai';
-import { kth } from './index';
+import { breadthFirstSearch } from './index';
+
+class Node {
+  constructor(value, ...successors) {
+    this.value = value;
+    this.successors = successors;
+  }
+}
 
 describe('kth', () => {
-  it('1', () => expect(kth([1, 2, 3, 4, 5, 6, 7], 4)).to.equal(5));
-  it('2', () => expect(kth([3, 6, 7, 1, 6, 3, 8, 9], 5)).to.equal(7));
-  it('3', () => expect(kth([3, 6, 7, 1, 6, 3, 8, 9], 2)).to.equal(3));
-  it('4', () => expect(kth([2, 6, 8, 3, 5, 7], 0)).to.equal(2));
-  it('5', () => expect(kth([34, 25, 7, 1, 9], 4)).to.equal(34));
-  it('6', () => expect(kth([45, 2, 6, 8, 42, 90, 322], 1)).to.equal(6));
-  it('7', () => expect(kth([45, 2, 6, 8, 42, 90, 322], 6)).to.equal(322));
+  it('1', () => {
+    const station1 = new Node("Westminster");
+    const station2 = new Node("Waterloo", station1);
+    const station3 = new Node("Trafalgar Square", station1, station2);
+    const station4 = new Node("Canary Wharf", station2, station3);
+    const station5 = new Node("London Bridge", station4, station3);
+    const station6 = new Node("Tottenham Court Road", station5, station4);
+
+    expect(breadthFirstSearch(station6, station1)).to.equal(true);
+  });
+
+  it('2', () => {
+    const nodef = new Node("F");
+    const nodee = new Node("E");
+    const noded = new Node("D");
+    const nodec = new Node("C", nodef);
+    const nodeb = new Node("B", nodee);
+    const nodea = new Node("A", nodeb, nodec, noded);
+
+    expect(breadthFirstSearch(nodea, nodee)).to.equal(true);
+    expect(breadthFirstSearch(nodef, nodee)).to.equal(false);
+    expect(breadthFirstSearch(nodef, nodef)).to.equal(true);
+  });
+
+  it('3', () => {
+    const node1 = new Node("1");
+    const node2 = new Node("2");
+    const node3 = new Node("3");
+    const node4 = new Node("4", node1);
+    const node5 = new Node("5", node2);
+    const node6 = new Node("6", node5, node4, node3);
+    node2.successors = [node6];
+
+    expect(breadthFirstSearch(node6, node1)).to.equal(true);
+  })
 });
