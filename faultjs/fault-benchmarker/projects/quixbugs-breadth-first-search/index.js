@@ -1,18 +1,53 @@
+export const breadthFirstSearch = (startNode, goalNode) => {
+  const queue = [];
+  queue.push(startNode);
 
-def breadth_first_search(startnode, goalnode):
-queue = Queue()
-queue.append(startnode)
+  const nodesSeen = new Set();
+  nodesSeen.add(startNode);
 
-nodesseen = set()
-nodesseen.add(startnode)
+  while (true) {
+    const node = queue.shift();
+    
+    if (node === goalNode) {
+      return true;
+    } else {
+      for(const successor of node.successors) {
+        if(nodesSeen.has(successor)) {
+          continue;
+        }
+        queue.push(successor);
+        nodesSeen.add(successor);
+      }
+    }
+  }
 
-while queue:
-    node = queue.popleft()
+  return false;
+}
 
-    if node is goalnode:
-        return True
-    else:
-        queue.extend(node for node in node.successors if node not in nodesseen)
-        nodesseen.update(node.successors)
+/*
+export const breadthFirstSearch = (startNode, goalNode) => {
+  const queue = [];
+  queue.push(startNode);
 
-return False
+  const nodesSeen = new Set();
+  nodesSeen.add(startNode);
+
+  while (queue.length > 0) {
+    const node = queue.shift();
+    
+    if (node === goalNode) {
+      return true;
+    } else {
+      for(const successor of node.successors) {
+        if(nodesSeen.has(successor)) {
+          continue;
+        }
+        queue.push(successor);
+        nodesSeen.add(successor);
+      }
+    }
+  }
+
+  return false;
+}
+*/
