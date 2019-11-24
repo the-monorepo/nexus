@@ -3,7 +3,7 @@ class Node<T> {
     public value: T,
     public next: Node<T> | undefined,
     public previous: Node<T> | undefined,
-  ) { }
+  ) {}
 }
 
 class ReverseIterator<T> implements IterableIterator<T> {
@@ -14,7 +14,7 @@ class ReverseIterator<T> implements IterableIterator<T> {
       return {
         value: undefined,
         done: true,
-      }
+      };
     }
 
     const popped = this.nextNode.previous;
@@ -23,7 +23,7 @@ class ReverseIterator<T> implements IterableIterator<T> {
     return {
       value: popped.value,
       done: this.nextNode === undefined,
-    }
+    };
   }
 
   [Symbol.iterator]() {
@@ -39,7 +39,7 @@ class ForwardIterator<T> implements IterableIterator<T> {
       return {
         value: undefined,
         done: true,
-      }
+      };
     }
 
     const popped = this.nextNode.next;
@@ -65,13 +65,13 @@ export class Deque<T> implements Iterable<T> {
   }
 
   pop() {
-    if(this.tailNode === undefined) {
+    if (this.tailNode === undefined) {
       return undefined;
     }
     const tailValue = this.tailNode.value;
 
     this.tailNode = this.tailNode.previous;
-    if(this.tailNode === undefined) {
+    if (this.tailNode === undefined) {
       this.headNode = undefined;
     }
 
@@ -79,12 +79,12 @@ export class Deque<T> implements Iterable<T> {
   }
 
   shift() {
-    if(this.headNode === undefined) {
+    if (this.headNode === undefined) {
       return undefined;
     }
     const headValue = this.headNode.value;
 
-    this.headNode = this.headNode.next;    
+    this.headNode = this.headNode.next;
     if (this.headNode === undefined) {
       this.tailNode = this.headNode.previous;
     }
@@ -92,9 +92,9 @@ export class Deque<T> implements Iterable<T> {
     return headValue;
   }
 
-  private singleUnshift(value: T) {    
+  private singleUnshift(value: T) {
     const newNode = new Node(value, this.headNode, undefined);
-    if(this.headNode === undefined) {
+    if (this.headNode === undefined) {
       this.headNode = newNode;
       this.tailNode = newNode;
     } else {
@@ -104,14 +104,14 @@ export class Deque<T> implements Iterable<T> {
   }
 
   unshift(...values: T[]) {
-    for(const value of values) {
+    for (const value of values) {
       this.singleUnshift(value);
     }
   }
 
   private singlePush(value: T) {
     const newNode = new Node(value, undefined, this.headNode);
-    if(this.headNode === undefined) {
+    if (this.headNode === undefined) {
       this.headNode = newNode;
       this.tailNode = newNode;
     } else {
@@ -121,7 +121,7 @@ export class Deque<T> implements Iterable<T> {
   }
 
   push(...values: T[]) {
-    for(const value of values) {
+    for (const value of values) {
       this.singlePush(value);
     }
   }
@@ -134,12 +134,12 @@ export class Deque<T> implements Iterable<T> {
   }
 
   get tail() {
-    if(this.tailNode === undefined) {
+    if (this.tailNode === undefined) {
       return undefined;
     }
     return this.tailNode.value;
   }
-  
+
   [Symbol.iterator](): IterableIterator<T> {
     return new ForwardIterator(this.headNode);
   }
