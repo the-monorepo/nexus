@@ -21,7 +21,7 @@ type PartialTestData = {
 type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => {};
 const commonTestHandle = (submitHandle: SubmitHandle) => {
   return (test: Mocha.Test, err) => {
-    console.log('test done', test.title, test.isPassed())
+    console.log('test done', test.title, test.isPassed());
     const coverage = subtractCoverage(global[COVERAGE_KEY], global.beforeTestCoverage);
     const hash =
       test!.titlePath().join('_') +
