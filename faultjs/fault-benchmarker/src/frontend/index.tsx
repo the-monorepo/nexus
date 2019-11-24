@@ -94,11 +94,7 @@ type ResultsTableProps = {
   total?: number;
   title: string;
 };
-const ResultsTable = ({
-  projectResults,
-  invertColors,
-  total,
-}: ResultsTableProps) => {
+const ResultsTable = ({ projectResults, invertColors, total }: ResultsTableProps) => {
   const averages: number[] = [];
   for (let i = 0; i < algorithmNames.length; i++) {
     let sum = 0;

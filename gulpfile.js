@@ -22,7 +22,7 @@ const PluginError = require('plugin-error');
 const monorepo = require('./monorepo.config');
 
 const packagesDirNames = monorepo.projectsDirs;
-const buildPackagesDirNames = monorepo.projectsDirs;
+const buildPackagesDirNames = monorepo.buildProjects;
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
