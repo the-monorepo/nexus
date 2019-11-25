@@ -7,14 +7,8 @@ export const depthFirstSearch = (startNode, goalNode) => {
       return true;
     } else {
       nodesVisited.add(node);
-      for (const successorNode of node.successors) {
-        if(search(successorNode)) {
-          return true;
-        }
-      }
+      return node.successors.some(successor => search(successor));
     }
-
-    return false;
   }
 
   return search(startNode);
@@ -30,14 +24,8 @@ export const depthFirstSearch = (startNode, goalNode) => {
       return true;
     } else {
       nodesVisited.add(node);
-      for (const successorNode of node.successors) {
-        if(search(successorNode)) {
-          return true;
-        }
-      }
+      return node.successors.some(successor => search(successor));
     }
-
-    return false;
   }
 
   return search(startNode);

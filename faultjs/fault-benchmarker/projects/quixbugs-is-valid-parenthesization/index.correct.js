@@ -1,7 +1,7 @@
 export const isValidParaenthesization = (parens) => {
   let depth = 0;
   for(const paren of parens) {
-    if(parent === '(') {
+    if(paren === '(') {
       depth++;
     } else {
       depth--;
