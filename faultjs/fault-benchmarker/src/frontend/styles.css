@@ -4,10 +4,22 @@
   --dark-ternary: rgba(0, 0, 0, 0.17);
   padding: 100px;
 }
+
 section {
-  padding-top: 20px;
-  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
+
+section h2 {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+section table {
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
 
 * {
   color: var(--dark-primary);
