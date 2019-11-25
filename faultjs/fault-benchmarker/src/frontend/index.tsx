@@ -1,6 +1,7 @@
 /// <reference path="global.d.ts" />
 import * as mbx from 'mobx-dom';
 import benchmarkResults from '../../benchmark-results.json';
+import './styles.css';
 type Ranking = {
   rank: number;
   count: number;
@@ -112,7 +113,7 @@ const ResultsTable = ({ projectResults, invertColors, total }: ResultsTableProps
   const averageMax = Math.max(...averages);
 
   return (
-    <table className="table">
+    <table class="table">
       <tbody>
         <TableHeader />
         {projectResults.map(result => (
@@ -238,13 +239,13 @@ const Main = () => {
       projectResultsToExamResults(
         projectResults.filter(projectResult => !projectResult.artificial),
         'Real-world EXAM scores',
-        'big',
       ),
     );
     tableResults.push(
       projectResultsToExamResults(
         projectResults.filter(projectResult => projectResult.artificial),
         'Artificial EXAM scores',
+        'big',
       ),
     );
     tableResults.push(
@@ -268,7 +269,7 @@ const Main = () => {
   // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
   return (
     <div>
-      <header className="page-title">
+      <header class="page-title">
         <h1>Fault.js benchmark results</h1>
       </header>
       <label htmlFor="separate-sandboxed">Separate sandboxed</label>
@@ -282,9 +283,9 @@ const Main = () => {
         checked={true}
       ></input>
 
-      <div className="page">
+      <div class="page">
         {tableResults.map(tableResult => (
-          <section className={tableResult.class}>
+          <section class={tableResult.class}>
             <h2>{tableResult.title}</h2>
             <ResultsTable
               projectResults={tableResult.projectResults}
