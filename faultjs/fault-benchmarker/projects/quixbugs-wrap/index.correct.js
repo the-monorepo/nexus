@@ -11,6 +11,7 @@ export const wrap = (text, cols) => {
     text = text.slice(end);
     lines.push(line);
   }
+  lines.push(text);
 
   return lines;
 };
