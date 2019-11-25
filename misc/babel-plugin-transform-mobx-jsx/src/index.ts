@@ -168,12 +168,12 @@ const findProgramAndOuterPath = path => {
 };
 
 const isRootJSXNode = path => {
-  const parent = path.parent;
-  if (t.isJSXFragment(parent) || t.isJSXElement(parent)) {
+  const parent = path.parentPath;
+  if (parent.isJSXFragment() || parent.isJSXElement()) {
     return false;
-  } else if (t.isJSXExpressionContainer(parent)) {
+  } else if (parent.isJSXExpressionContainer()) {
     // TODO: Very confusing condition
-    return isRootJSXNode(path.parentPath);
+    return isRootJSXNode(parent);
   } else {
     return true;
   }
@@ -343,12 +343,12 @@ const isDynamicDomlessNode = (node: Node) => {
 };
 
 function* yieldDomNodeFromJSXFragment(
-  jsxFragment: JSXFragment,
+  path: t.NodePath<JSXFragment>,
   previousIsDynamic: boolean,
   scope,
   outerPath,
 ) {
-  for (const child of jsxFragment.children) {
+  for (const child of path.node.children) {
     for (const node of yieldDomNodeFromNodeSimplified(
       child,
       previousIsDynamic,
@@ -864,7 +864,7 @@ export default declare((api, options) => {
     if (isRootJSXNode(path)) {
       const outerPath = findProgramAndOuterPath(path).path;
       const domNodes = [
-        ...yieldDomNodeFromJSXFragment(path.node, false, path.scope, outerPath),
+        ...yieldDomNodeFromJSXFragment(path, false, path.scope, outerPath),
       ];
       replacePathWithDomNodeSyntax(domNodes, path, outerPath);
     }
