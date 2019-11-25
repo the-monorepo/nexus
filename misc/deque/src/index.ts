@@ -10,19 +10,20 @@ class ReverseIterator<T> implements IterableIterator<T> {
   constructor(private nextNode: Node<T> | undefined) {}
 
   next(): IteratorResult<T> {
-    if (this.nextNode === undefined) {
+    const currentNode = this.nextNode;
+    if (currentNode === undefined) {
       return {
         value: undefined,
         done: true,
       }
     }
 
-    const popped = this.nextNode.previous;
-    this.nextNode = popped;
+    const previous = currentNode.previous;
+    this.nextNode = previous;
 
     return {
-      value: popped.value,
-      done: this.nextNode === undefined,
+      value: currentNode.value,
+      done: false,
     }
   }
 
@@ -35,19 +36,20 @@ class ForwardIterator<T> implements IterableIterator<T> {
   constructor(private nextNode: Node<T> | undefined) {}
 
   next(): IteratorResult<T> {
-    if (this.nextNode === undefined) {
+    const currentNode = this.nextNode;
+    if (currentNode === undefined) {
       return {
         value: undefined,
         done: true,
       }
     }
 
-    const popped = this.nextNode.next;
+    const popped = currentNode.next;
     this.nextNode = popped;
 
     return {
-      value: popped.value,
-      done: this.nextNode === undefined,
+      value: currentNode.value,
+      done: false,
     };
   }
 
@@ -86,7 +88,7 @@ export class Deque<T> implements Iterable<T> {
 
     this.headNode = this.headNode.next;    
     if (this.headNode === undefined) {
-      this.tailNode = this.headNode.previous;
+      this.tailNode = undefined;
     }
 
     return headValue;
@@ -111,7 +113,7 @@ export class Deque<T> implements Iterable<T> {
 
   private singlePush(value: T) {
     const newNode = new Node(value, undefined, this.headNode);
-    if(this.headNode === undefined) {
+    if(this.tailNode === undefined) {
       this.headNode = newNode;
       this.tailNode = newNode;
     } else {

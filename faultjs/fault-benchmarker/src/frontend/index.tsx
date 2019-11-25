@@ -149,7 +149,7 @@ const state = {
 const projectResultsToExamResults = (
   projectResults: ProjectResult[],
   title: string,
-  clazz: string,
+  clazz?: string,
 ): ResultsTableProps => {
   const tableProps = projectResults.map(projectResult => ({
     ...projectResult,
@@ -187,7 +187,7 @@ const projectResultsToExamResults = (
 const projectResultsToRankings = (
   projectResults: ProjectResult[],
   title: string,
-  clazz: string,
+  clazz?: string,
 ): ResultsTableProps => {
   const props: ProjectResultProps[] = [];
 
@@ -235,38 +235,40 @@ const projectResultsToRankings = (
 };
 
 const Main = () => {
-  const tableResults: ResultsTableProps[] = [];
+  const eInspectResults: ResultsTableProps[] = [];
+  const examResults: ResultsTableProps[] = [];
   console.log(projectResults);
   if (state.separateArtificial) {
-    tableResults.push(
+    examResults.push(
       projectResultsToExamResults(
         projectResults.filter(projectResult => !projectResult.artificial),
         'Real-world EXAM scores',
         'big',
       ),
     );
-    tableResults.push(
+    examResults.push(
       projectResultsToExamResults(
         projectResults.filter(projectResult => projectResult.artificial),
         'Artificial EXAM scores',
       ),
     );
-    tableResults.push(
+    eInspectResults.push(
       projectResultsToRankings(
         projectResults.filter(projectResults => !projectResults.artificial),
         'Real-world Einspect@n scores',
       ),
     );
-    tableResults.push(
+    eInspectResults.push(
       projectResultsToRankings(
         projectResults.filter(projectResults => projectResults.artificial),
         'Artificial Einspect@n scores',
       ),
     );
   } else {
-    tableResults.push(projectResultsToExamResults(projectResults, 'Exam scores'));
-    tableResults.push(projectResultsToRankings(projectResults, 'Einspect@n scores'));
+    examResults.push(projectResultsToExamResults(projectResults, 'Exam scores'));
+    eInspectResults.push(projectResultsToRankings(projectResults, 'Einspect@n scores'));
   }
+  const tableResults: ResultsTableProps[] = [];
   // TODO: JSX comments aren't working
   // TODO: JSX spread not working
   // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
@@ -285,7 +287,6 @@ const Main = () => {
         }}
         checked={true}
       ></input>
-
       <div className="page">
         {tableResults.map(tableResult => (
           <section className={tableResult.class}>
