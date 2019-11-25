@@ -35,6 +35,7 @@ describe('depthFirstSearch', () => {
     expect(depthFirstSearch(nodef, nodef)).to.equal(true);
   });
   it('5', () => {
+    nodee.successors = [nodea]
     expect(depthFirstSearch(nodea, nodef)).to.equal(true);
   });
 });

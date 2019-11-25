@@ -1,6 +1,7 @@
 {
   "./index.js": [
     {
+      "type": "within",
       "location": {
         "start": {
           "line": 13,
