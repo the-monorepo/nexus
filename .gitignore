@@ -68,3 +68,5 @@ misc/*/dist/
 misc/*/stats.html
 
 faults
+
+report.*.*.*.*.*.json
