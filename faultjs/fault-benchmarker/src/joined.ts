@@ -63,12 +63,13 @@ const main = async () => {
             );
             await recordFaults(filePath, newResults);
           }
+          console.log('Finished!', dir, algo);
         } catch (err) {
-          console.error(dir, algo, err);
+          console.error(dir, algo, err.message);
         }
       }
     } catch (err) {
-      console.error(dir, err);
+      console.error(dir, err.message);
     }
   }
   console.log(statements.join(','));

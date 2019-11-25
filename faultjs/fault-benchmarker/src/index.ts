@@ -309,8 +309,6 @@ export const run = async () => {
 
     for (const { name } of (sbflAlgorithms as any).concat([
       { name: mbflName },
-      { name: 'mbfl-dstar-2' },
-      { name: 'mbfl-op2' },
     ])) {
       const actualFaults = convertFileFaultDataToFaults(
         require(faultFilePath(projectDir, name)),
