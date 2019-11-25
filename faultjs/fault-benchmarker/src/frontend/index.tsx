@@ -231,6 +231,62 @@ const projectResultsToRankings = (
   };
 };
 
+class ViolinResultsChartElement extends HTMLElement {
+  private data: ResultsTableProps;
+  private canvasElement: HTMLCanvasElement;
+  constructor() {
+    super();
+
+    this.canvasElement = document.createElement('canvas');
+
+    this.attachShadow({ mode: 'open' })
+      .appendChild(this.canvasElement);
+  }
+
+  connectedCallback() {
+    const context = this.canvasElement.getContext('2d');
+    const algoCount = algorithmNames.length;
+    console.log('alag', algoCount, algorithmNames)
+
+    const datasets = [];
+    for(let a = 0; a < algoCount; a++) {
+      const data = [];
+      for(const projectResult of this.data.projectResults) {
+        data.push(projectResult.results[a]);
+      }
+      datasets.push({
+        label: algorithmNames[a],
+        backgroundColor: 'rgba(255,0,0,0.5)',
+        borderColor: 'red',
+        borderWidth: 1,
+        outlierColor: '#999999',
+        padding: 10,
+        itemRadius: 0,
+        data
+      })
+    }
+    console.log('datasets', datasets);
+    const boxPlotData = {
+      labels: algorithmNames,
+      datasets,
+      options: {
+        responsive: true,
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'EXAM scores'
+        }
+      }
+    }
+
+    new Chart(context, boxPlotData);
+  }
+}
+
+window.customElements.define('violin-chart', ViolinResultsChartElement);
+
 const Main = () => {
   const eInspectResults: ResultsTableProps[] = [];
   const examResults: ResultsTableProps[] = [];
@@ -284,8 +340,10 @@ const Main = () => {
         }}
         checked={true}
       ></input>
-
       <div class="page">
+        {examResults.map(results => (
+          <violin-chart $data={results}/>
+        ))}
         {tableResults.map(tableResult => (
           <section class={tableResult.class}>
             <h2>{tableResult.title}</h2>
