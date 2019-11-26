@@ -124,6 +124,13 @@ type TextNode = {
   id?: any;
 };
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
+
+export default declare((api, options) => {
+  const setterMap = new Map();
+
+  api.assertVersion(7);
+
+  
 function domNodeFromJSXText(path: t.NodePath<JSXText>, previousIsDynamic: boolean, scope) {
   return domNodeFromString(path.node.value, previousIsDynamic, scope);
 }
@@ -591,7 +598,6 @@ const dynamicFieldExpression = (
   return null;
 };
 
-const setterMap = new Map();
 function* yieldFieldExpressionsFromNodes(nodes: Node[], rootId) {
   let previousConsecutiveDynamicNodeCount = 0;
   for (const node of nodes) {
@@ -782,9 +788,6 @@ const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
     );
   }
 };
-
-export default declare((api, options) => {
-  api.assertVersion(7);
 
   const THROW_IF_NAMESPACE =
     options.throwIfNamespace === undefined ? true : !!options.throwIfNamespace;
