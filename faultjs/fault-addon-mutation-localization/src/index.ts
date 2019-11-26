@@ -358,9 +358,9 @@ class BinaryInstruction extends SingleLocationInstruction {
       }
     }
     if (['||', '&&'].includes(operator)) {
-      nodePath.replaceWith(t.logicalExpression(operator as any, nodePath.get('left'), nodePath.get('right')));
+      nodePath.replaceWith(t.logicalExpression(operator as any, nodePath.node.left, nodePath.node.right));
     } else {
-      nodePath.replaceWith(t.binaryExpression(operator as any, nodePath.get('left'), nodePath.get('right')));
+      nodePath.replaceWith(t.binaryExpression(operator as any, nodePath.node.left, nodePath.node.right));
     }
   }
 
