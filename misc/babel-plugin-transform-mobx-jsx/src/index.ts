@@ -126,8 +126,6 @@ type TextNode = {
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
 
 export default declare((api, options) => {
-  const setterMap = new Map();
-
   api.assertVersion(7);
 
   
@@ -807,6 +805,7 @@ const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
       .reduce((object, property) => t.memberExpression(object, property));
   };
 
+  let setterMap: Map;
   const visitor = helper({
     pre(state) {
       const tagName = state.tagName;
@@ -827,6 +826,7 @@ const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
 
   visitor.Program = {
     enter(path, state) {
+      setterMap = new Map();
       const { file } = state;
       //path.unshift(t.memberExpression(t.identifier('swek'), t.identifier(1)));
       let pragma = PRAGMA_DEFAULT;
