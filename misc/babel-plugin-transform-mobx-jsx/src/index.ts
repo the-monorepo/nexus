@@ -222,7 +222,6 @@ const domNodeFromJSXElement = (
   outerPath,
 ): SubcomponentNode | ElementNode => {
   const jsxOpeningElementPath = path.get('openingElement');
-
   const jsxAttributePaths = jsxOpeningElementPath.get('attributes');
   const jsxOpeningElementNamePath = jsxOpeningElementPath.get('name');
   if (
@@ -246,6 +245,7 @@ const domNodeFromJSXElement = (
                 const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
                 const elementId = outerPath.scope.generateUidIdentifier('element');
                 const valueId = outerPath.scope.generateUidIdentifier('value');
+                console.log(outerPath);
                 outerPath.insertBefore(
                   constDeclaration(
                     id,

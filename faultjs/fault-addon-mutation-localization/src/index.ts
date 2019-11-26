@@ -260,7 +260,7 @@ const expressionKey = (filePath: string, node: BaseNode) =>
     node.loc!.end.column
   }:${node.type}`;
 
-const assertFoundNodePaths = (nodePaths: any[], location: Location) => {
+const assertFoundNodePaths = (nodePaths: NodePath[], location: Location) => {
   if (nodePaths.length <= 0) {
     throw new Error(
       `Expected to find a node at location ${locationToKeyIncludingEnd(
@@ -336,16 +336,15 @@ class BinaryInstruction extends SingleLocationInstruction {
     return this.operators.length;
   }
 
-  async processNodePaths(nodePaths) {
+  async processNodePaths(nodePaths: NodePath<t.BinaryExpression | t.LogicalExpression>[]) {
     const operator = this.operators.pop()!;
     const nodePath = nodePaths[0];
 
-    const node = nodePath.node as (t.BinaryExpression | t.LogicalExpression);
     if (this.nullifyLeft) {
       this.nullifyLeft = false;
       // TODO: Wasn't sure if it's always possible to do this but need results :P. Remove the try
       try {
-        nodePath.replaceWith(node.left);
+        nodePath.replaceWith(nodePath.get('left'));
         return;
       } catch (err) {
         console.error(err);
@@ -353,16 +352,16 @@ class BinaryInstruction extends SingleLocationInstruction {
     } else if (this.nullifyRight) {
       this.nullifyRight = false;
       try {
-        nodePath.replaceWith(node.right);
+        nodePath.replaceWith(nodePath.get('right'));
         return;
       } catch (err) {
         console.error(err);
       }
     }
     if (['||', '&&'].includes(operator)) {
-      nodePath.replaceWith(t.logicalExpression(operator as any, node.left, node.right));
+      nodePath.replaceWith(t.logicalExpression(operator as any, nodePath.get('left'), nodePath.get('right')));
     } else {
-      nodePath.replaceWith(t.binaryExpression(operator as any, node.left, node.right));
+      nodePath.replaceWith(t.binaryExpression(operator as any, nodePath.get('left'), nodePath.get('right')));
     }
   }
 
@@ -405,11 +404,11 @@ class AssignmentInstruction extends SingleLocationInstruction {
     return nodePath.isAssignmentExpression();
   }
 
-  processNodePaths(nodePaths) {
+  processNodePaths(nodePaths: NodePath[]) {
     const operator = this.operators.pop();
     const nodePath = nodePaths[0];
 
-    nodePath.node.operator = operator;
+    nodePath.setData('operator', operator);
   }
 
   async *onEvaluation() {}
@@ -588,18 +587,18 @@ class DeleteStatementInstruction implements Instruction {
           );
         }
         if (statement.type === IF_TRUE) {
-          path.node.test = t.booleanLiteral(true);
+          path.set('test', t.booleanLiteral(true));
         } else if (statement.type === IF_FALSE) {
-          path.node.test = t.booleanLiteral(false);
+          path.set('test', t.booleanLiteral(false))
         } else {
           throw new Error(`Statement type not recognized ${statement.type}`);
         }
       } else if (parentPath.isIfStatement()) {
-        parentNode[path.key] = t.blockStatement([]);
+        path.replaceWith(t.blockStatement([]));
       } else if (Array.isArray(parentNode.body)) {
         parentNode.body.splice(statement.index, 1);
       } else {
-        parentNode.body = t.blockStatement([]);
+        parentPath.set('body', t.blockStatement([]));
       }
     }
   }
@@ -811,10 +810,9 @@ class ReplaceStringInstruction extends SingleLocationInstruction {
     return this.values.length <= 0 || super.isRemovable(evaluation);
   }
 
-  processNodePaths(nodePaths) {
+  processNodePaths(nodePaths: NodePath<t.StringLiteral>[]) {
     const nodePath = nodePaths[0];
-    const node = nodePath.node;
-    node.value = this.values.pop();
+    nodePath.setData('value', this.values.pop());
   }
 
   async *onEvaluation() {}
@@ -846,9 +844,7 @@ class ReplaceNumberInstruction extends SingleLocationInstruction {
 
   processNodePaths(nodePaths) {
     const nodePath = nodePaths[0] as NodePath<t.NumberLiteral>;
-
-    const node = nodePath.node;
-    node.value = this.values.pop()!;
+    nodePath.setData('value', this.values.pop());
   }
 
   async *onEvaluation() {}
@@ -971,7 +967,7 @@ class InvertBooleanLiteralInstruction extends SingleLocationInstruction {
 
   async processNodePaths(nodePaths) {
     const nodePath = nodePaths[0] as NodePath<t.BooleanLiteral>;
-    nodePath.node.value = !nodePath.node.value;
+    nodePath.setData('value', !nodePath.node.value);
   }
 
   async *onEvaluation() {}
@@ -1003,10 +999,9 @@ class ReplaceIdentifierInstruction extends SingleLocationInstruction {
     );
   }
 
-  processNodePaths(nodePaths: NodePath[]) {
-    const nodePath = nodePaths[0] as NodePath<t.Identifier>;
-    const name = this.names.pop()!;
-    nodePath.node.name = name;
+  processNodePaths(nodePaths: NodePath<t.Identifier>[]) {
+    const nodePath = nodePaths[0];
+    nodePath.setData('name', this.names.pop()!);
   }
 }
 
@@ -1444,7 +1439,7 @@ const STRINGS = Symbol('strings');
 const TOTAL_NODES = Symbol('total-nodes');
 const PREVIOUS_IDENTIFIER_NAMES = Symbol('previous-identifer-names');
 async function identifyUnknownInstruction(
-  nodePaths: any[],
+  nodePaths: NodePath[],
   derivedFromPassingTest: boolean,
   cache: AstCache,
 ): Promise<StatementInformation[][]> {
