@@ -339,7 +339,6 @@ class BinaryInstruction extends SingleLocationInstruction {
   async processNodePaths(nodePaths: NodePath<t.BinaryExpression | t.LogicalExpression>[]) {
     const operator = this.operators.pop()!;
     const nodePath = nodePaths[0];
-
     if (this.nullifyLeft) {
       this.nullifyLeft = false;
       // TODO: Wasn't sure if it's always possible to do this but need results :P. Remove the try
