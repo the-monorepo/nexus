@@ -4,6 +4,7 @@ import helper from '@babel/helper-builder-react-jsx';
 import { types as t } from '@babel/core';
 import { JSXAttribute, JSXElement, JSXFragment, JSXText } from '@babel/types';
 import { JSXExpressionContainer } from '@babel/types';
+import { NodePath } from '@babel/traverse';
 
 const mbxMemberExpression = (field: string) => {
   return t.memberExpression(t.identifier('mbx'), t.identifier(field));
@@ -231,7 +232,7 @@ const domNodeFromJSXElement = (
     const tag = jsxOpeningElementPath.node.name.name;
     const potentialId = scope.generateUidIdentifier(`${tag}$`);
     const fields: ElementField[] = jsxAttributePaths.map(
-      (jsxAttributePath): ElementField => {
+      (jsxAttributePath: NodePath<t.JSXAttribute>): ElementField => {
         const namePath = jsxAttributePath.get('name');
         const valuePath = jsxAttributePath.get('value');
         const type = fieldType(namePath.node.name);
@@ -245,7 +246,7 @@ const domNodeFromJSXElement = (
                 const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
                 const elementId = outerPath.scope.generateUidIdentifier('element');
                 const valueId = outerPath.scope.generateUidIdentifier('value');
-                console.log(outerPath);
+
                 outerPath.insertBefore(
                   constDeclaration(
                     id,
@@ -866,7 +867,7 @@ export default declare((api, options) => {
 
   visitor.JSXFragment = function(path: t.NodePath) {
     if (isRootJSXNode(path)) {
-      const outerPath = findProgramAndOuterPath(path).path;
+      const outerPath = path.findParent(parentPath => parentPath === undefined || parentPath.parentPath.isProgram());
       const domNodes = [
         ...yieldDomNodeFromJSXFragment(path, false, path.scope, outerPath),
       ];
@@ -877,7 +878,7 @@ export default declare((api, options) => {
   visitor.JSXElement = {
     exit(path) {
       if (isRootJSXNode(path)) {
-        const outerPath = findProgramAndOuterPath(path).path;
+        const outerPath = path.findParent(parentPath => parentPath === undefined || parentPath.parentPath.isProgram());
         const domNode = domNodeFromJSXElement(path, false, path.scope, outerPath);
         replacePathWithDomNodeSyntax([domNode], path, outerPath);
       }
