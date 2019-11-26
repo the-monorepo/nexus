@@ -123,8 +123,8 @@ type TextNode = {
   id?: any;
 };
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
-function domNodeFromJSXText(jsxText: JSXText, previousIsDynamic: boolean, scope) {
-  return domNodeFromString(jsxText.value, previousIsDynamic, scope);
+function domNodeFromJSXText(path: t.NodePath<JSXText>, previousIsDynamic: boolean, scope) {
+  return domNodeFromString(path.node.value, previousIsDynamic, scope);
 }
 
 const isElementTag = (tag: string) => {
@@ -153,7 +153,7 @@ const fieldType = (name: string) => {
     : ATTRIBUTE_TYPE;
 };
 
-const findProgramAndOuterPath = path => {
+const findProgramAndOuterPath = (path: t.NodePath) => {
   const parent = path.parentPath;
   if (!parent) {
     return { program: path };
@@ -167,8 +167,9 @@ const findProgramAndOuterPath = path => {
   }
 };
 
-const isRootJSXNode = path => {
+const isRootJSXNode = (path: t.NodePath) => {
   const parent = path.parentPath;
+
   if (parent.isJSXFragment() || parent.isJSXElement()) {
     return false;
   } else if (parent.isJSXExpressionContainer()) {
@@ -181,19 +182,19 @@ const isRootJSXNode = path => {
 
 const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
 
-const valueExpressionFromJsxAttributeValue = (jsxValue: JSXAttribute['value']) =>
-  t.isJSXExpressionContainer(jsxValue) ? jsxValue.expression : jsxValue;
+const valueExpressionFromJsxAttributeValue = (valuePath: t.NodePath<JSXAttribute>) =>
+  valuePath.isJSXExpressionContainer() ? valuePath.node.expression : valuePath.node;
 
 const domNodesFromJSXChildren = (
-  jsxChildren: JSXElement['children'],
+  jsxChildrenPaths: t.NodePath<JSXElement['children']>[],
   scope,
   outerPath,
-): any[] => {
-  const children: Node[] = [];
+) => {
+  const children: t.NodePath<Node>[] = [];
   let previousChildIsDynamic = false;
-  for (const child of jsxChildren) {
+  for (const childPath of jsxChildrenPaths) {
     for (const node of yieldDomNodeFromNodeSimplified(
-      child,
+      childPath,
       previousChildIsDynamic,
       scope,
       outerPath,
@@ -215,26 +216,29 @@ const hasDynamicNodes = (children: Node[]) => {
 };
 
 const domNodeFromJSXElement = (
-  jsxElement: JSXElement,
+  path: t.NodePath<JSXElement>,
   previousIsDynamic,
   scope,
   outerPath,
 ): SubcomponentNode | ElementNode => {
-  const jsxOpeningElement = jsxElement.openingElement;
+  const jsxOpeningElementPath = path.get('openingElement');
 
-  const jsxAttributes = jsxElement.openingElement.attributes;
+  const jsxAttributePaths = jsxOpeningElementPath.get('attributes');
+  const jsxOpeningElementNamePath = jsxOpeningElementPath.get('name');
   if (
-    t.isJSXIdentifier(jsxOpeningElement.name) &&
-    isElementTag(jsxOpeningElement.name.name)
+    jsxOpeningElementNamePath.isJSXIdentifier() &&
+    isElementTag(jsxOpeningElementNamePath.node.name)
   ) {
-    const tag = jsxOpeningElement.name.name;
+    const tag = jsxOpeningElementPath.node.name.name;
     const potentialId = scope.generateUidIdentifier(`${tag}$`);
-    const fields: ElementField[] = jsxAttributes.map(
-      (jsxAttribute): ElementField => {
-        const type = fieldType(jsxAttribute.name.name);
+    const fields: ElementField[] = jsxAttributePaths.map(
+      (jsxAttributePath): ElementField => {
+        const namePath = jsxAttributePath.get('name');
+        const valuePath = jsxAttributePath.get('value');
+        const type = fieldType(namePath.node.name);
         switch (type) {
           case PROPERTY_TYPE:
-            const key = cleanFieldName(jsxAttribute.name.name);
+            const key = cleanFieldName(namePath.node.name);
             const setterId = (() => {
               if (setterMap.has(key)) {
                 return setterMap.get(key);
@@ -262,19 +266,19 @@ const domNodeFromJSXElement = (
             return {
               type,
               setterId,
-              expression: valueExpressionFromJsxAttributeValue(jsxAttribute.value),
+              expression: valueExpressionFromJsxAttributeValue(valuePath),
               key,
             };
           default:
             return {
               type,
-              key: cleanFieldName(jsxAttribute.name.name),
-              expression: valueExpressionFromJsxAttributeValue(jsxAttribute.value),
+              key: cleanFieldName(namePath.node.name),
+              expression: valueExpressionFromJsxAttributeValue(valuePath),
             } as ElementField;
         }
       },
     );
-    const children = domNodesFromJSXChildren(jsxElement.children, scope, outerPath);
+    const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
     const childrenAreDynamic = hasDynamicNodes(children);
     const nonStaticAttributeFields = fields.filter(
       field => !(field.type === ATTRIBUTE_TYPE && isLiteral(field.expression)),
@@ -291,28 +295,28 @@ const domNodeFromJSXElement = (
     };
     return resultNode;
   } else {
-    const fields: SubcomponentField[] = jsxAttributes.map(
-      (jsxAttribute): SubcomponentField => {
-        if (t.isJSXSpreadAttribute(jsxAttribute)) {
+    const fields: SubcomponentField[] = jsxAttributePaths.map(
+      (jsxAttributePath): SubcomponentField => {
+        if (jsxAttributePath.isJSXSpreadAttribute()) {
           const result: SpreadField = {
             type: SPREAD_TYPE,
-            expression: jsxAttribute.argument, // TODO: Check this is right
+            expression: jsxAttributePath.node.argument, // TODO: Check this is right
           };
           return result;
         } else {
           const result: SubcomponentPropertyField = {
             type: SUBCOMPONENT_PROPERTY_TYPE,
-            key: jsxAttribute.name.name,
-            expression: valueExpressionFromJsxAttributeValue(jsxAttribute.value),
+            key: jsxAttributePath.node.name.name,
+            expression: valueExpressionFromJsxAttributeValue(jsxAttributePath.get('value')),
           };
           return result;
         }
       },
     );
-    const children = domNodesFromJSXChildren(jsxElement.children, scope, outerPath);
+    const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
     const resultNode: SubcomponentNode = {
       type: SUBCOMPONENT_TYPE,
-      nameExpression: jsxOpeningElement.name,
+      nameExpression: jsxOpeningElementPath.node.name,
       children,
       childrenTemplateId:
         children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
@@ -348,9 +352,9 @@ function* yieldDomNodeFromJSXFragment(
   scope,
   outerPath,
 ) {
-  for (const child of path.node.children) {
+  for (const childPath of path.get('children')) {
     for (const node of yieldDomNodeFromNodeSimplified(
-      child,
+      childPath,
       previousIsDynamic,
       scope,
       outerPath,
@@ -362,29 +366,29 @@ function* yieldDomNodeFromJSXFragment(
 }
 
 function* yieldDomNodeFromJSXExpressionContainerNode(
-  node: JSXExpressionContainer,
+  path: t.NodePath<JSXExpressionContainer>,
   previousIsDynamic: boolean,
   scope,
   outerPath,
 ): IterableIterator<Node> {
-  const expression = node.expression;
+  const expressionPath = path.get('expression');
   // TODO: Function and array literals
-  if (t.isJSXElement(expression) || t.isJSXFragment(expression)) {
+  if (expressionPath.isJSXElement() || expressionPath.isJSXFragment()) {
     yield* yieldDomNodeFromNodeSimplified(
-      expression,
+      expressionPath,
       previousIsDynamic,
       scope,
       outerPath,
     );
-  } else if (t.isStringLiteral(expression)) {
+  } else if (expressionPath.isStringLiteral()) {
     // TODO: Two contained literals next to each other would lead to incorrect state length
-    const textNode = domNodeFromString(expression.value, previousIsDynamic, scope);
+    const textNode = domNodeFromString(expressionPath.node.value, previousIsDynamic, scope);
     if (textNode) {
       yield textNode;
     }
-  } else if (t.isNumericLiteral(expression) || t.isBooleanLiteral(expression)) {
+  } else if (expressionPath.isNumericLiteral() || expressionPath.isBooleanLiteral()) {
     const textNode = domNodeFromString(
-      expression.value.toString(),
+      expressionPath.node.value.toString(),
       previousIsDynamic,
       scope,
     );
@@ -394,46 +398,46 @@ function* yieldDomNodeFromJSXExpressionContainerNode(
   } else {
     yield {
       type: DYNAMIC_TYPE,
-      expression,
+      expression: expressionPath.node,
     };
   }
 }
 
 function* yieldDomNodeFromNodeNonSimplified(
-  node: JSXElement['children'][0],
+  path: t.NodePath<JSXElement['children'][0]>,
   previousIsDynamic,
   scope,
   outerPath,
 ): IterableIterator<Node> {
-  if (t.isJSXElement(node)) {
-    yield domNodeFromJSXElement(node, previousIsDynamic, scope, outerPath);
-  } else if (t.isJSXExpressionContainer(node)) {
+  if (path.isJSXElement()) {
+    yield domNodeFromJSXElement(path, previousIsDynamic, scope, outerPath);
+  } else if (path.isJSXExpressionContainer()) {
     yield* yieldDomNodeFromJSXExpressionContainerNode(
-      node,
+      path,
       previousIsDynamic,
       scope,
       outerPath,
     );
-  } else if (t.isJSXFragment(node)) {
-    yield* yieldDomNodeFromJSXFragment(node, previousIsDynamic, scope, outerPath);
-  } else if (t.isJSXText(node)) {
-    const textNode = domNodeFromJSXText(node, previousIsDynamic, scope);
+  } else if (path.isJSXFragment()) {
+    yield* yieldDomNodeFromJSXFragment(path, previousIsDynamic, scope, outerPath);
+  } else if (path.isJSXText()) {
+    const textNode = domNodeFromJSXText(path, previousIsDynamic, scope);
     if (textNode) {
       yield textNode;
     }
   } else {
-    throw new Error(`Invalid node type ${node.type}`);
+    throw new Error(`Invalid node type ${path.node.type}`);
   }
 }
 
 function* yieldDomNodeFromNodeSimplified(
-  node: JSXElement | JSXFragment,
+  path: t.NodePath<JSXElement | JSXFragment>,
   previousIsDynamic: boolean,
   scope,
   outerPath,
 ): IterableIterator<Node> {
   const domNodeIterator = yieldDomNodeFromNodeNonSimplified(
-    node,
+    path,
     previousIsDynamic,
     scope,
     outerPath,
@@ -860,7 +864,7 @@ export default declare((api, options) => {
     },
   };
 
-  visitor.JSXFragment = function(path) {
+  visitor.JSXFragment = function(path: t.NodePath) {
     if (isRootJSXNode(path)) {
       const outerPath = findProgramAndOuterPath(path).path;
       const domNodes = [
@@ -874,7 +878,7 @@ export default declare((api, options) => {
     exit(path) {
       if (isRootJSXNode(path)) {
         const outerPath = findProgramAndOuterPath(path).path;
-        const domNode = domNodeFromJSXElement(path.node, false, path.scope, outerPath);
+        const domNode = domNodeFromJSXElement(path, false, path.scope, outerPath);
         replacePathWithDomNodeSyntax([domNode], path, outerPath);
       }
     },
