@@ -244,16 +244,20 @@ class ViolinResultsChartElement extends HTMLElement {
   }
 
   connectedCallback() {
+    console.log('data', this.data);
     const context = this.canvasElement.getContext('2d');
     const algoCount = algorithmNames.length;
     console.log('alag', algoCount, algorithmNames)
 
-    const datasets = [];
+    const datasets: any = [];
     for(let a = 0; a < algoCount; a++) {
-      const data = [];
-      for(const projectResult of this.data.projectResults) {
-        data.push(projectResult.results[a]);
-      }
+      const data: number[] = [];
+      for(const projectResult of this.data) {
+        const result = projectResult.results[a];
+        if (result != null) {
+          data.push(result);
+        }
+      } 
       datasets.push({
         label: algorithmNames[a],
         backgroundColor: 'rgba(255,0,0,0.5)',
@@ -321,7 +325,7 @@ const Main = () => {
     examResults.push(projectResultsToExamResults(projectResults, 'Exam scores'));
     eInspectResults.push(projectResultsToRankings(projectResults, 'Einspect@n scores'));
   }
-  const tableResults: ResultsTableProps[] = [];
+  const tableResults: ResultsTableProps[] = [...examResults, ...eInspectResults];
   // TODO: JSX comments aren't working
   // TODO: JSX spread not working
   // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
@@ -341,8 +345,9 @@ const Main = () => {
         checked={true}
       ></input>
       <div class="page">
+        {examResults.map(a => console.log('aewraewr', a))}
         {examResults.map(results => (
-          <violin-chart $data={results}/>
+          <violin-chart $data={results.projectResults}/>
         ))}
         {tableResults.map(tableResult => (
           <section class={tableResult.class}>
