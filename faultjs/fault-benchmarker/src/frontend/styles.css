@@ -5,6 +5,11 @@
   padding: 100px;
 }
 
+.violin {
+  height: 100%;
+  width: 100%;
+}
+
 section {
   display: flex;
   flex-direction: column;
