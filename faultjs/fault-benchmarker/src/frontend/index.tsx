@@ -232,58 +232,96 @@ const projectResultsToRankings = (
 };
 
 class ViolinResultsChartElement extends HTMLElement {
-  private data: ResultsTableProps;
   private canvasElement: HTMLCanvasElement;
   constructor() {
     super();
 
+    const div = document.createElement('div');
+    div.style.height = '600px';
+    div.style.width = '600px';
+    div.style.position='relative';
     this.canvasElement = document.createElement('canvas');
 
+    div.appendChild(this.canvasElement);
     this.attachShadow({ mode: 'open' })
-      .appendChild(this.canvasElement);
+      .appendChild(div);
+      this.connected = false;
   }
 
   connectedCallback() {
-    console.log('data', this.data);
+    this.connected = true;
+    if (this._data !== undefined) {
+      this.data = this._data;
+    }
+  }
+
+  set data(value: ResultsTableProps[]) {
+    this._data = value;
+    if (!this.connected) {
+      return;
+    }
+
+    console.log('data', value);
     const context = this.canvasElement.getContext('2d');
     const algoCount = algorithmNames.length;
-    console.log('alag', algoCount, algorithmNames)
+    console.log('alag', algoCount, algorithmNames);
 
-    const datasets: any = [];
-    for(let a = 0; a < algoCount; a++) {
-      const data: number[] = [];
-      for(const projectResult of this.data) {
-        const result = projectResult.results[a];
-        if (result != null) {
-          data.push(result);
+    const createDataPlot = (results: ResultsTableProps) => {
+      const data: number[][] = [];
+      for(let a = 0; a < algoCount; a++) {
+        const dataRow: number[] = [];
+        for(const projectResult of results.projectResults) {
+          const result = projectResult.results[a];
+          if (result != null) {
+            dataRow.push(result);
+          }
         }
-      } 
-      datasets.push({
-        label: algorithmNames[a],
+        data.push(dataRow);
+      }
+      return data;  
+    };
+    const datasets: ResultsTableProps[] = [
+      {
+        label: 'Real defects',
         backgroundColor: 'rgba(255,0,0,0.5)',
         borderColor: 'red',
         borderWidth: 1,
         outlierColor: '#999999',
         padding: 10,
         itemRadius: 0,
-        data
-      })
-    }
-    console.log('datasets', datasets);
+        data: createDataPlot(value.artificial),
+      },
+      {
+        label: 'Artificial defects',
+        backgroundColor: 'rgba(0,0,255,0.5)',
+        borderColor: 'red',
+        borderWidth: 1,
+        outlierColor: '#999999',
+        padding: 10,
+        itemRadius: 0,
+        data: createDataPlot(value.real),
+      }
+    ];
+
     const boxPlotData = {
-      labels: algorithmNames,
-      datasets,
+      type: 'horizontalViolin',
+      data: {
+        labels: algorithmNames,
+        datasets
+      },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         legend: {
           position: 'top',
         },
         title: {
           display: true,
-          text: 'EXAM scores'
+          text: 'EXAM results'
         }
       }
     }
+    console.log(boxPlotData);
 
     new Chart(context, boxPlotData);
   }
@@ -345,10 +383,7 @@ const Main = () => {
         checked={true}
       ></input>
       <div class="page">
-        {examResults.map(a => console.log('aewraewr', a))}
-        {examResults.map(results => (
-          <violin-chart $data={results.projectResults}/>
-        ))}
+        <violin-chart $data={{ real: examResults[1], artificial: examResults[0] }} class="violin"/>
         {tableResults.map(tableResult => (
           <section class={tableResult.class}>
             <h2>{tableResult.title}</h2>
