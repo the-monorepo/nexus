@@ -34,28 +34,6 @@ import * as micromatch from 'micromatch';
 import Heap from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
 
-type MutationResultLocation = {
-  direct: boolean;
-  location: ExpressionLocation;
-};
-type LocationObject = {
-  [filePath: string]: MutationResultLocation[];
-};
-
-type MutationResults = {
-  lineWidth: number;
-  columnWidth: number;
-  locations: LocationObject;
-};
-
-const totalMutations = (mutationResults: MutationResults) => {
-  let count = 0;
-  for (const location of Object.values(mutationResults.locations)) {
-    count += location.length;
-  }
-  return count;
-};
-
 const originalPathToCopyPath: Map<string, string> = new Map();
 let copyFileId = 0;
 let copyTempDir: string = null!;
@@ -115,34 +93,6 @@ const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) =>
   return nodePaths;
 };
 
-const getStatementOrBlock = (
-  path: NodePath<t.Node>,
-): NodePath<t.Scopable> | NodePath<t.Node> => {
-  if (path.isStatement() || path.isBlock()) {
-    return path;
-  } else if (path.parentPath) {
-    return getStatementOrBlock(path.parentPath);
-  } else {
-    return path;
-  }
-};
-
-const expressionKey = (filePath: string, node: t.Node) =>
-  `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${
-    node.loc!.end.column
-  }:${node.type}`;
-
-const assertFoundNodePaths = (nodePaths: NodePath[], location: Location) => {
-  if (nodePaths.length <= 0) {
-    throw new Error(
-      `Expected to find a node at location ${locationToKeyIncludingEnd(
-        location.filePath,
-        location,
-      )} but didn't`,
-    );
-  }
-};
-
 export const binaryOperationCategories = [
   ['^', ['&', '<<', '>>>', '>>'], ['|', '>>', '<<']],
   [['&', '&&']],
@@ -150,19 +100,6 @@ export const binaryOperationCategories = [
   [['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]],
   [['**', '*'], '%', ['/', '*'], ['-', '+']],
 ];
-
-const locationToMutationResults = (
-  location: Location,
-  direct: boolean,
-): MutationResults => {
-  return {
-    lineWidth: location.end.line - location.start.line,
-    columnWidth: location.end.column - location.start.column,
-    locations: {
-      [location.filePath]: [{ location, direct }],
-    },
-  };
-};
 
 const ASSIGNMENT = Symbol('assignment');
 
@@ -648,8 +585,8 @@ const executeInstructions = (asts: Map<string, t.File>, instructions: Heap<Instr
   ));
 }
 
-const getAstPath = (ast: t.File): NodePath<t.File> => {
-  let filePath: NodePath<t.File>;
+const getAstPath = (ast: t.File): NodePath<t.Program> => {
+  let filePath: NodePath<t.Program>;
   
   traverse(ast, {
     enter: (path) => {
@@ -716,27 +653,27 @@ const filterVariantDuplicates = <T>(arr: T[]): T[] => {
 
 const createValueVariantCollector = (condition: ConditionFn, symbol: Symbol, key: string = 'value', collectCondition: ConditionFn = condition) => {
   return <T>(ast: t.File): T[][] => {
-    const stringBlocks: T[][] = [[]];
+    const blocks: T[][] = [[]];
     traverse(ast, {
       enter: (subPath) => {
         if (subPath.isScope()) {
-          stringBlocks.push([]);
+          blocks.push([]);
         }
         const current = (subPath.node as any)[key];
         if(condition(subPath)) {
-          subPath.node[symbol as any] = filterVariantDuplicates(([] as any[]).concat(...stringBlocks)).filter(v => v !== current);
+          subPath.node[symbol as any] = filterVariantDuplicates(([] as any[]).concat(...blocks)).filter(v => v !== current);
         }
         if (collectCondition(subPath)) {
-          stringBlocks[stringBlocks.length - 1].push(current);
+          blocks[blocks.length - 1].push(current);
         }
       },
       exit: (subPath) => {
         if(subPath.isScope()) {
-          stringBlocks.pop();
+          blocks.pop();
         }
       },
     });
-    return stringBlocks;
+    return blocks;
   };
 }
 
@@ -1943,6 +1880,33 @@ const instructionBlocksToMaxInstructionsLeft = (blocks: Iterable<Heap<Instructio
   }
   return total;
 }
+//let a = 1;
+//let b = a;
+//let c = b + 1;*/
+//      ^ changing it did something good. Meaning something is wrong with c or anything that depends on it
+//  since it alters c anything that relies on or creates c should have the evaluation added to it
+// this includes all nodes from: "= 1", "= a", "b + 1", "= c", "d"
+//let d = c;
+//let q = b;
+//rawr(d);
+
+//rawr(mm() + 4)
+//       ^ changing it did something good. 
+// added eval goes to: "= 1", "= a", "= c", "b ="
+
+/*const getDependencyNodes = (path: NodePath): Set<t.Node> => {
+  const collectedPaths: Set<t.Node> = new Set([path.node]);
+  const pathStack: NodePath[] = [path];
+  while(pathStack.length > 0) {
+    const aPath = pathStack.pop()!;
+    aPath.scope
+    if (!collectedPaths.has(aPath)) {
+      collectedPaths.add(aPath);
+      for(const referenced)
+    }
+  }
+  return collectedPaths;
+};*/
 
 const addMutationEvaluation = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
