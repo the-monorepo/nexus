@@ -63,7 +63,9 @@ module.exports = {
       headHtmlSnippet: [
         'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js',
         'https://unpkg.com/chartjs-chart-box-and-violin-plot@2/build/Chart.BoxPlot.js',
-      ].map(script => `<script src="${script}" type="text/javascript"></script>`).join(''),
+      ]
+        .map(script => `<script src="${script}" type="text/javascript"></script>`)
+        .join(''),
       links: [
         'https://fonts.googleapis.com/css?family=Open+Sans',
         'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css',
