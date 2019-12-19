@@ -391,7 +391,7 @@ const createMutationSequenceFactory = <D, T>(
   return wrapper;
 }
 
-type Instruction2<D> = {
+type Instruction<D> = {
   type: Symbol,
   dependencies: Map<string, DependencyInfo>,
   mutations: Mutation<D, any>[],
@@ -407,7 +407,7 @@ type DependencyInfo = {
 
 type AbstractInstructionFactory<D> = {
   setup?: (asts: Map<string, t.File>) => void,
-  createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction2<D>>,
+  createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<D>>,
 }
 
 type InstructionFactoryPayload<D, T> = {
@@ -415,7 +415,7 @@ type InstructionFactoryPayload<D, T> = {
   wrapper: NodePathMutationWrapper<D, T>,
   variants: D[] | undefined,
 };
-class InstructionFactory2<D> implements AbstractInstructionFactory<D> {
+class InstructionFactory<D> implements AbstractInstructionFactory<D> {
   constructor(
     public readonly pathToInstructions: (path: NodePath) => IterableIterator<InstructionFactoryPayload<D, any>>,
     public readonly setupPath?: (path: t.File) => void
@@ -429,9 +429,9 @@ class InstructionFactory2<D> implements AbstractInstructionFactory<D> {
     }
   }
 
-  *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction2<D>> {
+  *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<D>> {
     for(const [filePath, ast] of asts) {
-      let instructions: Instruction2<D>[] = [];
+      let instructions: Instruction<D>[] = [];
       traverse(ast, {
         enter: (path) => {
           for(const { type, wrapper, variants } of this.pathToInstructions(path)) {
@@ -469,7 +469,7 @@ class InstructionFactory2<D> implements AbstractInstructionFactory<D> {
   }  
 }
 
-class SimpleInstructionFactory<D, T> extends InstructionFactory2<D> {
+class SimpleInstructionFactory<D, T> extends InstructionFactory<D> {
   constructor(
     type: Symbol,
     wrapper: NodePathMutationWrapper<D, T>,
@@ -551,8 +551,8 @@ const isConflictingDependencies = (map1: Map<string, DependencyInfo>, map2: Map<
   return false;
 };
 
-const organizeInstructions = (instructions: Iterable<Instruction2<any>>) => {
-  const instructionBlocks: Instruction2<any>[][] = [];
+const organizeInstructions = (instructions: Iterable<Instruction<any>>) => {
+  const instructionBlocks: Instruction<any>[][] = [];
   for(const newInstruction of instructions) {
     let addANewBlock = true;
     for(const instructions of instructionBlocks) {
@@ -572,7 +572,7 @@ const organizeInstructions = (instructions: Iterable<Instruction2<any>>) => {
   return instructionBlocks;
 }
 
-const executeInstructions = (asts: Map<string, t.File>, instructions: Heap<Instruction2<any>>): void => {
+const executeInstructions = (asts: Map<string, t.File>, instructions: Heap<Instruction<any>>): void => {
   [...instructions.unsortedIterator()].map(instruction => (
     instruction.mutations.map(mutation => ({
       mutation,
@@ -887,7 +887,7 @@ const swapFunctionCallArgumentsSequence = ({ index1, index2 }: SwapFunctionCallA
 };
 
 export const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
-const swapFunctionCallArgumentsFactory = new InstructionFactory2(
+const swapFunctionCallArgumentsFactory = new InstructionFactory(
   function*(nodePath) {
     if (nodePath.isCallExpression() && nodePath.node.loc) {
       const node = nodePath.node;
@@ -919,7 +919,7 @@ const swapFunctionDeclarationParametersSequence = ({ index1, index2 }: SwapFunct
 };
 
 export const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
-const swapFunctionDeclarationParametersFactory = new InstructionFactory2(
+const swapFunctionDeclarationParametersFactory = new InstructionFactory(
   function*(nodePath) {
     if (nodePath.isFunctionDeclaration() && nodePath.node.loc) {
       const node = nodePath.node;
@@ -949,7 +949,7 @@ const deleteStatementSequence = ({ index }: DeleteStatementArgs) => {
 }
 
 export const DELETE_STATEMENT = Symbol('delete-statement');
-const deleteStatementFactory = new InstructionFactory2(
+const deleteStatementFactory = new InstructionFactory(
   function *(path) {
     if (path.has('body')) {
       const bodyPaths = path.get('body');
@@ -971,7 +971,7 @@ const deleteStatementFactory = new InstructionFactory2(
 )
 
 export const AST_FILE_PATH = Symbol('ast-file-path');
-const instructionFactories: InstructionFactory2<any>[] = [
+const instructionFactories: InstructionFactory<any>[] = [
   replaceAssignmentOperatorFactory,
   replaceBinaryOrLogicalOperatorFactory,
   replaceBooleanFactory,
@@ -1264,7 +1264,7 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
 });
 
 export type CommonMutationEvaluation = {
-  instructions: Instruction2<any>[]
+  instructions: Instruction<any>[]
   /*
   type: symbol;
   totalNodes: number;
@@ -1301,7 +1301,7 @@ export type LocationMutationEvaluation = {
 const evaluateNewMutation = (
   originalResults: TesterResults,
   newResults: TesterResults,
-  instructions: Instruction2<any>[],
+  instructions: Instruction<any>[],
 ): MutationEvaluation => {
   const notSeen = new Set(originalResults.testResults.keys());
   let testsWorsened = 0;
@@ -1413,9 +1413,9 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
 
 export const compareFinalInstructionEvaluations = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
-  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
-  instructions1: Instruction2<any>[],
-  instructions2: Instruction2<any>[]
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
+  instructions1: Instruction<any>[],
+  instructions2: Instruction<any>[]
 ): number => {
   if (instructions1.length >= 1 && instructions2.length >= 1) {
     const comparisonFn = (a, b) => compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
@@ -1441,9 +1441,9 @@ export const compareFinalInstructionEvaluations = (
 type InstructionCategory = {
   filePath: string,
   location: t.SourceLocation,
-  instructions: Instruction2<any>[],
+  instructions: Instruction<any>[],
 };
-export const categoriseInstructionsIntoCloestParentPaths = (instructions: Instruction2<any>[], parentPaths: NodePath[]): Map<t.Node, InstructionCategory> => {
+export const categoriseInstructionsIntoCloestParentPaths = (instructions: Instruction<any>[], parentPaths: NodePath[]): Map<t.Node, InstructionCategory> => {
   const pathWithLocation = path => {
     return path.find(path => path.node.loc !== null);
   };
@@ -1474,7 +1474,7 @@ export const categoriseInstructionsIntoCloestParentPaths = (instructions: Instru
 
 export const mutationEvalatuationMapToFaults = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
-  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   instructionCategories: InstructionCategory[]
 ): Fault[] => {
   const faults = [...instructionCategories]
@@ -1497,7 +1497,7 @@ export const mutationEvalatuationMapToFaults = (
 };
 
 const getAffectedNodesFromInstructionBlock = (
-  instructions: Iterable<Instruction2<any>>,
+  instructions: Iterable<Instruction<any>>,
 ) => {
   const nodesAffected: Set<t.Node> = new Set();
   for(const instruction of instructions) {
@@ -1511,9 +1511,9 @@ const getAffectedNodesFromInstructionBlock = (
 
 const getAffectedInstructionsFromNodes = (
   nodes: Iterable<t.Node>,
-  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
+  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
 ) => {
-  const instructionsAffected: Set<Instruction2<any>> = new Set();
+  const instructionsAffected: Set<Instruction<any>> = new Set();
   for(const node of nodes) {
     for(const instruction of nodeToInstructions.get(node)!) {
       instructionsAffected.add(instruction);
@@ -1523,11 +1523,11 @@ const getAffectedInstructionsFromNodes = (
 }
 
 type IsFinishedFunction = (
-  instructions: Heap<Instruction2<any>>,
+  instructions: Heap<Instruction<any>>,
   testerResults: TesterResults,
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
-  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
-  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
+  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
   mutationCount: number,
 ) => boolean;
 
@@ -1715,7 +1715,7 @@ export const mapFaultsToIstanbulCoverage = (
   return [...mappedFaults.values()];
 };
 
-const getAffectedFilePaths = (instructions: Heap<Instruction2<any>>) => {
+const getAffectedFilePaths = (instructions: Heap<Instruction<any>>) => {
   return [...new Set(
     [...instructions.unsortedIterator()]
       .map(instruction => [...instruction.dependencies.keys()])
@@ -1723,7 +1723,7 @@ const getAffectedFilePaths = (instructions: Heap<Instruction2<any>>) => {
   )];
 }
 
-const resetMutationsInInstruction = async (instructions: Heap<Instruction2<any>>) => {
+const resetMutationsInInstruction = async (instructions: Heap<Instruction<any>>) => {
   const filePathsToReset = getAffectedFilePaths(instructions);
   await Promise.all(filePathsToReset.map(resetFile));
 };
@@ -1733,14 +1733,14 @@ let solutionCounter = 0;
 type LocationKey = string;
 const faultFileName = 'faults.json';
 
-const instructionToWriteNodePathDependencies = (instruction: Instruction2<any>): NodePath[] => {
+const instructionToWriteNodePathDependencies = (instruction: Instruction<any>): NodePath[] => {
   const dependencies = [...instruction.dependencies.values()]
     .map(fileDependencies => fileDependencies.writes)
     .flat();
   return dependencies;
 }
 
-const instructionToWriteNodeDependencies = (instruction: Instruction2<any>): t.Node[] => {
+const instructionToWriteNodeDependencies = (instruction: Instruction<any>): t.Node[] => {
   return instructionToWriteNodePathDependencies(instruction)
       .map((path) => path.node);
 };
@@ -1775,9 +1775,9 @@ const compareNodeEvaluations = (evaluation1: NodeEvaluation, evaluation2: NodeEv
   return 0;
 };
 
-const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>, instruction1: Instruction2<any>, instruction2: Instruction2<any>) => {
+const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>, instruction1: Instruction<any>, Instruction: Instruction<any>) => {
   const instructionEvaluations1 = instructionEvaluations.get(instruction1)!;
-  const instructionEvaluations2 = instructionEvaluations.get(instruction2)!;
+  const instructionEvaluations2 = instructionEvaluations.get(Instruction)!;
   
   if(instructionEvaluations1.length <= 0 && instructionEvaluations2.length >= 1) {
     const evaluation2 = instructionEvaluations2.peek();
@@ -1804,7 +1804,7 @@ const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instru
   }
 
   const relevantNodes1 = instructionToWriteNodeDependencies(instruction1);
-  const relevantNodes2 = instructionToWriteNodeDependencies(instruction2);
+  const relevantNodes2 = instructionToWriteNodeDependencies(Instruction);
 
   const nodeEvaluations1 = relevantNodes1.map(node => nodeEvaluations.get(node)!).sort(compareNodeEvaluations);
   const nodeEvaluations2 = relevantNodes2.map(node => nodeEvaluations.get(node)!).sort(compareNodeEvaluations);
@@ -1822,9 +1822,9 @@ const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instru
 
 const compareInstructionBlocks = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
-  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
-  block1: Heap<Instruction2<any>>,
-  block2: Heap<Instruction2<any>>
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
+  block1: Heap<Instruction<any>>,
+  block2: Heap<Instruction<any>>
 ): number => {
   const bestInstruction1 = block1.peek();
   const bestInstruction2 = block2.peek();
@@ -1848,9 +1848,9 @@ type NodeEvaluation = {
 
 export const initialiseEvaluationMaps = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
-  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
-  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
-  instructions: Instruction2<any>[],
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
+  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
+  instructions: Instruction<any>[],
 ) => {
   const nodes = getAffectedNodesFromInstructionBlock(instructions);
   for(const node of nodes) {
@@ -1870,7 +1870,7 @@ export const initialiseEvaluationMaps = (
 }
 
 const blockLengthToTotalDivisions = (n: number) => n * 2 - 1;
-const instructionBlocksToMaxInstructionsLeft = (blocks: Iterable<Heap<Instruction2<any>>>) => {
+const instructionBlocksToMaxInstructionsLeft = (blocks: Iterable<Heap<Instruction<any>>>) => {
   let total = 0;
   for(const block of blocks) {
     total += blockLengthToTotalDivisions(block.length);
@@ -1910,10 +1910,10 @@ const instructionBlocksToMaxInstructionsLeft = (blocks: Iterable<Heap<Instructio
 
 const addMutationEvaluation = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
-  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
-  instructionQueue: Heap<Heap<Instruction2<any>>>,
-  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
-  instructions: Heap<Instruction2<any>>,
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
+  instructionQueue: Heap<Heap<Instruction<any>>>,
+  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
+  instructions: Heap<Instruction<any>>,
   mutationEvaluation: MutationEvaluation,
 ) => {
   const nodesAffected: Set<t.Node> = getAffectedNodesFromInstructionBlock(instructions.unsortedIterator());
@@ -1925,7 +1925,7 @@ const addMutationEvaluation = (
     instructionEvaluations.get(instruction)!.push(mutationEvaluation);
   }
 
-  const instructionsAffected: Set<Instruction2<any>> = getAffectedInstructionsFromNodes(nodesAffected, nodeToInstructions);
+  const instructionsAffected: Set<Instruction<any>> = getAffectedInstructionsFromNodes(nodesAffected, nodeToInstructions);
   for(const instruction of instructionsAffected) {
     for(const block of instructionQueue.unsortedIterator()) {
       if (block.some(blockInstruction => blockInstruction === instruction)) {
@@ -1937,9 +1937,9 @@ const addMutationEvaluation = (
 
 const widenCoveragePath = (path: NodePath) => path.find(subPath => subPath.isStatement() || subPath.isFunction());
 
-const addSplittedInstructionBlock = (queue: Heap<Heap<Instruction2<any>>>, block: Heap<Instruction2<any>>) => {
+const addSplittedInstructionBlock = (queue: Heap<Heap<Instruction<any>>>, block: Heap<Instruction<any>>) => {
   const mid = Math.trunc(block.length / 2);
-  const part1: Heap<Instruction2<any>> = new Heap(block.compareFn);
+  const part1: Heap<Instruction<any>> = new Heap(block.compareFn);
   for(let i = 0; i < mid; i++) { 
     part1.push(block.pop()!);
   }
@@ -1968,17 +1968,17 @@ export const createPlugin = ({
   const faultFilePath = resolve(faultFileDir, faultFileName);
 
   const nodeEvaluations: Map<t.Node, NodeEvaluation> = new Map();
-  const nodeToInstructions: Map<t.Node, Instruction2<any>[]> = new Map();
-  const instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>> = new Map();
+  const nodeToInstructions: Map<t.Node, Instruction<any>[]> = new Map();
+  const instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>> = new Map();
 
-  const heapComparisonFn = (a: Heap<Instruction2<any>>, b: Heap<Instruction2<any>>) => compareInstructionBlocks(nodeEvaluations, instructionEvaluations, a, b);
+  const heapComparisonFn = (a: Heap<Instruction<any>>, b: Heap<Instruction<any>>) => compareInstructionBlocks(nodeEvaluations, instructionEvaluations, a, b);
 
-  let previousInstructions: Heap<Instruction2<any>> = null!;
+  let previousInstructions: Heap<Instruction<any>> = null!;
   let codeMap: Map<string, string> = null!;
   let originalAstMap: Map<string, t.File> = new Map();
   let coveragePaths: NodePath[] = null!;
   let finished = false;
-  const instructionQueue: Heap<Heap<Instruction2<any>>> = new Heap(heapComparisonFn);
+  const instructionQueue: Heap<Heap<Instruction<any>>> = new Heap(heapComparisonFn);
   let firstRun = true;
   let firstTesterResults: TesterResults;
   const failingTestFiles: Set<string> = new Set();
@@ -2162,7 +2162,7 @@ export const createPlugin = ({
 
           const organizedInstructions = organizeInstructions(relevantInstructions);
           console.log('organized instructions', organizedInstructions.map(a => a.map(b => b.type)))
-          const subHeapCompareFn = (a: Instruction2<any>, b: Instruction2<any>) => compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
+          const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) => compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
           instructionQueue.push(
             ...organizedInstructions.map(instructions => new Heap(subHeapCompareFn, instructions))
           );
