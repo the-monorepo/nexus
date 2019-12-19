@@ -171,7 +171,6 @@ export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryDat
     .reverse();
 };
 
-type TraverseFn = (previousResult: any) => any;
 type Mutation<D, S> = {
   setup: (asts: Map<string, t.File>, data: D) => S,
   execute: (state: S) => void;
@@ -480,7 +479,7 @@ class SimpleInstructionFactory<D, T> extends InstructionFactory<D> {
     super(
       function*(path) {
         if (condition(path)) {
-          const variants = createVariantFn?.(path as any);
+          const variants = createVariantFn === undefined ? undefined : createVariantFn(path as any);
           if (variants === undefined || variants.length >= 1) {
             yield {
               type,
@@ -497,7 +496,9 @@ class SimpleInstructionFactory<D, T> extends InstructionFactory<D> {
 
 function* gatherInstructions(factories: Iterable<AbstractInstructionFactory<any>>, asts: Map<string, t.File>) {
   for(const factory of factories) {
-    factory.setup?.(asts);
+    if (factory.setup !== undefined) {
+      factory.setup(asts);
+    }
     yield *factory.createInstructions(asts);
   }
 }
