@@ -3,7 +3,7 @@ module.exports = api => {
   const esm = env === 'esm';
   const test = env === 'test';
   const development = env === 'development';
-  const plugins = [];
+  const plugins = ['@babel/plugin-proposal-optional-chaining'];
   if (test) {
     plugins.push(
       [
