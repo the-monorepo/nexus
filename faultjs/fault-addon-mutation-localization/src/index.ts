@@ -631,7 +631,6 @@ const forceAlternateFactory = new SimpleInstructionFactory(
   isIfStatement
 );
 
-type ValueProps<T> = T;
 const replaceValueSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<any, any>) => {
     path.setDataDynamic('value', (value) => value);
