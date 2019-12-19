@@ -3,7 +3,6 @@ import {
   File,
   AssignmentExpression,
   Expression,
-  BaseNode,
   Statement,
 } from '@babel/types';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
@@ -34,23 +33,6 @@ import chalk from 'chalk';
 import * as micromatch from 'micromatch';
 import Heap from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
-
-export const createAstCache = (babelOptions?: ParserOptions) => {
-  const cache = new Map<string, File>();
-  return {
-    get: async (filePath: string, force = false): Promise<File> => {
-      if (!force && cache.has(filePath)) {
-        return cache.get(filePath)!;
-      }
-
-      const code = await readFile(filePath, 'utf8');
-      const ast = parse(code, babelOptions);
-      cache.set(filePath, ast);
-      return ast;
-    },
-  };
-};
-type AstCache = ReturnType<typeof createAstCache>;
 
 type MutationResultLocation = {
   direct: boolean;
@@ -97,131 +79,25 @@ const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
   }
 };
 
-/**
- * From least desirable to be processed to most
- */
-const compareInstructions = (a: InstructionHolder, b: InstructionHolder) => {
-  // TODO: The most important instructions should be ones that have huge potential to be a fix (E.g. Only improves tests, nothing else)
-  if (a.data.derivedFromPassingTest && !b.data.derivedFromPassingTest) {
-    return -1;
-  } else if (!a.data.derivedFromPassingTest && b.data.derivedFromPassingTest) {
-    return 1;
-  }
-  a.data.mutationEvaluations.sort(compareMutationEvaluations);
-  b.data.mutationEvaluations.sort(compareMutationEvaluations);
-  let aI = a.data.mutationEvaluations.length - 1;
-  let bI = b.data.mutationEvaluations.length - 1;
-  while (aI >= 0 && bI >= 0) {
-    const aMutationEvaluation = a.data.mutationEvaluations[aI];
-    const bMutationEvaluation = b.data.mutationEvaluations[bI];
-    const comparison = compareMutationEvaluations(
-      aMutationEvaluation,
-      bMutationEvaluation,
-    );
-    if (comparison !== 0) {
-      return comparison;
-    }
-    aI--;
-    bI--;
-  }
-  while (aI >= 0) {
-    const aMutationEvaluation = a.data.mutationEvaluations[aI];
-    const didSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(
-      aMutationEvaluation,
-    );
-    if (didSomethingGoodOrCrashed) {
-      return 1;
-    }
-    aI--;
-  }
-  while (bI >= 0) {
-    const bMutationEvaluation = b.data.mutationEvaluations[bI];
-    const didSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(
-      bMutationEvaluation,
-    );
-    if (didSomethingGoodOrCrashed) {
-      return -1;
-    }
-    bI--;
-  }
-  return b.data.mutationEvaluations.length - a.data.mutationEvaluations.length;
-};
-
 type Location = {
   filePath: string;
 } & ExpressionLocation;
 
-const IF_TRUE = 'if-true';
-const IF_FALSE = 'if-false';
-const STATEMENT = 'statement';
-
-type StatementInformationType = typeof IF_TRUE | typeof IF_FALSE | typeof STATEMENT;
-
-type StatementInformation = {
-  index: any;
-  type: StatementInformationType;
-  filePath: string;
-  location: ExpressionLocation;
-  retries: number;
-  innerStatements: StatementInformation[];
-  instructionHolders: InstructionHolder[];
-  totalNodes: number;
-  yielded: boolean;
-};
-
-type InstructionData = {
-  mutationEvaluations: MutationEvaluation[];
-  derivedFromPassingTest: boolean;
-};
-
-type Instruction = {
-  type: symbol;
-  isRemovable: (evaluation: MutationEvaluation, data: InstructionData) => boolean;
-  mutationResults: MutationResults;
-  process: (data: InstructionData, cache: AstCache) => Promise<any>;
-  totalNodes: number;
-  atomicMutation: boolean;
-  mutationsLeft: number;
-  mutationCount: number;
-  onEvaluation: (
-    evaluation: MutationEvaluation,
-    data: InstructionData,
-    cache: AstCache,
-  ) => AsyncIterableIterator<InstructionHolder<any>>;
-};
-
-type InstructionHolder<T extends Instruction = Instruction> = {
-  data: InstructionData;
-  instruction: T;
-};
-
-type InstructionFactory<T extends Instruction = Instruction> = {
-  enter(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean);
-  onInitialEnter(nodePath: NodePath, filePath: string, derivedFromPassingTest: boolean);
-  createPreBlockInstructions(
-    nodePath: NodePath,
-    filePath: string,
-    derivedFromPassingTests: boolean,
-  );
-  createInstructions(
-    nodePath: NodePath,
-    filePath: string,
-    derivedFromPassingTest: boolean,
-  ): IterableIterator<InstructionHolder<T>>;
-};
-
-const createInstructionHolder = <T extends Instruction>(
-  instruction: T,
-  derivedFromPassingTest: boolean,
-): InstructionHolder<T> => {
-  return {
-    data: {
-      mutationEvaluations: [],
-      derivedFromPassingTest,
-    },
-    instruction,
-  };
-};
+const locationEqual = (loc1: ExpressionLocation | null | undefined, loc2: ExpressionLocation | null | undefined) => {
+  if (loc2 === loc1) {
+    return true;
+  }
+  if (loc2 == null) {
+    return false;
+  }
+  if (loc1 == null) {
+    return false;
+  }
+  return loc1.start.column === loc2.start.column &&
+    loc1.start.line === loc2.start.line &&
+    loc1.end.column === loc2.end.column &&
+    loc1.end.line === loc2.end.line;
+}
 
 const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) => {
   const nodePaths: NodePath[] = [];
@@ -230,11 +106,7 @@ const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) =>
       const loc1 = location;
       const loc2 = path.node.loc;
       if (
-        loc2 &&
-        loc1.start.column === loc2.start.column &&
-        loc1.start.line === loc2.start.line &&
-        loc1.end.column === loc2.end.column &&
-        loc1.end.line === loc2.end.line
+        locationEqual(loc1, loc2)
       ) {
         nodePaths.push(path);
       }
@@ -255,7 +127,7 @@ const getStatementOrBlock = (
   }
 };
 
-const expressionKey = (filePath: string, node: BaseNode) =>
+const expressionKey = (filePath: string, node: t.Node) =>
   `${filePath}:${node.loc!.start.line}:${node.loc!.start.column}:${node.loc!.end.line}:${
     node.loc!.end.column
   }:${node.type}`;
@@ -271,7 +143,6 @@ const assertFoundNodePaths = (nodePaths: NodePath[], location: Location) => {
   }
 };
 
-const OPERATOR = Symbol('operation');
 export const binaryOperationCategories = [
   ['^', ['&', '<<', '>>>', '>>'], ['|', '>>', '<<']],
   [['&', '&&']],
@@ -279,93 +150,6 @@ export const binaryOperationCategories = [
   [['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]],
   [['**', '*'], '%', ['/', '*'], ['-', '+']],
 ];
-
-abstract class SingleLocationInstruction implements Instruction {
-  public abstract type: symbol;
-  public readonly mutationCount = 1;
-  private readonly retryHandler = new RetryHandler();
-  public readonly mutationResults: MutationResults;
-  public readonly atomicMutation: boolean = true;
-  constructor(private readonly location: Location) {
-    this.mutationResults = locationToMutationResults(location, true);
-  }
-
-  isRemovable(evaluation: MutationEvaluation) {
-    return this.retryHandler.evaluate(evaluation);
-  }
-
-  protected abstract processNodePaths(nodePaths: NodePath[]);
-
-  abstract filterNodePath(nodePath: NodePath): boolean;
-
-  async process(data, cache) {
-    const ast = await cache.get(this.location.filePath);
-
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath =>
-      this.filterNodePath(nodePath),
-    );
-    assertFoundNodePaths(nodePaths, this.location);
-
-    this.processNodePaths(nodePaths);
-  }
-}
-
-class BinaryInstruction extends SingleLocationInstruction {
-  public readonly type: symbol = OPERATOR;
-  public readonly mutationCount = 1;
-
-  filterNodePath(nodePath) {
-    return nodePath.isBinaryExpression() || nodePath.isLogicalExpression();
-  }
-
-  constructor(
-    location: Location,
-    private readonly operators: string[],
-    private nullifyLeft: boolean,
-    private nullifyRight: boolean,
-    public readonly totalNodes: number,
-  ) {
-    super(location);
-  }
-
-  isRemovable(evaluation) {
-    return this.operators.length <= 0 || super.isRemovable(evaluation);
-  }
-
-  get mutationsLeft() {
-    return this.operators.length;
-  }
-
-  async processNodePaths(nodePaths: NodePath<t.BinaryExpression | t.LogicalExpression>[]) {
-    const operator = this.operators.pop()!;
-    const nodePath = nodePaths[0];
-    if (this.nullifyLeft) {
-      this.nullifyLeft = false;
-      // TODO: Wasn't sure if it's always possible to do this but need results :P. Remove the try
-      try {
-        nodePath.replaceWith(nodePath.get('left'));
-        return;
-      } catch (err) {
-        console.error(err);
-      }
-    } else if (this.nullifyRight) {
-      this.nullifyRight = false;
-      try {
-        nodePath.replaceWith(nodePath.get('right'));
-        return;
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    if (['||', '&&'].includes(operator)) {
-      nodePath.replaceWith(t.logicalExpression(operator as any, nodePath.get('left'), nodePath.get('right')));
-    } else {
-      nodePath.replaceWith(t.binaryExpression(operator as any, nodePath.get('left'), nodePath.get('right')));
-    }
-  }
-
-  async *onEvaluation() {}
-}
 
 const locationToMutationResults = (
   location: Location,
@@ -381,37 +165,6 @@ const locationToMutationResults = (
 };
 
 const ASSIGNMENT = Symbol('assignment');
-class AssignmentInstruction extends SingleLocationInstruction {
-  public readonly type: symbol = ASSIGNMENT;
-  constructor(
-    location: Location,
-    private readonly operators: string[],
-    public readonly totalNodes: number,
-  ) {
-    super(location);
-  }
-
-  isRemovable(evaluation) {
-    return this.operators.length <= 0 || super.isRemovable(evaluation);
-  }
-
-  get mutationsLeft() {
-    return this.operators.length;
-  }
-
-  filterNodePath(nodePath) {
-    return nodePath.isAssignmentExpression();
-  }
-
-  processNodePaths(nodePaths: NodePath[]) {
-    const operator = this.operators.pop();
-    const nodePath = nodePaths[0];
-
-    nodePath.setData('operator', operator);
-  }
-
-  async *onEvaluation() {}
-}
 
 const didSomethingGood = (evaluation: MutationEvaluation) => {
   return (
@@ -433,308 +186,7 @@ const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
   );
 };
 
-type StatementBlock = {
-  statements: StatementInformation[];
-};
-export const DELETE_STATEMENT = Symbol('delete-statement');
-class DeleteStatementInstruction implements Instruction {
-  public readonly type = DELETE_STATEMENT;
-  public mutationResults: MutationResults;
-  public mutationsLeft: number;
-  public totalNodes: number;
-  public atomicMutation: boolean;
-  public mutationCount: number;
-  private lastProcessedStatementBlock: StatementBlock = undefined!;
-  private statementBlocks: Heap<StatementBlock>;
-  constructor(statements: StatementBlock[], private readonly maxRetries: number) {
-    this.statementBlocks = new Heap(
-      (a, b) => a.statements.length - b.statements.length,
-      statements,
-    );
-    // TODO: This doesn't really make sense, need to make this less hacky
-    this.lastProcessedStatementBlock = this.statementBlocks.peek();
-    this.recalculateMutationResults();
-  }
-
-  /**
-   * Managing state like this is gross, refactor
-   */
-  recalculateMutationResults() {
-    const locationsObj: LocationObject = {};
-    const locationsAdded: Set<string> = new Set();
-    const statements = this.lastProcessedStatementBlock.statements;
-    this.atomicMutation = statements.length <= 1;
-    const stack: StatementInformation[] = [...statements];
-    let totalNodes = 0;
-    for (const outerStatement of statements) {
-      totalNodes += outerStatement.totalNodes;
-    }
-    const originalStackLength = stack.length;
-    this.totalNodes = totalNodes;
-    let s = 0;
-    while (s < stack.length) {
-      const statement = stack[s];
-      const key = locationToKeyIncludingEnd(statement.filePath, statement.location!);
-      if (statement.innerStatements.length > 0 && statement.type !== IF_TRUE) {
-        stack.push(...statement.innerStatements);
-      }
-      if (!locationsAdded.has(key)) {
-        if (locationsObj[statement.filePath] === undefined) {
-          locationsObj[statement.filePath] = [];
-        }
-        locationsObj[statement.filePath].push({
-          location: statement.location,
-          direct: s < originalStackLength,
-        });
-        locationsAdded.add(key);
-      }
-      s++;
-    }
-    let lineWidth = 0;
-    let columnWidth = 0;
-    for (const statement of statements) {
-      lineWidth += Math.abs(statement.location.end.line - statement.location.start.line);
-      columnWidth += Math.abs(
-        statement.location.end.column - statement.location.start.column,
-      );
-    }
-    this.mutationResults = {
-      lineWidth,
-      columnWidth,
-      locations: locationsObj,
-    };
-
-    let count = statements.length * 2 - 1;
-    for (const statement of statements) {
-      for (const instructionHolder of statement.instructionHolders) {
-        count += instructionHolder.instruction.mutationsLeft;
-      }
-    }
-    this.mutationsLeft = count;
-    this.mutationCount = totalMutations(this.mutationResults);
-  }
-
-  isRemovable() {
-    return this.statementBlocks.length <= 0;
-  }
-
-  async process(data: InstructionData, cache: AstCache) {
-    const statements = this.statementBlocks.pop()!;
-    this.lastProcessedStatementBlock = statements;
-    this.recalculateMutationResults();
-    console.log(
-      `${statements.statements.length} left in statement & ${this.statementBlocks.length +
-        1} blocks left`,
-    );
-    const sortedStatements = [...statements.statements].sort((a, b) => {
-      const comparison = a.filePath.localeCompare(b.filePath);
-      if (comparison !== 0) {
-        return comparison;
-      }
-
-      const startLine = a.location.start.line - b.location.start.line;
-      if (startLine !== 0) {
-        return startLine;
-      }
-      const startColumn = a.location.start.column - b.location.start.column;
-      if (startColumn !== 0) {
-        return startColumn;
-      }
-      const endLine = a.location.end.line - b.location.end.line;
-      if (endLine !== 0) {
-        return endLine;
-      }
-      const endColumn = a.location.end.column - b.location.end.column;
-      if (endColumn !== 0) {
-        return endColumn;
-      }
-      return 0;
-    });
-    // TODO: Really shouldn't have to rely on the order of statements for this to work
-    for (let s = sortedStatements.length - 1; s >= 0; s--) {
-      const statement = sortedStatements[s];
-      const ast = await cache.get(statement.filePath);
-      const nodePaths = findNodePathsWithLocation(ast, statement.location!);
-      assertFoundNodePaths(nodePaths, {
-        ...statement.location!,
-        filePath: statement.filePath,
-      });
-      const filteredNodePaths = nodePaths.filter(
-        path =>
-          path.parentPath &&
-          (path.parentPath.node.body || path.parentPath.node.consequent),
-      );
-      assertFoundNodePaths(filteredNodePaths, {
-        ...statement.location!,
-        filePath: statement.filePath,
-      });
-      // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
-      const path = filteredNodePaths.pop()!;
-      const node = path.node;
-      const parentPath = path.parentPath;
-      const parentNode = parentPath!.node;
-      console.log(
-        `${locationToKeyIncludingEnd(statement.filePath, statement.location)}`,
-        statement.index,
-        parentNode.type,
-        node.type,
-      );
-      if (statement.type !== STATEMENT) {
-        if (!path.isIfStatement()) {
-          throw new Error(
-            `Statement type was ${statement.type} but node type was ${path.node.type}`,
-          );
-        }
-        if (statement.type === IF_TRUE) {
-          path.set('test', t.booleanLiteral(true));
-        } else if (statement.type === IF_FALSE) {
-          path.set('test', t.booleanLiteral(false))
-        } else {
-          throw new Error(`Statement type not recognized ${statement.type}`);
-        }
-      } else if (parentPath.isIfStatement()) {
-        path.replaceWith(t.blockStatement([]));
-      } else if (Array.isArray(parentNode.body)) {
-        parentNode.body.splice(statement.index, 1);
-      } else {
-        parentPath.set('body', t.blockStatement([]));
-      }
-    }
-  }
-
-  private splitStatementBlock(statements: StatementInformation[]) {
-    const middle = Math.trunc(statements.length / 2);
-    const statements1 = statements.slice(middle);
-    const statements2 = statements.slice(0, middle);
-    this.statementBlocks.push({
-      statements: statements1,
-    });
-    this.statementBlocks.push({
-      statements: statements2,
-    });
-  }
-
-  mergeStatementsWithLargestStatementBlock(statements: StatementInformation[]) {
-    if (this.statementBlocks.length <= 0) {
-      this.statementBlocks.push({
-        statements,
-      });
-      return;
-    }
-    let largestStatementBlock: StatementBlock | null = null;
-    for (const statementBlock of this.statementBlocks.unsortedIterator()) {
-      if (statementBlock.statements[0].retries < this.maxRetries) {
-        if (
-          largestStatementBlock === null ||
-          statementBlock.statements.length > largestStatementBlock.statements.length
-        ) {
-          largestStatementBlock = statementBlock;
-        }
-      }
-    }
-    if (largestStatementBlock !== null) {
-      largestStatementBlock.statements.push(...statements);
-      this.statementBlocks.update(largestStatementBlock);
-    }
-  }
-
-  async *onEvaluation(
-    evaluation: MutationEvaluation,
-  ): AsyncIterableIterator<InstructionHolder> {
-    const statements = this.lastProcessedStatementBlock;
-    if (statements.statements.length <= 0) {
-      throw new Error(`There were ${statements.statements.length} statements`);
-    }
-
-    const deletingStatementsDidSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(
-      evaluation,
-    );
-    if (deletingStatementsDidSomethingGoodOrCrashed) {
-      if (!evaluation.crashed) {
-        for (const statement of statements.statements) {
-          statement.retries = this.maxRetries;
-        }
-      }
-      if (statements.statements.length === 1) {
-        const statement = statements.statements[0];
-        if (!statement.yielded) {
-          yield* statement.instructionHolders;
-          statement.yielded = true;
-        }
-        if (statement.type === IF_TRUE) {
-          statement.type = IF_FALSE;
-          this.statementBlocks.push({
-            statements: [statement],
-          });
-        }
-      } else {
-        this.splitStatementBlock(statements.statements);
-      }
-    } else {
-      const originallySingleStatement = statements.statements.length === 1;
-      let statementStateAltered = false;
-      for (let s = statements.statements.length - 1; s >= 0; s--) {
-        const statement = statements.statements[s];
-        if (statement.retries <= 0) {
-          if (statement.type === IF_TRUE) {
-            statement.type = IF_FALSE;
-            statementStateAltered = true;
-          } else {
-            statements.statements.splice(s, 1);
-          }
-        } else {
-          statement.retries--;
-        }
-      }
-      if (statements.statements.length > 1) {
-        this.splitStatementBlock(statements.statements);
-      } else if (
-        statements.statements.length === 1 &&
-        (!originallySingleStatement || statementStateAltered)
-      ) {
-        this.statementBlocks.push({
-          statements: [statements.statements[0]],
-        });
-      }
-    }
-  }
-}
-
-class RetryHandler {
-  private readonly maxRetries: number = 1;
-  private retries: number = this.maxRetries;
-  private previousEvaluation: MutationEvaluation | null = null;
-
-  /**
-   * @param evaluation The mutation evaluation
-   * @returns whether the instruction needs to be removed or not
-   */
-  evaluate(evaluation: MutationEvaluation): boolean {
-    let removeInstruction = false;
-    if (
-      !didSomethingGood(evaluation) ||
-      (this.previousEvaluation &&
-        compareMutationEvaluations(evaluation, this.previousEvaluation) <= 0)
-    ) {
-      if (this.retries > 0) {
-        this.retries--;
-      } else {
-        removeInstruction = true;
-      }
-    } else {
-      this.retries = this.maxRetries;
-    }
-    if (
-      this.previousEvaluation == null ||
-      compareMutationEvaluations(this.previousEvaluation, evaluation) < 0
-    ) {
-      this.previousEvaluation = evaluation;
-    }
-    return removeInstruction;
-  }
-}
-
-type CategoryData<T> = {} & (T | CategoryData<T>)[];
+interface CategoryData<T> extends Array<T | CategoryData<T>> {}
 const recursiveIncludes = (match: any, arr: any) => {
   if (match === arr) {
     return true;
@@ -782,562 +234,686 @@ export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryDat
     .reverse();
 };
 
-const REPLACE_STRING = Symbol('replace-string');
-class ReplaceStringInstruction extends SingleLocationInstruction {
-  public readonly type: symbol = REPLACE_STRING;
+type TraverseFn = (previousResult: any) => any;
+type Mutation<D, S> = {
+  setup: (asts: Map<string, t.File>, data: D) => S,
+  execute: (state: S) => void;
+}
 
-  constructor(
-    location: Location,
-    private readonly values: string[],
-    public readonly totalNodes: number,
-  ) {
-    super(location);
-  }
+// TODO: nodePath should be a NodePath or NodePath[] - cbs fixing all the type errors
+type ValueFromPathFn<D, T, F> = (data: D, nodePath: any) => F;
 
-  get mutationsLeft() {
-    return this.values.length;
-  }
+type GetFnKey<T> = Parameters<NodePath<T>['get']>[0];
 
-  filterNodePath(nodePath) {
-    if (nodePath.isStringLiteral()) {
-      return true;
+type SetFnKey<T> = Parameters<NodePath<T>['set']>[0];
+type SetFnNode<T> = Parameters<NodePath<T>['set']>[1];
+
+type SetDataFnKey<T> = Parameters<NodePath<T>['setData']>[0];
+type SetDataFnValue<T> = Parameters<NodePath<T>['setData']>[1];
+
+type ReplaceWithFnReplacement<T> = Parameters<NodePath<T>['replaceWith']>[0];
+
+type TraverseKey = number | string;
+
+const getTraverseKeys = (path: NodePath<any>) => {
+  const parts: TraverseKey[] = [];
+
+  do {
+    parts.push(path.key);
+    if (path.inList) {
+      parts.push(path.listKey);
     }
-    return false;
-  }
+    path = path.parentPath;
+  } while(path !== null)
 
-  isRemovable(evaluation) {
-    return this.values.length <= 0 || super.isRemovable(evaluation);
-  }
-
-  processNodePaths(nodePaths: NodePath<t.StringLiteral>[]) {
-    const nodePath = nodePaths[0];
-    nodePath.setData('value', this.values.pop());
-  }
-
-  async *onEvaluation() {}
-}
-
-const REPLACE_NUMBER = Symbol('replace-number');
-class ReplaceNumberInstruction extends SingleLocationInstruction {
-  public readonly type: symbol = REPLACE_NUMBER;
-
-  constructor(
-    location: Location,
-    private readonly values: number[],
-    public readonly totalNodes: number,
-  ) {
-    super(location);
-  }
-
-  get mutationsLeft() {
-    return this.values.length;
-  }
-
-  filterNodePath(nodePath) {
-    return nodePath.isNumericLiteral();
-  }
-
-  isRemovable(evaluation) {
-    return this.values.length <= 0 || super.isRemovable(evaluation);
-  }
-
-  processNodePaths(nodePaths) {
-    const nodePath = nodePaths[0] as NodePath<t.NumberLiteral>;
-    nodePath.setData('value', this.values.pop());
-  }
-
-  async *onEvaluation() {}
-}
-
-class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstruction> {
-  private readonly filePathToNumberValues: Map<string, Set<number>> = new Map();
-
-  enter() {}
-
-  onInitialEnter(nodePath: NodePath, filePath: string) {
-    if (nodePath.isNumericLiteral()) {
-      if (!this.filePathToNumberValues.has(filePath)) {
-        this.filePathToNumberValues.set(filePath, new Set());
-      }
-      this.filePathToNumberValues.get(filePath)!.add(nodePath.node.value);
-    }
-  }
-
-  *createPreBlockInstructions() {}
-
-  *createInstructions(nodePath: NodePath, filePath, derivedFromPassingTest) {
-    if (nodePath.isNumericLiteral() && nodePath.node.loc) {
-      const node = nodePath.node;
-      const filterOut: Set<number> = new Set();
-      if (nodePath.parentPath && nodePath.parentPath.isBinaryExpression()) {
-        const operator = nodePath.parentPath.node.operator;
-        if (['-', '+', '*', '/', '%', '>>>', '>>'].includes(operator)) {
-          filterOut.add(0);
-        }
-        if ('**' === operator) {
-          filterOut.add(1);
-        }
-        if ('/' === operator && nodePath.key === 'right') {
-          filterOut.add(1);
-        }
-        if ('*' === operator) {
-          filterOut.add(1);
-        }
-        if ('<<' === operator && nodePath.key === 'right') {
-          filterOut.add(0);
-        }
-        if ('%' === operator && nodePath.key === 'right') {
-          filterOut.add(0);
-          filterOut.add(1);
-        }
-      }
-      filterOut.add(node.value);
-
-      const values = [
-        ...new Set([
-          ...this.filePathToNumberValues.get(filePath)!,
-          node.value - 1,
-          node.value + 1,
-        ]),
-      ]
-        .filter(value => !filterOut.has(value))
-        .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
-      yield createInstructionHolder(
-        new ReplaceNumberInstruction(
-          { ...nodePath.node.loc, filePath },
-          values,
-          node[TOTAL_NODES],
-        ),
-        derivedFromPassingTest,
-      );
-    }
-  }
-}
-
-class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstruction> {
-  enter() {}
-
-  onInitialEnter() {}
-
-  *createPreBlockInstructions() {}
-
-  *createInstructions(nodePath, filePath, derivedFromPassingTest) {
-    const node = nodePath.node;
-    if (nodePath.isStringLiteral() && node.loc) {
-      const alreadySeen = new Set();
-      const values = node[STRINGS]!.filter(value => value !== node.value).reverse();
-      const filteredValues = values.filter(value => {
-        if (alreadySeen.has(value)) {
-          return false;
-        }
-        alreadySeen.add(value);
-        return true;
-      });
-      filteredValues.reverse();
-      if (values.length > 0) {
-        yield createInstructionHolder(
-          new ReplaceStringInstruction(
-            { ...node.loc, filePath },
-            filteredValues,
-            node[TOTAL_NODES],
-          ),
-          derivedFromPassingTest,
-        );
-      }
-    }
-  }
-}
-
-const REPLACE_BOOLEAN = Symbol('replace-boolean');
-class InvertBooleanLiteralInstruction extends SingleLocationInstruction {
-  public readonly mutationsLeft: number = 1;
-  public readonly type = REPLACE_BOOLEAN;
-  constructor(location: Location, public readonly totalNodes: number) {
-    super(location);
-  }
-
-  isRemovable() {
-    return true;
-  }
-
-  filterNodePath(path: NodePath) {
-    return path.isBooleanLiteral();
-  }
-
-  async processNodePaths(nodePaths) {
-    const nodePath = nodePaths[0] as NodePath<t.BooleanLiteral>;
-    nodePath.setData('value', !nodePath.node.value);
-  }
-
-  async *onEvaluation() {}
-}
-
-const REPLACE_IDENTIFIER = Symbol('replace-identifier');
-class ReplaceIdentifierInstruction extends SingleLocationInstruction {
-  public readonly totalNodes: number = 1;
-  public readonly type: symbol = REPLACE_IDENTIFIER;
-  constructor(location: Location, public readonly names: string[]) {
-    super(location);
-  }
-
-  async *onEvaluation() {}
-
-  get mutationsLeft() {
-    return this.names.length;
-  }
-
-  isRemovable(evaluation) {
-    return this.names.length <= 0 || super.isRemovable(evaluation);
-  }
-
-  filterNodePath(nodePath: NodePath) {
-    return (
-      nodePath.isIdentifier() &&
-      nodePath.node.loc !== null &&
-      (nodePath.parentPath === null || !nodePath.parentPath.isVariableDeclarator())
-    );
-  }
-
-  processNodePaths(nodePaths: NodePath<t.Identifier>[]) {
-    const nodePath = nodePaths[0];
-    nodePath.setData('name', this.names.pop()!);
-  }
-}
-
-const couldBeVariableNameReplaceable = (path: NodePath): boolean =>
-  path.isIdentifier() &&
-  path.node.loc !== null &&
-  (path.parentPath === null ||
-    (!path.parentPath.isVariableDeclarator() &&
-      !path.parentPath.isMemberExpression() &&
-      !path.parentPath.isFunction() &&
-      (!path.parentPath.isCallExpression() || typeof path.key === 'number')));
-
-class ReplaceIdentifierFactory
-  implements InstructionFactory<ReplaceIdentifierInstruction> {
-  enter() {}
-
-  *createPreBlockInstructions() {}
-
-  *onInitialEnter() {}
-
-  *createInstructions(path: NodePath, filePath, derivedFromPassingTest) {
-    const node = path.node as t.Identifier;
-    if (couldBeVariableNameReplaceable(path) && node.loc) {
-      const possibleNames = [...path.node[PREVIOUS_IDENTIFIER_NAMES]].reverse();
-
-      const alreadySeen: Set<string> = new Set([node.name]);
-
-      const filteredNames = possibleNames.filter(name => {
-        if (alreadySeen.has(name)) {
-          return false;
-        }
-        alreadySeen.add(name);
-        return true;
-      });
-
-      filteredNames.reverse();
-
-      if (filteredNames.length > 0) {
-        yield createInstructionHolder(
-          new ReplaceIdentifierInstruction({ filePath, ...node.loc }, filteredNames),
-          derivedFromPassingTest,
-        );
-      }
-    }
-  }
-}
-
-const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
-class SwapFunctionCallArgumentsInstruction implements Instruction {
-  public readonly type: symbol = SWAP_FUNCTION_CALL;
-  public readonly mutationsLeft = 1;
-  public readonly mutationResults: MutationResults;
-  public readonly atomicMutation: boolean = true;
-  public readonly mutationCount: number = 2;
-
-  isRemovable() {
-    return true;
-  }
-
-  constructor(
-    private readonly location: Location,
-    private readonly arg1: SwapFunctionInformation,
-    private readonly arg2: SwapFunctionInformation,
-    public readonly totalNodes: number,
-  ) {
-    let columnWidth = 0;
-    columnWidth += arg1.location.end.column - arg1.location.start.column;
-    columnWidth += arg2.location.end.column - arg2.location.start.column;
-
-    let lineWidth = 0;
-    lineWidth += arg1.location.end.line - arg1.location.start.line;
-    lineWidth += arg2.location.end.line - arg2.location.start.line;
-
-    this.mutationResults = {
-      columnWidth,
-      lineWidth,
-      locations: {
-        [location.filePath]: [
-          {
-            location: arg1.location,
-            direct: true,
-          },
-          {
-            location: arg2.location,
-            direct: true,
-          },
-        ],
-      },
-    };
-  }
-
-  async *onEvaluation() {}
-
-  async process(data, cache: AstCache) {
-    const ast = await cache.get(this.location.filePath);
-
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(path =>
-      path.isCallExpression(),
-    );
-    assertFoundNodePaths(nodePaths, this.location);
-
-    const nodePath = nodePaths[0] as NodePath<t.CallExpression>;
-    const args = nodePath.node.arguments;
-
-    const temp = args[this.arg1.index];
-    args[this.arg1.index] = args[this.arg2.index];
-    args[this.arg2.index] = temp;
-  }
-}
-
-const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
-type SwapFunctionInformation = {
-  location: ExpressionLocation;
-  index: number;
+  return parts.reverse().slice(1);
 };
 
-class SwapFunctionParametersInstruction implements Instruction {
-  public readonly type: symbol = SWAP_FUNCTION_PARAMS;
-  public readonly mutationCount: number = 2;
-  public readonly mutationsLeft: number = 1;
-  public readonly mutationResults: MutationResults;
-  public readonly atomicMutation: boolean = true;
+const traverseKeys = (path: NodePath<any> | NodePath<any>[], keys: TraverseKey[]) => {
+  let current: NodePath<any> | NodePath<any>[] = path;
+  for(let k = 0; k < keys.length; k++) {
+    const key = keys[k];
+    if(Array.isArray(current)) {
+      if (typeof key !== 'number') {
+        throw new Error(`Key ${k} was ${key} but exected a number. Keys were [${keys.join(', ')}]`);
+      }
+      current = current[key];
+    } else {
+      if (typeof key !== 'string') {
+        throw new Error(`Key ${k} was ${key} but exected a string. Keys were [${keys.join(', ')}]`);
+      }
+      current = current.get(key);
+    }
+    if (current === undefined) {
+      throw new Error(`Traversing to key ${k} which was ${key} ended up as undefined. Keys were [${keys.join(', ')}]`);
+    }  
+  }
+  return current;
+};
 
+const keysToDependencyList = (path: NodePath<any>, keyList: TraverseKey[][]) => {
+  const dependencies: NodePath<any>[] = [];
+  for(const keys of keyList) {
+    const dependency = traverseKeys(path, keys);
+    if (Array.isArray(dependency)) {
+      dependencies.push(...dependency);
+    } else {
+      dependencies.push(dependency);
+    }
+  }
+  return dependencies;
+}
+
+type WrapperMutation<D, S> = {
+  // TODO: Should be NodePath<T> or NodePath<T>[]
+  setup: (nodePath, data: D) => S,
+  execute: (state: S) => void,
+};
+class NodePathMutationWrapper<D, T = t.Node> {
   constructor(
-    private readonly location: Location,
-    private readonly param1: SwapFunctionInformation,
-    private readonly param2: SwapFunctionInformation,
-    public readonly totalNodes: number,
-  ) {
-    let columnWidth = 0;
-    let lineWidth = 0;
+    public readonly keys: TraverseKey[],
+    private readonly reads: TraverseKey[][],
+    public readonly writes: TraverseKey[][],
+    public readonly mutations: WrapperMutation<D, any>[],
+  ) {}
 
-    lineWidth += param1.location.end.line - param1.location.start.line;
-    lineWidth += param2.location.end.line - param2.location.start.line;
-
-    columnWidth += param1.location.end.column - param1.location.start.column;
-    columnWidth += param2.location.end.column - param2.location.start.column;
-
-    this.mutationResults = {
-      columnWidth,
-      lineWidth,
-      locations: {
-        [location.filePath]: [
-          {
-            location: param1.location,
-            direct: true,
-          },
-          {
-            location: param2.location,
-            direct: true,
-          },
-        ],
-      },
+  getDependencies(nodePath: NodePath<T>): DependencyInfo {
+    return {
+      reads: keysToDependencyList(nodePath, this.reads),
+      writes: keysToDependencyList(nodePath, this.writes),
     };
   }
 
-  isRemovable() {
-    return true;
+  registerAsWriteDependency() {
+    this.writes.push(this.keys);
   }
 
-  async *onEvaluation() {}
-
-  async process(data, cache: AstCache) {
-    const ast = await cache.get(this.location.filePath);
-
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(path =>
-      path.isFunction(),
-    );
-    assertFoundNodePaths(nodePaths, this.location);
-
-    const nodePath = nodePaths[0] as NodePath<t.Function>;
-
-    if (nodePath) {
-      const params = nodePath.node.params;
-      const temp = params[this.param1.index];
-      params[this.param1.index] = params[this.param2.index];
-      params[this.param2.index] = temp;
-    }
-  }
-}
-
-class SwapFunctionParametersFactory
-  implements InstructionFactory<SwapFunctionParametersInstruction> {
-  *createInstructions() {}
-
-  enter() {}
-
-  *createPreBlockInstructions(nodePath: NodePath, filePath, derivedFromPassingTests) {
-    if (nodePath.isFunction() && nodePath.node.loc) {
-      const node = nodePath.node;
-      const params = node.params;
-      for (let p = 1; p < node.params.length; p++) {
-        const param1 = params[p - 1];
-        const param2 = params[p];
-        if (param1.loc && param2.loc) {
-          yield createInstructionHolder(
-            new SwapFunctionParametersInstruction(
-              { ...nodePath.node.loc, filePath },
-              {
-                index: p - 1,
-                location: param1.loc,
-              },
-              {
-                index: p,
-                location: param2.loc,
-              },
-              param1[TOTAL_NODES] + param2[TOTAL_NODES],
-            ),
-            derivedFromPassingTests,
-          );
-        }
-      }
-    }
+  traverseToThisPath(nodePath: NodePath<any> | NodePath<any>[]) {
+    return traverseKeys(nodePath, this.keys);
   }
 
-  onInitialEnter() {}
-}
+  public get(key: GetFnKey<T> | number): NodePathMutationWrapper<D, t.Node> {
+    const traverse = [...this.keys, key];
+    this.reads.push(traverse);
+    const wrapper = new NodePathMutationWrapper(
+      traverse,
+      this.reads,
+      this.writes,
+      this.mutations,
+    )
+    return wrapper;
+  }
+  
+  public setDataDynamic(key: SetDataFnKey<T>, getValue: ValueFromPathFn<D, any, SetDataFnValue<T>>): any {
+    this.writes.push([...this.keys, key]);
+    this.mutations.push({
+      setup: (path, data) => {
+        return { path: this.traverseToThisPath(path), value: getValue(data, path) }
+      },
+      execute: ({ path, value }) => {
+        path.node[key] = value;
+      },
+    });
+  }
 
-class SwapFunctionCallArgumentsFactory
-  implements InstructionFactory<SwapFunctionCallArgumentsInstruction> {
-  *createInstructions() {}
-
-  enter() {}
-
-  *createPreBlockInstructions(
-    nodePath: NodePath,
-    filePath: string,
-    derivedFromPassingTests,
+  public set(
+    key: SetFnKey<T>,
+    wrapper: NodePathMutationWrapper<D, t.Node>
   ) {
-    if (nodePath.isCallExpression() && nodePath.node.loc) {
-      const node = nodePath.node;
-      const params = node.arguments;
-      for (let p = 1; p < node.arguments.length; p++) {
-        const param1 = params[p - 1];
-        const param2 = params[p];
-        if (param1.loc && param2.loc) {
-          yield createInstructionHolder(
-            new SwapFunctionCallArgumentsInstruction(
-              { ...nodePath.node.loc, filePath },
-              {
-                index: p - 1,
-                location: param1.loc,
-              },
-              {
-                index: p,
-                location: param2.loc,
-              },
-              param1[TOTAL_NODES] + param2[TOTAL_NODES],
-            ),
-            derivedFromPassingTests,
-          );
+    this.setDynamic(key, (data, rootPath) => {
+      const nodePath = wrapper.traverseToThisPath(rootPath);
+      const nodes = Array.isArray(nodePath) ? nodePath.map(path => path.node) : nodePath.node;
+      return nodes;
+    });
+  }
+
+  public setDynamic(
+    key: SetFnKey<T>,
+    getNode: ValueFromPathFn<D, any, SetFnNode<T>>
+  ) {
+    this.writes.push([...this.keys, key]);
+    this.mutations.push({
+      setup: (path, data) => {
+        return { path: this.traverseToThisPath(path), value: getNode(data, path) }
+      },
+      execute: ({ path, value }) => {
+        path.set(key, value);
+      },
+    });
+  }
+
+  public replaceWithMultiple(
+    wrappers: NodePathMutationWrapper<D>[]
+  ) {
+    this.writes.push(this.keys);
+    this.mutations.push({
+      setup: (nodePath, data) => {
+        return { path: this.traverseToThisPath(nodePath), value: wrappers.map(wrapper => wrapper.traverseToThisPath(nodePath) )}
+      },
+      execute: ({ path, value }) => {
+        path.replaceWithMultiple(value);
+      },
+    });
+  }
+
+  public replaceWith(
+    wrapper: NodePathMutationWrapper<D>
+  ) {
+    this.replaceWithDynamic((data, nodePath) => {
+      const traversed = wrapper.traverseToThisPath(nodePath);
+      if (Array.isArray(nodePath)) {
+        throw new Error(`replaceWith does not support array node paths`);
+      }
+      if (Array.isArray(traversed)) {
+        throw new Error(`replaceWith does not support array replacements`);
+      }
+      return traversed.node;
+    });
+  }
+
+  public replaceWithDynamic(
+    getReplacement: ValueFromPathFn<D, any, ReplaceWithFnReplacement<T>>
+  ) {
+    this.writes.push(this.keys);
+    this.mutations.push({
+      setup: (nodePath, data) => {
+        const path = this.traverseToThisPath(nodePath);
+        if (Array.isArray(path)) {
+          throw new Error(`replaceWithDynamic does not support array node paths`);
         }
+        const replacement = getReplacement(data, nodePath);
+        if (Array.isArray(replacement)) {
+          throw new Error(`replaceWithDynamic does not support arrays as its input`);
+        }
+        console.log('setup', path.node.type, replacement.type)
+        return { path, value: replacement };
+      },
+      execute: ({ path, value }) => {
+        console.log('execute', path.node.type, value.type);
+        path.replaceWith(value);
+      },
+    });
+  }
+
+  public remove() {
+    this.writes.push(this.keys);
+    this.mutations.push({
+      setup: (path) => ({ path: this.traverseToThisPath(path) }),
+      execute: ({ path }) => {
+        path.remove()
+      }
+    })
+  }
+}
+
+const createMutationSequenceFactory = <D, T>(
+  mutationSteps: (wrapper: NodePathMutationWrapper<D, T>) => any,
+) => {
+  const wrapper = new NodePathMutationWrapper<D, T>([], [], [], []);
+  mutationSteps(wrapper);
+  return wrapper;
+}
+
+type Instruction2<D> = {
+  type: Symbol,
+  dependencies: Map<string, DependencyInfo>,
+  mutations: Mutation<D, any>[],
+  variants: D[] | undefined,
+}
+
+type ConditionFn = (path: NodePath) => boolean;
+type CreateVariantsFn<D, T> = (path: NodePath<T>) => D[];
+type DependencyInfo = {
+  reads: NodePath<any>[],
+  writes: NodePath<any>[]
+}
+
+type AbstractInstructionFactory<D> = {
+  setup?: (asts: Map<string, t.File>) => void,
+  createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction2<D>>,
+}
+
+type InstructionFactoryPayload<D, T> = {
+  type: Symbol,
+  wrapper: NodePathMutationWrapper<D, T>,
+  variants: D[] | undefined,
+};
+class InstructionFactory2<D> implements AbstractInstructionFactory<D> {
+  constructor(
+    public readonly pathToInstructions: (path: NodePath) => IterableIterator<InstructionFactoryPayload<D, any>>,
+    public readonly setupPath?: (path: t.File) => void
+  ) {}
+
+  setup(asts: Map<string, t.File>) {
+    if(this.setupPath) {
+      for(const ast of asts.values()) {
+        this.setupPath(ast);
       }
     }
   }
 
-  onInitialEnter() {}
+  *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction2<D>> {
+    for(const [filePath, ast] of asts) {
+      let instructions: Instruction2<D>[] = [];
+      traverse(ast, {
+        enter: (path) => {
+          for(const { type, wrapper, variants } of this.pathToInstructions(path)) {
+            const pathKeys = getTraverseKeys(path);
+            try {
+              instructions.push({
+                type,
+                dependencies: new Map([[filePath, wrapper.getDependencies(path as any)]]),
+                mutations: wrapper.mutations.map(wrapperMutation => {
+                  return {
+                    setup: (newAsts, data) => {
+                      const newAst = newAsts.get(filePath)!;
+                      const astPath = getAstPath(newAst)
+                      try {
+                        return wrapperMutation.setup(traverseKeys(astPath, pathKeys), data);
+                      } catch(err) {
+                        err.message = `${err.message}. Core path location was [${getTraverseKeys(path).join(', ')}]`;
+                        throw err;
+                      }
+                    },
+                    execute: wrapperMutation.execute,
+                  }
+                }),
+                variants,
+              });  
+            } catch(err) {
+              err.message = `${err.message}. Was creating instruction of type ${type.toString()}.`;
+              throw err;
+            }
+          }
+        }
+      });
+      yield *instructions;
+    }
+  }  
 }
 
-class InvertBooleanLiteralInstructionFactory
-  implements InstructionFactory<InvertBooleanLiteralInstruction> {
-  enter() {}
+class SimpleInstructionFactory<D, T> extends InstructionFactory2<D> {
+  constructor(
+    type: Symbol,
+    wrapper: NodePathMutationWrapper<D, T>,
+    condition: ConditionFn,
+    createVariantFn?: CreateVariantsFn<D, T>,
+    setup?: (ast: t.File) => void,
+  ) {
+    super(
+      function*(path) {
+        if (condition(path)) {
+          const variants = createVariantFn?.(path as any);
+          if (variants === undefined || variants.length >= 1) {
+            yield {
+              type,
+              wrapper,
+              variants
+            };  
+          } 
+        }
+      },
+      setup,
+    );
+  }
+}
 
-  *createInstructions(nodePath, filePath, derivedFromPassingTests) {
-    if (nodePath.isBooleanLiteral()) {
-      yield createInstructionHolder(
-        new InvertBooleanLiteralInstruction(
-          { ...nodePath.node.loc, filePath },
-          nodePath.node[TOTAL_NODES],
-        ),
-        derivedFromPassingTests,
-      );
+function* gatherInstructions(factories: Iterable<AbstractInstructionFactory<any>>, asts: Map<string, t.File>) {
+  for(const factory of factories) {
+    factory.setup?.(asts);
+    yield *factory.createInstructions(asts);
+  }
+}
+
+const createFilePathToCodeMap = async (filePaths: string[]): Promise<Map<string, string>> => {
+  const entries = await Promise.all(filePaths.map(async (filePath: string): Promise<[string, string]> => {
+    const code = await readFile(filePath, 'utf8');
+    return [filePath, code];
+  }));
+  entries.sort(([filePath1], [filePath2]) => filePath1.localeCompare(filePath2));
+  return new Map(entries);
+};
+
+const isParentOrChild = (path1: NodePath<any>, path2: NodePath<any>) => {
+  // TODO: Could be faster
+  const keys1 = getTraverseKeys(path1);
+  const keys2 = getTraverseKeys(path2);
+  let k = 0;
+  while(k < keys1.length && k < keys2.length) {
+    if (keys1[k] !== keys2[k]) {
+      return false;
     }
+    k++;
   }
 
-  *createPreBlockInstructions() {}
+  // TODO: Would be faster if we just got the filePath from somewhere
+  const programPath1 = path1.find(p => p.isProgram());
+  const programPath2 = path2.find(p => p.isProgram());
 
-  onInitialEnter() {}
+  const isSameProgram = programPath1.node === programPath2.node;
+  return isSameProgram;
+};
+
+const isConflictingPaths = (d1: NodePath[], d2: NodePath[]) => {
+  return d1.some(path => d2.some(otherPath => isParentOrChild(path, otherPath)));
 }
 
-class AssignmentFactory implements InstructionFactory<AssignmentInstruction> {
-  constructor(private readonly operations: CategoryData<string>) {}
+const isConflictingDependencyInfos = (info1: DependencyInfo, info2: DependencyInfo) => {
+  return isConflictingPaths(info1.reads, info2.writes) || isConflictingPaths(info2.reads, info1.writes) || isConflictingPaths(info1.writes, info2.writes);
+}
 
-  enter() {}
-
-  onInitialEnter() {}
-
-  *createPreBlockInstructions() {}
-
-  *createInstructions(path, filePath, derivedFromPassingTest) {
-    const node = path.node;
-    if (path.isAssignmentExpression() && node.loc) {
-      const operators = matchAndFlattenCategoryData(node.operator, this.operations);
-      if (operators.length > 0) {
-        yield createInstructionHolder(
-          new AssignmentInstruction(
-            { filePath, ...node.loc },
-            operators,
-            node[TOTAL_NODES],
-          ),
-          derivedFromPassingTest,
-        );
+const isConflictingDependencies = (map1: Map<string, DependencyInfo>, map2: Map<string, DependencyInfo>) => {
+  for(const [filePath, info1] of map1) {
+    const info2 = map2.get(filePath);
+    if (info2 !== undefined) {
+      if (isConflictingDependencyInfos(info1, info2)) {
+        return true;
       }
     }
   }
-}
+  return false;
+};
 
-class BinaryFactory implements InstructionFactory<BinaryInstruction> {
-  constructor(private readonly operations: CategoryData<string>) {}
-
-  enter() {}
-
-  onInitialEnter() {}
-
-  *createPreBlockInstructions() {}
-
-  *createInstructions(path, filePath, derivedFromPassingTest) {
-    const node = path.node;
-    if ((path.isBinaryExpression() || path.isLogicalExpression()) && node.loc) {
-      const operators = matchAndFlattenCategoryData(node.operator, this.operations);
-      if (operators.length > 0) {
-        const operator = node.operator;
-        const nullify = !['<', '>', '>=', '<=', '==', '==='].includes(operator);
-        yield createInstructionHolder(
-          new BinaryInstruction(
-            { filePath, ...node.loc },
-            operators,
-            nullify,
-            nullify,
-            node[TOTAL_NODES],
-          ),
-          derivedFromPassingTest,
-        );
+const organizeInstructions = (instructions: Iterable<Instruction2<any>>) => {
+  const instructionBlocks: Instruction2<any>[][] = [];
+  for(const newInstruction of instructions) {
+    let addANewBlock = true;
+    for(const instructions of instructionBlocks) {
+      const conflict = instructions.some((instruction) => {
+        return isConflictingDependencies(newInstruction.dependencies, instruction.dependencies);
+      });
+      if (!conflict) {
+        instructions.push(newInstruction);
+        addANewBlock = false;
+        break;
       }
     }
+    if (addANewBlock) {
+      instructionBlocks.push([newInstruction]);
+    }
   }
+  return instructionBlocks;
 }
+
+const executeInstructions = (asts: Map<string, t.File>, instructions: Heap<Instruction2<any>>): void => {
+  [...instructions.unsortedIterator()].map(instruction => (
+    instruction.mutations.map(mutation => ({
+      mutation,
+      state: mutation.setup(asts, instruction.variants === undefined ? undefined : instruction.variants[instruction.variants.length - 1])
+    }))
+  )).forEach((payload) => (
+    payload.map(({ mutation, state }) => (
+      mutation.execute(state)
+    ))
+  ));
+}
+
+const getAstPath = (ast: t.File): NodePath<t.File> => {
+  let filePath: NodePath<t.File>;
+  
+  traverse(ast, {
+    enter: (path) => {
+      if (path.isProgram()) {
+        filePath = path;
+      } else {
+        path.skip();
+      }
+    }
+  });
+
+  return filePath!;
+}
+
+const isIfStatement = (path) => path.isIfStatement();
+
+const forceConsequentSequence = createMutationSequenceFactory(
+  (path: NodePathMutationWrapper<void, t.IfStatement>) => {
+    path.get('alternate').registerAsWriteDependency();
+    path.setDynamic('test', () => t.booleanLiteral(true));
+  }
+);
+export const FORCE_CONSEQUENT = Symbol('force-consequent');
+const forceConsequentFactory = new SimpleInstructionFactory(
+  FORCE_CONSEQUENT,
+  forceConsequentSequence,
+  isIfStatement,
+);
+
+const forceAlternateSequence = createMutationSequenceFactory(
+  (path: NodePathMutationWrapper<void, t.IfStatement>) => {
+    path.get('consequent').registerAsWriteDependency();
+    path.setDynamic('test', () => t.booleanLiteral(false));
+  }
+);
+
+export const FORCE_ALTERNATE = Symbol('force-alternate');
+const forceAlternateFactory = new SimpleInstructionFactory(
+  FORCE_ALTERNATE,
+  forceAlternateSequence,
+  isIfStatement
+);
+
+type ValueProps<T> = T;
+const replaceValueSequence = createMutationSequenceFactory(
+  (path: NodePathMutationWrapper<any, any>) => {
+    path.setDataDynamic('value', (value) => value);
+  }
+);
+
+const filterVariantDuplicates = <T>(arr: T[]): T[] => {
+  const seen: Set<T> = new Set();
+  const filtered: T[] = [];
+  for(let i = arr.length - 1; i >=0; i--) {
+    const v = arr[i];
+    if (seen.has(v)) {
+      continue;
+    }
+    filtered.unshift(v);
+    seen.add(v);
+  }
+  return filtered;
+}
+
+const createValueVariantCollector = (condition: ConditionFn, symbol: Symbol, key: string = 'value', collectCondition: ConditionFn = condition) => {
+  return <T>(ast: t.File): T[][] => {
+    const stringBlocks: T[][] = [[]];
+    traverse(ast, {
+      enter: (subPath) => {
+        if (subPath.isScope()) {
+          stringBlocks.push([]);
+        }
+        const current = (subPath.node as any)[key];
+        if(condition(subPath)) {
+          subPath.node[symbol as any] = filterVariantDuplicates(([] as any[]).concat(...stringBlocks)).filter(v => v !== current);
+        }
+        if (collectCondition(subPath)) {
+          stringBlocks[stringBlocks.length - 1].push(current);
+        }
+      },
+      exit: (subPath) => {
+        if(subPath.isScope()) {
+          stringBlocks.pop();
+        }
+      },
+    });
+    return stringBlocks;
+  };
+}
+
+const createValueInstructionFactory = (condition: ConditionFn, factorySymbol, symbol: Symbol) => {
+  return new SimpleInstructionFactory<void, t.Node>(
+    factorySymbol,
+    replaceValueSequence,
+    condition,
+    (path) => {
+      return [...path.node[symbol as any]];
+    },
+    createValueVariantCollector(condition, symbol)
+  );
+};
+
+const isStringLiteral = (path) => path.isStringLiteral();
+export const CHANGE_STRING = Symbol('change-string');
+const STRINGS = Symbol('strings');
+const TOTAL_NODES = Symbol('total-nodes');
+const replaceStringFactory = createValueInstructionFactory(
+  isStringLiteral,
+  CHANGE_STRING,
+  STRINGS
+);
+
+export const NUMBERS = Symbol('numbers');
+const isNumberLiteral = (path: NodePath) => path.isNumericLiteral()
+export const CHANGE_NUMBER = Symbol('change-number');
+const replaceNumberFactory = new SimpleInstructionFactory(
+  CHANGE_NUMBER,
+  replaceValueSequence,
+  isNumberLiteral,
+  (nodePath: NodePath<t.NumericLiteral>) => {
+    const node = nodePath.node;
+    const filterOut: Set<number> = new Set();
+    if (nodePath.parentPath && nodePath.parentPath.isBinaryExpression()) {
+      const operator = nodePath.parentPath.node.operator;
+      if (['-', '+', '*', '/', '%', '>>>', '>>'].includes(operator)) {
+        filterOut.add(0);
+      }
+      if ('**' === operator) {
+        filterOut.add(1);
+      }
+      if ('/' === operator && nodePath.key === 'right') {
+        filterOut.add(1);
+      }
+      if ('*' === operator) {
+        filterOut.add(1);
+      }
+      if ('<<' === operator && nodePath.key === 'right') {
+        filterOut.add(0);
+      }
+      if ('%' === operator && nodePath.key === 'right') {
+        filterOut.add(0);
+        filterOut.add(1);
+      }
+    }
+    filterOut.add(node.value);
+    const values = [
+      ...new Set([
+        ...nodePath.node[NUMBERS],
+        node.value - 1,
+        node.value + 1,
+      ]),
+    ]
+      .filter(value => !filterOut.has(value))
+      .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
+    return values;
+  },
+  createValueVariantCollector(isNumberLiteral, NUMBERS)
+);
+
+const CHANGE_BOOLEAN = Symbol('change-boolean');
+const replaceBooleanFactory = new SimpleInstructionFactory(
+  CHANGE_BOOLEAN,
+  replaceValueSequence,
+  (path) => path.isBooleanLiteral(),
+  (path: NodePath<t.BooleanLiteral>) => [!path.node.value]
+);
+
+type IdentifierProps = {
+  name: string
+};
+const replaceIdentifierSequence = createMutationSequenceFactory(
+  (path: NodePathMutationWrapper<IdentifierProps, t.Identifier>) => {
+    path.setDataDynamic('name', (name) => name)
+  }
+);
+const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
+  return (parentPath.parentPath.isVariableDeclarator() && parentPath.key === 'id') || (parentPath.parentPath.isFunction() && typeof parentPath.key === 'number');
+}
+
+const isMiddleOfObjectChain = (path: NodePath) => {
+  return path.parentPath.isMemberExpression() && path.key === 'property';
+}
+
+const isReplaceableIdentifier = (path: NodePath) => {
+  if (path.isIdentifier()) {
+    const statementPath = path.find(subPath => subPath.isStatement() || subPath.isFunction());
+    return !isMiddleOfObjectChain(path) && path.find(parentPath => parentPath.node === statementPath.node || isInvalidReplaceIdentifierParentPath(parentPath)).node === statementPath.node;
+  }
+  return false;
+}
+
+
+const collectIdentifierVariant = (path: NodePath): boolean => {
+  return path.isIdentifier() && !isMiddleOfObjectChain(path);
+}
+
+export const PREVIOUS_IDENTIFIER_NAMES = Symbol('previous-identifer-names');
+export const CHANGE_IDENTIFIER = Symbol('change-identifier');
+const replaceIdentifierFactory = new SimpleInstructionFactory(
+  CHANGE_IDENTIFIER,
+  replaceIdentifierSequence,
+  isReplaceableIdentifier,
+  (path) => [...path.node[PREVIOUS_IDENTIFIER_NAMES]],
+  createValueVariantCollector(isReplaceableIdentifier, PREVIOUS_IDENTIFIER_NAMES, 'name', collectIdentifierVariant)
+);
+
+type LogicalOrBinaryExpression = t.BinaryExpression | t.LogicalExpression;
+
+type OperatorProps = string;
+const createCategoryVariantFactory = <T>(key: string, categoryData: CategoryData<any>) => {
+  return (path: NodePath<T>) => {
+    const operator = path.getData(key);
+    const operators = matchAndFlattenCategoryData(operator, categoryData);
+    return operators;    
+  };
+};
+const replaceBinaryOrLogicalOperatorSequence = createMutationSequenceFactory((path: NodePathMutationWrapper<OperatorProps, LogicalOrBinaryExpression>) => {
+  const left = path.get('left') as NodePathMutationWrapper<OperatorProps, LogicalOrBinaryExpression>;
+  const right = path.get('right') as NodePathMutationWrapper<OperatorProps, LogicalOrBinaryExpression>;
+  path.replaceWithDynamic((operator, nodePath) => {
+    const leftNode = (left.traverseToThisPath(nodePath) as any).node;
+    const rightNode = (right.traverseToThisPath(nodePath) as any).node;
+    if (['||', '&&'].includes(operator)) {
+      return t.logicalExpression(operator as any, leftNode, rightNode);
+    } else {
+      return t.binaryExpression(operator as any, leftNode, rightNode);
+    }
+  });
+});
+const isBinaryOrLogicalExpression = (path: NodePath) => path.isBinaryExpression() || path.isLogicalExpression();
+export const CHANGE_BINARY_OPERATOR = Symbol('change-binary-operator');
+const replaceBinaryOrLogicalOperatorFactory = new SimpleInstructionFactory(
+  CHANGE_BINARY_OPERATOR,
+  replaceBinaryOrLogicalOperatorSequence,
+  isBinaryOrLogicalExpression,
+  createCategoryVariantFactory('operator', binaryOperationCategories)
+);
+
+const leftNullifyBinaryOperatorSequence = createMutationSequenceFactory((path: NodePathMutationWrapper<void, LogicalOrBinaryExpression>) => {
+  const left = path.get('left') as NodePathMutationWrapper<void, LogicalOrBinaryExpression>;
+  path.replaceWith(left);
+});
+
+export const NULLIFY_LEFT_OPERATOR = Symbol('nullify-left-operator');
+const leftNullifyBinaryOperatorFactory = new SimpleInstructionFactory(
+  NULLIFY_LEFT_OPERATOR,
+  leftNullifyBinaryOperatorSequence,
+  isBinaryOrLogicalExpression
+);
+
+const rightNullifyBinaryOperatorSequence = createMutationSequenceFactory((path: NodePathMutationWrapper<void, LogicalOrBinaryExpression>) => {
+  const right = path.get('right') as NodePathMutationWrapper<void, LogicalOrBinaryExpression>;
+  path.replaceWith(right);
+});
+export const NULLIFY_RIGHT_OPERATOR = Symbol('nullify-right-operator');
+const rightNullifyBinaryOperatorFactory = new SimpleInstructionFactory(
+  NULLIFY_RIGHT_OPERATOR,
+  rightNullifyBinaryOperatorSequence,
+   isBinaryOrLogicalExpression
+);
+
+const assignmentSequence = createMutationSequenceFactory((path: NodePathMutationWrapper<OperatorProps, t.AssignmentExpression>) => {
+  path.setDataDynamic('operator', (operator) => operator);
+});
 
 export const assignmentCategories = [
   [
@@ -1349,57 +925,154 @@ export const assignmentCategories = [
   ],
   ['&=', ['/=', '*='], ['-=', '+=']],
 ];
-const instructionFactories: InstructionFactory<any>[] = [
-  new AssignmentFactory(assignmentCategories),
-  new BinaryFactory(binaryOperationCategories),
-  new InvertBooleanLiteralInstructionFactory(),
-  new ReplaceStringFactory(),
-  new SwapFunctionCallArgumentsFactory(),
-  new SwapFunctionParametersFactory(),
-  new ReplaceNumberFactory(),
-  new ReplaceIdentifierFactory(),
-];
-const RETRIES = 1;
+export const CHANGE_ASSIGNMENT_OPERATOR = Symbol('change-assignment-operator');
+const replaceAssignmentOperatorFactory = new SimpleInstructionFactory(
+  CHANGE_ASSIGNMENT_OPERATOR,
+  assignmentSequence,
+  (path) => path.isAssignmentExpression(),
+  createCategoryVariantFactory('operator', assignmentCategories)
+);
 
-const statementDepth = (statements: StatementInformation[]) => {
-  if (statements.length <= 0) {
-    return 0;
-  }
-  let largestInnerDepth = 0;
-  for (const statement of statements) {
-    const depth = statementDepth(statement.innerStatements);
-    if (depth > largestInnerDepth) {
-      largestInnerDepth = depth;
-    }
-  }
-  return largestInnerDepth + 1;
+type SwapFunctionCallArgs = {
+  index1: number,
+  index2: number,
+};
+const swapFunctionCallArgumentsSequence = ({ index1, index2 }: SwapFunctionCallArgs) => {
+  return createMutationSequenceFactory((wrapper: NodePathMutationWrapper<void, t.CallExpression>) => {
+    const params = wrapper.get('arguments');
+
+    const param1 = params.get(index1);
+    const param2 = params.get(index2);
+
+    param1.replaceWith(param2);
+    param2.replaceWith(param1);
+  });
 };
 
-const findAllNodePaths = async (cache: AstCache, locations: Location[]) => {
+export const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
+const swapFunctionCallArgumentsFactory = new InstructionFactory2(
+  function*(nodePath) {
+    if (nodePath.isCallExpression() && nodePath.node.loc) {
+      const node = nodePath.node;
+      for (let p = 1; p < node.arguments.length; p++) {
+        const wrapper = swapFunctionCallArgumentsSequence({
+          index1: p - 1,
+          index2: p
+        });
+        yield {
+          type: SWAP_FUNCTION_CALL,
+          wrapper,
+          variants: undefined
+        };
+      }
+    }    
+  }
+);
+
+const swapFunctionDeclarationParametersSequence = ({ index1, index2 }: SwapFunctionCallArgs) => {
+  return createMutationSequenceFactory((wrapper: NodePathMutationWrapper<void, t.FunctionDeclaration>) => {
+    const params = wrapper.get('params');
+
+    const param1 = params.get(index1);
+    const param2 = params.get(index2);
+
+    param1.replaceWith(param2);
+    param2.replaceWith(param1);
+  });
+};
+
+export const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
+const swapFunctionDeclarationParametersFactory = new InstructionFactory2(
+  function*(nodePath) {
+    if (nodePath.isFunctionDeclaration() && nodePath.node.loc) {
+      const node = nodePath.node;
+      for (let p = 1; p < node.params.length; p++) {
+        const wrapper = swapFunctionDeclarationParametersSequence({
+          index1: p - 1,
+          index2: p
+        });
+        yield {
+          type: SWAP_FUNCTION_PARAMS,
+          wrapper,
+          variants: undefined
+        };
+      }
+    }    
+  }
+);
+
+type DeleteStatementArgs = {
+  index: number
+};
+const deleteStatementSequence = ({ index }: DeleteStatementArgs) => {
+  return createMutationSequenceFactory((wrapper: NodePathMutationWrapper<void, t.Node>) => {
+    const statement = wrapper.get('body').get(index);
+    statement.remove();
+  });
+}
+
+export const DELETE_STATEMENT = Symbol('delete-statement');
+const deleteStatementFactory = new InstructionFactory2(
+  function *(path) {
+    if (path.has('body')) {
+      const bodyPaths = path.get('body');
+      if (Array.isArray(bodyPaths)) {
+        for(let b = 0; b < bodyPaths.length; b++) {
+          const statementPath = bodyPaths[b];
+          if (statementPath.isVariableDeclaration()) {
+            continue;
+          }
+          yield {
+            type: DELETE_STATEMENT,
+            wrapper: deleteStatementSequence({ index: b }),
+            variants: undefined,
+          }  
+        }
+      }
+    }
+  }
+)
+
+export const AST_FILE_PATH = Symbol('ast-file-path');
+const instructionFactories: InstructionFactory2<any>[] = [
+  replaceAssignmentOperatorFactory,
+  replaceBinaryOrLogicalOperatorFactory,
+  replaceBooleanFactory,
+  replaceStringFactory,
+  swapFunctionCallArgumentsFactory,
+  leftNullifyBinaryOperatorFactory,
+  swapFunctionDeclarationParametersFactory,
+  replaceNumberFactory,
+  replaceIdentifierFactory,
+  deleteStatementFactory,
+  rightNullifyBinaryOperatorFactory,
+  forceConsequentFactory,
+  forceAlternateFactory,
+];
+const RETRIES = 1;
+const findAllNodePaths = async (astMap: Map<string, t.File>, locations: Location[]) => {
   const nodePaths: NodePath[] = [];
-  const filePaths: Set<string> = new Set(locations.map(location => location.filePath));
-  for (const filePath of filePaths) {
+  for(const [filePath, ast] of astMap.entries()) {
     const fileLocationPaths: Set<string> = new Set(
       locations
         .filter(location => filePath === location.filePath)
         .map(location => locationToKeyIncludingEnd(location.filePath, location)),
-    );
-
-    const ast = await cache.get(filePath);
+    );    
 
     traverse(ast, {
       enter(path: NodePath) {
         const loc = path.node.loc;
-        if (loc) {
+        if (loc !== undefined) {
           const key = locationToKeyIncludingEnd(filePath, loc);
           if (fileLocationPaths.has(key)) {
-            path.filePath = filePath;
+            path[AST_FILE_PATH] = filePath;
             fileLocationPaths.delete(key);
             nodePaths.push(path);
           }
         }
       },
     });
+
   }
   return nodePaths;
 };
@@ -1412,280 +1085,6 @@ const isStatementContainer = (path: NodePath<any>) => {
       ((node.alternate && !node.alternate.body) || !node.consequent.body))
   );
 };
-
-const stubLocationEvaluation = (
-  location: Location,
-  totalNodes: number,
-): LocationEvaluation => {
-  return {
-    totalAtomicMutationsPerformed: 0,
-    totalNodes,
-    location,
-    evaluations: [],
-  };
-};
-
-type IdentifierData = {
-  order: number;
-  name: string;
-};
-type PreviousIdentifiersData = {
-  references: IdentifierData[];
-  declarations: IdentifierData[];
-};
-
-const STRINGS = Symbol('strings');
-const TOTAL_NODES = Symbol('total-nodes');
-const PREVIOUS_IDENTIFIER_NAMES = Symbol('previous-identifer-names');
-async function identifyUnknownInstruction(
-  nodePaths: NodePath[],
-  derivedFromPassingTest: boolean,
-  cache: AstCache,
-): Promise<StatementInformation[][]> {
-  const filePaths = new Set(nodePaths.map(nodePath => nodePath.filePath));
-  for (const filePath of filePaths) {
-    const nodeCounts: number[] = [];
-    const names: PreviousIdentifiersData[] = [
-      {
-        references: [],
-        declarations: [],
-      },
-    ];
-    const stringBlocks: string[][] = [[]];
-    let identifierCount = 0;
-    const enter = (path: NodePath) => {
-      // TODO: String logic is all over the place
-      if (path.isStringLiteral()) {
-        path.node[STRINGS] = ([] as string[]).concat(...stringBlocks);
-        stringBlocks[stringBlocks.length - 1].push(path.node.value);
-      }
-      // TODO: Logic for identifier replacement is all over the place. Need to refactor
-      if (path.isIdentifier()) {
-        if (
-          path.parentPath &&
-          (path.parentPath.isVariableDeclarator() ||
-            (path.parentPath.isFunction() && typeof path.key === 'number'))
-        ) {
-          names[names.length - 1].declarations.push({
-            name: path.node.name,
-            order: identifierCount,
-          });
-          identifierCount++;
-        }
-        if (couldBeVariableNameReplaceable(path)) {
-          // Little confusing to read
-          path.node[PREVIOUS_IDENTIFIER_NAMES] = ([] as string[]).concat(
-            ...names.map(info =>
-              [...info.declarations, ...info.references]
-                .sort((a, b) => a.order - b.order)
-                .map(nameData => nameData.name),
-            ),
-          );
-          names[names.length - 1].references.push({
-            name: path.node.name,
-            order: identifierCount,
-          });
-          identifierCount++;
-        }
-      }
-
-      if (isStatementContainer(path)) {
-        stringBlocks.push([]);
-        names.push({
-          references: [],
-          declarations: [],
-        });
-      }
-
-      nodeCounts.push(path.isBlockStatement() || path.isExpressionStatement() ? 0 : 1);
-      for (const instructionFactory of instructionFactories) {
-        instructionFactory.onInitialEnter(path, filePath, derivedFromPassingTest);
-      }
-    };
-    const exit = (path: NodePath) => {
-      if (isStatementContainer(path)) {
-        const popped = names.pop()!;
-        const declarationNameSet = new Set(
-          popped.declarations.map(nameData => nameData.name),
-        );
-        const referencesThatWerentDeclaredInScope = popped.references.filter(
-          nameData => !declarationNameSet.has(nameData.name),
-        );
-        names[names.length - 1].references.push(...referencesThatWerentDeclaredInScope);
-        stringBlocks.pop();
-      }
-
-      const totalNodes = nodeCounts.pop()!;
-      if (nodeCounts.length > 0) {
-        nodeCounts[nodeCounts.length - 1] += totalNodes;
-      }
-      path.node[TOTAL_NODES] = totalNodes;
-    };
-
-    const ast = await cache.get(filePath);
-    traverse(ast, {
-      enter,
-      exit,
-    });
-  }
-  //console.log(nodePaths);
-  const statements: StatementInformation[] = [];
-  for (const filePath of filePaths) {
-    const expressionKeys: Set<string> = new Set(
-      nodePaths
-        .filter(nodePath => nodePath.filePath === filePath)
-        .map(nodePath => {
-          const statement = getStatementOrBlock(nodePath);
-          if (statement.node.loc) {
-            return expressionKey(filePath, statement.node);
-          } else {
-            return expressionKey(filePath, nodePath.node);
-          }
-        }),
-    );
-    //console.log(expressionKeys);
-    let insideImportantStatementCount = 0;
-    const currentStatementStack: StatementInformation[][] = [[]];
-    const enter = (path: NodePath) => {
-      const node = path.node;
-      const parentPath = path.parentPath;
-      const key = expressionKey(filePath, node);
-      if (expressionKeys.has(key)) {
-        insideImportantStatementCount++;
-      }
-      if (insideImportantStatementCount <= 0) {
-        return;
-      }
-
-      if (
-        parentPath &&
-        ((parentPath.node.body &&
-          ((path.key === 'body' && !node.body) ||
-            (Array.isArray(parentPath.node.body) && typeof path.key === 'number'))) ||
-          (parentPath.isIfStatement() &&
-            parentPath.node.consequent &&
-            (!parentPath.node.consequent.body ||
-              (parentPath.node.alternate && !parentPath.node.alternate.body)) &&
-            ['consequent', 'alternate'].includes(path.key))) &&
-        node.loc
-      ) {
-        //console.log('statement', expressionKey(filePath, node), currentStatementStack.length, node[TOTAL_NODES])
-        currentStatementStack[currentStatementStack.length - 1].push({
-          index: path.key,
-          type: path.isIfStatement() ? IF_TRUE : STATEMENT,
-          filePath: filePath,
-          instructionHolders: [],
-          innerStatements: [],
-          location: node.loc,
-          retries: RETRIES,
-          totalNodes: node[TOTAL_NODES],
-          yielded: false,
-        });
-      }
-
-      const statementStack = currentStatementStack[currentStatementStack.length - 1];
-      if (statementStack.length > 0) {
-        const statement = statementStack[statementStack.length - 1];
-        for (const factory of instructionFactories) {
-          statement.instructionHolders.push(
-            ...factory.createPreBlockInstructions(path, filePath, derivedFromPassingTest),
-          );
-        }
-      }
-
-      if (isStatementContainer(path)) {
-        //console.log('block', node.type, currentStatementStack.length);
-        currentStatementStack.push([]);
-      }
-
-      for (const factory of instructionFactories) {
-        factory.enter(path, filePath, derivedFromPassingTest);
-      }
-    };
-    const exit = (path: NodePath) => {
-      const node = path.node;
-      const key = expressionKey(filePath, node);
-      if (insideImportantStatementCount <= 0) {
-        return;
-      }
-
-      if (expressionKeys.has(key)) {
-        insideImportantStatementCount--;
-      }
-
-      const statementStack = currentStatementStack[currentStatementStack.length - 1];
-      if (statementStack.length > 0) {
-        const statement = statementStack[statementStack.length - 1];
-        for (const factory of instructionFactories) {
-          statement.instructionHolders.push(
-            ...factory.createInstructions(path, filePath, derivedFromPassingTest),
-          );
-        }
-      }
-      if (isStatementContainer(path)) {
-        const poppedStatementInfo = currentStatementStack.pop()!;
-        const newTopStackStatementInfo =
-          currentStatementStack[currentStatementStack.length - 1];
-        if (newTopStackStatementInfo.length <= 0) {
-          newTopStackStatementInfo.push(...poppedStatementInfo);
-        } else {
-          const lastStatement =
-            newTopStackStatementInfo[newTopStackStatementInfo.length - 1];
-          lastStatement.innerStatements.push(...poppedStatementInfo);
-        }
-      }
-    };
-
-    const ast = await cache.get(filePath);
-    traverse(ast, {
-      enter,
-      exit,
-    });
-    if (currentStatementStack.length !== 1) {
-      console.error(currentStatementStack);
-      throw new Error(
-        `currentStatementStack was of length ${currentStatementStack.length} instead of 1`,
-      );
-    }
-    statements.push(...currentStatementStack[0]);
-  }
-  const maxDepth = statementDepth(statements);
-  const comparator = (a, b) => b.length - a.length;
-  const statementBlocks: StatementInformation[][] = [];
-  for (let d = 0; d < maxDepth; d++) {
-    statementBlocks.push([]);
-  }
-  for (const statement of statements) {
-    let stack = [statement];
-    const statementLayers: StatementInformation[][] = [];
-    do {
-      const nextStack: StatementInformation[] = [];
-      for (const item of stack) {
-        nextStack.push(...item.innerStatements);
-      }
-      statementLayers.push(stack);
-      stack = nextStack;
-    } while (stack.length > 0);
-    statementLayers.sort(comparator);
-    for (let b = 0; b < statementLayers.length; b++) {
-      statementBlocks[b].push(...statementLayers[b]);
-    }
-    statementBlocks.sort(comparator);
-  }
-  const originalLength = statementBlocks.length;
-  for (let i = 0; i < originalLength; i++) {
-    const statementBlock = statementBlocks[i];
-    if (statementBlock.length > 1) {
-      const mid = Math.trunc(statementBlock.length / 2);
-      statementBlocks.push(statementBlock.splice(mid));
-    }
-  }
-  console.log(
-    'statement blocks',
-    statementBlocks.map(statementBlock => statementBlock.length),
-  );
-  return statementBlocks;
-}
 
 export type TestEvaluation = {
   // Whether the exception that was thrown in the test has changed
@@ -1745,9 +1144,9 @@ export const compareMutationEvaluations = (
   r1: MutationEvaluation,
   r2: MutationEvaluation,
 ) => {
-  if (r1.partial && !r2.partial) {
+  if (r1.instructions.length >= 2 && r2.instructions.length <= 1) {
     return -1;
-  } else if (!r1.partial && r2.partial) {
+  } else if (r1.instructions.length <= 1 && r2.instructions.length >= 2) {
     return 1;
   }
 
@@ -1769,32 +1168,6 @@ export const compareMutationEvaluations = (
     (nothingBadHappened1 ? 1 : -1) - (nothingBadHappened2 ? 1 : -1);
   if (nothingBadHappenedComparison !== 0) {
     return nothingBadHappenedComparison;
-  }
-
-  if (r1.crashed && !r2.crashed) {
-    if (r1.type === DELETE_STATEMENT && !goodThingsHappened2 && !nothingBadHappened2) {
-      return 1;
-    }
-    return -1;
-  }
-  if (!r1.crashed && r2.crashed) {
-    if (r2.type === DELETE_STATEMENT && !goodThingsHappened1 && !nothingBadHappened1) {
-      return -1;
-    }
-    return 1;
-  }
-
-  if (
-    !goodThingsHappened1 &&
-    !goodThingsHappened2 &&
-    nothingBadHappened1 &&
-    nothingBadHappened2
-  ) {
-    const isDeleteStatement =
-      (r2.type === DELETE_STATEMENT ? 1 : -1) - (r1.type === DELETE_STATEMENT ? 1 : -1);
-    if (isDeleteStatement !== 0) {
-      return isDeleteStatement;
-    }
   }
 
   // TODO: TypeScript should have inferred that this would be the case..
@@ -1954,11 +1327,13 @@ const createMutationStackEvaluation = (): MutationStackEvaluation => ({
 });
 
 export type CommonMutationEvaluation = {
+  instructions: Instruction2<any>[]
+  /*
   type: symbol;
   totalNodes: number;
   atomicMutation: boolean;
-  partial: boolean;
   mutationCount: number;
+  */
 };
 export type CrashedMutationEvaluation = {
   stackEvaluation: null;
@@ -1989,8 +1364,7 @@ export type LocationMutationEvaluation = {
 const evaluateNewMutation = (
   originalResults: TesterResults,
   newResults: TesterResults,
-  instruction: InstructionHolder,
-  partial: boolean,
+  instructions: Instruction2<any>[],
 ): MutationEvaluation => {
   const notSeen = new Set(originalResults.testResults.keys());
   let testsWorsened = 0;
@@ -2047,10 +1421,7 @@ const evaluateNewMutation = (
     }
   }
   return {
-    type: instruction.instruction.type,
-    atomicMutation: instruction.instruction.atomicMutation,
-    mutationCount: instruction.instruction.mutationCount,
-    totalNodes: instruction.instruction.totalNodes,
+    instructions,
     overallPositiveEffect,
     overallNegativeEffect,
     testsWorsened,
@@ -2058,7 +1429,6 @@ const evaluateNewMutation = (
     stackEvaluation,
     errorsChanged,
     crashed: false,
-    partial,
   };
 };
 
@@ -2092,104 +1462,96 @@ export const locationToKeyIncludingEnd = (
 };
 
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (
-  a: LocationMutationEvaluation,
-  b: LocationMutationEvaluation,
+  a: MutationEvaluation,
+  b: MutationEvaluation,
 ) => {
-  const partial = (b.evaluation.partial ? 1 : -1) - (a.evaluation.partial ? 1 : -1);
-  if (partial !== 0) {
-    return partial;
+  const instructionLengthComparison = b.instructions.length - a.instructions.length;
+  if (instructionLengthComparison !== 0) {
+    return instructionLengthComparison;
   }
 
-  const atomicMutation =
-    (a.evaluation.atomicMutation ? 1 : -1) - (b.evaluation.atomicMutation ? 1 : -1);
-  if (atomicMutation !== 0) {
-    return atomicMutation;
-  }
 
-  const direct = (a.direct ? 1 : -1) - (b.direct ? 1 : -1);
-  if (direct !== 0) {
-    return direct;
-  }
-
-  const crashed = (b.evaluation.crashed ? 1 : -1) - (a.evaluation.crashed ? 1 : -1);
-  if (crashed !== 0) {
-    return crashed;
-  }
-
-  return compareMutationEvaluationsWithLesserProperties(a.evaluation, b.evaluation);
+  return compareMutationEvaluations(a, b);
 };
 
-export const compareLocationEvaluations = (
-  aL: LocationEvaluation,
-  bL: LocationEvaluation,
-) => {
-  const a = aL.evaluations;
-  const b = bL.evaluations;
-  const aSingleMutationsOnly = a
-    .sort(compareMutationEvaluationsWithLargeMutationCountsFirst)
-    .reverse();
-  const bSingleMutationsOnly = b
-    .sort(compareMutationEvaluationsWithLargeMutationCountsFirst)
-    .reverse();
-  let aI = 0;
-  let bI = 0;
-  // Assumption: All arrays are at least .length > 0
-  do {
-    const a = aSingleMutationsOnly[aI];
-    const b = bSingleMutationsOnly[bI];
-    const comparison = compareMutationEvaluations(a.evaluation, b.evaluation);
+export const compareFinalInstructionEvaluations = (
+  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
+  instructions1: Instruction2<any>[],
+  instructions2: Instruction2<any>[]
+): number => {
+  if (instructions1.length >= 1 && instructions2.length >= 1) {
+    const comparisonFn = (a, b) => compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
+  
+    const best1 = instructions1.sort(comparisonFn)[instructions1.length - 1];
+    const best2 = instructions2.sort(comparisonFn)[instructions2.length - 1];
+
+    const comparison = comparisonFn(best1, best2);
     if (comparison !== 0) {
       return comparison;
     }
 
-    // TODO: This doesn't need to be in the loop - it's the same in each iteration
-    const roomForMutationComparison =
-      aL.totalNodes / (1 + aL.totalAtomicMutationsPerformed) -
-      bL.totalNodes / (1 + bL.totalAtomicMutationsPerformed);
-    if (roomForMutationComparison !== 0) {
-      return roomForMutationComparison;
+    // TODO: More evaluations = less good at this point. Add that in
+  } else if (instructions1.length <= 0 && instructions2.length >= 1) {
+    return 1;
+  } else if (instructions1.length >= 1 && instructions2.length <= 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
+type InstructionCategory = {
+  filePath: string,
+  location: t.SourceLocation,
+  instructions: Instruction2<any>[],
+};
+export const categoriseInstructionsIntoCloestParentPaths = (instructions: Instruction2<any>[], parentPaths: NodePath[]): Map<t.Node, InstructionCategory> => {
+  const pathWithLocation = path => {
+    return path.find(path => path.node.loc !== null);
+  };
+  const parentNodes = parentPaths.map(pathWithLocation).map(path => path.node);
+  const categorisedMap: Map<t.Node, InstructionCategory> = new Map();
+  for(const instruction of instructions) {
+    for(const [filePath, fileDependencies] of instruction.dependencies) {
+      for(const dependency of fileDependencies.writes) {
+        const selectedParentPath = dependency.find(parentPath => parentNodes.includes(parentPath.node));
+        const selectedFinalPath = selectedParentPath === null ? dependency : selectedParentPath.find(pathWithLocation);
+        if (selectedFinalPath !== null) {
+          const selectedNode = selectedFinalPath.node;
+          if (categorisedMap.has(selectedNode)) {
+            categorisedMap.get(selectedNode)!.instructions.push(instruction);
+          } else {
+            categorisedMap.set(selectedNode, {
+              filePath, 
+              location: selectedNode.loc!,
+              instructions: [instruction]
+            });
+          }  
+        }
+      }
     }
+  }  
+  return categorisedMap;
+}
 
-    aI++;
-    bI++;
-  } while (aI < aSingleMutationsOnly.length && bI < bSingleMutationsOnly.length);
-  return bSingleMutationsOnly.length - aSingleMutationsOnly.length;
-};
-
-type LocationEvaluation = {
-  evaluations: LocationMutationEvaluation[];
-  location: Location;
-  totalNodes: number;
-  totalAtomicMutationsPerformed: number;
-};
 export const mutationEvalatuationMapToFaults = (
-  locationEvaluations: Map<string, LocationEvaluation>,
-  failingLocationKeys: Set<string>,
+  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
+  instructionCategories: InstructionCategory[]
 ): Fault[] => {
-  const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
-  locationEvaluationsList.sort(compareLocationEvaluations);
-
-  const faults = locationEvaluationsList.map(
-    (lE, i): Fault => {
+  const faults = [...instructionCategories]
+    .sort((a, b) => compareFinalInstructionEvaluations(nodeEvaluations, instructionEvaluations, a.instructions, b.instructions))
+    .map(
+    ({ filePath, location }, i): Fault => {
       return {
         score: i,
-        sourcePath: lE.location.filePath,
+        sourcePath: filePath,
         location: {
-          start: lE.location.start,
-          end: lE.location.end,
+          start: location.start,
+          end: location.end,
         },
         other: {
-          isInCoverage: isInCoverage(
-            lE.location.filePath,
-            lE.location,
-            failingLocationKeys,
-          ),
-          totalAtomicMutationsPerformed: lE.totalAtomicMutationsPerformed,
-          totalNodes: lE.totalNodes,
-          evaluation: lE.evaluations.map(e => ({
-            type: e.evaluation.type.toString(),
-            ...e,
-          })),
         },
       };
     },
@@ -2197,10 +1559,41 @@ export const mutationEvalatuationMapToFaults = (
   return faults;
 };
 
+const getAffectedNodesFromInstructionBlock = (
+  instructions: Iterable<Instruction2<any>>,
+) => {
+  const nodesAffected: Set<t.Node> = new Set();
+  for(const instruction of instructions) {
+    const writeNodes = instructionToWriteNodeDependencies(instruction);
+    for(const node of writeNodes) {
+      nodesAffected.add(node);
+    }
+  }
+  return nodesAffected;
+};
+
+const getAffectedInstructionsFromNodes = (
+  nodes: Iterable<t.Node>,
+  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
+) => {
+  const instructionsAffected: Set<Instruction2<any>> = new Set();
+  for(const node of nodes) {
+    for(const instruction of nodeToInstructions.get(node)!) {
+      instructionsAffected.add(instruction);
+    }
+  }
+  return instructionsAffected;
+}
+
 type IsFinishedFunction = (
-  instruction: InstructionHolder<any>,
-  finishData: MiscFinishData,
+  instructions: Heap<Instruction2<any>>,
+  testerResults: TesterResults,
+  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
+  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
+  mutationCount: number,
 ) => boolean;
+
 export type PluginOptions = {
   faultFileDir?: string;
   babelOptions?: ParserOptions;
@@ -2208,32 +1601,28 @@ export type PluginOptions = {
   onMutation?: (mutatatedFiles: string[]) => any;
   isFinishedFn?: IsFinishedFunction;
   mapToIstanbul?: boolean;
-  allowPartialTestRuns?: boolean;
 };
 
 type DefaultIsFinishedOptions = {
   mutationThreshold?: number;
   durationThreshold?: number;
-  finishOnPassDerviedNonFunctionInstructions?: boolean;
-};
-
-type MiscFinishData = {
-  mutationCount: number;
-  testerResults: TesterResults;
 };
 
 export const createDefaultIsFinishedFn = ({
   mutationThreshold,
   durationThreshold,
-  finishOnPassDerviedNonFunctionInstructions = true,
 }: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
   const isFinishedFn: IsFinishedFunction = (
-    { data, instruction }: InstructionHolder<any>,
-    finishData: MiscFinishData,
+    instructions,
+    testerResults,
+    nodeEvaluations,
+    instructionEvaluations,
+    nodeToInstructions,
+    mutationCount,
   ): boolean => {
     if (
       durationThreshold !== undefined &&
-      finishData.testerResults.duration >= durationThreshold
+      testerResults.duration >= durationThreshold
     ) {
       console.log('a');
       return true;
@@ -2241,50 +1630,35 @@ export const createDefaultIsFinishedFn = ({
 
     if (
       mutationThreshold !== undefined &&
-      finishData.mutationCount >= mutationThreshold
+      mutationCount >= mutationThreshold
     ) {
       console.log('b');
       return true;
     }
 
-    // TODO: Should just never add them to the queue in the first place
-    if (finishOnPassDerviedNonFunctionInstructions && data.derivedFromPassingTest) {
-      console.log('c');
-      return true;
-    }
-
-    if (data.mutationEvaluations.length > 0) {
-      // TODO: Might need to rethink using mutationCount if multi mutation instructions exist outside the delete statement phase
-      const hasAtomicMutations = data.mutationEvaluations.some(e => e.atomicMutation);
-      const mostSpecificMutations = data.mutationEvaluations.filter(
-        e => e.atomicMutation === hasAtomicMutations,
-      );
-      const mostSpecificMutationsOnlyContainCrashes =
-        mostSpecificMutations.filter(evaluation => evaluation.crashed).length ===
-        mostSpecificMutations.length;
-      if (!mostSpecificMutationsOnlyContainCrashes) {
-        const containsUsefulMutations = data.mutationEvaluations.some(evaluation => {
-          const improved =
-            !evaluation.crashed &&
-            (evaluation.testsImproved > 0 ||
-              evaluation.errorsChanged > 0 ||
-              evaluation.stackEvaluation.lineImprovementScore > 0 ||
-              evaluation.stackEvaluation.columnImprovementScore > 0);
-          const nothingChangedInNonDeleteStatement =
-            !evaluation.crashed &&
-            (evaluation.errorsChanged === 0 &&
-              evaluation.testsImproved === 0 &&
-              evaluation.testsWorsened === 0 &&
-              nothingChangedMutationStackEvaluation(evaluation.stackEvaluation) &&
-              evaluation.type !== DELETE_STATEMENT);
-          return improved || nothingChangedInNonDeleteStatement;
-        });
-        if (!containsUsefulMutations) {
-          console.log('d');
-          return true;
-        }
+    for(const instruction of instructions.unsortedIterator()) {
+      const instructionMutationEvaluations = instructionEvaluations.get(instruction)!;
+      if (instructionMutationEvaluations.length <= 0) {
+        continue;
+      }
+      const bestInstructionEvaluation = instructionMutationEvaluations.peek();
+      if (!evaluationDidSomethingGoodOrCrashed(bestInstructionEvaluation) || (bestInstructionEvaluation.crashed && bestInstructionEvaluation.instructions.length <= 1)) {
+        return true;
       }
     }
+
+    /*
+    const nodes = getAffectedNodesFromInstructionBlock(instructions.unsortedIterator());
+    for(const node of nodes) {
+      const nodeMutationEvaluations = nodeEvaluations.get(node)!.mutationEvaluations;
+      if (nodeMutationEvaluations.length <= 0) {
+        continue;
+      }
+      const bestNodeMutationEvaluation = nodeMutationEvaluations.peek();
+      if (!evaluationDidSomethingGoodOrCrashed(bestNodeMutationEvaluation) || (bestNodeMutationEvaluation.crashed && bestNodeMutationEvaluation.instructions.length <= 1)) {
+        return true;
+      }
+    }*/
 
     return false;
   };
@@ -2404,20 +1778,219 @@ export const mapFaultsToIstanbulCoverage = (
   return [...mappedFaults.values()];
 };
 
-const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
-  const previousMutationResults = instruction.instruction.mutationResults;
+const getAffectedFilePaths = (instructions: Heap<Instruction2<any>>) => {
+  return [...new Set(
+    [...instructions.unsortedIterator()]
+      .map(instruction => [...instruction.dependencies.keys()])
+      .flat()
+  )];
+}
 
-  // Revert all mutated files
-  await Promise.all(
-    Object.keys(previousMutationResults.locations).map(filePath => resetFile(filePath)),
-  );
+const resetMutationsInInstruction = async (instructions: Heap<Instruction2<any>>) => {
+  const filePathsToReset = getAffectedFilePaths(instructions);
+  await Promise.all(filePathsToReset.map(resetFile));
 };
 
 let solutionCounter = 0;
 
 type LocationKey = string;
 const faultFileName = 'faults.json';
-const heapComparisonFn = (a, b) => -compareInstructions(a, b);
+
+const instructionToWriteNodePathDependencies = (instruction: Instruction2<any>): NodePath[] => {
+  const dependencies = [...instruction.dependencies.values()]
+    .map(fileDependencies => fileDependencies.writes)
+    .flat();
+  return dependencies;
+}
+
+const instructionToWriteNodeDependencies = (instruction: Instruction2<any>): t.Node[] => {
+  return instructionToWriteNodePathDependencies(instruction)
+      .map((path) => path.node);
+};
+
+const compareNodeEvaluations = (evaluation1: NodeEvaluation, evaluation2: NodeEvaluation) => {
+  const nodeMutationEvaluations1 = evaluation1.mutationEvaluations;
+  const nodeMutationEvaluations2 = evaluation2.mutationEvaluations;
+  if (nodeMutationEvaluations1.length <= 0 && nodeMutationEvaluations2.length >= 1) {
+    if (didSomethingGood(nodeMutationEvaluations2.peek())) {
+      return -1;
+    } else {
+      return 1;
+    }  
+  } else if (nodeMutationEvaluations1.length >= 1 && nodeMutationEvaluations2.length <= 0) {
+    if (didSomethingGood(nodeMutationEvaluations1.peek())) {
+      return 1;
+    } else {
+      return -1;
+    }
+  } else if (nodeMutationEvaluations1.length >= 1 && nodeMutationEvaluations2.length >= 1) {
+    const nodeMutationComparison = compareMutationEvaluations(nodeMutationEvaluations1.peek(), nodeMutationEvaluations2.peek());
+    if (nodeMutationComparison !== 0) {
+      return nodeMutationComparison;
+    }
+  }
+
+  const initialComparison = evaluation1.initial - evaluation2.initial;
+  if (initialComparison !== 0) {
+    return initialComparison;
+  }
+
+  return 0;
+};
+
+const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>, instruction1: Instruction2<any>, instruction2: Instruction2<any>) => {
+  const instructionEvaluations1 = instructionEvaluations.get(instruction1)!;
+  const instructionEvaluations2 = instructionEvaluations.get(instruction2)!;
+  
+  if(instructionEvaluations1.length <= 0 && instructionEvaluations2.length >= 1) {
+    const evaluation2 = instructionEvaluations2.peek();
+    if (didSomethingGood(evaluation2)) {
+      return -1;
+    } else {
+      return 1;
+    }
+  } else if (instructionEvaluations1.length >= 1 && instructionEvaluations2.length <= 0) {
+    const evaluation1 = instructionEvaluations1.peek();
+    if (didSomethingGood(evaluation1)) {
+      return 1;
+    } else {
+      return -1;
+    }
+  } else if (instructionEvaluations1.length >= 1 && instructionEvaluations2.length <= 0) {
+    const instructionEvaluationComparison = compareMutationEvaluations(
+      instructionEvaluations1.peek(),
+      instructionEvaluations2.peek(),
+    );
+    if (instructionEvaluationComparison !== 0) {
+      return instructionEvaluationComparison;
+    }
+  }
+
+  const relevantNodes1 = instructionToWriteNodeDependencies(instruction1);
+  const relevantNodes2 = instructionToWriteNodeDependencies(instruction2);
+
+  const nodeEvaluations1 = relevantNodes1.map(node => nodeEvaluations.get(node)!).sort(compareNodeEvaluations);
+  const nodeEvaluations2 = relevantNodes2.map(node => nodeEvaluations.get(node)!).sort(compareNodeEvaluations);
+
+  const bestNodeEvaluation1 = nodeEvaluations1[nodeEvaluations1.length - 1];
+  const bestNodeEvaluation2 = nodeEvaluations2[nodeEvaluations2.length - 1];
+
+  const nodeEvaluationComparison = compareNodeEvaluations(bestNodeEvaluation1, bestNodeEvaluation2);
+  if (nodeEvaluationComparison !== 0) {
+    return nodeEvaluationComparison;
+  }
+
+  return 0;
+}
+
+const compareInstructionBlocks = (
+  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
+  block1: Heap<Instruction2<any>>,
+  block2: Heap<Instruction2<any>>
+): number => {
+  const bestInstruction1 = block1.peek();
+  const bestInstruction2 = block2.peek();
+  const instructionComparison = compareInstruction(nodeEvaluations, instructionEvaluations, bestInstruction1, bestInstruction2);
+  if (instructionComparison !== 0) {
+    return instructionComparison;
+  }
+
+  let sizeComparison = block2.length - block1.length;
+  if (sizeComparison !== 0) {
+    return sizeComparison;
+  }
+
+  return 0;
+};
+
+type NodeEvaluation = {
+  initial: number,
+  mutationEvaluations: Heap<MutationEvaluation>,
+};
+
+export const initialiseEvaluationMaps = (
+  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
+  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
+  instructions: Instruction2<any>[],
+) => {
+  const nodes = getAffectedNodesFromInstructionBlock(instructions);
+  for(const node of nodes) {
+    nodeEvaluations.set(node, {
+      initial: 0,
+      mutationEvaluations: new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst),
+    });
+    nodeToInstructions.set(node, []);
+  }
+  for(const instruction of instructions) {
+    const writeNodes = instructionToWriteNodeDependencies(instruction);
+    for(const node of writeNodes) {
+      nodeToInstructions.get(node)!.push(instruction);
+    }
+    instructionEvaluations.set(instruction, new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst));
+  }
+}
+
+const blockLengthToTotalDivisions = (n: number) => n * 2 - 1;
+const instructionBlocksToMaxInstructionsLeft = (blocks: Iterable<Heap<Instruction2<any>>>) => {
+  let total = 0;
+  for(const block of blocks) {
+    total += blockLengthToTotalDivisions(block.length);
+    for(const instruction of block.unsortedIterator()) {
+      total += instruction.variants === undefined ? 0 : instruction.variants.length - 1;
+    }
+  }
+  return total;
+}
+
+const addMutationEvaluation = (
+  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>>,
+  instructionQueue: Heap<Heap<Instruction2<any>>>,
+  nodeToInstructions: Map<t.Node, Instruction2<any>[]>,
+  instructions: Heap<Instruction2<any>>,
+  mutationEvaluation: MutationEvaluation,
+) => {
+  const nodesAffected: Set<t.Node> = getAffectedNodesFromInstructionBlock(instructions.unsortedIterator());
+  for(const node of nodesAffected) {
+    nodeEvaluations.get(node)!.mutationEvaluations.push(mutationEvaluation);
+  }
+
+  for(const instruction of instructions.unsortedIterator()) {
+    instructionEvaluations.get(instruction)!.push(mutationEvaluation);
+  }
+
+  const instructionsAffected: Set<Instruction2<any>> = getAffectedInstructionsFromNodes(nodesAffected, nodeToInstructions);
+  for(const instruction of instructionsAffected) {
+    for(const block of instructionQueue.unsortedIterator()) {
+      if (block.some(blockInstruction => blockInstruction === instruction)) {
+        instructionQueue.update(block);
+      }
+    }
+  }
+};
+
+const widenCoveragePath = (path: NodePath) => path.find(subPath => subPath.isStatement() || subPath.isFunction());
+
+const addSplittedInstructionBlock = (queue: Heap<Heap<Instruction2<any>>>, block: Heap<Instruction2<any>>) => {
+  const mid = Math.trunc(block.length / 2);
+  const part1: Heap<Instruction2<any>> = new Heap(block.compareFn);
+  for(let i = 0; i < mid; i++) { 
+    part1.push(block.pop()!);
+  }
+  queue.push(part1);
+  // TODO: Consider keeping things immutable
+  queue.push(block);
+};
+
+const codeMapToAstMap = (codeMap: Map<string, string>, options: Parameters<typeof parse>[1]): Map<string, t.File> => {
+  const mapEntries = [...codeMap.entries()].map(([filePath, code]): [string, t.File] => {
+    return [filePath, parse(code, options)];
+  });
+  return new Map(mapEntries);
+};
+
 export const createPlugin = ({
   faultFileDir = './faults/',
   babelOptions,
@@ -2425,21 +1998,28 @@ export const createPlugin = ({
   onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn(),
   mapToIstanbul = false,
-  allowPartialTestRuns = false,
 }: PluginOptions): PartialTestHookOptions => {
   const solutionsDir = resolve(faultFileDir, 'solutions');
 
   const faultFilePath = resolve(faultFileDir, faultFileName);
-  let previousInstruction: InstructionHolder = null!;
+
+  const nodeEvaluations: Map<t.Node, NodeEvaluation> = new Map();
+  const nodeToInstructions: Map<t.Node, Instruction2<any>[]> = new Map();
+  const instructionEvaluations: Map<Instruction2<any>, Heap<MutationEvaluation>> = new Map();
+
+  const heapComparisonFn = (a: Heap<Instruction2<any>>, b: Heap<Instruction2<any>>) => compareInstructionBlocks(nodeEvaluations, instructionEvaluations, a, b);
+
+  let previousInstructions: Heap<Instruction2<any>> = null!;
+  let codeMap: Map<string, string> = null!;
+  let originalAstMap: Map<string, t.File> = new Map();
+  let coveragePaths: NodePath[] = null!;
   let finished = false;
-  const instructionQueue: Heap<InstructionHolder> = new Heap(heapComparisonFn);
+  const instructionQueue: Heap<Heap<Instruction2<any>>> = new Heap(heapComparisonFn);
   let firstRun = true;
   let firstTesterResults: TesterResults;
   const failingTestFiles: Set<string> = new Set();
   const failingLocationKeys: Set<string> = new Set();
-  let previousRunWasPartial = false;
 
-  const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
   let mutationCount = 0;
 
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(
@@ -2447,69 +2027,44 @@ export const createPlugin = ({
   );
   const analyzeEvaluation = async (
     mutationEvaluation: MutationEvaluation,
-    cache: AstCache,
   ) => {
-    if (previousInstruction !== null) {
-      console.log(mutationEvaluation);
-      const previousMutationResults = previousInstruction.instruction.mutationResults;
-
-      // Revert all mutated files
-      await Promise.all(Object.keys(previousMutationResults.locations).map(resetFile));
-
-      //console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
-
-      if (!(previousInstruction.instruction instanceof DeleteStatementInstruction)) {
-        previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
-      }
-
-      for (const [filePath, expressionLocations] of Object.entries(
-        previousMutationResults.locations,
-      )) {
-        for (const expressionLocation of expressionLocations) {
-          const key = locationToKeyIncludingEnd(filePath, expressionLocation.location);
-          const locationEvaluation = locationEvaluations.get(key)!;
-          locationEvaluation.evaluations.push({
-            evaluation: mutationEvaluation,
-            direct: expressionLocation.direct,
-          });
-          if (mutationEvaluation.atomicMutation) {
-            locationEvaluation.totalAtomicMutationsPerformed++;
+    if (previousInstructions !== null) {
+      console.log({ ...mutationEvaluation, instructions: undefined});
+      if (previousInstructions.length >= 2) {
+        if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+          addSplittedInstructionBlock(instructionQueue, previousInstructions);
+        }
+      } else {
+        if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+          const instruction = previousInstructions.peek();
+          const previousEvaluations = instructionEvaluations.get(instruction)!;
+          if (previousEvaluations.length <= 0 || compareMutationEvaluations(mutationEvaluation, previousEvaluations.peek()) > 0) {
+            instruction.variants?.pop();
+            if (instruction.variants !== undefined && instruction.variants.length >= 1) {
+              instructionQueue.push(previousInstructions);
+            }
           }
         }
       }
-
-      for await (const newInstruction of previousInstruction.instruction.onEvaluation(
-        mutationEvaluation,
-        previousInstruction.data,
-        cache,
-      )) {
-        if (!newInstruction) {
-          throw new Error(`Instruction was ${newInstruction}`);
-        }
-        instructionQueue.push(newInstruction);
-      }
-
-      if (
-        previousInstruction.instruction.isRemovable(
-          mutationEvaluation,
-          previousInstruction.data,
-        )
-      ) {
-        // Can't assume it's at the top of the heap and therefore can't use pop because any new instruction (onEvaluation) could technically end up at the top too
-        instructionQueue.delete(previousInstruction);
-      } else {
-        instructionQueue.update(previousInstruction);
-      }
+      addMutationEvaluation(
+        nodeEvaluations,
+        instructionEvaluations,
+        instructionQueue,
+        nodeToInstructions,
+        previousInstructions,
+        mutationEvaluation
+      );
     }
   };
 
-  const runInstruction = async (tester: TesterResults, cache: AstCache) => {
+  const runInstruction = async (tester: TesterResults) => {
     console.log('Processing instruction');
-    let count = 0;
-    for (const instruction of instructionQueue.unsortedIterator()) {
-      count += instruction.instruction.mutationsLeft;
+    let count = instructionBlocksToMaxInstructionsLeft(instructionQueue.unsortedIterator());
+    let instructionCount = 0;
+    for(const block of instructionQueue.unsortedIterator()) {
+      instructionCount += block.length;
     }
-    console.log(`${count} instructions`);
+    console.log(`Left: ${count} mutations, ${instructionCount} instructions, ${instructionQueue.length} blocks`);
 
     if (instructionQueue.length <= 0) {
       finished = true;
@@ -2517,26 +2072,25 @@ export const createPlugin = ({
     }
 
     console.log('set peaking');
-    const instruction = instructionQueue.peek()!;
-    console.log(instruction.instruction.type);
-    previousInstruction = instruction;
+    const instructions = instructionQueue.pop()!;
+    console.log([...instructions.unsortedIterator()].map(instruction => instruction.type.toString()));
+    previousInstructions = instructions;
 
     //console.log('processing')
 
-    await instruction.instruction.process(instruction.data, cache);
+    const newAstMap = codeMapToAstMap(codeMap, babelOptions);
+    executeInstructions(newAstMap, instructions);
 
-    if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
+    if (isFinishedFn(instructions, tester, nodeEvaluations, instructionEvaluations, nodeToInstructions, mutationCount)) {
       console.log('finished');
       // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
       finished = true;
       return false;
     }
 
-    const mutationResults = instruction.instruction.mutationResults;
-
     mutationCount++;
 
-    const mutatedFilePaths = Object.keys(mutationResults.locations);
+    const mutatedFilePaths = getAffectedFilePaths(instructions);
     console.log(mutatedFilePaths);
     await Promise.all(
       mutatedFilePaths.map(filePath => createTempCopyOfFileIfItDoesntExist(filePath)),
@@ -2545,7 +2099,7 @@ export const createPlugin = ({
     await Promise.all(
       mutatedFilePaths.map(async filePath => {
         const originalCodeText = await readFile(filePath, 'utf8');
-        const ast = await cache.get(filePath);
+        const ast = newAstMap.get(filePath)!;
         const { code } = generate(
           ast,
           {
@@ -2570,7 +2124,7 @@ export const createPlugin = ({
     on: {
       start: async () => {
         await del(resolve(solutionsDir, '**/*'));
-        await mkdir(solutionsDir, { recursive: true });
+        await mkdir(solutionsDir, { recursive: true } as any); // TODO: Need as any because there seems to be a type error with the package (?)
         // TODO: Types appear to be broken with mkdtemp
         copyTempDir = await (mkdtemp as any)(
           join(tmpdir(), 'fault-addon-mutation-localization-'),
@@ -2581,7 +2135,6 @@ export const createPlugin = ({
           return null;
         }
         //console.log('finished all files')
-        const cache = createAstCache(babelOptions);
         if (firstRun) {
           firstTesterResults = tester;
           firstRun = false;
@@ -2593,8 +2146,7 @@ export const createPlugin = ({
               failedCoverageMap.merge(testResult.coverage);
             }
           }
-          const failedCoverage = failedCoverageMap.data;
-          const statements: StatementBlock[] = [];
+          const failedCoverage = failedCoverageMap.data as Coverage;
           console.log('failing coverage');
           const locations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
@@ -2617,80 +2169,41 @@ export const createPlugin = ({
               });
             }
           }
-          const allNodePaths = await findAllNodePaths(cache, locations);
-          const statementBlocks = await identifyUnknownInstruction(
-            allNodePaths,
-            false,
-            cache,
+          codeMap = await createFilePathToCodeMap([...new Set(locations.map(location => location.filePath))]);
+          originalAstMap = codeMapToAstMap(codeMap, babelOptions);
+          const allInstructions = [...gatherInstructions(instructionFactories, originalAstMap)];
+          console.log('instructions', allInstructions.map(a => a.type));
+          
+          coveragePaths = await findAllNodePaths(originalAstMap, locations);
+          console.log('coveragePaths', coveragePaths.map(path => getTraverseKeys(path)));
+          const relevantStatementPaths = [...new Set(coveragePaths.map(widenCoveragePath))];
+
+          const relevantInstructions = allInstructions.filter(instruction => {
+            const instructionWritePaths = instructionToWriteNodePathDependencies(instruction);
+            console.log('????', instructionWritePaths.map(getTraverseKeys));
+            return instructionWritePaths.some(instructionWritePath => relevantStatementPaths.some(coveragePath => {
+              return isParentOrChild(coveragePath, instructionWritePath);
+            }));
+          });
+          console.log('relevant instructions', relevantInstructions.map(a => a.type))
+
+          initialiseEvaluationMaps(
+            nodeEvaluations,
+            instructionEvaluations,
+            nodeToInstructions,
+            relevantInstructions
           );
-          for (const statement of statementBlocks) {
-            statements.push({
-              statements: statement,
-            });
-          }
 
-          const allLocations: Map<string, Location> = new Map();
-          const stack: StatementInformation[] = [];
-          for (const block of statementBlocks) {
-            stack.push(...block);
-          }
+          relevantInstructions.sort((a, b) => compareInstruction(nodeEvaluations, instructionEvaluations, a, b));
 
-          while (stack.length > 0) {
-            const popped = stack.pop()!;
-            const key = locationToKeyIncludingEnd(popped.filePath, popped.location);
-            allLocations.set(key, { ...popped.location, filePath: popped.filePath });
-            stack.push(...popped.innerStatements);
-
-            for (const instructionHolder of popped.instructionHolders) {
-              for (const [filePath, locations] of Object.entries(
-                instructionHolder.instruction.mutationResults.locations,
-              )) {
-                for (const location of locations) {
-                  const instructionKey = locationToKeyIncludingEnd(
-                    filePath,
-                    location.location,
-                  );
-                  allLocations.set(instructionKey, { ...location.location, filePath });
-                }
-              }
-            }
-          }
-
-          // TODO: This includes istanbul coverage which isn't even necessarily covered. But we have to keep it for now cause mapToIstanbul assumes that they're included in the evaluations
-          const nodePaths = await findAllNodePaths(cache, [
-            ...allLocations.values(),
-            ...locations,
-          ]);
-          for (const nodePath of nodePaths) {
-            const key = locationToKeyIncludingEnd(nodePath.filePath, nodePath.node.loc!);
-            const totalNodes = nodePath.node[TOTAL_NODES];
-            if (locationEvaluations.has(key)) {
-              const locationEvaluation = locationEvaluations.get(key)!;
-              if (totalNodes > locationEvaluation.totalNodes) {
-                locationEvaluation.totalNodes = totalNodes;
-              }
-            } else {
-              locationEvaluations.set(
-                key,
-                stubLocationEvaluation(
-                  {
-                    filePath: nodePath.filePath,
-                    ...nodePath.node.loc!,
-                  },
-                  totalNodes,
-                ),
-              );
-            }
-          }
-
-          if (statements.length > 0) {
+          const organizedInstructions = organizeInstructions(relevantInstructions);
+          console.log('organized instructions', organizedInstructions.map(a => a.map(b => b.type)))
+          const subHeapCompareFn = (a: Instruction2<any>, b: Instruction2<any>) => compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
+          instructionQueue.push(
+            ...organizedInstructions.map(instructions => new Heap(subHeapCompareFn, instructions))
+          );
+          if (instructionQueue.length > 0) {
             console.log('Pushing instruction');
-            instructionQueue.push(
-              createInstructionHolder(
-                new DeleteStatementInstruction(statements, RETRIES),
-                false,
-              ),
-            );
           } else {
             console.log('Skipping instruction');
           }
@@ -2698,59 +2211,42 @@ export const createPlugin = ({
           const mutationEvaluation = evaluateNewMutation(
             firstTesterResults,
             tester,
-            previousInstruction,
-            previousRunWasPartial,
+            [...previousInstructions.unsortedIterator()],
           );
-
-          if (previousRunWasPartial && !mutationEvaluation.crashed) {
-            const testsToBeRerun = [...firstTesterResults.testResults.values()].map(
-              result => result.file,
-            );
-            previousRunWasPartial = false;
-            console.log('proceeding with full test run');
-            return testsToBeRerun;
-          }
 
           if (
             mutationEvaluation.testsImproved ===
               [...firstTesterResults.testResults.values()].filter(a => !a.passed)
                 .length &&
             mutationEvaluation.testsWorsened === 0 &&
-            previousInstruction
+            previousInstructions !== null
           ) {
-            const locationObj: LocationObject =
-              previousInstruction.instruction.mutationResults.locations;
             const newSolutionDir = resolve(solutionsDir, (solutionCounter++).toString());
-            await mkdir(newSolutionDir, { recursive: true });
+            // TODO: Package's method types seem broken so had to use as any
+            await mkdir(newSolutionDir, { recursive: true } as any);
             // TODO: Use folders + the actual file name or something
             let i = 0;
-            for (const filePath of Object.keys(locationObj)) {
+            for (const filePath of getAffectedFilePaths(previousInstructions)) {
               const code = await readFile(filePath, 'utf8');
               await writeFile(resolve(newSolutionDir, i.toString()), code, 'utf8');
               i++;
             }
           }
 
-          await resetMutationsInInstruction(previousInstruction);
+          await resetMutationsInInstruction(previousInstructions);
 
-          await analyzeEvaluation(mutationEvaluation, cache);
+          await analyzeEvaluation(mutationEvaluation);
         }
 
-        const rerun = await runInstruction(tester, cache);
+        const rerun = await runInstruction(tester);
         if (!rerun) {
           return;
         }
-        if (allowPartialTestRuns) {
-          console.log('Running partial test run');
-          previousRunWasPartial = true;
-          return [...failingTestFiles];
-        } else {
-          // TODO: DRY
-          const testsToBeRerun = [...firstTesterResults.testResults.values()].map(
-            result => result.file,
-          );
-          return testsToBeRerun;
-        }
+        // TODO: DRY
+        const testsToBeRerun = [...firstTesterResults.testResults.values()].map(
+          result => result.file,
+        );
+        return testsToBeRerun;
       },
       async exit(tester: FinalTesterResults) {
         if (finished) {
@@ -2760,10 +2256,7 @@ export const createPlugin = ({
           return { rerun: false, allow: false };
         }
         const mutationEvaluation: MutationEvaluation = {
-          type: previousInstruction.instruction.type,
-          atomicMutation: previousInstruction.instruction.atomicMutation,
-          mutationCount: previousInstruction.instruction.mutationCount,
-          totalNodes: previousInstruction.instruction.totalNodes,
+          instructions: [...previousInstructions.unsortedIterator()],
           testsWorsened: null,
           testsImproved: null,
           stackEvaluation: null,
@@ -2771,21 +2264,15 @@ export const createPlugin = ({
           overallPositiveEffect: null,
           overallNegativeEffect: null,
           crashed: true,
-          partial: previousRunWasPartial,
         };
 
-        if (previousRunWasPartial) {
-          previousRunWasPartial = false;
+        if (previousInstructions !== null) {
+          await resetMutationsInInstruction(previousInstructions);
         }
-
-        const cache = createAstCache(babelOptions);
-        if (previousInstruction !== null) {
-          await resetMutationsInInstruction(previousInstruction);
-        }
-        await analyzeEvaluation(mutationEvaluation, cache);
+        await analyzeEvaluation(mutationEvaluation);
 
         // TODO: Would be better if the exit hook could be told which tests to rerun. Maybe :P
-        const rerun = await runInstruction(tester, cache);
+        const rerun = await runInstruction(tester);
 
         return { rerun, allow: true };
       },
@@ -2801,19 +2288,15 @@ export const createPlugin = ({
         ).then(() => rmdir(copyTempDir));
 
         console.log(failingLocationKeys);
-        const locationEvaluationsThatArentEmpty: Map<
-          string,
-          LocationEvaluation
-        > = new Map();
-        for (const [key, value] of locationEvaluations) {
-          if (value.evaluations.length > 0) {
-            locationEvaluationsThatArentEmpty.set(key, value);
-          }
-        }
 
+        const categorisedInstructions = categoriseInstructionsIntoCloestParentPaths(
+          [...instructionEvaluations.keys()],
+          coveragePaths.map(widenCoveragePath)
+        );
         const faults = mutationEvalatuationMapToFaults(
-          locationEvaluationsThatArentEmpty,
-          failingLocationKeys,
+          nodeEvaluations,
+          instructionEvaluations,
+          [...categorisedInstructions.values()]
         );
 
         const mappedFaults = mapToIstanbul

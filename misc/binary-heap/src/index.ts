@@ -78,7 +78,7 @@ export const checkSwapWithParent = <T>(
 
   const parentI = parentIndex(index);
   const parentComparison = compareFn(arr[index], arr[parentI]);
-  if (parentComparison < 0) {
+  if (parentComparison > 0) {
     locations.set(arr[parentI], index);
     swap(arr, index, parentI);
     checkSwapWithParent(arr, locations, compareFn, parentI);
@@ -99,11 +99,11 @@ export const checkSwapWithChildren = <T>(
   const rightI = rightIndex(index);
   const leftI = leftIndex(index);
 
-  const rightIsCandidate = rightI < arr.length && compareFn(arr[index], arr[rightI]) > 0;
-  const leftIsCandidate = leftI < arr.length && compareFn(arr[index], arr[leftI]) > 0;
+  const rightIsCandidate = rightI < arr.length && compareFn(arr[index], arr[rightI]) < 0;
+  const leftIsCandidate = leftI < arr.length && compareFn(arr[index], arr[leftI]) < 0;
 
   if (leftIsCandidate && rightIsCandidate) {
-    const swappedIndex = compareFn(arr[leftI], arr[rightI]) <= 0 ? leftI : rightI;
+    const swappedIndex = compareFn(arr[leftI], arr[rightI]) >= 0 ? leftI : rightI;
     locations.set(arr[swappedIndex], index);
     swap(arr, index, swappedIndex);
     checkSwapWithChildren(arr, locations, compareFn, swappedIndex);
@@ -169,7 +169,7 @@ export class Heap<T> implements Iterable<T> {
   private readonly arr: T[] = [];
   private readonly locations: Map<T, number> = new Map();
   constructor(
-    private readonly compareFn: CompareFn<T> = defaultCompareFn,
+    public readonly compareFn: CompareFn<T> = defaultCompareFn,
     initial: Iterable<T> = [],
   ) {
     this.push(...initial);
@@ -197,6 +197,10 @@ export class Heap<T> implements Iterable<T> {
 
   position(item: T) {
     return this.locations.get(item);
+  }
+
+  some(...args: Parameters<Array<T>['some']>) {
+    return this.arr.some(...args);
   }
 
   delete(item: T) {
