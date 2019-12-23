@@ -604,20 +604,20 @@ const getAstPath = (ast: t.File): NodePath<t.Program> => {
 
 const isIfStatement = (path) => path.isIfStatement();
 
-const forceConsequentSequence = createMutationSequenceFactory(
+export const forceConsequentSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, t.IfStatement>) => {
     path.get('alternate').registerAsWriteDependency();
     path.setDynamic('test', () => t.booleanLiteral(true));
   }
 );
 export const FORCE_CONSEQUENT = Symbol('force-consequent');
-const forceConsequentFactory = new SimpleInstructionFactory(
+export const forceConsequentFactory = new SimpleInstructionFactory(
   FORCE_CONSEQUENT,
   forceConsequentSequence,
   isIfStatement,
 );
 
-const forceAlternateSequence = createMutationSequenceFactory(
+export const forceAlternateSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, t.IfStatement>) => {
     path.get('consequent').registerAsWriteDependency();
     path.setDynamic('test', () => t.booleanLiteral(false));
@@ -625,19 +625,19 @@ const forceAlternateSequence = createMutationSequenceFactory(
 );
 
 export const FORCE_ALTERNATE = Symbol('force-alternate');
-const forceAlternateFactory = new SimpleInstructionFactory(
+export const forceAlternateFactory = new SimpleInstructionFactory(
   FORCE_ALTERNATE,
   forceAlternateSequence,
   isIfStatement
 );
 
-const replaceValueSequence = createMutationSequenceFactory(
+export const replaceValueSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<any, any>) => {
     path.setDataDynamic('value', (value) => value);
   }
 );
 
-const filterVariantDuplicates = <T>(arr: T[]): T[] => {
+export const filterVariantDuplicates = <T>(arr: T[]): T[] => {
   const seen: Set<T> = new Set();
   const filtered: T[] = [];
   for(let i = arr.length - 1; i >=0; i--) {
@@ -702,7 +702,7 @@ const replaceStringFactory = createValueInstructionFactory(
 export const NUMBERS = Symbol('numbers');
 const isNumberLiteral = (path: NodePath) => path.isNumericLiteral()
 export const CHANGE_NUMBER = Symbol('change-number');
-const replaceNumberFactory = new SimpleInstructionFactory(
+export const replaceNumberFactory = new SimpleInstructionFactory(
   CHANGE_NUMBER,
   replaceValueSequence,
   isNumberLiteral,
@@ -747,7 +747,7 @@ const replaceNumberFactory = new SimpleInstructionFactory(
 );
 
 const CHANGE_BOOLEAN = Symbol('change-boolean');
-const replaceBooleanFactory = new SimpleInstructionFactory(
+export const replaceBooleanFactory = new SimpleInstructionFactory(
   CHANGE_BOOLEAN,
   replaceValueSequence,
   (path) => path.isBooleanLiteral(),
@@ -1277,8 +1277,6 @@ export type CrashedMutationEvaluation = {
   testsWorsened: null;
   testsImproved: null;
   errorsChanged: null;
-  overallPositiveEffect: null;
-  overallNegativeEffect: null;
   crashed: true;
 } & CommonMutationEvaluation;
 export type NormalMutationEvaluation = {
@@ -1286,8 +1284,6 @@ export type NormalMutationEvaluation = {
   testsWorsened: number;
   testsImproved: number;
   errorsChanged: number;
-  overallPositiveEffect: number;
-  overallNegativeEffect: number;
   crashed: false;
 } & CommonMutationEvaluation;
 
@@ -1308,8 +1304,6 @@ const evaluateNewMutation = (
   let testsImproved = 0;
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
-  let overallPositiveEffect = 0;
-  let overallNegativeEffect = 0;
 
   for (const [key, newResult] of newResults.testResults) {
     if (!notSeen.has(key)) {
@@ -1326,41 +1320,32 @@ const evaluateNewMutation = (
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
       testsImproved++;
-      overallPositiveEffect++;
     } else if (testEvaluation.endResultChange === EndResult.WORSE) {
       testsWorsened++;
-      overallNegativeEffect++;
     } else if (
       testEvaluation.errorChanged &&
       (testEvaluation.stackLineScore === 0 || testEvaluation.stackColumnScore === null) &&
       (testEvaluation.stackColumnScore === 0 || testEvaluation.stackColumnScore === null)
     ) {
       errorsChanged++;
-      overallPositiveEffect++;
     }
 
     if (testEvaluation.stackLineScore === null) {
       stackEvaluation.lineScoreNulls++;
     } else if (testEvaluation.stackLineScore > 0) {
-      overallPositiveEffect++;
       stackEvaluation.lineImprovementScore += testEvaluation.stackLineScore;
     } else if (testEvaluation.stackLineScore < 0) {
       stackEvaluation.lineDegradationScore -= testEvaluation.stackLineScore;
-      overallNegativeEffect++;
     } else if (testEvaluation.stackColumnScore === null) {
       stackEvaluation.columnScoreNulls++;
     } else if (testEvaluation.stackColumnScore > 0) {
-      overallPositiveEffect++;
       stackEvaluation.columnImprovementScore += testEvaluation.stackColumnScore;
     } else if (testEvaluation.stackColumnScore < 0) {
-      overallNegativeEffect++;
       stackEvaluation.columnDegradationScore -= testEvaluation.stackColumnScore;
     }
   }
   return {
     instructions,
-    overallPositiveEffect,
-    overallNegativeEffect,
     testsWorsened,
     testsImproved,
     stackEvaluation,
@@ -2225,8 +2210,6 @@ export const createPlugin = ({
           testsImproved: null,
           stackEvaluation: null,
           errorsChanged: null,
-          overallPositiveEffect: null,
-          overallNegativeEffect: null,
           crashed: true,
         };
 

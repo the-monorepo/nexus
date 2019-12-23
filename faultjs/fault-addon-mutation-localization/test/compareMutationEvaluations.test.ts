@@ -7,7 +7,7 @@ const arrToString = (arr: number[]) => `[${arr.join(', ')}]`;
 
 const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
   return {
-    type: Symbol(),
+    instructions: [],
     testsWorsened: arr[0],
     testsImproved: arr[1],
     stackEvaluation: {
@@ -19,11 +19,7 @@ const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
       columnScoreNulls: 0,
     },
     errorsChanged: arr[6],
-    partial: false,
     crashed: false,
-    totalNodes: 0,
-    mutationCount: 0,
-    atomicMutation: arr[7],
   };
 };
 
@@ -31,19 +27,19 @@ describe(compareMutationEvaluations.name, () => {
   // Index representations:
   // F  P  LD LI CD CI E
   const orderedEvaluations = [
-    [1, 0, 0, 0, 0, 0, 0, true],
-    [0, 0, 0, 0, 0, 0, 0, true],
-    [0, 0, 0, 0, 0, 0, 0, false],
-    [1, 0, 0, 0, 0, 0, 1, true],
-    [1, 1, 0, 0, 0, 0, 0, true],
-    [1, 1, 0, 0, 0, 0, 1, true],
-    [1, 1, 1, 1, 0, 0, 0, true],
-    [1, 1, 2, 2, 0, 0, 0, true],
-    [1, 1, 0, 1, 0, 0, 0, true],
-    [9, 9, 1, 0, 0, 0, 0, true],
-    [0, 0, 0, 0, 0, 0, 1, true],
-    [0, 0, 0, 1, 0, 0, 0, true],
-    [0, 1, 0, 0, 0, 0, 0, true],
+    [1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0],
+    [1, 1, 2, 2, 0, 0],
+    [1, 1, 0, 1, 0, 0],
+    [9, 9, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0],
   ];
   for (let i = 0; i < orderedEvaluations.length - 1; i++) {
     const lesser = arrayToMutationEvaluation(orderedEvaluations[i]);

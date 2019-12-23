@@ -31,7 +31,7 @@ describe('measure', () => {
           },
         },
       ];
-      expect(calculateExamScore('', faults, faults, 2)).to.equal(0);
+      expect(calculateExamScore('', faults, faults, 2)).to.deep.equal({ exam: 0, rankings: [0, 0] });
     });
   });
 });
