@@ -357,7 +357,7 @@ async function testNoBuild() {
         '!./**/node_modules/**',
         '!./coverage',
         '!./{faultjs,misc,build-packages}/*/{dist,lib,esm}/**/*',
-        '!./faultjs/fault-benchmarker/projects/**',
+        '!./faultjs/fault-benchmarker/{disabled-projects,projects}/**',
       ],
       addons: [
         true
@@ -406,6 +406,7 @@ async function testNoBuild() {
       testerOptions: {
         sandbox: true,
       },
+      timeout: 60000
     });
     if (!passed) {
       process.exit(1);
