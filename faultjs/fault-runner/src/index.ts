@@ -139,6 +139,7 @@ const createStateClient = (
     });
 
     nextTestId++;
+    console.log('register: ', testPath, pendingFiles.size);
     return id;
   };
 
@@ -152,6 +153,7 @@ const createStateClient = (
       testData.worker.totalPendingDuration -= testData.estimatedDuration;
     }
     pendingFiles.delete(message.key);
+    console.log('deregister: ', message.testPath, pendingFiles.size);
   };
 
   const addTestsToWorker = (worker: WorkerInfo, testPaths: string[]) => {
