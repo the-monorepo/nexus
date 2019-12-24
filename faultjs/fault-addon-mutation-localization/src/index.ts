@@ -1083,12 +1083,6 @@ export const compareMutationEvaluations = (
   r1: MutationEvaluation,
   r2: MutationEvaluation,
 ) => {
-  if (r1.instructions.length >= 2 && r2.instructions.length <= 1) {
-    return -1;
-  } else if (r1.instructions.length <= 1 && r2.instructions.length >= 2) {
-    return 1;
-  }
-
   if (r1.crashed && r2.crashed) {
     return 0;
   }
