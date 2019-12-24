@@ -553,6 +553,8 @@ const isConflictingDependencies = (map1: Map<string, DependencyInfo>, map2: Map<
 };
 
 const organizeInstructions = (instructions: Iterable<Instruction<any>>) => {
+  return [...instructions].map(instruction => [instruction]);
+  /*
   const instructionBlocks: Instruction<any>[][] = [];
   for(const newInstruction of instructions) {
     let addANewBlock = true;
@@ -570,7 +572,7 @@ const organizeInstructions = (instructions: Iterable<Instruction<any>>) => {
       instructionBlocks.push([newInstruction]);
     }
   }
-  return instructionBlocks;
+  return instructionBlocks;*/
 }
 
 const executeInstructions = (asts: Map<string, t.File>, instructions: Heap<Instruction<any>>): void => {
@@ -1481,17 +1483,24 @@ export const mutationEvalatuationMapToFaults = (
   return faults;
 };
 
-const getAffectedNodesFromInstructionBlock = (
+const getAffectedPathsFromInstructionBlock = (
   instructions: Iterable<Instruction<any>>,
-) => {
+): NodePath[] => {
   const nodesAffected: Set<t.Node> = new Set();
+  const paths: NodePath[] = [];
   for(const instruction of instructions) {
-    const writeNodes = instructionToWriteNodeDependencies(instruction);
-    for(const node of writeNodes) {
+    const writePaths = instructionToWriteNodePathDependencies(instruction);
+    for(const path of writePaths) {
+      const node = path.node;
+      if (nodesAffected.has(node)) {
+        continue;
+      }
+      paths.push(path);
       nodesAffected.add(node);
     }
   }
-  return nodesAffected;
+
+  return paths;
 };
 
 const getAffectedInstructionsFromNodes = (
@@ -1558,29 +1567,27 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    for(const instruction of instructions.unsortedIterator()) {
-      const instructionMutationEvaluations = instructionEvaluations.get(instruction)!;
-      if (instructionMutationEvaluations.length <= 0) {
-        continue;
-      }
-      const bestInstructionEvaluation = instructionMutationEvaluations.peek();
-      if (!evaluationDidSomethingGoodOrCrashed(bestInstructionEvaluation) || (bestInstructionEvaluation.crashed && bestInstructionEvaluation.instructions.length <= 1)) {
+    const instructionArr = [...instructions];
+    const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
+      if (evaluations.length <= 0) {
         return true;
       }
+      const bestEvaluation = evaluations.peek();
+      return didSomethingGood(bestEvaluation) || (bestEvaluation.crashed && bestEvaluation.instructions.length >= 2);      
+    }
+    
+    if(!instructionArr.map(instruction => instructionEvaluations.get(instruction)!).some(hasPromisingEvaluation)) {
+      return true;
     }
 
-    /*
-    const nodes = getAffectedNodesFromInstructionBlock(instructions.unsortedIterator());
-    for(const node of nodes) {
-      const nodeMutationEvaluations = nodeEvaluations.get(node)!.mutationEvaluations;
-      if (nodeMutationEvaluations.length <= 0) {
-        continue;
-      }
-      const bestNodeMutationEvaluation = nodeMutationEvaluations.peek();
-      if (!evaluationDidSomethingGoodOrCrashed(bestNodeMutationEvaluation) || (bestNodeMutationEvaluation.crashed && bestNodeMutationEvaluation.instructions.length <= 1)) {
-        return true;
-      }
-    }*/
+    const allWriteDependencies = instructionArr
+      .map(instruction => instructionToWriteNodePathDependencies(instruction))
+      .flat();
+    const allDependencyPaths = getDependencyPaths(...allWriteDependencies);
+    const allDependencyEvaluations = allDependencyPaths.map(path => nodeEvaluations.get(path.node)!.mutationEvaluations);
+    if(!allDependencyEvaluations.some(hasPromisingEvaluation)) {
+      return true;
+    } 
 
     return false;
   };
@@ -1725,11 +1732,6 @@ const instructionToWriteNodePathDependencies = (instruction: Instruction<any>): 
   return dependencies;
 }
 
-const instructionToWriteNodeDependencies = (instruction: Instruction<any>): t.Node[] => {
-  return instructionToWriteNodePathDependencies(instruction)
-      .map((path) => path.node);
-};
-
 const compareNodeEvaluations = (evaluation1: NodeEvaluation, evaluation2: NodeEvaluation) => {
   const nodeMutationEvaluations1 = evaluation1.mutationEvaluations;
   const nodeMutationEvaluations2 = evaluation2.mutationEvaluations;
@@ -1760,10 +1762,10 @@ const compareNodeEvaluations = (evaluation1: NodeEvaluation, evaluation2: NodeEv
   return 0;
 };
 
-const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>, instruction1: Instruction<any>, Instruction: Instruction<any>) => {
+const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>, instruction1: Instruction<any>, instruction2: Instruction<any>) => {
   const instructionEvaluations1 = instructionEvaluations.get(instruction1)!;
-  const instructionEvaluations2 = instructionEvaluations.get(Instruction)!;
-  
+  const instructionEvaluations2 = instructionEvaluations.get(instruction2)!; 
+
   if(instructionEvaluations1.length <= 0 && instructionEvaluations2.length >= 1) {
     const evaluation2 = instructionEvaluations2.peek();
     if (didSomethingGood(evaluation2)) {
@@ -1788,8 +1790,8 @@ const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instru
     }
   }
 
-  const relevantNodes1 = instructionToWriteNodeDependencies(instruction1);
-  const relevantNodes2 = instructionToWriteNodeDependencies(Instruction);
+  const relevantNodes1 = getDependencyPaths(...instructionToWriteNodePathDependencies(instruction1)).map(path => path.node);
+  const relevantNodes2 = getDependencyPaths(...instructionToWriteNodePathDependencies(instruction2)).map(path => path.node);
 
   const nodeEvaluations1 = relevantNodes1.map(node => nodeEvaluations.get(node)!).sort(compareNodeEvaluations);
   const nodeEvaluations2 = relevantNodes2.map(node => nodeEvaluations.get(node)!).sort(compareNodeEvaluations);
@@ -1818,7 +1820,7 @@ const compareInstructionBlocks = (
     return instructionComparison;
   }
 
-  let sizeComparison = block2.length - block1.length;
+  const sizeComparison = block2.length - block1.length;
   if (sizeComparison !== 0) {
     return sizeComparison;
   }
@@ -1837,8 +1839,9 @@ export const initialiseEvaluationMaps = (
   nodeToInstructions: Map<t.Node, Instruction<any>[]>,
   instructions: Instruction<any>[],
 ) => {
-  const nodes = getAffectedNodesFromInstructionBlock(instructions);
-  for(const node of nodes) {
+  const allDependencyPaths = getDependencyPaths(...getAffectedPathsFromInstructionBlock(instructions));
+  for(const path of allDependencyPaths) {
+    const node = path.node;
     nodeEvaluations.set(node, {
       initial: 0,
       mutationEvaluations: new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst),
@@ -1846,8 +1849,9 @@ export const initialiseEvaluationMaps = (
     nodeToInstructions.set(node, []);
   }
   for(const instruction of instructions) {
-    const writeNodes = instructionToWriteNodeDependencies(instruction);
-    for(const node of writeNodes) {
+    const writePaths = getDependencyPaths(...instructionToWriteNodePathDependencies(instruction));
+    for(const path of writePaths) {
+      const node = path.node;
       nodeToInstructions.get(node)!.push(instruction);
     }
     instructionEvaluations.set(instruction, new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst));
@@ -1879,19 +1883,60 @@ const instructionBlocksToMaxInstructionsLeft = (blocks: Iterable<Heap<Instructio
 //       ^ changing it did something good. 
 // added eval goes to: "= 1", "= a", "= c", "b ="
 
-/*const getDependencyNodes = (path: NodePath): Set<t.Node> => {
-  const collectedPaths: Set<t.Node> = new Set([path.node]);
-  const pathStack: NodePath[] = [path];
-  while(pathStack.length > 0) {
-    const aPath = pathStack.pop()!;
-    aPath.scope
-    if (!collectedPaths.has(aPath)) {
-      collectedPaths.add(aPath);
-      for(const referenced)
+export const travelUpToRootDependencyPath = (path: NodePath) => {
+  return path.find(
+    path => path.isStatement()
+  );
+};
+
+const getDependencyPaths = (...paths: NodePath[]): NodePath[] => {
+  /* Not sure if NodePath gets generated on the fly, or will in the future, thus, 
+     we don't use it to check if we've already traversed the path, instead we use the node */
+  const collectedNodes: Set<t.Node> = new Set();
+  const collectedPaths: NodePath[] = [];
+  const pathStack: NodePath[] = paths;
+
+  const checkAndAddPath = (aPath: NodePath): boolean => {
+    if (collectedNodes.has(aPath.node)) {
+      return false;
     }
+
+    collectedPaths.push(aPath);
+    collectedNodes.add(aPath.node);
+    
+    return true;
   }
+
+  while(pathStack.length > 0) {
+    const dependentPath: NodePath = pathStack.pop()!;
+    const rootPath = travelUpToRootDependencyPath(dependentPath);
+
+    if(!checkAndAddPath(rootPath)) {
+      continue;
+    }
+
+    rootPath.traverse({
+      enter: (subPath) => {
+        if (!checkAndAddPath(subPath)) {
+          return;
+        }
+
+        pathStack.push(subPath);
+
+        if (subPath.isIdentifier()) {
+          const binding = subPath.scope.getBinding(subPath.node.name);
+          if (binding !== undefined) {
+            const bindPath = binding.path;
+            // TODO: Might result in the same path being added multiple times. May decrease performance.
+            pathStack.push(bindPath, ...binding.referencePaths);
+          }
+        }
+      }
+    });     
+  }
+
   return collectedPaths;
-};*/
+};
 
 const addMutationEvaluation = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
@@ -1901,8 +1946,9 @@ const addMutationEvaluation = (
   instructions: Heap<Instruction<any>>,
   mutationEvaluation: MutationEvaluation,
 ) => {
-  const nodesAffected: Set<t.Node> = getAffectedNodesFromInstructionBlock(instructions.unsortedIterator());
-  for(const node of nodesAffected) {
+  const pathsAffected: NodePath[] = getDependencyPaths(...getAffectedPathsFromInstructionBlock(instructions.unsortedIterator()));
+  for(const path of pathsAffected) {
+    const node = path.node;
     nodeEvaluations.get(node)!.mutationEvaluations.push(mutationEvaluation);
   }
 
@@ -1910,7 +1956,7 @@ const addMutationEvaluation = (
     instructionEvaluations.get(instruction)!.push(mutationEvaluation);
   }
 
-  const instructionsAffected: Set<Instruction<any>> = getAffectedInstructionsFromNodes(nodesAffected, nodeToInstructions);
+  const instructionsAffected: Set<Instruction<any>> = getAffectedInstructionsFromNodes(pathsAffected.map(path => path.node), nodeToInstructions);
   for(const instruction of instructionsAffected) {
     for(const block of instructionQueue.unsortedIterator()) {
       if (block.some(blockInstruction => blockInstruction === instruction)) {
