@@ -43,10 +43,10 @@ describe(matchAndFlattenCategoryData.name, () => {
   it('operation categories', () => {
     expect(matchAndFlattenCategoryData(binaryOperationCategories, '||')).to.deep.equal([
       '^',
-      '&',
       '>>>',
       '>>',
       '<<',
+      '&',
       '**',
       '%',
       '/',
