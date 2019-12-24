@@ -69,7 +69,7 @@ describe('heap', () => {
       {
         score: 4,
       },
-    ].sort(compareFn);
+    ].sort(compareFn).reverse();
 
     const heap = new Heap(compareFn, arr);
     // Make sure the heap sorts properly
@@ -78,7 +78,7 @@ describe('heap', () => {
     const thirdItem = arr[2];
     // Modifying the 3rd item should break the heap order, it'll need to be swapped all the way to the top
     thirdItem.score = -500;
-    arr.sort(compareFn);
+    arr.sort(compareFn).reverse();
     expect([...heap]).to.not.deep.equal(arr);
 
     // Updating the item should fix the heap order
@@ -88,7 +88,7 @@ describe('heap', () => {
     // Breaking the first item, will need to be swapped to the bottom
     const firstItem = arr[2];
     firstItem.score = 5000;
-    arr.sort(compareFn);
+    arr.sort(compareFn).reverse();
     heap.updateIndex(heap.position(thirdItem)!);
     expect([...heap]).to.deep.equal(arr);
   });
@@ -142,7 +142,7 @@ describe('heap', () => {
       it('peek and pop', () => {
         const sortedArr = [1, 2, 3, 4, 5];
         const heap = new Heap(compareFn, sortedArr);
-        sortedArr.sort(compareFn);
+        sortedArr.sort(compareFn).reverse();
         while (sortedArr.length > 0) {
           expect(heap.peek()).to.be.equal(sortedArr[0]);
           expect(heap.pop()).to.be.equal(sortedArr.shift());
@@ -155,7 +155,7 @@ describe('heap', () => {
 
       describe('constructed', () => {
         const arr = [4, 2, 1, -5, 3];
-        const sorted = [...arr].sort(compareFn);
+        const sorted = [...arr].sort(compareFn).reverse();
         const heap = new Heap(compareFn, arr);
         it('spread', () => {
           expect([...heap]).to.be.deep.equal(sorted);
@@ -168,7 +168,7 @@ describe('heap', () => {
       describe('push and spread', () => {
         for (const [testName, arr] of testCases) {
           it(testName, () => {
-            const sorted = [...arr].sort(compareFn);
+            const sorted = [...arr].sort(compareFn).reverse();
             const heap = new Heap(compareFn);
             heap.push(...arr);
             const heapArr = [...heap];
