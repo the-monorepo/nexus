@@ -135,7 +135,7 @@ const recursiveIncludes = (match: any, arr: any) => {
  * Creates the ordering for the operation and assignment arrays based off what the
  * current value of the assignment/operation node is
  */
-export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryData<T>) => {
+export const matchAndFlattenCategoryData = <T>(categories: CategoryData<T>, match: T) => {
   const stack: (CategoryData<T> | T)[] = [categories];
   const flattened: T[] = [];
   let s = 0;
@@ -801,7 +801,7 @@ type OperatorProps = string;
 const createCategoryVariantFactory = <T>(key: string, categoryData: CategoryData<any>) => {
   return (path: NodePath<T>) => {
     const operator = path.getData(key);
-    const operators = matchAndFlattenCategoryData(operator, categoryData);
+    const operators = matchAndFlattenCategoryData(categoryData, operator);
     return operators;    
   };
 };
