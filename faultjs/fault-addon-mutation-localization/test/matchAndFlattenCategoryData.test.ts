@@ -69,22 +69,16 @@ describe(matchAndFlattenCategoryData.name, () => {
     expect(matchAndFlattenCategoryData(assignmentCategories, '+=')).to.deep.equal([
       '^=',
       '&=',
-      '>>=',
       '|=',
+      '>>>=',
+      '>>=',
       '<<=',
       '/=',
       '*=',
       '-=',
     ]);
     expect(matchAndFlattenCategoryData(assignmentCategories, '>>=')).to.deep.equal([
-      '/=',
-      '*=',
-      '-=',
-      '+=',
-      '^=',
-      '|=',
-      '<<=',
-      '&=',
+      '/=', '*=', '-=', '+=', '^=', '|=', '&=', '>>>=', '<<='
     ]);
   });
 });

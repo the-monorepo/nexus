@@ -862,7 +862,7 @@ export const assignmentCategories = [
     ['&=', '|='],
     ['>>>=', '>>=', '<<='],
   ],
-  ['&=', ['/=', '*='], ['-=', '+=']],
+  [['/=', '*='], ['-=', '+=']],
 ];
 export const CHANGE_ASSIGNMENT_OPERATOR = Symbol('change-assignment-operator');
 const replaceAssignmentOperatorFactory = new SimpleInstructionFactory(
