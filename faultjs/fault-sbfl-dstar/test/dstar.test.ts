@@ -2,7 +2,7 @@ import { dStar } from '../src/index';
 
 describe('dstar', () => {
   it('0/10 passes 0/10 fails', () => {
-    expect(dStar({ passed: 0, failed: 0 }, { passed: 10, failed: 10 })).to.equal(10);
+    expect(dStar({ passed: 0, failed: 0 }, { passed: 10, failed: 10 })).to.equal(0);
   });
   it('0/0 pass 1/1 fails', () => {
     expect(dStar({ passed: 0, failed: 1 }, { passed: 0, failed: 1 })).to.equal(
