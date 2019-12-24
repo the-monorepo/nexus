@@ -27,19 +27,18 @@ describe(compareMutationEvaluations.name, () => {
   // Index representations:
   // F  P  LD LI CD CI E
   const orderedEvaluations = [
-    [1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0],
-    [1, 1, 0, 0, 0, 0],
-    [1, 1, 0, 0, 0, 0],
-    [1, 1, 1, 1, 0, 0],
-    [1, 1, 2, 2, 0, 0],
-    [1, 1, 0, 1, 0, 0],
-    [9, 9, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 0, 0],
-    [0, 1, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 1],
+    [1, 1, 0, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0, 0, 0],
+    [1, 1, 0, 1, 0, 0, 0],
+    [1, 1, 2, 2, 0, 0, 0],
+    [9, 9, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0],
   ];
   for (let i = 0; i < orderedEvaluations.length - 1; i++) {
     const lesser = arrayToMutationEvaluation(orderedEvaluations[i]);
@@ -65,9 +64,6 @@ describe(compareMutationEvaluations.name, () => {
   it('array stays the same when sorted', () => {
     const sorted = [...orderedEvaluations].map(arrayToMutationEvaluation);
     const copy = [...sorted];
-    copy.sort(compareMutationEvaluations);
-    expect(copy).to.deep.equal(sorted);
-
     copy.sort(compareMutationEvaluations);
     expect(copy).to.deep.equal(sorted);
 
