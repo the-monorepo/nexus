@@ -391,7 +391,7 @@ const createMutationSequenceFactory = <D, T>(
 }
 
 type Instruction<D> = {
-  type: Symbol,
+  type: symbol,
   dependencies: Map<string, DependencyInfo>,
   mutations: Mutation<D, any>[],
   variants: D[] | undefined,
@@ -410,7 +410,7 @@ type AbstractInstructionFactory<D> = {
 }
 
 type InstructionFactoryPayload<D, T> = {
-  type: Symbol,
+  type: symbol,
   wrapper: NodePathMutationWrapper<D, T>,
   variants: D[] | undefined,
 };
@@ -470,7 +470,7 @@ class InstructionFactory<D> implements AbstractInstructionFactory<D> {
 
 class SimpleInstructionFactory<D, T> extends InstructionFactory<D> {
   constructor(
-    type: Symbol,
+    type: symbol,
     wrapper: NodePathMutationWrapper<D, T>,
     condition: ConditionFn,
     createVariantFn?: CreateVariantsFn<D, T>,
@@ -653,7 +653,7 @@ export const filterVariantDuplicates = <T>(arr: T[]): T[] => {
   return filtered;
 }
 
-const createValueVariantCollector = (condition: ConditionFn, symbol: Symbol, key: string = 'value', collectCondition: ConditionFn = condition) => {
+const createValueVariantCollector = (condition: ConditionFn, symbol: symbol, key: string = 'value', collectCondition: ConditionFn = condition) => {
   return <T>(ast: t.File): T[][] => {
     const blocks: T[][] = [[]];
     traverse(ast, {
@@ -679,7 +679,7 @@ const createValueVariantCollector = (condition: ConditionFn, symbol: Symbol, key
   };
 }
 
-const createValueInstructionFactory = (condition: ConditionFn, factorySymbol, symbol: Symbol) => {
+const createValueInstructionFactory = (condition: ConditionFn, factorySymbol, symbol: symbol) => {
   return new SimpleInstructionFactory<void, t.Node>(
     factorySymbol,
     replaceValueSequence,
@@ -1045,35 +1045,6 @@ const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
     e.lineDegradationScore === 0 &&
     e.lineImprovementScore === 0
   );
-};
-
-export const compareMutationEvaluationsWithLesserProperties = (
-  r1: MutationEvaluation,
-  r2: MutationEvaluation,
-) => {
-  const comparison = compareMutationEvaluations(r1, r2);
-  if (comparison !== 0) {
-    return comparison;
-  }
-  if (!r1.crashed && !r2.crashed) {
-    const result1 = r1 as NormalMutationEvaluation;
-    const result2 = r2 as NormalMutationEvaluation;
-
-    const stackEval1 = result1.stackEvaluation;
-    const stackEval2 = result2.stackEvaluation;
-
-    // TODO: stack null scores tell us very little but maybe more is better? Verify
-    const lineScoreNulls = stackEval1.lineScoreNulls - stackEval2.lineScoreNulls;
-    if (lineScoreNulls !== 0) {
-      return lineScoreNulls;
-    }
-
-    const columnScoreNulls = stackEval1.columnScoreNulls - stackEval2.columnScoreNulls;
-    if (columnScoreNulls !== 0) {
-      return columnScoreNulls;
-    }
-  }
-  return 0;
 };
 
 /**
