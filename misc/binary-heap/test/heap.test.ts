@@ -77,7 +77,7 @@ describe('heap', () => {
 
     const thirdItem = arr[2];
     // Modifying the 3rd item should break the heap order, it'll need to be swapped all the way to the top
-    thirdItem.score = -500;
+    thirdItem.score = 500;
     arr.sort(compareFn).reverse();
     expect([...heap]).to.not.deep.equal(arr);
 
