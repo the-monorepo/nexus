@@ -15,7 +15,7 @@ export const findFirstInSorted = (arr, x) => {
   }
 
   return -1;
-}
+};
 
 /*
 export const findFirstInSorted = (arr, x) => {

@@ -90,7 +90,8 @@ export function mergeHooks<H extends HookSchema>(
 ): Hooks<H> {
   const filteredHooksList = hooksList.filter(hooks => !!hooks) as (
     | RecursivePartial<Hooks<H>>
-    | HookCallback)[];
+    | HookCallback
+  )[];
   if (Array.isArray(value)) {
     const arr = (value as any) as [H | null | HookCallbackFactory, MergeOptions];
     const options: MergeOptions = arr[1];
@@ -111,9 +112,10 @@ export function mergeHooks<H extends HookSchema>(
     return merged as any;
   } else {
     return Object.keys(value).reduce((merged, key) => {
-      merged[key] = mergeHooks(filteredHooksList.map(hooks => hooks[key]), value[
-        key
-      ] as any);
+      merged[key] = mergeHooks(
+        filteredHooksList.map(hooks => hooks[key]),
+        value[key] as any,
+      );
       return merged;
     }, {}) as Hooks<H>;
   }
@@ -129,7 +131,8 @@ export function mergeHookOptions<H extends HookSchema, O extends HookSchema>(
 ): CompleteHooksOptions<H, O> {
   const definedHookOptionsList = hookOptionsList.filter(hookOptions => !!hookOptions) as (
     | HookOptions<H, O>
-    | RecursivePartial<Hooks<H>>)[];
+    | RecursivePartial<Hooks<H>>
+  )[];
   return {
     before: mergeHooks(
       definedHookOptionsList

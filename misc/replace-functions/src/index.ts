@@ -109,7 +109,7 @@ function mockPrototypeFunctions<T, V, R>(
   recursive: RecursionOptions,
   mockValueFn: MockValueFn,
   ogToMockedMap: Map<any, any> = new Map(),
-): Replaced<T, R> & V | V {
+): (Replaced<T, R> & V) | V {
   // This will map the prototype values to the mocked object and not other objects with the same prototype
   const prototype = Object.getPrototypeOf(value);
   if (prototype) {

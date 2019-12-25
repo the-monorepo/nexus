@@ -117,7 +117,7 @@ function codeStream(options) {
       '!**/node_modules/**',
       '!coverage/**',
       '!{build-packages,misc,faultjs}/*/{dist,lib,esm,coverage}/**',
-      '!faultjs/fault-benchmarker/projects/**',
+      '!faultjs/fault-benchmarker/{disabled-projects,projects}/**',
     ],
     {
       base: '.',
@@ -140,7 +140,7 @@ async function clean() {
     ...globBuildOutputFromPackagesDirName(buildPackagesDirNames),
     './README.md',
     './{build-packages,faultjs,misc}/*/README.md',
-    './faultjs/fault-benchmarker/projects/*/{faults,coverage,fault-results.json}',
+    './faultjs/fault-benchmarker/{disabled-projects,projects}/*/{faults,coverage,fault-results.json}',
     './faultjs/fault-benchmarker/benchmark-results.json',
   ]);
 }
@@ -406,7 +406,7 @@ async function testNoBuild() {
       testerOptions: {
         sandbox: true,
       },
-      timeout: 60000
+      timeout: 60000,
     });
     if (!passed) {
       process.exit(1);
