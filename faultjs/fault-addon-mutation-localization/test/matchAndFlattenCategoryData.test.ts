@@ -19,20 +19,44 @@ describe(matchAndFlattenCategoryData.name, () => {
   });
   it('with nested array', () => {
     expect(
-      matchAndFlattenCategoryData([['a', 'b', '2', '1'], ['c', 'd', 'e']], 'b'),
+      matchAndFlattenCategoryData(
+        [
+          ['a', 'b', '2', '1'],
+          ['c', 'd', 'e'],
+        ],
+        'b',
+      ),
     ).to.deep.equal(['c', 'd', 'e', 'a', '2', '1']);
   });
   it('with double nested array', () => {
     expect(
-      matchAndFlattenCategoryData([['a', 'b'], ['c', ['1', '2'], 'd']], '1'),
+      matchAndFlattenCategoryData(
+        [
+          ['a', 'b'],
+          ['c', ['1', '2'], 'd'],
+        ],
+        '1',
+      ),
     ).to.deep.equal(['a', 'b', 'c', 'd', '2']);
     expect(
-      matchAndFlattenCategoryData([['a', 'b'], ['c', ['1', '2'], 'd']], 'd'),
+      matchAndFlattenCategoryData(
+        [
+          ['a', 'b'],
+          ['c', ['1', '2'], 'd'],
+        ],
+        'd',
+      ),
     ).to.deep.equal(['a', 'b', 'c', '1', '2']);
   });
   it('with double nested array 2', () => {
     expect(
-      matchAndFlattenCategoryData([['c', ['1', '2'], 'd'], ['a', 'b']], '1'),
+      matchAndFlattenCategoryData(
+        [
+          ['c', ['1', '2'], 'd'],
+          ['a', 'b'],
+        ],
+        '1',
+      ),
     ).to.deep.equal(['a', 'b', 'c', 'd', '2']);
   });
   it('with matching elements', () => {
@@ -78,7 +102,15 @@ describe(matchAndFlattenCategoryData.name, () => {
       '-=',
     ]);
     expect(matchAndFlattenCategoryData(assignmentCategories, '>>=')).to.deep.equal([
-      '/=', '*=', '-=', '+=', '^=', '|=', '&=', '>>>=', '<<='
+      '/=',
+      '*=',
+      '-=',
+      '+=',
+      '^=',
+      '|=',
+      '&=',
+      '>>>=',
+      '<<=',
     ]);
   });
 });
