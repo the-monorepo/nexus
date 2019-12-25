@@ -1,4 +1,4 @@
-import { Instruction, getAstPath, initialiseEvaluationMaps } from '../src';
+import { Instruction, getAstPath, initialiseEvaluationMaps, pathToPrimaryKey } from '../src';
 import { parse } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
 const code = 'let a = 0; 1 + 2; () => {}';
@@ -6,18 +6,18 @@ const ast = parse(code);
 const filePath = 'test';
 const astMap = new Map([[filePath, ast]]);
 
-const createInstruction = (writes: NodePath[]): Instruction<any> => ({
-  type: Symbol(),
-  dependencies: new Map([[
+const createInstruction = (writes: NodePath[]): Instruction<any> => (new Instruction(
+  Symbol(),
+  new Map([[
     filePath,
     {
       reads: [],
       writes: []
     }
   ]]),
-  mutations: [],
-  variants: undefined,
-})
+  [],
+  undefined,
+))
 
 it('initialiseEvaluationMaps', () => {
   it('empty instruction', () => {
@@ -56,8 +56,8 @@ it('initialiseEvaluationMaps', () => {
       instructions,
     );
     for(const path of allPaths) {
-      expect(nodeEvaluations.get(path.node)).toBeDefined();
-      expect(nodeToInstructions.get(path.node)).toEqual([path.node]);
+      expect(nodeEvaluations.get(pathToPrimaryKey(filePath, path))).toBeDefined();
+      expect(nodeToInstructions.get(pathToPrimaryKey(filePath, path))).toEqual([path.node]);
     }
     expect(instructionEvaluations.get(instruction)).toBeDefined();
   });
