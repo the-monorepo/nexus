@@ -3,6 +3,8 @@ import {
   forceConsequentFactory,
   leftNullifyBinaryOrLogicalOperatorFactory,
   gatherInstructions,
+  instructionBlockToWriteDependencies,
+  instructionToWriteNodePathDependencies,
   FORCE_CONSEQUENT,
   executeInstructions,
 } from '../src/index';
@@ -32,6 +34,7 @@ it('instruction factory integration', () => {
 
   const fileDependencies = dependencies.get(filePath1)!;
   const writeDependencies = fileDependencies.writes;
+  
   expect(writeDependencies).toEqual(expect.arrayContaining([
     expect.objectContaining({
       key: 'test'
@@ -40,6 +43,14 @@ it('instruction factory integration', () => {
       key: 'alternate'
     })
   ]));
+
+  const writeDependenciesFromInstructionHelperMethod = instructionToWriteNodePathDependencies(instruction);
+  expect([...writeDependenciesFromInstructionHelperMethod]).toEqual(expect.arrayContaining(writeDependencies));
+
+  const writeDependenciesFromBlockHelperMethod = instructionBlockToWriteDependencies([ instruction, instruction ]);
+  console.log([...writeDependenciesFromBlockHelperMethod]);
+  expect([...writeDependenciesFromBlockHelperMethod]).toEqual(expect.arrayContaining(writeDependencies));
+
   // TODO: Should be this but isn't at the moment
   // expect(readDependencies).toHaveLength(0);
 
@@ -60,6 +71,6 @@ it('instruction factory integration', () => {
       }
     }
   });
-  expect(testPath).not.toBeNull();
+
   expect(testPath.isBooleanLiteral()).toBe(true);
 });

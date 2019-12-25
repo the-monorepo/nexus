@@ -92,7 +92,6 @@ export const initialize = async (options: Options) => {
           try {
             await runMochaInstance(mochaInstance, async () => {
               for (const { testPath, key } of data.testsToRun) {
-                console.log('donezies, sending now', testPath, key);
                 await submitFileResult({
                   testPath,
                   key,
@@ -119,7 +118,6 @@ export const initialize = async (options: Options) => {
         break;
       }
       case IPC.RUN_TEST: {
-        console.log(data.testsToRun[0]);
         queue.push(data);
         runQueue();
         break;
