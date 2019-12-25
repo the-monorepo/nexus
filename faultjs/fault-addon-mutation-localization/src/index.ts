@@ -1562,21 +1562,10 @@ export const mutationEvalatuationMapToFaults = (
 export const instructionBlockToWriteDependencies = (
   instructions: Iterable<Instruction<any>>,
 ): NodePath[] => {
-  const nodesAffected: Set<t.Node> = new Set();
-  const paths: NodePath[] = [];
-  for (const instruction of instructions) {
-    const writePaths = instructionToWriteNodePathDependencies(instruction);
-    for (const path of writePaths) {
-      const node = path.node;
-      if (nodesAffected.has(node)) {
-        continue;
-      }
-      paths.push(path);
-      nodesAffected.add(node);
-    }
-  }
-
-  return paths;
+  return [...iteratorWithNoDuplicates(
+    [...instructions].map(instruction => [...instructionToWriteNodePathDependencies(instruction)]).flat(),
+    path => path.node
+  )];
 };
 
 export const getAffectedInstructionsFromNodes = (
@@ -1806,13 +1795,14 @@ let solutionCounter = 0;
 type LocationKey = string;
 const faultFileName = 'faults.json';
 
-export function* iteratorWithNoDuplicates<T>(iterable: Iterable<T>) {
+export function* iteratorWithNoDuplicates<T>(iterable: Iterable<T>, getKey: (item: T) => any = item => item) {
   const seen: Set<T> = new Set();
   for (const item of iterable) {
-    if (seen.has(item)) {
+    const key = getKey(item);
+    if (seen.has(key)) {
       continue;
     }
-    seen.add(item);
+    seen.add(key);
     yield item;
   }
 }
