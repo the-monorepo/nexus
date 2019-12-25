@@ -261,7 +261,7 @@ type WrapperMutation<D, S> = {
   setup: (nodePath, data: D) => S;
   execute: (state: S) => void;
 };
-class NodePathMutationWrapper<D, T = t.Node> {
+export class NodePathMutationWrapper<D, T = t.Node> {
   constructor(
     public readonly keys: TraverseKey[],
     private readonly reads: TraverseKey[][],
@@ -404,7 +404,7 @@ const createMutationSequenceFactory = <D, T>(
   return wrapper;
 };
 
-type Instruction<D> = {
+export type Instruction<D> = {
   type: symbol;
   dependencies: Map<string, DependencyInfo>;
   mutations: Mutation<D, any>[];
@@ -515,7 +515,7 @@ class SimpleInstructionFactory<D, T> extends InstructionFactory<D> {
   }
 }
 
-function* gatherInstructions(
+export function* gatherInstructions(
   factories: Iterable<AbstractInstructionFactory<any>>,
   asts: Map<string, t.File>,
 ) {
@@ -612,11 +612,11 @@ const organizeInstructions = (instructions: Iterable<Instruction<any>>) => {
   return instructionBlocks;*/
 };
 
-const executeInstructions = (
+export const executeInstructions = (
   asts: Map<string, t.File>,
-  instructions: Heap<Instruction<any>>,
+  instructions: Iterable<Instruction<any>>,
 ): void => {
-  [...instructions.unsortedIterator()]
+  [...instructions]
     .map(instruction =>
       instruction.mutations.map(mutation => ({
         mutation,
@@ -905,7 +905,7 @@ const replaceBinaryOrLogicalOperatorFactory = new SimpleInstructionFactory(
   createCategoryVariantFactory('operator', binaryOperationCategories),
 );
 
-const leftNullifyBinaryOperatorSequence = createMutationSequenceFactory(
+export const leftNullifyBinaryOperatorSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, LogicalOrBinaryExpression>) => {
     const left = path.get('left') as NodePathMutationWrapper<
       void,
@@ -916,13 +916,13 @@ const leftNullifyBinaryOperatorSequence = createMutationSequenceFactory(
 );
 
 export const NULLIFY_LEFT_OPERATOR = Symbol('nullify-left-operator');
-const leftNullifyBinaryOperatorFactory = new SimpleInstructionFactory(
+export const leftNullifyBinaryOrLogicalOperatorFactory = new SimpleInstructionFactory(
   NULLIFY_LEFT_OPERATOR,
   leftNullifyBinaryOperatorSequence,
   isBinaryOrLogicalExpression,
 );
 
-const rightNullifyBinaryOperatorSequence = createMutationSequenceFactory(
+export const rightNullifyBinaryOperatorSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, LogicalOrBinaryExpression>) => {
     const right = path.get('right') as NodePathMutationWrapper<
       void,
@@ -932,7 +932,7 @@ const rightNullifyBinaryOperatorSequence = createMutationSequenceFactory(
   },
 );
 export const NULLIFY_RIGHT_OPERATOR = Symbol('nullify-right-operator');
-const rightNullifyBinaryOperatorFactory = new SimpleInstructionFactory(
+export const rightNullifyBinaryOrLogicalOperatorFactory = new SimpleInstructionFactory(
   NULLIFY_RIGHT_OPERATOR,
   rightNullifyBinaryOperatorSequence,
   isBinaryOrLogicalExpression,
@@ -1077,12 +1077,12 @@ const instructionFactories: InstructionFactory<any>[] = [
   replaceBooleanFactory,
   replaceStringFactory,
   swapFunctionCallArgumentsFactory,
-  leftNullifyBinaryOperatorFactory,
+  leftNullifyBinaryOrLogicalOperatorFactory,
   swapFunctionDeclarationParametersFactory,
   replaceNumberFactory,
   replaceIdentifierFactory,
   deleteStatementFactory,
-  rightNullifyBinaryOperatorFactory,
+  rightNullifyBinaryOrLogicalOperatorFactory,
   forceConsequentFactory,
   forceAlternateFactory,
 ];
@@ -1968,7 +1968,7 @@ export const initialiseEvaluationMaps = (
   instructions: Instruction<any>[],
 ) => {
   const allDependencyPaths = getDependencyPaths(
-    ...getAffectedPathsFromInstructionBlock(instructions),
+    instructionBlockToWriteDependencies(instructions),
   );
   for (const path of allDependencyPaths) {
     const node = path.node;
@@ -2026,12 +2026,12 @@ export const travelUpToRootDependencyPath = (path: NodePath) => {
   return path.find(path => path.isStatement());
 };
 
-export const getDependencyPaths = (...paths: NodePath[]): NodePath[] => {
+export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
   /* Not sure if NodePath gets generated on the fly, or will in the future, thus, 
      we don't use it to check if we've already traversed the path, instead we use the node */
   const collectedNodes: Set<t.Node> = new Set();
   const collectedPaths: NodePath[] = [];
-  const pathStack: NodePath[] = paths;
+  const pathStack: NodePath[] = [...paths];
 
   const checkAndAddPath = (aPath: NodePath): boolean => {
     if (collectedNodes.has(aPath.node)) {
@@ -2084,7 +2084,7 @@ const addMutationEvaluation = (
   mutationEvaluation: MutationEvaluation,
 ) => {
   const pathsAffected: NodePath[] = getDependencyPaths(
-    ...getAffectedPathsFromInstructionBlock(instructions.unsortedIterator()),
+    instructionBlockToWriteDependencies(instructions.unsortedIterator()),
   );
   for (const path of pathsAffected) {
     const node = path.node;
@@ -2237,7 +2237,7 @@ export const createPlugin = ({
     //console.log('processing')
 
     const newAstMap = codeMapToAstMap(codeMap, babelOptions);
-    executeInstructions(newAstMap, instructions);
+    executeInstructions(newAstMap, instructions.unsortedIterator());
 
     if (
       isFinishedFn(
