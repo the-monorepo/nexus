@@ -404,11 +404,47 @@ const createMutationSequenceFactory = <D, T>(
   return wrapper;
 };
 
-export type Instruction<D> = {
-  type: symbol;
-  dependencies: Map<string, DependencyInfo>;
-  mutations: Mutation<D, any>[];
-  variants: D[] | undefined;
+export const findParentWithType = (path: NodePath) => path.find(parentPath => parentPath.type != null);
+
+export class Instruction<D> {
+  public readonly writeDependencyKeys: string[] = [];
+  public readonly indirectDependencyKeys: string[] = [];
+  public readonly conflictWriteDependencyKeys: string[] = [];
+  constructor(
+    public readonly type: symbol,
+    public readonly dependencies: Map<string, DependencyInfo>,
+    public readonly mutations: Mutation<D, any>[],
+    public readonly variants: D[] | undefined,
+  ) {    
+    const evaluationDependencies: Map<string, DependencyInfo> = new Map();
+    const indirectKeySet: Set<string> = new Set();
+    for(const [filePath, fileDependencies] of dependencies) {
+      evaluationDependencies.set(filePath, {
+        writes: fileDependencies.writes.map(findParentWithType),
+        reads: fileDependencies.reads.map(findParentWithType),
+      });
+      for(const writePath of fileDependencies.writes) {
+        const key = pathToPrimaryKey(filePath, writePath);
+        this.conflictWriteDependencyKeys.push(key);
+      }
+    }
+
+    for(const [filePath, fileDependencies] of evaluationDependencies) {
+      for(const writePath of fileDependencies.writes) {
+        const key = pathToPrimaryKey(filePath, writePath);
+        this.writeDependencyKeys.push(key);
+        indirectKeySet.add(key);
+      }      
+    }
+
+    const indirectDependencyMap = getDependencyPathMap(evaluationDependencies);
+    for(const [filePath, paths] of indirectDependencyMap) {
+      for(const path of paths) {
+        indirectKeySet.add(pathToPrimaryKey(filePath, path));
+      }
+    }
+    this.indirectDependencyKeys = [...indirectKeySet];
+  }
 };
 
 type ConditionFn = (path: NodePath) => boolean;
@@ -452,12 +488,12 @@ class InstructionFactory<D> implements AbstractInstructionFactory<D> {
           for (const { type, wrapper, variants } of this.pathToInstructions(path)) {
             const pathKeys = getTraverseKeys(path);
             try {
-              instructions.push({
+              const newInstruction = new Instruction(
                 type,
-                dependencies: new Map([[filePath, wrapper.getDependencies(path as any)]]),
-                mutations: wrapper.mutations.map(wrapperMutation => {
+                new Map([[filePath, wrapper.getDependencies(path as any)]]),
+                wrapper.mutations.map(wrapperMutation => {
                   return {
-                    setup: (newAsts, data) => {
+                    setup: (newAsts, data: D) => {
                       const newAst = newAsts.get(filePath)!;
                       const astPath = getAstPath(newAst);
                       try {
@@ -476,7 +512,8 @@ class InstructionFactory<D> implements AbstractInstructionFactory<D> {
                   };
                 }),
                 variants,
-              });
+              );
+              instructions.push(newInstruction);
             } catch (err) {
               err.message = `${
                 err.message
@@ -1087,8 +1124,11 @@ const instructionFactories: InstructionFactory<any>[] = [
   forceAlternateFactory,
 ];
 const RETRIES = 1;
-const findAllNodePaths = async (astMap: Map<string, t.File>, locations: Location[]) => {
-  const nodePaths: NodePath[] = [];
+const findWidenedCoveragePaths = (astMap: Map<string, t.File>, locations: Location[]): Map<string, NodePath[]> => {
+  const nodePaths: Map<string, NodePath[]> = new Map();
+  for(const filePath of astMap.keys()) {
+    nodePaths.set(filePath, []);
+  }
   for (const [filePath, ast] of astMap.entries()) {
     const fileLocationPaths: Set<string> = new Set(
       locations
@@ -1104,22 +1144,13 @@ const findAllNodePaths = async (astMap: Map<string, t.File>, locations: Location
           if (fileLocationPaths.has(key)) {
             path[AST_FILE_PATH] = filePath;
             fileLocationPaths.delete(key);
-            nodePaths.push(path);
+            nodePaths.get(filePath)!.push(widenCoveragePath(path));
           }
         }
       },
     });
   }
   return nodePaths;
-};
-
-const isStatementContainer = (path: NodePath<any>) => {
-  const node = path.node;
-  return (
-    (node.body && (Array.isArray(node.body) || !node.body.body)) ||
-    (path.isIfStatement() &&
-      ((node.alternate && !node.alternate.body) || !node.consequent.body))
-  );
 };
 
 export type TestEvaluation = {
@@ -1460,7 +1491,7 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
 };
 
 export const compareFinalInstructionEvaluations = (
-  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   instructions1: Instruction<any>[],
   instructions2: Instruction<any>[],
@@ -1494,18 +1525,18 @@ type InstructionCategory = {
 };
 export const categoriseInstructionsIntoCloestParentPaths = (
   instructions: Instruction<any>[],
-  parentPaths: NodePath[],
+  parentPaths: Map<string, NodePath[]>,
 ): Map<t.Node, InstructionCategory> => {
   const pathWithLocation = path => {
     return path.find(path => path.node.loc !== null);
   };
-  const parentNodes = parentPaths.map(pathWithLocation).map(path => path.node);
   const categorisedMap: Map<t.Node, InstructionCategory> = new Map();
   for (const instruction of instructions) {
     for (const [filePath, fileDependencies] of instruction.dependencies) {
+      const fileCoverageNodes = parentPaths.get(filePath)!.map(pathWithLocation).map(path => path.node);
       for (const dependency of fileDependencies.writes) {
         const selectedParentPath = dependency.find(parentPath =>
-          parentNodes.includes(parentPath.node),
+          fileCoverageNodes.includes(parentPath.node),
         );
         const selectedFinalPath =
           selectedParentPath === null
@@ -1530,7 +1561,7 @@ export const categoriseInstructionsIntoCloestParentPaths = (
 };
 
 export const mutationEvalatuationMapToFaults = (
-  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   instructionCategories: InstructionCategory[],
 ): Fault[] => {
@@ -1559,34 +1590,12 @@ export const mutationEvalatuationMapToFaults = (
   return faults;
 };
 
-export const instructionBlockToWriteDependencies = (
-  instructions: Iterable<Instruction<any>>,
-): NodePath[] => {
-  return [...iteratorWithNoDuplicates(
-    [...instructions].map(instruction => [...instructionToWriteNodePathDependencies(instruction)]).flat(),
-    path => path.node
-  )];
-};
-
-export const getAffectedInstructionsFromNodes = (
-  nodes: Iterable<t.Node>,
-  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
-) => {
-  const instructionsAffected: Set<Instruction<any>> = new Set();
-  for (const node of nodes) {
-    for (const instruction of nodeToInstructions.get(node)!) {
-      instructionsAffected.add(instruction);
-    }
-  }
-  return instructionsAffected;
-};
-
 type IsFinishedFunction = (
   instructions: Heap<Instruction<any>>,
   testerResults: TesterResults,
-  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
-  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
+  nodeToInstructions: Map<string, Instruction<any>[]>,
   mutationCount: number,
 ) => boolean;
 
@@ -1646,9 +1655,9 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    const allWriteDependencies = instructionBlockToWriteDependencies(instructionArr);
+    const allWriteDependencies = [...new Set(instructionArr.map(instruction => instruction.writeDependencyKeys).flat())];
     const allDependencyEvaluations = allWriteDependencies.map(
-      path => nodeEvaluations.get(path.node)!.mutationEvaluations,
+      key => nodeEvaluations.get(key)!.mutationEvaluations,
     );
     if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
       return true;
@@ -1804,15 +1813,14 @@ export function* iteratorWithNoDuplicates<T>(iterable: Iterable<T>, getKey: (ite
   }
 }
 
-export function* instructionToWriteNodePathDependencies(
-  instruction: Instruction<any>,
-): Generator<NodePath> {
-  for (const fileDependencies of instruction.dependencies.values()) {
-    for (const nodePath of fileDependencies.writes) {
-      yield nodePath;
-    }
-  }
-}
+export const pathToKey = (path: NodePath): string => {
+  return getTraverseKeys(path)
+    .map(key => typeof key === 'string' ? `"${key}"` : `[${key}]`)
+    .join('.');
+};
+export const pathToPrimaryKey = (filePath: string, path: NodePath) => {
+  return `${filePath}=>${pathToKey(path)}`;
+};
 
 export const compareNodeEvaluations = (
   evaluation1: NodeEvaluation,
@@ -1857,7 +1865,7 @@ export const compareNodeEvaluations = (
 };
 
 export const compareInstruction = (
-  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   instruction1: Instruction<any>,
   instruction2: Instruction<any>,
@@ -1879,7 +1887,7 @@ export const compareInstruction = (
     } else {
       return -1;
     }
-  } else if (instructionEvaluations1.length >= 1 && instructionEvaluations2.length <= 0) {
+  } else if (instructionEvaluations1.length >= 1 && instructionEvaluations2.length >= 1) {
     const instructionEvaluationComparison = compareMutationEvaluations(
       instructionEvaluations1.peek(),
       instructionEvaluations2.peek(),
@@ -1889,18 +1897,16 @@ export const compareInstruction = (
     }
   }
 
-  const relevantNodes1 = [...instructionToWriteNodePathDependencies(instruction1)]
-    .map(path => path.node);
-  const relevantNodes2 = [...instructionToWriteNodePathDependencies(instruction2)]
-    .map(path => path.node);
+  const relevantKeys1 = instruction1.writeDependencyKeys;
+  const relevantKeys2 = instruction2.writeDependencyKeys;
 
-  const nodeEvaluations1 = relevantNodes1
+  const nodeEvaluations1 = relevantKeys1
     .map(node => nodeEvaluations.get(node)!)
     .sort(compareNodeEvaluations);
-  const nodeEvaluations2 = relevantNodes2
+  const nodeEvaluations2 = relevantKeys2
     .map(node => nodeEvaluations.get(node)!)
     .sort(compareNodeEvaluations);
-
+  
   const bestNodeEvaluation1 = nodeEvaluations1[nodeEvaluations1.length - 1];
   const bestNodeEvaluation2 = nodeEvaluations2[nodeEvaluations2.length - 1];
 
@@ -1916,7 +1922,7 @@ export const compareInstruction = (
 };
 
 export const compareInstructionBlocks = (
-  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   block1: Heap<Instruction<any>>,
   block2: Heap<Instruction<any>>,
@@ -1947,31 +1953,24 @@ type NodeEvaluation = {
 };
 
 export const initialiseEvaluationMaps = (
-  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
-  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
+  nodeToInstructions: Map<string, Instruction<any>[]>,
   instructions: Instruction<any>[],
 ) => {
-  const allDependencyPaths = getDependencyPaths(
-    instructionBlockToWriteDependencies(instructions),
-  );
-  for (const path of allDependencyPaths) {
-    const node = path.node;
-    nodeEvaluations.set(node, {
+  const allDependencyKeys = new Set(instructions.map(instruction => instruction.indirectDependencyKeys).flat());
+  for (const key of allDependencyKeys) {
+    nodeEvaluations.set(key, {
       initial: 0,
       mutationEvaluations: new Heap(
         compareMutationEvaluationsWithLargeMutationCountsFirst,
       ),
     });
-    nodeToInstructions.set(node, []);
+    nodeToInstructions.set(key, []);
   }
   for (const instruction of instructions) {
-    const writePaths = getDependencyPaths(
-      instructionToWriteNodePathDependencies(instruction),
-    );
-    for (const path of writePaths) {
-      const node = path.node;
-      nodeToInstructions.get(node)!.push(instruction);
+    for(const key of instruction.indirectDependencyKeys) {
+      nodeToInstructions.get(key)!.push(instruction);
     }
     instructionEvaluations.set(
       instruction,
@@ -2011,20 +2010,22 @@ export const travelUpToRootDependencyPath = (path: NodePath) => {
   return path.find(path => path.isStatement());
 };
 
+/**
+ * Assumption: Paths are all from the same file
+ */
 export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
-  /* Not sure if NodePath gets generated on the fly, or will in the future, thus, 
-     we don't use it to check if we've already traversed the path, instead we use the node */
-  const collectedNodes: Set<t.Node> = new Set();
+  const collectedNodes: Set<string> = new Set();
   const collectedPaths: NodePath[] = [];
   const pathStack: NodePath[] = [...paths];
 
   const checkAndAddPath = (aPath: NodePath): boolean => {
-    if (collectedNodes.has(aPath.node)) {
+    const key = pathToKey(aPath);
+    if (collectedNodes.has(key)) {
       return false;
     }
 
     collectedPaths.push(aPath);
-    collectedNodes.add(aPath.node);
+    collectedNodes.add(key);
 
     return true;
   };
@@ -2037,7 +2038,8 @@ export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
       continue;
     }
 
-    rootPath.traverse({
+  // TODO: Traverse skips certain node paths like the "values" of binary operators
+  rootPath.traverse({
       enter: subPath => {
         if (!checkAndAddPath(subPath)) {
           return;
@@ -2060,29 +2062,38 @@ export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
   return collectedPaths;
 };
 
+export const getDependencyPathMap = (pathMap: Map<string, DependencyInfo>): Map<string, NodePath[]> => {
+  const map = new Map();
+
+  for(const [filePath, fileDependencies] of pathMap) {
+    map.set(filePath, getDependencyPaths(fileDependencies.writes));
+  }
+
+  return map;
+};
+
 const addMutationEvaluation = (
-  nodeEvaluations: Map<t.Node, NodeEvaluation>,
+  nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   instructionQueue: Heap<Heap<Instruction<any>>>,
-  nodeToInstructions: Map<t.Node, Instruction<any>[]>,
+  nodeToInstructions: Map<string, Instruction<any>[]>,
   instructions: Heap<Instruction<any>>,
   mutationEvaluation: MutationEvaluation,
 ) => {
-  const pathsAffected: NodePath[] = getDependencyPaths(
-    instructionBlockToWriteDependencies(instructions),
-  );
-  for (const path of pathsAffected) {
-    const node = path.node;
-    nodeEvaluations.get(node)!.mutationEvaluations.push(mutationEvaluation);
+  const dependencyKeys = new Set([...instructions].map(instruction => instruction.indirectDependencyKeys).flat());
+
+  for (const key of dependencyKeys) {
+    nodeEvaluations.get(key)!.mutationEvaluations.push(mutationEvaluation);
   }
 
   for (const instruction of instructions) {
     instructionEvaluations.get(instruction)!.push(mutationEvaluation);
   }
 
-  const instructionsAffected: Set<Instruction<any>> = getAffectedInstructionsFromNodes(
-    pathsAffected.map(path => path.node),
-    nodeToInstructions,
+  const instructionsAffected: Set<Instruction<any>> = new Set(
+    [...dependencyKeys]
+      .map(key => nodeToInstructions.get(key)!)
+      .flat()
   );
   for (const instruction of instructionsAffected) {
     for (const block of instructionQueue) {
@@ -2132,8 +2143,8 @@ export const createPlugin = ({
 
   const faultFilePath = resolve(faultFileDir, faultFileName);
 
-  const nodeEvaluations: Map<t.Node, NodeEvaluation> = new Map();
-  const nodeToInstructions: Map<t.Node, Instruction<any>[]> = new Map();
+  const nodeEvaluations: Map<string, NodeEvaluation> = new Map();
+  const nodeToInstructions: Map<string, Instruction<any>[]> = new Map();
   const instructionEvaluations: Map<
     Instruction<any>,
     Heap<MutationEvaluation>
@@ -2145,7 +2156,7 @@ export const createPlugin = ({
   let previousInstructions: Heap<Instruction<any>> = null!;
   let codeMap: Map<string, string> = null!;
   let originalAstMap: Map<string, t.File> = new Map();
-  let coveragePaths: NodePath[] = null!;
+  let coveragePaths: Map<string, NodePath[]> = null!;
   let finished = false;
   const instructionQueue: Heap<Heap<Instruction<any>>> = new Heap(heapComparisonFn);
   let firstRun = true;
@@ -2333,25 +2344,26 @@ export const createPlugin = ({
             allInstructions.map(a => a.type),
           );
 
-          coveragePaths = await findAllNodePaths(originalAstMap, locations);
-          console.log(
-            'coveragePaths',
-            coveragePaths.map(path => getTraverseKeys(path)),
-          );
-          const relevantStatementPaths = [
-            ...new Set(coveragePaths.map(widenCoveragePath)),
-          ];
+          coveragePaths = findWidenedCoveragePaths(originalAstMap, locations);
 
           const relevantInstructions = allInstructions.filter(instruction => {
-            const instructionWritePaths = [...instructionToWriteNodePathDependencies(
-              instruction,
-            )];
-            console.log('????', instructionWritePaths.map(getTraverseKeys));
-            return instructionWritePaths.some(instructionWritePath =>
-              relevantStatementPaths.some(coveragePath => {
-                return isParentOrChild(coveragePath, instructionWritePath);
-              }),
-            );
+            for(const [filePath, fileDependencies] of instruction.dependencies) {
+              const fileCoveragePaths = coveragePaths.get(filePath);
+              if(fileCoveragePaths === undefined) {
+                continue;
+              }
+
+              for(const writePath of fileDependencies.writes) {
+                for(const coveragePath of fileCoveragePaths) {
+                  const potentialParent = writePath.find(path => path.node === coveragePath.node);
+                  if (potentialParent !== null) {
+                    return true;
+                  }
+                }
+              }
+            }
+
+            return false;              
           });
           console.log(
             'relevant instructions',
@@ -2466,7 +2478,7 @@ export const createPlugin = ({
 
         const categorisedInstructions = categoriseInstructionsIntoCloestParentPaths(
           [...instructionEvaluations.keys()],
-          coveragePaths.map(widenCoveragePath),
+          coveragePaths,
         );
         const faults = mutationEvalatuationMapToFaults(
           nodeEvaluations,

@@ -3,8 +3,6 @@ import {
   forceConsequentFactory,
   leftNullifyBinaryOrLogicalOperatorFactory,
   gatherInstructions,
-  instructionBlockToWriteDependencies,
-  instructionToWriteNodePathDependencies,
   FORCE_CONSEQUENT,
   executeInstructions,
   getDependencyPaths,
@@ -29,6 +27,8 @@ it('instruction factory integration', () => {
 
   const instruction = instructions[0];  
   const dependencies = instruction.dependencies;
+
+  expect(instruction.indirectDependencyKeys).toEqual(expect.arrayContaining(instruction.writeDependencyKeys));
   
   expect(dependencies.has(filePath1)).toBe(true);
   expect(dependencies.has(filePath2)).toBe(false);
@@ -44,12 +44,6 @@ it('instruction factory integration', () => {
       key: 'alternate'
     })
   ]));
-
-  const writeDependenciesFromInstructionHelperMethod = instructionToWriteNodePathDependencies(instruction);
-  expect([...writeDependenciesFromInstructionHelperMethod]).toEqual(expect.arrayContaining(writeDependencies));
-
-  const writeDependenciesFromBlockHelperMethod = instructionBlockToWriteDependencies([ instruction, instruction ]);
-  expect([...writeDependenciesFromBlockHelperMethod]).toEqual(expect.arrayContaining(writeDependencies));
 
   const astPath = getAstPath(ast1);
   expect(astPath.isProgram()).toBe(true);
