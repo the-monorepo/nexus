@@ -1,9 +1,9 @@
-import { expect } from 'chai';
+import expect from 'expect';
 import { powerset } from './index';
 
 describe('powerset', () => {
   it('1', () =>
-    expect(powerset(['a', 'b', 'c'])).to.deep.equal([
+    expect(powerset(['a', 'b', 'c'])).toEqual([
       [],
       ['c'],
       ['b'],
@@ -14,11 +14,11 @@ describe('powerset', () => {
       ['a', 'b', 'c'],
     ]));
   it('2', () =>
-    expect(powerset(['a', 'b'])).to.deep.equal([[], ['b'], ['a'], ['a', 'b']]));
-  it('3', () => expect(powerset(['a'])).to.deep.equal([[], ['a']]));
-  it('4', () => expect(powerset([])).to.deep.equal([[]]));
+    expect(powerset(['a', 'b'])).toEqual([[], ['b'], ['a'], ['a', 'b']]));
+  it('3', () => expect(powerset(['a'])).toEqual([[], ['a']]));
+  it('4', () => expect(powerset([])).toEqual([[]]));
   it('5', () =>
-    expect(powerset(['x', 'df', 'z', 'm'])).to.deep.equal([
+    expect(powerset(['x', 'df', 'z', 'm'])).toEqual([
       [],
       ['m'],
       ['z'],

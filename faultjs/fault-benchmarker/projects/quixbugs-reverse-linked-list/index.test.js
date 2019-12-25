@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 import { reverseLinkedList } from './index';
 
 class NodeIterator {
@@ -41,15 +41,15 @@ describe('reverseLinkedList', () => {
     const node3 = new Node(3, node2);
     const node4 = new Node(4, node3);
     const node5 = new Node(5, node4);
-    expect([...reverseLinkedList(node5)]).to.deep.equal([1, 2, 3, 4, 5])
+    expect([...reverseLinkedList(node5)]).toEqual([1, 2, 3, 4, 5])
   });
 
   it('2', () => {
     const node = new Node(0);
-    expect([...reverseLinkedList(node)]).to.deep.equal([0]);
+    expect([...reverseLinkedList(node)]).toEqual([0]);
   });
 
   it('3', () => {
-    expect(reverseLinkedList(undefined)).to.equal(undefined);
+    expect(reverseLinkedList(undefined)).toBe(undefined);
   });
 });

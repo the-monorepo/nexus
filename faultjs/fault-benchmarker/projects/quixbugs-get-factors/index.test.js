@@ -1,11 +1,11 @@
 import { getFactors } from './index';
-import { expect } from 'chai';
+import expect from 'expect';
 
 describe('getFactors', () => {
-  it('1', () => expect(getFactors(1)).to.deep.equal([]))
-  it('2', () => expect(getFactors(100)).to.deep.equal([2, 2, 5, 5]))
-  it('1', () => expect(getFactors(101)).to.deep.equal([101]))
-  it('1', () => expect(getFactors(104)).to.deep.equal([2,2,2,13]))
-  it('1', () => expect(getFactors(2)).to.deep.equal([2]))
-  it('1', () => expect(getFactors(3)).to.deep.equal([3]))
+  it('1', () => expect(getFactors(1)).toEqual([]))
+  it('2', () => expect(getFactors(100)).toEqual([2, 2, 5, 5]))
+  it('1', () => expect(getFactors(101)).toEqual([101]))
+  it('1', () => expect(getFactors(104)).toEqual([2,2,2,13]))
+  it('1', () => expect(getFactors(2)).toEqual([2]))
+  it('1', () => expect(getFactors(3)).toEqual([3]))
 });

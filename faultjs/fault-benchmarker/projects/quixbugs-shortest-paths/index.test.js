@@ -1,5 +1,5 @@
 import { shortestPaths } from './index';
-import { expect } from 'chai';
+import expect from 'expect';
 
 describe('shortestPaths', () => {
   it('1', () => {
@@ -16,7 +16,7 @@ describe('shortestPaths', () => {
     const result = [...weightByNode]
       .sort();
 
-    expect([['A', 0], ['B', 1], ['C', 3], ['D', 10], ['E', 5], ['F', 4]]).to.deep.equal(result);
+    expect([['A', 0], ['B', 1], ['C', 3], ['D', 10], ['E', 5], ['F', 4]]).toEqual(result);
   });
 
   it('2', () => {
@@ -31,7 +31,7 @@ describe('shortestPaths', () => {
     const result = [...weightByNode]
       .sort();
 
-    expect([['A', 0], ['B', 1], ['C', 3], ['D', 6], ['E', 5], ['F', 9]]).to.deep.equal(result);
+    expect([['A', 0], ['B', 1], ['C', 3], ['D', 6], ['E', 5], ['F', 9]]).toEqual(result);
   });
 
   it('3', () => {
@@ -47,6 +47,6 @@ describe('shortestPaths', () => {
     const result = [...weightByNode]
       .sort();
 
-    expect([['A', 0], ['B', 1], ['C', 3], ['D', 6], ['E', 5], ['F', 9]]).to.deep.equal(result);
+    expect([['A', 0], ['B', 1], ['C', 3], ['D', 6], ['E', 5], ['F', 9]]).toEqual(result);
   });
 });
