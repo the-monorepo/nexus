@@ -588,7 +588,7 @@ const executeInstructions = (asts: Map<string, t.File>, instructions: Heap<Instr
   ));
 }
 
-const getAstPath = (ast: t.File): NodePath<t.Program> => {
+export const getAstPath = (ast: t.File): NodePath<t.Program> => {
   let filePath: NodePath<t.Program>;
   
   traverse(ast, {
@@ -1448,7 +1448,7 @@ export const mutationEvalatuationMapToFaults = (
   return faults;
 };
 
-const getAffectedPathsFromInstructionBlock = (
+export const instructionBlockToWriteDependencies = (
   instructions: Iterable<Instruction<any>>,
 ): NodePath[] => {
   const nodesAffected: Set<t.Node> = new Set();
@@ -1468,7 +1468,7 @@ const getAffectedPathsFromInstructionBlock = (
   return paths;
 };
 
-const getAffectedInstructionsFromNodes = (
+export const getAffectedInstructionsFromNodes = (
   nodes: Iterable<t.Node>,
   nodeToInstructions: Map<t.Node, Instruction<any>[]>,
 ) => {
@@ -1690,14 +1690,26 @@ let solutionCounter = 0;
 type LocationKey = string;
 const faultFileName = 'faults.json';
 
-const instructionToWriteNodePathDependencies = (instruction: Instruction<any>): NodePath[] => {
-  const dependencies = [...instruction.dependencies.values()]
-    .map(fileDependencies => fileDependencies.writes)
-    .flat();
-  return dependencies;
+export function *iteratorWithNoDuplicates<T>(iterable: Iterable<T>) {
+  const seen: Set<T> = new Set();
+  for(const item of iterable) {
+    if (seen.has(item)) {
+      continue;
+    }
+    seen.add(item);
+    yield item;
+  }
+};
+
+export function *instructionToWriteNodePathDependencies(instruction: Instruction<any>): Generator<NodePath> {
+  for(const fileDependencies of instruction.dependencies.values()) {
+    for(const nodePath of fileDependencies.writes) {
+      yield nodePath;
+    }
+  }
 }
 
-const compareNodeEvaluations = (evaluation1: NodeEvaluation, evaluation2: NodeEvaluation) => {
+export const compareNodeEvaluations = (evaluation1: NodeEvaluation, evaluation2: NodeEvaluation) => {
   const nodeMutationEvaluations1 = evaluation1.mutationEvaluations;
   const nodeMutationEvaluations2 = evaluation2.mutationEvaluations;
   if (nodeMutationEvaluations1.length <= 0 && nodeMutationEvaluations2.length >= 1) {
@@ -1727,7 +1739,7 @@ const compareNodeEvaluations = (evaluation1: NodeEvaluation, evaluation2: NodeEv
   return 0;
 };
 
-const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>, instruction1: Instruction<any>, instruction2: Instruction<any>) => {
+export const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>, instruction1: Instruction<any>, instruction2: Instruction<any>) => {
   const instructionEvaluations1 = instructionEvaluations.get(instruction1)!;
   const instructionEvaluations2 = instructionEvaluations.get(instruction2)!; 
 
@@ -1772,7 +1784,7 @@ const compareInstruction = (nodeEvaluations: Map<t.Node, NodeEvaluation>, instru
   return 0;
 }
 
-const compareInstructionBlocks = (
+export const compareInstructionBlocks = (
   nodeEvaluations: Map<t.Node, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   block1: Heap<Instruction<any>>,
@@ -1854,7 +1866,7 @@ export const travelUpToRootDependencyPath = (path: NodePath) => {
   );
 };
 
-const getDependencyPaths = (...paths: NodePath[]): NodePath[] => {
+export const getDependencyPaths = (...paths: NodePath[]): NodePath[] => {
   /* Not sure if NodePath gets generated on the fly, or will in the future, thus, 
      we don't use it to check if we've already traversed the path, instead we use the node */
   const collectedNodes: Set<t.Node> = new Set();
@@ -1944,7 +1956,7 @@ const addSplittedInstructionBlock = (queue: Heap<Heap<Instruction<any>>>, block:
   queue.push(block);
 };
 
-const codeMapToAstMap = (codeMap: Map<string, string>, options: Parameters<typeof parse>[1]): Map<string, t.File> => {
+export const codeMapToAstMap = (codeMap: Map<string, string>, options: Parameters<typeof parse>[1]): Map<string, t.File> => {
   const mapEntries = [...codeMap.entries()].map(([filePath, code]): [string, t.File] => {
     return [filePath, parse(code, options)];
   });
