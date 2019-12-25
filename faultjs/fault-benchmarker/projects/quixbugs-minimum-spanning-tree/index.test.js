@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 import { minimumSpanningTree } from './index';
 
 describe('reverseLinkedList', () => {
@@ -10,7 +10,7 @@ describe('reverseLinkedList', () => {
   
     const graph = [edge11, edge12, edge13, edge14];
   
-    expect([...minimumSpanningTree(graph)].sort()).to.deep.equal([edge11, edge13, edge14].sort());
+    expect([...minimumSpanningTree(graph)].sort()).toEqual([edge11, edge13, edge14].sort());
   });
 
   it('2', () => {
@@ -27,7 +27,7 @@ describe('reverseLinkedList', () => {
 
     const graph = [edge21, edge22, edge23, edge24, edge25, edge26, edge27, edge28, edge29, edge210];
 
-    expect([...minimumSpanningTree(graph)].sort()).to.deep.equal([edge25, edge22, edge24, edge29, edge28].sort());
+    expect([...minimumSpanningTree(graph)].sort()).toEqual([edge25, edge22, edge24, edge29, edge28].sort());
   });
 
   it('3', () => {
@@ -37,6 +37,6 @@ describe('reverseLinkedList', () => {
 
     const graph = [edge31, edge32, edge33];
 
-    expect([...minimumSpanningTree(graph)].sort()).to.deep.equal([edge31, edge32, edge33].sort());
+    expect([...minimumSpanningTree(graph)].sort()).toEqual([edge31, edge32, edge33].sort());
   });
 });

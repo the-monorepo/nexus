@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 import { topologicalOrdering } from './index';
 
 const node = (value) => {
@@ -31,7 +31,7 @@ describe('rpnEval', () => {
     nine.incomingNodes = [eleven, eight]
     ten.incomingNodes = [eleven, three]  
     
-    expect(topologicalOrdering([five, seven, three, eleven, eight, two, nine, ten])).to.deep.equal([five, seven, three, eleven, eight, ten, two, nine]);
+    expect(topologicalOrdering([five, seven, three, eleven, eight, two, nine, ten])).toEqual([five, seven, three, eleven, eight, ten, two, nine]);
   })
 
   it('2', () => {
@@ -51,7 +51,7 @@ describe('rpnEval', () => {
     three.incomingNodes = [two]
     three.outgoingNodes = [one]  
 
-    expect(topologicalOrdering([zero, one, two, three, four, five])).to.deep.equal([four, five, zero, two, three, one])
+    expect(topologicalOrdering([zero, one, two, three, four, five])).toEqual([four, five, zero, two, three, one])
   });
 
 
@@ -81,6 +81,6 @@ describe('rpnEval', () => {
     syrup.outgoingNodes = [eat]
     eat.incomingNodes = [syrup, turn]
     
-    expect(topologicalOrdering([milk, egg, oil, mix, syrup, griddle, pour, turn, eat])).to.deep.equal([milk, egg, oil, griddle, mix, pour, syrup, turn, eat]);
+    expect(topologicalOrdering([milk, egg, oil, mix, syrup, griddle, pour, turn, eat])).toEqual([milk, egg, oil, griddle, mix, pour, syrup, turn, eat]);
   });
 });

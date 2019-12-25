@@ -1,8 +1,8 @@
 import { isValidParenthesization } from './index';
-import { expect } from 'chai';
+import expect from 'expect';
 
 describe('isValidParenthesization', () => {
-  it('1', () => expect(isValidParenthesization("((()()))()")).to.equal(true));
-  it('2', () => expect(isValidParenthesization(")()(")).to.equal(false));
-  it('3', () => expect(isValidParenthesization("((")).to.equal(false));
+  it('1', () => expect(isValidParenthesization("((()()))()")).toBe(true));
+  it('2', () => expect(isValidParenthesization(")()(")).toBe(false));
+  it('3', () => expect(isValidParenthesization("((")).toBe(false));
 })

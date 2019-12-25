@@ -1,5 +1,5 @@
 import { depthFirstSearch } from './index';
-import { expect } from 'chai';
+import expect from 'expect';
 
 class Node {
   constructor(value, ...successors) {
@@ -16,7 +16,7 @@ describe('depthFirstSearch', () => {
     const station4 = new Node("Canary Wharf", station2, station3);
     const station5 = new Node("London Bridge", station4, station3);
     const station6 = new Node("Tottenham Court Road", station5, station4);
-    expect(depthFirstSearch(station6, station1)).to.equal(true);  
+    expect(depthFirstSearch(station6, station1)).toBe(true);  
   })
   
   const nodef = new Node("F");
@@ -26,16 +26,16 @@ describe('depthFirstSearch', () => {
 	const nodeb = new Node("B", nodee);
   const nodea = new Node("A", nodeb, nodec, noded);
   it('2', () => {
-    expect(depthFirstSearch(nodea, nodee)).to.equal(true);
+    expect(depthFirstSearch(nodea, nodee)).toBe(true);
   });
   it('3', () => {
-    expect(depthFirstSearch(nodef, nodee)).to.equal(false);
+    expect(depthFirstSearch(nodef, nodee)).toBe(false);
   });
   it('4', () => {
-    expect(depthFirstSearch(nodef, nodef)).to.equal(true);
+    expect(depthFirstSearch(nodef, nodef)).toBe(true);
   });
   it('5', () => {
     nodee.successors = [nodea]
-    expect(depthFirstSearch(nodea, nodef)).to.equal(true);
+    expect(depthFirstSearch(nodea, nodef)).toBe(true);
   });
 });
