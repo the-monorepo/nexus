@@ -75,24 +75,24 @@ describe('heap', () => {
 
     const heap = new Heap(compareFn, arr);
     // Make sure the heap sorts properly
-    expect([...heap]).toEqual(arr);
+    expect([...heap.sortedIterator()]).toEqual(arr);
 
     const thirdItem = arr[2];
     // Modifying the 3rd item should break the heap order, it'll need to be swapped all the way to the top
     thirdItem.score = 500;
     arr.sort(compareFn).reverse();
-    expect([...heap]).not.toEqual(arr);
+    expect([...heap.sortedIterator()]).not.toEqual(arr);
 
     // Updating the item should fix the heap order
     heap.update(thirdItem);
-    expect([...heap]).toEqual(arr);
+    expect([...heap.sortedIterator()]).toEqual(arr);
 
     // Breaking the first item, will need to be swapped to the bottom
     const firstItem = arr[2];
     firstItem.score = 5000;
     arr.sort(compareFn).reverse();
     heap.updateIndex(heap.position(thirdItem)!);
-    expect([...heap]).toEqual(arr);
+    expect([...heap.sortedIterator()]).toEqual(arr);
   });
 
   const testCases: [string, number[]][] = [
@@ -159,11 +159,11 @@ describe('heap', () => {
         const arr = [4, 2, 1, -5, 3];
         const sorted = [...arr].sort(compareFn).reverse();
         const heap = new Heap(compareFn, arr);
-        it('spread', () => {
-          expect([...heap]).toEqual(sorted);
+        it('spread, sorted', () => {
+          expect([...heap.sortedIterator()]).toEqual(sorted);
         });
-        it('spread, unsorted iterator', () => {
-          expect([...heap.unsortedIterator()]).toEqual(expect.arrayContaining(sorted));
+        it('spread, unsorted', () => {
+          expect([...heap]).toEqual(expect.arrayContaining(sorted));
         });
       });
 
@@ -173,7 +173,7 @@ describe('heap', () => {
             const sorted = [...arr].sort(compareFn).reverse();
             const heap = new Heap(compareFn);
             heap.push(...arr);
-            const heapArr = [...heap];
+            const heapArr = [...heap.sortedIterator()];
             expect(heapArr).toEqual(sorted);
           });
         }

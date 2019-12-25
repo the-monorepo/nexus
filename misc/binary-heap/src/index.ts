@@ -228,15 +228,15 @@ export class Heap<T> implements Iterable<T> {
     return clonedHeap;
   }
 
-  unsortedIterator(): IterableIterator<T> {
-    return this.arr[Symbol.iterator]();
-  }
-
-  *[Symbol.iterator](): IterableIterator<T> {
+  *sortedIterator(): Generator<T> {
     const clonedHeap = this.clone();
     while (clonedHeap.length > 0) {
       yield clonedHeap.pop()!;
     }
+  }
+
+  [Symbol.iterator](): IterableIterator<T> {
+    return this.arr[Symbol.iterator]();
   }
 }
 

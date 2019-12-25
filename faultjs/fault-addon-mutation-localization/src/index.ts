@@ -1775,7 +1775,7 @@ export const mapFaultsToIstanbulCoverage = (
 const getAffectedFilePaths = (instructions: Heap<Instruction<any>>) => {
   return [
     ...new Set(
-      [...instructions.unsortedIterator()]
+      [...instructions]
         .map(instruction => [...instruction.dependencies.keys()])
         .flat(),
     ),
@@ -1987,7 +1987,7 @@ const instructionBlocksToMaxInstructionsLeft = (
   let total = 0;
   for (const block of blocks) {
     total += blockLengthToTotalDivisions(block.length);
-    for (const instruction of block.unsortedIterator()) {
+    for (const instruction of block) {
       total += instruction.variants === undefined ? 0 : instruction.variants.length - 1;
     }
   }
@@ -2069,14 +2069,14 @@ const addMutationEvaluation = (
   mutationEvaluation: MutationEvaluation,
 ) => {
   const pathsAffected: NodePath[] = getDependencyPaths(
-    instructionBlockToWriteDependencies(instructions.unsortedIterator()),
+    instructionBlockToWriteDependencies(instructions),
   );
   for (const path of pathsAffected) {
     const node = path.node;
     nodeEvaluations.get(node)!.mutationEvaluations.push(mutationEvaluation);
   }
 
-  for (const instruction of instructions.unsortedIterator()) {
+  for (const instruction of instructions) {
     instructionEvaluations.get(instruction)!.push(mutationEvaluation);
   }
 
@@ -2085,7 +2085,7 @@ const addMutationEvaluation = (
     nodeToInstructions,
   );
   for (const instruction of instructionsAffected) {
-    for (const block of instructionQueue.unsortedIterator()) {
+    for (const block of instructionQueue) {
       if (block.some(blockInstruction => blockInstruction === instruction)) {
         instructionQueue.update(block);
       }
@@ -2195,10 +2195,10 @@ export const createPlugin = ({
   const runInstruction = async (tester: TesterResults) => {
     console.log('Processing instruction');
     const count = instructionBlocksToMaxInstructionsLeft(
-      instructionQueue.unsortedIterator(),
+      instructionQueue,
     );
     let instructionCount = 0;
-    for (const block of instructionQueue.unsortedIterator()) {
+    for (const block of instructionQueue) {
       instructionCount += block.length;
     }
     console.log(
@@ -2213,7 +2213,7 @@ export const createPlugin = ({
     console.log('set peaking');
     const instructions = instructionQueue.pop()!;
     console.log(
-      [...instructions.unsortedIterator()].map(instruction =>
+      [...instructions].map(instruction =>
         instruction.type.toString(),
       ),
     );
@@ -2222,7 +2222,7 @@ export const createPlugin = ({
     //console.log('processing')
 
     const newAstMap = codeMapToAstMap(codeMap, babelOptions);
-    executeInstructions(newAstMap, instructions.unsortedIterator());
+    executeInstructions(newAstMap, instructions);
 
     if (
       isFinishedFn(
@@ -2388,7 +2388,7 @@ export const createPlugin = ({
           }
         } else {
           const mutationEvaluation = evaluateNewMutation(firstTesterResults, tester, [
-            ...previousInstructions.unsortedIterator(),
+            ...previousInstructions,
           ]);
 
           if (
@@ -2433,7 +2433,7 @@ export const createPlugin = ({
           return { rerun: false, allow: false };
         }
         const mutationEvaluation: MutationEvaluation = {
-          instructions: [...previousInstructions.unsortedIterator()],
+          instructions: [...previousInstructions],
           testsWorsened: null,
           testsImproved: null,
           stackEvaluation: null,
