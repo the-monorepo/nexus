@@ -9,10 +9,12 @@ module.exports = api => {
       [
         'babel-plugin-istanbul',
         {
+          useInlineSourceMaps: true,
           exclude: [
             '**/*.test.{js,jsx,ts,tsx}',
             './{faultjs,misc}/*/test/**',
             './test/**',
+            '**/{lib,esm,dist}/**'
           ],
         },
       ],
