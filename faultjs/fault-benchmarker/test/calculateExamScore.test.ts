@@ -31,7 +31,7 @@ describe('measure', () => {
           },
         },
       ];
-      expect(calculateExamScore('', faults, faults, 2)).to.deep.equal({
+      expect(calculateExamScore('', faults, faults, 2)).toEqual({
         exam: 0,
         rankings: [0, 0],
       });

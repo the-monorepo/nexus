@@ -45,19 +45,19 @@ describe(compareMutationEvaluations.name, () => {
     it(`${arrToString(orderedEvaluations[i])} same as ${arrToString(
       orderedEvaluations[i],
     )}`, () => {
-      expect(compareMutationEvaluations(lesser, lesser)).to.be.equal(0);
+      expect(compareMutationEvaluations(lesser, lesser)).toBe(0);
     });
     for (let j = i + 1; j < orderedEvaluations.length; j++) {
       const greater = arrayToMutationEvaluation(orderedEvaluations[j]);
       it(`${arrToString(orderedEvaluations[i])} less than ${arrToString(
         orderedEvaluations[j],
       )}`, () => {
-        expect(compareMutationEvaluations(lesser, greater)).to.be.below(0);
+        expect(compareMutationEvaluations(lesser, greater)).toBeLessThan(0);
       });
       it(`${arrToString(orderedEvaluations[j])} greater than ${arrToString(
         orderedEvaluations[i],
       )}`, () => {
-        expect(compareMutationEvaluations(greater, lesser)).to.be.above(0);
+        expect(compareMutationEvaluations(greater, lesser)).toBeGreaterThan(0);
       });
     }
   }
@@ -65,10 +65,10 @@ describe(compareMutationEvaluations.name, () => {
     const sorted = [...orderedEvaluations].map(arrayToMutationEvaluation);
     const copy = [...sorted];
     copy.sort(compareMutationEvaluations);
-    expect(copy).to.deep.equal(sorted);
+    expect(copy).toEqual(sorted);
 
     copy.reverse();
     copy.sort(compareMutationEvaluations);
-    expect(copy).to.deep.equal(sorted);
+    expect(copy).toEqual(sorted);
   });
 });

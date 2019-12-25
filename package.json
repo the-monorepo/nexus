@@ -83,6 +83,7 @@
     "html-webpack-template": "^6.2.0",
     "husky": "^3.1.0",
     "istanbul": "^0.4.5",
+    "jest-mock": "^24.9.0",
     "json-loader": "^0.5.7",
     "lerna": "^3.18.3",
     "minimist": "^1.2.0",

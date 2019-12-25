@@ -78,7 +78,7 @@ describe('subtractCoverage', () => {
   };
 
   it('{} - {}', () => {
-    expect(subtractCoverage({}, {})).to.deep.equal({});
+    expect(subtractCoverage({}, {})).toEqual({});
   });
   const emptyCoverage = {
     aPath: {
@@ -94,24 +94,22 @@ describe('subtractCoverage', () => {
     },
   };
   it('empty coverage - undefined', () => {
-    expect(subtractCoverage(emptyCoverage, undefined)).to.deep.equal(emptyCoverage);
+    expect(subtractCoverage(emptyCoverage, undefined)).toEqual(emptyCoverage);
   });
   it('empty coverage - empty coverage', () => {
-    expect(subtractCoverage(emptyCoverage, emptyCoverage)).to.deep.equal({});
+    expect(subtractCoverage(emptyCoverage, emptyCoverage)).toEqual({});
   });
   it('populated1 - {}', () => {
-    expect(subtractCoverage(populatedCoverage1, {})).to.deep.equal(populatedCoverage1);
+    expect(subtractCoverage(populatedCoverage1, {})).toEqual(populatedCoverage1);
   });
   it('populated1 - undefined', () => {
-    expect(subtractCoverage(populatedCoverage1, undefined)).to.deep.equal(
-      populatedCoverage1,
-    );
+    expect(subtractCoverage(populatedCoverage1, undefined)).toEqual(populatedCoverage1);
   });
   it('undefined - undefined', () => {
-    expect(subtractCoverage(undefined, undefined)).to.deep.equal({});
+    expect(subtractCoverage(undefined, undefined)).toEqual({});
   });
   it('populated1 - populated1', () => {
-    expect(subtractCoverage(populatedCoverage2, populatedCoverage1)).to.deep.equal(
+    expect(subtractCoverage(populatedCoverage2, populatedCoverage1)).toEqual(
       differenceBetween1And2,
     );
   });

@@ -71,12 +71,30 @@ const Main = () =>
     const _marker$3 = _tbody$.childNodes[0];
     return mbx.dynamicNode(
       _root$2,
-      mbx.fields(_button$, mbx.property('onclick', () => client.run)),
-      mbx.fields(_button$2, mbx.property('onclick', () => client.runLots)),
-      mbx.fields(_button$3, mbx.property('onclick', () => client.add)),
-      mbx.fields(_button$4, mbx.property('onclick', () => client.update)),
-      mbx.fields(_button$5, mbx.property('onclick', () => client.clear)),
-      mbx.fields(_button$6, mbx.property('onclick', () => client.swapRows)),
+      mbx.fields(
+        _button$,
+        mbx.property('onclick', () => client.run),
+      ),
+      mbx.fields(
+        _button$2,
+        mbx.property('onclick', () => client.runLots),
+      ),
+      mbx.fields(
+        _button$3,
+        mbx.property('onclick', () => client.add),
+      ),
+      mbx.fields(
+        _button$4,
+        mbx.property('onclick', () => client.update),
+      ),
+      mbx.fields(
+        _button$5,
+        mbx.property('onclick', () => client.clear),
+      ),
+      mbx.fields(
+        _button$6,
+        mbx.property('onclick', () => client.swapRows),
+      ),
       mbx.children(_marker$3, () =>
         repeat(store.data, d =>
           (function() {

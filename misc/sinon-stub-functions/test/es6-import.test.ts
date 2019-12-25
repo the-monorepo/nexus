@@ -9,10 +9,10 @@ rewiremock('./es6-module').with(stubFunctions(rewiremock.requireActual('./es6-mo
 
 describe('esm imports', () => {
   it('exports mocked modules work', () => {
-    expect(commonjs.someFunction()).to.be.undefined;
+    expect(commonjs.someFunction()).toBeUndefined();
   });
 
   it('mocked modules work', () => {
-    expect(es6.someFunction()).to.be.undefined;
+    expect(es6.someFunction()).toBeUndefined();
   });
 });
