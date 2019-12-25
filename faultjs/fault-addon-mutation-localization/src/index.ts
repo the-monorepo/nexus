@@ -1646,11 +1646,8 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    const allWriteDependencies = instructionArr
-      .map(instruction => instructionToWriteNodePathDependencies(instruction))
-      .flat();
-    const allDependencyPaths = getDependencyPaths(...allWriteDependencies);
-    const allDependencyEvaluations = allDependencyPaths.map(
+    const allWriteDependencies = instructionBlockToWriteDependencies(instructionArr);
+    const allDependencyEvaluations = allWriteDependencies.map(
       path => nodeEvaluations.get(path.node)!.mutationEvaluations,
     );
     if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
@@ -1892,12 +1889,10 @@ export const compareInstruction = (
     }
   }
 
-  const relevantNodes1 = getDependencyPaths(
-    ...instructionToWriteNodePathDependencies(instruction1),
-  ).map(path => path.node);
-  const relevantNodes2 = getDependencyPaths(
-    ...instructionToWriteNodePathDependencies(instruction2),
-  ).map(path => path.node);
+  const relevantNodes1 = [...instructionToWriteNodePathDependencies(instruction1)]
+    .map(path => path.node);
+  const relevantNodes2 = [...instructionToWriteNodePathDependencies(instruction2)]
+    .map(path => path.node);
 
   const nodeEvaluations1 = relevantNodes1
     .map(node => nodeEvaluations.get(node)!)
@@ -1972,7 +1967,7 @@ export const initialiseEvaluationMaps = (
   }
   for (const instruction of instructions) {
     const writePaths = getDependencyPaths(
-      ...instructionToWriteNodePathDependencies(instruction),
+      instructionToWriteNodePathDependencies(instruction),
     );
     for (const path of writePaths) {
       const node = path.node;
