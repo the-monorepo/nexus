@@ -37,7 +37,7 @@ export const config: BenchmarkConfig = [
       sourceType: 'module',
     },
     setupFiles: [
-      resolve(__dirname, 'babel'),
+      resolve(__dirname, './hooks/babel'),
       resolve(__dirname, './hooks/full-error-message'),
     ],
     artificial: true,

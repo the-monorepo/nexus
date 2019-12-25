@@ -222,7 +222,7 @@ export const run = async () => {
     }
     const projectConfig = selectedConfig === null ? {} : selectedConfig;
     const {
-      setupFiles = [resolve(__dirname, 'babel')],
+      setupFiles = [resolve(__dirname, './hooks/babel')],
       tester = '@fault/tester-mocha',
       testOptions,
       babelOptions,

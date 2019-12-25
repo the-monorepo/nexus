@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 import { breadthFirstSearch } from './index';
 
 class Node {
@@ -17,7 +17,7 @@ describe('kth', () => {
     const station5 = new Node("London Bridge", station4, station3);
     const station6 = new Node("Tottenham Court Road", station5, station4);
 
-    expect(breadthFirstSearch(station6, station1)).to.equal(true);
+    expect(breadthFirstSearch(station6, station1)).toBe(true);
   });
 
   it('2', () => {
@@ -28,9 +28,9 @@ describe('kth', () => {
     const nodeb = new Node("B", nodee);
     const nodea = new Node("A", nodeb, nodec, noded);
 
-    expect(breadthFirstSearch(nodea, nodee)).to.equal(true);
-    expect(breadthFirstSearch(nodef, nodee)).to.equal(false);
-    expect(breadthFirstSearch(nodef, nodef)).to.equal(true);
+    expect(breadthFirstSearch(nodea, nodee)).toBe(true);
+    expect(breadthFirstSearch(nodef, nodee)).toBe(false);
+    expect(breadthFirstSearch(nodef, nodef)).toBe(true);
   });
 
   it('3', () => {
@@ -42,6 +42,6 @@ describe('kth', () => {
     const node6 = new Node("6", node5, node4, node3);
     node2.successors = [node6];
 
-    expect(breadthFirstSearch(node6, node1)).to.equal(true);
+    expect(breadthFirstSearch(node6, node1)).toBe(true);
   })
 });

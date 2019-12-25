@@ -1,5 +1,5 @@
 import { shortestPathLengths } from './index';
-import { expect } from 'chai';
+import expect from 'expect';
 
 describe('shortestPathLengths', () => {
   it('1', () => {
@@ -16,7 +16,7 @@ describe('shortestPathLengths', () => {
       const [node1, node2] = edge.split(',');
       if(node1 === '3' && node2 === '3') {
         //Correct (3,3) 0  and bad (3,3) -10
-        expect(value).to.equal(0);
+        expect(value).toBe(0);
       }		
     }  
   });
@@ -33,7 +33,7 @@ describe('shortestPathLengths', () => {
       const [node1, node2] = edge.split(',');
       if(node1 === '1' && node2 === '4') {
         //Correct (1,4) 10  and bad (1,4) inf
-        expect(value).to.equal(10);
+        expect(value).toBe(10);
       }
     }		  
   });
@@ -49,7 +49,7 @@ describe('shortestPathLengths', () => {
       const [node1, node2] = edge.split(',');
       if(node1 === '1' && node2 === '0') {
         //Correct (1,0) inf  and bad (1,0) 3
-        expect(value).to.equal(Number.POSITIVE_INFINITY)
+        expect(value).toBe(Number.POSITIVE_INFINITY)
       }		
     }  
   });
@@ -65,7 +65,7 @@ describe('shortestPathLengths', () => {
       const [node1, node2] = edge.split(',');
       if(node1==='2'&&node2==='1') {
         //Correct (2,1) 2  and bad (2,1) 1
-        expect(value).to.equal(2);
+        expect(value).toBe(2);
       }		
     }  
   });

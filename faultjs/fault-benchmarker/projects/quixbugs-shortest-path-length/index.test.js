@@ -1,5 +1,5 @@
 import { shortestPathLength } from './index';
-import { expect } from 'chai';
+import expect from 'expect';
 
 class Node {
   constructor(id, successors = []) {
@@ -28,21 +28,21 @@ describe('shortestPathLength', () => {
 
   it('1', () => {
     const result = shortestPathLength(lengthByEdge, node0, node1);
-    expect(result).to.equal(4);
+    expect(result).toBe(4);
   });
 
   it('2', () => {
     const result = shortestPathLength(lengthByEdge, node0, node5);
-    expect(result).to.equal(7);
+    expect(result).toBe(7);
   });
 
   it('3', () => {
     const result = shortestPathLength(lengthByEdge, node2, node2);
-    expect(result).to.equal(0);
+    expect(result).toBe(0);
   });
 
   it('4', () => {
     const result = shortestPathLength(lengthByEdge, node1, node5);
-    expect(result).to.equal(Number.POSITIVE_INFINITY);
+    expect(result).toBe(Number.POSITIVE_INFINITY);
   });
 });
