@@ -77,15 +77,15 @@ Object.keys(loggers).forEach(loggerName => {
           Object.defineProperty(console, '_stdout', { value: stubbedStdout });
           
           (log[levelName] as any)(...testCase.input);
-          expect(stubbedStdout.write).to.have.callCount(1);
+          expect(stubbedStdout.write).toHaveBeenCalledTimes(1);
           // Trimming to ignore inconsistencies with \rs
           const printedMessage = stubbedStdout.write.returnValues[0].replace('\r', '');
           if (typeof testCase.output === 'string') {
-            expect(printedMessage).to.be(
+            expect(printedMessage).toBe(
               formatExpected(testCase.output).replace('\r', ''),
             );
           } else {
-            expect(printedMessage).to.match(testCase.output);
+            expect(printedMessage).toMatch(testCase.output);
           }
 
           Object.defineProperty(console, '_stdout', { value: oldStdout });

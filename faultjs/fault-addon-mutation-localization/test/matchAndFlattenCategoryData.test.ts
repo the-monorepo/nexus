@@ -5,17 +5,13 @@ import {
 } from '../src/index';
 describe(matchAndFlattenCategoryData.name, () => {
   it('empty array', () => {
-    expect(matchAndFlattenCategoryData([], '')).to.deep.equal([]);
+    expect(matchAndFlattenCategoryData([], '')).toEqual([]);
   });
   it('unmatched', () => {
-    expect(matchAndFlattenCategoryData(['b', 'c', 'd'], 'a')).to.deep.equal([
-      'b',
-      'c',
-      'd',
-    ]);
+    expect(matchAndFlattenCategoryData(['b', 'c', 'd'], 'a')).toEqual(['b', 'c', 'd']);
   });
   it('flat array', () => {
-    expect(matchAndFlattenCategoryData(['a', 'b', 'c'], 'b')).to.deep.equal(['a', 'c']);
+    expect(matchAndFlattenCategoryData(['a', 'b', 'c'], 'b')).toEqual(['a', 'c']);
   });
   it('with nested array', () => {
     expect(
@@ -26,7 +22,7 @@ describe(matchAndFlattenCategoryData.name, () => {
         ],
         'b',
       ),
-    ).to.deep.equal(['c', 'd', 'e', 'a', '2', '1']);
+    ).toEqual(['c', 'd', 'e', 'a', '2', '1']);
   });
   it('with double nested array', () => {
     expect(
@@ -37,7 +33,7 @@ describe(matchAndFlattenCategoryData.name, () => {
         ],
         '1',
       ),
-    ).to.deep.equal(['a', 'b', 'c', 'd', '2']);
+    ).toEqual(['a', 'b', 'c', 'd', '2']);
     expect(
       matchAndFlattenCategoryData(
         [
@@ -46,7 +42,7 @@ describe(matchAndFlattenCategoryData.name, () => {
         ],
         'd',
       ),
-    ).to.deep.equal(['a', 'b', 'c', '1', '2']);
+    ).toEqual(['a', 'b', 'c', '1', '2']);
   });
   it('with double nested array 2', () => {
     expect(
@@ -57,15 +53,15 @@ describe(matchAndFlattenCategoryData.name, () => {
         ],
         '1',
       ),
-    ).to.deep.equal(['a', 'b', 'c', 'd', '2']);
+    ).toEqual(['a', 'b', 'c', 'd', '2']);
   });
   it('with matching elements', () => {
     expect(
       matchAndFlattenCategoryData([['c', ['1', '2'], 'd'], [['1', 'a', 'b']]], '1'),
-    ).to.deep.equal(['c', 'd', '2', 'a', 'b']);
+    ).toEqual(['c', 'd', '2', 'a', 'b']);
   });
   it('operation categories', () => {
-    expect(matchAndFlattenCategoryData(binaryOperationCategories, '||')).to.deep.equal([
+    expect(matchAndFlattenCategoryData(binaryOperationCategories, '||')).toEqual([
       '^',
       '>>>',
       '>>',
@@ -90,7 +86,7 @@ describe(matchAndFlattenCategoryData.name, () => {
     ]);
   });
   it('assignment categories', () => {
-    expect(matchAndFlattenCategoryData(assignmentCategories, '+=')).to.deep.equal([
+    expect(matchAndFlattenCategoryData(assignmentCategories, '+=')).toEqual([
       '^=',
       '&=',
       '|=',
@@ -101,7 +97,7 @@ describe(matchAndFlattenCategoryData.name, () => {
       '*=',
       '-=',
     ]);
-    expect(matchAndFlattenCategoryData(assignmentCategories, '>>=')).to.deep.equal([
+    expect(matchAndFlattenCategoryData(assignmentCategories, '>>=')).toEqual([
       '/=',
       '*=',
       '-=',

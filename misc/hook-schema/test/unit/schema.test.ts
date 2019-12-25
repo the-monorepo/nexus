@@ -19,9 +19,9 @@ describe('schema', () => {
     await hooks.before.a({});
     await hooks.before.b({});
     await hooks.before.nested1.c({});
-    await expect(hooks.before.nested1.d({ a: 2 })).to.eventually.equal(3);
+    await expect(hooks.before.nested1.d({ a: 2 })).resolves.toBe(3);
     await hooks.before.nested2.e({});
-    await expect(hooks.before.nested2.f()).to.eventually.equal(2);
+    await expect(hooks.before.nested2.f()).resolves.toBe(2);
   });
 
   it("doesn't replace when hook callback already exists", async () => {
@@ -33,9 +33,9 @@ describe('schema', () => {
         b: async () => 22,
       },
     });
-    await expect(hooks.before.a({})).to.eventually.equal(33);
-    await expect(hooks.after.a({})).to.eventually.be.undefined;
-    await expect(hooks.before.b({})).to.eventually.be.undefined;
-    await expect(hooks.after.b({})).to.eventually.equal(22);
+    await expect(hooks.before.a({})).resolves.toBe(33);
+    await expect(hooks.after.a({})).resolves.toBeUndefined();
+    await expect(hooks.before.b({})).resolves.toBeUndefined();
+    await expect(hooks.after.b({})).resolves.toBe(22);
   });
 });

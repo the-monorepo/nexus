@@ -27,12 +27,12 @@ mock.disable();
 
 describe('readCodeBlock', () => {
   it('typescript', async () => {
-    expect(await readCodeBlock('something.ts')).to.equal('```typescript\ntest\n```\n');
+    expect(await readCodeBlock('something.ts')).toBe('```typescript\ntest\n```\n');
 
-    expect(await readCodeBlock('something.tsx')).to.equal('```typescript\ntest\n```\n');
+    expect(await readCodeBlock('something.tsx')).toBe('```typescript\ntest\n```\n');
 
-    expect(await readCodeBlock('something.js')).to.equal('```\ntest\n```\n');
+    expect(await readCodeBlock('something.js')).toBe('```\ntest\n```\n');
 
-    expect(await readCodeBlock('something')).to.equal('```\ntest\n```\n');
+    expect(await readCodeBlock('something')).toBe('```\ntest\n```\n');
   });
 });

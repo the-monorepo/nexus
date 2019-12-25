@@ -9,49 +9,49 @@ describe('heap', () => {
   it('swap', () => {
     const arr = [1, 2, 3];
     swap(arr, 0, 2);
-    expect(arr).to.be.deep.equal([3, 2, 1]);
+    expect(arr).toEqual([3, 2, 1]);
   });
   it('leftIndex', () => {
-    expect(leftIndex(0)).to.be.equal(1);
-    expect(leftIndex(1)).to.be.equal(3);
-    expect(leftIndex(2)).to.be.equal(5);
-    expect(leftIndex(3)).to.be.equal(7);
-    expect(leftIndex(4)).to.be.equal(9);
-    expect(leftIndex(5)).to.be.equal(11);
-    expect(leftIndex(6)).to.be.equal(13);
+    expect(leftIndex(0)).toBe(1);
+    expect(leftIndex(1)).toBe(3);
+    expect(leftIndex(2)).toBe(5);
+    expect(leftIndex(3)).toBe(7);
+    expect(leftIndex(4)).toBe(9);
+    expect(leftIndex(5)).toBe(11);
+    expect(leftIndex(6)).toBe(13);
   });
 
   it('rightIndex', () => {
-    expect(rightIndex(0)).to.be.equal(2);
-    expect(rightIndex(1)).to.be.equal(4);
-    expect(rightIndex(2)).to.be.equal(6);
-    expect(rightIndex(3)).to.be.equal(8);
-    expect(rightIndex(4)).to.be.equal(10);
-    expect(rightIndex(5)).to.be.equal(12);
-    expect(rightIndex(6)).to.be.equal(14);
+    expect(rightIndex(0)).toBe(2);
+    expect(rightIndex(1)).toBe(4);
+    expect(rightIndex(2)).toBe(6);
+    expect(rightIndex(3)).toBe(8);
+    expect(rightIndex(4)).toBe(10);
+    expect(rightIndex(5)).toBe(12);
+    expect(rightIndex(6)).toBe(14);
   });
 
   it('parentIndex', () => {
-    expect(parentIndex(1)).to.be.equal(0);
-    expect(parentIndex(2)).to.be.equal(0);
-    expect(parentIndex(3)).to.be.equal(1);
-    expect(parentIndex(4)).to.be.equal(1);
-    expect(parentIndex(5)).to.be.equal(2);
-    expect(parentIndex(6)).to.be.equal(2);
+    expect(parentIndex(1)).toBe(0);
+    expect(parentIndex(2)).toBe(0);
+    expect(parentIndex(3)).toBe(1);
+    expect(parentIndex(4)).toBe(1);
+    expect(parentIndex(5)).toBe(2);
+    expect(parentIndex(6)).toBe(2);
   });
 
   it('empty', () => {
     const heap = new Heap();
-    expect(heap.pop()).to.be.equal(undefined);
-    expect(heap.length).to.be.equal(0);
+    expect(heap.pop()).toBe(undefined);
+    expect(heap.length).toBe(0);
   });
 
   it('has', () => {
     const heap = new Heap(undefined, [1, 2, 3]);
-    expect(heap.has(1)).to.be.equal(true);
-    expect(heap.has(2)).to.be.equal(true);
-    expect(heap.has(3)).to.be.equal(true);
-    expect(heap.has(4)).to.be.equal(false);
+    expect(heap.has(1)).toBe(true);
+    expect(heap.has(2)).toBe(true);
+    expect(heap.has(3)).toBe(true);
+    expect(heap.has(4)).toBe(false);
   });
 
   it('update & updateIndex + position', () => {
@@ -75,24 +75,24 @@ describe('heap', () => {
 
     const heap = new Heap(compareFn, arr);
     // Make sure the heap sorts properly
-    expect([...heap]).to.deep.equal(arr);
+    expect([...heap]).toEqual(arr);
 
     const thirdItem = arr[2];
     // Modifying the 3rd item should break the heap order, it'll need to be swapped all the way to the top
     thirdItem.score = 500;
     arr.sort(compareFn).reverse();
-    expect([...heap]).to.not.deep.equal(arr);
+    expect([...heap]).not.toEqual(arr);
 
     // Updating the item should fix the heap order
     heap.update(thirdItem);
-    expect([...heap]).to.deep.equal(arr);
+    expect([...heap]).toEqual(arr);
 
     // Breaking the first item, will need to be swapped to the bottom
     const firstItem = arr[2];
     firstItem.score = 5000;
     arr.sort(compareFn).reverse();
     heap.updateIndex(heap.position(thirdItem)!);
-    expect([...heap]).to.deep.equal(arr);
+    expect([...heap]).toEqual(arr);
   });
 
   const testCases: [string, number[]][] = [
@@ -146,13 +146,13 @@ describe('heap', () => {
         const heap = new Heap(compareFn, sortedArr);
         sortedArr.sort(compareFn).reverse();
         while (sortedArr.length > 0) {
-          expect(heap.peek()).to.be.equal(sortedArr[0]);
-          expect(heap.pop()).to.be.equal(sortedArr.shift());
+          expect(heap.peek()).toBe(sortedArr[0]);
+          expect(heap.pop()).toBe(sortedArr.shift());
         }
       });
 
       it('length', () => {
-        expect(new Heap(compareFn, [1, 2, 3, 4]).length).to.be.equal(4);
+        expect(new Heap(compareFn, [1, 2, 3, 4]).length).toBe(4);
       });
 
       describe('constructed', () => {
@@ -160,10 +160,10 @@ describe('heap', () => {
         const sorted = [...arr].sort(compareFn).reverse();
         const heap = new Heap(compareFn, arr);
         it('spread', () => {
-          expect([...heap]).to.be.deep.equal(sorted);
+          expect([...heap]).toEqual(sorted);
         });
         it('spread, unsorted iterator', () => {
-          expect([...heap.unsortedIterator()]).to.include.members(sorted);
+          expect([...heap.unsortedIterator()]).toEqual(expect.arrayContaining(sorted));
         });
       });
 
@@ -174,7 +174,7 @@ describe('heap', () => {
             const heap = new Heap(compareFn);
             heap.push(...arr);
             const heapArr = [...heap];
-            expect(heapArr).to.be.deep.equal(sorted);
+            expect(heapArr).toEqual(sorted);
           });
         }
       });

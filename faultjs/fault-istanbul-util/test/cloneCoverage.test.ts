@@ -6011,7 +6011,7 @@ describe('cloneCoverage', () => {
     },
   ].forEach((coverage, i) => {
     it(`${i}`, () => {
-      expect(coverage).to.deep.equal(cloneCoverage(coverage));
+      expect(coverage).toEqual(cloneCoverage(coverage));
     });
   });
   it('is a deep clone', () => {
@@ -6030,11 +6030,11 @@ describe('cloneCoverage', () => {
     };
     const clonedCoverageWithBranch = cloneCoverage(coverageWithBranch);
     coverageWithBranch.aPath.b['0'][0] = 1;
-    expect(coverageWithBranch.aPath.b['0']).not.to.deep.equal(
+    expect(coverageWithBranch.aPath.b['0']).not.toEqual(
       clonedCoverageWithBranch.aPath.b['0'],
     );
   });
   it('clones undefined as empty coverage', () => {
-    expect(cloneCoverage(undefined)).to.equal(undefined);
+    expect(cloneCoverage(undefined)).toBe(undefined);
   });
 });
