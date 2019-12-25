@@ -128,664 +128,679 @@ type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
 export default declare((api, options) => {
   api.assertVersion(7);
 
-  
-function domNodeFromJSXText(path: t.NodePath<JSXText>, previousIsDynamic: boolean, scope) {
-  return domNodeFromString(path.node.value, previousIsDynamic, scope);
-}
-
-const isElementTag = (tag: string) => {
-  return tag[0].toLowerCase() === tag[0];
-};
-
-const isLiteral = (value): boolean =>
-  value &&
-  value.type.match(/Literal$/) &&
-  (value.type !== 'TemplateLiteral' || value.expressions.length <= 0);
-
-const isStatic = value => {
-  return (
-    value &&
-    (isLiteral(value) ||
-      t.isArrowFunctionExpression(value) ||
-      t.isFunctionExpression(value))
-  );
-};
-
-const fieldType = (name: string) => {
-  return name.match(/^\$\$/)
-    ? EVENT_TYPE
-    : name.match(/^\$/)
-    ? PROPERTY_TYPE
-    : ATTRIBUTE_TYPE;
-};
-
-const findProgramAndOuterPath = (path: t.NodePath) => {
-  const parent = path.parentPath;
-  if (!parent) {
-    return { program: path };
-  } else {
-    const result = findProgramAndOuterPath(parent);
-    if (result.path) {
-      return result;
-    } else {
-      return { program: result.program, path: path };
-    }
-  }
-};
-
-const isRootJSXNode = (path: t.NodePath) => {
-  const parent = path.parentPath;
-
-  if (parent.isJSXFragment() || parent.isJSXElement()) {
-    return false;
-  } else if (parent.isJSXExpressionContainer()) {
-    // TODO: Very confusing condition
-    return isRootJSXNode(parent);
-  } else {
-    return true;
-  }
-};
-
-const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
-
-const valueExpressionFromJsxAttributeValue = (valuePath: t.NodePath<JSXAttribute>) =>
-  valuePath.isJSXExpressionContainer() ? valuePath.node.expression : valuePath.node;
-
-const domNodesFromJSXChildren = (
-  jsxChildrenPaths: t.NodePath<JSXElement['children']>[],
-  scope,
-  outerPath,
-) => {
-  const children: t.NodePath<Node>[] = [];
-  let previousChildIsDynamic = false;
-  for (const childPath of jsxChildrenPaths) {
-    for (const node of yieldDomNodeFromNodeSimplified(
-      childPath,
-      previousChildIsDynamic,
-      scope,
-      outerPath,
-    )) {
-      previousChildIsDynamic = isDynamicDomlessNode(node);
-      children.push(node);
-    }
-  }
-  return children;
-};
-
-const hasDynamicNodes = (children: Node[]) => {
-  return children.some(
-    childNode =>
-      childNode.type === DYNAMIC_TYPE ||
-      (childNode.type === ELEMENT_TYPE && childNode.id) ||
-      SUBCOMPONENT_TYPE,
-  );
-};
-
-const domNodeFromJSXElement = (
-  path: t.NodePath<JSXElement>,
-  previousIsDynamic,
-  scope,
-  outerPath,
-): SubcomponentNode | ElementNode => {
-  const jsxOpeningElementPath = path.get('openingElement');
-  const jsxAttributePaths = jsxOpeningElementPath.get('attributes');
-  const jsxOpeningElementNamePath = jsxOpeningElementPath.get('name');
-  if (
-    jsxOpeningElementNamePath.isJSXIdentifier() &&
-    isElementTag(jsxOpeningElementNamePath.node.name)
+  function domNodeFromJSXText(
+    path: t.NodePath<JSXText>,
+    previousIsDynamic: boolean,
+    scope,
   ) {
-    const tag = jsxOpeningElementPath.node.name.name;
-    const potentialId = scope.generateUidIdentifier(`${tag}$`);
-    const fields: ElementField[] = jsxAttributePaths.map(
-      (jsxAttributePath: NodePath<t.JSXAttribute>): ElementField => {
-        const namePath = jsxAttributePath.get('name');
-        const valuePath = jsxAttributePath.get('value');
-        const type = fieldType(namePath.node.name);
-        switch (type) {
-          case PROPERTY_TYPE:
-            const key = cleanFieldName(namePath.node.name);
-            const setterId = (() => {
-              if (setterMap.has(key)) {
-                return setterMap.get(key);
-              } else {
-                const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
-                const elementId = outerPath.scope.generateUidIdentifier('element');
-                const valueId = outerPath.scope.generateUidIdentifier('value');
+    return domNodeFromString(path.node.value, previousIsDynamic, scope);
+  }
 
-                outerPath.insertBefore(
-                  constDeclaration(
-                    id,
-                    t.arrowFunctionExpression(
-                      [elementId, valueId],
-                      t.assignmentExpression(
-                        '=',
-                        t.memberExpression(elementId, t.identifier(key)),
-                        valueId,
+  const isElementTag = (tag: string) => {
+    return tag[0].toLowerCase() === tag[0];
+  };
+
+  const isLiteral = (value): boolean =>
+    value &&
+    value.type.match(/Literal$/) &&
+    (value.type !== 'TemplateLiteral' || value.expressions.length <= 0);
+
+  const isStatic = value => {
+    return (
+      value &&
+      (isLiteral(value) ||
+        t.isArrowFunctionExpression(value) ||
+        t.isFunctionExpression(value))
+    );
+  };
+
+  const fieldType = (name: string) => {
+    return name.match(/^\$\$/)
+      ? EVENT_TYPE
+      : name.match(/^\$/)
+      ? PROPERTY_TYPE
+      : ATTRIBUTE_TYPE;
+  };
+
+  const findProgramAndOuterPath = (path: t.NodePath) => {
+    const parent = path.parentPath;
+    if (!parent) {
+      return { program: path };
+    } else {
+      const result = findProgramAndOuterPath(parent);
+      if (result.path) {
+        return result;
+      } else {
+        return { program: result.program, path: path };
+      }
+    }
+  };
+
+  const isRootJSXNode = (path: t.NodePath) => {
+    const parent = path.parentPath;
+
+    if (parent.isJSXFragment() || parent.isJSXElement()) {
+      return false;
+    } else if (parent.isJSXExpressionContainer()) {
+      // TODO: Very confusing condition
+      return isRootJSXNode(parent);
+    } else {
+      return true;
+    }
+  };
+
+  const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
+
+  const valueExpressionFromJsxAttributeValue = (valuePath: t.NodePath<JSXAttribute>) =>
+    valuePath.isJSXExpressionContainer() ? valuePath.node.expression : valuePath.node;
+
+  const domNodesFromJSXChildren = (
+    jsxChildrenPaths: t.NodePath<JSXElement['children']>[],
+    scope,
+    outerPath,
+  ) => {
+    const children: t.NodePath<Node>[] = [];
+    let previousChildIsDynamic = false;
+    for (const childPath of jsxChildrenPaths) {
+      for (const node of yieldDomNodeFromNodeSimplified(
+        childPath,
+        previousChildIsDynamic,
+        scope,
+        outerPath,
+      )) {
+        previousChildIsDynamic = isDynamicDomlessNode(node);
+        children.push(node);
+      }
+    }
+    return children;
+  };
+
+  const hasDynamicNodes = (children: Node[]) => {
+    return children.some(
+      childNode =>
+        childNode.type === DYNAMIC_TYPE ||
+        (childNode.type === ELEMENT_TYPE && childNode.id) ||
+        SUBCOMPONENT_TYPE,
+    );
+  };
+
+  const domNodeFromJSXElement = (
+    path: t.NodePath<JSXElement>,
+    previousIsDynamic,
+    scope,
+    outerPath,
+  ): SubcomponentNode | ElementNode => {
+    const jsxOpeningElementPath = path.get('openingElement');
+    const jsxAttributePaths = jsxOpeningElementPath.get('attributes');
+    const jsxOpeningElementNamePath = jsxOpeningElementPath.get('name');
+    if (
+      jsxOpeningElementNamePath.isJSXIdentifier() &&
+      isElementTag(jsxOpeningElementNamePath.node.name)
+    ) {
+      const tag = jsxOpeningElementPath.node.name.name;
+      const potentialId = scope.generateUidIdentifier(`${tag}$`);
+      const fields: ElementField[] = jsxAttributePaths.map(
+        (jsxAttributePath: NodePath<t.JSXAttribute>): ElementField => {
+          const namePath = jsxAttributePath.get('name');
+          const valuePath = jsxAttributePath.get('value');
+          const type = fieldType(namePath.node.name);
+          switch (type) {
+            case PROPERTY_TYPE:
+              const key = cleanFieldName(namePath.node.name);
+              const setterId = (() => {
+                if (setterMap.has(key)) {
+                  return setterMap.get(key);
+                } else {
+                  const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
+                  const elementId = outerPath.scope.generateUidIdentifier('element');
+                  const valueId = outerPath.scope.generateUidIdentifier('value');
+
+                  outerPath.insertBefore(
+                    constDeclaration(
+                      id,
+                      t.arrowFunctionExpression(
+                        [elementId, valueId],
+                        t.assignmentExpression(
+                          '=',
+                          t.memberExpression(elementId, t.identifier(key)),
+                          valueId,
+                        ),
                       ),
                     ),
-                  ),
-                );
-                setterMap.set(key, id);
-                return id;
-              }
-            })();
-            return {
-              type,
-              setterId,
-              expression: valueExpressionFromJsxAttributeValue(valuePath),
-              key,
+                  );
+                  setterMap.set(key, id);
+                  return id;
+                }
+              })();
+              return {
+                type,
+                setterId,
+                expression: valueExpressionFromJsxAttributeValue(valuePath),
+                key,
+              };
+            default:
+              return {
+                type,
+                key: cleanFieldName(namePath.node.name),
+                expression: valueExpressionFromJsxAttributeValue(valuePath),
+              } as ElementField;
+          }
+        },
+      );
+      const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
+      const childrenAreDynamic = hasDynamicNodes(children);
+      const nonStaticAttributeFields = fields.filter(
+        field => !(field.type === ATTRIBUTE_TYPE && isLiteral(field.expression)),
+      );
+      const resultNode: ElementNode = {
+        type: ELEMENT_TYPE,
+        tag,
+        children,
+        fields,
+        id:
+          previousIsDynamic || childrenAreDynamic || nonStaticAttributeFields.length > 0
+            ? potentialId
+            : null,
+      };
+      return resultNode;
+    } else {
+      const fields: SubcomponentField[] = jsxAttributePaths.map(
+        (jsxAttributePath): SubcomponentField => {
+          if (jsxAttributePath.isJSXSpreadAttribute()) {
+            const result: SpreadField = {
+              type: SPREAD_TYPE,
+              expression: jsxAttributePath.node.argument, // TODO: Check this is right
             };
-          default:
-            return {
-              type,
-              key: cleanFieldName(namePath.node.name),
-              expression: valueExpressionFromJsxAttributeValue(valuePath),
-            } as ElementField;
-        }
-      },
-    );
-    const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
-    const childrenAreDynamic = hasDynamicNodes(children);
-    const nonStaticAttributeFields = fields.filter(
-      field => !(field.type === ATTRIBUTE_TYPE && isLiteral(field.expression)),
-    );
-    const resultNode: ElementNode = {
-      type: ELEMENT_TYPE,
-      tag,
-      children,
-      fields,
-      id:
-        previousIsDynamic || childrenAreDynamic || nonStaticAttributeFields.length > 0
-          ? potentialId
-          : null,
-    };
-    return resultNode;
-  } else {
-    const fields: SubcomponentField[] = jsxAttributePaths.map(
-      (jsxAttributePath): SubcomponentField => {
-        if (jsxAttributePath.isJSXSpreadAttribute()) {
-          const result: SpreadField = {
-            type: SPREAD_TYPE,
-            expression: jsxAttributePath.node.argument, // TODO: Check this is right
-          };
-          return result;
-        } else {
-          const result: SubcomponentPropertyField = {
-            type: SUBCOMPONENT_PROPERTY_TYPE,
-            key: jsxAttributePath.node.name.name,
-            expression: valueExpressionFromJsxAttributeValue(jsxAttributePath.get('value')),
-          };
-          return result;
-        }
-      },
-    );
-    const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
-    const resultNode: SubcomponentNode = {
-      type: SUBCOMPONENT_TYPE,
-      nameExpression: jsxOpeningElementPath.node.name,
-      children,
-      childrenTemplateId:
-        children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
-      fields,
-    };
-    return resultNode;
-  }
-};
-
-const domNodeFromString = (
-  aString: string,
-  previousIsDynamic: boolean,
-  scope,
-): TextNode | null => {
-  const html = aString.replace(/^\s*\n\s*|\s*\n\s*$/g, '');
-  if (html === '') {
-    return null;
-  }
-  return {
-    type: TEXT_TYPE,
-    text: html,
-    id: previousIsDynamic ? scope.generateUidIdentifier('text') : null,
+            return result;
+          } else {
+            const result: SubcomponentPropertyField = {
+              type: SUBCOMPONENT_PROPERTY_TYPE,
+              key: jsxAttributePath.node.name.name,
+              expression: valueExpressionFromJsxAttributeValue(
+                jsxAttributePath.get('value'),
+              ),
+            };
+            return result;
+          }
+        },
+      );
+      const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
+      const resultNode: SubcomponentNode = {
+        type: SUBCOMPONENT_TYPE,
+        nameExpression: jsxOpeningElementPath.node.name,
+        children,
+        childrenTemplateId:
+          children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
+        fields,
+      };
+      return resultNode;
+    }
   };
-};
 
-const isDynamicDomlessNode = (node: Node) => {
-  return node.type === DYNAMIC_TYPE || node.type === SUBCOMPONENT_TYPE;
-};
-
-function* yieldDomNodeFromJSXFragment(
-  path: t.NodePath<JSXFragment>,
-  previousIsDynamic: boolean,
-  scope,
-  outerPath,
-) {
-  for (const childPath of path.get('children')) {
-    for (const node of yieldDomNodeFromNodeSimplified(
-      childPath,
-      previousIsDynamic,
-      scope,
-      outerPath,
-    )) {
-      previousIsDynamic = isDynamicDomlessNode(node);
-      yield node;
+  const domNodeFromString = (
+    aString: string,
+    previousIsDynamic: boolean,
+    scope,
+  ): TextNode | null => {
+    const html = aString.replace(/^\s*\n\s*|\s*\n\s*$/g, '');
+    if (html === '') {
+      return null;
     }
-  }
-}
-
-function* yieldDomNodeFromJSXExpressionContainerNode(
-  path: t.NodePath<JSXExpressionContainer>,
-  previousIsDynamic: boolean,
-  scope,
-  outerPath,
-): IterableIterator<Node> {
-  const expressionPath = path.get('expression');
-  // TODO: Function and array literals
-  if (expressionPath.isJSXElement() || expressionPath.isJSXFragment()) {
-    yield* yieldDomNodeFromNodeSimplified(
-      expressionPath,
-      previousIsDynamic,
-      scope,
-      outerPath,
-    );
-  } else if (expressionPath.isStringLiteral()) {
-    // TODO: Two contained literals next to each other would lead to incorrect state length
-    const textNode = domNodeFromString(expressionPath.node.value, previousIsDynamic, scope);
-    if (textNode) {
-      yield textNode;
-    }
-  } else if (expressionPath.isNumericLiteral() || expressionPath.isBooleanLiteral()) {
-    const textNode = domNodeFromString(
-      expressionPath.node.value.toString(),
-      previousIsDynamic,
-      scope,
-    );
-    if (textNode) {
-      yield textNode;
-    }
-  } else {
-    yield {
-      type: DYNAMIC_TYPE,
-      expression: expressionPath.node,
+    return {
+      type: TEXT_TYPE,
+      text: html,
+      id: previousIsDynamic ? scope.generateUidIdentifier('text') : null,
     };
-  }
-}
+  };
 
-function* yieldDomNodeFromNodeNonSimplified(
-  path: t.NodePath<JSXElement['children'][0]>,
-  previousIsDynamic,
-  scope,
-  outerPath,
-): IterableIterator<Node> {
-  if (path.isJSXElement()) {
-    yield domNodeFromJSXElement(path, previousIsDynamic, scope, outerPath);
-  } else if (path.isJSXExpressionContainer()) {
-    yield* yieldDomNodeFromJSXExpressionContainerNode(
+  const isDynamicDomlessNode = (node: Node) => {
+    return node.type === DYNAMIC_TYPE || node.type === SUBCOMPONENT_TYPE;
+  };
+
+  function* yieldDomNodeFromJSXFragment(
+    path: t.NodePath<JSXFragment>,
+    previousIsDynamic: boolean,
+    scope,
+    outerPath,
+  ) {
+    for (const childPath of path.get('children')) {
+      for (const node of yieldDomNodeFromNodeSimplified(
+        childPath,
+        previousIsDynamic,
+        scope,
+        outerPath,
+      )) {
+        previousIsDynamic = isDynamicDomlessNode(node);
+        yield node;
+      }
+    }
+  }
+
+  function* yieldDomNodeFromJSXExpressionContainerNode(
+    path: t.NodePath<JSXExpressionContainer>,
+    previousIsDynamic: boolean,
+    scope,
+    outerPath,
+  ): IterableIterator<Node> {
+    const expressionPath = path.get('expression');
+    // TODO: Function and array literals
+    if (expressionPath.isJSXElement() || expressionPath.isJSXFragment()) {
+      yield* yieldDomNodeFromNodeSimplified(
+        expressionPath,
+        previousIsDynamic,
+        scope,
+        outerPath,
+      );
+    } else if (expressionPath.isStringLiteral()) {
+      // TODO: Two contained literals next to each other would lead to incorrect state length
+      const textNode = domNodeFromString(
+        expressionPath.node.value,
+        previousIsDynamic,
+        scope,
+      );
+      if (textNode) {
+        yield textNode;
+      }
+    } else if (expressionPath.isNumericLiteral() || expressionPath.isBooleanLiteral()) {
+      const textNode = domNodeFromString(
+        expressionPath.node.value.toString(),
+        previousIsDynamic,
+        scope,
+      );
+      if (textNode) {
+        yield textNode;
+      }
+    } else {
+      yield {
+        type: DYNAMIC_TYPE,
+        expression: expressionPath.node,
+      };
+    }
+  }
+
+  function* yieldDomNodeFromNodeNonSimplified(
+    path: t.NodePath<JSXElement['children'][0]>,
+    previousIsDynamic,
+    scope,
+    outerPath,
+  ): IterableIterator<Node> {
+    if (path.isJSXElement()) {
+      yield domNodeFromJSXElement(path, previousIsDynamic, scope, outerPath);
+    } else if (path.isJSXExpressionContainer()) {
+      yield* yieldDomNodeFromJSXExpressionContainerNode(
+        path,
+        previousIsDynamic,
+        scope,
+        outerPath,
+      );
+    } else if (path.isJSXFragment()) {
+      yield* yieldDomNodeFromJSXFragment(path, previousIsDynamic, scope, outerPath);
+    } else if (path.isJSXText()) {
+      const textNode = domNodeFromJSXText(path, previousIsDynamic, scope);
+      if (textNode) {
+        yield textNode;
+      }
+    } else {
+      throw new Error(`Invalid node type ${path.node.type}`);
+    }
+  }
+
+  function* yieldDomNodeFromNodeSimplified(
+    path: t.NodePath<JSXElement | JSXFragment>,
+    previousIsDynamic: boolean,
+    scope,
+    outerPath,
+  ): IterableIterator<Node> {
+    const domNodeIterator = yieldDomNodeFromNodeNonSimplified(
       path,
       previousIsDynamic,
       scope,
       outerPath,
     );
-  } else if (path.isJSXFragment()) {
-    yield* yieldDomNodeFromJSXFragment(path, previousIsDynamic, scope, outerPath);
-  } else if (path.isJSXText()) {
-    const textNode = domNodeFromJSXText(path, previousIsDynamic, scope);
-    if (textNode) {
-      yield textNode;
-    }
-  } else {
-    throw new Error(`Invalid node type ${path.node.type}`);
-  }
-}
-
-function* yieldDomNodeFromNodeSimplified(
-  path: t.NodePath<JSXElement | JSXFragment>,
-  previousIsDynamic: boolean,
-  scope,
-  outerPath,
-): IterableIterator<Node> {
-  const domNodeIterator = yieldDomNodeFromNodeNonSimplified(
-    path,
-    previousIsDynamic,
-    scope,
-    outerPath,
-  );
-  let previous = domNodeIterator.next();
-  if (!previous.done) {
-    if (previous.value.type !== TEXT_TYPE) {
-      yield previous.value;
-    }
-    let current = domNodeIterator.next();
-    while (!current.done) {
-      if (previous.value.type === TEXT_TYPE && current.value.type === TEXT_TYPE) {
-        // If there's two text nodes you can just concacatinate them
-        previous.value.text += current.value.text;
-        current = domNodeIterator.next();
-      } else if (previous.value.type === TEXT_TYPE) {
+    let previous = domNodeIterator.next();
+    if (!previous.done) {
+      if (previous.value.type !== TEXT_TYPE) {
         yield previous.value;
-      } else {
-        yield current.value;
-        previous = current;
-        current = domNodeIterator.next();
+      }
+      let current = domNodeIterator.next();
+      while (!current.done) {
+        if (previous.value.type === TEXT_TYPE && current.value.type === TEXT_TYPE) {
+          // If there's two text nodes you can just concacatinate them
+          previous.value.text += current.value.text;
+          current = domNodeIterator.next();
+        } else if (previous.value.type === TEXT_TYPE) {
+          yield previous.value;
+        } else {
+          yield current.value;
+          previous = current;
+          current = domNodeIterator.next();
+        }
+      }
+      if (previous.value.type === TEXT_TYPE) {
+        yield previous.value;
       }
     }
-    if (previous.value.type === TEXT_TYPE) {
-      yield previous.value;
-    }
   }
-}
 
-const htmlFromNode = (node: Node): string => {
-  switch (node.type) {
-    case ELEMENT_TYPE:
-      const tag: string = node.tag;
-      const attributeString: string = (node.fields.filter(
-        field => field.type === ATTRIBUTE_TYPE && isLiteral(field.expression),
-      ) as AttributeField[])
-        .map(field => attributeLiteralToHTMLAttributeString(field))
-        .join(' ');
-      const childrenString: string = node.children
-        .map(field => {
-          return htmlFromNode(field);
-        })
-        .join('');
-      return `<${tag}${
-        attributeString !== '' ? ` ${attributeString}` : ''
-      }>${childrenString}</${tag}>`;
-    case TEXT_TYPE:
-      return node.text;
-    default:
-      return '';
-  }
-};
-
-const constDeclaration = (id, expression) => {
-  return t.variableDeclaration('const', [t.variableDeclarator(id, expression)]);
-};
-
-const STATIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'staticElementBlueprint';
-const DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'elementBlueprint';
-const STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'staticFragmentBlueprint';
-const DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'fragmentBlueprint';
-
-function* yieldDeclarationStatementsFromRootNodes(
-  nodes: Node[],
-  rootId: any,
-  isRoot: boolean,
-) {
-  const childrenWithDomNodesAssociatedWithThem: ElementNode[] = nodes.filter(
-    child => child.type === ELEMENT_TYPE,
-  ) as ElementNode[];
-
-  if (childrenWithDomNodesAssociatedWithThem.length > 0) {
-    const firstNode = childrenWithDomNodesAssociatedWithThem[0];
-    if (firstNode.id) {
-      if (isRoot && childrenWithDomNodesAssociatedWithThem.length === 1) {
-        yield constDeclaration(firstNode.id, rootId);
-      } else {
-        yield constDeclaration(
-          firstNode.id,
-          t.memberExpression(rootId, t.identifier('firstChild')),
-        );
-      }
-      yield* yieldDeclarationStatementsFromRootNodes(
-        firstNode.children,
-        firstNode.id,
-        false,
-      );
+  const htmlFromNode = (node: Node): string => {
+    switch (node.type) {
+      case ELEMENT_TYPE:
+        const tag: string = node.tag;
+        const attributeString: string = (node.fields.filter(
+          field => field.type === ATTRIBUTE_TYPE && isLiteral(field.expression),
+        ) as AttributeField[])
+          .map(field => attributeLiteralToHTMLAttributeString(field))
+          .join(' ');
+        const childrenString: string = node.children
+          .map(field => {
+            return htmlFromNode(field);
+          })
+          .join('');
+        return `<${tag}${
+          attributeString !== '' ? ` ${attributeString}` : ''
+        }>${childrenString}</${tag}>`;
+      case TEXT_TYPE:
+        return node.text;
+      default:
+        return '';
     }
-    for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c++) {
-      const childNode = childrenWithDomNodesAssociatedWithThem[c];
-      if (childNode.id) {
-        const previousNode = childrenWithDomNodesAssociatedWithThem[c - 1];
-        if (previousNode.id) {
-          yield constDeclaration(
-            childNode.id,
-            t.memberExpression(previousNode.id, t.identifier('nextSibling')),
-          );
+  };
+
+  const constDeclaration = (id, expression) => {
+    return t.variableDeclaration('const', [t.variableDeclarator(id, expression)]);
+  };
+
+  const STATIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'staticElementBlueprint';
+  const DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME = 'elementBlueprint';
+  const STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'staticFragmentBlueprint';
+  const DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME = 'fragmentBlueprint';
+
+  function* yieldDeclarationStatementsFromRootNodes(
+    nodes: Node[],
+    rootId: any,
+    isRoot: boolean,
+  ) {
+    const childrenWithDomNodesAssociatedWithThem: ElementNode[] = nodes.filter(
+      child => child.type === ELEMENT_TYPE,
+    ) as ElementNode[];
+
+    if (childrenWithDomNodesAssociatedWithThem.length > 0) {
+      const firstNode = childrenWithDomNodesAssociatedWithThem[0];
+      if (firstNode.id) {
+        if (isRoot && childrenWithDomNodesAssociatedWithThem.length === 1) {
+          yield constDeclaration(firstNode.id, rootId);
         } else {
           yield constDeclaration(
+            firstNode.id,
+            t.memberExpression(rootId, t.identifier('firstChild')),
+          );
+        }
+        yield* yieldDeclarationStatementsFromRootNodes(
+          firstNode.children,
+          firstNode.id,
+          false,
+        );
+      }
+      for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c++) {
+        const childNode = childrenWithDomNodesAssociatedWithThem[c];
+        if (childNode.id) {
+          const previousNode = childrenWithDomNodesAssociatedWithThem[c - 1];
+          if (previousNode.id) {
+            yield constDeclaration(
+              childNode.id,
+              t.memberExpression(previousNode.id, t.identifier('nextSibling')),
+            );
+          } else {
+            yield constDeclaration(
+              childNode.id,
+              t.memberExpression(
+                t.memberExpression(rootId, t.identifier('childNodes')),
+                t.numericLiteral(c),
+                true,
+              ),
+            );
+          }
+          yield* yieldDeclarationStatementsFromRootNodes(
+            childNode.children,
             childNode.id,
-            t.memberExpression(
-              t.memberExpression(rootId, t.identifier('childNodes')),
-              t.numericLiteral(c),
-              true,
+            false,
+          );
+        }
+      }
+      // TODO: Could do previousSibling if the last node uses lastChild
+      if (childrenWithDomNodesAssociatedWithThem.length >= 2) {
+        const lastNode =
+          childrenWithDomNodesAssociatedWithThem[
+            childrenWithDomNodesAssociatedWithThem.length - 1
+          ];
+        if (lastNode.id) {
+          yield constDeclaration(
+            lastNode.id,
+            t.memberExpression(rootId, t.identifier('lastChild')),
+          );
+          yield* yieldDeclarationStatementsFromRootNodes(
+            lastNode.children,
+            lastNode.id,
+            false,
+          );
+        }
+      }
+    }
+  }
+
+  const dynamicFieldExpression = (
+    rootId,
+    beforeId,
+    previousConsecutiveDynamicNodeCount: number,
+  ) => {
+    if (previousConsecutiveDynamicNodeCount === 1) {
+      return mbxCallExpression('children', [rootId, beforeId]);
+    } else if (previousConsecutiveDynamicNodeCount >= 2) {
+      return mbxCallExpression('dynamicSection', [
+        rootId,
+        beforeId,
+        t.numericLiteral(previousConsecutiveDynamicNodeCount),
+      ]);
+    }
+    return null;
+  };
+
+  function* yieldFieldExpressionsFromNodes(nodes: Node[], rootId) {
+    let previousConsecutiveDynamicNodeCount = 0;
+    for (const node of nodes) {
+      switch (node.type) {
+        case TEXT_TYPE:
+        case ELEMENT_TYPE:
+          const dynamicExpression = dynamicFieldExpression(
+            rootId,
+            node.id,
+            previousConsecutiveDynamicNodeCount,
+          );
+          if (dynamicExpression !== null) {
+            yield dynamicExpression;
+          }
+          previousConsecutiveDynamicNodeCount = 0;
+          if (node.type === ELEMENT_TYPE) {
+            for (const field of node.fields) {
+              switch (field.type) {
+                case EVENT_TYPE:
+                case ATTRIBUTE_TYPE:
+                  if (!isLiteral(field.expression)) {
+                    yield mbxCallExpression(field.type, [
+                      node.id,
+                      t.stringLiteral(field.key),
+                    ]);
+                  }
+                  break;
+                case PROPERTY_TYPE:
+                  yield mbxCallExpression(field.type, [node.id, field.setterId]);
+                  break;
+              }
+            }
+            yield* yieldFieldExpressionsFromNodes(node.children, node.id);
+          }
+          break;
+        case SUBCOMPONENT_TYPE:
+        case DYNAMIC_TYPE:
+          previousConsecutiveDynamicNodeCount++;
+          break;
+      }
+    }
+    const dynamicExpression = dynamicFieldExpression(
+      rootId,
+      t.identifier('null'),
+      previousConsecutiveDynamicNodeCount,
+    );
+    if (dynamicExpression !== null) {
+      yield dynamicExpression;
+    }
+  }
+
+  function* yieldFieldValuesFromNode(node: Node) {
+    switch (node.type) {
+      case ELEMENT_TYPE:
+        for (const field of node.fields) {
+          switch (field.type) {
+            case ATTRIBUTE_TYPE:
+              if (!isLiteral(field.expression)) {
+                yield field.expression;
+              }
+              break;
+            default:
+              yield field.expression;
+          }
+        }
+        for (const childNode of node.children) {
+          yield* yieldFieldValuesFromNode(childNode);
+        }
+        break;
+      case DYNAMIC_TYPE:
+        yield node.expression;
+        break;
+      case SUBCOMPONENT_TYPE:
+        const objectProperties: any[] = [];
+        for (const field of node.fields) {
+          switch (field.type) {
+            case SPREAD_TYPE:
+              objectProperties.push(field.expression);
+              break;
+            case SUBCOMPONENT_PROPERTY_TYPE:
+              objectProperties.push(
+                t.objectProperty(t.identifier(field.key), field.expression),
+              );
+              break;
+          }
+        }
+        if (node.childrenTemplateId) {
+          const childArgs: any[] = [node.childrenTemplateId];
+          for (const childNode of node.children) {
+            childArgs.push(...yieldFieldValuesFromNode(childNode));
+          }
+          objectProperties.push(
+            t.objectProperty(
+              t.identifier('children'),
+              mbxCallExpression('componentResult', childArgs),
             ),
           );
         }
-        yield* yieldDeclarationStatementsFromRootNodes(
-          childNode.children,
-          childNode.id,
-          false,
-        );
-      }
-    }
-    // TODO: Could do previousSibling if the last node uses lastChild
-    if (childrenWithDomNodesAssociatedWithThem.length >= 2) {
-      const lastNode =
-        childrenWithDomNodesAssociatedWithThem[
-          childrenWithDomNodesAssociatedWithThem.length - 1
-        ];
-      if (lastNode.id) {
-        yield constDeclaration(
-          lastNode.id,
-          t.memberExpression(rootId, t.identifier('lastChild')),
-        );
-        yield* yieldDeclarationStatementsFromRootNodes(
-          lastNode.children,
-          lastNode.id,
-          false,
-        );
-      }
+        // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
+        yield t.callExpression(t.identifier(node.nameExpression.name), [
+          t.objectExpression(objectProperties),
+        ]);
     }
   }
-}
 
-const dynamicFieldExpression = (
-  rootId,
-  beforeId,
-  previousConsecutiveDynamicNodeCount: number,
-) => {
-  if (previousConsecutiveDynamicNodeCount === 1) {
-    return mbxCallExpression('children', [rootId, beforeId]);
-  } else if (previousConsecutiveDynamicNodeCount >= 2) {
-    return mbxCallExpression('dynamicSection', [
-      rootId,
-      beforeId,
-      t.numericLiteral(previousConsecutiveDynamicNodeCount),
-    ]);
-  }
-  return null;
-};
+  const nodeHasDom = (node: Node) =>
+    node.type === ELEMENT_TYPE || node.type === TEXT_TYPE;
 
-function* yieldFieldExpressionsFromNodes(nodes: Node[], rootId) {
-  let previousConsecutiveDynamicNodeCount = 0;
-  for (const node of nodes) {
-    switch (node.type) {
-      case TEXT_TYPE:
-      case ELEMENT_TYPE:
-        const dynamicExpression = dynamicFieldExpression(
-          rootId,
-          node.id,
-          previousConsecutiveDynamicNodeCount,
-        );
-        if (dynamicExpression !== null) {
-          yield dynamicExpression;
-        }
-        previousConsecutiveDynamicNodeCount = 0;
-        if (node.type === ELEMENT_TYPE) {
-          for (const field of node.fields) {
-            switch (field.type) {
-              case EVENT_TYPE:
-              case ATTRIBUTE_TYPE:
-                if (!isLiteral(field.expression)) {
-                  yield mbxCallExpression(field.type, [
-                    node.id,
-                    t.stringLiteral(field.key),
-                  ]);
-                }
-                break;
-              case PROPERTY_TYPE:
-                yield mbxCallExpression(field.type, [node.id, field.setterId]);
-                break;
-            }
-          }
-          yield* yieldFieldExpressionsFromNodes(node.children, node.id);
-        }
-        break;
-      case SUBCOMPONENT_TYPE:
-      case DYNAMIC_TYPE:
-        previousConsecutiveDynamicNodeCount++;
-        break;
+  function* yieldTemplateInfoFromRootNodes(nodes: Node[], templateId, scope) {
+    const subcomponentNodes: SubcomponentNode[] = nodes.filter(
+      node => node.type === SUBCOMPONENT_TYPE,
+    ) as SubcomponentNode[];
+    for (const subcomponentNode of subcomponentNodes) {
+      yield* yieldTemplateInfoFromSubcomponentNode(subcomponentNode, scope);
     }
-  }
-  const dynamicExpression = dynamicFieldExpression(
-    rootId,
-    t.identifier('null'),
-    previousConsecutiveDynamicNodeCount,
-  );
-  if (dynamicExpression !== null) {
-    yield dynamicExpression;
-  }
-}
 
-function* yieldFieldValuesFromNode(node: Node) {
-  switch (node.type) {
-    case ELEMENT_TYPE:
-      for (const field of node.fields) {
-        switch (field.type) {
-          case ATTRIBUTE_TYPE:
-            if (!isLiteral(field.expression)) {
-              yield field.expression;
-            }
-            break;
-          default:
-            yield field.expression;
-        }
+    const nodesWithDom: (ElementNode | TextNode)[] = nodes.filter(nodeHasDom) as (
+      | ElementNode
+      | TextNode
+    )[];
+    const dynamicElementLength = nodes.filter(
+      node =>
+        node.type === DYNAMIC_TYPE ||
+        node.type === SUBCOMPONENT_TYPE ||
+        (node.type === ELEMENT_TYPE && node.id),
+    ).length;
+    const args = [t.stringLiteral(nodes.map(node => htmlFromNode(node)).join(''))];
+    let templateMethod: string;
+    if (nodesWithDom.length <= 0) {
+      return;
+    } else if (nodesWithDom.length === 1) {
+      if (dynamicElementLength > 0) {
+        templateMethod = DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME;
+      } else {
+        templateMethod = STATIC_ELEMENT_TEMPLATE_FACTORY_NAME;
       }
-      for (const childNode of node.children) {
-        yield* yieldFieldValuesFromNode(childNode);
+    } else {
+      if (dynamicElementLength > 0) {
+        templateMethod = DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
+      } else {
+        templateMethod = STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
       }
-      break;
-    case DYNAMIC_TYPE:
-      yield node.expression;
-      break;
-    case SUBCOMPONENT_TYPE:
-      const objectProperties: any[] = [];
-      for (const field of node.fields) {
-        switch (field.type) {
-          case SPREAD_TYPE:
-            objectProperties.push(field.expression);
-            break;
-          case SUBCOMPONENT_PROPERTY_TYPE:
-            objectProperties.push(
-              t.objectProperty(t.identifier(field.key), field.expression),
-            );
-            break;
-        }
-      }
-      if (node.childrenTemplateId) {
-        const childArgs: any[] = [node.childrenTemplateId];
-        for (const childNode of node.children) {
-          childArgs.push(...yieldFieldValuesFromNode(childNode));
-        }
-        objectProperties.push(
-          t.objectProperty(
-            t.identifier('children'),
-            mbxCallExpression('componentResult', childArgs),
-          ),
-        );
-      }
-      // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
-      yield t.callExpression(t.identifier(node.nameExpression.name), [
-        t.objectExpression(objectProperties),
-      ]);
-  }
-}
-
-const nodeHasDom = (node: Node) => node.type === ELEMENT_TYPE || node.type === TEXT_TYPE;
-
-function* yieldTemplateInfoFromRootNodes(nodes: Node[], templateId, scope) {
-  const subcomponentNodes: SubcomponentNode[] = nodes.filter(
-    node => node.type === SUBCOMPONENT_TYPE,
-  ) as SubcomponentNode[];
-  for (const subcomponentNode of subcomponentNodes) {
-    yield* yieldTemplateInfoFromSubcomponentNode(subcomponentNode, scope);
-  }
-
-  const nodesWithDom: (ElementNode | TextNode)[] = nodes.filter(nodeHasDom) as (
-    | ElementNode
-    | TextNode)[];
-  const dynamicElementLength = nodes.filter(
-    node =>
-      node.type === DYNAMIC_TYPE ||
-      node.type === SUBCOMPONENT_TYPE ||
-      (node.type === ELEMENT_TYPE && node.id),
-  ).length;
-  const args = [t.stringLiteral(nodes.map(node => htmlFromNode(node)).join(''))];
-  let templateMethod: string;
-  if (nodesWithDom.length <= 0) {
-    return;
-  } else if (nodesWithDom.length === 1) {
+    }
     if (dynamicElementLength > 0) {
-      templateMethod = DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME;
-    } else {
-      templateMethod = STATIC_ELEMENT_TEMPLATE_FACTORY_NAME;
+      const rootParamId = scope.generateUidIdentifier('rootNode');
+      const statements = [
+        ...yieldDeclarationStatementsFromRootNodes(nodes, rootParamId, true),
+      ];
+      const fieldExpressions = [...yieldFieldExpressionsFromNodes(nodes, rootParamId)];
+      statements.push(t.returnStatement(t.arrayExpression(fieldExpressions)));
+      args.push(t.arrowFunctionExpression([rootParamId], t.blockStatement(statements)));
     }
-  } else {
-    if (dynamicElementLength > 0) {
-      templateMethod = DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
-    } else {
-      templateMethod = STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
-    }
+    yield constDeclaration(templateId, mbxCallExpression(templateMethod, args));
   }
-  if (dynamicElementLength > 0) {
-    const rootParamId = scope.generateUidIdentifier('rootNode');
-    const statements = [
-      ...yieldDeclarationStatementsFromRootNodes(nodes, rootParamId, true),
-    ];
-    const fieldExpressions = [...yieldFieldExpressionsFromNodes(nodes, rootParamId)];
-    statements.push(t.returnStatement(t.arrayExpression(fieldExpressions)));
-    args.push(t.arrowFunctionExpression([rootParamId], t.blockStatement(statements)));
-  }
-  yield constDeclaration(templateId, mbxCallExpression(templateMethod, args));
-}
 
-function* yieldTemplateInfoFromSubcomponentNode(node: SubcomponentNode, scope) {
-  if (node.childrenTemplateId) {
-    yield* yieldTemplateInfoFromRootNodes(node.children, node.childrenTemplateId, scope);
+  function* yieldTemplateInfoFromSubcomponentNode(node: SubcomponentNode, scope) {
+    if (node.childrenTemplateId) {
+      yield* yieldTemplateInfoFromRootNodes(
+        node.children,
+        node.childrenTemplateId,
+        scope,
+      );
+    }
   }
-}
 
-const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
-  const templateId = path.scope.generateUidIdentifier('template');
-  const templateDeclarations = yieldTemplateInfoFromRootNodes(
-    nodes,
-    templateId,
-    path.scope,
-  );
-  for (const statement of templateDeclarations) {
-    outerPath.insertBefore(statement);
-  }
-  const nodesWithDom = nodes.filter(nodeHasDom);
-  if (nodesWithDom.length <= 0) {
-    const componentResultArgs: any[] = [];
-    for (const node of nodes) {
-      componentResultArgs.push(...yieldFieldValuesFromNode(node));
-    }
-    if (componentResultArgs.length === 1) {
-      path.replaceWith(t.expressionStatement(componentResultArgs[0]));
-    } else {
-      path.replaceWith(t.expressionStatement(t.arrayExpression(componentResultArgs)));
-    }
-  } else {
-    const componentResultArgs = [templateId];
-    for (const node of nodes) {
-      componentResultArgs.push(t.arrayExpression([...yieldFieldValuesFromNode(node)]));
-    }
-    path.replaceWith(
-      t.expressionStatement(mbxCallExpression('componentResult', componentResultArgs)),
+  const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
+    const templateId = path.scope.generateUidIdentifier('template');
+    const templateDeclarations = yieldTemplateInfoFromRootNodes(
+      nodes,
+      templateId,
+      path.scope,
     );
-  }
-};
+    for (const statement of templateDeclarations) {
+      outerPath.insertBefore(statement);
+    }
+    const nodesWithDom = nodes.filter(nodeHasDom);
+    if (nodesWithDom.length <= 0) {
+      const componentResultArgs: any[] = [];
+      for (const node of nodes) {
+        componentResultArgs.push(...yieldFieldValuesFromNode(node));
+      }
+      if (componentResultArgs.length === 1) {
+        path.replaceWith(t.expressionStatement(componentResultArgs[0]));
+      } else {
+        path.replaceWith(t.expressionStatement(t.arrayExpression(componentResultArgs)));
+      }
+    } else {
+      const componentResultArgs = [templateId];
+      for (const node of nodes) {
+        componentResultArgs.push(t.arrayExpression([...yieldFieldValuesFromNode(node)]));
+      }
+      path.replaceWith(
+        t.expressionStatement(mbxCallExpression('componentResult', componentResultArgs)),
+      );
+    }
+  };
 
   const THROW_IF_NAMESPACE =
     options.throwIfNamespace === undefined ? true : !!options.throwIfNamespace;
@@ -870,7 +885,9 @@ const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
 
   visitor.JSXFragment = function(path: t.NodePath) {
     if (isRootJSXNode(path)) {
-      const outerPath = path.findParent(parentPath => parentPath === undefined || parentPath.parentPath.isProgram());
+      const outerPath = path.findParent(
+        parentPath => parentPath === undefined || parentPath.parentPath.isProgram(),
+      );
       const domNodes = [
         ...yieldDomNodeFromJSXFragment(path, false, path.scope, outerPath),
       ];
@@ -881,7 +898,9 @@ const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
   visitor.JSXElement = {
     exit(path) {
       if (isRootJSXNode(path)) {
-        const outerPath = path.findParent(parentPath => parentPath === undefined || parentPath.parentPath.isProgram());
+        const outerPath = path.findParent(
+          parentPath => parentPath === undefined || parentPath.parentPath.isProgram(),
+        );
         const domNode = domNodeFromJSXElement(path, false, path.scope, outerPath);
         replacePathWithDomNodeSyntax([domNode], path, outerPath);
       }

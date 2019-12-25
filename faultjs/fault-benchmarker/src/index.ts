@@ -307,9 +307,7 @@ export const run = async () => {
       require(resolve(projectDir, 'expected-faults.json')),
     ) as any) as ExpectedFault[];
 
-    for (const { name } of (sbflAlgorithms as any).concat([
-      { name: mbflName },
-    ])) {
+    for (const { name } of (sbflAlgorithms as any).concat([{ name: mbflName }])) {
       const actualFaults = convertFileFaultDataToFaults(
         require(faultFilePath(projectDir, name)),
       );

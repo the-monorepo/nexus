@@ -24,7 +24,7 @@ class ReverseIterator<T> implements IterableIterator<T> {
     return {
       value: currentNode.value,
       done: false,
-    }
+    };
   }
 
   [Symbol.iterator]() {
@@ -113,7 +113,7 @@ export class Deque<T> implements Iterable<T> {
 
   private singlePush(value: T) {
     const newNode = new Node(value, undefined, this.headNode);
-    if(this.tailNode === undefined) {
+    if (this.tailNode === undefined) {
       this.headNode = newNode;
       this.tailNode = newNode;
     } else {

@@ -1,4 +1,4 @@
-export const bitcount = (n) => {
+export const bitcount = n => {
   let count = 0;
 
   while (n !== 0) {
@@ -7,7 +7,7 @@ export const bitcount = (n) => {
   }
 
   return count;
-}
+};
 /*
 export const bitcount = (n) => {
   let count = 0;

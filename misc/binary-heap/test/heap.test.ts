@@ -69,7 +69,9 @@ describe('heap', () => {
       {
         score: 4,
       },
-    ].sort(compareFn).reverse();
+    ]
+      .sort(compareFn)
+      .reverse();
 
     const heap = new Heap(compareFn, arr);
     // Make sure the heap sorts properly

@@ -1,7 +1,4 @@
-import { 
-  instructionToWriteNodePathDependencies,
-  getAstPath
-} from '../src/index';
+import { instructionToWriteNodePathDependencies, getAstPath } from '../src/index';
 import { parse } from '@babel/parser';
 
 const ast = parse('(1 + 2) - 3');
