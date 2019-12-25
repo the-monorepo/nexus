@@ -7,11 +7,12 @@ import {
   instructionToWriteNodePathDependencies,
   FORCE_CONSEQUENT,
   executeInstructions,
+  getDependencyPaths,
 } from '../src/index';
 import { parse } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
 
-const ast1 = parse('const a = Math.random(); if(a > 0.5) { console.log("consequent") } else { console.log("alternate") } ');
+const ast1 = parse('const a = Math.random(); if(a > 0.5) { console.log("consequent") } else { console.log("alternate") }; null;');
 const ast2 = parse('const aFunction = b => b + 1;');
 
 const filePath1 = 'file1';
@@ -48,23 +49,25 @@ it('instruction factory integration', () => {
   expect([...writeDependenciesFromInstructionHelperMethod]).toEqual(expect.arrayContaining(writeDependencies));
 
   const writeDependenciesFromBlockHelperMethod = instructionBlockToWriteDependencies([ instruction, instruction ]);
-  console.log([...writeDependenciesFromBlockHelperMethod]);
   expect([...writeDependenciesFromBlockHelperMethod]).toEqual(expect.arrayContaining(writeDependencies));
-
-  // TODO: Should be this but isn't at the moment
-  // expect(readDependencies).toHaveLength(0);
-
-  expect(instruction.variants).toBe(undefined);
-  executeInstructions(astMap, forceConsequentInstructions);
 
   const astPath = getAstPath(ast1);
   expect(astPath.isProgram()).toBe(true);
 
   let testPath: NodePath = null!;
+  let alternatePath: NodePath = null!;
+  const identifierPaths: NodePath[] = [];
+  let nullPath: NodePath = null!;
   astPath.traverse({
     enter: (path) => {
-      if (testPath !== null) {
-        path.skip();
+      if (path.isIdentifier()) {
+        identifierPaths.push(path);
+      }
+      if (path.key === 'alternate') {
+        alternatePath = path;
+      }
+      if (path.isNullLiteral()) {
+        nullPath = path;
       }
       if (path.key === 'test') {
         testPath = path;
@@ -72,5 +75,18 @@ it('instruction factory integration', () => {
     }
   });
 
-  expect(testPath.isBooleanLiteral()).toBe(true);
+  // TODO: Could probably check the whole array not just parts of it
+  const dependentPaths = getDependencyPaths(writeDependencies);
+  const dependentNodes = dependentPaths.map(path => path.node);
+  const expectedDependentNodes = [testPath, ...identifierPaths, alternatePath].map(path => path.node);
+  expect(dependentNodes).toEqual(expect.arrayContaining(expectedDependentNodes));
+  expect(dependentNodes).not.toContain(nullPath.node);
+
+  // TODO: Should be this but isn't at the moment
+  // expect(readDependencies).toHaveLength(0);
+
+  expect(instruction.variants).toBe(undefined);
+  executeInstructions(astMap, forceConsequentInstructions);
+
+  expect(testPath.isBooleanLiteral()).toBe(false);
 });
