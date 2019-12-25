@@ -2343,9 +2343,9 @@ export const createPlugin = ({
           ];
 
           const relevantInstructions = allInstructions.filter(instruction => {
-            const instructionWritePaths = instructionToWriteNodePathDependencies(
+            const instructionWritePaths = [...instructionToWriteNodePathDependencies(
               instruction,
-            );
+            )];
             console.log('????', instructionWritePaths.map(getTraverseKeys));
             return instructionWritePaths.some(instructionWritePath =>
               relevantStatementPaths.some(coveragePath => {
