@@ -1810,7 +1810,7 @@ export function* iteratorWithNoDuplicates<T>(iterable: Iterable<T>, getKey: (ite
 
 export const pathToKey = (path: NodePath): string => {
   return getTraverseKeys(path)
-    .map(key => typeof key === 'string' ? `"${key}"` : `[${key}]`)
+    .map(key => typeof key === 'string' ? `${key}` : `[${key}]`)
     .join('.');
 };
 export const pathToPrimaryKey = (filePath: string, path: NodePath) => {
