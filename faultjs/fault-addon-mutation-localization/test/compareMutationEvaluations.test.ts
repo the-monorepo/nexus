@@ -11,14 +11,11 @@ const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
     testsWorsened: arr[0],
     testsImproved: arr[1],
     stackEvaluation: {
-      lineDegradationScore: arr[2],
-      lineImprovementScore: arr[3],
-      lineScoreNulls: 0,
-      columnDegradationScore: arr[4],
-      columnImprovementScore: arr[5],
-      columnScoreNulls: 0,
+      nulls: 0,
+      degradation: arr[2],
+      improvement: arr[3],
     },
-    errorsChanged: arr[6],
+    errorsChanged: arr[4],
     crashed: false,
   };
 };
@@ -27,18 +24,18 @@ describe(compareMutationEvaluations.name, () => {
   // Index representations:
   // F  P  LD LI CD CI E
   const orderedEvaluations = [
-    [1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0, 0, 0],
-    [1, 1, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 0, 0, 0],
-    [1, 1, 0, 1, 0, 0, 0],
-    [1, 1, 2, 2, 0, 0, 0],
-    [9, 9, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 1, 0, 0, 0],
-    [0, 1, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 1],
+    [1, 1, 0, 0, 0],
+    [1, 1, 0, 0, 1],
+    [1, 1, 1, 1, 0],
+    [1, 1, 0, 1, 0],
+    [1, 1, 2, 2, 0],
+    [9, 9, 1, 0, 0],
+    [0, 0, 0, 0, 1],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0],
   ];
   for (let i = 0; i < orderedEvaluations.length - 1; i++) {
     const lesser = arrayToMutationEvaluation(orderedEvaluations[i]);
