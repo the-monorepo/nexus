@@ -1273,7 +1273,7 @@ export const evaluateStackDifference = (
   newResult: TestResult,
   testAstMap: Map<string, t.File>,
   distanceFromStartMap: Map<string, number | null>,
-): number => {
+): number | null=> {
   // TODO: Just make passing test cases have null as the stack property
   if ((newResult as any).stack == null || (originalResult as any).stack == null) {
     return null;
@@ -1296,9 +1296,11 @@ export const evaluateStackDifference = (
   if (originalDistanceFromStart == null || ast === undefined) {
     return null;
   }
+  if (firstNewStackFrame.lineNumber == null || firstNewStackFrame.columnNumber == null) {
+    return null;
+  }
   const newDistanceFromStart = executionDistanceFromStart(ast, firstNewStackFrame.lineNumber, firstNewStackFrame.columnNumber);
   if (newDistanceFromStart === null) {
-    console.log('could not find', firstNewStackFrame);
     return null;
   }
 
@@ -2010,6 +2012,8 @@ export const travelUpToRootDependencyPath = (path: NodePath) => {
     if (parent.isIfStatement() || parent.isFor() || parent.isCallExpression() || parent.isFunction()) {
       return true;
     };
+
+    return false;
   });
 };
 
