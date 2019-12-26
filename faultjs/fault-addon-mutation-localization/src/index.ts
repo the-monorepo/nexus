@@ -2007,7 +2007,15 @@ const instructionBlocksToMaxInstructionsLeft = (
 // added eval goes to: "= 1", "= a", "= c", "b ="
 
 export const travelUpToRootDependencyPath = (path: NodePath) => {
-  return path.find(path => path.isStatement());
+  return path.find(path => {
+    if (path.isStatement() || path.isBlockParent()) {
+      return true;
+    }
+    const parent = path.parentPath;
+    if (parent.isIfStatement() || parent.isFor() || parent.isCallExpression() || parent.isFunction()) {
+      return true;
+    };
+  });
 };
 
 /**
