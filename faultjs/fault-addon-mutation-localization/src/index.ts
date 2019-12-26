@@ -126,8 +126,7 @@ const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => 
 const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
   return (
     evaluation.testsWorsened === 0 &&
-    evaluation.stackEvaluation.lineDegradationScore === 0 &&
-    evaluation.stackEvaluation.columnDegradationScore === 0
+    evaluation.stackEvaluation.degradation === 0
   );
 };
 
@@ -1159,19 +1158,14 @@ export type TestEvaluation = {
   // How much better we're doing in terms of whether the test failed/passed
   endResultChange: number;
   previouslyFailing: boolean;
-} & StackEvaluation;
-
-type StackEvaluation = {
-  stackColumnScore: number | null;
-  stackLineScore: number | null;
+  stackScore: number | null;
 };
+
 
 const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
   return (
-    e.columnDegradationScore === 0 &&
-    e.columnImprovementScore === 0 &&
-    e.lineDegradationScore === 0 &&
-    e.lineImprovementScore === 0
+    e.degradation === 0 &&
+    e.improvement === 0
   );
 };
 
@@ -1221,28 +1215,14 @@ export const compareMutationEvaluations = (
     return testsImproved;
   }
 
-  const lineImprovementScore =
-    stackEval1.lineImprovementScore - stackEval2.lineImprovementScore;
-  if (lineImprovementScore !== 0) {
-    return lineImprovementScore;
+  const stackImprovementScore = stackEval1.improvement - stackEval2.improvement;
+  if (stackImprovementScore !== 0) {
+    return stackImprovementScore;
   }
 
-  const lineDegradationScore =
-    stackEval2.lineDegradationScore - stackEval1.lineDegradationScore;
-  if (lineDegradationScore !== 0) {
-    return lineDegradationScore;
-  }
-
-  const columnImprovementScore =
-    stackEval1.columnImprovementScore - stackEval2.columnImprovementScore;
-  if (columnImprovementScore !== 0) {
-    return columnImprovementScore;
-  }
-
-  const columnDegradationScore =
-    stackEval2.columnDegradationScore - stackEval1.columnDegradationScore;
-  if (columnDegradationScore !== 0) {
-    return columnDegradationScore;
+  const stackDegradationScore = stackEval2.degradation - stackEval1.degradation;
+  if (stackDegradationScore !== 0) {
+    return stackDegradationScore;
   }
 
   const errorsChanged = result1.errorsChanged - result2.errorsChanged;
@@ -1264,16 +1244,39 @@ export const compareMutationEvaluations = (
   return 0;
 };
 
+export const executionDistanceFromStart = (ast: t.File, lineNumber: number, columnNumber: number): number | null => {
+  let newDistanceFromStart = 0;
+  let doneWithTraversal = false;
+  traverse(ast, {
+    exit: (path) => {
+      if(doneWithTraversal) {
+        path.skip();
+        return;
+      }
+      newDistanceFromStart++;
+      const node = path.node;
+      const loc = node.loc;
+      if (loc === undefined) {
+        return;
+      }
+
+      if (loc.start.line === lineNumber && loc.start.column + 1 === columnNumber) {
+        doneWithTraversal = true;
+      }
+    }
+  });
+  return doneWithTraversal ? newDistanceFromStart : null;
+}
+
 export const evaluateStackDifference = (
   originalResult: TestResult,
   newResult: TestResult,
-): StackEvaluation => {
+  testAstMap: Map<string, t.File>,
+  distanceFromStartMap: Map<string, number | null>,
+): number => {
   // TODO: Just make passing test cases have null as the stack property
   if ((newResult as any).stack == null || (originalResult as any).stack == null) {
-    return {
-      stackColumnScore: null,
-      stackLineScore: null,
-    };
+    return null;
   }
   const newStackInfo = ErrorStackParser.parse({
     stack: (newResult as any).stack,
@@ -1286,23 +1289,20 @@ export const evaluateStackDifference = (
   const firstOldStackFrame = oldStackInfo[0];
 
   if (firstNewStackFrame.fileName !== firstOldStackFrame.fileName) {
-    return {
-      stackColumnScore: null,
-      stackLineScore: null,
-    };
+    return null;
   }
-  const stackLineScore =
-    firstNewStackFrame.lineNumber !== undefined &&
-    firstOldStackFrame.lineNumber !== undefined
-      ? firstNewStackFrame.lineNumber - firstOldStackFrame.lineNumber
-      : null;
-  const stackColumnScore =
-    firstNewStackFrame.columnNumber !== undefined &&
-    firstOldStackFrame.columnNumber !== undefined
-      ? firstNewStackFrame.columnNumber - firstOldStackFrame.columnNumber
-      : null;
+  const originalDistanceFromStart = distanceFromStartMap.get(originalResult.key);
+  const ast = testAstMap.get(newResult.file);
+  if (originalDistanceFromStart == null || ast === undefined) {
+    return null;
+  }
+  const newDistanceFromStart = executionDistanceFromStart(ast, firstNewStackFrame.lineNumber, firstNewStackFrame.columnNumber);
+  if (newDistanceFromStart === null) {
+    console.log('could not find', firstNewStackFrame);
+    return null;
+  }
 
-  return { stackColumnScore, stackLineScore };
+  return newDistanceFromStart - originalDistanceFromStart;
 };
 
 const EndResult = {
@@ -1314,6 +1314,8 @@ const EndResult = {
 export const evaluateModifiedTestResult = (
   originalResult: TestResult,
   newResult: TestResult,
+  testAstMap: Map<string, t.File>,
+  distanceFromStartMap: Map<string, number | null>,
 ): TestEvaluation => {
   const samePassFailResult = originalResult.passed === newResult.passed;
   const endResultChange: number = samePassFailResult
@@ -1330,10 +1332,15 @@ export const evaluateModifiedTestResult = (
     }
     return (newResult as any).stack !== (originalResult as FailingTestData).stack;
   })();
-  const stackEvaluation = evaluateStackDifference(originalResult, newResult);
+  const stackScore = evaluateStackDifference(
+    originalResult,
+    newResult,
+    testAstMap,
+    distanceFromStartMap
+  );
 
   const evaluation = {
-    ...stackEvaluation,
+    stackScore,
     endResultChange,
     errorChanged,
     previouslyFailing: !originalResult.passed,
@@ -1342,20 +1349,14 @@ export const evaluateModifiedTestResult = (
 };
 
 type MutationStackEvaluation = {
-  lineDegradationScore: number;
-  columnDegradationScore: number;
-  lineScoreNulls: number;
-  columnScoreNulls: number;
-  lineImprovementScore: number;
-  columnImprovementScore: number;
+  nulls: number;
+  improvement: number;
+  degradation: number
 };
 const createMutationStackEvaluation = (): MutationStackEvaluation => ({
-  lineDegradationScore: 0,
-  columnDegradationScore: 0,
-  lineScoreNulls: 0,
-  columnScoreNulls: 0,
-  lineImprovementScore: 0,
-  columnImprovementScore: 0,
+  nulls: 0,
+  improvement: 0,
+  degradation: 0,
 });
 
 export type CommonMutationEvaluation = {
@@ -1392,6 +1393,8 @@ export type LocationMutationEvaluation = {
 const evaluateNewMutation = (
   originalResults: TesterResults,
   newResults: TesterResults,
+  testAstMap: Map<string, t.File>,
+  originalResultErrorDistanceFromStart: Map<string, number | null>,
   instructions: Instruction<any>[],
 ): MutationEvaluation => {
   const notSeen = new Set(originalResults.testResults.keys());
@@ -1411,32 +1414,24 @@ const evaluateNewMutation = (
       // Maybe don't
       continue;
     }
-    const testEvaluation = evaluateModifiedTestResult(oldResult, newResult);
+    const testEvaluation = evaluateModifiedTestResult(oldResult, newResult, testAstMap, originalResultErrorDistanceFromStart);
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
       testsImproved++;
     } else if (testEvaluation.endResultChange === EndResult.WORSE) {
       testsWorsened++;
     } else if (
-      testEvaluation.errorChanged &&
-      (testEvaluation.stackLineScore === 0 || testEvaluation.stackColumnScore === null) &&
-      (testEvaluation.stackColumnScore === 0 || testEvaluation.stackColumnScore === null)
+      testEvaluation.errorChanged && (testEvaluation.stackScore === 0 || testEvaluation.stackScore === null)
     ) {
       errorsChanged++;
     }
 
-    if (testEvaluation.stackLineScore === null) {
-      stackEvaluation.lineScoreNulls++;
-    } else if (testEvaluation.stackLineScore > 0) {
-      stackEvaluation.lineImprovementScore += testEvaluation.stackLineScore;
-    } else if (testEvaluation.stackLineScore < 0) {
-      stackEvaluation.lineDegradationScore -= testEvaluation.stackLineScore;
-    } else if (testEvaluation.stackColumnScore === null) {
-      stackEvaluation.columnScoreNulls++;
-    } else if (testEvaluation.stackColumnScore > 0) {
-      stackEvaluation.columnImprovementScore += testEvaluation.stackColumnScore;
-    } else if (testEvaluation.stackColumnScore < 0) {
-      stackEvaluation.columnDegradationScore -= testEvaluation.stackColumnScore;
+    if (testEvaluation.stackScore === null) {
+      stackEvaluation.nulls++;
+    } else if (testEvaluation.stackScore > 0) {
+      stackEvaluation.improvement++;
+    } else if(testEvaluation.stackScore < 0) {
+      stackEvaluation.degradation++;
     }
   }
   return {
@@ -2163,7 +2158,9 @@ export const createPlugin = ({
 
   let previousInstructions: Heap<Instruction<any>> = null!;
   let codeMap: Map<string, string> = null!;
-  let originalAstMap: Map<string, t.File> = new Map();
+  let originalAstMap: Map<string, t.File> = null!;
+  let testAstMap: Map<string, t.File> = null!;
+  const originalDistanceFromStartMap: Map<string, number> = new Map();
   let coveragePaths: Map<string, NodePath[]> = null!;
   let finished = false;
   const instructionQueue: Heap<Heap<Instruction<any>>> = new Heap(heapComparisonFn);
@@ -2344,6 +2341,29 @@ export const createPlugin = ({
             ...new Set(locations.map(location => location.filePath)),
           ]);
           originalAstMap = codeMapToAstMap(codeMap, babelOptions);
+          const testCodeMap = await createFilePathToCodeMap([
+            ...new Set([
+              ...tester.testResults.values()
+            ].map(testResult => testResult.file))
+          ]);
+          testAstMap = codeMapToAstMap(testCodeMap, babelOptions);
+          for(const testResult of tester.testResults.values()) {
+            if (testResult.passed) {
+              continue;
+            }
+            const ast = testAstMap.get(testResult.file)!;
+            if ((testResult as any).stack == null) {
+              continue;
+            }
+            const stackError = ErrorStackParser.parse({
+              stack: (testResult as any).stack,
+            } as Error);
+            const stackFrame = stackError[0];
+            console.log(stackFrame);
+            const distance = executionDistanceFromStart(ast, stackFrame.lineNumber, stackFrame.columnNumber);
+            console.log('distance', distance);
+            originalDistanceFromStartMap.set(testResult.key, distance);
+          }
           const allInstructions = [
             ...gatherInstructions(instructionFactories, originalAstMap),
           ];
@@ -2407,7 +2427,7 @@ export const createPlugin = ({
             console.log('Skipping instruction');
           }
         } else {
-          const mutationEvaluation = evaluateNewMutation(firstTesterResults, tester, [
+          const mutationEvaluation = evaluateNewMutation(firstTesterResults, tester, testAstMap, originalDistanceFromStartMap, [
             ...previousInstructions,
           ]);
 
