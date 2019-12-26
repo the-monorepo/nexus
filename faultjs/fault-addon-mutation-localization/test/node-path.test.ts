@@ -6,6 +6,7 @@ import {
   FORCE_CONSEQUENT,
   executeInstructions,
   getDependencyPaths,
+  pathToKey
 } from '../src/index';
 import { parse } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
@@ -54,7 +55,7 @@ it('instruction factory integration', () => {
   let nullPath: NodePath = null!;
   astPath.traverse({
     enter: (path) => {
-      if (path.isIdentifier()) {
+      if (path.isIdentifier() && path.node.name === 'a') {
         identifierPaths.push(path);
       }
       if (path.key === 'alternate') {
@@ -71,10 +72,10 @@ it('instruction factory integration', () => {
 
   // TODO: Could probably check the whole array not just parts of it
   const dependentPaths = getDependencyPaths(writeDependencies);
-  const dependentNodes = dependentPaths.map(path => path.node);
-  const expectedDependentNodes = [testPath, ...identifierPaths, alternatePath].map(path => path.node);
-  expect(dependentNodes).toEqual(expect.arrayContaining(expectedDependentNodes));
-  expect(dependentNodes).not.toContain(nullPath.node);
+  const dependentKeys = dependentPaths.map(pathToKey);
+  const expectedDependentKeys = [testPath, ...identifierPaths, alternatePath].map(pathToKey);
+  expect(dependentKeys).toEqual(expect.arrayContaining(expectedDependentKeys));
+  expect(dependentKeys).not.toContain(pathToKey(nullPath));
 
   // TODO: Should be this but isn't at the moment
   // expect(readDependencies).toHaveLength(0);
