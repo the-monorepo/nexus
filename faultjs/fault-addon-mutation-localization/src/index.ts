@@ -1272,7 +1272,6 @@ export const evaluateStackDifference = (
   originalResult: TestResult,
   newResult: TestResult,
   testAstMap: Map<string, t.File>,
-  distanceFromStartMap: Map<string, number | null>,
 ): number | null=> {
   // TODO: Just make passing test cases have null as the stack property
   if ((newResult as any).stack == null || (originalResult as any).stack == null) {
@@ -1291,11 +1290,21 @@ export const evaluateStackDifference = (
   if (firstNewStackFrame.fileName !== firstOldStackFrame.fileName) {
     return null;
   }
-  const originalDistanceFromStart = distanceFromStartMap.get(originalResult.key);
+
   const ast = testAstMap.get(newResult.file);
-  if (originalDistanceFromStart == null || ast === undefined) {
+  if (ast === undefined) {
     return null;
   }
+
+  if (firstOldStackFrame.lineNumber == null || firstOldStackFrame.columnNumber == null) {
+    return null;
+  }
+
+  const originalDistanceFromStart = executionDistanceFromStart(ast, firstOldStackFrame.lineNumber, firstOldStackFrame.columnNumber);
+  if (originalDistanceFromStart == null) {
+    return null;
+  }
+
   if (firstNewStackFrame.lineNumber == null || firstNewStackFrame.columnNumber == null) {
     return null;
   }
@@ -1317,7 +1326,6 @@ export const evaluateModifiedTestResult = (
   originalResult: TestResult,
   newResult: TestResult,
   testAstMap: Map<string, t.File>,
-  distanceFromStartMap: Map<string, number | null>,
 ): TestEvaluation => {
   const samePassFailResult = originalResult.passed === newResult.passed;
   const endResultChange: number = samePassFailResult
@@ -1338,7 +1346,6 @@ export const evaluateModifiedTestResult = (
     originalResult,
     newResult,
     testAstMap,
-    distanceFromStartMap
   );
 
   const evaluation = {
@@ -1396,7 +1403,6 @@ const evaluateNewMutation = (
   originalResults: TesterResults,
   newResults: TesterResults,
   testAstMap: Map<string, t.File>,
-  originalResultErrorDistanceFromStart: Map<string, number | null>,
   instructions: Instruction<any>[],
 ): MutationEvaluation => {
   const notSeen = new Set(originalResults.testResults.keys());
@@ -1416,7 +1422,7 @@ const evaluateNewMutation = (
       // Maybe don't
       continue;
     }
-    const testEvaluation = evaluateModifiedTestResult(oldResult, newResult, testAstMap, originalResultErrorDistanceFromStart);
+    const testEvaluation = evaluateModifiedTestResult(oldResult, newResult, testAstMap);
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
       testsImproved++;
@@ -2164,7 +2170,6 @@ export const createPlugin = ({
   let codeMap: Map<string, string> = null!;
   let originalAstMap: Map<string, t.File> = null!;
   let testAstMap: Map<string, t.File> = null!;
-  const originalDistanceFromStartMap: Map<string, number> = new Map();
   let coveragePaths: Map<string, NodePath[]> = null!;
   let finished = false;
   const instructionQueue: Heap<Heap<Instruction<any>>> = new Heap(heapComparisonFn);
@@ -2364,9 +2369,6 @@ export const createPlugin = ({
             } as Error);
             const stackFrame = stackError[0];
             console.log(stackFrame);
-            const distance = executionDistanceFromStart(ast, stackFrame.lineNumber, stackFrame.columnNumber);
-            console.log('distance', distance);
-            originalDistanceFromStartMap.set(testResult.key, distance);
           }
           const allInstructions = [
             ...gatherInstructions(instructionFactories, originalAstMap),
@@ -2431,7 +2433,7 @@ export const createPlugin = ({
             console.log('Skipping instruction');
           }
         } else {
-          const mutationEvaluation = evaluateNewMutation(firstTesterResults, tester, testAstMap, originalDistanceFromStartMap, [
+          const mutationEvaluation = evaluateNewMutation(firstTesterResults, tester, testAstMap, [
             ...previousInstructions,
           ]);
 

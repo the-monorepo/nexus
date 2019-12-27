@@ -1,10 +1,11 @@
-import { ScorelessFault } from '@fault/addon-sbfl';
-import { calculateExamScore } from '../src/index';
+import { Fault } from '@fault/record-faults';
+import { calculateExamScore } from '../src/core';
 describe('measure', () => {
   describe('exact match', () => {
     it('1 fault, 1 line', () => {
-      const faults: ScorelessFault[] = [
+      const faults: Fault[] = [
         {
+          score: 1,
           sourcePath: 'a',
           location: {
             start: {
@@ -18,6 +19,7 @@ describe('measure', () => {
           },
         },
         {
+          score: 2,
           sourcePath: 'a',
           location: {
             start: {
