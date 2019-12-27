@@ -1950,7 +1950,6 @@ export const compareInstructionBlocks = (
 
 type NodeEvaluation = {
   initial: number;
-  totalNodes,
   mutationEvaluations: Heap<MutationEvaluation>;
 };
 
