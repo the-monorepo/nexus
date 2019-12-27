@@ -2356,20 +2356,6 @@ export const createPlugin = ({
             ].map(testResult => testResult.file))
           ]);
           testAstMap = codeMapToAstMap(testCodeMap, babelOptions);
-          for(const testResult of tester.testResults.values()) {
-            if (testResult.passed) {
-              continue;
-            }
-            const ast = testAstMap.get(testResult.file)!;
-            if ((testResult as any).stack == null) {
-              continue;
-            }
-            const stackError = ErrorStackParser.parse({
-              stack: (testResult as any).stack,
-            } as Error);
-            const stackFrame = stackError[0];
-            console.log(stackFrame);
-          }
           const allInstructions = [
             ...gatherInstructions(instructionFactories, originalAstMap),
           ];
