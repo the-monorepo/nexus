@@ -2404,8 +2404,6 @@ export const createPlugin = ({
             relevantInstructions,
           );
 
-          setInitialNodeEvaluationValues(nodeEvaluations, )
-
           relevantInstructions.sort((a, b) =>
             compareInstruction(nodeEvaluations, instructionEvaluations, a, b),
           );
