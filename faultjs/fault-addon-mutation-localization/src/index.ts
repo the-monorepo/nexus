@@ -1256,7 +1256,7 @@ export const executionDistanceFromStart = (ast: t.File, lineNumber: number, colu
       newDistanceFromStart++;
       const node = path.node;
       const loc = node.loc;
-      if (loc === undefined) {
+      if (loc == null) {
         return;
       }
 
