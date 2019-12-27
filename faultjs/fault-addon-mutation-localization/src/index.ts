@@ -1790,14 +1790,20 @@ export const mapFaultsToIstanbulCoverage = (
   return [...mappedFaults.values()];
 };
 
-const getAffectedFilePaths = (instructions: Heap<Instruction<any>>) => {
-  return [
+const getAffectedFilePaths = (instructions: Heap<Instruction<any>>): string[] => {
+  const filePaths = [
     ...new Set(
       [...instructions]
         .map(instruction => [...instruction.dependencies.keys()])
         .flat(),
     ),
   ];
+
+  if (filePaths.length <= 0) {
+    throw new Error(`No file paths were found`);
+  }
+
+  return filePaths;
 };
 
 const resetMutationsInInstruction = async (instructions: Heap<Instruction<any>>) => {
