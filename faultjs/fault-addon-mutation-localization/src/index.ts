@@ -238,6 +238,7 @@ type WrapperMutation<D, S> = {
   execute: (state: S) => void;
 };
 export class NodePathMutationWrapper<D, T = t.Node> {
+  private dependencies: DependencyInfo | null = null;
   constructor(
     public readonly keys: TraverseKey[],
     private readonly reads: TraverseKey[][],
@@ -246,10 +247,13 @@ export class NodePathMutationWrapper<D, T = t.Node> {
   ) {}
 
   getDependencies(nodePath: NodePath<T>): DependencyInfo {
-    return {
-      reads: keysToDependencyList(nodePath, this.reads),
-      writes: keysToDependencyList(nodePath, this.writes),
-    };
+    if (this.dependencies === null) {
+      this.dependencies = {
+        reads: keysToDependencyList(nodePath, this.reads),
+        writes: keysToDependencyList(nodePath, this.writes),
+      };  
+    }
+    return this.dependencies;
   }
 
   registerAsWriteDependency() {
@@ -440,6 +444,28 @@ type InstructionFactoryPayload<D, T> = {
   wrapper: NodePathMutationWrapper<D, T>;
   variants: D[] | undefined;
 };
+
+class InstructionFactoryMutation<D> implements Mutation<D, any> {
+  constructor(
+    private readonly filePath: string,
+    private readonly pathKeys: TraverseKey[],
+    private readonly wrapperMutation: WrapperMutation<D, any>,
+  ) {
+  }
+
+  setup(newAsts, data: D) {
+    const newAst = newAsts.get(this.filePath)!;
+    const astPath = getAstPath(newAst);
+    return this.wrapperMutation.setup(
+      traverseKeys(astPath, this.pathKeys),
+      data,
+    );
+  }
+
+  execute(state) {
+    return this.wrapperMutation.execute(state);
+  }
+}
 class InstructionFactory<D> implements AbstractInstructionFactory<D> {
   constructor(
     public readonly pathToInstructions: (
@@ -466,19 +492,11 @@ class InstructionFactory<D> implements AbstractInstructionFactory<D> {
             const newInstruction = new Instruction(
               type,
               new Map([[filePath, wrapper.getDependencies(path as any)]]),
-              wrapper.mutations.map(wrapperMutation => {
-                return {
-                  setup: (newAsts, data: D) => {
-                    const newAst = newAsts.get(filePath)!;
-                    const astPath = getAstPath(newAst);
-                    return wrapperMutation.setup(
-                      traverseKeys(astPath, pathKeys),
-                      data,
-                    );
-                  },
-                  execute: wrapperMutation.execute,
-                };
-              }),
+              wrapper.mutations.map(wrapperMutation => new InstructionFactoryMutation(
+                filePath,
+                pathKeys,
+                wrapperMutation
+              )),
               variants,
             );
             instructions.push(newInstruction);
