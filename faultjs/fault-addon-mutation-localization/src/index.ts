@@ -463,39 +463,25 @@ class InstructionFactory<D> implements AbstractInstructionFactory<D> {
         enter: path => {
           for (const { type, wrapper, variants } of this.pathToInstructions(path)) {
             const pathKeys = getTraverseKeys(path);
-            try {
-              const newInstruction = new Instruction(
-                type,
-                new Map([[filePath, wrapper.getDependencies(path as any)]]),
-                wrapper.mutations.map(wrapperMutation => {
-                  return {
-                    setup: (newAsts, data: D) => {
-                      const newAst = newAsts.get(filePath)!;
-                      const astPath = getAstPath(newAst);
-                      try {
-                        return wrapperMutation.setup(
-                          traverseKeys(astPath, pathKeys),
-                          data,
-                        );
-                      } catch (err) {
-                        err.message = `${
-                          err.message
-                        }. Core path location was [${getTraverseKeys(path).join(', ')}]`;
-                        throw err;
-                      }
-                    },
-                    execute: wrapperMutation.execute,
-                  };
-                }),
-                variants,
-              );
-              instructions.push(newInstruction);
-            } catch (err) {
-              err.message = `${
-                err.message
-              }. Was creating instruction of type ${type.toString()}.`;
-              throw err;
-            }
+            const newInstruction = new Instruction(
+              type,
+              new Map([[filePath, wrapper.getDependencies(path as any)]]),
+              wrapper.mutations.map(wrapperMutation => {
+                return {
+                  setup: (newAsts, data: D) => {
+                    const newAst = newAsts.get(filePath)!;
+                    const astPath = getAstPath(newAst);
+                    return wrapperMutation.setup(
+                      traverseKeys(astPath, pathKeys),
+                      data,
+                    );
+                  },
+                  execute: wrapperMutation.execute,
+                };
+              }),
+              variants,
+            );
+            instructions.push(newInstruction);
           }
         },
       });
@@ -1778,14 +1764,20 @@ export const mapFaultsToIstanbulCoverage = (
   return [...mappedFaults.values()];
 };
 
-const getAffectedFilePaths = (instructions: Heap<Instruction<any>>) => {
-  return [
+const getAffectedFilePaths = (instructions: Heap<Instruction<any>>): string[] => {
+  const filePaths = [
     ...new Set(
       [...instructions]
         .map(instruction => [...instruction.dependencies.keys()])
         .flat(),
     ),
   ];
+
+  if (filePaths.length <= 0) {
+    throw new Error(`No file paths were found`);
+  }
+
+  return filePaths;
 };
 
 let solutionCounter = 0;
@@ -1941,7 +1933,6 @@ export const compareInstructionBlocks = (
 
 type NodeEvaluation = {
   initial: number;
-  totalNodes,
   mutationEvaluations: Heap<MutationEvaluation>;
 };
 
