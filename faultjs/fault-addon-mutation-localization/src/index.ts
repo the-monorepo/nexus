@@ -29,29 +29,6 @@ import * as micromatch from 'micromatch';
 import Heap from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
 
-const originalPathToCopyPath: Map<string, string> = new Map();
-let copyFileId = 0;
-let copyTempDir: string = null!;
-const resetFile = async (filePath: string) => {
-  const copyPath = originalPathToCopyPath.get(filePath)!;
-  if (copyPath === undefined) {
-    console.error(originalPathToCopyPath);
-    throw new Error(`Copied/cached path for ${filePath} was ${copyPath}`);
-  }
-  const fileContents = await readFile(copyPath, 'utf8');
-  await writeFile(filePath, fileContents, 'utf8');
-};
-
-const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
-  if (!originalPathToCopyPath.has(filePath)) {
-    const fileContents = await readFile(filePath, 'utf8');
-    const fileId = copyFileId++;
-    const copyPath = resolve(copyTempDir, fileId.toString());
-    originalPathToCopyPath.set(filePath, copyPath);
-    await writeFile(copyPath, fileContents);
-  }
-};
-
 type Location = {
   filePath: string;
 } & ExpressionLocation;
@@ -1495,7 +1472,9 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
 const getTotalNodes = (path: NodePath) => {
   let count = 0;
   path.traverse({
-    enter: () => count++
+    enter: () => {
+      count++;
+    }
   });
   return count + 1;
 };
@@ -1518,11 +1497,20 @@ export const compareFinalInstructionEvaluations = (
     if (comparison !== 0) {
       return comparison;
     }
+  }
 
+  let mutationCount1 = 0;
+  let mutationCount2 = 0;
+  for(const instruction of instructions1) {
+    mutationCount1 += instructionEvaluations.get(instruction)!.length;
+  }
+
+  for(const instruction of instructions2) {
+    mutationCount2 += instructionEvaluations.get(instruction)!.length;
   }
 
   // TODO: More evaluations = less good at this point. Add that in
-  return instructions1.length / getTotalNodes(category1.path) - instructions2.length / getTotalNodes(category2.path);
+  return mutationCount2 / getTotalNodes(category2.path) - mutationCount1 / getTotalNodes(category1.path);
 };
 
 type InstructionCategory = {
@@ -1798,11 +1786,6 @@ const getAffectedFilePaths = (instructions: Heap<Instruction<any>>) => {
         .flat(),
     ),
   ];
-};
-
-const resetMutationsInInstruction = async (instructions: Heap<Instruction<any>>) => {
-  const filePathsToReset = getAffectedFilePaths(instructions);
-  await Promise.all(filePathsToReset.map(resetFile));
 };
 
 let solutionCounter = 0;
@@ -2191,6 +2174,36 @@ export const createPlugin = ({
     ? ignoreGlob
     : [ignoreGlob]
   ).map(glob => resolve('.', glob).replace(/\\+/g, '/'));
+
+  const originalPathToCopyPath: Map<string, string> = new Map();
+  let copyFileId = 0;
+  let copyTempDir: string = null!;
+  const resetFile = async (filePath: string) => {
+    const copyPath = originalPathToCopyPath.get(filePath)!;
+    if (copyPath === undefined) {
+      console.error(originalPathToCopyPath);
+      throw new Error(`Copied/cached path for ${filePath} was ${copyPath}`);
+    }
+    const fileContents = await readFile(copyPath, 'utf8');
+    await writeFile(filePath, fileContents, 'utf8');
+  };
+
+  const resetMutationsInInstruction = async (instructions: Heap<Instruction<any>>) => {
+    const filePathsToReset = getAffectedFilePaths(instructions);
+    await Promise.all(filePathsToReset.map(resetFile));
+  };
+  
+
+  const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
+    if (!originalPathToCopyPath.has(filePath)) {
+      const fileContents = await readFile(filePath, 'utf8');
+      const fileId = copyFileId++;
+      const copyPath = resolve(copyTempDir, fileId.toString());
+      originalPathToCopyPath.set(filePath, copyPath);
+      await writeFile(copyPath, fileContents);
+    }
+  };
+
   const analyzeEvaluation = async (mutationEvaluation: MutationEvaluation) => {
     if (previousInstructions !== null) {
       console.log({ ...mutationEvaluation, instructions: undefined });
@@ -2363,6 +2376,7 @@ export const createPlugin = ({
             ].map(testResult => testResult.file))
           ]);
           testAstMap = codeMapToAstMap(testCodeMap, babelOptions);
+          console.log('gathering instructions')
           const allInstructions = [
             ...gatherInstructions(instructionFactories, originalAstMap),
           ];
