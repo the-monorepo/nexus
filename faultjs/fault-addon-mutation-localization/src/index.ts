@@ -1832,10 +1832,6 @@ export const pathToPrimaryKey = (filePath: string, path: NodePath) => {
 };
 
 export const compareNodeEvaluations = (
-  key1: string,
-  key2: string,
-  nodeEvaluations: Map<string, NodeEvaluation>,
-  nodeToInstructions: Map<>
   evaluation1: NodeEvaluation,
   evaluation2: NodeEvaluation,
 ) => {
