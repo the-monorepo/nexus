@@ -14,7 +14,7 @@ module.exports = api => {
             '**/*.test.{js,jsx,ts,tsx}',
             './{faultjs,misc}/*/test/**',
             './test/**',
-            '**/{lib,esm,dist}/**'
+            '**/{lib,esm,dist}/**',
           ],
         },
       ],
