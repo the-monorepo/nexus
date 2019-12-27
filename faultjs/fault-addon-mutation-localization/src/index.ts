@@ -784,7 +784,6 @@ const createValueInstructionFactory = (
 const isStringLiteral = path => path.isStringLiteral();
 export const CHANGE_STRING = Symbol('change-string');
 const STRINGS = Symbol('strings');
-const TOTAL_NODES = Symbol('total-nodes');
 const replaceStringFactory = createValueInstructionFactory(
   isStringLiteral,
   CHANGE_STRING,
@@ -1493,12 +1492,21 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
   return compareMutationEvaluations(a, b);
 };
 
+const getTotalNodes = (path: NodePath) => {
+  let count = 0;
+  path.traverse({
+    enter: () => count++
+  });
+  return count + 1;
+};
 export const compareFinalInstructionEvaluations = (
   nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
-  instructions1: Instruction<any>[],
-  instructions2: Instruction<any>[],
+  category1: InstructionCategory,
+  category2: InstructionCategory,
 ): number => {
+  const instructions1 = category1.instructions;
+  const instructions2 = category2.instructions;
   if (instructions1.length >= 1 && instructions2.length >= 1) {
     const comparisonFn = (a, b) =>
       compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
@@ -1511,18 +1519,15 @@ export const compareFinalInstructionEvaluations = (
       return comparison;
     }
 
-    // TODO: More evaluations = less good at this point. Add that in
-  } else if (instructions1.length <= 0 && instructions2.length >= 1) {
-    return 1;
-  } else if (instructions1.length >= 1 && instructions2.length <= 0) {
-    return -1;
   }
 
-  return 0;
+  // TODO: More evaluations = less good at this point. Add that in
+  return instructions1.length / getTotalNodes(category1.path) - instructions2.length / getTotalNodes(category2.path);
 };
 
 type InstructionCategory = {
   filePath: string;
+  path: NodePath;
   location: t.SourceLocation;
   instructions: Instruction<any>[];
 };
@@ -1554,6 +1559,7 @@ export const categoriseInstructionsIntoCloestParentPaths = (
               filePath,
               location: selectedNode.loc!,
               instructions: [instruction],
+              path: selectedFinalPath
             });
           }
         }
@@ -1573,8 +1579,8 @@ export const mutationEvalatuationMapToFaults = (
       compareFinalInstructionEvaluations(
         nodeEvaluations,
         instructionEvaluations,
-        a.instructions,
-        b.instructions,
+        a,
+        b,
       ),
     )
     .map(
@@ -1826,6 +1832,10 @@ export const pathToPrimaryKey = (filePath: string, path: NodePath) => {
 };
 
 export const compareNodeEvaluations = (
+  key1: string,
+  key2: string,
+  nodeEvaluations: Map<string, NodeEvaluation>,
+  nodeToInstructions: Map<>
   evaluation1: NodeEvaluation,
   evaluation2: NodeEvaluation,
 ) => {
@@ -1952,6 +1962,7 @@ export const compareInstructionBlocks = (
 
 type NodeEvaluation = {
   initial: number;
+  totalNodes,
   mutationEvaluations: Heap<MutationEvaluation>;
 };
 
@@ -2396,6 +2407,8 @@ export const createPlugin = ({
             nodeToInstructions,
             relevantInstructions,
           );
+
+          setInitialNodeEvaluationValues(nodeEvaluations, )
 
           relevantInstructions.sort((a, b) =>
             compareInstruction(nodeEvaluations, instructionEvaluations, a, b),
