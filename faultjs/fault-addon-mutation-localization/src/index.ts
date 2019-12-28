@@ -473,6 +473,7 @@ class InstructionFactory implements AbstractInstructionFactory<any> {
 
   setup(asts: Map<string, t.File>) {
     for (const ast of asts.values()) {
+      console.log('ast')
       traverse(ast, {
         enter: (path) => {
           for(const instructionFactory of this.simpleInstructionFactories) {
@@ -492,14 +493,20 @@ class InstructionFactory implements AbstractInstructionFactory<any> {
     }
   }
 
-  *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<D>> {
+  *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<any>> {
     for (const [filePath, ast] of asts) {
-      const instructions: Instruction<D>[] = [];
+      console.log('instruction', filePath);
+      const instructions: Instruction<any>[] = [];
       traverse(ast, {
         enter: (path) => {
+          let pathKeys: TraverseKey[] = null!;
           for(const instructionFactory of this.simpleInstructionFactories) {
+            console.log('instructionFactory')
             for (const { type, wrapper, variants } of instructionFactory.pathToInstructions(path)) {
-              const pathKeys = getTraverseKeys(path);
+              console.log('type', type);
+              if (pathKeys === null) {
+                pathKeys = getTraverseKeys(path);
+              }
               const newInstruction = new Instruction(
                 type,
                 new Map([[filePath, wrapper.getDependencies(path as any)]]),
@@ -1103,7 +1110,7 @@ const deleteStatementFactory = simpleInstructionFactory(function*(path) {
     if (Array.isArray(bodyPaths)) {
       for (let b = 0; b < bodyPaths.length; b++) {
         const statementPath = bodyPaths[b];
-        if (statementPath.isVariableDeclaration()) {
+        if (statementPath.isVariableDeclaration() || statementPath.isIfStatement() || statementPath.isFunctionDeclaration()) {
           continue;
         }
         yield {
