@@ -8,7 +8,7 @@ import {
   FailingTestData,
   FinalTesterResults,
 } from '@fault/types';
-import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'mz/fs';
+import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir, copyFile } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import { join, resolve, basename } from 'path';
 import { tmpdir } from 'os';
@@ -2256,6 +2256,22 @@ export const getDependencyPathMap = (pathMap: Map<string, DependencyInfo>): Map<
   return map;
 };
 
+export const overwriteWithMutatedAst = async (filePath: string, mutatedAsts: Map<string, t.File>): Promise<any> => {
+  const originalCodeText = await readFile(filePath, 'utf8');
+  const ast = mutatedAsts.get(filePath)!;
+  const { code } = generate(
+    ast,
+    {
+      retainFunctionParens: true,
+      retainLines: true,
+      compact: false,
+      filename: basename(filePath),
+    },
+    originalCodeText,
+  );
+  await writeFile(filePath, code, { encoding: 'utf8' });
+};
+
 const addMutationEvaluation = (
   nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
@@ -2295,14 +2311,14 @@ const addSplittedInstructionBlock = (
   queue: Heap<Heap<Instruction<any>>>,
   block: Heap<Instruction<any>>,
 ) => {
+  const cloned = block.clone();
   const mid = Math.trunc(block.length / 2);
-  const part1: Heap<Instruction<any>> = new Heap(block.compareFn);
+  const part1: Heap<Instruction<any>> = new Heap(cloned.compareFn);
   for (let i = 0; i < mid; i++) {
-    part1.push(block.pop()!);
+    part1.push(cloned.pop()!);
   }
   queue.push(part1);
-  // TODO: Consider keeping things immutable
-  queue.push(block);
+  queue.push(cloned);
 };
 
 export const codeMapToAstMap = (
@@ -2373,15 +2389,14 @@ export const createPlugin = ({
     const filePathsToReset = getAffectedFilePaths(instructions);
     await Promise.all(filePathsToReset.map(resetFile));
   };
-  
 
-  const createTempCopyOfFileIfItDoesntExist = async (filePath: string) => {
+  const createTempCopyOfFileIfItDoesntExist = (filePath: string): Promise<any> | void => {
     if (!originalPathToCopyPath.has(filePath)) {
-      const fileContents = await readFile(filePath, 'utf8');
       const fileId = copyFileId++;
       const copyPath = resolve(copyTempDir, fileId.toString());
       originalPathToCopyPath.set(filePath, copyPath);
-      await writeFile(copyPath, fileContents);
+      // TODO: type doesn't seem to account for mz/fs
+      return (copyFile as any)(filePath, copyPath);
     }
   };
 
@@ -2471,26 +2486,11 @@ export const createPlugin = ({
     const mutatedFilePaths = getAffectedFilePaths(instructions);
     console.log(mutatedFilePaths);
     await Promise.all(
-      mutatedFilePaths.map(filePath => createTempCopyOfFileIfItDoesntExist(filePath)),
-    );
-
-    await Promise.all(
-      mutatedFilePaths.map(async filePath => {
-        const originalCodeText = await readFile(filePath, 'utf8');
-        const ast = newAstMap.get(filePath)!;
-        const { code } = generate(
-          ast,
-          {
-            retainFunctionParens: true,
-            retainLines: true,
-            compact: false,
-            filename: basename(filePath),
-          },
-          originalCodeText,
-        );
-        await writeFile(filePath, code, { encoding: 'utf8' });
-      }),
-    );
+      mutatedFilePaths.map(async (filePath) => {
+        await createTempCopyOfFileIfItDoesntExist(filePath);
+        await overwriteWithMutatedAst(filePath, newAstMap);
+      })
+    )
 
     await Promise.resolve(onMutation(mutatedFilePaths));
     mutationsAttempted++;
