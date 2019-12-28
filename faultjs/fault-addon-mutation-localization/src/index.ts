@@ -569,8 +569,8 @@ class InstructionFactoryMutation<D> implements Mutation<D, any> {
     const newAst = newAsts.get(this.filePath)!;
     const astPath = getAstPath(newAst);
     return this.wrapperMutation.setup(
-      traverseKeys(astPath, this.pathKeys),
       data,
+      traverseKeys(astPath, this.pathKeys),
     );
   }
 
