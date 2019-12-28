@@ -4,6 +4,7 @@ import {
   leftNullifyBinaryOrLogicalOperatorFactory,
   gatherInstructions,
   FORCE_CONSEQUENT,
+  InstructionFactory,
   executeInstructions,
   getDependencyPaths,
   pathToKey
@@ -19,7 +20,12 @@ const filePath2 = 'file2';
 const astMap = new Map([[filePath1, ast1], [filePath2, ast2]]);
 
 it('instruction factory integration', () => {
-  const instructions = [...gatherInstructions([forceConsequentFactory, leftNullifyBinaryOrLogicalOperatorFactory], astMap)];
+  const instructions = [...gatherInstructions([
+    new InstructionFactory([
+      forceConsequentFactory,
+      leftNullifyBinaryOrLogicalOperatorFactory
+    ])
+  ], astMap)];
   // 1 consequent && 2 binaries
   expect(instructions).toHaveLength(3);
 
