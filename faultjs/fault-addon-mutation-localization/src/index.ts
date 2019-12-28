@@ -234,9 +234,180 @@ const keysToDependencyList = (path: NodePath<any>, keyList: TraverseKey[][]) => 
 
 type WrapperMutation<D, S> = {
   // TODO: Should be NodePath<T> or NodePath<T>[]
-  setup: (nodePath, data: D) => S;
+  setup: (data: D, nodePath) => S;
   execute: (state: S) => void;
 };
+
+type ValueMutationState = {
+  path: NodePath,
+  value: any,
+};
+export class SetDataDynamicMutation implements WrapperMutation<any, ValueMutationState> {
+  constructor(
+    private readonly key: SetDataFnKey<any>,
+    private readonly thisWrapper: NodePathMutationWrapper<any, any>,
+    private readonly getValue: ValueFromPathFn<any, any, SetDataFnValue<any>>
+  ) {}
+
+  setup(data, rootPath) {
+    return {
+      path: this.thisWrapper.traverseToThisPath(rootPath) as NodePath,
+      value: this.getValue(data, rootPath),
+    }
+  }
+
+  execute({ path, value }) {
+    path.setData(this.key, value);
+  }
+}
+
+type SetState = {
+  path: NodePath | NodePath[],
+  value: t.Node
+}
+abstract class AbstractSetMutation<D> implements WrapperMutation<D, SetState> {
+  constructor(
+    private readonly key: TraverseKey,
+    private readonly thisWrapper: NodePathMutationWrapper<D, any>,
+  ) {}
+  
+  setup(data: D, rootPath: NodePath): SetState {
+    return {
+      path: this.thisWrapper.traverseToThisPath(rootPath),
+      value: this.setupValue(data, rootPath)
+    };
+  }
+
+  abstract setupValue(data: D, rootPath: NodePath): t.Node;
+
+  public execute({ path, value }) {
+    path.set(this.key, value);
+  }
+}
+
+class SetMutation extends AbstractSetMutation<any> {
+  constructor(
+    key: TraverseKey,
+    thisWrapper: NodePathMutationWrapper<any, any>, 
+    private readonly setWrapper: NodePathMutationWrapper<any, t.Node>
+  ) {
+    super(key, thisWrapper);
+  }
+
+  setupValue(data, rootPath) {
+    return (this.setWrapper.traverseToThisPath(rootPath) as NodePath).node;
+  }
+}
+
+class SetDynamicMutation<D, T> extends AbstractSetMutation<D> {
+  constructor(
+    key: TraverseKey, 
+    thisWrapper: NodePathMutationWrapper<D, T>,
+    private readonly getNode: ValueFromPathFn<D, any, SetFnNode<T>>,
+  ) {
+    super(key, thisWrapper);
+  }
+
+  setupValue(data, rootPath) {
+    return this.getNode(data, rootPath);
+  }
+}
+
+type ReplaceWithMultipleState = {
+  path: NodePath,
+  value: t.Node[]
+};
+export class ReplaceWithMultipleMutation implements WrapperMutation<any, ReplaceWithMultipleState> {
+  constructor(
+    private readonly thisWrapper: NodePathMutationWrapper<any, any>,
+    private readonly valueWrapper: NodePathMutationWrapper<any, t.Node>,
+  ) {
+
+  }
+
+  setup(data, rootPath) {
+    return {
+      path: this.thisWrapper.traverseToThisPath(rootPath) as NodePath,
+      value: (this.valueWrapper.traverseToThisPath(rootPath) as NodePath[]).map(path => path.node),
+    };
+  }
+
+  execute({ path, value }) {
+    path.replaceWithMultiple(value);
+  }
+}
+
+type ReplaceWithState = {
+  path: NodePath,
+  value: ReplaceWithFnReplacement<any>,
+};
+abstract class AbstractReplaceWithMutation implements WrapperMutation<any, ReplaceWithState> {
+  constructor(
+    private readonly thisWrapper: NodePathMutationWrapper<any, any>,
+  ) {}  
+
+  setup(data, rootPath) {
+    const value = this.setupValue(data, rootPath);
+    if (Array.isArray(value)) {
+      throw new Error(`replaceWith does not support array node paths`);
+    }
+
+    const traversed = this.thisWrapper.traverseToThisPath(rootPath);
+    if (Array.isArray(traversed)) {
+      throw new Error(`replaceWith does not support array replacements`);
+    }
+    return {
+      path: traversed,
+      value 
+    }
+  }
+
+  execute({ path, value }) {
+    path.replaceWith(value);
+  }
+
+  abstract setupValue(data, rootPath): ReplaceWithFnReplacement<any>;
+}
+export class ReplaceWithMutation extends AbstractReplaceWithMutation {
+  constructor(
+    thisWrapper: NodePathMutationWrapper<any, any>,
+    private readonly replacementWrapper: NodePathMutationWrapper<any, any>,
+  ) {
+    super(thisWrapper);
+  }
+
+  setupValue(data, rootPath) {
+    return this.replacementWrapper.traverseToThisPath(rootPath) as NodePath;
+  }
+}
+
+export class ReplaceWithDynamicMutation extends AbstractReplaceWithMutation {
+  constructor(
+    thisWrapper: NodePathMutationWrapper<any, any>,
+    private readonly getReplacement: ValueFromPathFn<any, any, ReplaceWithFnReplacement<any>>,
+  ) {
+    super(thisWrapper);
+  }
+
+  setupValue(data, rootPath) {
+    return this.getReplacement(data, rootPath)
+  }
+}
+
+export class RemoveMutation implements WrapperMutation<any, NodePath> {
+  constructor(
+    private readonly thisWrapper: NodePathMutationWrapper<any, any>
+  ) {}
+
+  setup(data, rootPath) {
+    return this.thisWrapper.traverseToThisPath(rootPath) as NodePath;
+  }
+
+  execute(path) {
+    path.remove();
+  }
+}
+
 export class NodePathMutationWrapper<D, T = t.Node> {
   private dependencies: DependencyInfo | null = null;
   constructor(
@@ -281,98 +452,39 @@ export class NodePathMutationWrapper<D, T = t.Node> {
     getValue: ValueFromPathFn<D, any, SetDataFnValue<T>>,
   ): any {
     this.writes.push([...this.keys, key]);
-    this.mutations.push({
-      setup: (path, data) => {
-        return { path: this.traverseToThisPath(path), value: getValue(data, path) };
-      },
-      execute: ({ path, value }) => {
-        path.node[key] = value;
-      },
-    });
+    this.mutations.push(new SetDataDynamicMutation(key, this, getValue));
   }
 
   public set(key: SetFnKey<T>, wrapper: NodePathMutationWrapper<D, t.Node>) {
-    this.setDynamic(key, (data, rootPath) => {
-      const nodePath = wrapper.traverseToThisPath(rootPath);
-      const nodes = Array.isArray(nodePath)
-        ? nodePath.map(path => path.node)
-        : nodePath.node;
-      return nodes;
-    });
+    this.writes.push([...this.keys, key]);
+    this.mutations.push(new SetMutation(key, this, wrapper));
   }
 
   public setDynamic(key: SetFnKey<T>, getNode: ValueFromPathFn<D, any, SetFnNode<T>>) {
     this.writes.push([...this.keys, key]);
-    this.mutations.push({
-      setup: (path, data) => {
-        return { path: this.traverseToThisPath(path), value: getNode(data, path) };
-      },
-      execute: ({ path, value }) => {
-        path.set(key, value);
-      },
-    });
+    this.mutations.push(new SetDynamicMutation(key, this, getNode));
   }
 
-  public replaceWithMultiple(wrappers: NodePathMutationWrapper<D>[]) {
+  public replaceWithMultiple(wrapper: NodePathMutationWrapper<D>) {
     this.writes.push(this.keys);
-    this.mutations.push({
-      setup: (nodePath, data) => {
-        return {
-          path: this.traverseToThisPath(nodePath),
-          value: wrappers.map(wrapper => wrapper.traverseToThisPath(nodePath)),
-        };
-      },
-      execute: ({ path, value }) => {
-        path.replaceWithMultiple(value);
-      },
-    });
+    this.mutations.push(new ReplaceWithMultipleMutation(this, wrapper));
   }
 
   public replaceWith(wrapper: NodePathMutationWrapper<D>) {
-    this.replaceWithDynamic((data, nodePath) => {
-      const traversed = wrapper.traverseToThisPath(nodePath);
-      if (Array.isArray(nodePath)) {
-        throw new Error(`replaceWith does not support array node paths`);
-      }
-      if (Array.isArray(traversed)) {
-        throw new Error(`replaceWith does not support array replacements`);
-      }
-      return traversed.node;
-    });
+    this.writes.push(this.keys);
+    this.mutations.push(new ReplaceWithMutation(this, wrapper));
   }
 
   public replaceWithDynamic(
     getReplacement: ValueFromPathFn<D, any, ReplaceWithFnReplacement<T>>,
   ) {
     this.writes.push(this.keys);
-    this.mutations.push({
-      setup: (nodePath, data) => {
-        const path = this.traverseToThisPath(nodePath);
-        if (Array.isArray(path)) {
-          throw new Error(`replaceWithDynamic does not support array node paths`);
-        }
-        const replacement = getReplacement(data, nodePath);
-        if (Array.isArray(replacement)) {
-          throw new Error(`replaceWithDynamic does not support arrays as its input`);
-        }
-        console.log('setup', path.node.type, replacement.type);
-        return { path, value: replacement };
-      },
-      execute: ({ path, value }) => {
-        console.log('execute', path.node.type, value.type);
-        path.replaceWith(value);
-      },
-    });
+    this.mutations.push(new ReplaceWithDynamicMutation(this, getReplacement));
   }
 
   public remove() {
     this.writes.push(this.keys);
-    this.mutations.push({
-      setup: path => ({ path: this.traverseToThisPath(path) }),
-      execute: ({ path }) => {
-        path.remove();
-      },
-    });
+    this.mutations.push(new RemoveMutation(this));
   }
 }
 
