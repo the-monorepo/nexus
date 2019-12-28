@@ -466,7 +466,7 @@ class InstructionFactoryMutation<D> implements Mutation<D, any> {
     return this.wrapperMutation.execute(state);
   }
 }
-class InstructionFactory implements AbstractInstructionFactory<any> {
+export class InstructionFactory implements AbstractInstructionFactory<any> {
   constructor(
     private readonly simpleInstructionFactories: AbstractSimpleInstructionFactory<any, any>[],
   ) {}
