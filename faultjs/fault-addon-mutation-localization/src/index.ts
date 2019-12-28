@@ -466,19 +466,29 @@ class InstructionFactoryMutation<D> implements Mutation<D, any> {
     return this.wrapperMutation.execute(state);
   }
 }
-class InstructionFactory<D> implements AbstractInstructionFactory<D> {
+class InstructionFactory implements AbstractInstructionFactory<any> {
   constructor(
-    public readonly pathToInstructions: (
-      path: NodePath,
-    ) => IterableIterator<InstructionFactoryPayload<D, any>>,
-    public readonly setupPath?: (path: t.File) => void,
+    private readonly simpleInstructionFactories: AbstractSimpleInstructionFactory<any, any>[],
   ) {}
 
   setup(asts: Map<string, t.File>) {
-    if (this.setupPath) {
-      for (const ast of asts.values()) {
-        this.setupPath(ast);
-      }
+    for (const ast of asts.values()) {
+      traverse(ast, {
+        enter: (path) => {
+          for(const instructionFactory of this.simpleInstructionFactories) {
+            if (instructionFactory.setup.enter) {
+              instructionFactory.setup.enter(path);
+            }
+          }
+        },
+        exit: (path) => {
+          for(const instructionFactory of this.simpleInstructionFactories) {
+            if (instructionFactory.setup.exit) {
+              instructionFactory.setup.exit(path);
+            }
+          }
+        }
+      });
     }
   }
 
@@ -486,49 +496,72 @@ class InstructionFactory<D> implements AbstractInstructionFactory<D> {
     for (const [filePath, ast] of asts) {
       const instructions: Instruction<D>[] = [];
       traverse(ast, {
-        enter: path => {
-          for (const { type, wrapper, variants } of this.pathToInstructions(path)) {
-            const pathKeys = getTraverseKeys(path);
-            const newInstruction = new Instruction(
-              type,
-              new Map([[filePath, wrapper.getDependencies(path as any)]]),
-              wrapper.mutations.map(wrapperMutation => new InstructionFactoryMutation(
-                filePath,
-                pathKeys,
-                wrapperMutation
-              )),
-              variants,
-            );
-            instructions.push(newInstruction);
+        enter: (path) => {
+          for(const instructionFactory of this.simpleInstructionFactories) {
+            for (const { type, wrapper, variants } of instructionFactory.pathToInstructions(path)) {
+              const pathKeys = getTraverseKeys(path);
+              const newInstruction = new Instruction(
+                type,
+                new Map([[filePath, wrapper.getDependencies(path as any)]]),
+                wrapper.mutations.map(wrapperMutation => new InstructionFactoryMutation(
+                  filePath,
+                  pathKeys,
+                  wrapperMutation
+                )),
+                variants,
+              );
+              instructions.push(newInstruction);
+            }  
           }
-        },
+        }
       });
-      yield* instructions;
+      yield *instructions;
     }
   }
 }
 
-class SimpleInstructionFactory<D, T> extends InstructionFactory<D> {
+type PathToInstructionsFn<D, T> = (path: NodePath) => IterableIterator<InstructionFactoryPayload<D, T>>;
+type SetupFn = (path: NodePath) => any;
+type SetupObj = {
+  enter?: SetupFn,
+  exit?: SetupFn,
+}
+
+interface AbstractSimpleInstructionFactory<D, T> {
+  pathToInstructions: PathToInstructionsFn<D, T>;
+  setup: SetupObj,
+};
+
+const simpleInstructionFactory =  <D, T>(
+  pathToInstructions: PathToInstructionsFn<D, T>, 
+  setup: SetupObj = {},
+): AbstractSimpleInstructionFactory<D, T> => ({
+  pathToInstructions,
+  setup,
+});
+
+class SimpleInstructionFactory<D, T> implements AbstractSimpleInstructionFactory<D, T> {
   constructor(
-    type: symbol,
-    wrapper: NodePathMutationWrapper<D, T>,
-    condition: ConditionFn,
-    createVariantFn?: CreateVariantsFn<D, T>,
-    setup?: (ast: t.File) => void,
-  ) {
-    super(function*(path) {
-      if (condition(path)) {
-        const variants =
-          createVariantFn === undefined ? undefined : createVariantFn(path as any);
-        if (variants === undefined || variants.length >= 1) {
-          yield {
-            type,
-            wrapper,
-            variants,
-          };
-        }
+    private type: symbol,
+    private wrapper: NodePathMutationWrapper<D, T>,
+    private condition: ConditionFn,
+    private createVariantFn?: CreateVariantsFn<D, T>,
+    public readonly setup: SetupObj = {},
+  ) {}
+
+  *pathToInstructions(path: NodePath) {
+    if (this.condition(path)) {
+      const variants =
+        this.createVariantFn === undefined ? undefined : this.createVariantFn(path as any);
+      if (variants === undefined || variants.length >= 1) {
+        const wrapperMutation = {
+          type: this.type,
+          wrapper: this.wrapper,
+          variants,
+        };
+        yield wrapperMutation;
       }
-    }, setup);
+    }
   }
 }
 
@@ -718,32 +751,29 @@ const createValueVariantCollector = (
   symbol: symbol,
   key = 'value',
   collectCondition: ConditionFn = condition,
-) => {
-  return <T>(ast: t.File): T[][] => {
-    const blocks: T[][] = [[]];
-    traverse(ast, {
-      enter: subPath => {
-        if (subPath.isScope()) {
-          blocks.push([]);
-        }
-        const current = (subPath.node as any)[key];
-        if (condition(subPath)) {
-          subPath.node[symbol as any] = filterVariantDuplicates(
-            ([] as any[]).concat(...blocks),
-          ).filter(v => v !== current);
-        }
-        if (collectCondition(subPath)) {
-          blocks[blocks.length - 1].push(current);
-        }
-      },
-      exit: subPath => {
-        if (subPath.isScope()) {
-          blocks.pop();
-        }
-      },
-    });
-    return blocks;
-  };
+): SetupObj => {
+  const blocks: any[][] = [[]];
+  return {
+    enter: subPath => {
+      if (subPath.isScope()) {
+        blocks.push([]);
+      }
+      const current = (subPath.node as any)[key];
+      if (condition(subPath)) {
+        subPath.node[symbol as any] = filterVariantDuplicates(
+          ([] as any[]).concat(...blocks),
+        ).filter(v => v !== current);
+      }
+      if (collectCondition(subPath)) {
+        blocks[blocks.length - 1].push(current);
+      }
+    },
+    exit: subPath => {
+      if (subPath.isScope()) {
+        blocks.pop();
+      }
+    }
+  }
 };
 
 const createValueInstructionFactory = (
@@ -1000,7 +1030,7 @@ const swapFunctionCallArgumentsSequence = ({ index1, index2 }: SwapFunctionCallA
 };
 
 export const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
-const swapFunctionCallArgumentsFactory = new InstructionFactory(function*(nodePath) {
+const swapFunctionCallArgumentsFactory = simpleInstructionFactory(function*(nodePath: NodePath) {
   if (nodePath.isCallExpression() && nodePath.node.loc) {
     const node = nodePath.node;
     for (let p = 1; p < node.arguments.length; p++) {
@@ -1035,7 +1065,7 @@ const swapFunctionDeclarationParametersSequence = ({
 };
 
 export const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
-const swapFunctionDeclarationParametersFactory = new InstructionFactory(function*(
+const swapFunctionDeclarationParametersFactory = simpleInstructionFactory(function*(
   nodePath,
 ) {
   if (nodePath.isFunctionDeclaration() && nodePath.node.loc) {
@@ -1067,7 +1097,7 @@ const deleteStatementSequence = ({ index }: DeleteStatementArgs) => {
 };
 
 export const DELETE_STATEMENT = Symbol('delete-statement');
-const deleteStatementFactory = new InstructionFactory(function*(path) {
+const deleteStatementFactory = simpleInstructionFactory(function*(path) {
   if (path.has('body')) {
     const bodyPaths = path.get('body');
     if (Array.isArray(bodyPaths)) {
@@ -1087,20 +1117,22 @@ const deleteStatementFactory = new InstructionFactory(function*(path) {
 });
 
 export const AST_FILE_PATH = Symbol('ast-file-path');
-const instructionFactories: InstructionFactory<any>[] = [
-  replaceAssignmentOperatorFactory,
-  replaceBinaryOrLogicalOperatorFactory,
-  replaceBooleanFactory,
-  replaceStringFactory,
-  swapFunctionCallArgumentsFactory,
-  leftNullifyBinaryOrLogicalOperatorFactory,
-  swapFunctionDeclarationParametersFactory,
-  replaceNumberFactory,
-  replaceIdentifierFactory,
-  deleteStatementFactory,
-  rightNullifyBinaryOrLogicalOperatorFactory,
-  forceConsequentFactory,
-  forceAlternateFactory,
+const instructionFactories: InstructionFactory[] = [
+  new InstructionFactory([
+    replaceAssignmentOperatorFactory,
+    replaceBinaryOrLogicalOperatorFactory,
+    replaceBooleanFactory,
+    replaceStringFactory,
+    swapFunctionCallArgumentsFactory,
+    leftNullifyBinaryOrLogicalOperatorFactory,
+    swapFunctionDeclarationParametersFactory,
+    replaceNumberFactory,
+    replaceIdentifierFactory,
+    deleteStatementFactory,
+    rightNullifyBinaryOrLogicalOperatorFactory,
+    forceConsequentFactory,
+    forceAlternateFactory,  
+  ])
 ];
 const RETRIES = 1;
 const findWidenedCoveragePaths = (astMap: Map<string, t.File>, locations: Location[]): Map<string, NodePath[]> => {
