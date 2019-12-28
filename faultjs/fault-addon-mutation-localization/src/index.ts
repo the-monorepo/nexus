@@ -585,7 +585,6 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
 
   setup(asts: Map<string, t.File>) {
     for (const ast of asts.values()) {
-      console.log('ast')
       traverse(ast, {
         enter: (path) => {
           for(const instructionFactory of this.simpleInstructionFactories) {
@@ -607,15 +606,12 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
 
   *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<any>> {
     for (const [filePath, ast] of asts) {
-      console.log('instruction', filePath);
       const instructions: Instruction<any>[] = [];
       traverse(ast, {
         enter: (path) => {
           let pathKeys: TraverseKey[] = null!;
           for(const instructionFactory of this.simpleInstructionFactories) {
-            console.log('instructionFactory')
             for (const { type, wrapper, variants } of instructionFactory.pathToInstructions(path)) {
-              console.log('type', type);
               if (pathKeys === null) {
                 pathKeys = getTraverseKeys(path);
               }
@@ -1254,6 +1250,31 @@ const instructionFactories: InstructionFactory[] = [
   ])
 ];
 const RETRIES = 1;
+
+export const filterForRelevantInstructions = (
+  allInstructions: Instruction<any>[],
+  coveragePaths: Map<string, NodePath[]>,
+) => {
+  return allInstructions.filter(instruction => {
+    for(const [filePath, fileDependencies] of instruction.dependencies) {
+      const fileCoveragePaths = coveragePaths.get(filePath);
+      if(fileCoveragePaths === undefined) {
+        continue;
+      }
+
+      for(const writePath of fileDependencies.writes) {
+        for(const coveragePath of fileCoveragePaths) {
+          const potentialParent = writePath.find(path => path.node === coveragePath.node);
+          if (potentialParent !== null) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;              
+  });
+}
 const findWidenedCoveragePaths = (astMap: Map<string, t.File>, locations: Location[]): Map<string, NodePath[]> => {
   const nodePaths: Map<string, NodePath[]> = new Map();
   for(const filePath of astMap.keys()) {
@@ -2547,25 +2568,10 @@ export const createPlugin = ({
 
           coveragePaths = findWidenedCoveragePaths(originalAstMap, locations);
 
-          const relevantInstructions = allInstructions.filter(instruction => {
-            for(const [filePath, fileDependencies] of instruction.dependencies) {
-              const fileCoveragePaths = coveragePaths.get(filePath);
-              if(fileCoveragePaths === undefined) {
-                continue;
-              }
-
-              for(const writePath of fileDependencies.writes) {
-                for(const coveragePath of fileCoveragePaths) {
-                  const potentialParent = writePath.find(path => path.node === coveragePath.node);
-                  if (potentialParent !== null) {
-                    return true;
-                  }
-                }
-              }
-            }
-
-            return false;              
-          });
+          const relevantInstructions = filterForRelevantInstructions(
+            allInstructions,
+            coveragePaths,
+          );
           console.log(
             'relevant instructions',
             relevantInstructions.map(a => a.type),
