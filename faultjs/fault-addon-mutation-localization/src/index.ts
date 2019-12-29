@@ -2261,6 +2261,25 @@ export const codeMapToAstMap = (
   return new Map(mapEntries);
 };
 
+export const createInstructionQueue = (
+  nodeEvaluations: Map<string, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>
+) => {
+  const heapComparisonFn = (a: Heap<Instruction<any>>, b: Heap<Instruction<any>>) =>
+    compareInstructionBlocks(nodeEvaluations, instructionEvaluations, a, b);
+  return new Heap(heapComparisonFn);
+}
+
+export const createInstructionBlocks = (
+  nodeEvaluations: Map<string, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
+  instructionsList: Instruction<any>[][]
+) => {
+  const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) =>
+    compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
+
+  return instructionsList.map(instructions => new Heap(subHeapCompareFn, instructions))
+}
 export const createPlugin = ({
   faultFileDir = './faults/',
   babelOptions,
@@ -2280,8 +2299,6 @@ export const createPlugin = ({
     Heap<MutationEvaluation>
   > = new Map();
 
-  const heapComparisonFn = (a: Heap<Instruction<any>>, b: Heap<Instruction<any>>) =>
-    compareInstructionBlocks(nodeEvaluations, instructionEvaluations, a, b);
 
   let previousInstructions: Heap<Instruction<any>> = null!;
   let codeMap: Map<string, string> = null!;
@@ -2289,7 +2306,7 @@ export const createPlugin = ({
   let testAstMap: Map<string, t.File> = null!;
   let coverageObjs: Map<string, CoveragePathObj[]> = null!;
   let finished = false;
-  const instructionQueue: Heap<Heap<Instruction<any>>> = new Heap(heapComparisonFn);
+  const instructionQueue: Heap<Heap<Instruction<any>>> = createInstructionQueue(nodeEvaluations, instructionEvaluations);
   let firstRun = true;
   let firstTesterResults: TesterResults;
   const failingTestFiles: Set<string> = new Set();
@@ -2532,12 +2549,8 @@ export const createPlugin = ({
             'organized instructions',
             organizedInstructions.map(a => a.map(b => b.type)),
           );
-          const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) =>
-            compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
           instructionQueue.push(
-            ...organizedInstructions.map(
-              instructions => new Heap(subHeapCompareFn, instructions),
-            ),
+            ...createInstructionBlocks(nodeEvaluations, instructionEvaluations, organizedInstructions)
           );
           if (instructionQueue.length > 0) {
             console.log('Pushing instruction');

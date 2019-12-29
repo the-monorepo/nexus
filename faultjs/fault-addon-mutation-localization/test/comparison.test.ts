@@ -9,7 +9,9 @@ import {
   getAstPath,
   DependencyInfo,
   initialiseEvaluationMaps,
-  pathToPrimaryKey
+  pathToPrimaryKey,
+  createInstructionQueue,
+  createInstructionBlocks,
 } from '../src/index';
 import { parse } from '@babel/parser';
 import Heap from '@pshaw/binary-heap';
@@ -113,7 +115,9 @@ describe('sorting', () => {
 
     const instruction4 = new Instruction(Symbol('4'), dependenciesMap2, [], []);
 
-    initialiseEvaluationMaps(nodeEvaluations, instructionEvaluations, new Map(), [instruction1, instruction2, instruction3, instruction4]);
+    const instructions = [instruction1, instruction2, instruction3, instruction4];
+
+    initialiseEvaluationMaps(nodeEvaluations, instructionEvaluations, new Map(), instructions);
 
     const mE1 = arrayToMutationEvaluation([1, 0, 0, 0, 0]);
     const mE3 = arrayToMutationEvaluation([0, 0, 0, 0, 1]);
@@ -130,5 +134,10 @@ describe('sorting', () => {
 
     expect(compareFn(instruction1, instruction4)).toBe(-1);
     expect(compareFn(instruction2, instruction4)).toBe(1);
+
+    const instructionQueue = createInstructionQueue(nodeEvaluations, instructionEvaluations);
+    instructionQueue.push(
+      ...createInstructionBlocks(nodeEvaluations, instructionEvaluations, instructions.map(instruction => [instruction]))
+    );
   });
 });
