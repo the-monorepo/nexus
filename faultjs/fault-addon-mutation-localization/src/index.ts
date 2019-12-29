@@ -540,7 +540,7 @@ export class Instruction<D> {
 
 type ConditionFn = (path: NodePath) => boolean;
 type CreateVariantsFn<D, T> = (path: NodePath<T>) => D[];
-type DependencyInfo = {
+export type DependencyInfo = {
   reads: NodePath<any>[];
   writes: NodePath<any>[];
 };
