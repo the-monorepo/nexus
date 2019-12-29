@@ -139,5 +139,12 @@ describe('sorting', () => {
     instructionQueue.push(
       ...createInstructionBlocks(nodeEvaluations, instructionEvaluations, instructions.map(instruction => [instruction]))
     );
+
+    const popped = instructionQueue.pop();
+    expect(popped.peek().type).toBe(instruction3.type);
+    expect(popped.length).toBe(1);
+    expect(instructionQueue.pop().peek().type).toBe(instruction2.type);
+    expect(instructionQueue.pop().peek().type).toBe(instruction4.type);
+    expect(instructionQueue.pop().peek().type).toBe(instruction1.type);
   });
 });
