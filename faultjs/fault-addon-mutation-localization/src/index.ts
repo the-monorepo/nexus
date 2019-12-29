@@ -1797,7 +1797,7 @@ export const mutationEvalatuationMapToFaults = (
               const keys = instruction.writeDependencyKeys;
               return {
                 type: instruction.type.toString(),
-                locations: [...instruction.dependencies.values()][0].writes.map(path => path.find(parent => parent.node.loc != null)).map(path => locationToKeyIncludingEnd(filePath, path.node.loc)),
+                locations: [...instruction.dependencies.values()][0].writes.map(path => path.find(parent => parent.node != null && parent.node.loc != null)).map(path => locationToKeyIncludingEnd(filePath, path.node.loc)),
                 evaluations: [...instructionEvaluations.get(instruction)!.sortedIterator()].map(e => ({ ...e, instructions: undefined })),
                 nodes: keys.map(key => [...nodeEvaluations.get(key)!.mutationEvaluations.sortedIterator()].map(e => ({ ...e, instructions: undefined }))),
               }
