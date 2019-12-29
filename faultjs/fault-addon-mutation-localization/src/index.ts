@@ -92,8 +92,7 @@ const didSomethingGood = (evaluation: MutationEvaluation) => {
   return (
     !evaluation.crashed &&
     (evaluation.testsImproved > 0 ||
-      evaluation.errorsChanged > 0 ||
-      !nothingChangedMutationStackEvaluation(evaluation.stackEvaluation))
+      evaluation.errorsChanged > 0 || evaluation.stackEvaluation.improvement > 0)
   );
 };
 const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => {
@@ -509,7 +508,6 @@ export class Instruction<D> {
     public readonly variants: D[] | undefined,
   ) {    
     const evaluationDependencies: Map<string, DependencyInfo> = new Map();
-    const indirectKeySet: Set<string> = new Set();
     for(const [filePath, fileDependencies] of dependencies) {
       evaluationDependencies.set(filePath, {
         writes: fileDependencies.writes.map(findParentWithType),
@@ -521,6 +519,7 @@ export class Instruction<D> {
       }
     }
 
+    const indirectKeySet: Set<string> = new Set();
     for(const [filePath, fileDependencies] of evaluationDependencies) {
       for(const writePath of fileDependencies.writes) {
         const key = pathToPrimaryKey(filePath, writePath);
@@ -781,6 +780,15 @@ export const executeInstructions = (
   asts: Map<string, t.File>,
   instructions: Iterable<Instruction<any>>,
 ): void => {
+  console.log([...instructions].map(instruction => {
+    const type = instruction.type;
+    const [filePath, dependencies] = [...instruction.dependencies][0];
+    return [
+      type,
+      ...dependencies.writes.map(path => path.find(parentPath => parentPath.node !== null && parentPath.node.loc != null))
+        .map(path => locationToKeyIncludingEnd(filePath, path.node.loc))
+    ]
+  }));
   [...instructions]
     .map(instruction =>
       instruction.mutations.map(mutation => ({
@@ -1231,7 +1239,6 @@ const deleteStatementFactory = simpleInstructionFactory(function*(path) {
   }
 });
 
-export const AST_FILE_PATH = Symbol('ast-file-path');
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
     replaceAssignmentOperatorFactory,
@@ -1253,14 +1260,15 @@ const RETRIES = 1;
 
 export const filterForRelevantInstructions = (
   allInstructions: Instruction<any>[],
-  coveragePaths: Map<string, NodePath[]>,
+  coverageObjs: Map<string, CoveragePathObj[]>,
 ) => {
   return allInstructions.filter(instruction => {
     for(const [filePath, fileDependencies] of instruction.dependencies) {
-      const fileCoveragePaths = coveragePaths.get(filePath);
-      if(fileCoveragePaths === undefined) {
+      const fileCoveragePathObjs = coverageObjs.get(filePath);
+      if(fileCoveragePathObjs === undefined) {
         continue;
       }
+      const fileCoveragePaths = fileCoveragePathObjs.map(obj => obj.path);
 
       for(const writePath of fileDependencies.writes) {
         for(const coveragePath of fileCoveragePaths) {
@@ -1275,27 +1283,37 @@ export const filterForRelevantInstructions = (
     return false;              
   });
 }
-const findWidenedCoveragePaths = (astMap: Map<string, t.File>, locations: Location[]): Map<string, NodePath[]> => {
-  const nodePaths: Map<string, NodePath[]> = new Map();
+type CoveragePathObj = {
+  path: NodePath,
+  originalLocation: Location,
+}
+const findWidenedCoveragePaths = (
+  astMap: Map<string, t.File>,
+  locations: Location[]
+): Map<string, CoveragePathObj[]> => {
+  const nodePaths: Map<string, CoveragePathObj[]> = new Map();
   for(const filePath of astMap.keys()) {
     nodePaths.set(filePath, []);
   }
   for (const [filePath, ast] of astMap.entries()) {
-    const fileLocationPaths: Set<string> = new Set(
+    const fileLocationPaths: Map<string, Location> = new Map(
       locations
         .filter(location => filePath === location.filePath)
-        .map(location => locationToKeyIncludingEnd(location.filePath, location)),
+        .map(location => [locationToKeyIncludingEnd(location.filePath, location), location]),
     );
 
     traverse(ast, {
-      enter(path: NodePath) {
+      exit(path: NodePath) {
         const loc = path.node.loc;
         if (loc !== undefined) {
           const key = locationToKeyIncludingEnd(filePath, loc);
           if (fileLocationPaths.has(key)) {
-            path[AST_FILE_PATH] = filePath;
+            const originalLocation = fileLocationPaths.get(key);
             fileLocationPaths.delete(key);
-            nodePaths.get(filePath)!.push(widenCoveragePath(path));
+            nodePaths.get(filePath)!.push({
+              path: widenCoveragePath(path),
+              originalLocation,
+            });
           }
         }
       },
@@ -1604,15 +1622,6 @@ const evaluateNewMutation = (
   };
 };
 
-const isInCoverage = (
-  filePath: string,
-  location: ExpressionLocation,
-  locationKeys: Set<string>,
-) => {
-  const key = locationToKeyIncludingEnd(filePath, location);
-  return locationKeys.has(key);
-};
-
 const locationToKey = (filePath: string, location?: ExpressionLocation | null) => {
   if (!location) {
     return filePath;
@@ -1686,7 +1695,7 @@ export const compareFinalInstructionEvaluations = (
   }
 
   // TODO: More evaluations = less good at this point. Add that in
-  return mutationCount2 / getTotalNodes(category2.path) - mutationCount1 / getTotalNodes(category1.path);
+  return (mutationCount2 + 1) / getTotalNodes(category2.path) - (mutationCount1 + 1) / getTotalNodes(category1.path);
 };
 
 type InstructionCategory = {
@@ -1697,35 +1706,32 @@ type InstructionCategory = {
 };
 export const categoriseInstructionsIntoCloestParentPaths = (
   instructions: Instruction<any>[],
-  parentPaths: Map<string, NodePath[]>,
+  categoryObjMap: Map<string, CoveragePathObj[]>,
 ): Map<t.Node, InstructionCategory> => {
-  const pathWithLocation = path => {
-    return path.find(path => path.node.loc !== null);
-  };
   const categorisedMap: Map<t.Node, InstructionCategory> = new Map();
+  for(const [filePath, objs] of categoryObjMap) {
+    for(const obj of objs) {
+      categorisedMap.set(obj.path.node, {
+        filePath,
+        location: obj.originalLocation,
+        instructions: [],
+        path: obj.path
+      });
+    }
+  }
   for (const instruction of instructions) {
     for (const [filePath, fileDependencies] of instruction.dependencies) {
-      const fileCoverageNodes = parentPaths.get(filePath)!.map(pathWithLocation).map(path => path.node);
-      for (const dependency of fileDependencies.writes) {
-        const selectedParentPath = dependency.find(parentPath =>
-          fileCoverageNodes.includes(parentPath.node),
+      const fileCoverageObjs = categoryObjMap.get(filePath)!;
+      for (const dependencyPath of fileDependencies.writes) {
+        const selectedParentPath = dependencyPath.find(parentPath =>
+          fileCoverageObjs.some(obj => obj.path.node === parentPath.node),
         );
-        const selectedFinalPath =
-          selectedParentPath === null
-            ? dependency
-            : selectedParentPath.find(pathWithLocation);
-        if (selectedFinalPath !== null) {
-          const selectedNode = selectedFinalPath.node;
-          if (categorisedMap.has(selectedNode)) {
-            categorisedMap.get(selectedNode)!.instructions.push(instruction);
-          } else {
-            categorisedMap.set(selectedNode, {
-              filePath,
-              location: selectedNode.loc!,
-              instructions: [instruction],
-              path: selectedFinalPath
-            });
-          }
+        if (selectedParentPath !== null) {
+          const selectedCoverageObj = fileCoverageObjs.find(obj => obj.path.node === selectedParentPath.node);
+          const selectedNode = selectedCoverageObj.path.node;
+          categorisedMap.get(selectedNode)!.instructions.push(instruction);
+        } else {
+          console.error(`Warning: ${locationToKeyIncludingEnd(filePath, dependencyPath.node.loc)}`);
         }
       }
     }
@@ -1786,10 +1792,22 @@ type DefaultIsFinishedOptions = {
   durationThreshold?: number;
 };
 
+const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
+  if (evaluations.length <= 0) {
+    return true;
+  }
+  const bestEvaluation = evaluations.peek();
+  return (
+    didSomethingGood(bestEvaluation) ||
+    (bestEvaluation.crashed && bestEvaluation.instructions.length >= 2)
+  );
+};
+
 export const createDefaultIsFinishedFn = ({
   mutationThreshold,
   durationThreshold,
 }: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
+  let consecutiveFailures = 0;
   const isFinishedFn: IsFinishedFunction = (
     instructions,
     testerResults,
@@ -1809,149 +1827,39 @@ export const createDefaultIsFinishedFn = ({
     }
 
     const instructionArr = [...instructions];
-    const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
-      if (evaluations.length <= 0) {
-        return true;
-      }
-      const bestEvaluation = evaluations.peek();
-      return (
-        didSomethingGood(bestEvaluation) ||
-        (bestEvaluation.crashed && bestEvaluation.instructions.length >= 2)
-      );
-    };
 
     if (
       !instructionArr
         .map(instruction => instructionEvaluations.get(instruction)!)
         .some(hasPromisingEvaluation)
     ) {
+      // console.log('No promising instruction evaluations')
       return true;
     }
 
-    const allWriteDependencies = [...new Set(instructionArr.map(instruction => instruction.writeDependencyKeys).flat())];
-    const allDependencyEvaluations = allWriteDependencies.map(
+    const allWriteDependencyKeys = [...new Set(instructionArr.map(instruction => instruction.writeDependencyKeys).flat())];
+    const allDependencyEvaluations = allWriteDependencyKeys.map(
       key => nodeEvaluations.get(key)!.mutationEvaluations,
     );
     if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
+      // console.log('No promsiing node evalations')
       return true;
     }
 
     return false;
   };
-  return isFinishedFn;
-};
-
-export const isLocationWithinBounds = (
-  loc: ExpressionLocation,
-  statement: ExpressionLocation,
-) => {
-  const lineWithin =
-    loc.start.line > statement.start.line && loc.start.line < statement.end.line;
-  const onStartLineBound =
-    loc.start.line === statement.start.line &&
-    loc.start.column >= statement.start.column &&
-    (loc.start.line !== statement.end.line || loc.start.column <= statement.end.column);
-  const onEndLineBound =
-    loc.start.line === statement.end.line &&
-    loc.start.column <= loc.end.column &&
-    (loc.start.line !== statement.start.line ||
-      loc.start.column >= statement.start.column);
-  return lineWithin || onStartLineBound || onEndLineBound;
-};
-
-export const mapFaultsToIstanbulCoverage = (
-  faults: Fault[],
-  coverage: Coverage,
-  failingLocationKeys: Set<string>,
-): Fault[] => {
-  // TODO: Could make this more efficient
-  const mappedFaults: Map<string, Fault> = new Map();
-  const replace = (fault: Fault, location: ExpressionLocation) => {
-    const key = locationToKeyIncludingEnd(fault.sourcePath, location);
-    if (mappedFaults.has(key)) {
-      const previousFault = mappedFaults.get(key)!;
-      if (previousFault.score! > fault.score!) {
-        return;
+  return (...args) => {
+    const finished = isFinishedFn(...args);
+    if (finished) {
+      if (consecutiveFailures < 5) {
+        consecutiveFailures++;
+        return false;
       }
+    } else {
+      consecutiveFailures = 0;
     }
-    mappedFaults.set(key, {
-      score: fault.score,
-      sourcePath: fault.sourcePath,
-      location,
-      other: fault.other,
-    });
-  };
-
-  for (const fault of faults) {
-    const fileCoverage = coverage[fault.sourcePath];
-    if (fileCoverage === undefined) {
-      continue;
-    }
-
-    let mostRelevantStatement: ExpressionLocation | null = null;
-    const loc = fault.location;
-    const locLineWidth = Math.abs(loc.end.line - loc.start.line) + 1; // + 1 cause the line it's on counts as one
-    const locColumnWidth = Math.abs(loc.end.column - loc.start.column);
-    for (const statement of Object.values(fileCoverage.statementMap)) {
-      if (!isInCoverage(fault.sourcePath, statement, failingLocationKeys)) {
-        continue;
-      }
-      if (
-        isLocationWithinBounds(loc, statement) ||
-        isLocationWithinBounds(statement, loc)
-      ) {
-        if (mostRelevantStatement === null) {
-          mostRelevantStatement = statement;
-        } else {
-          const lineDistance = Math.abs(statement.start.line - loc.start.line);
-          const columnDistance = Math.abs(statement.start.column - loc.start.column);
-
-          const oLineDistance = Math.abs(
-            mostRelevantStatement.start.line - loc.start.line,
-          );
-          const oColumnDistance = Math.abs(
-            mostRelevantStatement.start.column - loc.start.column,
-          );
-
-          if (
-            lineDistance < oLineDistance ||
-            (lineDistance === oLineDistance && columnDistance < oColumnDistance)
-          ) {
-            mostRelevantStatement = statement;
-          } else {
-            const lineWidth = Math.abs(statement.end.line - statement.start.line);
-            const columnWidth = Math.abs(statement.end.column - statement.start.column);
-
-            const oLineWidth = Math.abs(
-              mostRelevantStatement.end.line - mostRelevantStatement.start.line,
-            );
-            const oColumnWidth = Math.abs(
-              mostRelevantStatement.end.column - mostRelevantStatement.start.column,
-            );
-
-            const lineDisimilarity = Math.abs(locLineWidth - lineWidth);
-            const columnDisimilarity = Math.abs(locColumnWidth - columnWidth);
-
-            const oLineDisimilarity = Math.abs(locLineWidth - oLineWidth);
-            const oColumnDisimilarity = Math.abs(locColumnWidth - oColumnWidth);
-
-            if (
-              lineDisimilarity < oLineDisimilarity ||
-              (lineDisimilarity === oLineDisimilarity &&
-                columnDisimilarity < oColumnDisimilarity)
-            ) {
-              mostRelevantStatement = statement;
-            }
-          }
-        }
-      }
-    }
-
-    if (mostRelevantStatement !== null) {
-      replace(fault, mostRelevantStatement);
-    }
+    return finished;
   }
-  return [...mappedFaults.values()];
 };
 
 const getAffectedFilePaths = (instructions: Heap<Instruction<any>>): string[] => {
@@ -2225,7 +2133,12 @@ export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
   // TODO: Traverse skips certain node paths like the "values" of binary operators
   rootPath.traverse({
       enter: subPath => {
+        if (subPath.isFunction()) {
+          subPath.skip();
+          return;
+        }
         if (!checkAndAddPath(subPath)) {
+          subPath.skip();
           return;
         }
 
@@ -2257,6 +2170,7 @@ export const getDependencyPathMap = (pathMap: Map<string, DependencyInfo>): Map<
 };
 
 export const overwriteWithMutatedAst = async (filePath: string, mutatedAsts: Map<string, t.File>): Promise<any> => {
+  console.log('reading', filePath);
   const originalCodeText = await readFile(filePath, 'utf8');
   const ast = mutatedAsts.get(filePath)!;
   const { code } = generate(
@@ -2269,6 +2183,7 @@ export const overwriteWithMutatedAst = async (filePath: string, mutatedAsts: Map
     },
     originalCodeText,
   );
+  console.log('overwriting', filePath);
   await writeFile(filePath, code, { encoding: 'utf8' });
 };
 
@@ -2357,7 +2272,7 @@ export const createPlugin = ({
   let codeMap: Map<string, string> = null!;
   let originalAstMap: Map<string, t.File> = null!;
   let testAstMap: Map<string, t.File> = null!;
-  let coveragePaths: Map<string, NodePath[]> = null!;
+  let coverageObjs: Map<string, CoveragePathObj[]> = null!;
   let finished = false;
   const instructionQueue: Heap<Heap<Instruction<any>>> = new Heap(heapComparisonFn);
   let firstRun = true;
@@ -2381,8 +2296,8 @@ export const createPlugin = ({
       console.error(originalPathToCopyPath);
       throw new Error(`Copied/cached path for ${filePath} was ${copyPath}`);
     }
-    const fileContents = await readFile(copyPath, 'utf8');
-    await writeFile(filePath, fileContents, 'utf8');
+    console.log('copying', copyPath, filePath);
+    await (copyFile as any)(copyPath, filePath);
   };
 
   const resetMutationsInInstruction = async (instructions: Heap<Instruction<any>>) => {
@@ -2390,14 +2305,16 @@ export const createPlugin = ({
     await Promise.all(filePathsToReset.map(resetFile));
   };
 
-  const createTempCopyOfFileIfItDoesntExist = (filePath: string): Promise<any> | void => {
+  const createTempCopyOfFileIfItDoesntExist = (filePath: string): Promise<any> => {
     if (!originalPathToCopyPath.has(filePath)) {
       const fileId = copyFileId++;
       const copyPath = resolve(copyTempDir, fileId.toString());
       originalPathToCopyPath.set(filePath, copyPath);
+      console.log('writing', filePath, copyPath)
       // TODO: type doesn't seem to account for mz/fs
       return (copyFile as any)(filePath, copyPath);
     }
+    return Promise.resolve();
   };
 
   const analyzeEvaluation = async (mutationEvaluation: MutationEvaluation) => {
@@ -2439,11 +2356,23 @@ export const createPlugin = ({
       instructionQueue,
     );
     let instructionCount = 0;
+    let nonFinishingInstructionCount = 0;
     for (const block of instructionQueue) {
       instructionCount += block.length;
+      if (!isFinishedFn(
+        block,
+        tester,
+        nodeEvaluations,
+        instructionEvaluations,
+        nodeToInstructions,
+        mutationCount,
+      )) {
+        nonFinishingInstructionCount += block.length;
+      }
     }
+
     console.log(
-      `Left: ${count} mutations, ${instructionCount} instructions, ${instructionQueue.length} blocks`,
+      `Left: ${count} mutations, ${instructionCount} instructions, ${instructionQueue.length} blocks, ${nonFinishingInstructionCount} non-finising instructions`,
     );
 
     if (instructionQueue.length <= 0) {
@@ -2453,11 +2382,6 @@ export const createPlugin = ({
 
     console.log('set peaking');
     const instructions = instructionQueue.pop()!;
-    console.log(
-      [...instructions].map(instruction =>
-        instruction.type.toString(),
-      ),
-    );
     previousInstructions = instructions;
 
     //console.log('processing')
@@ -2486,11 +2410,11 @@ export const createPlugin = ({
     const mutatedFilePaths = getAffectedFilePaths(instructions);
     console.log(mutatedFilePaths);
     await Promise.all(
-      mutatedFilePaths.map(async (filePath) => {
-        await createTempCopyOfFileIfItDoesntExist(filePath);
-        await overwriteWithMutatedAst(filePath, newAstMap);
-      })
-    )
+      mutatedFilePaths.map((filePath) => (
+        createTempCopyOfFileIfItDoesntExist(filePath)
+          .then(() => overwriteWithMutatedAst(filePath, newAstMap))
+      ))
+    );
 
     await Promise.resolve(onMutation(mutatedFilePaths));
     mutationsAttempted++;
@@ -2566,11 +2490,11 @@ export const createPlugin = ({
             allInstructions.map(a => a.type),
           );
 
-          coveragePaths = findWidenedCoveragePaths(originalAstMap, locations);
+          coverageObjs = findWidenedCoveragePaths(originalAstMap, locations);
 
           const relevantInstructions = filterForRelevantInstructions(
             allInstructions,
-            coveragePaths,
+            coverageObjs,
           );
           console.log(
             'relevant instructions',
@@ -2681,11 +2605,10 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
 
-        console.log(failingLocationKeys);
-
+        //console.log(failingLocationKeys);
         const categorisedInstructions = categoriseInstructionsIntoCloestParentPaths(
           [...instructionEvaluations.keys()],
-          coveragePaths,
+          coverageObjs,
         );
         const faults = mutationEvalatuationMapToFaults(
           nodeEvaluations,
@@ -2693,14 +2616,11 @@ export const createPlugin = ({
           [...categorisedInstructions.values()],
         );
 
-        const mappedFaults = mapToIstanbul
-          ? mapFaultsToIstanbulCoverage(faults, tester.coverage, failingLocationKeys)
-          : faults;
-        sortBySuspciousness(mappedFaults);
+        sortBySuspciousness(faults);
         // TODO: Temporary hack to ensure failed coverage comes first but should just use dStar sorting or something instead
         await Promise.all([
-          recordFaults(faultFilePath, mappedFaults),
-          reportFaults(mappedFaults),
+          recordFaults(faultFilePath, faults),
+          reportFaults(faults),
         ]);
       },
     },
