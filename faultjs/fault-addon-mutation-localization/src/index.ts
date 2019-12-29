@@ -238,7 +238,7 @@ type WrapperMutation<D, S> = {
 };
 
 type ValueMutationState = {
-  path: NodePath,
+  node: t.Node,
   value: any,
 };
 export class SetDataDynamicMutation implements WrapperMutation<any, ValueMutationState> {
@@ -250,13 +250,13 @@ export class SetDataDynamicMutation implements WrapperMutation<any, ValueMutatio
 
   setup(data, rootPath) {
     return {
-      path: this.thisWrapper.traverseToThisPath(rootPath) as NodePath,
+      node: this.thisWrapper.traverseToThisPath(rootPath).node,
       value: this.getValue(data, rootPath),
     }
   }
 
-  execute({ path, value }) {
-    path.setData(this.key, value);
+  execute({ node, value }) {
+    node[this.key] = value;
   }
 }
 
@@ -338,7 +338,7 @@ export class ReplaceWithMultipleMutation implements WrapperMutation<any, Replace
 
 type ReplaceWithState = {
   path: NodePath,
-  value: ReplaceWithFnReplacement<any>,
+  value: t.Node,
 };
 abstract class AbstractReplaceWithMutation implements WrapperMutation<any, ReplaceWithState> {
   constructor(
@@ -357,7 +357,7 @@ abstract class AbstractReplaceWithMutation implements WrapperMutation<any, Repla
     }
     return {
       path: traversed,
-      value 
+      value
     }
   }
 
@@ -365,7 +365,7 @@ abstract class AbstractReplaceWithMutation implements WrapperMutation<any, Repla
     path.replaceWith(value);
   }
 
-  abstract setupValue(data, rootPath): ReplaceWithFnReplacement<any>;
+  abstract setupValue(data, rootPath): t.Node;
 }
 export class ReplaceWithMutation extends AbstractReplaceWithMutation {
   constructor(
@@ -376,14 +376,14 @@ export class ReplaceWithMutation extends AbstractReplaceWithMutation {
   }
 
   setupValue(data, rootPath) {
-    return this.replacementWrapper.traverseToThisPath(rootPath) as NodePath;
+    return (this.replacementWrapper.traverseToThisPath(rootPath) as NodePath).node;
   }
 }
 
 export class ReplaceWithDynamicMutation extends AbstractReplaceWithMutation {
   constructor(
     thisWrapper: NodePathMutationWrapper<any, any>,
-    private readonly getReplacement: ValueFromPathFn<any, any, ReplaceWithFnReplacement<any>>,
+    private readonly getReplacement: ValueFromPathFn<any, any, t.Node>,
   ) {
     super(thisWrapper);
   }
@@ -1241,19 +1241,19 @@ const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
-    replaceAssignmentOperatorFactory,
-    replaceBinaryOrLogicalOperatorFactory,
-    replaceBooleanFactory,
-    replaceStringFactory,
-    swapFunctionCallArgumentsFactory,
-    leftNullifyBinaryOrLogicalOperatorFactory,
-    swapFunctionDeclarationParametersFactory,
-    replaceNumberFactory,
-    replaceIdentifierFactory,
     deleteStatementFactory,
-    rightNullifyBinaryOrLogicalOperatorFactory,
     forceConsequentFactory,
     forceAlternateFactory,  
+    replaceIdentifierFactory,
+    replaceBooleanFactory,
+    replaceStringFactory,
+    swapFunctionDeclarationParametersFactory,
+    swapFunctionCallArgumentsFactory,
+    replaceNumberFactory,
+    replaceBinaryOrLogicalOperatorFactory,
+    replaceAssignmentOperatorFactory,
+    leftNullifyBinaryOrLogicalOperatorFactory,
+    rightNullifyBinaryOrLogicalOperatorFactory,
   ])
 ];
 const RETRIES = 1;
@@ -1663,6 +1663,23 @@ const getTotalNodes = (path: NodePath) => {
   });
   return count + 1;
 };
+
+export const instructionDidSomethingGoodOrHasNoEvaluations = (
+  nodeEvaluations: Map<string, NodeEvaluation>,
+  instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
+  instruction: Instruction<any>,
+) => {
+  const evals1 = [...instructionEvaluations.get(instruction)!];
+  const nodeEvalLists = instruction.writeDependencyKeys
+    .map(key => [...nodeEvaluations.get(key)!.mutationEvaluations]);
+
+  if (evals1.length <= 0 && nodeEvalLists.length <= 0) {
+    return true;
+  }
+
+  return evals1.some(didSomethingGood) || nodeEvalLists.some(evals => evals.some(didSomethingGood))
+};
+
 export const compareFinalInstructionEvaluations = (
   nodeEvaluations: Map<string, NodeEvaluation>,
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
@@ -1681,6 +1698,18 @@ export const compareFinalInstructionEvaluations = (
     const comparison = comparisonFn(best1, best2);
     if (comparison !== 0) {
       return comparison;
+    }
+  } else if (instructions1.length <= 0 && instructions2.length >= 1) {
+    if (instructions2.some((instruction) => instructionDidSomethingGoodOrHasNoEvaluations(nodeEvaluations, instructionEvaluations, instruction))) {
+      return -1;
+    } else {
+      return 1;
+    }
+  } else if (instructions1.length >= 1 && instructions2.length <= 0) {
+    if (instructions1.some((instruction) => instructionDidSomethingGoodOrHasNoEvaluations(nodeEvaluations, instructionEvaluations, instruction))) {
+      return 1;
+    } else {
+      return -1;
     }
   }
 
@@ -1787,6 +1816,7 @@ type IsFinishedFunction = (
   instructionEvaluations: Map<Instruction<any>, Heap<MutationEvaluation>>,
   nodeToInstructions: Map<string, Instruction<any>[]>,
   mutationCount: number,
+  solutionCount: number,
 ) => boolean;
 
 export type PluginOptions = {
@@ -1826,7 +1856,12 @@ export const createDefaultIsFinishedFn = ({
     instructionEvaluations,
     nodeToInstructions,
     mutationCount,
+    solutionCount
   ): boolean => {
+    if (solutionCount > 0) {
+      return true;
+    }
+
     if (durationThreshold !== undefined && testerResults.duration >= durationThreshold) {
       console.log('a');
       return true;
@@ -1862,7 +1897,7 @@ export const createDefaultIsFinishedFn = ({
   return (...args) => {
     const finished = isFinishedFn(...args);
     if (finished) {
-      if (consecutiveFailures < 5) {
+      if (consecutiveFailures < 1) {
         consecutiveFailures++;
         return false;
       }
@@ -2398,6 +2433,7 @@ export const createPlugin = ({
         instructionEvaluations,
         nodeToInstructions,
         mutationCount,
+        solutionCounter,
       )) {
         nonFinishingInstructionCount += block.length;
       }
@@ -2429,6 +2465,7 @@ export const createPlugin = ({
         instructionEvaluations,
         nodeToInstructions,
         mutationCount,
+        solutionCounter
       )
     ) {
       console.log('finished');
