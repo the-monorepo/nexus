@@ -36,7 +36,7 @@ export type ExactFault = {
   type: typeof EXACT | undefined;
 } & ScorelessFault;
 
-export type ExpectedFault = WithinFault & ExactFault;
+export type ExpectedFault = WithinFault | ExactFault;
 
 export const normalizeKeyPath = (projectDir: string, sourcePath: string) => {
   return normalize(resolve(projectDir, sourcePath)).replace(/\\+/g, '\\');
