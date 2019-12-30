@@ -832,7 +832,7 @@ export const FORCE_CONSEQUENT = Symbol('force-consequent');
 export const forceConsequentFactory = new SimpleInstructionFactory(
   FORCE_CONSEQUENT,
   forceConsequentSequence,
-  isIfStatement,
+  (path) => path.isIfStatement() && !(path.get('test').isBooleanLiteral() && path.node.test.value === true),
 );
 
 export const forceAlternateSequence = createMutationSequenceFactory(
@@ -846,7 +846,7 @@ export const FORCE_ALTERNATE = Symbol('force-alternate');
 export const forceAlternateFactory = new SimpleInstructionFactory(
   FORCE_ALTERNATE,
   forceAlternateSequence,
-  isIfStatement,
+  (path) => path.isIfStatement() && !(path.get('test').isBooleanLiteral() && path.node.test.value === false)
 );
 
 export const replaceValueSequence = createMutationSequenceFactory(
@@ -1308,7 +1308,7 @@ const findWidenedCoveragePaths = (
         if (loc !== undefined) {
           const key = locationToKeyIncludingEnd(filePath, loc);
           if (fileLocationPaths.has(key)) {
-            const originalLocation = fileLocationPaths.get(key);
+            const originalLocation = fileLocationPaths.get(key)!;
             fileLocationPaths.delete(key);
             nodePaths.get(filePath)!.push({
               path: widenCoveragePath(path),
@@ -1873,13 +1873,13 @@ export const createDefaultIsFinishedFn = ({
     }
 
     const instructionArr = [...instructions];
-
+    
     if (
       !instructionArr
         .map(instruction => instructionEvaluations.get(instruction)!)
         .some(hasPromisingEvaluation)
     ) {
-      // console.log('No promising instruction evaluations')
+      console.log('No promising instruction evaluations')
       return true;
     }
 
@@ -1888,7 +1888,7 @@ export const createDefaultIsFinishedFn = ({
       key => nodeEvaluations.get(key)!.mutationEvaluations,
     );
     if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
-      // console.log('No promsiing node evalations')
+       console.log('No promsiing node evalations')
       return true;
     }
 
@@ -1923,8 +1923,6 @@ const getAffectedFilePaths = (instructions: Heap<Instruction<any>>): string[] =>
 
   return filePaths;
 };
-
-let solutionCounter = 0;
 
 type LocationKey = string;
 const faultFileName = 'faults.json';
@@ -2270,7 +2268,7 @@ const addMutationEvaluation = (
 };
 
 const widenCoveragePath = (path: NodePath) =>
-  path.find(subPath => subPath.isStatement() || subPath.isFunction());
+  path.find(subPath => subPath.isStatement());
 
 const addSplittedInstructionBlock = (
   queue: Heap<Heap<Instruction<any>>>,
@@ -2323,6 +2321,7 @@ export const createPlugin = ({
   isFinishedFn = createDefaultIsFinishedFn(),
   mapToIstanbul = false,
 }: PluginOptions): PartialTestHookOptions => {
+  let solutionCounter = 0;
   const solutionsDir = resolve(faultFileDir, 'solutions');
 
   const faultFilePath = resolve(faultFileDir, faultFileName);
