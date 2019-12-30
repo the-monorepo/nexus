@@ -475,7 +475,7 @@ export class NodePathMutationWrapper<D, T = t.Node> {
   }
 
   public replaceWithDynamic(
-    getReplacement: ValueFromPathFn<D, any, ReplaceWithFnReplacement<T>>,
+    getReplacement: ValueFromPathFn<D, any, t.Node>,
   ) {
     this.writes.push(this.keys);
     this.mutations.push(new ReplaceWithDynamicMutation(this, getReplacement));
@@ -1308,6 +1308,7 @@ const findWidenedCoveragePaths = (
         if (loc !== undefined) {
           const key = locationToKeyIncludingEnd(filePath, loc);
           if (fileLocationPaths.has(key)) {
+            console.log(key);
             const originalLocation = fileLocationPaths.get(key)!;
             fileLocationPaths.delete(key);
             nodePaths.get(filePath)!.push({
@@ -1741,6 +1742,7 @@ export const categoriseInstructionsIntoCloestParentPaths = (
   const categorisedMap: Map<t.Node, InstructionCategory> = new Map();
   for(const [filePath, objs] of categoryObjMap) {
     for(const obj of objs) {
+      console.log('rawr', locationToKeyIncludingEnd(obj.originalLocation.filePath, obj.originalLocation))
       categorisedMap.set(obj.path.node, {
         filePath,
         location: obj.originalLocation,
@@ -2267,8 +2269,8 @@ const addMutationEvaluation = (
   }
 };
 
-const widenCoveragePath = (path: NodePath) =>
-  path.find(subPath => subPath.isStatement());
+export const widenCoveragePath = (path: NodePath) => 
+  path.find(subPath => subPath.isStatement() || subPath.parentPath.isFunction());
 
 const addSplittedInstructionBlock = (
   queue: Heap<Heap<Instruction<any>>>,
@@ -2559,6 +2561,14 @@ export const createPlugin = ({
           );
 
           coverageObjs = findWidenedCoveragePaths(originalAstMap, locations);
+          console.log(
+            [...coverageObjs].map(([filePath, objs]) => 
+              objs.map(obj => [
+                locationToKeyIncludingEnd(filePath, obj.originalLocation),
+                locationToKeyIncludingEnd(filePath, obj.path.node.loc),
+              ].join(' => '))
+            ).flat()
+          )  
 
           const relevantInstructions = filterForRelevantInstructions(
             allInstructions,
@@ -2669,11 +2679,16 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
 
-        //console.log(failingLocationKeys);
+        // console.log(failingLocationKeys);
         const categorisedInstructions = categoriseInstructionsIntoCloestParentPaths(
           [...instructionEvaluations.keys()],
           coverageObjs,
         );
+        console.log(
+          [...categorisedInstructions].map(([node, category]) => 
+            locationToKeyIncludingEnd('C:\\Users\\eastd\\Code\\monorepo\\faultjs\\fault-benchmarker\\projects\\quixbugs-quicksort\\index.js', node.loc)
+          )
+        )
         const faults = mutationEvalatuationMapToFaults(
           nodeEvaluations,
           instructionEvaluations,
