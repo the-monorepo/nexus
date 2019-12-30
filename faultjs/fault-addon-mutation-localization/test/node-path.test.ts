@@ -7,7 +7,8 @@ import {
   InstructionFactory,
   executeInstructions,
   getDependencyPaths,
-  pathToKey
+  pathToKey,
+  widenCoveragePath
 } from '../src/index';
 import { parse } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
@@ -90,4 +91,12 @@ it('instruction factory integration', () => {
   executeInstructions(astMap, forceConsequentInstructions);
 
   expect(testPath.isBooleanLiteral()).toBe(false);
+});
+it('widen path coverage', () => {
+  const astPath2 = getAstPath(ast2);
+  const statementPath = astPath2.get('body')[0];
+  const arrowFunctionPath = statementPath.get('declarations')[0].get('init')
+  const binaryExpressionPath = arrowFunctionPath.get('body');
+  expect(pathToKey(widenCoveragePath(arrowFunctionPath))).toBe(pathToKey(statementPath));
+  expect(pathToKey(widenCoveragePath(binaryExpressionPath))).toBe(pathToKey(binaryExpressionPath));
 });
