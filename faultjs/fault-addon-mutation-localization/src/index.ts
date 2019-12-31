@@ -1399,6 +1399,10 @@ export const compareMutationEvaluations = (
 ) => {
   if (r1.crashed && r2.crashed) {
     return 0;
+  } else if (r1.crashed && !r2.crashed) {
+    return -1;
+  } else if (!r1.crashed && r2.crashed) {
+    return 1;
   }
 
   const goodThingsHappened1 = didSomethingGood(r1);
