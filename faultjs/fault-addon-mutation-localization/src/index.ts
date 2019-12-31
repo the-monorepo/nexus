@@ -10,7 +10,7 @@ import {
 } from '@fault/types';
 import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir, copyFile } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage';
-import { join, resolve, basename } from 'path';
+import { join, resolve, basename, normalize } from 'path';
 import { tmpdir } from 'os';
 import del from 'del';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
@@ -1505,8 +1505,13 @@ export const evaluateStackDifference = (
     stack: (originalResult as any).stack,
   } as Error);
 
-  const firstNewStackFrame = newStackInfo[0];
-  const firstOldStackFrame = oldStackInfo[0];
+  const findFrameFn = frame => normalize(originalResult.file) === normalize(frame.fileName);
+  const firstNewStackFrame = newStackInfo.find(findFrameFn);
+  const firstOldStackFrame = oldStackInfo.find(findFrameFn);
+
+  if (firstNewStackFrame == null || firstOldStackFrame == null) {
+    return null;
+  }
 
   if (firstNewStackFrame.fileName !== firstOldStackFrame.fileName) {
     return null;
