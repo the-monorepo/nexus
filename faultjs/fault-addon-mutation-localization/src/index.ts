@@ -174,7 +174,7 @@ type ReplaceWithFnReplacement<T> = Parameters<NodePath<T>['replaceWith']>[0];
 
 type TraverseKey = number | string;
 
-const getTraverseKeys = (path: NodePath<any>) => {
+export const getTraverseKeys = (path: NodePath<any>) => {
   const parts: TraverseKey[] = [];
 
   do {
@@ -487,7 +487,7 @@ export class NodePathMutationWrapper<D, T = t.Node> {
   }
 }
 
-const createMutationSequenceFactory = <D, T>(
+export const createMutationSequenceFactory = <D, T>(
   mutationSteps: (wrapper: NodePathMutationWrapper<D, T>) => any,
 ) => {
   const wrapper = new NodePathMutationWrapper<D, T>([], [], [], []);
@@ -577,6 +577,28 @@ class InstructionFactoryMutation<D> implements Mutation<D, any> {
     return this.wrapperMutation.execute(state);
   }
 }
+
+export const mutationWrapperToInstruction = (
+  type: symbol,
+  filePath: string,
+  wrapper: NodePathMutationWrapper<any>,
+  rootPath: NodePath,
+  pathKeys: TraverseKey[],
+  variants: any[] | undefined,
+) => {
+  const dependencies = new Map([[filePath, wrapper.getDependencies(rootPath)]]);
+  return new Instruction(
+    type,
+    dependencies,
+    wrapper.mutations.map(wrapperMutation => new InstructionFactoryMutation(
+      filePath,
+      pathKeys,
+      wrapperMutation
+    )),
+    variants,
+  );  
+}
+
 export class InstructionFactory implements AbstractInstructionFactory<any> {
   constructor(
     private readonly simpleInstructionFactories: AbstractSimpleInstructionFactory<any, any>[],
@@ -614,15 +636,13 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
               if (pathKeys === null) {
                 pathKeys = getTraverseKeys(path);
               }
-              const newInstruction = new Instruction(
+              const newInstruction = mutationWrapperToInstruction(
                 type,
-                new Map([[filePath, wrapper.getDependencies(path as any)]]),
-                wrapper.mutations.map(wrapperMutation => new InstructionFactoryMutation(
-                  filePath,
-                  pathKeys,
-                  wrapperMutation
-                )),
-                variants,
+                filePath,
+                wrapper,
+                path,
+                pathKeys,
+                variants
               );
               instructions.push(newInstruction);
             }  
@@ -978,7 +998,7 @@ export const replaceBooleanFactory = new SimpleInstructionFactory(
 type IdentifierProps = {
   name: string;
 };
-const replaceIdentifierSequence = createMutationSequenceFactory(
+export const replaceIdentifierSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<IdentifierProps, t.Identifier>) => {
     path.setDataDynamic('name', name => name);
   },
@@ -1017,7 +1037,7 @@ const collectIdentifierVariant = (path: NodePath): boolean => {
 
 export const PREVIOUS_IDENTIFIER_NAMES = Symbol('previous-identifer-names');
 export const CHANGE_IDENTIFIER = Symbol('change-identifier');
-const replaceIdentifierFactory = new SimpleInstructionFactory(
+export const replaceIdentifierFactory = new SimpleInstructionFactory(
   CHANGE_IDENTIFIER,
   replaceIdentifierSequence,
   isReplaceableIdentifier,
@@ -1043,7 +1063,7 @@ const createCategoryVariantFactory = <T>(
     return operators;
   };
 };
-const replaceBinaryOrLogicalOperatorSequence = createMutationSequenceFactory(
+export const replaceBinaryOrLogicalOperatorSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<OperatorProps, LogicalOrBinaryExpression>) => {
     const left = path.get('left') as NodePathMutationWrapper<
       OperatorProps,
@@ -1067,7 +1087,7 @@ const replaceBinaryOrLogicalOperatorSequence = createMutationSequenceFactory(
 const isBinaryOrLogicalExpression = (path: NodePath) =>
   path.isBinaryExpression() || path.isLogicalExpression();
 export const CHANGE_BINARY_OPERATOR = Symbol('change-binary-operator');
-const replaceBinaryOrLogicalOperatorFactory = new SimpleInstructionFactory(
+export const replaceBinaryOrLogicalOperatorFactory = new SimpleInstructionFactory(
   CHANGE_BINARY_OPERATOR,
   replaceBinaryOrLogicalOperatorSequence,
   isBinaryOrLogicalExpression,
@@ -1107,7 +1127,7 @@ export const rightNullifyBinaryOrLogicalOperatorFactory = new SimpleInstructionF
   isBinaryOrLogicalExpression,
 );
 
-const assignmentSequence = createMutationSequenceFactory(
+export const assignmentSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<OperatorProps, t.AssignmentExpression>) => {
     path.setDataDynamic('operator', operator => operator);
   },
@@ -1138,7 +1158,7 @@ type SwapFunctionCallArgs = {
   index1: number;
   index2: number;
 };
-const swapFunctionCallArgumentsSequence = ({ index1, index2 }: SwapFunctionCallArgs) => {
+export const swapFunctionCallArgumentsSequence = ({ index1, index2 }: SwapFunctionCallArgs) => {
   return createMutationSequenceFactory(
     (wrapper: NodePathMutationWrapper<void, t.CallExpression>) => {
       const params = wrapper.get('arguments');
@@ -1170,7 +1190,7 @@ const swapFunctionCallArgumentsFactory = simpleInstructionFactory(function*(node
   }
 });
 
-const swapFunctionDeclarationParametersSequence = ({
+export const swapFunctionDeclarationParametersSequence = ({
   index1,
   index2,
 }: SwapFunctionCallArgs) => {
@@ -1210,7 +1230,7 @@ const swapFunctionDeclarationParametersFactory = simpleInstructionFactory(functi
 type DeleteStatementArgs = {
   index: number;
 };
-const deleteStatementSequence = ({ index }: DeleteStatementArgs) => {
+export const deleteStatementSequence = ({ index }: DeleteStatementArgs) => {
   return createMutationSequenceFactory(
     (wrapper: NodePathMutationWrapper<void, t.Node>) => {
       const statement = wrapper.get('body').get(index);
@@ -1655,14 +1675,23 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
   return compareMutationEvaluations(a, b);
 };
 
+const shouldCountNode = (path: NodePath) => !path.isExpressionStatement() && !path.isBlockStatement();
+
 const getTotalNodes = (path: NodePath) => {
   let count = 0;
-  path.traverse({
-    enter: () => {
+
+  const enter = (subPath) => {
+    if (shouldCountNode(subPath)) {
       count++;
     }
+  };
+
+  enter(path);
+  path.traverse({
+    enter,
   });
-  return count + 1;
+
+  return count;
 };
 
 export const instructionDidSomethingGoodOrHasNoEvaluations = (
