@@ -1099,11 +1099,11 @@ export const replaceBinaryOrLogicalOperatorFactory = new SimpleInstructionFactor
 
 export const leftNullifyBinaryOperatorSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, LogicalOrBinaryExpression>) => {
-    const left = path.get('left') as NodePathMutationWrapper<
+    const right = path.get('right') as NodePathMutationWrapper<
       void,
       LogicalOrBinaryExpression
     >;
-    path.replaceWith(left);
+    path.replaceWith(right);
   },
 );
 
@@ -1116,11 +1116,11 @@ export const leftNullifyBinaryOrLogicalOperatorFactory = new SimpleInstructionFa
 
 export const rightNullifyBinaryOperatorSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, LogicalOrBinaryExpression>) => {
-    const right = path.get('right') as NodePathMutationWrapper<
+    const left = path.get('left') as NodePathMutationWrapper<
       void,
       LogicalOrBinaryExpression
     >;
-    path.replaceWith(right);
+    path.replaceWith(left);
   },
 );
 export const NULLIFY_RIGHT_OPERATOR = Symbol('nullify-right-operator');
@@ -1279,6 +1279,23 @@ const instructionFactories: InstructionFactory[] = [
     swapFunctionDeclarationParametersFactory,
   ])
 ];
+
+const instructionTypeImportance: Map<symbol, number> = new Map([  
+  NULLIFY_RIGHT_OPERATOR,
+  NULLIFY_LEFT_OPERATOR,
+  CHANGE_ASSIGNMENT_OPERATOR,
+  CHANGE_BINARY_OPERATOR,
+  CHANGE_BOOLEAN,
+  CHANGE_NUMBER,
+  CHANGE_STRING,
+  FORCE_CONSEQUENT,
+  FORCE_ALTERNATE,
+  CHANGE_IDENTIFIER,
+  SWAP_FUNCTION_CALL,
+  DELETE_STATEMENT,
+  SWAP_FUNCTION_PARAMS
+].reverse().map((symbol, i) => [symbol, i]));
+
 const RETRIES = 1;
 
 export const coverageToInstructionMap = (
@@ -1907,50 +1924,52 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    if (durationThreshold !== undefined && testerResults.duration >= durationThreshold) {
-      console.log('a');
-      return true;
-    }
-
-    if (mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
-      console.log('b');
-      return true;
-    }
-
-    const instructionArr = [...instructions];
+    const shouldFinish = (() => {
+      if (durationThreshold !== undefined && testerResults.duration >= durationThreshold) {
+        console.log('a');
+        return true;
+      }
+  
+      if (mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
+        console.log('b');
+        return true;
+      }
+  
+      const instructionArr = [...instructions];
+      
+      if (
+        !instructionArr
+          .map(instruction => instructionEvaluations.get(instruction)!.mutationEvaluations)
+          .some(hasPromisingEvaluation)
+      ) {
+        //console.log('No promising instruction evaluations')
+        return true;
+      }
+  
+      const allWriteDependencyKeys = [...new Set(instructionArr.map(instruction => instruction.writeDependencyKeys).flat())];
+      const allDependencyEvaluations = allWriteDependencyKeys.map(
+        key => nodeEvaluations.get(key)!,
+      );
+      if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
+        //console.log('No promsiing node evalations')
+        return true;
+      }
+  
+      return false;
+    })();
     
-    if (
-      !instructionArr
-        .map(instruction => instructionEvaluations.get(instruction)!.mutationEvaluations)
-        .some(hasPromisingEvaluation)
-    ) {
-      //console.log('No promising instruction evaluations')
-      return true;
-    }
-
-    const allWriteDependencyKeys = [...new Set(instructionArr.map(instruction => instruction.writeDependencyKeys).flat())];
-    const allDependencyEvaluations = allWriteDependencyKeys.map(
-      key => nodeEvaluations.get(key)!,
-    );
-    if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
-      //console.log('No promsiing node evalations')
-      return true;
-    }
-
-    return false;
-  };
-  return (...args) => {
-    const finished = isFinishedFn(...args);
-    if (finished) {
-      if (consecutiveFailures < 1) {
+    if (shouldFinish) {
+      if (consecutiveFailures < 3 || consecutiveFailures <= Math.trunc(mutationCount * 0.01)) {
         consecutiveFailures++;
         return false;
       }
     } else {
       consecutiveFailures = 0;
     }
-    return finished;
-  }
+    return shouldFinish;
+  }; 
+
+  return isFinishedFn
 };
 
 const getAffectedFilePaths = (instructions: Heap<Instruction<any>>): string[] => {
@@ -2042,7 +2061,12 @@ export const compareInstructionWithInitialValues = (
 
   const evaluation1 = instructionEvaluations.get(instruction1)!;
   const evaluation2 = instructionEvaluations.get(instruction2)!;
-  return compareInitialInstructionValues(evaluation1, evaluation2);
+  const initial = compareInitialInstructionValues(evaluation1, evaluation2);
+  if (initial !== 0) {
+    return initial;
+  }
+
+  return instructionTypeImportance.get(instruction1.type) - instructionTypeImportance.get(instruction2.type);
 };
 
 export const compareInstruction = (
@@ -2627,11 +2651,6 @@ export const createPlugin = ({
 
           const relevantInstructions:Instruction<any>[] = [...new Set([...coverageToInstructions.values()].flat())];
 
-          console.log(
-            'relevant instructions',
-            relevantInstructions.map(a => a.type),
-          );
-
           initialiseEvaluationMaps(
             nodeEvaluations,
             instructionEvaluations,
@@ -2649,6 +2668,11 @@ export const createPlugin = ({
 
           relevantInstructions.sort((a, b) =>
             compareInstructionWithInitialValues(nodeEvaluations, instructionEvaluations, a, b),
+          );
+
+          console.log(
+            'relevant instructions',
+            relevantInstructions.map(a => a.type),
           );
 
           const organizedInstructions = organizeInstructions(relevantInstructions);
