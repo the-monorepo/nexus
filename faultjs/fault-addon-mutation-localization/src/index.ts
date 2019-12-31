@@ -2195,7 +2195,15 @@ export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
       return false;
     }
 
-    collectedPaths.push(aPath);
+    /* TODO: This is pretty confusing but the reason this check exists is because in places like:
+      const a = 0, b = 0, c = 0;
+      There's 3 coverage 'statements' in istanbul but it doesn't count the 'const' keyword. Thus, we just skip adding 
+      evaluations to the 'const' node since it isn't associated with any of the 3 statements (thus it would end up associating with the parent statement).
+      A better alternative would be to ensure that FaultJS knows to associate the 'const' keyword/variable declaration keyword with the declarator nodes/paths
+    */
+    if (!aPath.isVariableDeclaration()) {
+      collectedPaths.push(aPath);
+    }
     collectedNodes.add(key);
 
     return true;
@@ -2300,7 +2308,7 @@ const addMutationEvaluation = (
 
 export const widenCoveragePath = (path: NodePath) => {
   if (path.parentPath && path.parentPath.isVariableDeclarator()) {
-    return path.find(path => path.isStatement());
+    return path.parentPath;
   }
 
   return path;
