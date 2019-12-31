@@ -545,7 +545,7 @@ export type DependencyInfo = {
   writes: NodePath<any>[];
 };
 
-type AbstractInstructionFactory<D> = {
+export type AbstractInstructionFactory<D> = {
   setup?: (asts: Map<string, t.File>) => void;
   createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<D>>;
 };
@@ -661,12 +661,12 @@ type SetupObj = {
   exit?: SetupFn,
 }
 
-interface AbstractSimpleInstructionFactory<D, T> {
+export interface AbstractSimpleInstructionFactory<D, T> {
   pathToInstructions: PathToInstructionsFn<D, T>;
   setup: SetupObj,
 };
 
-const simpleInstructionFactory =  <D, T>(
+export const simpleInstructionFactory =  <D, T>(
   pathToInstructions: PathToInstructionsFn<D, T>, 
   setup: SetupObj = {},
 ): AbstractSimpleInstructionFactory<D, T> => ({
@@ -919,7 +919,7 @@ const createValueVariantCollector = (
   }
 };
 
-const createValueInstructionFactory = (
+export const createValueInstructionFactory = (
   condition: ConditionFn,
   factorySymbol,
   symbol: symbol,
@@ -938,7 +938,7 @@ const createValueInstructionFactory = (
 const isStringLiteral = path => path.isStringLiteral();
 export const CHANGE_STRING = Symbol('change-string');
 const STRINGS = Symbol('strings');
-const replaceStringFactory = createValueInstructionFactory(
+export const replaceStringFactory = createValueInstructionFactory(
   isStringLiteral,
   CHANGE_STRING,
   STRINGS,
@@ -1053,7 +1053,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
 type LogicalOrBinaryExpression = t.BinaryExpression | t.LogicalExpression;
 
 type OperatorProps = string;
-const createCategoryVariantFactory = <T>(
+export const createCategoryVariantFactory = <T>(
   key: string,
   categoryData: CategoryData<any>,
 ) => {
@@ -1147,7 +1147,7 @@ export const assignmentCategories = [
   ],
 ];
 export const CHANGE_ASSIGNMENT_OPERATOR = Symbol('change-assignment-operator');
-const replaceAssignmentOperatorFactory = new SimpleInstructionFactory(
+export const replaceAssignmentOperatorFactory = new SimpleInstructionFactory(
   CHANGE_ASSIGNMENT_OPERATOR,
   assignmentSequence,
   path => path.isAssignmentExpression(),
@@ -1173,7 +1173,7 @@ export const swapFunctionCallArgumentsSequence = ({ index1, index2 }: SwapFuncti
 };
 
 export const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
-const swapFunctionCallArgumentsFactory = simpleInstructionFactory(function*(nodePath: NodePath) {
+export const swapFunctionCallArgumentsFactory = simpleInstructionFactory(function*(nodePath: NodePath) {
   if (nodePath.isCallExpression() && nodePath.node.loc) {
     const node = nodePath.node;
     for (let p = 1; p < node.arguments.length; p++) {
@@ -1208,7 +1208,7 @@ export const swapFunctionDeclarationParametersSequence = ({
 };
 
 export const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
-const swapFunctionDeclarationParametersFactory = simpleInstructionFactory(function*(
+export const swapFunctionDeclarationParametersFactory = simpleInstructionFactory(function*(
   nodePath,
 ) {
   if (nodePath.isFunctionDeclaration() && nodePath.node.loc) {
@@ -1240,7 +1240,7 @@ export const deleteStatementSequence = ({ index }: DeleteStatementArgs) => {
 };
 
 export const DELETE_STATEMENT = Symbol('delete-statement');
-const deleteStatementFactory = simpleInstructionFactory(function*(path) {
+export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
   if (path.has('body')) {
     const bodyPaths = path.get('body');
     if (Array.isArray(bodyPaths)) {
