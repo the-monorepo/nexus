@@ -2269,8 +2269,13 @@ const addMutationEvaluation = (
   }
 };
 
-export const widenCoveragePath = (path: NodePath) => 
-  path.find(subPath => subPath.isStatement() || subPath.parentPath.isFunction());
+export const widenCoveragePath = (path: NodePath) => {
+  if (path.parentPath && path.parentPath.isVariableDeclarator()) {
+    return path.find(path => path.isStatement());
+  }
+
+  return path;
+}
 
 const addSplittedInstructionBlock = (
   queue: Heap<Heap<Instruction<any>>>,
