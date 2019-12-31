@@ -1271,8 +1271,8 @@ const instructionFactories: InstructionFactory[] = [
     forceConsequentFactory,
     forceAlternateFactory,  
     replaceIdentifierFactory,
-    deleteStatementFactory,
     swapFunctionCallArgumentsFactory,
+    deleteStatementFactory,
     swapFunctionDeclarationParametersFactory,
   ])
 ];
