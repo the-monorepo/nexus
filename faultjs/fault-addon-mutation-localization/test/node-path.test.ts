@@ -96,13 +96,17 @@ it('instruction factory integration', () => {
 describe('widenCoveragePath', () => {
   it('single variable declaration', () => {
     const astPath2 = getAstPath(ast2);
-    const statementPath = astPath2.get('body')[0];
-    const arrowFunctionPath = statementPath.get('declarations')[0].get('init')
+    const declaratorPath = astPath2.get('body')[0].get('declarations')[0];
+    const arrowFunctionPath = declaratorPath.get('init')
     const binaryExpressionPath = arrowFunctionPath.get('body');
-    expect(pathToKey(widenCoveragePath(arrowFunctionPath))).toBe(pathToKey(statementPath));
+    expect(pathToKey(widenCoveragePath(arrowFunctionPath))).toBe(pathToKey(declaratorPath));
     expect(pathToKey(widenCoveragePath(binaryExpressionPath))).toBe(pathToKey(binaryExpressionPath));
   });
-  it('multiple variable declaration', () => {
-    const ast = parse('const a = 0, b = 1, c = 2;');
-  });
+  it ('multiple variable declaration', () => {
+    const astPath = getAstPath(parse('const a = 0, b = 1, c = 2'));
+    const declaratorPath = astPath.get('body')[0].get('declarations')[0];
+    const numericLiteralPath = declaratorPath.get('init');
+    expect(pathToKey(widenCoveragePath(declaratorPath))).toBe(pathToKey(declaratorPath));
+    expect(pathToKey(widenCoveragePath(numericLiteralPath))).toBe(pathToKey(declaratorPath));
+  })
 })
