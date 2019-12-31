@@ -59,13 +59,10 @@ describe('sorting', () => {
   describe(compareMutationEvaluations.name, () => {
     for (let i = 0; i < orderedEvaluations.length - 1; i++) {
       const lesser = arrayToMutationEvaluation(orderedEvaluations[i]);
-      const lesserNodeEvaluation = arrayToInstructionEvaluations(orderedEvaluations[i]);
       it(`${arrToString(orderedEvaluations[i])} same as ${arrToString(
         orderedEvaluations[i],
       )}`, () => {
         expect(compareMutationEvaluations(lesser, lesser)).toBe(0);
-        // TODO: Should have it's own test
-        expect(compareInstructionEvaluations(lesserNodeEvaluation, lesserNodeEvaluation)).toBe(0);
       });
       for (let j = i + 1; j < orderedEvaluations.length; j++) {
         const greater = arrayToMutationEvaluation(orderedEvaluations[j]);
@@ -74,13 +71,11 @@ describe('sorting', () => {
           orderedEvaluations[j],
         )}`, () => {
           expect(compareMutationEvaluations(lesser, greater)).toBeLessThan(0);
-          expect(compareInstructionEvaluations(lesserNodeEvaluation, greaterNodeEvaluation)).toBeLessThan(0);
         });
         it(`${arrToString(orderedEvaluations[j])} greater than ${arrToString(
           orderedEvaluations[i],
         )}`, () => {
           expect(compareMutationEvaluations(greater, lesser)).toBeGreaterThan(0);
-          expect(compareInstructionEvaluations(greaterNodeEvaluation, lesserNodeEvaluation)).toBeGreaterThan(0);
         });
       }
     }
