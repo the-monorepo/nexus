@@ -1261,19 +1261,19 @@ export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
-    deleteStatementFactory,
+    leftNullifyBinaryOrLogicalOperatorFactory,
+    rightNullifyBinaryOrLogicalOperatorFactory,
+    replaceAssignmentOperatorFactory,
+    replaceBinaryOrLogicalOperatorFactory,
+    replaceBooleanFactory,
+    replaceNumberFactory,
+    replaceStringFactory,
     forceConsequentFactory,
     forceAlternateFactory,  
     replaceIdentifierFactory,
-    replaceBooleanFactory,
-    replaceStringFactory,
-    swapFunctionDeclarationParametersFactory,
     swapFunctionCallArgumentsFactory,
-    replaceNumberFactory,
-    replaceBinaryOrLogicalOperatorFactory,
-    replaceAssignmentOperatorFactory,
-    leftNullifyBinaryOrLogicalOperatorFactory,
-    rightNullifyBinaryOrLogicalOperatorFactory,
+    deleteStatementFactory,
+    swapFunctionDeclarationParametersFactory,
   ])
 ];
 const RETRIES = 1;
@@ -1722,8 +1722,8 @@ export const compareFinalInstructionEvaluations = (
     const comparisonFn = (a, b) =>
       compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
 
-    const best1 = instructions1.sort(comparisonFn)[instructions1.length - 1];
-    const best2 = instructions2.sort(comparisonFn)[instructions2.length - 1];
+    const best1 = instructions1.sort(comparisonFn).reverse()[0];
+    const best2 = instructions2.sort(comparisonFn).reverse()[0];
 
     const comparison = comparisonFn(best1, best2);
     if (comparison !== 0) {
@@ -1753,8 +1753,9 @@ export const compareFinalInstructionEvaluations = (
     mutationCount2 += instructionEvaluations.get(instruction)!.length;
   }
 
-  // TODO: More evaluations = less good at this point. Add that in
-  return (mutationCount2 + 1) / getTotalNodes(category2.path) - (mutationCount1 + 1) / getTotalNodes(category1.path);
+  const nodesPerMutation1 = getTotalNodes(category1.path) / (mutationCount1 + 1);
+  const nodesPerMutation2 = getTotalNodes(category2.path) / (mutationCount2 + 1);
+  return nodesPerMutation1 - nodesPerMutation2;
 };
 
 type InstructionCategory = {
@@ -1910,7 +1911,7 @@ export const createDefaultIsFinishedFn = ({
         .map(instruction => instructionEvaluations.get(instruction)!)
         .some(hasPromisingEvaluation)
     ) {
-      console.log('No promising instruction evaluations')
+      //console.log('No promising instruction evaluations')
       return true;
     }
 
@@ -1919,7 +1920,7 @@ export const createDefaultIsFinishedFn = ({
       key => nodeEvaluations.get(key)!.mutationEvaluations,
     );
     if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
-       console.log('No promsiing node evalations')
+      //console.log('No promsiing node evalations')
       return true;
     }
 
