@@ -122,7 +122,7 @@ it('undefined', () => {
 });
 
 it('null', () => {
-  expect(stubFunctions(null)).toBe(null);
+  expect(stubFunctions(null)).toBeNull();
 });
 
 it('can mock class instances', () => {
