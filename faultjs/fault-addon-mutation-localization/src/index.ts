@@ -28,6 +28,9 @@ import chalk from 'chalk';
 import * as micromatch from 'micromatch';
 import Heap from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
+import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
+import { passFailStatsFromTests, Stats } from '@fault/localization-util';
+import dStar from '@fault/sbfl-dstar';
 
 type Location = {
   filePath: string;
@@ -1278,38 +1281,47 @@ const instructionFactories: InstructionFactory[] = [
 ];
 const RETRIES = 1;
 
-export const filterForRelevantInstructions = (
+export const coverageToInstructionMap = (
   allInstructions: Instruction<any>[],
   coverageObjs: Map<string, CoveragePathObj[]>,
 ) => {
-  return allInstructions.filter(instruction => {
+  const coverageMap: Map<CoveragePathObj, Instruction<any>[]> = new Map(
+    [...coverageObjs.values()]
+      .map(objs => 
+        objs.map(obj => [obj, []])
+      ).flat()
+  );
+  
+  for(const instruction of allInstructions) {
     for(const [filePath, fileDependencies] of instruction.dependencies) {
-      const fileCoveragePathObjs = coverageObjs.get(filePath);
+      const fileCoveragePathObjs = coverageObjs.get(filePath)!;
       if(fileCoveragePathObjs === undefined) {
         continue;
       }
-      const fileCoveragePaths = fileCoveragePathObjs.map(obj => obj.path);
-
       for(const writePath of fileDependencies.writes) {
-        for(const coveragePath of fileCoveragePaths) {
-          const potentialParent = writePath.find(path => path.node === coveragePath.node);
+        for(const coverageObj of fileCoveragePathObjs) {
+          const potentialParent = writePath.find(path => path.node === coverageObj.path.node);
           if (potentialParent !== null) {
-            return true;
+            coverageMap.get(coverageObj)!.push(instruction);
           }
         }
       }
-    }
+    }  
+  }
 
-    return false;              
-  });
+  return coverageMap;
 }
+
 type CoveragePathObj = {
   path: NodePath,
   originalLocation: Location,
+  testStats: Stats
+
 }
 const findWidenedCoveragePaths = (
   astMap: Map<string, t.File>,
-  locations: Location[]
+  locations: Location[],
+  fileResults: Map<string, FileResult>
 ): Map<string, CoveragePathObj[]> => {
   const nodePaths: Map<string, CoveragePathObj[]> = new Map();
   for(const filePath of astMap.keys()) {
@@ -1334,6 +1346,7 @@ const findWidenedCoveragePaths = (
             nodePaths.get(filePath)!.push({
               path: widenCoveragePath(path),
               originalLocation,
+              testStats: fileResults.get(filePath)!.expressions.find(result => locationToKeyIncludingEnd(filePath, result.location) === key)!.stats
             });
           }
         }
@@ -1720,7 +1733,7 @@ export const compareFinalInstructionEvaluations = (
   const instructions2 = category2.instructions;
   if (instructions1.length >= 1 && instructions2.length >= 1) {
     const comparisonFn = (a, b) =>
-      compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
+      compareInstructionWithInitialValues(nodeEvaluations, instructionEvaluations, a, b);
 
     const best1 = instructions1.sort(comparisonFn).reverse()[0];
     const best2 = instructions2.sort(comparisonFn).reverse()[0];
@@ -2008,21 +2021,28 @@ export const compareEvaluationHeaps = (a: Heap<MutationEvaluation>, b: Heap<Muta
   return 0;
 }
 
-export const compareInstructionEvaluations = (
+const compareInitialInstructionValues = (
   evaluation1: InstructionEvaluation,
   evaluation2: InstructionEvaluation,
 ) => {
-  const heapComparison = compareEvaluationHeaps(evaluation1.mutationEvaluations, evaluation2.mutationEvaluations);
-  if (heapComparison !== 0) {
-    return heapComparison;
+  return evaluation1.initial - evaluation2.initial;
+}
+
+export const compareInstructionWithInitialValues = (
+  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  instruction1: Instruction<any>,
+  instruction2: Instruction<any>,
+) => {
+  // TODO: Refactor this so you don't keep writing code to retrieve the evaluation in different methods
+  const intructionComparison = compareInstruction(nodeEvaluations, instructionEvaluations, instruction1, instruction2);
+  if (intructionComparison !== 0) {
+    return intructionComparison;
   }
 
-  const initialComparison = evaluation1.initial - evaluation2.initial;
-  if (initialComparison !== 0) {
-    return initialComparison;
-  }
-
-  return 0;
+  const evaluation1 = instructionEvaluations.get(instruction1)!;
+  const evaluation2 = instructionEvaluations.get(instruction2)!;
+  return compareInitialInstructionValues(evaluation1, evaluation2);
 };
 
 export const compareInstruction = (
@@ -2034,7 +2054,7 @@ export const compareInstruction = (
   const instructionEvaluations1 = instructionEvaluations.get(instruction1)!;
   const instructionEvaluations2 = instructionEvaluations.get(instruction2)!;
 
-  const instructionEvaluationComparison = compareInstructionEvaluations(instructionEvaluations1, instructionEvaluations2);
+  const instructionEvaluationComparison = compareEvaluationHeaps(instructionEvaluations1.mutationEvaluations, instructionEvaluations2.mutationEvaluations);
   if (instructionEvaluationComparison !== 0) {
     return instructionEvaluationComparison;
   }
@@ -2057,7 +2077,7 @@ export const compareInstruction = (
   return 0;
 };
 
-export const compareInstructionBlocks = (
+export const instructionQueueComparator = (
   nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   block1: Heap<Instruction<any>>,
@@ -2065,7 +2085,7 @@ export const compareInstructionBlocks = (
 ): number => {
   const bestInstruction1 = block1.peek();
   const bestInstruction2 = block2.peek();
-  const instructionComparison = compareInstruction(
+  const instructionComparison = compareInstructionWithInitialValues(
     nodeEvaluations,
     instructionEvaluations,
     bestInstruction1,
@@ -2322,7 +2342,7 @@ export const createInstructionQueue = (
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>
 ) => {
   const heapComparisonFn = (a: Heap<Instruction<any>>, b: Heap<Instruction<any>>) =>
-    compareInstructionBlocks(nodeEvaluations, instructionEvaluations, a, b);
+    instructionQueueComparator(nodeEvaluations, instructionEvaluations, a, b);
   return new Heap(heapComparisonFn);
 }
 
@@ -2331,8 +2351,9 @@ export const createInstructionBlocks = (
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instructionsList: Instruction<any>[][]
 ) => {
-  const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) =>
-    compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
+  const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) => 
+    compareInstructionWithInitialValues(nodeEvaluations, instructionEvaluations, a, b);
+  
 
   return instructionsList.map(instructions => new Heap(subHeapCompareFn, instructions))
 }
@@ -2568,9 +2589,14 @@ export const createPlugin = ({
               });
             }
           }
+
+          const fileResults = gatherFileResults(tester.testResults.values());        
+          const totalPassFailStats = passFailStatsFromTests(tester.testResults.values());
+
           codeMap = await createFilePathToCodeMap([
             ...new Set(locations.map(location => location.filePath)),
           ]);
+
           originalAstMap = codeMapToAstMap(codeMap, babelOptions);
           const testCodeMap = await createFilePathToCodeMap([
             ...new Set([
@@ -2587,7 +2613,7 @@ export const createPlugin = ({
             allInstructions.map(a => a.type),
           );
 
-          coverageObjs = findWidenedCoveragePaths(originalAstMap, locations);
+          coverageObjs = findWidenedCoveragePaths(originalAstMap, locations, fileResults);
           console.log(
             [...coverageObjs].map(([filePath, objs]) => 
               objs.map(obj => [
@@ -2597,10 +2623,10 @@ export const createPlugin = ({
             ).flat()
           )  
 
-          const relevantInstructions = filterForRelevantInstructions(
-            allInstructions,
-            coverageObjs,
-          );
+          const coverageToInstructions = coverageToInstructionMap(allInstructions, coverageObjs);
+
+          const relevantInstructions:Instruction<any>[] = [...new Set([...coverageToInstructions.values()].flat())];
+
           console.log(
             'relevant instructions',
             relevantInstructions.map(a => a.type),
@@ -2613,8 +2639,16 @@ export const createPlugin = ({
             relevantInstructions,
           );
 
+          for(const [coverageObj, instructions] of coverageToInstructions) {
+            for (const instruction of instructions) {
+              const evaluation = instructionEvaluations.get(instruction)!;
+              const score = dStar(coverageObj.testStats, totalPassFailStats);
+              evaluation.initial = Math.max(evaluation.initial, score === null ? Number.NEGATIVE_INFINITY : score);
+            }
+          }
+
           relevantInstructions.sort((a, b) =>
-            compareInstruction(nodeEvaluations, instructionEvaluations, a, b),
+            compareInstructionWithInitialValues(nodeEvaluations, instructionEvaluations, a, b),
           );
 
           const organizedInstructions = organizeInstructions(relevantInstructions);
@@ -2713,7 +2747,7 @@ export const createPlugin = ({
         );
         console.log(
           [...categorisedInstructions].map(([node, category]) => 
-            locationToKeyIncludingEnd('C:\\Users\\eastd\\Code\\monorepo\\faultjs\\fault-benchmarker\\projects\\quixbugs-quicksort\\index.js', node.loc)
+            locationToKeyIncludingEnd(category.filePath, node.loc)
           )
         )
         const faults = mutationEvalatuationMapToFaults(
