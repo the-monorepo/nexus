@@ -2395,10 +2395,16 @@ export const createPlugin = ({
       } else {
         if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
           const instruction = previousInstructions.peek();
-          const previousEvaluations = instructionEvaluations.get(instruction)!;
+          
+          const previousIndirectNodeEvaluations = instruction.indirectDependencyKeys
+            .map(key => nodeEvaluations.get(key)!.mutationEvaluations);
+            
+          const previousDirectNodeEvaluations = instruction.writeDependencyKeys
+            .map(key => nodeEvaluations.get(key)!.mutationEvaluations);
+
           if (
-            previousEvaluations.length <= 0 ||
-            compareMutationEvaluations(mutationEvaluation, previousEvaluations.peek()) > 0
+            previousIndirectNodeEvaluations.some(evaluation => evaluation.length > 0 && compareMutationEvaluations(mutationEvaluation, evaluation.peek()) > 0) ||
+            previousDirectNodeEvaluations.some(evaluations => evaluations.length <= 0 || compareMutationEvaluations(mutationEvaluation, evaluations.peek()) > 0)
           ) {
             instruction.variants?.pop();
             if (instruction.variants !== undefined && instruction.variants.length >= 1) {
