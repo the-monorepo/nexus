@@ -92,11 +92,17 @@ it('instruction factory integration', () => {
 
   expect(testPath.isBooleanLiteral()).toBe(false);
 });
-it('widen path coverage', () => {
-  const astPath2 = getAstPath(ast2);
-  const statementPath = astPath2.get('body')[0];
-  const arrowFunctionPath = statementPath.get('declarations')[0].get('init')
-  const binaryExpressionPath = arrowFunctionPath.get('body');
-  expect(pathToKey(widenCoveragePath(arrowFunctionPath))).toBe(pathToKey(statementPath));
-  expect(pathToKey(widenCoveragePath(binaryExpressionPath))).toBe(pathToKey(binaryExpressionPath));
-});
+
+describe('widenCoveragePath', () => {
+  it('single variable declaration', () => {
+    const astPath2 = getAstPath(ast2);
+    const statementPath = astPath2.get('body')[0];
+    const arrowFunctionPath = statementPath.get('declarations')[0].get('init')
+    const binaryExpressionPath = arrowFunctionPath.get('body');
+    expect(pathToKey(widenCoveragePath(arrowFunctionPath))).toBe(pathToKey(statementPath));
+    expect(pathToKey(widenCoveragePath(binaryExpressionPath))).toBe(pathToKey(binaryExpressionPath));
+  });
+  it('multiple variable declaration', () => {
+    const ast = parse('const a = 0, b = 1, c = 2;');
+  });
+})
