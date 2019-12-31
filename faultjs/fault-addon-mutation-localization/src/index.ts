@@ -1261,19 +1261,19 @@ const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
-    deleteStatementFactory,
+    leftNullifyBinaryOrLogicalOperatorFactory,
+    rightNullifyBinaryOrLogicalOperatorFactory,
+    replaceAssignmentOperatorFactory,
+    replaceBinaryOrLogicalOperatorFactory,
+    replaceBooleanFactory,
+    replaceNumberFactory,
+    replaceStringFactory,
     forceConsequentFactory,
     forceAlternateFactory,  
     replaceIdentifierFactory,
-    replaceBooleanFactory,
-    replaceStringFactory,
-    swapFunctionDeclarationParametersFactory,
+    deleteStatementFactory,
     swapFunctionCallArgumentsFactory,
-    replaceNumberFactory,
-    replaceBinaryOrLogicalOperatorFactory,
-    replaceAssignmentOperatorFactory,
-    leftNullifyBinaryOrLogicalOperatorFactory,
-    rightNullifyBinaryOrLogicalOperatorFactory,
+    swapFunctionDeclarationParametersFactory,
   ])
 ];
 const RETRIES = 1;
