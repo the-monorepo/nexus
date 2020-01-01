@@ -1006,10 +1006,10 @@ export const replaceBooleanFactory = new SimpleInstructionFactory(
   (path: NodePath<t.BooleanLiteral>) => [!path.node.value],
 );
 
-type IdentifierProps = t.Node | t.Node[];
+type IdentifierProps = string;
 export const replaceIdentifierSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<IdentifierProps, t.Identifier>) => {
-    path.set('name', (name) => name);
+    path.setDataDynamic('name', (name) => name);
   },
 );
 const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
@@ -1211,6 +1211,25 @@ const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSeque
   return otherSequence[i];
 }
 
+export const isUsedAsObject = (identifierInfo: IdentifierInfo, sequences: AccessInfo[][]) => {
+  const accessSequence = identifierInfo.sequence;
+  return sequences.some(sequence => {
+    if(sequence.length < accessSequence.length) {
+      return false;
+    }
+
+    let i = 0;
+    while (i < accessSequence.length) {
+      if (!accessInfoMatch(accessSequence[i], sequence[i])) {
+        return false;
+      }
+      i++;
+    }
+
+    return true;
+  })
+}
+
 export const replaceIdentifierFactory = new SimpleInstructionFactory(
   CHANGE_IDENTIFIER,
   replaceIdentifierSequence,
@@ -1235,21 +1254,42 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
             blocks[blocks.length - 1].push(longestAccessSequence);
           }
 
-          const parentDeclarator = path.find(subPath => subPath.isVariableDeclarator() || subPath.isStatement() || subPath.isAssignmentExpression());
-          const isOnLeftSide = !parentDeclarator.isStatement();
           if (!(path.parentPath.isVariableDeclarator() && path.key === 'id')) {
-            const accessSequence: IdentifierInfo = path.node[IDENTIFIER_INFO];
+            const identifierInfo: IdentifierInfo = path.node[IDENTIFIER_INFO];
+
+            const parentDeclarator = path.find(subPath => subPath.isVariableDeclarator() || subPath.isStatement() || subPath.isAssignmentExpression());
+            const isOnLeftSide = !parentDeclarator.isStatement();
+            const operatorParent = path.find(subPath => subPath.isAssignmentExpression() || subPath.isBinaryExpression() || subPath.isUnaryExpression() || subPath.isStatement());
+            const isUsedWithOperator = !operatorParent.isStatement();
+
+            const exclude: Set<string> = new Set();
+            if (parentDeclarator.parentPath.isVariableDeclaration()) {
+              for(const declaratorPath of parentDeclarator.parentPath.get('declarations')) {
+                const idPath = declaratorPath.get('id')
+                if (idPath.isIdentifier()) {
+                  exclude.add(idPath.node.name);
+                }
+              }
+            }
+
             for(const otherSequences of blocks) {
               for(const otherSequence of otherSequences) {
-                const info = getReplacementIdentifierNode(accessSequence, otherSequence);
+                const info = getReplacementIdentifierNode(identifierInfo, otherSequence);
+                if (isUsedWithOperator && isUsedAsObject({ sequence: otherSequence, index: otherSequence.length - 1}, otherSequences)) {
+                  continue;
+                }
+
                 
                 if (info !== null && !(info.name === 'undefined' && isOnLeftSide)) {
+                  if (exclude.has(info.name)) {
+                    continue;
+                  }
                   previousPaths.push(info.name);
                 }
               }
             }  
           }
-          path.node[REPLACEMENT_IDENTIFIER_PATHS] = previousPaths;
+          path.node[REPLACEMENT_IDENTIFIER_PATHS] = filterVariantDuplicates(previousPaths);
         }
       },
       exit: (path) => {
