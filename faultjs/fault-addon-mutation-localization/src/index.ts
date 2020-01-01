@@ -1009,7 +1009,7 @@ export const replaceBooleanFactory = new SimpleInstructionFactory(
 type IdentifierProps = t.Node | t.Node[];
 export const replaceIdentifierSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<IdentifierProps, t.Identifier>) => {
-    path.replaceWithDynamic((node) => node);
+    path.set('name', (name) => name);
   },
 );
 const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
@@ -1038,13 +1038,7 @@ export const REPLACEMENT_IDENTIFIER_PATHS = Symbol('previous-identifer-names');
 export const CHANGE_IDENTIFIER = Symbol('change-identifier');
 
 export const MARKED = Symbol('marked');
-export const FUNCTION_ACCESS = 'function-access';
-export const MEMBER_ACCESS = 'member-access';
-export const UNKNOWN_FUNCTION_ACCESS = 'function-unknown-access';
-export const UNKNOWN_MEMBER_ACCESS = 'member-unknown-access';
 export const IDENTIFIER_INFO = Symbol('identifier-info');
-export const LONGEST_SEQENCE = Symbol('longest-sequence');
-type AccessInfo = NodePath | NodePath[];
 type IdentifierInfo = {
   sequence: AccessInfo[],
   index: number,
@@ -1053,6 +1047,54 @@ type IdentifierTemp = {
   identifier: t.Identifier,
   index: number,
 }
+export const FUNCTION_ACCESS = Symbol('function-access');
+export const MEMBER_ACCESS = Symbol('member-access');
+export const UNKNOWN_ACCESS = Symbol('unknown-access');
+export const CONSTRUCTOR_ACCESS = Symbol('unknown-access');
+type FunctionAccessInfo = {
+  type: typeof FUNCTION_ACCESS;
+  name: string;
+  argCount: number;
+}
+
+type MemberAccessInfo = {
+  type: typeof MEMBER_ACCESS;
+  name: string;
+}
+
+type UnknownAccessInfo = {
+  type: typeof UNKNOWN_ACCESS;
+}
+
+type ConstructorAccessInfo = {
+  type: typeof CONSTRUCTOR_ACCESS,
+  name: string,
+  argCount: number,
+}
+
+type AccessInfo = FunctionAccessInfo | MemberAccessInfo | UnknownAccessInfo | ConstructorAccess;
+
+
+export const pathsToAccessInfo = (currentPath: NodePath, identifierPath: NodePath<t.Identifier>): AccessInfo => {
+  if (currentPath.parentPath.isCallExpression()) {
+    return {
+      type: FUNCTION_ACCESS,
+      argCount: currentPath.parentPath.node.arguments.length,
+      name: identifierPath.node.name
+    };
+  } else if(currentPath.parentPath.isNewExpression()) {
+    return {
+      type: CONSTRUCTOR_ACCESS,
+      argCount: currentPath.parentPath.node.arguments.length,
+      name: identifierPath.node.name
+    }
+  } else {
+    return {
+      type: MEMBER_ACCESS,
+      name: identifierPath.node.name
+    };
+  }
+}
 export const collectParentIdentifierInfo = (path: NodePath) => {
   console.log('collect');
   const accesses: AccessInfo[] = [];
@@ -1060,34 +1102,31 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
   let current = path;
   const identifiers: IdentifierTemp[] = [];
   do {
-    const parentIsCall = current.parentPath.isCallExpression();
     console.log(current.type);
     if (current.isIdentifier()) {
-      accesses.push(current);
-      if (parentIsCall) {
-        accesses.push(current.parentPath);
-      }
+      accesses.push(pathsToAccessInfo(current, current));
       identifiers.push({
         identifier: current.node,
         index: accesses.length - 1,
       })
     } else if (current.isMemberExpression()) {
       const property = current.get('property');
-      accesses.push(property);
-      if (parentIsCall) {
-        accesses.push(current.parentPath);
-      }
       if (!Array.isArray(property) && property.isIdentifier()) {
+        accesses.push(pathsToAccessInfo(current, property));
         identifiers.push({
           identifier: property.node,
           index: accesses.length - 1,
+        });
+      } else {
+        accesses.push({
+          type: UNKNOWN_ACCESS,
         });
       }
     }
     current = current.parentPath;
     console.log(current.type, current.node.name)
-    console.log(accesses.map(access => access.node.name));
-  } while (current != null && (current.isIdentifier() || current.isMemberExpression() || current.isCallExpression()));
+    console.log(accesses.map(access => access.name));
+  } while (current != null && (current.isIdentifier() || current.isMemberExpression() || current.isCallExpression() || current.isNewExpression()));
 
   for(const temp of identifiers) {
     temp.identifier[IDENTIFIER_INFO] = {
@@ -1098,125 +1137,38 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
   return accesses;
 }
 
-type NodeInfo = {
-  type: string,
-  value?: any
-}
-
-const getPathMatchValue = (path: NodePath) => {
-  if (path.isNumericLiteral() || path.isStringLiteral() || path.isBooleanLiteral()) {
-    return path.node.value
-  } else if(path.isRegExpLiteral()) {
-    return `${path.node.pattern}:${path.node.flags}`
-  } else if(path.isBinaryExpression() || path.isAssignmentExpression()) {
-    return path.node.operator
-  } else if(path.isIdentifier()) {
-    return path.node.name
-  } else if(path.isCallExpression()) {
-    return path.node.arguments.length;
-  }
-  return null;
-}
-const pathsMatch = (path1: NodePath, path2: NodePath) => {
-  if (path1.isCallExpression() && path2.isCallExpression() && path1.node.arguments.length === path2.node.arguments.length) {
-    return true;
-  }
-  let totalNodes = 0;
-  const blocks: NodeInfo[] = [];
-  const maxNodes = 10;
-  const path1Enter = (path: NodePath) => {
-    const parent = path.parentPath;
-    if (parent != null) {
-      if (parent.isCallExpression() && path.key === 'arguments') {
-        path.skip();
-        return;
-      }
-    }
-    if (totalNodes > maxNodes) {
-      path.skip();
-      return;
-    }
-    totalNodes++;
-    blocks.push({
-      type: path.type,
-      value: getPathMatchValue(path)
-    });
-  }
-  if (totalNodes > 10) {
-    console.log('too many nodes');
+const accessInfoMatchExcludingName = (info1: AccessInfo, info2: AccessInfo) => {
+  if (info1.type !== info2.type) {
     return false;
   }
-  path1Enter(path1);
-  path1.traverse({ enter: path1Enter });
-
-  let isSame = true;
-  let i = 0;
-  const path2Enter = (path: NodePath) => {
-    const parent = path.parentPath;
-    if (parent != null) {
-      if (parent.isCallExpression() && path.key === 'arguments') {
-        path.skip();
-        return;
-      }
+  switch(info1.type) {
+    case CONSTRUCTOR_ACCESS: {
+      const other = info2 as ConstructorAccessInfo;
+      return info1.argCount === other.argCount;
     }
-
-    if (!isSame) {
-      path.skip();
-      return;
+    case FUNCTION_ACCESS: {
+      const other = info2 as FunctionAccessInfo;
+      return info1.argCount === other.argCount;
     }
-
-    if (i >= blocks.length) {
-      isSame = false;
-      path.skip();
-      return;
+    case MEMBER_ACCESS: {
+      const other = info2 as MemberAccessInfo;
+      return true;
     }
-
-    const nodeInfo = blocks[i];
-    if (path.type !== nodeInfo.type || getPathMatchValue(path) !== nodeInfo.value) {
-      console.log('failed to match', path.type, nodeInfo.type, getPathMatchValue(path), nodeInfo.value)
-      isSame = false;
-      path.skip();
-      return;
-    }
-
-    i++;
-  }
-  path2Enter(path2);
-  path2.traverse({ enter: path2Enter });
-
-  return isSame;
-};
-
-const accessInfoMatch = (info1: AccessInfo, info2: AccessInfo) => {
-  console.log('matching...');
-  const isArray1 = Array.isArray(info1);
-  const isArray2 = Array.isArray(info2);
-  if (isArray1 !== isArray2) {
-    return false;
-  }
-
-  if (isArray1) {
-    const arr1 = info1 as NodePath[];
-    const arr2 = info2 as NodePath[]; 
-    if (arr1.length !== arr2.length) {
+    case UNKNOWN_ACCESS: {
       return false;
     }
-    for(let i = 0; i < arr1.length; i++) {
-      if (!pathsMatch(arr1[i], arr2[i])) {
-        return false;
-      }
+    default: {
+      throw new Error(`${(info1 as any).type} not supported`);
     }
-  } else {
-    return pathsMatch(info1 as NodePath, info2 as NodePath);
   }
-
-  return true;
 }
 
-const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSequence: AccessInfo[]): NodePath[] | NodePath | null => {
+export const accessInfoMatch = (info1: AccessInfo, info2: AccessInfo) => accessInfoMatchExcludingName(info1, info2) && (info1 as any).name === (info2 as any).name;
+
+const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSequence: AccessInfo[]): MemberAccessInfo | FunctionAccessInfo | ConstructorAccessInfo | null => {
   const accessSequence = identifierInfo.sequence;
   const index = identifierInfo.index;
-  console.log('comparing', accessSequence.map(a => [a.type, a.node.name]), otherSequence.map(a => [a.type, a.node.name]));
+  console.log('comparing', accessSequence.map(a => [a.type, a.name]), otherSequence.map(a => [a.type, a.name]));
   if (index >= otherSequence.length) {
     console.log('sequence too short', index, otherSequence.length);
     return null;
@@ -1252,6 +1204,10 @@ const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSeque
     return null;
   }
 
+  if (!accessInfoMatchExcludingName(otherSequence[i], accessSequence[i])) {
+    return null;
+  }
+
   return otherSequence[i];
 }
 
@@ -1269,14 +1225,9 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
         }
         if (path.isIdentifier()) {
           
-          if (path.parentPath.isNewExpression()) {
-            // TODO: Support new expressions
-            path.node[REPLACEMENT_IDENTIFIER_PATHS] = [];
-            return;
-          }
           console.log();
           console.log('traverse', path.node.name, path.key);
-          const previousPaths: (NodePath[] | NodePath)[] = [];
+          const previousPaths: string[] = [];
           
           if (path.node[IDENTIFIER_INFO] === undefined) {
             const longestAccessSequence = collectParentIdentifierInfo(path);
@@ -1292,7 +1243,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
   
                 if (replacementPath !== null) {
                   console.log('allowed');
-                  previousPaths.push(replacementPath);
+                  previousPaths.push(replacementPath.name);
                 }
               }
             }  
@@ -1526,19 +1477,7 @@ export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
-    leftNullifyBinaryOrLogicalOperatorFactory,
-    rightNullifyBinaryOrLogicalOperatorFactory,
-    replaceAssignmentOperatorFactory,
-    replaceBinaryOrLogicalOperatorFactory,
-    replaceBooleanFactory,
-    replaceNumberFactory,
-    replaceStringFactory,
-    forceConsequentFactory,
-    forceAlternateFactory,  
     replaceIdentifierFactory,
-    swapFunctionCallArgumentsFactory,
-    deleteStatementFactory,
-    swapFunctionDeclarationParametersFactory,
   ])
 ];
 
