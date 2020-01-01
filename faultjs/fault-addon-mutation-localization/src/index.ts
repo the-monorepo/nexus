@@ -1474,7 +1474,7 @@ export const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
 export const swapFunctionDeclarationParametersFactory = simpleInstructionFactory(function*(
   nodePath,
 ) {
-  if (nodePath.isFunctionDeclaration() && nodePath.node.loc) {
+  if (nodePath.isFunction() && nodePath.node.loc) {
     const node = nodePath.node;
     for (let p = 1; p < node.params.length; p++) {
       const wrapper = swapFunctionDeclarationParametersSequence({
