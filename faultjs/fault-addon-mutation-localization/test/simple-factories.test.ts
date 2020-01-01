@@ -23,19 +23,23 @@ type ExpectedInstructionCount = number;
 type TestData = [Factory, Code, ExpectedInstructionCount];
 
 const dataSet: TestData[] = [
-  [deleteStatementFactory, 'const a = 0; const b = 0;', 2],
+  [deleteStatementFactory, 'const a = 0; const b = 0;', 0],
+  [deleteStatementFactory, 'a = 0; b = 0;', 2],
   [deleteStatementFactory, 'if(Math.random() > 0.5) {}', 0],
   [forceConsequentFactory, 'if(Math.random() > 0.5) { console.log("hello") }', 1],
   [forceConsequentFactory, 'if(true) { console.log("hello") }', 0],
   [forceAlternateFactory, 'if(Math.random() > 0.5) { console.log("hello")}', 1], 
   [forceAlternateFactory, 'if(false) { console.log("hello")}', 0],
-  [replaceIdentifierFactory, 'const a = 0; a = 5; const b = a;', 0],
-  [replaceIdentifierFactory, 'const a = 0; a = 5; const b = a; const c = a + b', 2],
+  [replaceIdentifierFactory, 'const a = 0; a = 5; const b = a;', 1],
+  [replaceIdentifierFactory, 'const a = 0; a = 5; const b = a; const c = a + b', 3],
+  [replaceIdentifierFactory, 'const arr = []; arr.fn1(1, 2); arr.fn2(1); arr.fn2(1, 2)', 1],
+  [replaceIdentifierFactory, 'const arr1 = [], arr2 = []; arr1.fn1(); arr2.fn1();', 1],
   [replaceBooleanFactory, 'true', 1],
   [replaceStringFactory, '["hello", "my", "name", "is"]', 3],
   [swapFunctionDeclarationParametersFactory, 'const fn = (a, b, c) => {}', 2],
+  [swapFunctionDeclarationParametersFactory, 'function fn(a, b, c) {}', 2],
   [swapFunctionCallArgumentsFactory, 'fn(1, 2, 3)', 2],
-  [replaceNumberFactory, '1;2;3;4;', 3],
+  [replaceNumberFactory, '1;2;3;4;', 4],
   [replaceBinaryOrLogicalOperatorFactory, '1 + 2; 1 === 2;', 2],
   [replaceAssignmentOperatorFactory, '1 + 1; b += 2; a %= 3', 2],
   [replaceAssignmentOperatorFactory, '[a, b] = [c, d]', 0],
@@ -51,7 +55,9 @@ let i = 0;
 describe('simple factories', () => {
   for(const [factory, code, expectedInstructionCount] of dataSet) {
     // TODO: Needs better test names
-    it((i++).toString(), () => {
+    const id = i;
+    it(`${id.toString()} - ${code}`, () => {
+      console.log(id, id, id, id);
       const filePath = '';
   
       const ast = parse(code);
@@ -61,7 +67,9 @@ describe('simple factories', () => {
       factoryWrapper.setup(astMap);
       const instructions = [...factoryWrapper.createInstructions(astMap)];
     
-      expect(instructions).toHaveLength(expectedInstructionCount); 
-    })
+      expect(instructions.map(instruction => ({ keys: instruction.conflictWriteDependencyKeys, variantLength: instruction.variants?.length }))).toHaveLength(expectedInstructionCount); 
+    });
+    
+    i++;
   }  
 })
