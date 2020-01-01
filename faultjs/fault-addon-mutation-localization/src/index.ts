@@ -1518,7 +1518,19 @@ export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
+    leftNullifyBinaryOrLogicalOperatorFactory,	
+    rightNullifyBinaryOrLogicalOperatorFactory,	
+    replaceAssignmentOperatorFactory,	
+    replaceBinaryOrLogicalOperatorFactory,	
+    replaceBooleanFactory,	
+    replaceNumberFactory,	
+    replaceStringFactory,	
+    forceConsequentFactory,	
+    forceAlternateFactory,  	
     replaceIdentifierFactory,
+    swapFunctionCallArgumentsFactory,	
+    deleteStatementFactory,	
+    swapFunctionDeclarationParametersFactory,
   ])
 ];
 
@@ -1528,9 +1540,9 @@ const instructionTypeImportance: Map<symbol, number> = new Map([
   CHANGE_ASSIGNMENT_OPERATOR,
   CHANGE_BINARY_OPERATOR,
   CHANGE_BOOLEAN,
-  CHANGE_IDENTIFIER,
   CHANGE_NUMBER,
   CHANGE_STRING,
+  CHANGE_IDENTIFIER,
   FORCE_CONSEQUENT,
   FORCE_ALTERNATE,
   SWAP_FUNCTION_CALL,
