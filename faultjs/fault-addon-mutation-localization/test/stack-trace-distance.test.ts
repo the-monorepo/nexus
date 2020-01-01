@@ -8,7 +8,7 @@ const stubTestResult = (key: string, stack): TestResult => ({
   type: 'submit-test-result',
   key,
   titlePath: [],
-  file: '',
+  file: __filename,
   coverage: {},
   passed: true,
   stack
@@ -45,12 +45,12 @@ describe('stack trace distance', () => {
 
   it(executionDistanceFromStart.name, () => {
   
-    const closerDistance = executionDistanceFromStart(ast, closerStackFrame.lineNumber, closerStackFrame.columnNumber);
-    const furtherDistance = executionDistanceFromStart(ast, furtherStackFrame.lineNumber, furtherStackFrame.columnNumber);
+    const closerDistance = executionDistanceFromStart(ast, closerStackFrame!.lineNumber, closerStackFrame!.columnNumber);
+    const furtherDistance = executionDistanceFromStart(ast, furtherStackFrame!.lineNumber, furtherStackFrame!.columnNumber);
   
     expect(closerDistance).not.toBeNull();
     expect(furtherDistance).not.toBeNull();
-    expect(closerDistance).toBeLessThan(furtherDistance);
+    expect(closerDistance).toBeLessThan(furtherDistance!);
   });
 
   it(evaluateStackDifference.name, () => {
@@ -60,7 +60,7 @@ describe('stack trace distance', () => {
 
     const astMap = new Map([[oldTestResult.file, ast]]);
 
-    const difference = evaluateStackDifference(oldTestResult, newTestResult, astMap);
+    const difference = evaluateStackDifference(oldTestResult, newTestResult, astMap)!;
 
     expect(difference).not.toBeNull();
     expect(difference).toBeGreaterThan(0);
