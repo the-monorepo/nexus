@@ -8,7 +8,7 @@ import {
   FailingTestData,
   FinalTesterResults,
 } from '@fault/types';
-import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir, copyFile } from 'mz/fs';
+import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir, copyFile, accessSync } from 'mz/fs';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import { join, resolve, basename, normalize } from 'path';
 import { tmpdir } from 'os';
@@ -365,7 +365,11 @@ abstract class AbstractReplaceWithMutation implements WrapperMutation<any, Repla
   }
 
   execute({ path, value }) {
-    path.replaceWith(value);
+    if (Array.isArray(value)) {
+      path.replaceWithMultiple(value);
+    } else {
+      path.replaceWith(value);
+    }
   }
 
   abstract setupValue(data, rootPath): t.Node;
@@ -386,7 +390,7 @@ export class ReplaceWithMutation extends AbstractReplaceWithMutation {
 export class ReplaceWithDynamicMutation extends AbstractReplaceWithMutation {
   constructor(
     thisWrapper: NodePathMutationWrapper<any, any>,
-    private readonly getReplacement: ValueFromPathFn<any, any, t.Node>,
+    private readonly getReplacement: ValueFromPathFn<any, any, t.Node | t.Node[]>,
   ) {
     super(thisWrapper);
   }
@@ -467,18 +471,13 @@ export class NodePathMutationWrapper<D, T = t.Node> {
     this.mutations.push(new SetDynamicMutation(key, this, getNode));
   }
 
-  public replaceWithMultiple(wrapper: NodePathMutationWrapper<D>) {
-    this.writes.push(this.keys);
-    this.mutations.push(new ReplaceWithMultipleMutation(this, wrapper));
-  }
-
   public replaceWith(wrapper: NodePathMutationWrapper<D>) {
     this.writes.push(this.keys);
     this.mutations.push(new ReplaceWithMutation(this, wrapper));
   }
 
   public replaceWithDynamic(
-    getReplacement: ValueFromPathFn<D, any, t.Node>,
+    getReplacement: ValueFromPathFn<D, any, t.Node | t.Node[]>,
   ) {
     this.writes.push(this.keys);
     this.mutations.push(new ReplaceWithDynamicMutation(this, getReplacement));
@@ -608,20 +607,17 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
   ) {}
 
   setup(asts: Map<string, t.File>) {
+    const setupObjects = this.simpleInstructionFactories.map(factory => factory.setup());
     for (const ast of asts.values()) {
       traverse(ast, {
         enter: (path) => {
-          for(const instructionFactory of this.simpleInstructionFactories) {
-            if (instructionFactory.setup.enter) {
-              instructionFactory.setup.enter(path);
-            }
+          for(const setupObject of setupObjects) {
+            setupObject?.enter?.(path);
           }
         },
         exit: (path) => {
-          for(const instructionFactory of this.simpleInstructionFactories) {
-            if (instructionFactory.setup.exit) {
-              instructionFactory.setup.exit(path);
-            }
+          for(const setupObject of setupObjects) {
+            setupObject?.exit?.(path);
           }
         }
       });
@@ -659,19 +655,19 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
 
 type PathToInstructionsFn<D, T> = (path: NodePath) => IterableIterator<InstructionFactoryPayload<D, T>>;
 type SetupFn = (path: NodePath) => any;
-type SetupObj = {
+type CreateSetupObjFn = () => {
   enter?: SetupFn,
   exit?: SetupFn,
-}
+} | null
 
 export interface AbstractSimpleInstructionFactory<D, T> {
   pathToInstructions: PathToInstructionsFn<D, T>;
-  setup: SetupObj,
+  setup: CreateSetupObjFn,
 };
 
 export const simpleInstructionFactory =  <D, T>(
   pathToInstructions: PathToInstructionsFn<D, T>, 
-  setup: SetupObj = {},
+  setup: CreateSetupObjFn = () => null,
 ): AbstractSimpleInstructionFactory<D, T> => ({
   pathToInstructions,
   setup,
@@ -683,7 +679,7 @@ class SimpleInstructionFactory<D, T> implements AbstractSimpleInstructionFactory
     private wrapper: NodePathMutationWrapper<D, T>,
     private condition: ConditionFn,
     private createVariantFn?: CreateVariantsFn<D, T>,
-    public readonly setup: SetupObj = {},
+    public readonly setup: CreateSetupObjFn = () => null,
   ) {}
 
   *pathToInstructions(path: NodePath) {
@@ -897,28 +893,30 @@ const createValueVariantCollector = (
   symbol: symbol,
   key = 'value',
   collectCondition: ConditionFn = condition,
-): SetupObj => {
-  const blocks: any[][] = [[]];
-  return {
-    enter: subPath => {
-      if (subPath.isScope()) {
-        blocks.push([]);
+): CreateSetupObjFn => {
+  return () => {
+    const blocks: any[][] = [[]];
+    return {
+      enter: subPath => {
+        if (subPath.isScope()) {
+          blocks.push([]);
+        }
+        const current = (subPath.node as any)[key];
+        if (condition(subPath)) {
+          subPath.node[symbol as any] = filterVariantDuplicates(
+            ([] as any[]).concat(...blocks),
+          ).filter(v => v !== current);
+        }
+        if (collectCondition(subPath)) {
+          blocks[blocks.length - 1].push(current);
+        }
+      },
+      exit: subPath => {
+        if (subPath.isScope()) {
+          blocks.pop();
+        }
       }
-      const current = (subPath.node as any)[key];
-      if (condition(subPath)) {
-        subPath.node[symbol as any] = filterVariantDuplicates(
-          ([] as any[]).concat(...blocks),
-        ).filter(v => v !== current);
-      }
-      if (collectCondition(subPath)) {
-        blocks[blocks.length - 1].push(current);
-      }
-    },
-    exit: subPath => {
-      if (subPath.isScope()) {
-        blocks.pop();
-      }
-    }
+    }  
   }
 };
 
@@ -998,18 +996,16 @@ export const replaceBooleanFactory = new SimpleInstructionFactory(
   (path: NodePath<t.BooleanLiteral>) => [!path.node.value],
 );
 
-type IdentifierProps = {
-  name: string;
-};
+type IdentifierProps = t.Node | t.Node[];
 export const replaceIdentifierSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<IdentifierProps, t.Identifier>) => {
-    path.setDataDynamic('name', name => name);
+    path.replaceWithDynamic((node) => node);
   },
 );
 const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
   return (
     (parentPath.parentPath.isVariableDeclarator() && parentPath.key === 'id') ||
-    (parentPath.parentPath.isFunction() && typeof parentPath.key === 'number')
+    (parentPath.parentPath.isFunction() && (typeof parentPath.key === 'number' || parentPath.key === 'id'))
   );
 };
 
@@ -1023,7 +1019,6 @@ const isReplaceableIdentifier = (path: NodePath) => {
       subPath => subPath.isStatement() || subPath.isFunction(),
     );
     return (
-      !isMiddleOfObjectChain(path) &&
       path.find(
         parentPath =>
           parentPath.node === statementPath.node ||
@@ -1034,23 +1029,185 @@ const isReplaceableIdentifier = (path: NodePath) => {
   return false;
 };
 
-const collectIdentifierVariant = (path: NodePath): boolean => {
-  return path.isIdentifier() && !isMiddleOfObjectChain(path);
-};
-
-export const PREVIOUS_IDENTIFIER_NAMES = Symbol('previous-identifer-names');
+export const REPLACEMENT_IDENTIFIER_NODES = Symbol('previous-identifer-names');
 export const CHANGE_IDENTIFIER = Symbol('change-identifier');
+
+export const MARKED = Symbol('marked');
+export const FUNCTION_ACCESS = 'function-access';
+export const MEMBER_ACCESS = 'member-access';
+export const UNKNOWN_FUNCTION_ACCESS = 'function-unknown-access';
+export const UNKNOWN_MEMBER_ACCESS = 'member-unknown-access';
+type FunctionAccessInfo = {
+  type: typeof FUNCTION_ACCESS,
+  name: t.Identifier,
+  argCount: number
+}
+type MemberAccessInfo = {
+  type: typeof MEMBER_ACCESS,
+  name: t.Identifier,
+}
+type UnknownFunctionAccessInfo = {
+  type: typeof UNKNOWN_FUNCTION_ACCESS;
+  name: t.Node | t.Node[];
+  argCount: number;
+}
+type UnknownMemberAccessInfo = {
+  type: typeof UNKNOWN_MEMBER_ACCESS;
+  name: t.Node;
+}
+type AccessInfo = FunctionAccessInfo | MemberAccessInfo | UnknownMemberAccessInfo | UnknownFunctionAccessInfo;
+export const IDENTIFIER_INFO = Symbol('identifier-info');
+export const collectParentIdentifierInfo = (path: NodePath) => {
+  const accesses: AccessInfo[] = [];
+
+  let current = path;
+  do {
+    if (path.isIdentifier()) {
+      accesses.push({
+        type: MEMBER_ACCESS,
+        name: path.node,
+      });
+      path.node[IDENTIFIER_INFO] = [...accesses];
+    } else if (path.isMemberExpression()) {
+      const property = path.get('property');
+      if (!Array.isArray(property) && property.isIdentifier()) {
+        accesses.push({
+          type: MEMBER_ACCESS,
+          name: property.node,
+        });
+        property.node[IDENTIFIER_INFO] = [...accesses];
+      } else {
+        accesses.push({
+          type: UNKNOWN_MEMBER_ACCESS,
+          name: Array.isArray(property) ? property.map(path => path.node) : property.node,
+        });
+      }
+      path.node[IDENTIFIER_INFO] = [...accesses];
+    } else if (path.isCallExpression()) {
+      const callee = path.get('callee');
+      const argCount: number = path.node.arguments.length;
+      if (callee.isIdentifier()) {
+        accesses.push({
+          type: FUNCTION_ACCESS,
+          name: callee.node,
+          argCount,
+        });
+        callee.node[IDENTIFIER_INFO] = [...accesses];
+      } else {
+        accesses.push({
+          type: UNKNOWN_FUNCTION_ACCESS,
+          name: callee.node,
+          argCount,
+        });
+      }
+    }  
+    current = current.parentPath;
+  } while (current != null && (current.isIdentifier() || current.isMemberExpression() || current.isCallExpression()))
+}
+
+const accessInfoMatch = (info1: AccessInfo, info2: AccessInfo) => {
+  if (info1.type !== info2.type) {
+    return false;
+  }
+
+  switch(info1.type) {
+    case MEMBER_ACCESS: {
+      const other = info2 as MemberAccessInfo;
+      return info1.name === other.name;
+    }
+    case UNKNOWN_MEMBER_ACCESS: {
+      const other = info2 as UnknownMemberAccessInfo;
+      return true;
+    }
+    case FUNCTION_ACCESS: {
+      const other = info2 as FunctionAccessInfo;
+      return info1.name === other.name && info1.argCount === other.argCount;
+    }
+    case UNKNOWN_FUNCTION_ACCESS: {
+      const other = info2 as UnknownFunctionAccessInfo;
+      return info1.argCount == other.argCount;
+    }
+    default:
+      throw new Error(`${(info1 as any).type} not supported`);
+  }
+}
+
+const getReplacementIdentifierNode = (accessSequence: AccessInfo[], otherSequence: AccessInfo[]): t.Node[] | t.Node | null => {
+  let i = 0;
+  while(
+    i < accessSequence.length && 
+    i < otherSequence.length &&
+    accessInfoMatch(accessSequence[i], otherSequence[i])
+  ) {
+    i++;
+  }
+
+  if (i >= accessSequence.length) {
+    // Perfect match, skip
+    return null;
+  }
+
+  let j = i + 1;
+  while(
+    j < accessSequence.length && 
+    j < otherSequence.length &&
+    accessInfoMatch(accessSequence[j], otherSequence[j])
+  ) {
+    j++;
+  }
+
+  if (j < accessSequence.length) {
+    // This means there's at least 2 mismatches. Skip.
+    return null;
+  }
+
+  return otherSequence[i].name;
+}
+
 export const replaceIdentifierFactory = new SimpleInstructionFactory(
   CHANGE_IDENTIFIER,
   replaceIdentifierSequence,
   isReplaceableIdentifier,
-  path => [...path.node[PREVIOUS_IDENTIFIER_NAMES]],
-  createValueVariantCollector(
-    isReplaceableIdentifier,
-    PREVIOUS_IDENTIFIER_NAMES,
-    'name',
-    collectIdentifierVariant,
-  ),
+  path => [...path.node[REPLACEMENT_IDENTIFIER_NODES]],
+  () => {
+    const blocks: AccessInfo[][][] = [[]];
+    return {
+      enter: (path: NodePath) => {
+        if (path.isScope()) {
+          blocks.push([]);
+        }
+        if (path.isIdentifier()) {
+          const previousIdentifiers: (t.Node[] | t.Node)[] = [];
+          
+          if (path.node[IDENTIFIER_INFO] === undefined) {
+            collectParentIdentifierInfo(path);
+
+            const accessSequence: AccessInfo[] = path.node[IDENTIFIER_INFO];
+            // Only the full access path gets added for comparison
+            blocks[blocks.length - 1].push(accessSequence);
+          }
+
+          const accessSequence: AccessInfo[] = path.node[IDENTIFIER_INFO];
+          for(const otherSequences of blocks) {
+            for(const otherSequence of otherSequences) {
+              const replacementNode = getReplacementIdentifierNode(accessSequence, otherSequence);
+
+              if (replacementNode !== null) {
+                previousIdentifiers.push(replacementNode);
+              }
+            }
+          }
+
+          path.node[REPLACEMENT_IDENTIFIER_NODES] = previousIdentifiers;
+        }
+      },
+      exit: (path) => {
+        if(path.isScope()) {
+          blocks.pop();
+        }
+      }
+    };
+  }
 );
 
 type LogicalOrBinaryExpression = t.BinaryExpression | t.LogicalExpression;
@@ -1286,11 +1443,11 @@ const instructionTypeImportance: Map<symbol, number> = new Map([
   CHANGE_ASSIGNMENT_OPERATOR,
   CHANGE_BINARY_OPERATOR,
   CHANGE_BOOLEAN,
+  CHANGE_IDENTIFIER,
   CHANGE_NUMBER,
   CHANGE_STRING,
   FORCE_CONSEQUENT,
   FORCE_ALTERNATE,
-  CHANGE_IDENTIFIER,
   SWAP_FUNCTION_CALL,
   DELETE_STATEMENT,
   SWAP_FUNCTION_PARAMS
