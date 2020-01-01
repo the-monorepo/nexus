@@ -1304,7 +1304,9 @@ export const CHANGE_ASSIGNMENT_OPERATOR = Symbol('change-assignment-operator');
 export const replaceAssignmentOperatorFactory = new SimpleInstructionFactory(
   CHANGE_ASSIGNMENT_OPERATOR,
   assignmentSequence,
-  path => path.isAssignmentExpression(),
+  path => {
+    return path.isAssignmentExpression();
+  },
   createCategoryVariantFactory('operator', assignmentCategories),
 );
 
