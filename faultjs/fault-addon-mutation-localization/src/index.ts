@@ -1008,11 +1008,6 @@ const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
     (parentPath.parentPath.isFunction() && (typeof parentPath.key === 'number' || parentPath.key === 'id'))
   );
 };
-
-const isMiddleOfObjectChain = (path: NodePath) => {
-  return path.parentPath.isMemberExpression() && path.key === 'property';
-};
-
 const isReplaceableIdentifier = (path: NodePath) => {
   if (path.isIdentifier()) {
     const statementPath = path.find(
@@ -1509,7 +1504,7 @@ const findWidenedCoveragePaths = (
     );
 
     traverse(ast, {
-      exit(path: NodePath) {
+      enter(path: NodePath) {
         const loc = path.node.loc;
         if (loc !== undefined) {
           const key = locationToKeyIncludingEnd(filePath, loc);
@@ -1962,39 +1957,14 @@ type InstructionCategory = {
 
 };
 export const categoriseInstructionsIntoCloestParentPaths = (
-  instructions: Instruction<any>[],
-  categoryObjMap: Map<string, CoveragePathObj[]>,
-): Map<t.Node, InstructionCategory> => {
-  const categorisedMap: Map<t.Node, InstructionCategory> = new Map();
-  for(const [filePath, objs] of categoryObjMap) {
-    for(const obj of objs) {
-      console.log('rawr', locationToKeyIncludingEnd(obj.originalLocation.filePath, obj.originalLocation))
-      categorisedMap.set(obj.path.node, {
-        filePath,
-        location: obj.originalLocation,
-        instructions: [],
-        path: obj.path
-      });
-    }
-  }
-  for (const instruction of instructions) {
-    for (const [filePath, fileDependencies] of instruction.dependencies) {
-      const fileCoverageObjs = categoryObjMap.get(filePath)!;
-      for (const dependencyPath of fileDependencies.writes) {
-        const selectedParentPath = dependencyPath.find(parentPath =>
-          fileCoverageObjs.some(obj => obj.path.node === parentPath.node),
-        );
-        if (selectedParentPath !== null) {
-          const selectedCoverageObj = fileCoverageObjs.find(obj => obj.path.node === selectedParentPath.node)!;
-          const selectedNode = selectedCoverageObj.path.node;
-          categorisedMap.get(selectedNode)!.instructions.push(instruction);
-        } else {
-          console.error(`Warning: ${locationToKeyIncludingEnd(filePath, dependencyPath.node.loc)}`);
-        }
-      }
-    }
-  }
-  return categorisedMap;
+  coverageToInstructions: Map<CoveragePathObj, Instruction<any>[]>,
+): InstructionCategory[] => {
+  return [...coverageToInstructions].map(([obj, instructions]):InstructionCategory => ({
+    filePath: obj.originalLocation.filePath,
+    location: obj.originalLocation,
+    instructions,
+    path: obj.path
+  }));
 };
 
 export const mutationEvalatuationMapToFaults = (
@@ -2025,6 +1995,7 @@ export const mutationEvalatuationMapToFaults = (
               const keys = instruction.writeDependencyKeys;
               return {
                 type: instruction.type.toString(),
+                initial: instructionEvaluations.get(instruction)!.initial,
                 locations: [...instruction.dependencies.values()][0].writes.map(path => path.find(parent => parent.node != null && parent.node.loc != null)).map(path => locationToKeyIncludingEnd(filePath, path.node.loc)),
                 evaluations: [...instructionEvaluations.get(instruction)!.mutationEvaluations.sortedIterator()].map(e => ({ ...e, instructions: undefined })),
                 nodes: keys.map(key => [...nodeEvaluations.get(key)!.sortedIterator()].map(e => ({ ...e, instructions: undefined }))),
@@ -2573,6 +2544,7 @@ export const createPlugin = ({
   let originalAstMap: Map<string, t.File> = null!;
   let testAstMap: Map<string, t.File> = null!;
   let coverageObjs: Map<string, CoveragePathObj[]> = null!;
+  let coverageToInstructions: Map<CoveragePathObj, Instruction<any>[]> = null!;
   let finished = false;
   const instructionQueue: Heap<Heap<Instruction<any>>> = createInstructionQueue(nodeEvaluations, instructionEvaluations);
   let firstRun = true;
@@ -2687,7 +2659,6 @@ export const createPlugin = ({
       return false;
     }
 
-    console.log('set peaking');
     const instructions = instructionQueue.pop()!;
     previousInstructions = instructions;
 
@@ -2757,7 +2728,6 @@ export const createPlugin = ({
             }
           }
           const failedCoverage = failedCoverageMap.data as Coverage;
-          console.log('failing coverage');
           const locations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
             //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
@@ -2804,16 +2774,29 @@ export const createPlugin = ({
           );
 
           coverageObjs = findWidenedCoveragePaths(originalAstMap, locations, fileResults);
+
+          coverageToInstructions = coverageToInstructionMap(allInstructions, coverageObjs);
           console.log(
-            [...coverageObjs].map(([filePath, objs]) => 
-              objs.map(obj => [
-                locationToKeyIncludingEnd(filePath, obj.originalLocation),
-                locationToKeyIncludingEnd(filePath, obj.path.node.loc),
-              ].join(' => '))
-            ).flat()
+            ...[...coverageToInstructions].map(([obj, instructions]) => [
+              [
+                locationToKeyIncludingEnd(obj.originalLocation.filePath, obj.originalLocation),
+                locationToKeyIncludingEnd(obj.originalLocation.filePath, obj.path.node.loc),
+              ].join(' => '),
+              instructions.map(instruction => [
+                instruction.type.toString(),
+                ...[...instruction.dependencies.values()]
+                  .map(deps => 
+                    deps.writes.map(
+                      write => locationToKeyIncludingEnd(
+                        obj.originalLocation.filePath,
+                        write.find(path => path.node != null && path.node.loc != null).node.loc
+                      )
+                    )
+                  ).flat()
+              ])
+            ]).flat()
           )  
 
-          const coverageToInstructions = coverageToInstructionMap(allInstructions, coverageObjs);
 
           const relevantInstructions:Instruction<any>[] = [...new Set([...coverageToInstructions.values()].flat())];
 
@@ -2932,18 +2915,17 @@ export const createPlugin = ({
 
         // console.log(failingLocationKeys);
         const categorisedInstructions = categoriseInstructionsIntoCloestParentPaths(
-          [...instructionEvaluations.keys()],
-          coverageObjs,
+          coverageToInstructions,
         );
         console.log(
-          [...categorisedInstructions].map(([node, category]) => 
-            locationToKeyIncludingEnd(category.filePath, node.loc)
+          [...categorisedInstructions].map((category) => 
+            locationToKeyIncludingEnd(category.location.filePath, category.location)
           )
         )
         const faults = mutationEvalatuationMapToFaults(
           nodeEvaluations,
           instructionEvaluations,
-          [...categorisedInstructions.values()],
+          categorisedInstructions,
         );
 
         sortBySuspciousness(faults);
