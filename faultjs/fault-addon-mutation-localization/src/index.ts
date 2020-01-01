@@ -415,7 +415,6 @@ export class RemoveMutation implements WrapperMutation<any, NodePath> {
 }
 
 export class NodePathMutationWrapper<D, T = t.Node> {
-  private dependencies: DependencyInfo | null = null;
   constructor(
     public readonly keys: TraverseKey[],
     private readonly reads: TraverseKey[][],
@@ -424,13 +423,10 @@ export class NodePathMutationWrapper<D, T = t.Node> {
   ) {}
 
   getDependencies(nodePath: NodePath<T>): DependencyInfo {
-    if (this.dependencies === null) {
-      this.dependencies = {
-        reads: keysToDependencyList(nodePath, this.reads),
-        writes: keysToDependencyList(nodePath, this.writes),
-      };  
-    }
-    return this.dependencies;
+    return  {
+      reads: keysToDependencyList(nodePath, this.reads),
+      writes: keysToDependencyList(nodePath, this.writes),
+    };  
   }
 
   registerAsWriteDependency() {
@@ -627,11 +623,14 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
   *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<any>> {
     for (const [filePath, ast] of asts) {
       const instructions: Instruction<any>[] = [];
+      console.log(filePath);
       traverse(ast, {
         enter: (path) => {
+          console.log(path.type);
           let pathKeys: TraverseKey[] = null!;
           for(const instructionFactory of this.simpleInstructionFactories) {
             for (const { type, wrapper, variants } of instructionFactory.pathToInstructions(path)) {
+              console.log(type);
               if (pathKeys === null) {
                 pathKeys = getTraverseKeys(path);
               }
