@@ -1666,7 +1666,7 @@ export const evaluateStackDifference = (
     stack: (originalResult as any).stack,
   } as Error);
 
-  const findFrameFn = frame => normalize(originalResult.file) === normalize(frame.fileName);
+  const findFrameFn = frame => normalize(originalResult.file).replace(/\\+/g, '/') === normalize(frame.fileName).replace(/\\+/g, '/');
   const firstNewStackFrame = newStackInfo.find(findFrameFn);
   const firstOldStackFrame = oldStackInfo.find(findFrameFn);
 
