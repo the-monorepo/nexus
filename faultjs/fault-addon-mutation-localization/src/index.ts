@@ -1408,11 +1408,7 @@ export const replaceAssignmentOperatorFactory = new SimpleInstructionFactory(
       return false;
     }
     const left = path.get('left');
-    if (left.isMemberExpression() || left.isIdentifier()) {
-      return false;
-    }
-
-    return true;
+    return left.isMemberExpression() || left.isIdentifier();
   },
   createCategoryVariantFactory('operator', assignmentCategories),
 );
