@@ -1520,6 +1520,7 @@ const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
     leftNullifyBinaryOrLogicalOperatorFactory,	
     rightNullifyBinaryOrLogicalOperatorFactory,	
+    deleteStatementFactory,	
     replaceAssignmentOperatorFactory,	
     replaceBinaryOrLogicalOperatorFactory,	
     replaceBooleanFactory,	
@@ -1529,7 +1530,6 @@ const instructionFactories: InstructionFactory[] = [
     forceAlternateFactory,  	
     replaceIdentifierFactory,
     swapFunctionCallArgumentsFactory,	
-    deleteStatementFactory,	
     swapFunctionDeclarationParametersFactory,
   ])
 ];
