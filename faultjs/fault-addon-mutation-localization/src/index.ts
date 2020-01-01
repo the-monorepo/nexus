@@ -1268,6 +1268,12 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           blocks.push([]);
         }
         if (path.isIdentifier()) {
+          
+          if (path.parentPath.isNewExpression()) {
+            // TODO: Support new expressions
+            path.node[REPLACEMENT_IDENTIFIER_PATHS] = [];
+            return;
+          }
           console.log();
           console.log('traverse', path.node.name, path.key);
           const previousPaths: (NodePath[] | NodePath)[] = [];
