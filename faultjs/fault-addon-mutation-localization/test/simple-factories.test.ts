@@ -38,21 +38,30 @@ const dataSet: TestData[] = [
   [replaceNumberFactory, '1;2;3;4;', 3],
   [replaceBinaryOrLogicalOperatorFactory, '1 + 2; 1 === 2;', 2],
   [replaceAssignmentOperatorFactory, '1 + 1; b += 2; a %= 3', 2],
+  [replaceAssignmentOperatorFactory, '[a, b] = [c, d]', 0],
+  [replaceAssignmentOperatorFactory, 'test() = 1', 0],
+  [replaceAssignmentOperatorFactory, 'test().a = 1', 1],
+  [replaceAssignmentOperatorFactory, 'const a = 1', 0],
   [leftNullifyBinaryOrLogicalOperatorFactory, '1 + 2 % 4;', 2],
   [rightNullifyBinaryOrLogicalOperatorFactory, '1 + 2 % 4', 2],
 ];
 
-for(const [factory, code, expectedInstructionCount] of dataSet) {
-  it(`${Object.getPrototypeOf(factory).constructor.name}`, () => {
-    const filePath = '';
+let i = 0;
 
-    const ast = parse(code);
-    const astMap = new Map([[filePath, ast]]);
+describe('simple factories', () => {
+  for(const [factory, code, expectedInstructionCount] of dataSet) {
+    // TODO: Needs better test names
+    it((i++).toString(), () => {
+      const filePath = '';
   
-    const factoryWrapper = new InstructionFactory([factory]);
-    factoryWrapper.setup(astMap);
-    const instructions = [...factoryWrapper.createInstructions(astMap)];
-  
-    expect(instructions).toHaveLength(expectedInstructionCount);  
-  })
-}
+      const ast = parse(code);
+      const astMap = new Map([[filePath, ast]]);
+    
+      const factoryWrapper = new InstructionFactory([factory]);
+      factoryWrapper.setup(astMap);
+      const instructions = [...factoryWrapper.createInstructions(astMap)];
+    
+      expect(instructions).toHaveLength(expectedInstructionCount); 
+    })
+  }  
+})
