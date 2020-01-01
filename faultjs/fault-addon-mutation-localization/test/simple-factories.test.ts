@@ -34,6 +34,7 @@ const dataSet: TestData[] = [
   [replaceIdentifierFactory, 'const a = 0; a = 5; const b = a; const c = a + b', 3],
   [replaceIdentifierFactory, 'const arr = []; arr.fn1(1, 2); arr.fn2(1); arr.fn2(1, 2)', 1],
   [replaceIdentifierFactory, 'const arr1 = [], arr2 = []; arr1.fn1(); arr2.fn1();', 1],
+  [replaceIdentifierFactory, 'const arr1 = []; new Rawr();', 0],
   [replaceBooleanFactory, 'true', 1],
   [replaceStringFactory, '["hello", "my", "name", "is"]', 3],
   [swapFunctionDeclarationParametersFactory, 'const fn = (a, b, c) => {}', 2],
