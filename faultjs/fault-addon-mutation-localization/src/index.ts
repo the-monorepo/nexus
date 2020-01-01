@@ -1454,12 +1454,10 @@ export const coverageToInstructionMap = (
   allInstructions: Instruction<any>[],
   coverageObjs: Map<string, CoveragePathObj[]>,
 ) => {
-  const coverageMap: Map<CoveragePathObj, Instruction<any>[]> = new Map(
-    [...coverageObjs.values()]
-      .map(objs => 
-        objs.map(obj => [obj, []])
-      ).flat()
-  );
+  const objLists: CoveragePathObj[][] = [...coverageObjs.values()];
+  const objs: CoveragePathObj[] = objLists.flat();
+  const entries: [CoveragePathObj, Set<Instruction<any>>][] = objs.map(obj => [obj, new Set()] as [CoveragePathObj, Set<Instruction<any>>]);
+  const coverageMap: Map<CoveragePathObj, Set<Instruction<any>>> = new Map(entries);
   
   for(const instruction of allInstructions) {
     for(const [filePath, fileDependencies] of instruction.dependencies) {
@@ -1468,11 +1466,19 @@ export const coverageToInstructionMap = (
         continue;
       }
       for(const writePath of fileDependencies.writes) {
-        for(const coverageObj of fileCoveragePathObjs) {
-          const potentialParent = writePath.find(path => path.node === coverageObj.path.node);
-          if (potentialParent !== null) {
-            coverageMap.get(coverageObj)!.push(instruction);
-          }
+        let selectedObj: CoveragePathObj | null = null;
+        writePath.find(path => {
+          return fileCoveragePathObjs.some(obj => {
+            if (obj.path.node === path.node) {
+              selectedObj = obj;
+              return true;
+            } else {
+              return false;
+            }
+          })
+        });
+        if (selectedObj !== null) {
+          coverageMap.get(selectedObj)!.add(instruction);
         }
       }
     }  
@@ -1950,19 +1956,17 @@ export const compareFinalInstructionEvaluations = (
 };
 
 type InstructionCategory = {
-  filePath: string;
   path: NodePath;
-  location: t.SourceLocation;
+  location: Location;
   instructions: Instruction<any>[];
 
 };
 export const categoriseInstructionsIntoCloestParentPaths = (
-  coverageToInstructions: Map<CoveragePathObj, Instruction<any>[]>,
+  coverageToInstructions: Map<CoveragePathObj, Set<Instruction<any>>>,
 ): InstructionCategory[] => {
   return [...coverageToInstructions].map(([obj, instructions]):InstructionCategory => ({
-    filePath: obj.originalLocation.filePath,
     location: obj.originalLocation,
-    instructions,
+    instructions: [...instructions],
     path: obj.path
   }));
 };
@@ -1982,10 +1986,10 @@ export const mutationEvalatuationMapToFaults = (
       ),
     )
     .map(
-      ({ filePath, location, instructions }, i): Fault => {
+      ({ location, instructions }, i): Fault => {
         return {
           score: i,
-          sourcePath: filePath,
+          sourcePath: location.filePath,
           location: {
             start: location.start,
             end: location.end,
@@ -1996,7 +2000,7 @@ export const mutationEvalatuationMapToFaults = (
               return {
                 type: instruction.type.toString(),
                 initial: instructionEvaluations.get(instruction)!.initial,
-                locations: [...instruction.dependencies.values()][0].writes.map(path => path.find(parent => parent.node != null && parent.node.loc != null)).map(path => locationToKeyIncludingEnd(filePath, path.node.loc)),
+                locations: [...instruction.dependencies.values()][0].writes.map(path => path.find(parent => parent.node != null && parent.node.loc != null)).map(path => locationToKeyIncludingEnd(location.filePath, path.node.loc)),
                 evaluations: [...instructionEvaluations.get(instruction)!.mutationEvaluations.sortedIterator()].map(e => ({ ...e, instructions: undefined })),
                 nodes: keys.map(key => [...nodeEvaluations.get(key)!.sortedIterator()].map(e => ({ ...e, instructions: undefined }))),
               }
@@ -2544,7 +2548,7 @@ export const createPlugin = ({
   let originalAstMap: Map<string, t.File> = null!;
   let testAstMap: Map<string, t.File> = null!;
   let coverageObjs: Map<string, CoveragePathObj[]> = null!;
-  let coverageToInstructions: Map<CoveragePathObj, Instruction<any>[]> = null!;
+  let coverageToInstructions: Map<CoveragePathObj, Set<Instruction<any>>> = null!;
   let finished = false;
   const instructionQueue: Heap<Heap<Instruction<any>>> = createInstructionQueue(nodeEvaluations, instructionEvaluations);
   let firstRun = true;
@@ -2782,7 +2786,7 @@ export const createPlugin = ({
                 locationToKeyIncludingEnd(obj.originalLocation.filePath, obj.originalLocation),
                 locationToKeyIncludingEnd(obj.originalLocation.filePath, obj.path.node.loc),
               ].join(' => '),
-              instructions.map(instruction => [
+              ...[...instructions].map(instruction => [
                 instruction.type.toString(),
                 ...[...instruction.dependencies.values()]
                   .map(deps => 
@@ -2793,12 +2797,12 @@ export const createPlugin = ({
                       )
                     )
                   ).flat()
-              ])
-            ]).flat()
+              ]).flat()
+            ])
           )  
 
 
-          const relevantInstructions:Instruction<any>[] = [...new Set([...coverageToInstructions.values()].flat())];
+          const relevantInstructions:Instruction<any>[] = [...new Set([...coverageToInstructions.values()].map(set => [...set]).flat())];
 
           initialiseEvaluationMaps(
             nodeEvaluations,
