@@ -1235,15 +1235,16 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
             blocks[blocks.length - 1].push(longestAccessSequence);
           }
 
+          const parentDeclarator = path.find(subPath => subPath.isVariableDeclarator() || subPath.isStatement() || subPath.isAssignmentExpression());
+          const isOnLeftSide = !parentDeclarator.isStatement();
           if (!(path.parentPath.isVariableDeclarator() && path.key === 'id')) {
             const accessSequence: IdentifierInfo = path.node[IDENTIFIER_INFO];
             for(const otherSequences of blocks) {
               for(const otherSequence of otherSequences) {
-                const replacementPath = getReplacementIdentifierNode(accessSequence, otherSequence);
-  
-                if (replacementPath !== null) {
-                  console.log('allowed');
-                  previousPaths.push(replacementPath.name);
+                const info = getReplacementIdentifierNode(accessSequence, otherSequence);
+                
+                if (info !== null && !(info.name === 'undefined' && isOnLeftSide)) {
+                  previousPaths.push(info.name);
                 }
               }
             }  
