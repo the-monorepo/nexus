@@ -60,30 +60,41 @@ describe(matchAndFlattenCategoryData.name, () => {
       matchAndFlattenCategoryData([['c', ['1', '2'], 'd'], [['1', 'a', 'b']]], '1'),
     ).toEqual(['c', 'd', '2', 'a', 'b']);
   });
-  it('operation categories', () => {
-    expect(matchAndFlattenCategoryData(binaryOperationCategories, '||')).toEqual([
-      '^',
-      '>>>',
-      '>>',
-      '<<',
-      '&',
-      '**',
-      '%',
-      '/',
-      '*',
-      '-',
-      '+',
-      '>=',
-      '>',
-      '<=',
-      '<',
-      '!=',
-      '==',
-      '!==',
-      '===',
-      '|',
-      '&&',
-    ]);
+  describe('operation categories', () => {
+    it('<', () => {
+      expect(matchAndFlattenCategoryData(binaryOperationCategories, '<')).toContain(['>=', '>', '<=']);
+    });
+    it('+', () => {
+      expect(matchAndFlattenCategoryData(binaryOperationCategories, '+')).toContain(['/', '*', '-']);
+    })
+    it('>>', () => {
+      expect(matchAndFlattenCategoryData(binaryOperationCategories, '>>')).toContain(['>>>', '<<']);
+    })
+    it('||', () => {
+      expect(matchAndFlattenCategoryData(binaryOperationCategories, '||')).toEqual([
+        '^',
+        '>>>',
+        '>>',
+        '<<',
+        '&',
+        '**',
+        '%',
+        '/',
+        '*',
+        '-',
+        '+',
+        '>=',
+        '>',
+        '<=',
+        '<',
+        '!=',
+        '==',
+        '!==',
+        '===',
+        '|',
+        '&&',
+      ]);        
+    })
   });
   it('assignment categories', () => {
     expect(matchAndFlattenCategoryData(assignmentCategories, '+=')).toEqual([
