@@ -72,9 +72,9 @@ const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) =>
 };
 
 export const binaryOperationCategories = [
-  ['^', ['&', '<<', '>>>', '>>'], ['|', '>>', '<<']],
-  [['&', '&&']],
-  [['|', '||']],
+  [['^', ['&', '<<', '>>>', '>>'], ['|', '>>', '<<']]],
+  [[['&', '&&']]],
+  [[['|', '||']]],
   [
     ['&&', '||'],
     [
@@ -86,7 +86,7 @@ export const binaryOperationCategories = [
       ['!==', '==='],
     ],
   ],
-  [['**', '*'], '%', ['/', '*'], ['-', '+']],
+  [[['**', '*'], '%', ['/', '*'], ['-', '+']]],
 ];
 
 const ASSIGNMENT = Symbol('assignment');
@@ -1096,13 +1096,13 @@ export const pathsToAccessInfo = (currentPath: NodePath, identifierPath: NodePat
   }
 }
 export const collectParentIdentifierInfo = (path: NodePath) => {
-  console.log('collect');
+  //console.log('collect');
   const accesses: AccessInfo[] = [];
 
   let current = path;
   const identifiers: IdentifierTemp[] = [];
   do {
-    console.log(current.type);
+    //console.log(current.type);
     if (current.isIdentifier()) {
       accesses.push(pathsToAccessInfo(current, current));
       identifiers.push({
@@ -1124,8 +1124,8 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
       }
     }
     current = current.parentPath;
-    console.log(current.type, current.node.name)
-    console.log(accesses.map(access => access.name));
+    //console.log(current.type, current.node.name)
+    //console.log(accesses.map(access => access.name));
   } while (current != null && (current.isIdentifier() || current.isMemberExpression() || current.isCallExpression() || current.isNewExpression()));
 
   for(const temp of identifiers) {
@@ -1168,9 +1168,9 @@ export const accessInfoMatch = (info1: AccessInfo, info2: AccessInfo) => accessI
 const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSequence: AccessInfo[]): MemberAccessInfo | FunctionAccessInfo | ConstructorAccessInfo | null => {
   const accessSequence = identifierInfo.sequence;
   const index = identifierInfo.index;
-  console.log('comparing', accessSequence.map(a => [a.type, a.name]), otherSequence.map(a => [a.type, a.name]));
+  //console.log('comparing', accessSequence.map(a => [a.type, a.name]), otherSequence.map(a => [a.type, a.name]));
   if (index >= otherSequence.length) {
-    console.log('sequence too short', index, otherSequence.length);
+    //console.log('sequence too short', index, otherSequence.length);
     return null;
   }
   let i = 0;
@@ -1183,11 +1183,11 @@ const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSeque
   }
 
   if (i !== index) {
-    console.log(`i stopped at ${i} - Needed ${index}, skipping`)
+    //console.log(`i stopped at ${i} - Needed ${index}, skipping`)
     // Perfect match, skip
     return null;
   }
-  console.log(`Mismatch at ${i}, continuing`)
+  //console.log(`Mismatch at ${i}, continuing`)
 
   let j = i + 1;
   while(
@@ -1199,7 +1199,7 @@ const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSeque
   }
 
   if (j < accessSequence.length) {
-    console.log(`Double mismatch at ${j}, stopping`)
+    //console.log(`Double mismatch at ${j}, stopping`)
     // This means there's at least 2 mismatches. Skip.
     return null;
   }
@@ -1244,8 +1244,8 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
         }
         if (path.isIdentifier()) {
           
-          console.log();
-          console.log('traverse', path.node.name, path.key);
+          //console.log();
+          //console.log('traverse', path.node.name, path.key);
           const previousPaths: string[] = [];
           
           if (path.node[IDENTIFIER_INFO] === undefined) {
@@ -1535,18 +1535,18 @@ const instructionFactories: InstructionFactory[] = [
 ];
 
 const instructionTypeImportance: Map<symbol, number> = new Map([  
-  NULLIFY_RIGHT_OPERATOR,
-  NULLIFY_LEFT_OPERATOR,
-  CHANGE_ASSIGNMENT_OPERATOR,
-  CHANGE_BINARY_OPERATOR,
   CHANGE_BOOLEAN,
+  CHANGE_BINARY_OPERATOR,
   CHANGE_NUMBER,
   CHANGE_STRING,
-  CHANGE_IDENTIFIER,
+  CHANGE_ASSIGNMENT_OPERATOR,
   FORCE_CONSEQUENT,
   FORCE_ALTERNATE,
-  SWAP_FUNCTION_CALL,
+  CHANGE_IDENTIFIER,
+  NULLIFY_RIGHT_OPERATOR,
+  NULLIFY_LEFT_OPERATOR,
   DELETE_STATEMENT,
+  SWAP_FUNCTION_CALL,
   SWAP_FUNCTION_PARAMS
 ].reverse().map((symbol, i) => [symbol, i]));
 
