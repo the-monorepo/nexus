@@ -2,7 +2,24 @@ import {
   matchAndFlattenCategoryData,
   assignmentCategories,
   binaryOperationCategories,
+  CategoryData
 } from '../src/index';
+
+const expectCategory = <T>(categories: CategoryData<T>) => {
+  return {
+    withMatchToPopWith: (value: T, expected: T[]) => {
+      const result = matchAndFlattenCategoryData(categories, value);
+      try {
+        expect(result.slice(result.length - expected.length)).toEqual(expected);
+      } catch(err) {
+        // TODO: This exists just to make the error easier to read - but it's hacky. Try refactor.
+        expect(result).toContain(expected);        
+      }
+    }
+  }
+};
+
+const binaryCategory = expectCategory(binaryOperationCategories);
 describe(matchAndFlattenCategoryData.name, () => {
   it('empty array', () => {
     expect(matchAndFlattenCategoryData([], '')).toEqual([]);
@@ -61,28 +78,20 @@ describe(matchAndFlattenCategoryData.name, () => {
     ).toEqual(['c', 'd', '2', 'a', 'b']);
   });
   describe('operation categories', () => {
-    it('<', () => {
-      expect(matchAndFlattenCategoryData(binaryOperationCategories, '<')).toContain(['>=', '>', '<=']);
+    it('&&', () => {
+      binaryCategory.withMatchToPopWith('&&', ['||', '&']);
+    })
+    it('>', () => {
+      binaryCategory.withMatchToPopWith('>', ['<=', '<', '>=']);
     });
     it('+', () => {
-      expect(matchAndFlattenCategoryData(binaryOperationCategories, '+')).toContain(['/', '*', '-']);
+      binaryCategory.withMatchToPopWith('+', ['/', '*', '-']);
     })
     it('>>', () => {
-      expect(matchAndFlattenCategoryData(binaryOperationCategories, '>>')).toContain(['>>>', '<<']);
+      binaryCategory.withMatchToPopWith('>>', ['>>>', '<<']);
     })
     it('||', () => {
-      expect(matchAndFlattenCategoryData(binaryOperationCategories, '||')).toEqual([
-        '^',
-        '>>>',
-        '>>',
-        '<<',
-        '&',
-        '**',
-        '%',
-        '/',
-        '*',
-        '-',
-        '+',
+      binaryCategory.withMatchToPopWith('||', [
         '>=',
         '>',
         '<=',
@@ -91,9 +100,9 @@ describe(matchAndFlattenCategoryData.name, () => {
         '==',
         '!==',
         '===',
-        '|',
         '&&',
-      ]);        
+        '|',
+      ]);
     })
   });
   it('assignment categories', () => {

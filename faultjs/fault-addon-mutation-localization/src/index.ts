@@ -72,11 +72,12 @@ const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) =>
 };
 
 export const binaryOperationCategories = [
-  [['^', ['&', '<<', '>>>', '>>'], ['|', '>>', '<<']]],
-  [[['&', '&&']]],
-  [[['|', '||']]],
+  ['>>', '>>>'],
+  ['<', '<<'],
+  ['>', '>>'],
+  [['^', '|', '&', ['<<', '>>>', '>>'], ['>>', '<<']]],
   [
-    ['&&', '||'],
+    [['&&', '||']],
     [
       ['>=', '>'],
       ['<=', '<'],
@@ -86,7 +87,9 @@ export const binaryOperationCategories = [
       ['!==', '==='],
     ],
   ],
-  [[['**', '*'], '%', ['/', '*'], ['-', '+']]],
+  [[['&', '&&']]],
+  [[['|', '||']]],
+  [[['**', '*'], ['%'], ['/', '*'], ['-', '+']]],
 ];
 
 const ASSIGNMENT = Symbol('assignment');
@@ -109,7 +112,7 @@ const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
   );
 };
 
-type CategoryData<T> = {} & Array<T | CategoryData<T>>;
+export type CategoryData<T> = {} & Array<T | CategoryData<T>>;
 const recursiveIncludes = (match: any, arr: any) => {
   if (match === arr) {
     return true;
@@ -129,7 +132,6 @@ export const matchAndFlattenCategoryData = <T>(categories: CategoryData<T>, matc
     const value = stack[s];
     if (Array.isArray(value)) {
       // Could probably not constantly recursively check if the value is in the array
-      // Also constantly pushing new elements onto the stack results in some nasty memory complexity
       if (recursiveIncludes(match, value)) {
         stack.push(...value);
         s++;
@@ -143,18 +145,7 @@ export const matchAndFlattenCategoryData = <T>(categories: CategoryData<T>, matc
       s++;
     }
   }
-  const alreadyAddedSet = new Set();
-  return flattened
-    .reverse()
-    .filter(item => {
-      if (alreadyAddedSet.has(item)) {
-        return false;
-      } else {
-        alreadyAddedSet.add(item);
-        return true;
-      }
-    })
-    .reverse();
+  return filterVariantDuplicates(flattened as T[]);
 };
 
 type Mutation<D, S> = {
