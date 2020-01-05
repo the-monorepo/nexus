@@ -1268,7 +1268,6 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
               for(const otherSequence of otherSequences) {
                 const info = getReplacementIdentifierNode(identifierInfo, otherSequence);
                 const usedAsObject = isUsedAsObject({ sequence: otherSequence, index: otherSequence.length - 1}, otherSequences);
-                console.log(otherSequence, info, isUsedWithOperator, usedAsObject);
                 if (info === null) {
                   continue;
                 }
@@ -1300,12 +1299,12 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
 type LogicalOrBinaryExpression = t.BinaryExpression | t.LogicalExpression;
 
 type OperatorProps = string;
-export const createCategoryVariantFactory = <T>(
+export const createCategoryVariantFactory = (
   key: string,
   categoryData: CategoryData<any>,
 ) => {
-  return (path: NodePath<T>) => {
-    const operator = path.getData(key);
+  return (path: NodePath) => {
+    const operator = path.node[key];
     const operators = matchAndFlattenCategoryData(categoryData, operator);
     return operators;
   };
