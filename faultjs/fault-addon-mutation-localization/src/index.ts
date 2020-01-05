@@ -1205,7 +1205,7 @@ const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSeque
 export const isUsedAsObject = (identifierInfo: IdentifierInfo, sequences: AccessInfo[][]) => {
   const accessSequence = identifierInfo.sequence;
   return sequences.some(sequence => {
-    if(sequence.length < accessSequence.length) {
+    if(sequence.length <= accessSequence.length) {
       return false;
     }
 
@@ -1255,7 +1255,8 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
 
             const exclude: Set<string> = new Set();
             if (parentDeclarator.parentPath.isVariableDeclaration()) {
-              for(const declaratorPath of parentDeclarator.parentPath.get('declarations')) {
+              const declarationPath = parentDeclarator.parentPath;
+              for(const declaratorPath of declarationPath.get('declarations')) {
                 const idPath = declaratorPath.get('id')
                 if (idPath.isIdentifier()) {
                   exclude.add(idPath.node.name);
@@ -1266,17 +1267,21 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
             for(const otherSequences of blocks) {
               for(const otherSequence of otherSequences) {
                 const info = getReplacementIdentifierNode(identifierInfo, otherSequence);
-                if (isUsedWithOperator && isUsedAsObject({ sequence: otherSequence, index: otherSequence.length - 1}, otherSequences)) {
+                const usedAsObject = isUsedAsObject({ sequence: otherSequence, index: otherSequence.length - 1}, otherSequences);
+                console.log(otherSequence, info, isUsedWithOperator, usedAsObject);
+                if (info === null) {
                   continue;
                 }
-
-                
-                if (info !== null && !(info.name === 'undefined' && isOnLeftSide)) {
-                  if (exclude.has(info.name)) {
-                    continue;
-                  }
-                  previousPaths.push(info.name);
+                if (isUsedWithOperator && usedAsObject) {
+                  continue;
                 }
+                if (info.name === 'undefined' && isOnLeftSide) {
+                  continue;
+                }
+                if (exclude.has(info.name)) {
+                  continue;
+                }
+                previousPaths.push(info.name);
               }
             }  
           }
