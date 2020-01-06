@@ -937,24 +937,11 @@ export const createValueInstructionFactory = (
   );
 };
 
-export const literalMemberParentFilter = (check: (path: NodePath) => boolean) => {
-  return (path: NodePath) => {
-    if (!check(path)) {
-      return false;
-    }
-    const parent = path.parentPath;
-    if(parent == null) {
-      return true;
-    }
-    return !parent.isMemberExpression();      
-  }
-} 
-
 const isStringLiteral = path => path.isStringLiteral();
 export const CHANGE_STRING = Symbol('change-string');
 const STRINGS = Symbol('strings');
 export const replaceStringFactory = createValueInstructionFactory(
-  literalMemberParentFilter(isStringLiteral),
+  isStringLiteral,
   CHANGE_STRING,
   STRINGS,
 );
@@ -965,7 +952,7 @@ export const CHANGE_NUMBER = Symbol('change-number');
 export const replaceNumberFactory = new SimpleInstructionFactory(
   CHANGE_NUMBER,
   replaceValueSequence,
-  literalMemberParentFilter(isNumberLiteral),
+  isNumberLiteral,
   (nodePath: NodePath<t.NumericLiteral>) => {
     const node = nodePath.node;
     const filterOut: Set<number> = new Set();
@@ -1006,7 +993,7 @@ const CHANGE_BOOLEAN = Symbol('change-boolean');
 export const replaceBooleanFactory = new SimpleInstructionFactory(
   CHANGE_BOOLEAN,
   replaceValueSequence,
-  literalMemberParentFilter(path => path.isBooleanLiteral()),
+  path => path.isBooleanLiteral(),
   (path: NodePath<t.BooleanLiteral>) => [!path.node.value],
 );
 
@@ -1543,17 +1530,17 @@ const instructionFactories: InstructionFactory[] = [
 ];
 
 const instructionTypeImportance: Map<symbol, number> = new Map([  
-  CHANGE_BOOLEAN,
-  CHANGE_BINARY_OPERATOR,
-  CHANGE_NUMBER,
-  CHANGE_STRING,
-  CHANGE_ASSIGNMENT_OPERATOR,
-  FORCE_CONSEQUENT,
-  FORCE_ALTERNATE,
-  CHANGE_IDENTIFIER,
   NULLIFY_RIGHT_OPERATOR,
   NULLIFY_LEFT_OPERATOR,
+  CHANGE_BOOLEAN,
+  CHANGE_BINARY_OPERATOR,
+  CHANGE_ASSIGNMENT_OPERATOR,
+  CHANGE_NUMBER,
+  CHANGE_STRING,
   DELETE_STATEMENT,
+  CHANGE_IDENTIFIER,
+  FORCE_CONSEQUENT,
+  FORCE_ALTERNATE,
   SWAP_FUNCTION_CALL,
   SWAP_FUNCTION_PARAMS
 ].reverse().map((symbol, i) => [symbol, i]));
