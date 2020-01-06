@@ -36,7 +36,7 @@ type Location = {
   filePath: string;
 } & ExpressionLocation;
 
-const locationEqual = (
+const expressionLocationEquals = (
   loc1: ExpressionLocation | null | undefined,
   loc2: ExpressionLocation | null | undefined,
 ) => {
@@ -57,13 +57,26 @@ const locationEqual = (
   );
 };
 
+const fileLocationEquals = (loc1: Location | null | undefined, loc2: Location | null | undefined) => {
+  if (loc2 === loc1) {
+    return true;
+  }
+  if (loc2 == null) {
+    return false;
+  }
+  if (loc1 == null) {
+    return false;
+  }
+  return loc1.filePath === loc2.filePath && expressionLocationEquals(loc1, loc2);
+}
+
 const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) => {
   const nodePaths: NodePath[] = [];
   traverse(ast, {
     enter(path) {
       const loc1 = location;
       const loc2 = path.node.loc;
-      if (locationEqual(loc1, loc2)) {
+      if (expressionLocationEquals(loc1, loc2)) {
         nodePaths.push(path);
       }
     },
@@ -1609,19 +1622,23 @@ const findWidenedCoveragePaths = (
     traverse(ast, {
       enter(path: NodePath) {
         const loc = path.node.loc;
-        if (loc !== undefined) {
-          const key = locationToKeyIncludingEnd(filePath, loc);
-          if (fileLocationPaths.has(key)) {
-            console.log(key);
-            const originalLocation = fileLocationPaths.get(key)!;
-            fileLocationPaths.delete(key);
-            nodePaths.get(filePath)!.push({
-              path: widenCoveragePath(path),
-              originalLocation,
-              testStats: fileResults.get(filePath)!.expressions.find(result => locationToKeyIncludingEnd(filePath, result.location) === key)!.stats
-            });
-          }
+        if (loc === undefined) {
+          return;
         }
+        const key = locationToKeyIncludingEnd(filePath, loc);
+        if (!fileLocationPaths.has(key)) {
+          return;
+        }
+        console.log(key);
+        const originalLocation = fileLocationPaths.get(key)!;
+        fileLocationPaths.delete(key);
+        const expressionResult = fileResults.get(filePath)!.expressions
+          .find(result => locationToKeyIncludingEnd(filePath, result.location) === key)!
+        nodePaths.get(filePath)!.push({
+          path: widenCoveragePath(path),
+          originalLocation,
+          testStats: expressionResult.stats
+        });
       },
     });
   }
@@ -2877,9 +2894,19 @@ export const createPlugin = ({
             allInstructions.map(a => a.type),
           );
 
-          // TODO: Seems a bit hacky to look for coverage paths twice
           const fullCoverageObjs = findWidenedCoveragePaths(originalAstMap, locations, fileResults);
-          coverageObjs = findWidenedCoveragePaths(originalAstMap, failingLocations, fileResults);
+          coverageObjs = new Map(
+            [...fullCoverageObjs]
+              .map(([filePath, objs]): [string, CoveragePathObj[]] => (
+                [
+                  filePath,
+                  objs.filter(obj => (
+                    failingLocations
+                      .some(failingLocation => fileLocationEquals(obj.originalLocation, failingLocation))
+                  ))
+                ]
+              )).filter(([filePath, objs]) => objs.length > 0)
+          );
           
           const fullCoverageToInstructions = coverageToInstructionMap(allInstructions, fullCoverageObjs);
 
