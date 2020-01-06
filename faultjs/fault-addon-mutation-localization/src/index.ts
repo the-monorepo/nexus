@@ -2858,7 +2858,7 @@ export const createPlugin = ({
           const totalPassFailStats = passFailStatsFromTests(tester.testResults.values());
 
           codeMap = await createFilePathToCodeMap([
-            ...new Set(locations.map(location => location.filePath)),
+            ...new Set(failingLocations.map(location => location.filePath)),
           ]);
 
           originalAstMap = codeMapToAstMap(codeMap, babelOptions);
@@ -2877,6 +2877,7 @@ export const createPlugin = ({
             allInstructions.map(a => a.type),
           );
 
+          // TODO: Seems a bit hacky to look for coverage paths twice
           const fullCoverageObjs = findWidenedCoveragePaths(originalAstMap, locations, fileResults);
           coverageObjs = findWidenedCoveragePaths(originalAstMap, failingLocations, fileResults);
           
