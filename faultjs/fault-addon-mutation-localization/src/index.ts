@@ -2830,6 +2830,7 @@ export const createPlugin = ({
           }
           const failedCoverage = failedCoverageMap.data as Coverage;
           const locations: Location[] = [];
+          const failingLocations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
             //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
@@ -2838,16 +2839,18 @@ export const createPlugin = ({
             for (const [key, statementCoverage] of Object.entries(
               fileCoverage.statementMap,
             )) {
+              const location = {
+                ...statementCoverage,
+                filePath: coveragePath,
+              };
+              locations.push(location);
               if (fileCoverage.s[key] <= 0) {
                 continue;
               }
               failingLocationKeys.add(
                 locationToKeyIncludingEnd(coveragePath, statementCoverage),
               );
-              locations.push({
-                ...statementCoverage,
-                filePath: coveragePath,
-              });
+              failingLocations.push(location);
             }
           }
 
@@ -2874,9 +2877,16 @@ export const createPlugin = ({
             allInstructions.map(a => a.type),
           );
 
-          coverageObjs = findWidenedCoveragePaths(originalAstMap, locations, fileResults);
+          const fullCoverageObjs = findWidenedCoveragePaths(originalAstMap, locations, fileResults);
+          coverageObjs = findWidenedCoveragePaths(originalAstMap, failingLocations, fileResults);
+          
+          const fullCoverageToInstructions = coverageToInstructionMap(allInstructions, fullCoverageObjs);
 
-          coverageToInstructions = coverageToInstructionMap(allInstructions, coverageObjs);
+          coverageToInstructions = new Map([...fullCoverageToInstructions]
+            .filter(([coverageObj]) => (
+              coverageObjs.has(coverageObj.originalLocation.filePath) && 
+                coverageObjs.get(coverageObj.originalLocation.filePath)!.includes(coverageObj)
+            )));
           console.log(
             ...[...coverageToInstructions].map(([obj, instructions]) => [
               [
@@ -2899,7 +2909,12 @@ export const createPlugin = ({
           )  
 
 
-          const relevantInstructions:Instruction<any>[] = [...new Set([...coverageToInstructions.values()].map(set => [...set]).flat())];
+          const relevantInstructions:Instruction<any>[] = [...new Set(
+            [...coverageToInstructions.values()]
+              .map(set => [...set])
+              .flat()
+            )
+          ];
 
           initialiseEvaluationMaps(
             nodeEvaluations,
