@@ -30,7 +30,7 @@ import Heap from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
 import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
-import dStar from '@fault/sbfl-dstar';
+import op2 from '@fault/sbfl-op2';
 
 type Location = {
   filePath: string;
@@ -2941,7 +2941,7 @@ export const createPlugin = ({
           for(const [coverageObj, instructions] of coverageToInstructions) {
             for (const instruction of instructions) {
               const evaluation = instructionEvaluations.get(instruction)!;
-              const score = dStar(coverageObj.testStats, totalPassFailStats);
+              const score = op2(coverageObj.testStats, totalPassFailStats);
               evaluation.initial = Math.max(evaluation.initial, score === null ? Number.NEGATIVE_INFINITY : score);
             }
           }
@@ -3059,8 +3059,6 @@ export const createPlugin = ({
           categorisedInstructions,
         );
 
-        sortBySuspciousness(faults);
-        // TODO: Temporary hack to ensure failed coverage comes first but should just use dStar sorting or something instead
         await Promise.all([
           recordFaults(faultFilePath, faults),
           reportFaults(faults),

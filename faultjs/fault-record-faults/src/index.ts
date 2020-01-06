@@ -45,10 +45,7 @@ export const sortBySuspciousness = (faults: Fault[]) => {
   return faults.sort((a, b) => {
     if (a.score === b.score) {
       const locationComparison = compareLocation(a, b);
-      if (locationComparison !== null) {
-        return locationComparison;
-      }
-      return 0;
+      return locationComparison;
     }
     if (a.score === null) {
       return -1;
@@ -62,6 +59,7 @@ export const sortBySuspciousness = (faults: Fault[]) => {
     if (a.score > b.score) {
       return -1;
     }
+    console.log(a, b)
     throw createComparisonError(a, b);
   });
 };
@@ -97,34 +95,36 @@ export const compareLocation = (faultA: Fault, faultB: Fault): number | null => 
   } else if (a.start.column !== b.start.column) {
     return a.start.column - b.start.column;
   } else if (a.end.line !== b.end.line) {
-    return a.end.line - a.end.line;
+    return a.end.line - b.end.line;
   } else if (a.end.column !== b.end.column) {
     return a.end.column - b.end.column;
   }
-  return null;
+  return 0;
 };
 
 export const sortByLocation = (fileFaults: Fault[]) => {
   fileFaults.sort((faultA, faultB) => {
     const locationComparison = compareLocation(faultA, faultB);
-    if (locationComparison !== null) {
+    if (locationComparison !== 0) {
       return locationComparison;
     }
     throw createComparisonError(faultA, faultB);
   });
 };
 
-export const recordFaults = (filePath: string, faults: Fault[]) => {
+export const recordFaults = (filePath: string, toRecord: Fault[]) => {
+  const faults = [...toRecord];
   mkdirSync(dirname(filePath), { recursive: true });
   sortBySuspciousness(faults);
   const faultsData = {};
   for (const fault of faults) {
+    if (Number.isNaN(fault.score)) {
+      throw new Error(`${fault.score} is not a valid score value`);
+    }
     const recordedItem = {
       score:
         fault.score === null
           ? null
-          : Number.isNaN(fault.score)
-          ? false
           : Number.POSITIVE_INFINITY === fault.score
           ? true
           : Number.NEGATIVE_INFINITY === fault.score
