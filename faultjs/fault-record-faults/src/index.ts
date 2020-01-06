@@ -116,6 +116,7 @@ export const sortByLocation = (fileFaults: Fault[]) => {
 
 export const recordFaults = (filePath: string, faults: Fault[]) => {
   mkdirSync(dirname(filePath), { recursive: true });
+  sortBySuspciousness(faults);
   const faultsData = {};
   for (const fault of faults) {
     const recordedItem = {

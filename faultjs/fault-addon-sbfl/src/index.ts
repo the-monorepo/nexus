@@ -42,10 +42,6 @@ export const gatherFileResults = (
     for (const [filePath, fileCoverage] of Object.entries(coverage) as any) {
       const statementMap = fileCoverage.statementMap;
       for (const statementKey of Object.keys(statementMap)) {
-        const executionCount = fileCoverage.s[statementKey];
-        if (executionCount <= 0) {
-          continue;
-        }
         const statementCoverage = statementMap[statementKey];
 
         const hash = statementStr(filePath, statementCoverage);
@@ -144,6 +140,24 @@ export type PluginOptions = {
   ignoreGlob?: string | string[];
 };
 
+export const filterOutUnexecutedResults = (
+  fileResults: Map<string, FileResult>,
+): Map<string, FileResult> => {
+  return new Map(
+    [...fileResults].map(
+      ([filePath, result]): [string, FileResult] => [
+        filePath,
+        {
+          sourcePath: result.sourcePath,
+          expressions: result.expressions.filter(expressionResult => {
+            return expressionResult.stats.failed > 0 || expressionResult.stats.passed > 0;
+          })
+        }
+      ]
+    ).filter(([filePath, result]) => result.expressions.length > 0)
+  );
+}
+
 export const createPlugin = ({
   scoringFn = dStar,
   faultFilePath,
@@ -157,14 +171,11 @@ export const createPlugin = ({
   return {
     on: {
       complete: async (results: FinalTesterResults) => {
-        const testResults: TestResult[] = [...results.testResults.entries()]
-          .sort(([key], [key2]) => key.localeCompare(key2))
-          .map(([key, value]) => value);
-        const fileResults = gatherFileResults(testResults);
+        const testResults: TestResult[] = [...results.testResults.values()];
         const totalPassFailStats = passFailStatsFromTests(testResults);
         const faults = localizeFaults(
           testResults,
-          fileResults,
+          filterOutUnexecutedResults(gatherFileResults(testResults)),
           resolvedIgnoreGlob,
           expressionPassFailStats =>
             scoringFn(expressionPassFailStats, totalPassFailStats),
