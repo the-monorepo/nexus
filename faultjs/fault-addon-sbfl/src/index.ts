@@ -61,10 +61,13 @@ export const gatherFileResults = (
           }
         })();
 
-        if (testResult.passed) {
-          results.stats.passed++;
-        } else {
-          results.stats.failed++;
+        const executionCount = fileCoverage.s[statementKey];
+        if (executionCount > 0) {
+          if (testResult.passed) {
+            results.stats.passed++;
+          } else {
+            results.stats.failed++;
+          }
         }
       }
     }
@@ -98,6 +101,7 @@ export const localizeFaults = (
   ignoreGlob: string[],
   scoringFn: InternalScoringFn,
 ): Fault[] => {
+  console.log('hjmh',...([...fileResults.values()][0].expressions));
   const faults: Fault[] = [];
 
   // Gather all files that were executed in tests
@@ -195,6 +199,7 @@ export const createPlugin = ({
               return faultFilePath;
             }
           })();
+          console.log(resolvedFilePath);
           await recordFaults(resolvedFilePath, faults);
         }
       },
