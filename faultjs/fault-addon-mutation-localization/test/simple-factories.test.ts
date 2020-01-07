@@ -16,11 +16,11 @@ import {
   leftNullifyBinaryOrLogicalOperatorFactory,
   rightNullifyBinaryOrLogicalOperatorFactory,
 } from '../src';
-import { parse } from '@babel/parser';
+import { parse, ParserOptions } from '@babel/parser';
 type Code = string;
 type Factory = AbstractSimpleInstructionFactory<any, any>;
 type ExpectedInstructionCount = number;
-type TestData = [Factory, Code, ExpectedInstructionCount];
+type TestData = [Factory, Code, ExpectedInstructionCount] | [Factory, Code, ExpectedInstructionCount, ParserOptions];
 
 const dataSet: TestData[] = [
   [deleteStatementFactory, 'const a = 0; const b = 0;', 0],
@@ -37,8 +37,10 @@ const dataSet: TestData[] = [
   [replaceIdentifierFactory, 'const arr1 = []; new Rawr();', 0],
   [replaceIdentifierFactory, 'const arr1 = rawr;', 0],
   [replaceIdentifierFactory, 'undefined; arr = a;', 1],
+  [replaceIdentifierFactory, 'const a = [].rawr(); rawr.push([b, q])', 2],
   [replaceBooleanFactory, 'true', 1],
   [replaceStringFactory, '["hello", "my", "name", "is"]', 3],
+  [replaceStringFactory, "import * as module1 from 'string1'; import * as module2 from 'string2'; a = b;", 0, { sourceType: 'module' }],
   [swapFunctionDeclarationParametersFactory, 'const fn = (a, b, c) => {}', 2],
   [swapFunctionDeclarationParametersFactory, 'function fn(a, b, c) {}', 2],
   [swapFunctionCallArgumentsFactory, 'fn(1, 2, 3)', 2],
@@ -55,14 +57,14 @@ const dataSet: TestData[] = [
 let i = 0;
 
 describe('simple factories', () => {
-  for(const [factory, code, expectedInstructionCount] of dataSet) {
+  for(const [factory, code, expectedInstructionCount, options] of dataSet) {
     // TODO: Needs better test names
     const id = i;
     it(`${id.toString()} - ${code}`, () => {
       console.log(id, id, id, id);
       const filePath = '';
   
-      const ast = parse(code);
+      const ast = parse(code, options);
       const astMap = new Map([[filePath, ast]]);
     
       const factoryWrapper = new InstructionFactory([factory]);
