@@ -163,7 +163,7 @@ export type BenchmarkData = {
 
 const sbflAlgorithms = [
   { name: 'dstar-1', scoringFn: (a, b) => dStar(a, b, 1) },
-  { name: 'dstar-2', console: true , scoringFn: (a, b) => dStar(a, b, 2) },
+  { name: 'dstar-2', console: true, scoringFn: (a, b) => dStar(a, b, 2) },
   { name: 'dstar-3', scoringFn: (a, b) => dStar(a, b, 3) },
   { name: 'dstar-4', scoringFn: (a, b) => dStar(a, b, 4) },
   { name: 'dstar-5', scoringFn: (a, b) => dStar(a, b, 5) },

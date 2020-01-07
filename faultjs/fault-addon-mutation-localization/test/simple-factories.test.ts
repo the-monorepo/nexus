@@ -1,10 +1,9 @@
-
 import {
   AbstractSimpleInstructionFactory,
   InstructionFactory,
   deleteStatementFactory,
   forceConsequentFactory,
-  forceAlternateFactory,  
+  forceAlternateFactory,
   replaceIdentifierFactory,
   replaceBooleanFactory,
   replaceStringFactory,
@@ -20,7 +19,9 @@ import { parse, ParserOptions } from '@babel/parser';
 type Code = string;
 type Factory = AbstractSimpleInstructionFactory<any, any>;
 type ExpectedInstructionCount = number;
-type TestData = [Factory, Code, ExpectedInstructionCount] | [Factory, Code, ExpectedInstructionCount, ParserOptions];
+type TestData =
+  | [Factory, Code, ExpectedInstructionCount]
+  | [Factory, Code, ExpectedInstructionCount, ParserOptions];
 
 const dataSet: TestData[] = [
   [deleteStatementFactory, 'const a = 0; const b = 0;', 0],
@@ -28,21 +29,40 @@ const dataSet: TestData[] = [
   [deleteStatementFactory, 'if(Math.random() > 0.5) {}', 0],
   [forceConsequentFactory, 'if(Math.random() > 0.5) { console.log("hello") }', 1],
   [forceConsequentFactory, 'if(true) { console.log("hello") }', 0],
-  [forceAlternateFactory, 'if(Math.random() > 0.5) { console.log("hello")}', 1], 
+  [forceAlternateFactory, 'if(Math.random() > 0.5) { console.log("hello")}', 1],
   [forceAlternateFactory, 'if(false) { console.log("hello")}', 0],
   [replaceIdentifierFactory, 'const a = 0; a = 5; const b = a;', 0],
   [replaceIdentifierFactory, 'const a = 0; a = 5; const b = a; const c = a + b', 2],
-  [replaceIdentifierFactory, 'const arr = []; arr.fn1(1, 2); arr.fn2(1); arr.fn2(1, 2)', 1],
+  [
+    replaceIdentifierFactory,
+    'const arr = []; arr.fn1(1, 2); arr.fn2(1); arr.fn2(1, 2)',
+    1,
+  ],
   [replaceIdentifierFactory, 'const arr1 = [], arr2 = []; arr1.fn1(); arr2.fn1();', 1],
   [replaceIdentifierFactory, 'const arr1 = []; new Rawr();', 0],
   [replaceIdentifierFactory, 'const arr1 = rawr;', 0],
   [replaceIdentifierFactory, 'undefined; arr = a;', 1],
   [replaceIdentifierFactory, 'const a = [].rawr(); rawr.push([b, q])', 2],
-  [replaceIdentifierFactory, "import module1 from 'string1'; import * as module2 from 'string2'; import { a, b, c } from 'string3'; const d = e", 1, { sourceType: 'module'}],
-  [replaceIdentifierFactory, "import * as module1 from 'string1'; import * as module2 from 'string2'; module1.a(); module2.a()", 1, {sourceType: 'module'}],
+  [
+    replaceIdentifierFactory,
+    "import module1 from 'string1'; import * as module2 from 'string2'; import { a, b, c } from 'string3'; const d = e",
+    1,
+    { sourceType: 'module' },
+  ],
+  [
+    replaceIdentifierFactory,
+    "import * as module1 from 'string1'; import * as module2 from 'string2'; module1.a(); module2.a()",
+    1,
+    { sourceType: 'module' },
+  ],
   [replaceBooleanFactory, 'true', 1],
   [replaceStringFactory, '["hello", "my", "name", "is"]', 3],
-  [replaceStringFactory, "import * as module1 from 'string1'; import * as module2 from 'string2'; a = 'string3';", 0, { sourceType: 'module' }],
+  [
+    replaceStringFactory,
+    "import * as module1 from 'string1'; import * as module2 from 'string2'; a = 'string3';",
+    0,
+    { sourceType: 'module' },
+  ],
   [swapFunctionDeclarationParametersFactory, 'const fn = (a, b, c) => {}', 2],
   [swapFunctionDeclarationParametersFactory, 'function fn(a, b, c) {}', 2],
   [swapFunctionCallArgumentsFactory, 'fn(1, 2, 3)', 2],
@@ -59,23 +79,28 @@ const dataSet: TestData[] = [
 let i = 0;
 
 describe('simple factories', () => {
-  for(const [factory, code, expectedInstructionCount, options] of dataSet) {
+  for (const [factory, code, expectedInstructionCount, options] of dataSet) {
     // TODO: Needs better test names
     const id = i;
     it(`${id.toString()} - ${code}`, () => {
       console.log(id, id, id, id);
       const filePath = '';
-  
+
       const ast = parse(code, options);
       const astMap = new Map([[filePath, ast]]);
-    
+
       const factoryWrapper = new InstructionFactory([factory]);
       factoryWrapper.setup(astMap);
       const instructions = [...factoryWrapper.createInstructions(astMap)];
-    
-      expect(instructions.map(instruction => ({ keys: instruction.conflictWriteDependencyKeys, variantLength: instruction.variants?.length }))).toHaveLength(expectedInstructionCount); 
+
+      expect(
+        instructions.map(instruction => ({
+          keys: instruction.conflictWriteDependencyKeys,
+          variantLength: instruction.variants?.length,
+        })),
+      ).toHaveLength(expectedInstructionCount);
     });
-    
+
     i++;
-  }  
-})
+  }
+});

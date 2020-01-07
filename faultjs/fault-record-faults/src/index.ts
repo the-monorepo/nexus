@@ -59,7 +59,7 @@ export const sortBySuspciousness = (faults: Fault[]) => {
     if (a.score > b.score) {
       return -1;
     }
-    console.log(a, b)
+    console.log(a, b);
     throw createComparisonError(a, b);
   });
 };

@@ -101,7 +101,7 @@ export const localizeFaults = (
   ignoreGlob: string[],
   scoringFn: InternalScoringFn,
 ): Fault[] => {
-  console.log('hjmh',...([...fileResults.values()][0].expressions));
+  console.log('hjmh', ...[...fileResults.values()][0].expressions);
   const faults: Fault[] = [];
 
   // Gather all files that were executed in tests
@@ -148,19 +148,19 @@ export const filterOutUnexecutedResults = (
   fileResults: Map<string, FileResult>,
 ): Map<string, FileResult> => {
   return new Map(
-    [...fileResults].map(
-      ([filePath, result]): [string, FileResult] => [
+    [...fileResults]
+      .map(([filePath, result]): [string, FileResult] => [
         filePath,
         {
           sourcePath: result.sourcePath,
           expressions: result.expressions.filter(expressionResult => {
             return expressionResult.stats.failed > 0 || expressionResult.stats.passed > 0;
-          })
-        }
-      ]
-    ).filter(([filePath, result]) => result.expressions.length > 0)
+          }),
+        },
+      ])
+      .filter(([filePath, result]) => result.expressions.length > 0),
   );
-}
+};
 
 export const createPlugin = ({
   scoringFn = dStar,
