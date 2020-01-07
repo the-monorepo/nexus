@@ -1015,6 +1015,7 @@ export const replaceIdentifierSequence = createMutationSequenceFactory(
 );
 const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
   return (
+    parentPath.parentPath.isImportDeclaration() ||
     (parentPath.parentPath.isVariableDeclarator() && parentPath.key === 'id') ||
     (parentPath.parentPath.isFunction() && (typeof parentPath.key === 'number' || parentPath.key === 'id'))
   );
