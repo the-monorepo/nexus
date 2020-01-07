@@ -2017,8 +2017,16 @@ export const compareFinalInstructionEvaluations = (
   const instructions1 = category1.instructions;
   const instructions2 = category2.instructions;
   if (instructions1.length >= 1 && instructions2.length >= 1) {
-    const comparisonFn = (a, b) =>
-      compareInstructionWithInitialValues(nodeEvaluations, instructionEvaluations, a, b);
+    const comparisonFn = (instruction1, instruction2) => {
+      const intructionComparison = compareInstruction(nodeEvaluations, instructionEvaluations, instruction1, instruction2);
+      if (intructionComparison !== 0) {
+        return intructionComparison;
+      }
+    
+      const evaluation1 = instructionEvaluations.get(instruction1)!;
+      const evaluation2 = instructionEvaluations.get(instruction2)!;
+      return compareInitialInstructionValues(evaluation1, evaluation2);
+    }
 
     const best1 = instructions1.sort(comparisonFn).reverse()[0];
     const best2 = instructions2.sort(comparisonFn).reverse()[0];
