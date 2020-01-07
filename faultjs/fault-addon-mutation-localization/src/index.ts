@@ -2325,7 +2325,7 @@ export const compareInstructionWithInitialValues = (
     return initial;
   }
 
-  return instructionTypeImportance.get(instruction1.type) - instructionTypeImportance.get(instruction2.type);
+  return instructionTypeImportance.get(instruction1.type)! - instructionTypeImportance.get(instruction2.type)!;
 };
 
 export const compareInstruction = (
