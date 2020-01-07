@@ -40,7 +40,7 @@ const dataSet: TestData[] = [
   [replaceIdentifierFactory, 'const a = [].rawr(); rawr.push([b, q])', 2],
   [replaceBooleanFactory, 'true', 1],
   [replaceStringFactory, '["hello", "my", "name", "is"]', 3],
-  [replaceStringFactory, "import * as module1 from 'string1'; import * as module2 from 'string2'; a = b;", 0, { sourceType: 'module' }],
+  [replaceStringFactory, "import * as module1 from 'string1'; import * as module2 from 'string2'; a = 'string3';", 0, { sourceType: 'module' }],
   [swapFunctionDeclarationParametersFactory, 'const fn = (a, b, c) => {}', 2],
   [swapFunctionDeclarationParametersFactory, 'function fn(a, b, c) {}', 2],
   [swapFunctionCallArgumentsFactory, 'fn(1, 2, 3)', 2],
