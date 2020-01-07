@@ -1898,30 +1898,30 @@ export type LocationMutationEvaluation = {
   direct: boolean;
 };
 
+
+
+type TestDifferencePayload = {
+  original: TestResult,
+  new: TestResult,
+  evaluation: TestEvaluation,
+};
+type TesterDifferencePayload = {
+  matches: TestDifferencePayload[], // Test results found in both tester results
+  missing: TestResult[], // Missing test resuls
+  added: TestResult[], // New test results
+};
+
 const evaluateNewMutation = (
-  originalResults: TesterResults,
-  newResults: TesterResults,
-  testAstMap: Map<string, t.File>,
+  difference: TesterDifferencePayload,
   instructions: Instruction<any>[],
 ): MutationEvaluation => {
-  const notSeen = new Set(originalResults.testResults.keys());
   let testsWorsened = 0;
   let testsImproved = 0;
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
 
-  for (const [key, newResult] of newResults.testResults) {
-    if (!notSeen.has(key)) {
-      // Maybe don't
-      continue;
-    }
-    notSeen.delete(key);
-    const oldResult = originalResults.testResults.get(key);
-    if (oldResult === undefined) {
-      // Maybe don't
-      continue;
-    }
-    const testEvaluation = evaluateModifiedTestResult(oldResult, newResult, testAstMap);
+  for (const payload of difference.matches) {
+    const testEvaluation = payload.evaluation;
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
       testsImproved++;
@@ -1941,6 +1941,7 @@ const evaluateNewMutation = (
       stackEvaluation.degradation++;
     }
   }
+
   return {
     instructions,
     testsWorsened,
@@ -2557,6 +2558,42 @@ export const overwriteWithMutatedAst = async (filePath: string, mutatedAsts: Map
   await writeFile(filePath, code, { encoding: 'utf8' });
 };
 
+export const differenceInTesterResults = (
+  originalResults: TesterResults,
+  newResults: TesterResults,
+  testAstMap: Map<string, t.File>,
+): TesterDifferencePayload => {
+  const matches: TestDifferencePayload[] = [];
+  const notSeen = new Set(originalResults.testResults.keys());
+  const added: TestResult[] = []; // TODO: ATM this also includes double ups of the same test
+  for (const [key, newResult] of newResults.testResults) {
+    if (!notSeen.has(key)) {
+      added.push(newResult);
+      continue;
+    }
+    notSeen.delete(key);
+    const oldResult = originalResults.testResults.get(key)!;
+    const testEvaluation = evaluateModifiedTestResult(oldResult, newResult, testAstMap);
+    matches.push({
+      evaluation: testEvaluation,
+      original: oldResult,
+      new: newResult,
+    })
+  }
+
+  const missing: TestResult[] = [];
+  for(const key of notSeen) {
+    const original = originalResults.testResults.get(key)!;
+    missing.push(original);
+  }
+
+  return {
+    matches,
+    added,
+    missing,
+  };
+}
+
 const addMutationEvaluation = (
   nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
@@ -2568,7 +2605,9 @@ const addMutationEvaluation = (
   const dependencyKeys = new Set([...instructions].map(instruction => instruction.indirectDependencyKeys).flat());
 
   for (const key of dependencyKeys) {
-    nodeEvaluations.get(key)!.push(mutationEvaluation);
+    if (wasExecuted(key)) {
+      nodeEvaluations.get(key)!.push(mutationEvaluation);
+    }
   }
 
   for (const instruction of instructions) {
@@ -2987,9 +3026,8 @@ export const createPlugin = ({
             console.log('Skipping instruction');
           }
         } else {
-          const mutationEvaluation = evaluateNewMutation(firstTesterResults, tester, testAstMap, [
-            ...previousInstructions,
-          ]);
+          const differenceBetweenResults = differenceInTesterResults(firstTesterResults, tester, testAstMap);
+          const mutationEvaluation = evaluateNewMutation(differenceBetweenResults, [...previousInstructions]);
 
           if (
             mutationEvaluation.testsImproved ===
