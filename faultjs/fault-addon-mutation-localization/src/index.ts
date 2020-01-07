@@ -2004,13 +2004,13 @@ const getTotalNodes = (path: NodePath) => {
 };
 
 export const instructionDidSomethingGoodOrHasNoEvaluations = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instruction: Instruction<any>,
 ) => {
   const evals1 = [...instructionEvaluations.get(instruction)!.mutationEvaluations];
   const nodeEvalLists = instruction.writeDependencyKeys
-    .map(key => [...nodeEvaluations.get(key)!]);
+    .map(key => [...nodeEvaluations.get(key)!.evaluations]);
 
   if (evals1.length <= 0 && nodeEvalLists.length <= 0) {
     return true;
@@ -2020,7 +2020,7 @@ export const instructionDidSomethingGoodOrHasNoEvaluations = (
 };
 
 export const compareFinalInstructionEvaluations = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   category1: InstructionCategory,
   category2: InstructionCategory,
@@ -2092,7 +2092,7 @@ export const categoriseInstructionsIntoCloestParentPaths = (
 };
 
 export const mutationEvalatuationMapToFaults = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instructionCategories: InstructionCategory[],
 ): Fault[] => {
@@ -2122,7 +2122,7 @@ export const mutationEvalatuationMapToFaults = (
                 initial: instructionEvaluations.get(instruction)!.initial,
                 locations: [...instruction.dependencies.values()][0].writes.map(path => path.find(parent => parent.node != null && parent.node.loc != null)).map(path => locationToKeyIncludingEnd(location.filePath, path.node.loc)),
                 evaluations: [...instructionEvaluations.get(instruction)!.mutationEvaluations.sortedIterator()].map(e => ({ ...e, instructions: undefined })),
-                nodes: keys.map(key => [...nodeEvaluations.get(key)!.sortedIterator()].map(e => ({ ...e, instructions: undefined }))),
+                nodes: keys.map(key => [...nodeEvaluations.get(key)!.evaluations.sortedIterator()].map(e => ({ ...e, instructions: undefined }))),
               }
             })
           },
@@ -2135,9 +2135,8 @@ export const mutationEvalatuationMapToFaults = (
 type IsFinishedFunction = (
   instructions: Heap<Instruction<any>>,
   testerResults: TesterResults,
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
-  nodeToInstructions: Map<string, Instruction<any>[]>,
   mutationCount: number,
   solutionCount: number,
 ) => boolean;
@@ -2177,7 +2176,6 @@ export const createDefaultIsFinishedFn = ({
     testerResults,
     nodeEvaluations,
     instructionEvaluations,
-    nodeToInstructions,
     mutationCount,
     solutionCount
   ): boolean => {
@@ -2209,7 +2207,7 @@ export const createDefaultIsFinishedFn = ({
   
       const allWriteDependencyKeys = [...new Set(instructionArr.map(instruction => instruction.writeDependencyKeys).flat())];
       const allDependencyEvaluations = allWriteDependencyKeys.map(
-        key => nodeEvaluations.get(key)!,
+        key => nodeEvaluations.get(key)!.evaluations,
       );
       if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
         //console.log('No promsiing node evalations')
@@ -2309,7 +2307,7 @@ const compareInitialInstructionValues = (
 }
 
 export const compareInstructionWithInitialValues = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instruction1: Instruction<any>,
   instruction2: Instruction<any>,
@@ -2331,7 +2329,7 @@ export const compareInstructionWithInitialValues = (
 };
 
 export const compareInstruction = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instruction1: Instruction<any>,
   instruction2: Instruction<any>,
@@ -2348,10 +2346,10 @@ export const compareInstruction = (
   const relevantKeys2 = instruction2.writeDependencyKeys;
 
   const bestNodeEvaluations1 = relevantKeys1
-    .map(node => nodeEvaluations.get(node)!)
+    .map(node => nodeEvaluations.get(node)!.evaluations)
     .sort(compareEvaluationHeaps)[relevantKeys1.length - 1];
   const bestNodeEvaluations2 = relevantKeys2
-    .map(node => nodeEvaluations.get(node)!)
+    .map(node => nodeEvaluations.get(node)!.evaluations)
     .sort(compareEvaluationHeaps)[relevantKeys2.length - 1];
 
   const nodeEvaluationComparison = compareEvaluationHeaps(bestNodeEvaluations1, bestNodeEvaluations2);
@@ -2363,7 +2361,7 @@ export const compareInstruction = (
 };
 
 export const instructionQueueComparator = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   block1: Heap<Instruction<any>>,
   block2: Heap<Instruction<any>>,
@@ -2403,19 +2401,20 @@ export const createInstructionEvaluation = (initial: number): InstructionEvaluat
 };
 
 export const initialiseEvaluationMaps = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
-  nodeToInstructions: Map<string, Instruction<any>[]>,
   instructions: Instruction<any>[],
 ) => {
   const allDependencyKeys = new Set(instructions.map(instruction => instruction.indirectDependencyKeys).flat());
   for (const key of allDependencyKeys) {
-    nodeEvaluations.set(key, new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst));
-    nodeToInstructions.set(key, []);
+    nodeEvaluations.set(key, {
+      evaluations: new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst),
+      instructions: [],
+    });
   }
   for (const instruction of instructions) {
     for(const key of instruction.indirectDependencyKeys) {
-      nodeToInstructions.get(key)!.push(instruction);
+      nodeEvaluations.get(key)!.instructions.push(instruction);
     }
     instructionEvaluations.set(
       instruction,
@@ -2595,19 +2594,16 @@ export const differenceInTesterResults = (
 }
 
 const addMutationEvaluation = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instructionQueue: Heap<Heap<Instruction<any>>>,
-  nodeToInstructions: Map<string, Instruction<any>[]>,
   instructions: Heap<Instruction<any>>,
   mutationEvaluation: MutationEvaluation,
 ) => {
   const dependencyKeys = new Set([...instructions].map(instruction => instruction.indirectDependencyKeys).flat());
 
   for (const key of dependencyKeys) {
-    if (wasExecuted(key)) {
-      nodeEvaluations.get(key)!.push(mutationEvaluation);
-    }
+    nodeEvaluations.get(key)!.evaluations.push(mutationEvaluation);
   }
 
   for (const instruction of instructions) {
@@ -2616,7 +2612,7 @@ const addMutationEvaluation = (
 
   const instructionsAffected: Set<Instruction<any>> = new Set(
     [...dependencyKeys]
-      .map(key => nodeToInstructions.get(key)!)
+      .map(key => nodeEvaluations.get(key)!.instructions)
       .flat()
   );
   for (const instruction of instructionsAffected) {
@@ -2661,7 +2657,7 @@ export const codeMapToAstMap = (
 };
 
 export const createInstructionQueue = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>
 ) => {
   const heapComparisonFn = (a: Heap<Instruction<any>>, b: Heap<Instruction<any>>) =>
@@ -2670,7 +2666,7 @@ export const createInstructionQueue = (
 }
 
 export const createInstructionBlocks = (
-  nodeEvaluations: Map<string, Heap<MutationEvaluation>>,
+  nodeEvaluations: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instructionsList: Instruction<any>[][]
 ) => {
@@ -2680,6 +2676,11 @@ export const createInstructionBlocks = (
 
   return instructionsList.map(instructions => new Heap(subHeapCompareFn, instructions))
 }
+
+type NodeInformation = {
+  evaluations: Heap<MutationEvaluation>,
+  instructions: Instruction<any>[],
+};
 export const createPlugin = ({
   faultFileDir = './faults/',
   babelOptions,
@@ -2693,8 +2694,7 @@ export const createPlugin = ({
 
   const faultFilePath = resolve(faultFileDir, faultFileName);
 
-  const nodeEvaluations: Map<string, Heap<MutationEvaluation>> = new Map();
-  const nodeToInstructions: Map<string, Instruction<any>[]> = new Map();
+  const nodeEvaluations: Map<string, NodeInformation> = new Map();
   const instructionEvaluations: Map<
     Instruction<any>,
     InstructionEvaluation
@@ -2763,10 +2763,10 @@ export const createPlugin = ({
           const instruction = previousInstructions.peek();
           
           const previousIndirectNodeEvaluations = instruction.indirectDependencyKeys
-            .map(key => nodeEvaluations.get(key)!);
+            .map(key => nodeEvaluations.get(key)!.evaluations);
             
           const previousDirectNodeEvaluations = instruction.writeDependencyKeys
-            .map(key => nodeEvaluations.get(key)!);
+            .map(key => nodeEvaluations.get(key)!.evaluations);
 
           if (
             previousIndirectNodeEvaluations.some(evaluation => evaluation.length > 0 && compareMutationEvaluations(mutationEvaluation, evaluation.peek()) > 0) ||
@@ -2783,7 +2783,6 @@ export const createPlugin = ({
         nodeEvaluations,
         instructionEvaluations,
         instructionQueue,
-        nodeToInstructions,
         previousInstructions,
         mutationEvaluation,
       );
@@ -2804,7 +2803,6 @@ export const createPlugin = ({
         tester,
         nodeEvaluations,
         instructionEvaluations,
-        nodeToInstructions,
         mutationCount,
         solutionCounter,
       )) {
@@ -2835,7 +2833,6 @@ export const createPlugin = ({
         tester,
         nodeEvaluations,
         instructionEvaluations,
-        nodeToInstructions,
         mutationCount,
         solutionCounter
       )
@@ -2991,7 +2988,6 @@ export const createPlugin = ({
           initialiseEvaluationMaps(
             nodeEvaluations,
             instructionEvaluations,
-            nodeToInstructions,
             relevantInstructions,
           );
 
