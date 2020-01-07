@@ -11,7 +11,7 @@ const stubTestResult = (key: string, stack): TestResult => ({
   file: __filename,
   coverage: {},
   passed: true,
-  stack
+  stack,
 });
 
 const throwAnError = (further: boolean) => {
@@ -26,28 +26,35 @@ describe('stack trace distance', () => {
 
   try {
     throwAnError(false);
-  } catch(err) {
+  } catch (err) {
     closerErr = err;
   }
 
   try {
     throwAnError(true);
-  } catch(err) {
+  } catch (err) {
     furtherErr = err;
   }
 
   const code = readFileSync(__filename, 'utf8');
-  
+
   const ast = parse(code, { sourceType: 'module', plugins: ['typescript'] });
 
   const closerStackFrame = ErrorStackParser.parse(closerErr)[0];
   const furtherStackFrame = ErrorStackParser.parse(furtherErr)[0];
 
   it(executionDistanceFromStart.name, () => {
-  
-    const closerDistance = executionDistanceFromStart(ast, closerStackFrame!.lineNumber, closerStackFrame!.columnNumber);
-    const furtherDistance = executionDistanceFromStart(ast, furtherStackFrame!.lineNumber, furtherStackFrame!.columnNumber);
-  
+    const closerDistance = executionDistanceFromStart(
+      ast,
+      closerStackFrame!.lineNumber,
+      closerStackFrame!.columnNumber,
+    );
+    const furtherDistance = executionDistanceFromStart(
+      ast,
+      furtherStackFrame!.lineNumber,
+      furtherStackFrame!.columnNumber,
+    );
+
     expect(closerDistance).not.toBeNull();
     expect(furtherDistance).not.toBeNull();
     expect(closerDistance).toBeLessThan(furtherDistance!);
@@ -65,10 +72,14 @@ describe('stack trace distance', () => {
     expect(difference).not.toBeNull();
     expect(difference).toBeGreaterThan(0);
 
-    const noDifferene = evaluateStackDifference(oldTestResult, oldTestResult, astMap)
+    const noDifferene = evaluateStackDifference(oldTestResult, oldTestResult, astMap);
     expect(noDifferene).toBe(0);
 
-    const oppositeDifference = evaluateStackDifference(newTestResult, oldTestResult, astMap);
+    const oppositeDifference = evaluateStackDifference(
+      newTestResult,
+      oldTestResult,
+      astMap,
+    );
     expect(oppositeDifference).toBe(-difference);
   });
 });

@@ -37,7 +37,7 @@ const arrayToInstructionEvaluations = (arr: any[]): InstructionEvaluation => {
   const nodeEvaluation = createInstructionEvaluation(0);
   nodeEvaluation.mutationEvaluations.push(arrayToMutationEvaluation(arr));
   return nodeEvaluation;
-}
+};
 
 // Index representations:
 // F  P  SD, SI E
@@ -66,7 +66,9 @@ describe('sorting', () => {
       });
       for (let j = i + 1; j < orderedEvaluations.length; j++) {
         const greater = arrayToMutationEvaluation(orderedEvaluations[j]);
-        const greaterNodeEvaluation = arrayToInstructionEvaluations(orderedEvaluations[j]);
+        const greaterNodeEvaluation = arrayToInstructionEvaluations(
+          orderedEvaluations[j],
+        );
         it(`${arrToString(orderedEvaluations[i])} less than ${arrToString(
           orderedEvaluations[j],
         )}`, () => {
@@ -83,10 +85,14 @@ describe('sorting', () => {
 
   it(compareInstruction.name, () => {
     const nodeEvaluations: Map<string, Heap<MutationEvaluation>> = new Map();
-    const instructionEvaluations: Map<Instruction<any>, InstructionEvaluation> = new Map();
+    const instructionEvaluations: Map<
+      Instruction<any>,
+      InstructionEvaluation
+    > = new Map();
 
-    const compareFn = (a, b) => compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
-    
+    const compareFn = (a, b) =>
+      compareInstruction(nodeEvaluations, instructionEvaluations, a, b);
+
     const filePath = '';
     const code = 'console.log("test");';
     const ast = parse(code, { plugins: ['typescript'] });
@@ -95,13 +101,13 @@ describe('sorting', () => {
     const path2 = astPath.get('body')[0];
     const dependencies1: DependencyInfo = {
       reads: [],
-      writes: [path1]
+      writes: [path1],
     };
     const dependencies2: DependencyInfo = {
       reads: [],
-      writes: [path2]
+      writes: [path2],
     };
-    
+
     const dependenciesMap1 = new Map([[filePath, dependencies1]]);
     const dependenciesMap2 = new Map([[filePath, dependencies2]]);
 
@@ -113,7 +119,12 @@ describe('sorting', () => {
 
     const instructions = [instruction1, instruction2, instruction3, instruction4];
 
-    initialiseEvaluationMaps(nodeEvaluations, instructionEvaluations, new Map(), instructions);
+    initialiseEvaluationMaps(
+      nodeEvaluations,
+      instructionEvaluations,
+      new Map(),
+      instructions,
+    );
 
     const mE1 = arrayToMutationEvaluation([1, 0, 0, 0, 0]);
     const mE3 = arrayToMutationEvaluation([0, 0, 0, 0, 1]);
@@ -131,9 +142,16 @@ describe('sorting', () => {
     expect(compareFn(instruction1, instruction4)).toBe(-1);
     expect(compareFn(instruction2, instruction4)).toBe(1);
 
-    const instructionQueue = createInstructionQueue(nodeEvaluations, instructionEvaluations);
+    const instructionQueue = createInstructionQueue(
+      nodeEvaluations,
+      instructionEvaluations,
+    );
     instructionQueue.push(
-      ...createInstructionBlocks(nodeEvaluations, instructionEvaluations, instructions.map(instruction => [instruction]))
+      ...createInstructionBlocks(
+        nodeEvaluations,
+        instructionEvaluations,
+        instructions.map(instruction => [instruction]),
+      ),
     );
 
     const popped = instructionQueue.pop()!;

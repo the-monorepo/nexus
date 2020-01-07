@@ -2,7 +2,7 @@ import {
   matchAndFlattenCategoryData,
   assignmentCategories,
   binaryOperationCategories,
-  CategoryData
+  CategoryData,
 } from '../src/index';
 
 const expectCategory = <T>(categories: CategoryData<T>) => {
@@ -11,12 +11,12 @@ const expectCategory = <T>(categories: CategoryData<T>) => {
       const result = matchAndFlattenCategoryData(categories, value);
       try {
         expect(result.slice(result.length - expected.length)).toEqual(expected);
-      } catch(err) {
+      } catch (err) {
         // TODO: This exists just to make the error easier to read - but it's hacky. Try refactor.
-        expect(result).toContain(expected);        
+        expect(result).toContain(expected);
       }
-    }
-  }
+    },
+  };
 };
 
 const binaryCategory = expectCategory(binaryOperationCategories);
@@ -80,16 +80,16 @@ describe(matchAndFlattenCategoryData.name, () => {
   describe('operation categories', () => {
     it('&&', () => {
       binaryCategory.withMatchToPopWith('&&', ['||', '&']);
-    })
+    });
     it('>', () => {
       binaryCategory.withMatchToPopWith('>', ['<=', '<', '>=']);
     });
     it('+', () => {
       binaryCategory.withMatchToPopWith('+', ['/', '*', '-']);
-    })
+    });
     it('>>', () => {
       binaryCategory.withMatchToPopWith('>>', ['>>>', '<<']);
-    })
+    });
     it('||', () => {
       binaryCategory.withMatchToPopWith('||', [
         '>=',
@@ -103,7 +103,7 @@ describe(matchAndFlattenCategoryData.name, () => {
         '&&',
         '|',
       ]);
-    })
+    });
   });
   it('assignment categories', () => {
     expect(matchAndFlattenCategoryData(assignmentCategories, '+=')).toEqual([

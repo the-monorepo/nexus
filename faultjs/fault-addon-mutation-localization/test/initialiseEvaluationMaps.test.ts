@@ -1,4 +1,9 @@
-import { Instruction, getAstPath, initialiseEvaluationMaps, pathToPrimaryKey } from '../src';
+import {
+  Instruction,
+  getAstPath,
+  initialiseEvaluationMaps,
+  pathToPrimaryKey,
+} from '../src';
 import { parse } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
 const code = 'let a = 0; 1 + 2; () => {}';
@@ -6,32 +11,35 @@ const ast = parse(code);
 const filePath = 'test';
 const astMap = new Map([[filePath, ast]]);
 
-const createInstruction = (writes: NodePath[]): Instruction<any> => (new Instruction(
-  Symbol(),
-  new Map([[
-    filePath,
-    {
-      reads: [],
-      writes: []
-    }
-  ]]),
-  [],
-  undefined,
-))
+const createInstruction = (writes: NodePath[]): Instruction<any> =>
+  new Instruction(
+    Symbol(),
+    new Map([
+      [
+        filePath,
+        {
+          reads: [],
+          writes: [],
+        },
+      ],
+    ]),
+    [],
+    undefined,
+  );
 
 it('initialiseEvaluationMaps', () => {
   it('empty instruction', () => {
     const nodeEvaluations = new Map();
     const instructionEvaluations = new Map();
     const nodeToInstructions = new Map();
-      // Note: This technically should never happen cause instructions always modify some part of the tree
+    // Note: This technically should never happen cause instructions always modify some part of the tree
     const instruction = createInstruction([]);
     const instructions = [instruction];
     initialiseEvaluationMaps(
-      nodeEvaluations, 
-      instructionEvaluations, 
-      nodeToInstructions, 
-      instructions
+      nodeEvaluations,
+      instructionEvaluations,
+      nodeToInstructions,
+      instructions,
     );
     expect(instructionEvaluations.get(instruction)).toBeDefined();
     expect(nodeEvaluations.size).toBe(0);
@@ -43,11 +51,9 @@ it('initialiseEvaluationMaps', () => {
     const nodeToInstructions = new Map();
     const allPaths: NodePath[] = [];
     traverse(ast, {
-      enter: path => allPaths.push(path)
+      enter: path => allPaths.push(path),
     });
-    const instruction = createInstruction(
-      allPaths
-    );  
+    const instruction = createInstruction(allPaths);
     const instructions = [instruction];
     initialiseEvaluationMaps(
       nodeEvaluations,
@@ -55,9 +61,11 @@ it('initialiseEvaluationMaps', () => {
       nodeToInstructions,
       instructions,
     );
-    for(const path of allPaths) {
+    for (const path of allPaths) {
       expect(nodeEvaluations.get(pathToPrimaryKey(filePath, path))).toBeDefined();
-      expect(nodeToInstructions.get(pathToPrimaryKey(filePath, path))).toEqual([path.node]);
+      expect(nodeToInstructions.get(pathToPrimaryKey(filePath, path))).toEqual([
+        path.node,
+      ]);
     }
     expect(instructionEvaluations.get(instruction)).toBeDefined();
   });

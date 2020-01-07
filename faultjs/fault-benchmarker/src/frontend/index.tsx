@@ -113,7 +113,7 @@ const ResultsTable = ({ projectResults, invertColors, total }: ResultsTableProps
   const averageMax = Math.max(...averages);
 
   return (
-    <table class="table">
+    <table className="table">
       <tbody>
         <TableHeader />
         {projectResults.map(result => (
@@ -239,13 +239,12 @@ class ViolinResultsChartElement extends HTMLElement {
     const div = document.createElement('div');
     div.style.height = '600px';
     div.style.width = '600px';
-    div.style.position='relative';
+    div.style.position = 'relative';
     this.canvasElement = document.createElement('canvas');
 
     div.appendChild(this.canvasElement);
-    this.attachShadow({ mode: 'open' })
-      .appendChild(div);
-      this.connected = false;
+    this.attachShadow({ mode: 'open' }).appendChild(div);
+    this.connected = false;
   }
 
   connectedCallback() {
@@ -268,9 +267,9 @@ class ViolinResultsChartElement extends HTMLElement {
 
     const createDataPlot = (results: ResultsTableProps) => {
       const data: number[][] = [];
-      for(let a = 0; a < algoCount; a++) {
+      for (let a = 0; a < algoCount; a++) {
         const dataRow: number[] = [];
-        for(const projectResult of results.projectResults) {
+        for (const projectResult of results.projectResults) {
           const result = projectResult.results[a];
           if (result != null) {
             dataRow.push(result);
@@ -278,7 +277,7 @@ class ViolinResultsChartElement extends HTMLElement {
         }
         data.push(dataRow);
       }
-      return data;  
+      return data;
     };
     const datasets: ResultsTableProps[] = [
       {
@@ -300,14 +299,14 @@ class ViolinResultsChartElement extends HTMLElement {
         padding: 10,
         itemRadius: 0,
         data: createDataPlot(value.real),
-      }
+      },
     ];
 
     const boxPlotData = {
       type: 'horizontalViolin',
       data: {
         labels: algorithmNames,
-        datasets
+        datasets,
       },
       options: {
         responsive: true,
@@ -317,10 +316,10 @@ class ViolinResultsChartElement extends HTMLElement {
         },
         title: {
           display: true,
-          text: 'EXAM results'
-        }
-      }
-    }
+          text: 'EXAM results',
+        },
+      },
+    };
     console.log(boxPlotData);
 
     new Chart(context, boxPlotData);
@@ -369,7 +368,7 @@ const Main = () => {
   // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
   return (
     <div>
-      <header class="page-title">
+      <header className="page-title">
         <h1>Fault.js benchmark results</h1>
       </header>
       <label htmlFor="separate-sandboxed">Separate sandboxed</label>
@@ -382,10 +381,13 @@ const Main = () => {
         }}
         checked={true}
       ></input>
-      <div class="page">
-        <violin-chart $data={{ real: examResults[1], artificial: examResults[0] }} class="violin"/>
+      <div className="page">
+        <violin-chart
+          $data={{ real: examResults[1], artificial: examResults[0] }}
+          class="violin"
+        />
         {tableResults.map(tableResult => (
-          <section class={tableResult.class}>
+          <section className={tableResult.class}>
             <h2>{tableResult.title}</h2>
             <ResultsTable
               projectResults={tableResult.projectResults}

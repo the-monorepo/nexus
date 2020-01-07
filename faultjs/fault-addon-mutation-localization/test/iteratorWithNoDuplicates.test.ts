@@ -1,9 +1,9 @@
 import { iteratorWithNoDuplicates } from '../src/index';
 describe('iteratorWithNoDuplicates', () => {
-  it('numbers', () =>{
+  it('numbers', () => {
     const arrWithDuplicates = [1, 2, 3, 4, 4, 3, 2, 1];
-    expect([...iteratorWithNoDuplicates(arrWithDuplicates)]).toEqual([1, 2, 3, 4]);  
-  })
+    expect([...iteratorWithNoDuplicates(arrWithDuplicates)]).toEqual([1, 2, 3, 4]);
+  });
   it('keyed', () => {
     const expectedArr = [
       { a: 1, b: 3 },
@@ -12,6 +12,9 @@ describe('iteratorWithNoDuplicates', () => {
       { a: 4, b: 3 },
     ];
     const [item1, item2, item3, item4] = expectedArr;
-    expect([...iteratorWithNoDuplicates(expectedArr, (item) => item.b)]).toEqual([item1, item2]);
+    expect([...iteratorWithNoDuplicates(expectedArr, item => item.b)]).toEqual([
+      item1,
+      item2,
+    ]);
   });
 });
