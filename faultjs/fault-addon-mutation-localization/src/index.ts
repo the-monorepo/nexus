@@ -1074,7 +1074,7 @@ type ConstructorAccessInfo = {
   argCount: number,
 }
 
-type AccessInfo = FunctionAccessInfo | MemberAccessInfo | UnknownAccessInfo | ConstructorAccess;
+type AccessInfo = FunctionAccessInfo | MemberAccessInfo | UnknownAccessInfo | ConstructorAccessInfo;
 
 
 export const pathsToAccessInfo = (currentPath: NodePath, identifierPath: NodePath<t.Identifier>): AccessInfo => {
@@ -1153,7 +1153,6 @@ const accessInfoMatchExcludingName = (info1: AccessInfo, info2: AccessInfo) => {
       return info1.argCount === other.argCount;
     }
     case MEMBER_ACCESS: {
-      const other = info2 as MemberAccessInfo;
       return true;
     }
     case UNKNOWN_ACCESS: {
