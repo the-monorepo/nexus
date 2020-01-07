@@ -38,6 +38,8 @@ const dataSet: TestData[] = [
   [replaceIdentifierFactory, 'const arr1 = rawr;', 0],
   [replaceIdentifierFactory, 'undefined; arr = a;', 1],
   [replaceIdentifierFactory, 'const a = [].rawr(); rawr.push([b, q])', 2],
+  [replaceIdentifierFactory, "import module1 from 'string1'; import * as module2 from 'string2'; import { a, b, c } from 'string3'; const d = e", 1, { sourceType: 'module'}],
+  [replaceIdentifierFactory, "import * as module1 from 'string1'; import * as module2 from 'string2'; module1.a(); module2.a()", 1, {sourceType: 'module'}],
   [replaceBooleanFactory, 'true', 1],
   [replaceStringFactory, '["hello", "my", "name", "is"]', 3],
   [replaceStringFactory, "import * as module1 from 'string1'; import * as module2 from 'string2'; a = 'string3';", 0, { sourceType: 'module' }],
