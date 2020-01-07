@@ -937,13 +937,23 @@ export const createValueInstructionFactory = (
   );
 };
 
-const isStringLiteral = path => path.isStringLiteral();
+const isReplaceableStringLiteral = (path: NodePath) => {
+  return path.isStringLiteral() && path.find(parentPath => parentPath.isImportDeclaration()) == null;
+}
 export const CHANGE_STRING = Symbol('change-string');
 const STRINGS = Symbol('strings');
-export const replaceStringFactory = createValueInstructionFactory(
-  isStringLiteral,
+export const replaceStringFactory = new SimpleInstructionFactory(
   CHANGE_STRING,
-  STRINGS,
+  createMutationSequenceFactory((wrapper) => {
+    wrapper.setDataDynamic('value', (aString) => aString);
+  }),
+  isReplaceableStringLiteral,
+  (path: NodePath) => [...path.node[STRINGS]],
+  createValueVariantCollector(
+    isReplaceableStringLiteral,
+    STRINGS,
+    'value',
+  )
 );
 
 export const NUMBERS = Symbol('numbers');
