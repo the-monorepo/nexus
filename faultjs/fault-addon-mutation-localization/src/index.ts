@@ -1166,7 +1166,7 @@ const accessInfoMatchExcludingName = (info1: AccessInfo, info2: AccessInfo) => {
 
 export const accessInfoMatch = (info1: AccessInfo, info2: AccessInfo) => accessInfoMatchExcludingName(info1, info2) && (info1 as any).name === (info2 as any).name;
 
-const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSequence: AccessInfo[]): MemberAccessInfo | FunctionAccessInfo | ConstructorAccessInfo | null => {
+const getReplacementIdentifierNode = (identifierInfo: IdentifierInfo, otherSequence: AccessInfo[]): AccessInfo | null => {
   const accessSequence = identifierInfo.sequence;
   const index = identifierInfo.index;
   //console.log('comparing', accessSequence.map(a => [a.type, a.name]), otherSequence.map(a => [a.type, a.name]));
