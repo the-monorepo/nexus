@@ -12,10 +12,9 @@ import {
   pathToPrimaryKey,
   createInstructionQueue,
   createInstructionBlocks,
-  compareInstructionEvaluations,
+  NodeInformation,
 } from '../src/index';
 import { parse } from '@babel/parser';
-import Heap from '@pshaw/binary-heap';
 const arrToString = (arr: number[]) => `[${arr.join(', ')}]`;
 
 const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
@@ -84,7 +83,7 @@ describe('sorting', () => {
   });
 
   it(compareInstruction.name, () => {
-    const nodeEvaluations: Map<string, Heap<MutationEvaluation>> = new Map();
+    const nodeEvaluations: Map<string, NodeInformation> = new Map();
     const instructionEvaluations: Map<
       Instruction<any>,
       InstructionEvaluation
@@ -122,7 +121,6 @@ describe('sorting', () => {
     initialiseEvaluationMaps(
       nodeEvaluations,
       instructionEvaluations,
-      new Map(),
       instructions,
     );
 
@@ -133,7 +131,7 @@ describe('sorting', () => {
     instructionEvaluations.get(instruction3)!.mutationEvaluations.push(mE3);
     instructionEvaluations.get(instruction4)!.mutationEvaluations.push(mE1);
 
-    nodeEvaluations.get(pathToPrimaryKey(filePath, path2))!.push(mE3);
+    nodeEvaluations.get(pathToPrimaryKey(filePath, path2))!.evaluations.push(mE3);
 
     expect(compareFn(instruction2, instruction1)).toBe(1);
     expect(compareFn(instruction2, instruction2)).toBe(0);
