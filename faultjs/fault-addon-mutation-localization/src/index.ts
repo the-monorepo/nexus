@@ -695,6 +695,7 @@ class SimpleInstructionFactory<D, T> implements AbstractSimpleInstructionFactory
         this.createVariantFn === undefined
           ? undefined
           : this.createVariantFn(path as any);
+          console.log(pathToKey(path), path.node.type, variants);
       if (variants === undefined || variants.length >= 1) {
         const wrapperMutation = {
           type: this.type,
@@ -1099,6 +1100,20 @@ export type AccessInfo =
   | UnknownAccessInfo
   | ConstructorAccessInfo;
 
+export const innerMostMemberExpression = (path: NodePath) => {
+  let current = path;
+  if (current.isIdentifier() && (current.parentPath.isMemberExpression())) {
+    current = current.parentPath;
+  }
+  do {
+    if (current.isMemberExpression()) {
+      current = current.get('object');
+    } else if (current.isCallExpression()) {
+      current = current.get('callee');
+    }
+  } while (current.isMemberExpression() || current.isCallExpression());
+  return current;
+};
 export const pathsToAccessInfo = (
   currentPath: NodePath,
   identifierPath: NodePath<t.Identifier>,
@@ -1123,13 +1138,17 @@ export const pathsToAccessInfo = (
   }
 };
 export const collectParentIdentifierInfo = (path: NodePath) => {
+  path = innerMostMemberExpression(path);
+  console.log();
+  if (path.isIdentifier()) {
+    console.log(path.node.name);
+  }
   //console.log('collect');
   const accesses: AccessInfo[] = [];
 
   let current = path;
   const identifiers: IdentifierTemp[] = [];
   do {
-    //console.log(current.type);
     if (current.isIdentifier()) {
       accesses.push(pathsToAccessInfo(current, current));
       identifiers.push({
@@ -1149,6 +1168,10 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
           type: UNKNOWN_ACCESS,
         });
       }
+    } else if (!current.isCallExpression()) {
+      accesses.push({
+        type: UNKNOWN_ACCESS
+      })
     }
     current = current.parentPath;
     //console.log(current.type, current.node.name)
@@ -1166,7 +1189,9 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
       index: temp.index,
       sequence: accesses,
     };
+    console.log(temp.identifier.type, temp.index);
   }
+  console.log(accesses);
   return accesses;
 };
 
@@ -1294,6 +1319,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           }
 
           if (!(path.parentPath.isVariableDeclarator() && path.key === 'id')) {
+            console.log(path.node.name, path.node.loc)
             const identifierInfo: IdentifierInfo = path.node[IDENTIFIER_INFO];
 
             const parentDeclarator = path.find(
@@ -1587,19 +1613,7 @@ export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
-    leftNullifyBinaryOrLogicalOperatorFactory,
-    rightNullifyBinaryOrLogicalOperatorFactory,
-    deleteStatementFactory,
-    replaceAssignmentOperatorFactory,
-    replaceBinaryOrLogicalOperatorFactory,
-    replaceBooleanFactory,
-    replaceNumberFactory,
-    replaceStringFactory,
-    forceConsequentFactory,
-    forceAlternateFactory,
     replaceIdentifierFactory,
-    swapFunctionCallArgumentsFactory,
-    swapFunctionDeclarationParametersFactory,
   ]),
 ];
 
