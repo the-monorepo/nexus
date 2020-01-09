@@ -1105,7 +1105,7 @@ type AccessInfo =
   | MemberAccessInfo
   | UnknownAccessInfo
   | ConstructorAccessInfo
-  | LiteralType;
+  | LiteralAccessInfo;
 
 export const innerMostMemberExpression = (path: NodePath) => {
   let current = path;
@@ -1146,10 +1146,6 @@ export const pathsToAccessInfo = (
 };
 export const collectParentIdentifierInfo = (path: NodePath) => {
   path = innerMostMemberExpression(path);
-  console.log();
-  if (path.isIdentifier()) {
-    console.log(path.node.name);
-  }
   //console.log('collect');
   const accesses: AccessInfo[] = [];
 
@@ -1337,7 +1333,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           }
 
           if (!(path.parentPath.isVariableDeclarator() && path.key === 'id')) {
-            console.log(path.node.name, path.node.loc)
+            //console.log(path.node.name, path.node.loc)
             const identifierInfo: IdentifierInfo = path.node[IDENTIFIER_INFO];
 
             const parentDeclarator = path.find(
@@ -1631,7 +1627,19 @@ export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
+    leftNullifyBinaryOrLogicalOperatorFactory,
+    rightNullifyBinaryOrLogicalOperatorFactory,
+    deleteStatementFactory,
+    replaceAssignmentOperatorFactory,
+    replaceBinaryOrLogicalOperatorFactory,
+    replaceBooleanFactory,
+    replaceNumberFactory,
+    replaceStringFactory,
+    forceConsequentFactory,
+    forceAlternateFactory,
     replaceIdentifierFactory,
+    swapFunctionCallArgumentsFactory,
+    swapFunctionDeclarationParametersFactory,
   ]),
 ];
 
@@ -2614,7 +2622,7 @@ export const initialiseEvaluationMaps = (
     // Wouldn't exist if there's a indirect dependency in a file that's excluded from babel istanbul coverage
     const fileCoverageMap = coverageInfoMap.get(filePath)!;
     for(const writePath of fileDependencies.writes) {
-      console.log(pathToKey(writePath));
+      //console.log(pathToKey(writePath));
       let coverageInfo: CoveragePathObj | null = null;
       writePath.find(parentPath => {
         if (parentPath.node.loc == null) {
@@ -2622,7 +2630,7 @@ export const initialiseEvaluationMaps = (
         }
 
         const key = coverageKey(parentPath.node.loc);
-        console.log(key);
+        //console.log(key);
         const candidateInfo = fileCoverageMap.get(key);
         if (candidateInfo === undefined) {
           return false;
