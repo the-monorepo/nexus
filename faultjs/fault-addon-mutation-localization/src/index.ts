@@ -504,46 +504,37 @@ export const createMutationSequenceFactory = <D, T>(
 };
 
 export const findParentWithType = (path: NodePath) =>
-  path.find(parentPath => parentPath.type != null);
+  path.find(parentPath => parentPath.node.type !== null && parentPath.node.type !== undefined);
+
 
 export class Instruction<D> {
-  public readonly writeDependencyKeys: string[] = [];
-  public readonly indirectDependencyKeys: string[] = [];
-  public readonly conflictWriteDependencyKeys: string[] = [];
+  public readonly typedDependencies: Map<string, DependencyInfo> = new Map();
+  public readonly typedWriteDependencyKeys: string[];
+
+  public readonly conflictWriteDependencyKeys: string[];
+
+  public readonly indirectDependencies: Map<string, DependencyInfo> = new Map();
+  public readonly indirectWriteDependencyKeys: string[];
   constructor(
     public readonly type: symbol,
-    public readonly dependencies: Map<string, DependencyInfo>,
+    public readonly conflictDependencies: Map<string, DependencyInfo>,
     public readonly mutations: Mutation<D, any>[],
     public readonly variants: D[] | undefined,
   ) {
-    const evaluationDependencies: Map<string, DependencyInfo> = new Map();
-    for (const [filePath, fileDependencies] of dependencies) {
-      evaluationDependencies.set(filePath, {
-        writes: fileDependencies.writes.map(findParentWithType),
-        reads: fileDependencies.reads.map(findParentWithType),
+    const typedDependencies: Map<string, DependencyInfo> = new Map();
+    for (const [filePath, fileDependencies] of conflictDependencies) {
+      typedDependencies.set(filePath, {
+        writes: [...new Set(fileDependencies.writes.map(findParentWithType))],
+        reads: [...new Set(fileDependencies.reads.map(findParentWithType))],
       });
-      for (const writePath of fileDependencies.writes) {
-        const key = pathToPrimaryKey(filePath, writePath);
-        this.conflictWriteDependencyKeys.push(key);
-      }
     }
 
-    const indirectKeySet: Set<string> = new Set();
-    for (const [filePath, fileDependencies] of evaluationDependencies) {
-      for (const writePath of fileDependencies.writes) {
-        const key = pathToPrimaryKey(filePath, writePath);
-        this.writeDependencyKeys.push(key);
-        indirectKeySet.add(key);
-      }
-    }
+    this.typedDependencies = typedDependencies;
+    this.indirectDependencies = getDependencyPathMap(this.typedDependencies);
 
-    const indirectDependencyMap = getDependencyPathMap(evaluationDependencies);
-    for (const [filePath, paths] of indirectDependencyMap) {
-      for (const path of paths) {
-        indirectKeySet.add(pathToPrimaryKey(filePath, path));
-      }
-    }
-    this.indirectDependencyKeys = [...indirectKeySet];
+    this.conflictWriteDependencyKeys = dependenciesToWriteKeys(this.conflictDependencies);
+    this.indirectWriteDependencyKeys = dependenciesToWriteKeys(this.indirectDependencies);
+    this.typedWriteDependencyKeys = dependenciesToWriteKeys(this.typedDependencies);
   }
 }
 
@@ -553,6 +544,12 @@ export type DependencyInfo = {
   reads: NodePath<any>[];
   writes: NodePath<any>[];
 };
+
+export const dependenciesToWriteKeys = (dependencies: Map<string, DependencyInfo>): string[] => 
+  [...new Set([...dependencies]
+    .map(([filePath, dependency]) => 
+      dependency.writes.map(writePath => pathToPrimaryKey(filePath, writePath))
+    ).flat())]
 
 export type AbstractInstructionFactory<D> = {
   setup?: (asts: Map<string, t.File>) => void;
@@ -792,7 +789,7 @@ const organizeInstructions = (instructions: Iterable<Instruction<any>>) => {
     let addANewBlock = true;
     for(const instructions of instructionBlocks) {
       const conflict = instructions.some((instruction) => {
-        return isConflictingDependencies(newInstruction.dependencies, instruction.dependencies);
+        return isConflictingDependencies(newInstruction.conflictDependencies, instruction.conflictDependencies);
       });
       if (!conflict) {
         instructions.push(newInstruction);
@@ -814,7 +811,7 @@ export const executeInstructions = (
   console.log(
     [...instructions].map(instruction => {
       const type = instruction.type;
-      const [filePath, dependencies] = [...instruction.dependencies][0];
+      const [filePath, dependencies] = [...instruction.conflictDependencies][0];
       return [
         type,
         ...dependencies.writes
@@ -1632,7 +1629,8 @@ export const addInstructionsToCoverageMap = (
   coverageObjs: Map<string, Map<string, CoveragePathObj>>,
 ) => {
   for (const instruction of allInstructions) {
-    for (const [filePath, fileDependencies] of instruction.dependencies) {
+    console.log(instruction.type);
+    for (const [filePath, fileDependencies] of instruction.conflictDependencies) {
       const fileObjMap = coverageObjs.get(filePath)!;
       if (fileObjMap === undefined) {
         continue;
@@ -1640,15 +1638,16 @@ export const addInstructionsToCoverageMap = (
       for (const writePath of fileDependencies.writes) {
         let selectedObj: CoveragePathObj | null = null as any;
         writePath.find(path => {
-          if (path.node.loc != null) {
-            const obj = fileObjMap.get(coverageKey(path.node.loc));
-            if (obj !== undefined) {
-              selectedObj = obj;
-              return true;
-            }
+          if (path.node.loc == null) {
+            return false;
           }
-
-          return false;
+          const key = coverageKey(path.node.loc);
+          const obj = fileObjMap.get(key);
+          if (obj === undefined) {
+            return false;
+          }
+          selectedObj = obj;
+          return true;
         });
         if (selectedObj !== null) {
           selectedObj.instructions.push(instruction);
@@ -1660,6 +1659,7 @@ export const addInstructionsToCoverageMap = (
 
 type CoveragePathObj = {
   path: NodePath;
+  pathKey: string;
   originalLocation: Location;
   testStats: Stats;
   instructions: Instruction<any>[],
@@ -1693,7 +1693,6 @@ const findWidenedCoveragePaths = (
         if (!fileLocationPaths.has(key)) {
           return;
         }
-        console.log(key);
         const originalLocation = fileLocationPaths.get(key)!;
         fileLocationPaths.delete(key);
         const expressionResult = fileResults
@@ -1701,9 +1700,11 @@ const findWidenedCoveragePaths = (
           .expressions.find(
             result => locationToKeyIncludingEnd(filePath, result.location) === key,
           )!;
+        const widenedPath = widenCoveragePath(path);
         nodePaths.get(filePath)!.set(coverageKey(loc), {
           instructions: [],
-          path: widenCoveragePath(path),
+          path: widenedPath,
+          pathKey: pathToKey(widenedPath),
           originalLocation,
           testStats: expressionResult.stats,
         });
@@ -1984,10 +1985,11 @@ type TesterDifferencePayload = {
   matches: TestDifferencePayload[]; // Test results found in both tester results
   missing: TestResult[]; // Missing test resuls
   added: TestResult[]; // New test results
+  crashed: boolean,
 };
 
 const evaluateNewMutation = (
-  difference: TesterDifferencePayload,
+  payloads: TestDifferencePayload[],
   instructions: Instruction<any>[],
 ): MutationEvaluation => {
   let testsWorsened = 0;
@@ -1995,7 +1997,7 @@ const evaluateNewMutation = (
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
 
-  for (const payload of difference.matches) {
+  for (const payload of payloads) {
     const testEvaluation = payload.evaluation;
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
@@ -2090,7 +2092,7 @@ export const instructionDidSomethingGoodOrHasNoEvaluations = (
   instruction: Instruction<any>,
 ) => {
   const evals1 = [...instructionEvaluations.get(instruction)!.mutationEvaluations];
-  const nodeEvalLists = instruction.writeDependencyKeys.map(key => [
+  const nodeEvalLists = instruction.typedWriteDependencyKeys.map(key => [
     ...nodeInfoMap.get(key)!.evaluations,
   ]);
 
@@ -2205,11 +2207,11 @@ export const mutationEvalatuationMapToFaults = (
           },
           other: {
             instructions: obj.instructions.map(instruction => {
-              const keys = instruction.writeDependencyKeys;
+              const keys = instruction.typedWriteDependencyKeys;
               return {
                 type: instruction.type.toString(),
                 initial: instructionEvaluations.get(instruction)!.initial,
-                locations: [...instruction.dependencies.values()][0].writes
+                locations: [...instruction.conflictDependencies.values()][0].writes
                   .map(path =>
                     path.find(parent => parent.node != null && parent.node.loc != null),
                   )
@@ -2316,7 +2318,7 @@ export const createDefaultIsFinishedFn = ({
 
       const allWriteDependencyKeys = [
         ...new Set(
-          instructionArr.map(instruction => instruction.writeDependencyKeys).flat(),
+          instructionArr.map(instruction => instruction.typedWriteDependencyKeys).flat(),
         ),
       ];
       const allDependencyEvaluations = allWriteDependencyKeys.map(
@@ -2350,7 +2352,7 @@ export const createDefaultIsFinishedFn = ({
 const getAffectedFilePaths = (instructions: Heap<Instruction<any>>): string[] => {
   const filePaths = [
     ...new Set(
-      [...instructions].map(instruction => [...instruction.dependencies.keys()]).flat(),
+      [...instructions].map(instruction => [...instruction.conflictDependencies.keys()]).flat(),
     ),
   ];
 
@@ -2473,8 +2475,8 @@ export const compareInstruction = (
     return instructionEvaluationComparison;
   }
 
-  const relevantKeys1 = instruction1.writeDependencyKeys;
-  const relevantKeys2 = instruction2.writeDependencyKeys;
+  const relevantKeys1 = instruction1.typedWriteDependencyKeys;
+  const relevantKeys2 = instruction2.typedWriteDependencyKeys;
 
   const bestNodeEvaluations1 = relevantKeys1
     .map(node => nodeInfoMap.get(node)!.evaluations)
@@ -2532,25 +2534,82 @@ export const createInstructionEvaluation = (initial: number): InstructionEvaluat
   };
 };
 
+const aggregateDependencyMaps = (dependencyMaps: Iterable<Map<string, DependencyInfo>>) => {
+  const aggregation: Map<string, DependencyInfo> = new Map();
+  const allFilePaths: Set<string> = new Set();
+  for(const dependencyMap of dependencyMaps) {
+    for(const filePath of dependencyMap.keys()) {
+      allFilePaths.add(filePath);
+    }
+  }
+  for(const filePath of allFilePaths) {
+    const writeNodeToPaths: Map<t.Node, NodePath> = new Map();
+    const readNodeToPaths: Map<t.Node, NodePath> = new Map();
+    for(const dependencyMap of dependencyMaps) {
+      const fileDependencies = dependencyMap.get(filePath);
+      if(fileDependencies === undefined) {
+        continue;
+      }
+
+      for(const path of fileDependencies.writes) {
+        writeNodeToPaths.set(path.node, path);
+      }
+
+      for(const path of fileDependencies.reads) {
+        readNodeToPaths.set(path.node, path);
+      }
+      aggregation.set(filePath, {
+        writes: [...writeNodeToPaths.values()],
+        reads: [...readNodeToPaths.values()]
+      });  
+    }
+  }
+
+  return aggregation;
+}
+
 export const initialiseEvaluationMaps = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  coverageInfoMap: Map<string, Map<string, CoveragePathObj>>,
   instructions: Iterable<Instruction<any>>,
 ) => {
-  const allDependencyKeys: Set<string> = new Set();
-  for(const instruction of instructions) {
-    for(const key of instruction.indirectDependencyKeys) {
-      allDependencyKeys.add(key);
+  const allDependencies = aggregateDependencyMaps(
+    [...instructions].map(instruction => instruction.indirectDependencies)
+  );
+  for(const [filePath, fileDependencies] of allDependencies) {
+    // Wouldn't exist if there's a indirect dependency in a file that's excluded from babel istanbul coverage
+    const fileCoverageMap = coverageInfoMap.get(filePath)!;
+    for(const writePath of fileDependencies.writes) {
+      console.log(pathToKey(writePath));
+      let coverageInfo: CoveragePathObj | null = null;
+      writePath.find(parentPath => {
+        if (parentPath.node.loc == null) {
+          return false;
+        }
+
+        const key = coverageKey(parentPath.node.loc);
+        console.log(key);
+        const candidateInfo = fileCoverageMap.get(key);
+        if (candidateInfo === undefined) {
+          return false;
+        }
+
+        coverageInfo = candidateInfo
+        return true;
+      });
+
+      const key = pathToPrimaryKey(filePath, writePath);
+      nodeInfoMap.set(key, {
+        evaluations: new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst),
+        instructions: [],
+        path: writePath,
+        coverageInfo,
+      });  
     }
   }
-  for (const key of allDependencyKeys) {
-    nodeInfoMap.set(key, {
-      evaluations: new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst),
-      instructions: [],
-    });
-  }
   for (const instruction of instructions) {
-    for (const key of instruction.indirectDependencyKeys) {
+    for (const key of instruction.indirectWriteDependencyKeys) {
       nodeInfoMap.get(key)!.instructions.push(instruction);
     }
     instructionEvaluations.set(instruction, createInstructionEvaluation(0));
@@ -2670,11 +2729,14 @@ export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
 
 export const getDependencyPathMap = (
   pathMap: Map<string, DependencyInfo>,
-): Map<string, NodePath[]> => {
-  const map = new Map();
+): Map<string, DependencyInfo> => {
+  const map: Map<string, DependencyInfo> = new Map();
 
   for (const [filePath, fileDependencies] of pathMap) {
-    map.set(filePath, getDependencyPaths(fileDependencies.writes));
+    map.set(filePath, {
+      writes: getDependencyPaths(fileDependencies.writes),
+      reads: getDependencyPaths(fileDependencies.reads)
+    });
   }
 
   return map;
@@ -2734,22 +2796,94 @@ export const differenceInTesterResults = (
     matches,
     added,
     missing,
+    crashed: false,
   };
 };
 
+const testResultChanged = (difference: TestDifferencePayload): boolean => {
+  const evaluation = difference.evaluation;
+  return evaluation.endResultChange !== EndResult.UNCHANGED || 
+    (evaluation.stackScore !== 0 && evaluation.stackScore !== null) ||
+    evaluation.errorChanged === true;
+}
+
+const isRelevantTest = (
+  testResult: TestResult,
+  coverageObjs: Map<string, Map<string, CoveragePathObj>>,
+  nodeInfo: NodeInformation
+) => {
+  // TODO: Could clean this up - Less linear searching
+  for(const [filePath, fileCoverage] of Object.entries(testResult.coverage)) {
+    const objMap = coverageObjs.get(filePath)!;
+    if (objMap === undefined) {
+      continue;
+    }
+    for(const [key, expressionLocation] of Object.entries(fileCoverage.statementMap)) {
+      const obj = objMap.get(coverageKey(expressionLocation));
+      if (obj === undefined) {
+        continue;
+      }
+
+      if (obj !== nodeInfo.coverageInfo) {
+        continue;
+      }
+
+      const executionCount = fileCoverage.s[key];
+      if (executionCount <= 0) {
+        continue;
+      }
+      return true;
+    }      
+  }
+
+  return false;
+}
+
+
 const addMutationEvaluation = (
+  difference: TesterDifferencePayload,
+  coverageObjMap: Map<string, Map<string, CoveragePathObj>>,
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instructionQueue: Heap<Heap<Instruction<any>>>,
   instructions: Heap<Instruction<any>>,
   mutationEvaluation: MutationEvaluation,
 ) => {
-  const dependencyKeys = new Set(
-    [...instructions].map(instruction => instruction.indirectDependencyKeys).flat(),
-  );
 
-  for (const key of dependencyKeys) {
-    nodeInfoMap.get(key)!.evaluations.push(mutationEvaluation);
+  const affectedKeys: Set<string> = new Set();
+  if (!difference.crashed) {
+    for(const instruction of instructions) {
+      for(const key of instruction.indirectWriteDependencyKeys) {
+        affectedKeys.add(key);
+      }
+    }
+
+    // Don't bother with crashes, not enough information to be accruate
+    const changed = difference.matches.filter(testResultChanged);
+    for (const key of affectedKeys) {
+      const nodeInfo = nodeInfoMap.get(key)!;
+      const tests = changed.filter(payload => isRelevantTest(payload.original, coverageObjMap, nodeInfo));
+      if (tests.length <= 0) {
+        continue;
+      }
+      const nodeEvaluation = evaluateNewMutation(tests, mutationEvaluation.instructions);
+      nodeInfo.evaluations.push(nodeEvaluation);
+    }  
+  } else {
+    for(const instruction of instructions) {
+      for(const key of instruction.typedWriteDependencyKeys) {
+        affectedKeys.add(key);
+      }
+    }
+
+    for(const key of affectedKeys) {
+      const nodeInfo = nodeInfoMap.get(key)!;
+      const tests = difference.missing.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
+      if (tests.length <= 0) {
+        continue;
+      }
+      nodeInfo.evaluations.push(mutationEvaluation);
+    }
   }
 
   for (const instruction of instructions) {
@@ -2757,8 +2891,9 @@ const addMutationEvaluation = (
   }
 
   const instructionsAffected: Set<Instruction<any>> = new Set(
-    [...dependencyKeys].map(key => nodeInfoMap.get(key)!.instructions).flat(),
+    [...affectedKeys].map(key => nodeInfoMap.get(key)!.instructions).flat(),
   );
+  
   for (const instruction of instructionsAffected) {
     for (const block of instructionQueue) {
       if (block.some(blockInstruction => blockInstruction === instruction)) {
@@ -2823,6 +2958,8 @@ export const createInstructionBlocks = (
 export type NodeInformation = {
   evaluations: Heap<MutationEvaluation>;
   instructions: Instruction<any>[];
+  coverageInfo: CoveragePathObj | null,
+  path: NodePath,
 };
 export const createPlugin = ({
   faultFileDir = './faults/',
@@ -2892,7 +3029,7 @@ export const createPlugin = ({
     return Promise.resolve();
   };
 
-  const analyzeEvaluation = async (mutationEvaluation: MutationEvaluation) => {
+  const analyzeEvaluation = async (difference: TesterDifferencePayload | undefined, mutationEvaluation: MutationEvaluation) => {
     if (previousInstructions !== null) {
       console.log({ ...mutationEvaluation, instructions: undefined });
       if (previousInstructions.length >= 2) {
@@ -2903,11 +3040,11 @@ export const createPlugin = ({
         if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
           const instruction = previousInstructions.peek();
 
-          const previousIndirectNodeEvaluations = instruction.indirectDependencyKeys.map(
+          const previousIndirectNodeEvaluations = instruction.indirectWriteDependencyKeys.map(
             key => nodeInfoMap.get(key)!.evaluations,
           );
 
-          const previousDirectNodeEvaluations = instruction.writeDependencyKeys.map(
+          const previousDirectNodeEvaluations = instruction.typedWriteDependencyKeys.map(
             key => nodeInfoMap.get(key)!.evaluations,
           );
 
@@ -2931,6 +3068,8 @@ export const createPlugin = ({
         }
       }
       addMutationEvaluation(
+        difference,
+        coverageObjs,
         nodeInfoMap,
         instructionEvaluations,
         instructionQueue,
@@ -3096,6 +3235,9 @@ export const createPlugin = ({
             allInstructions,
             fullCoverageObjs,
           );
+          console.log();
+          console.log();
+          console.log();
           coverageObjs = new Map(
             [...fullCoverageObjs]
               .map(([filePath, objs]): [string, Map<string, CoveragePathObj>] => [
@@ -3121,6 +3263,7 @@ export const createPlugin = ({
           initialiseEvaluationMaps(
             nodeInfoMap,
             instructionEvaluations,
+            fullCoverageObjs,
             relevantInstructions,
           );
 
@@ -3172,7 +3315,7 @@ export const createPlugin = ({
             tester,
             testAstMap,
           );
-          const mutationEvaluation = evaluateNewMutation(differenceBetweenResults, [
+          const mutationEvaluation = evaluateNewMutation(differenceBetweenResults.matches, [
             ...previousInstructions,
           ]);
 
@@ -3197,7 +3340,7 @@ export const createPlugin = ({
 
           await resetMutationsInInstruction(previousInstructions);
 
-          await analyzeEvaluation(mutationEvaluation);
+          await analyzeEvaluation(differenceBetweenResults, mutationEvaluation);
         }
 
         const rerun = await runInstruction(tester);
@@ -3229,7 +3372,12 @@ export const createPlugin = ({
         if (previousInstructions !== null) {
           await resetMutationsInInstruction(previousInstructions);
         }
-        await analyzeEvaluation(mutationEvaluation);
+        await analyzeEvaluation({
+          matches: [],
+          added: [],
+          missing: [...tester.testResults.values()].flat(),
+          crashed: true,
+        }, mutationEvaluation);
 
         // TODO: Would be better if the exit hook could be told which tests to rerun. Maybe :P
         const rerun = await runInstruction(tester);
