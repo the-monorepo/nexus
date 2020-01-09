@@ -27,6 +27,8 @@ const dataSet: TestData[] = [
   [deleteStatementFactory, 'const a = 0; const b = 0;', 0],
   [deleteStatementFactory, 'a = 0; b = 0;', 2],
   [deleteStatementFactory, 'if(Math.random() > 0.5) {}', 0],
+  [deleteStatementFactory, 'fn1(); fn2(); a += 1;', 3],
+  [deleteStatementFactory, 'function fm() { return false; }', 0],
   [forceConsequentFactory, 'if(Math.random() > 0.5) { console.log("hello") }', 1],
   [forceConsequentFactory, 'if(true) { console.log("hello") }', 0],
   [forceAlternateFactory, 'if(Math.random() > 0.5) { console.log("hello")}', 1],
