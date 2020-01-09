@@ -237,7 +237,7 @@ class ViolinResultsChartElement extends HTMLElement {
     super();
 
     const div = document.createElement('div');
-    div.style.height = '600px';
+    div.style.height = '1000px';
     div.style.width = '600px';
     div.style.position = 'relative';
     this.canvasElement = document.createElement('canvas');
