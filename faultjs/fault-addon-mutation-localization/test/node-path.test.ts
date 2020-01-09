@@ -46,10 +46,10 @@ it('instruction factory integration', () => {
   expect(forceConsequentInstructions).toHaveLength(1);
 
   const instruction = instructions[0];
-  const dependencies = instruction.dependencies;
+  const dependencies = instruction.typedDependencies;
 
-  expect(instruction.indirectDependencyKeys).toEqual(
-    expect.arrayContaining(instruction.writeDependencyKeys),
+  expect(instruction.indirectWriteDependencyKeys).toEqual(
+    expect.arrayContaining(instruction.typedWriteDependencyKeys),
   );
 
   expect(dependencies.has(filePath1)).toBe(true);

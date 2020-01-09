@@ -65,9 +65,6 @@ describe('sorting', () => {
       });
       for (let j = i + 1; j < orderedEvaluations.length; j++) {
         const greater = arrayToMutationEvaluation(orderedEvaluations[j]);
-        const greaterNodeEvaluation = arrayToInstructionEvaluations(
-          orderedEvaluations[j],
-        );
         it(`${arrToString(orderedEvaluations[i])} less than ${arrToString(
           orderedEvaluations[j],
         )}`, () => {
@@ -121,6 +118,30 @@ describe('sorting', () => {
     initialiseEvaluationMaps(
       nodeEvaluations,
       instructionEvaluations,
+      new Map([
+        [filePath, new Map([
+          ['shouldnotmatter', {
+            instructions,
+            originalLocation: {
+              filePath,
+              start: {
+                line: 0,
+                column: 0,
+              },
+              end: {
+                line: Number.POSITIVE_INFINITY,
+                column: Number.POSITIVE_INFINITY,
+              }
+            },
+            path: astPath,
+            pathKey: 'alsoshouldnotmatter',
+            testStats: {
+              passed: 0,
+              failed: 0,
+            }
+          }]
+        ])]
+      ]),
       instructions,
     );
 
