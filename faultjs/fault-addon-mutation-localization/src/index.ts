@@ -119,7 +119,7 @@ export const binaryOperationCategories = [
 
 const ASSIGNMENT = Symbol('assignment');
 
-const didSomethingGood = (evaluation: MutationEvaluation) => {
+const changedOrImprovedError = (evaluation: MutationEvaluation) => {
   return (
     !evaluation.crashed &&
     (evaluation.testsImproved > 0 ||
@@ -127,8 +127,8 @@ const didSomethingGood = (evaluation: MutationEvaluation) => {
       evaluation.stackEvaluation.improvement > 0)
   );
 };
-const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => {
-  return evaluation.crashed || didSomethingGood(evaluation);
+const evaluationChangedOrImprovedErrorOrCrashed = (evaluation: MutationEvaluation) => {
+  return evaluation.crashed || changedOrImprovedError(evaluation);
 };
 
 const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
@@ -1743,8 +1743,8 @@ export const compareMutationEvaluations = (
     return 1;
   }
 
-  const goodThingsHappened1 = didSomethingGood(r1);
-  const goodThingsHappened2 = didSomethingGood(r2);
+  const goodThingsHappened1 = changedOrImprovedError(r1);
+  const goodThingsHappened2 = changedOrImprovedError(r2);
   const goodThingsHappenedComparison =
     (goodThingsHappened1 ? 1 : -1) - (goodThingsHappened2 ? 1 : -1);
   if (goodThingsHappenedComparison !== 0) {
@@ -2087,7 +2087,7 @@ const getTotalNodes = (path: NodePath) => {
   return count;
 };
 
-export const instructionDidSomethingGoodOrHasNoEvaluations = (
+export const instructionChangedOrImprovedErrorOrHasNoEvaluations = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instruction: Instruction<any>,
@@ -2102,8 +2102,8 @@ export const instructionDidSomethingGoodOrHasNoEvaluations = (
   }
 
   return (
-    evals1.some(didSomethingGood) ||
-    nodeEvalLists.some(evals => evals.some(didSomethingGood))
+    evals1.some(changedOrImprovedError) ||
+    nodeEvalLists.some(evals => evals.some(changedOrImprovedError))
   );
 };
 
@@ -2142,7 +2142,7 @@ export const compareFinalInstructionEvaluations = (
   } else if (instructions1.size <= 0 && instructions2.size >= 1) {
     if (
       [...instructions2].some(instruction =>
-        instructionDidSomethingGoodOrHasNoEvaluations(
+        instructionChangedOrImprovedErrorOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
           instruction,
@@ -2156,7 +2156,7 @@ export const compareFinalInstructionEvaluations = (
   } else if (instructions1.size >= 1 && instructions2.size <= 0) {
     if (
       [...instructions1].some(instruction =>
-        instructionDidSomethingGoodOrHasNoEvaluations(
+        instructionChangedOrImprovedErrorOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
           instruction,
@@ -2268,7 +2268,7 @@ const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
   }
   const bestEvaluation = evaluations.peek();
   return (
-    didSomethingGood(bestEvaluation) ||
+    changedOrImprovedError(bestEvaluation) ||
     (bestEvaluation.crashed && bestEvaluation.instructions.length >= 2)
   );
 };
@@ -2397,14 +2397,14 @@ export const compareEvaluationHeaps = (
 ) => {
   if (a.length <= 0 && b.length >= 1) {
     const evaluation2 = b.peek();
-    if (didSomethingGood(evaluation2)) {
+    if (changedOrImprovedError(evaluation2)) {
       return -1;
     } else {
       return 1;
     }
   } else if (a.length >= 1 && b.length <= 0) {
     const evaluation1 = a.peek();
-    if (didSomethingGood(evaluation1)) {
+    if (changedOrImprovedError(evaluation1)) {
       return 1;
     } else {
       return -1;
@@ -3034,11 +3034,11 @@ export const createPlugin = ({
     if (previousInstructions !== null) {
       console.log({ ...mutationEvaluation, instructions: undefined });
       if (previousInstructions.length >= 2) {
-        if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+        if (evaluationChangedOrImprovedErrorOrCrashed(mutationEvaluation)) {
           addSplittedInstructionBlock(instructionQueue, previousInstructions);
         }
       } else {
-        if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+        if (evaluationChangedOrImprovedErrorOrCrashed(mutationEvaluation)) {
           const instruction = previousInstructions.peek();
 
           const previousIndirectNodeEvaluations = instruction.indirectWriteDependencyKeys.map(
