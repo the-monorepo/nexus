@@ -1072,7 +1072,8 @@ type IdentifierTemp = {
 export const FUNCTION_ACCESS = Symbol('function-access');
 export const MEMBER_ACCESS = Symbol('member-access');
 export const UNKNOWN_ACCESS = Symbol('unknown-access');
-export const CONSTRUCTOR_ACCESS = Symbol('unknown-access');
+export const CONSTRUCTOR_ACCESS = Symbol('constructor-access');
+export const LITERAL_ACCESS = Symbol('literal-access');
 type FunctionAccessInfo = {
   type: typeof FUNCTION_ACCESS;
   name: string;
@@ -1094,11 +1095,17 @@ type ConstructorAccessInfo = {
   argCount: number;
 };
 
+type LiteralAccessInfo = {
+  type: typeof LITERAL_ACCESS,
+  literalType: any,
+}
+
 type AccessInfo =
   | FunctionAccessInfo
   | MemberAccessInfo
   | UnknownAccessInfo
-  | ConstructorAccessInfo;
+  | ConstructorAccessInfo
+  | LiteralType;
 
 export const innerMostMemberExpression = (path: NodePath) => {
   let current = path;
@@ -1169,9 +1176,16 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
         });
       }
     } else if (!current.isCallExpression()) {
-      accesses.push({
-        type: UNKNOWN_ACCESS
-      })
+      if (current.isLiteral()) {
+        accesses.push({
+          type: LITERAL_ACCESS,
+          literalType: current.type,
+        })
+      } else {
+        accesses.push({
+          type: UNKNOWN_ACCESS
+        })  
+      }
     }
     current = current.parentPath;
     //console.log(current.type, current.node.name)
@@ -1213,6 +1227,10 @@ const accessInfoMatchExcludingName = (info1: AccessInfo, info2: AccessInfo) => {
     }
     case UNKNOWN_ACCESS: {
       return false;
+    }
+    case LITERAL_ACCESS: {
+      const other = info2 as LiteralAccessInfo;
+      return info1.literalType === other.literalType;
     }
     default: {
       throw new Error(`${(info1 as any).type} not supported`);
