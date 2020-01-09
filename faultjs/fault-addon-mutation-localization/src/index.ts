@@ -1060,11 +1060,11 @@ export const CHANGE_IDENTIFIER = Symbol('change-identifier');
 
 export const MARKED = Symbol('marked');
 export const IDENTIFIER_INFO = Symbol('identifier-info');
-type IdentifierInfo = {
+export type IdentifierInfo = {
   sequence: AccessInfo[];
   index: number;
 };
-type IdentifierTemp = {
+export type IdentifierTemp = {
   identifier: t.Identifier;
   index: number;
 };
@@ -1072,28 +1072,28 @@ export const FUNCTION_ACCESS = Symbol('function-access');
 export const MEMBER_ACCESS = Symbol('member-access');
 export const UNKNOWN_ACCESS = Symbol('unknown-access');
 export const CONSTRUCTOR_ACCESS = Symbol('unknown-access');
-type FunctionAccessInfo = {
+export type FunctionAccessInfo = {
   type: typeof FUNCTION_ACCESS;
   name: string;
   argCount: number;
 };
 
-type MemberAccessInfo = {
+export type MemberAccessInfo = {
   type: typeof MEMBER_ACCESS;
   name: string;
 };
 
-type UnknownAccessInfo = {
+export type UnknownAccessInfo = {
   type: typeof UNKNOWN_ACCESS;
 };
 
-type ConstructorAccessInfo = {
+export type ConstructorAccessInfo = {
   type: typeof CONSTRUCTOR_ACCESS;
   name: string;
   argCount: number;
 };
 
-type AccessInfo =
+export type AccessInfo =
   | FunctionAccessInfo
   | MemberAccessInfo
   | UnknownAccessInfo
@@ -1199,7 +1199,7 @@ export const accessInfoMatch = (info1: AccessInfo, info2: AccessInfo) =>
   accessInfoMatchExcludingName(info1, info2) &&
   (info1 as any).name === (info2 as any).name;
 
-const getReplacementIdentifierNode = (
+export const getReplacementIdentifierNode = (
   identifierInfo: IdentifierInfo,
   otherSequence: AccessInfo[],
 ): AccessInfo | null => {
@@ -1326,13 +1326,13 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
             for (const otherSequences of blocks) {
               for (const otherSequence of otherSequences) {
                 const info = getReplacementIdentifierNode(identifierInfo, otherSequence);
+                if (info === null) {
+                  continue;
+                }
                 const usedAsObject = isUsedAsObject(
                   { sequence: otherSequence, index: otherSequence.length - 1 },
                   otherSequences,
                 );
-                if (info === null) {
-                  continue;
-                }
                 if (isUsedWithOperator && usedAsObject) {
                   continue;
                 }
