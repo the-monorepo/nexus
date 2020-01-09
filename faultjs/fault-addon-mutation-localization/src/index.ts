@@ -504,7 +504,7 @@ export const createMutationSequenceFactory = <D, T>(
 };
 
 export const findParentWithType = (path: NodePath) =>
-  path.find(parentPath => parentPath.node.type !== null && parentPath.node.type !== undefined);
+  path.find(parentPath => parentPath.node !== null && parentPath.node !== undefined && parentPath.node.type !== null && parentPath.node.type !== undefined);
 
 
 export class Instruction<D> {
@@ -1570,7 +1570,8 @@ export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
         if (
           statementPath.isVariableDeclaration() ||
           statementPath.isIfStatement() ||
-          statementPath.isFunctionDeclaration()
+          statementPath.isFunction() ||
+          statementPath.isReturnStatement()
         ) {
           continue;
         }
@@ -1630,7 +1631,7 @@ export const addInstructionsToCoverageMap = (
 ) => {
   for (const instruction of allInstructions) {
     console.log(instruction.type);
-    for (const [filePath, fileDependencies] of instruction.conflictDependencies) {
+    for (const [filePath, fileDependencies] of instruction.typedDependencies) {
       const fileObjMap = coverageObjs.get(filePath)!;
       if (fileObjMap === undefined) {
         continue;
@@ -1650,7 +1651,7 @@ export const addInstructionsToCoverageMap = (
           return true;
         });
         if (selectedObj !== null) {
-          selectedObj.instructions.push(instruction);
+          selectedObj.instructions.add(instruction);
         }
       }
     }
@@ -1662,7 +1663,7 @@ type CoveragePathObj = {
   pathKey: string;
   originalLocation: Location;
   testStats: Stats;
-  instructions: Instruction<any>[],
+  instructions: Set<Instruction<any>>,
 };
 const findWidenedCoveragePaths = (
   astMap: Map<string, t.File>,
@@ -1702,7 +1703,7 @@ const findWidenedCoveragePaths = (
           )!;
         const widenedPath = widenCoveragePath(path);
         nodePaths.get(filePath)!.set(coverageKey(loc), {
-          instructions: [],
+          instructions: new Set(),
           path: widenedPath,
           pathKey: pathToKey(widenedPath),
           originalLocation,
@@ -2114,7 +2115,7 @@ export const compareFinalInstructionEvaluations = (
 ): number => {
   const instructions1 = category1.instructions;
   const instructions2 = category2.instructions;
-  if (instructions1.length >= 1 && instructions2.length >= 1) {
+  if (instructions1.size >= 1 && instructions2.size >= 1) {
     const comparisonFn = (instruction1, instruction2) => {
       const intructionComparison = compareInstruction(
         nodeInfoMap,
@@ -2131,16 +2132,16 @@ export const compareFinalInstructionEvaluations = (
       return compareInitialInstructionValues(evaluation1, evaluation2);
     };
 
-    const best1 = instructions1.sort(comparisonFn).reverse()[0];
-    const best2 = instructions2.sort(comparisonFn).reverse()[0];
+    const best1 = [...instructions1].sort(comparisonFn).reverse()[0];
+    const best2 = [...instructions2].sort(comparisonFn).reverse()[0];
 
     const comparison = comparisonFn(best1, best2);
     if (comparison !== 0) {
       return comparison;
     }
-  } else if (instructions1.length <= 0 && instructions2.length >= 1) {
+  } else if (instructions1.size <= 0 && instructions2.size >= 1) {
     if (
-      instructions2.some(instruction =>
+      [...instructions2].some(instruction =>
         instructionDidSomethingGoodOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
@@ -2152,9 +2153,9 @@ export const compareFinalInstructionEvaluations = (
     } else {
       return 1;
     }
-  } else if (instructions1.length >= 1 && instructions2.length <= 0) {
+  } else if (instructions1.size >= 1 && instructions2.size <= 0) {
     if (
-      instructions1.some(instruction =>
+      [...instructions1].some(instruction =>
         instructionDidSomethingGoodOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
@@ -2206,7 +2207,7 @@ export const mutationEvalatuationMapToFaults = (
             end: obj.originalLocation.end,
           },
           other: {
-            instructions: obj.instructions.map(instruction => {
+            instructions: [...obj.instructions].map(instruction => {
               const keys = instruction.typedWriteDependencyKeys;
               return {
                 type: instruction.type.toString(),
@@ -3029,7 +3030,7 @@ export const createPlugin = ({
     return Promise.resolve();
   };
 
-  const analyzeEvaluation = async (difference: TesterDifferencePayload | undefined, mutationEvaluation: MutationEvaluation) => {
+  const analyzeEvaluation = async (difference: TesterDifferencePayload, mutationEvaluation: MutationEvaluation) => {
     if (previousInstructions !== null) {
       console.log({ ...mutationEvaluation, instructions: undefined });
       if (previousInstructions.length >= 2) {
