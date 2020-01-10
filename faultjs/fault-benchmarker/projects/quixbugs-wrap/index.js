@@ -1,4 +1,4 @@
-export const wrap = (text, cols) => {
+  export const wrap = (text, cols) => {
   const lines = [];
 
   while (text.length > cols) {
