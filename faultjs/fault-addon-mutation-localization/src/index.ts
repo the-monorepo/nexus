@@ -119,7 +119,7 @@ export const binaryOperationCategories = [
 
 const ASSIGNMENT = Symbol('assignment');
 
-const didSomethingGood = (evaluation: MutationEvaluation) => {
+const changedOrImprovedError = (evaluation: MutationEvaluation) => {
   return (
     !evaluation.crashed &&
     (evaluation.testsImproved > 0 ||
@@ -127,8 +127,8 @@ const didSomethingGood = (evaluation: MutationEvaluation) => {
       evaluation.stackEvaluation.improvement > 0)
   );
 };
-const evaluationDidSomethingGoodOrCrashed = (evaluation: MutationEvaluation) => {
-  return evaluation.crashed || didSomethingGood(evaluation);
+const evaluationChangedOrImprovedErrorOrCrashed = (evaluation: MutationEvaluation) => {
+  return evaluation.crashed || changedOrImprovedError(evaluation);
 };
 
 const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
@@ -1061,11 +1061,11 @@ export const CHANGE_IDENTIFIER = Symbol('change-identifier');
 
 export const MARKED = Symbol('marked');
 export const IDENTIFIER_INFO = Symbol('identifier-info');
-type IdentifierInfo = {
+export type IdentifierInfo = {
   sequence: AccessInfo[];
   index: number;
 };
-type IdentifierTemp = {
+export type IdentifierTemp = {
   identifier: t.Identifier;
   index: number;
 };
@@ -1074,33 +1074,33 @@ export const MEMBER_ACCESS = Symbol('member-access');
 export const UNKNOWN_ACCESS = Symbol('unknown-access');
 export const CONSTRUCTOR_ACCESS = Symbol('constructor-access');
 export const LITERAL_ACCESS = Symbol('literal-access');
-type FunctionAccessInfo = {
+export type FunctionAccessInfo = {
   type: typeof FUNCTION_ACCESS;
   name: string;
   argCount: number;
 };
 
-type MemberAccessInfo = {
+export type MemberAccessInfo = {
   type: typeof MEMBER_ACCESS;
   name: string;
 };
 
-type UnknownAccessInfo = {
+export type UnknownAccessInfo = {
   type: typeof UNKNOWN_ACCESS;
 };
 
-type ConstructorAccessInfo = {
+export type ConstructorAccessInfo = {
   type: typeof CONSTRUCTOR_ACCESS;
   name: string;
   argCount: number;
 };
 
-type LiteralAccessInfo = {
+export type LiteralAccessInfo = {
   type: typeof LITERAL_ACCESS,
   literalType: any,
 }
 
-type AccessInfo =
+export type AccessInfo =
   | FunctionAccessInfo
   | MemberAccessInfo
   | UnknownAccessInfo
@@ -1238,7 +1238,7 @@ export const accessInfoMatch = (info1: AccessInfo, info2: AccessInfo) =>
   accessInfoMatchExcludingName(info1, info2) &&
   (info1 as any).name === (info2 as any).name;
 
-const getReplacementIdentifierNode = (
+export const getReplacementIdentifierNode = (
   identifierInfo: IdentifierInfo,
   otherSequence: AccessInfo[],
 ): AccessInfo | null => {
@@ -1366,13 +1366,13 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
             for (const otherSequences of blocks) {
               for (const otherSequence of otherSequences) {
                 const info = getReplacementIdentifierNode(identifierInfo, otherSequence);
+                if (info === null) {
+                  continue;
+                }
                 const usedAsObject = isUsedAsObject(
                   { sequence: otherSequence, index: otherSequence.length - 1 },
                   otherSequences,
                 );
-                if (info === null) {
-                  continue;
-                }
                 if (isUsedWithOperator && usedAsObject) {
                   continue;
                 }
@@ -1783,8 +1783,8 @@ export const compareMutationEvaluations = (
     return 1;
   }
 
-  const goodThingsHappened1 = didSomethingGood(r1);
-  const goodThingsHappened2 = didSomethingGood(r2);
+  const goodThingsHappened1 = changedOrImprovedError(r1);
+  const goodThingsHappened2 = changedOrImprovedError(r2);
   const goodThingsHappenedComparison =
     (goodThingsHappened1 ? 1 : -1) - (goodThingsHappened2 ? 1 : -1);
   if (goodThingsHappenedComparison !== 0) {
@@ -2030,7 +2030,7 @@ type TesterDifferencePayload = {
 };
 
 const evaluateNewMutation = (
-  payloads: TestDifferencePayload[],
+  difference: TesterDifferencePayload,
   instructions: Instruction<any>[],
 ): MutationEvaluation => {
   let testsWorsened = 0;
@@ -2038,7 +2038,10 @@ const evaluateNewMutation = (
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
 
-  for (const payload of payloads) {
+  testsWorsened += difference.added.filter(result => !result.passed).length;
+  testsWorsened += difference.missing.filter(result => !result.passed).length;
+
+  for (const payload of difference.matches) {
     const testEvaluation = payload.evaluation;
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
@@ -2127,7 +2130,7 @@ const getTotalNodes = (path: NodePath) => {
   return count;
 };
 
-export const instructionDidSomethingGoodOrHasNoEvaluations = (
+export const instructionChangedOrImprovedErrorOrHasNoEvaluations = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instruction: Instruction<any>,
@@ -2142,8 +2145,8 @@ export const instructionDidSomethingGoodOrHasNoEvaluations = (
   }
 
   return (
-    evals1.some(didSomethingGood) ||
-    nodeEvalLists.some(evals => evals.some(didSomethingGood))
+    evals1.some(changedOrImprovedError) ||
+    nodeEvalLists.some(evals => evals.some(changedOrImprovedError))
   );
 };
 
@@ -2182,7 +2185,7 @@ export const compareFinalInstructionEvaluations = (
   } else if (instructions1.size <= 0 && instructions2.size >= 1) {
     if (
       [...instructions2].some(instruction =>
-        instructionDidSomethingGoodOrHasNoEvaluations(
+        instructionChangedOrImprovedErrorOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
           instruction,
@@ -2196,7 +2199,7 @@ export const compareFinalInstructionEvaluations = (
   } else if (instructions1.size >= 1 && instructions2.size <= 0) {
     if (
       [...instructions1].some(instruction =>
-        instructionDidSomethingGoodOrHasNoEvaluations(
+        instructionChangedOrImprovedErrorOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
           instruction,
@@ -2308,7 +2311,7 @@ const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
   }
   const bestEvaluation = evaluations.peek();
   return (
-    didSomethingGood(bestEvaluation) ||
+    changedOrImprovedError(bestEvaluation) ||
     (bestEvaluation.crashed && bestEvaluation.instructions.length >= 2)
   );
 };
@@ -2437,14 +2440,14 @@ export const compareEvaluationHeaps = (
 ) => {
   if (a.length <= 0 && b.length >= 1) {
     const evaluation2 = b.peek();
-    if (didSomethingGood(evaluation2)) {
+    if (changedOrImprovedError(evaluation2)) {
       return -1;
     } else {
       return 1;
     }
   } else if (a.length >= 1 && b.length <= 0) {
     const evaluation1 = a.peek();
-    if (didSomethingGood(evaluation1)) {
+    if (changedOrImprovedError(evaluation1)) {
       return 1;
     } else {
       return -1;
@@ -2841,8 +2844,7 @@ export const differenceInTesterResults = (
   };
 };
 
-const testResultChanged = (difference: TestDifferencePayload): boolean => {
-  const evaluation = difference.evaluation;
+const testEvaluationChanged = (evaluation: TestEvaluation): boolean => {
   return evaluation.endResultChange !== EndResult.UNCHANGED || 
     (evaluation.stackScore !== 0 && evaluation.stackScore !== null) ||
     evaluation.errorChanged === true;
@@ -2899,15 +2901,29 @@ const addMutationEvaluation = (
       }
     }
 
-    // Don't bother with crashes, not enough information to be accruate
-    const changed = difference.matches.filter(testResultChanged);
+    const changed = difference.matches.filter(match => testEvaluationChanged(match.evaluation));
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
-      const tests = changed.filter(payload => isRelevantTest(payload.original, coverageObjMap, nodeInfo));
-      if (tests.length <= 0) {
+      const missing: TestResult[] = difference.missing.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
+      // TODO: ATM, no logic implemented to check if test covered original code from mutated code
+      const added: TestResult[] = [...difference.added];
+      const matches: TestDifferencePayload[] = [];
+      for(const payload of changed) {
+        if (isRelevantTest(payload.original, coverageObjMap, nodeInfo)) {
+          matches.push(payload);
+        } else {
+          missing.push(payload.original);
+        }
+      }
+      if (matches.length <= 0) {
         continue;
       }
-      const nodeEvaluation = evaluateNewMutation(tests, mutationEvaluation.instructions);
+      const nodeEvaluation = evaluateNewMutation({
+        missing,
+        matches,
+        added,
+        crashed: false
+      }, mutationEvaluation.instructions);
       nodeInfo.evaluations.push(nodeEvaluation);
     }  
   } else {
@@ -3074,11 +3090,11 @@ export const createPlugin = ({
     if (previousInstructions !== null) {
       console.log({ ...mutationEvaluation, instructions: undefined });
       if (previousInstructions.length >= 2) {
-        if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+        if (evaluationChangedOrImprovedErrorOrCrashed(mutationEvaluation)) {
           addSplittedInstructionBlock(instructionQueue, previousInstructions);
         }
       } else {
-        if (evaluationDidSomethingGoodOrCrashed(mutationEvaluation)) {
+        if (evaluationChangedOrImprovedErrorOrCrashed(mutationEvaluation)) {
           const instruction = previousInstructions.peek();
 
           const previousIndirectNodeEvaluations = instruction.indirectWriteDependencyKeys.map(
@@ -3356,7 +3372,7 @@ export const createPlugin = ({
             tester,
             testAstMap,
           );
-          const mutationEvaluation = evaluateNewMutation(differenceBetweenResults.matches, [
+          const mutationEvaluation = evaluateNewMutation(differenceBetweenResults, [
             ...previousInstructions,
           ]);
 

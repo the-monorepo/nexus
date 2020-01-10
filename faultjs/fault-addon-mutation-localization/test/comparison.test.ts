@@ -121,7 +121,7 @@ describe('sorting', () => {
       new Map([
         [filePath, new Map([
           ['shouldnotmatter', {
-            instructions,
+            instructions: new Set(instructions),
             originalLocation: {
               filePath,
               start: {
