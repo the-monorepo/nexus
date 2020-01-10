@@ -1072,7 +1072,8 @@ export type IdentifierTemp = {
 export const FUNCTION_ACCESS = Symbol('function-access');
 export const MEMBER_ACCESS = Symbol('member-access');
 export const UNKNOWN_ACCESS = Symbol('unknown-access');
-export const CONSTRUCTOR_ACCESS = Symbol('unknown-access');
+export const CONSTRUCTOR_ACCESS = Symbol('constructor-access');
+export const LITERAL_ACCESS = Symbol('literal-access');
 export type FunctionAccessInfo = {
   type: typeof FUNCTION_ACCESS;
   name: string;
@@ -1094,11 +1095,17 @@ export type ConstructorAccessInfo = {
   argCount: number;
 };
 
+export type LiteralAccessInfo = {
+  type: typeof LITERAL_ACCESS,
+  literalType: any,
+}
+
 export type AccessInfo =
   | FunctionAccessInfo
   | MemberAccessInfo
   | UnknownAccessInfo
-  | ConstructorAccessInfo;
+  | ConstructorAccessInfo
+  | LiteralAccessInfo;
 
 export const innerMostMemberExpression = (path: NodePath) => {
   let current = path;
@@ -1139,10 +1146,6 @@ export const pathsToAccessInfo = (
 };
 export const collectParentIdentifierInfo = (path: NodePath) => {
   path = innerMostMemberExpression(path);
-  console.log();
-  if (path.isIdentifier()) {
-    console.log(path.node.name);
-  }
   //console.log('collect');
   const accesses: AccessInfo[] = [];
 
@@ -1169,9 +1172,16 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
         });
       }
     } else if (!current.isCallExpression()) {
-      accesses.push({
-        type: UNKNOWN_ACCESS
-      })
+      if (current.isLiteral()) {
+        accesses.push({
+          type: LITERAL_ACCESS,
+          literalType: current.type,
+        })
+      } else {
+        accesses.push({
+          type: UNKNOWN_ACCESS
+        })  
+      }
     }
     current = current.parentPath;
     //console.log(current.type, current.node.name)
@@ -1213,6 +1223,10 @@ const accessInfoMatchExcludingName = (info1: AccessInfo, info2: AccessInfo) => {
     }
     case UNKNOWN_ACCESS: {
       return false;
+    }
+    case LITERAL_ACCESS: {
+      const other = info2 as LiteralAccessInfo;
+      return info1.literalType === other.literalType;
     }
     default: {
       throw new Error(`${(info1 as any).type} not supported`);
@@ -1319,7 +1333,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           }
 
           if (!(path.parentPath.isVariableDeclarator() && path.key === 'id')) {
-            console.log(path.node.name, path.node.loc)
+            //console.log(path.node.name, path.node.loc)
             const identifierInfo: IdentifierInfo = path.node[IDENTIFIER_INFO];
 
             const parentDeclarator = path.find(
@@ -1613,7 +1627,19 @@ export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
 
 const instructionFactories: InstructionFactory[] = [
   new InstructionFactory([
+    leftNullifyBinaryOrLogicalOperatorFactory,
+    rightNullifyBinaryOrLogicalOperatorFactory,
+    deleteStatementFactory,
+    replaceAssignmentOperatorFactory,
+    replaceBinaryOrLogicalOperatorFactory,
+    replaceBooleanFactory,
+    replaceNumberFactory,
+    replaceStringFactory,
+    forceConsequentFactory,
+    forceAlternateFactory,
     replaceIdentifierFactory,
+    swapFunctionCallArgumentsFactory,
+    swapFunctionDeclarationParametersFactory,
   ]),
 ];
 
@@ -2599,7 +2625,7 @@ export const initialiseEvaluationMaps = (
     // Wouldn't exist if there's a indirect dependency in a file that's excluded from babel istanbul coverage
     const fileCoverageMap = coverageInfoMap.get(filePath)!;
     for(const writePath of fileDependencies.writes) {
-      console.log(pathToKey(writePath));
+      //console.log(pathToKey(writePath));
       let coverageInfo: CoveragePathObj | null = null;
       writePath.find(parentPath => {
         if (parentPath.node.loc == null) {
@@ -2607,7 +2633,7 @@ export const initialiseEvaluationMaps = (
         }
 
         const key = coverageKey(parentPath.node.loc);
-        console.log(key);
+        //console.log(key);
         const candidateInfo = fileCoverageMap.get(key);
         if (candidateInfo === undefined) {
           return false;
