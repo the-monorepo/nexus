@@ -2004,7 +2004,7 @@ type TesterDifferencePayload = {
 };
 
 const evaluateNewMutation = (
-  payloads: TestDifferencePayload[],
+  difference: TesterDifferencePayload,
   instructions: Instruction<any>[],
 ): MutationEvaluation => {
   let testsWorsened = 0;
@@ -2012,7 +2012,10 @@ const evaluateNewMutation = (
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
 
-  for (const payload of payloads) {
+  testsWorsened += difference.added.filter(result => !result.passed).length;
+  testsWorsened += difference.missing.filter(result => !result.passed).length;
+
+  for (const payload of difference.matches) {
     const testEvaluation = payload.evaluation;
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
@@ -2815,8 +2818,7 @@ export const differenceInTesterResults = (
   };
 };
 
-const testResultChanged = (difference: TestDifferencePayload): boolean => {
-  const evaluation = difference.evaluation;
+const testEvaluationChanged = (evaluation: TestEvaluation): boolean => {
   return evaluation.endResultChange !== EndResult.UNCHANGED || 
     (evaluation.stackScore !== 0 && evaluation.stackScore !== null) ||
     evaluation.errorChanged === true;
@@ -2873,15 +2875,29 @@ const addMutationEvaluation = (
       }
     }
 
-    // Don't bother with crashes, not enough information to be accruate
-    const changed = difference.matches.filter(testResultChanged);
+    const changed = difference.matches.filter(match => testEvaluationChanged(match.evaluation));
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
-      const tests = changed.filter(payload => isRelevantTest(payload.original, coverageObjMap, nodeInfo));
-      if (tests.length <= 0) {
+      const missing: TestResult[] = difference.missing.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
+      // TODO: ATM, no logic implemented to check if test covered original code from mutated code
+      const added: TestResult[] = [...difference.added];
+      const matches: TestDifferencePayload[] = [];
+      for(const payload of changed) {
+        if (isRelevantTest(payload.original, coverageObjMap, nodeInfo)) {
+          matches.push(payload);
+        } else {
+          missing.push(payload.original);
+        }
+      }
+      if (matches.length <= 0) {
         continue;
       }
-      const nodeEvaluation = evaluateNewMutation(tests, mutationEvaluation.instructions);
+      const nodeEvaluation = evaluateNewMutation({
+        missing,
+        matches,
+        added,
+        crashed: false
+      }, mutationEvaluation.instructions);
       nodeInfo.evaluations.push(nodeEvaluation);
     }  
   } else {
@@ -3330,7 +3346,7 @@ export const createPlugin = ({
             tester,
             testAstMap,
           );
-          const mutationEvaluation = evaluateNewMutation(differenceBetweenResults.matches, [
+          const mutationEvaluation = evaluateNewMutation(differenceBetweenResults, [
             ...previousInstructions,
           ]);
 
