@@ -515,6 +515,7 @@ export class Instruction<D> {
 
   public readonly indirectDependencies: Map<string, DependencyInfo> = new Map();
   public readonly indirectWriteDependencyKeys: string[];
+  public variantIndex: number = 0;
   constructor(
     public readonly type: symbol,
     public readonly conflictDependencies: Map<string, DependencyInfo>,
@@ -833,7 +834,7 @@ export const executeInstructions = (
           asts,
           instruction.variants === undefined
             ? undefined
-            : instruction.variants[instruction.variants.length - 1],
+            : instruction.variants[instruction.variantIndex],
         ),
       })),
     )
@@ -2108,12 +2109,7 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
   a: MutationEvaluation,
   b: MutationEvaluation,
 ) => {
-  const unknownComparison = a.testsUnknown.length - b.testsUnknown.length;
-  if (unknownComparison !== 0) {
-    return unknownComparison;
-  }
-
-  const instructionLengthComparison = a.instructions.length - b.instructions.length;
+  const instructionLengthComparison = b.instructions.length - a.instructions.length;
   if (instructionLengthComparison !== 0) {
     return instructionLengthComparison;
   }
@@ -2916,10 +2912,17 @@ const addMutationEvaluation = (
     const changed = difference.matches.filter(match => testEvaluationChanged(match.evaluation));
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
-      const unknown: TestResult[] = difference.unknown.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
-      const missing: TestResult[] = difference.missing.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
+      const unknown: TestResult[] = [...difference.unknown];
+      const missing: TestResult[] = [];
+      for(const missingResult of difference.missing) {
+        if (isRelevantTest(missingResult, coverageObjMap, nodeInfo)) {
+          missing.push(missingResult);
+        } else {
+          unknown.push(missingResult);
+        }
+      }
       // TODO: ATM, no logic implemented to check if test covered original code from mutated code
-      const added: TestResult[] = difference.added.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
+      const added: TestResult[] = [];
       const matches: TestDifferencePayload[] = [];
       for(const payload of changed) {
         if (isRelevantTest(payload.original, coverageObjMap, nodeInfo)) {
@@ -2927,9 +2930,6 @@ const addMutationEvaluation = (
         } else {
           unknown.push(payload.original);
         }
-      }
-      if (matches.length <= 0) {
-        continue;
       }
       const nodeEvaluation = evaluateNewMutation({
         missing,
@@ -2962,7 +2962,7 @@ const addMutationEvaluation = (
   }
 
   const instructionsAffected: Set<Instruction<any>> = new Set(
-    [...affectedKeys].map(key => nodeInfoMap.get(key)!.instructions).flat(),
+    [...affectedKeys].map(key => nodeInfoMap.get(key)!.instructions).flat().concat(instructions),
   );
   
   for (const instruction of instructionsAffected) {
@@ -3131,9 +3131,11 @@ export const createPlugin = ({
                 compareMutationEvaluations(mutationEvaluation, evaluations.peek()) > 0,
             )
           ) {
-            instruction.variants?.pop();
-            if (instruction.variants !== undefined && instruction.variants.length >= 1) {
-              instructionQueue.push(previousInstructions);
+            if (instruction.variants !== undefined) {
+              instruction.variantIndex++;
+              if (instruction.variantIndex < instruction.variants.length) {
+                instructionQueue.push(previousInstructions);
+              }
             }
           }
         }
