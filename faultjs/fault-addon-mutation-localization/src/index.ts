@@ -1999,6 +1999,7 @@ export type CrashedMutationEvaluation = {
   stackEvaluation: null;
   testsWorsened: null;
   testsImproved: null;
+  testsUnknown: null;
   errorsChanged: null;
   crashed: true;
 } & CommonMutationEvaluation;
@@ -2007,6 +2008,7 @@ export type NormalMutationEvaluation = {
   testsWorsened: number;
   testsImproved: number;
   errorsChanged: number;
+  testsUnknown: number;
   crashed: false;
 } & CommonMutationEvaluation;
 
@@ -2026,6 +2028,7 @@ type TesterDifferencePayload = {
   matches: TestDifferencePayload[]; // Test results found in both tester results
   missing: TestResult[]; // Missing test resuls
   added: TestResult[]; // New test results
+  unknown: TestResult[]; // Tests that were run but the result wasn't evaluated/unclear
   crashed: boolean,
 };
 
@@ -2040,6 +2043,8 @@ const evaluateNewMutation = (
 
   testsWorsened += difference.added.filter(result => !result.passed).length;
   testsWorsened += difference.missing.filter(result => !result.passed).length;
+
+  const testsUnknown = difference.unknown.length;
 
   for (const payload of difference.matches) {
     const testEvaluation = payload.evaluation;
@@ -2068,6 +2073,7 @@ const evaluateNewMutation = (
     instructions,
     testsWorsened,
     testsImproved,
+    testsUnknown,
     stackEvaluation,
     errorsChanged,
     crashed: false,
@@ -2102,6 +2108,11 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
   a: MutationEvaluation,
   b: MutationEvaluation,
 ) => {
+  const unknownComparison = a.testsUnknown.length - b.testsUnknown.length;
+  if (unknownComparison !== 0) {
+    return unknownComparison;
+  }
+
   const instructionLengthComparison = a.instructions.length - b.instructions.length;
   if (instructionLengthComparison !== 0) {
     return instructionLengthComparison;
@@ -2840,6 +2851,7 @@ export const differenceInTesterResults = (
     matches,
     added,
     missing,
+    unknown: [],
     crashed: false,
   };
 };
@@ -2904,15 +2916,16 @@ const addMutationEvaluation = (
     const changed = difference.matches.filter(match => testEvaluationChanged(match.evaluation));
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
+      const unknown: TestResult[] = difference.unknown.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
       const missing: TestResult[] = difference.missing.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
       // TODO: ATM, no logic implemented to check if test covered original code from mutated code
-      const added: TestResult[] = [...difference.added];
+      const added: TestResult[] = difference.added.filter(result => isRelevantTest(result, coverageObjMap, nodeInfo));
       const matches: TestDifferencePayload[] = [];
       for(const payload of changed) {
         if (isRelevantTest(payload.original, coverageObjMap, nodeInfo)) {
           matches.push(payload);
         } else {
-          missing.push(payload.original);
+          unknown.push(payload.original);
         }
       }
       if (matches.length <= 0) {
@@ -2922,6 +2935,7 @@ const addMutationEvaluation = (
         missing,
         matches,
         added,
+        unknown,
         crashed: false
       }, mutationEvaluation.instructions);
       nodeInfo.evaluations.push(nodeEvaluation);
@@ -3423,6 +3437,7 @@ export const createPlugin = ({
           testsImproved: null,
           stackEvaluation: null,
           errorsChanged: null,
+          testsUnknown: null,
           crashed: true,
         };
 
@@ -3432,6 +3447,7 @@ export const createPlugin = ({
         await analyzeEvaluation({
           matches: [],
           added: [],
+          unknown: [],
           missing: [...tester.testResults.values()].flat(),
           crashed: true,
         }, mutationEvaluation);
