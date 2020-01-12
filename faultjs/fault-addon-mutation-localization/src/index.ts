@@ -39,7 +39,7 @@ import Heap from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
 import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
-import op2 from '@fault/sbfl-op2';
+import dstar from '@fault/sbfl-dstar';
 
 type Location = {
   filePath: string;
@@ -3340,7 +3340,7 @@ export const createPlugin = ({
 
           for (const objMap of coverageObjs.values()) {
             for(const obj of objMap.values()) {
-              const score = op2(obj.testStats, totalPassFailStats);
+              const score = dstar(obj.testStats, totalPassFailStats);
               for(const instruction of obj.instructions) {
                 const evaluation = instructionEvaluations.get(instruction)!;
                 evaluation.initial = Math.max(
