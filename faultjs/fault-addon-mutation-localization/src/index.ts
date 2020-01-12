@@ -909,6 +909,15 @@ export const filterVariantDuplicates = <T>(arr: T[]): T[] => {
   return filtered;
 };
 
+type ValueVariantInfo = {
+  nodeNumber: number;
+  value: any
+}
+
+type ScopedNodeVariantInfo = {
+  node: t.Node;
+  nodeNumber: number;
+}
 const createValueVariantCollector = (
   condition: ConditionFn,
   symbol: symbol,
@@ -916,25 +925,42 @@ const createValueVariantCollector = (
   collectCondition: ConditionFn = condition,
 ): CreateSetupObjFn => {
   return () => {
-    const blocks: any[][] = [[]];
+    let count = 0;
+    const blocks: ValueVariantInfo[][] = [[]];
+    const scopedNodes: ScopedNodeVariantInfo[][] = [];
     return {
       enter: subPath => {
+        count++;
         if (subPath.isScope()) {
           blocks.push([]);
+          scopedNodes.push([]);
         }
-        const current = (subPath.node as any)[key];
         if (condition(subPath)) {
-          subPath.node[symbol as any] = filterVariantDuplicates(
-            ([] as any[]).concat(...blocks),
-          ).filter(v => v !== current);
+          scopedNodes[scopedNodes.length - 1].push({
+            node: subPath.node,
+            nodeNumber: count, 
+          });
         }
         if (collectCondition(subPath)) {
-          blocks[blocks.length - 1].push(current);
+          const current = (subPath.node as any)[key];
+          blocks[blocks.length - 1].push({
+            value: current,
+            nodeNumber: count,
+          });
         }
       },
       exit: subPath => {
         if (subPath.isScope()) {
+          for(const { node, nodeNumber } of scopedNodes[scopedNodes.length - 1]) {
+            node[symbol] = filterVariantDuplicates(
+              ([] as ValueVariantInfo[]).concat(...blocks)
+                .filter(info => info.value !== node[key])
+                .sort((a, b) => Math.abs(nodeNumber - b.nodeNumber) - Math.abs(nodeNumber - a.nodeNumber))
+                .map(info => info.value)
+            );
+          }
           blocks.pop();
+          scopedNodes.pop();
         }
       },
     };
@@ -1009,13 +1035,13 @@ export const replaceNumberFactory = new SimpleInstructionFactory(
     }
     filterOut.add(node.value);
     const values = [
-      ...new Set([/*...nodePath.node[NUMBERS], */ node.value - 1, node.value + 1]),
+      ...new Set([...nodePath.node[NUMBERS], node.value - 1, node.value + 1]),
     ]
       .filter(value => !filterOut.has(value))
       .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
     return values;
   },
-  //createValueVariantCollector(isNumberLiteral, NUMBERS),
+  createValueVariantCollector(isNumberLiteral, NUMBERS),
 );
 
 const CHANGE_BOOLEAN = Symbol('change-boolean');
@@ -1199,9 +1225,9 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
       index: temp.index,
       sequence: accesses,
     };
-    console.log(temp.identifier.type, temp.index);
+    //console.log(temp.identifier.type, temp.index);
   }
-  console.log(accesses);
+  //console.log(accesses);
   return accesses;
 };
 
