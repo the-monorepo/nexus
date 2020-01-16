@@ -25,7 +25,7 @@
     "watch": "gulp watch",
     "writeme": "gulp writeme",
     "webpack": "gulp webpack",
-    "prepublish": "gulp prepublish",
+    "prepublishOnly": "gulp prepublish",
     "ci-test": "gulp ci-test"
   },
   "keywords": [

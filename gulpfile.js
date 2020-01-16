@@ -11,10 +11,6 @@ const changed = require('gulp-changed');
 const staged = require('gulp-staged');
 const rename = require('gulp-rename');
 
-const { promisify } = require('util');
-
-const spawn = require('cross-spawn');
-
 const through = require('through2');
 
 const PluginError = require('plugin-error');
@@ -30,7 +26,7 @@ function swapSrcWith(srcPath, newDirName) {
   const parts = srcPath.split(sep);
   // Swap out src for the new dir name
   parts[2] = newDirName;
-  const resultingPath = join(__dirname, ...parts);
+  const resultingPath = join(...parts);
   return resultingPath;
 }
 
@@ -97,14 +93,16 @@ function packagesSrcMiscStream(options) {
 }
 
 function packagesSrcCodeStream(options) {
-  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirNames), {
+  const globs = globSrcCodeFromPackagesDirName(packagesDirNames);
+  return gulp.src(globs, {
     base: `.`,
     ...options,
   });
 }
 
 function packagesSrcCodeWithTsDefinitionsStream(options) {
-  return gulp.src(globSrcCodeFromPackagesDirName(packagesDirNames).concat('**/*.d.ts'), {
+  const globs = globSrcCodeFromPackagesDirName(packagesDirNames).concat('**/*.d.ts');
+  return gulp.src(globs, {
     base: `.`,
     ...options,
   });
