@@ -1,6 +1,15 @@
-import { getReplacementIdentifierNode, AccessInfo, IdentifierInfo, MEMBER_ACCESS, FUNCTION_ACCESS, CONSTRUCTOR_ACCESS, UNKNOWN_ACCESS, MemberAccessInfo } from '../src/index';
+import {
+  getReplacementIdentifierNode,
+  AccessInfo,
+  IdentifierInfo,
+  MEMBER_ACCESS,
+  FUNCTION_ACCESS,
+  CONSTRUCTOR_ACCESS,
+  UNKNOWN_ACCESS,
+  MemberAccessInfo,
+} from '../src/index';
 const accessInfoToString = (info: AccessInfo) => {
-  switch(info.type) {
+  switch (info.type) {
     case MEMBER_ACCESS:
       return `.${info.name}`;
     case FUNCTION_ACCESS:
@@ -11,15 +20,24 @@ const accessInfoToString = (info: AccessInfo) => {
       return '.?';
   }
 };
-const runTest = (index: number, match: AccessInfo[], sequence: AccessInfo[], expected: AccessInfo | null) => {
-  it(`[${index}], ${match.map(accessInfoToString).join('')} vs ${sequence.map(accessInfoToString).join('')} = ${expected === null ? 'null' : accessInfoToString(expected)}`, () => {
-    expect(getReplacementIdentifierNode({ index, sequence: match }, sequence)).toBe(expected);
+const runTest = (
+  index: number,
+  match: AccessInfo[],
+  sequence: AccessInfo[],
+  expected: AccessInfo | null,
+) => {
+  it(`[${index}], ${match.map(accessInfoToString).join('')} vs ${sequence
+    .map(accessInfoToString)
+    .join('')} = ${expected === null ? 'null' : accessInfoToString(expected)}`, () => {
+    expect(getReplacementIdentifierNode({ index, sequence: match }, sequence)).toBe(
+      expected,
+    );
   });
-}
+};
 describe('replace identifier', () => {
   const mA: MemberAccessInfo = {
     type: MEMBER_ACCESS,
-    name: 'a'
+    name: 'a',
   };
   const mB: MemberAccessInfo = {
     type: MEMBER_ACCESS,
