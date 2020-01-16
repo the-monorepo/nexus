@@ -119,28 +119,34 @@ describe('sorting', () => {
       nodeEvaluations,
       instructionEvaluations,
       new Map([
-        [filePath, new Map([
-          ['shouldnotmatter', {
-            instructions: new Set(instructions),
-            originalLocation: {
-              filePath,
-              start: {
-                line: 0,
-                column: 0,
+        [
+          filePath,
+          new Map([
+            [
+              'shouldnotmatter',
+              {
+                instructions: new Set(instructions),
+                originalLocation: {
+                  filePath,
+                  start: {
+                    line: 0,
+                    column: 0,
+                  },
+                  end: {
+                    line: Number.POSITIVE_INFINITY,
+                    column: Number.POSITIVE_INFINITY,
+                  },
+                },
+                path: astPath,
+                pathKey: 'alsoshouldnotmatter',
+                testStats: {
+                  passed: 0,
+                  failed: 0,
+                },
               },
-              end: {
-                line: Number.POSITIVE_INFINITY,
-                column: Number.POSITIVE_INFINITY,
-              }
-            },
-            path: astPath,
-            pathKey: 'alsoshouldnotmatter',
-            testStats: {
-              passed: 0,
-              failed: 0,
-            }
-          }]
-        ])]
+            ],
+          ]),
+        ],
       ]),
       instructions,
     );
