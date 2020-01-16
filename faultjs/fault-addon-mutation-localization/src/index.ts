@@ -707,7 +707,6 @@ class SimpleInstructionFactory<D, T> implements AbstractSimpleInstructionFactory
         this.createVariantFn === undefined
           ? undefined
           : this.createVariantFn(path as any);
-      console.log(pathToKey(path), path.node.type, variants);
       if (variants === undefined || variants.length >= 1) {
         const wrapperMutation = {
           type: this.type,
@@ -2959,6 +2958,7 @@ const addMutationEvaluation = (
       const nodeInfo = nodeInfoMap.get(key)!;
 
       const matches: TestDifferencePayload[] = [];
+      const unknown: TestResult[] = [...difference.unknown];
       for (const payload of changed) {
         if (isRelevantTest(payload.original, coverageObjMap, nodeInfo)) {
           matches.push(payload);
@@ -2969,8 +2969,6 @@ const addMutationEvaluation = (
       if (matches.length <= 0) {
         continue;
       }
-
-      const unknown: TestResult[] = [...difference.unknown];
 
       const missing: TestResult[] = [];
       for (const missingResult of difference.missing) {
@@ -3187,12 +3185,12 @@ export const createPlugin = ({
             previousIndirectNodeEvaluations.some(
               evaluation =>
                 evaluation.length > 0 &&
-                compareMutationEvaluations(mutationEvaluation, evaluation.peek()) > 0 && (!mutationEvaluation.crashed || !evaluation.peek().crashed),
+                compareMutationEvaluations(mutationEvaluation, evaluation.peek()) > 0
             ) ||
             previousDirectNodeEvaluations.some(
               evaluations =>
                 evaluations.length <= 0 ||
-                compareMutationEvaluations(mutationEvaluation, evaluations.peek()) > 0 && (!mutationEvaluation.crashed || !evaluations.peek().crashed),
+                compareMutationEvaluations(mutationEvaluation, evaluations.peek()) > 0
             )
           ) {
             if (instruction.variants !== undefined) {
