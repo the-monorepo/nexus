@@ -2961,17 +2961,7 @@ const addMutationEvaluation = (
     );
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
-      const unknown: TestResult[] = [...difference.unknown];
-      const missing: TestResult[] = [];
-      for (const missingResult of difference.missing) {
-        if (isRelevantTest(missingResult, coverageObjMap, nodeInfo)) {
-          missing.push(missingResult);
-        } else {
-          unknown.push(missingResult);
-        }
-      }
-      // TODO: ATM, no logic implemented to check if test covered original code from mutated code
-      const added: TestResult[] = [];
+
       const matches: TestDifferencePayload[] = [];
       for (const payload of changed) {
         if (isRelevantTest(payload.original, coverageObjMap, nodeInfo)) {
@@ -2980,6 +2970,24 @@ const addMutationEvaluation = (
           unknown.push(payload.original);
         }
       }
+      if (matches.length <= 0) {
+        continue;
+      }
+
+      const unknown: TestResult[] = [...difference.unknown];
+
+      const missing: TestResult[] = [];
+      for (const missingResult of difference.missing) {
+        if (isRelevantTest(missingResult, coverageObjMap, nodeInfo)) {
+          missing.push(missingResult);
+        } else {
+          unknown.push(missingResult);
+        }
+      }
+
+      // TODO: ATM, no logic implemented to check if test covered original code from mutated code
+      const added: TestResult[] = [];
+
       const nodeEvaluation = evaluateNewMutation(
         {
           missing,
