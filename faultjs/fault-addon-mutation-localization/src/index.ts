@@ -1818,12 +1818,8 @@ export const compareMutationEvaluations = (
     return goodThingsHappenedComparison;
   }
 
-  const nothingBadHappened1 = evaluationDidNothingBad(r1);
-  const nothingBadHappened2 = evaluationDidNothingBad(r2);
-  const nothingBadHappenedComparison =
-    (nothingBadHappened1 ? 1 : -1) - (nothingBadHappened2 ? 1 : -1);
-  if (nothingBadHappenedComparison !== 0) {
-    return nothingBadHappenedComparison;
+  if (!goodThingsHappened1 && !goodThingsHappened2) {
+    return 0;
   }
 
   // TODO: TypeScript should have inferred that this would be the case..
@@ -3149,12 +3145,12 @@ export const createPlugin = ({
             previousIndirectNodeEvaluations.some(
               evaluation =>
                 evaluation.length > 0 &&
-                compareMutationEvaluations(mutationEvaluation, evaluation.peek()) > 0,
+                compareMutationEvaluations(mutationEvaluation, evaluation.peek()) > 0 && (!mutationEvaluation.crashed || !evaluation.peek().crashed),
             ) ||
             previousDirectNodeEvaluations.some(
               evaluations =>
                 evaluations.length <= 0 ||
-                compareMutationEvaluations(mutationEvaluation, evaluations.peek()) > 0,
+                compareMutationEvaluations(mutationEvaluation, evaluations.peek()) > 0 && (!mutationEvaluation.crashed || !evaluations.peek().crashed),
             )
           ) {
             if (instruction.variants !== undefined) {
