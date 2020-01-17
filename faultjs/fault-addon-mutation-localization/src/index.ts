@@ -267,7 +267,7 @@ export class SetDataDynamicMutation implements WrapperMutation<any, ValueMutatio
 
   setup(data, rootPath) {
     return {
-      node: this.thisWrapper.traverseToThisPath(rootPath).node,
+      node: (this.thisWrapper.traverseToThisPath(rootPath) as NodePath).node,
       value: this.getValue(data, rootPath),
     };
   }
@@ -386,7 +386,7 @@ abstract class AbstractReplaceWithMutation
     }
   }
 
-  abstract setupValue(data, rootPath): t.Node;
+  abstract setupValue(data, rootPath): t.Node | t.Node[];
 }
 export class ReplaceWithMutation extends AbstractReplaceWithMutation {
   constructor(
@@ -3021,7 +3021,7 @@ const addMutationEvaluation = (
     [...affectedKeys]
       .map(key => nodeInfoMap.get(key)!.instructions)
       .flat()
-      .concat(instructions),
+      .concat([...instructions]),
   );
 
   for (const instruction of instructionsAffected) {
@@ -3312,7 +3312,7 @@ export const createPlugin = ({
               failedCoverageMap.merge(testResult.coverage);
             }
           }
-          const failedCoverage = failedCoverageMap.data as Coverage;
+          const failedCoverage = failedCoverageMap.data;
           const locations: Location[] = [];
           const failingLocations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
