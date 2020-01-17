@@ -40,4 +40,4 @@ const main = async () => {
     });
   }
 };
-main();
+main().catch(console.error);
