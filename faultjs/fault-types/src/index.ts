@@ -42,7 +42,7 @@ export type Payload<T, D> = {
   id: number;
   data: D
 };
-export type FileFinishedResult = FileFinishedData & TypeHolder<typeof IPC.TEST_FILE>;
+export type TestFileResult = Payload<typeof IPC.TEST_FILE, FileFinishedData>;
 export type RunTestData = {
   testPath: string;
   key: any;
@@ -65,5 +65,5 @@ export type StoppedWorkerData = {
 export type StoppedWorkerResult = StoppedWorkerData &
   TypeHolder<typeof IPC.STOPPED_WORKER>;
 
-export type ChildResult = TestResult | FileFinishedResult | StoppedWorkerResult;
+export type ChildResult = TestResult | TestFileResult | StoppedWorkerResult;
 export type ParentResult = StopWorkerResult | RunTestsPayload;
