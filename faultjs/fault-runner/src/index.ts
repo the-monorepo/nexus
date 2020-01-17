@@ -304,173 +304,170 @@ const runAndRecycleProcesses = async (
     let alreadyKillingWorkers = false;
 
     // TODO: This is getting way too messy. Clean this whole thing up. Needs to be much easier to understand
-    try {
-      const results = await new Promise<FinalTesterResults>((resolve, reject) => {
-        const killWorkers = async (someWorkers: WorkerInfo[], err) => {
-          if (alreadyKillingWorkers) {
+    const results = await new Promise<FinalTesterResults>((resolve, reject) => {
+      const killWorkers = async (someWorkers: WorkerInfo[], err) => {
+        if (alreadyKillingWorkers) {
+          return;
+        }
+        alreadyKillingWorkers = true;
+        console.log('Killing workers');
+        for (const otherWorker of someWorkers) {
+          clearTimeout(otherWorker.expirationTimer!);
+          if (otherWorker.process.connected) {
+            otherWorker.process.disconnect();
+          }
+          otherWorker.process.kill(ERROR_SIGNAL);
+        }
+        // TODO: DRY (see tester results creation above)
+        const endTime = Date.now();
+        const totalDuration = endTime - startTime;
+        const results: FinalTesterResults = {
+          testResults,
+          duration: totalDuration,
+          coverage: mergeCoverage(workerCoverage).data,
+        };
+
+        let shouldRerun = false;
+        let allowed = false;
+        for await (const { rerun, allow } of hooks.on.exit(results)) {
+          if (rerun) {
+            shouldRerun = true;
+          }
+          if (allow) {
+            allowed = true;
+          }
+        }
+        if (shouldRerun) {
+          testFileQueue.push(...originalTestFiles);
+          resolve(results);
+        } else if (allowed) {
+          console.log('allowing kill');
+          resolve(results);
+        } else {
+          console.log('rejecting with kill');
+          reject(err);
+        }
+      };
+      const setupWorkerHandle = (worker: WorkerInfo, id: number) => {
+        const replaceExpirationTimer = (worker: WorkerInfo) => {
+          // TODO: Didn't actually check if clearTimeout(null) does anything weird
+          clearTimeout(worker.expirationTimer!);
+          worker.expirationTimer = setTimeout(() => {
+            console.log('timeout', id);
+            killWorkers(
+              [...runningWorkers],
+              new Error(`Worker ${id} took longer than ${timeout}ms.`),
+            );
+          }, timeout);
+        };
+        replaceExpirationTimer(worker);
+        worker.process.on('message', async (message: ChildResult) => {
+          switch (message.type) {
+            case IPC.TEST: {
+              replaceExpirationTimer(worker);
+              testResults.set(message.key, message);
+              await hooks.on.testResult(message);
+              break;
+            }
+            case IPC.STOPPED_WORKER: {
+              console.log('stopped worker', id);
+              clearTimeout(worker.expirationTimer!);
+              workerCoverage.push(message.coverage);
+              runningWorkers.delete(worker);
+              if (worker.process.connected) {
+                worker.process.disconnect();
+              }
+              worker.process.kill();
+              if (runningWorkers.size <= 0) {
+                console.log('finished test run');
+                const endTime = Date.now();
+                const totalDuration = endTime - startTime;
+
+                const totalCoverage = mergeCoverage(workerCoverage);
+
+                const finalResults: FinalTesterResults = {
+                  coverage: totalCoverage.data,
+                  testResults,
+                  duration: totalDuration,
+                };
+                resolve(finalResults);
+              }
+              break;
+            }
+            case IPC.FILE_FINISHED: {
+              console.log('files left in queue:', testFileQueue.length);
+              pendingFileClient.deregisterRunningTest(message);
+
+              await hooks.on.fileFinished();
+
+              if (testFileQueue.length > 0) {
+                pendingFileClient.addAnotherTestToWorker(worker);
+              }
+
+              if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
+                const endTime = Date.now();
+                const totalDuration = endTime - startTime;
+                const results: TesterResults = { testResults, duration: totalDuration };
+
+                const newFilesToAdd: Set<string> = new Set();
+                await writeFile(durationsPath, JSON.stringify(testDurations));
+                console.log('????');
+                for await (const filePathIterator of hooks.on.allFilesFinished(
+                  results,
+                )) {
+                  console.log('XXXXXX');
+                  if (filePathIterator === undefined || filePathIterator === null) {
+                    continue;
+                  }
+                  for (const filePath of filePathIterator) {
+                    newFilesToAdd.add(filePath);
+                  }
+                }
+                testFileQueue.push(...newFilesToAdd);
+
+                await Promise.all(
+                  workers.map(worker => stopWorker(worker.process, {})),
+                );
+              }
+              break;
+            }
+          }
+        });
+        // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
+        worker.process.on('exit', (code, signal) => {
+          if (worker.process.connected) {
+            worker.process.disconnect();
+          }
+
+          console.log('worker exit', id, code, signal);
+          clearTimeout(worker.expirationTimer);
+          if (signal === 'SIGTERM' && !runningWorkers.has(worker)) {
             return;
           }
-          alreadyKillingWorkers = true;
-          console.log('Killing workers');
-          for (const otherWorker of someWorkers) {
-            clearTimeout(otherWorker.expirationTimer!);
-            if (otherWorker.process.connected) {
-              otherWorker.process.disconnect();
-            }
-            otherWorker.process.kill(ERROR_SIGNAL);
+          if (code !== 0 || runningWorkers.has(worker)) {
+            const otherWorkers = [...runningWorkers].filter(
+              otherWorker => otherWorker !== worker,
+            );
+            killWorkers(
+              otherWorkers,
+              new Error(
+                `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`,
+              ),
+            );
           }
-          // TODO: DRY (see tester results creation above)
-          const endTime = Date.now();
-          const totalDuration = endTime - startTime;
-          const results: FinalTesterResults = {
-            testResults,
-            duration: totalDuration,
-            coverage: mergeCoverage(workerCoverage).data,
-          };
+        });
+      };
 
-          let shouldRerun = false;
-          let allowed = false;
-          for await (const { rerun, allow } of hooks.on.exit(results)) {
-            if (rerun) {
-              shouldRerun = true;
-            }
-            if (allow) {
-              allowed = true;
-            }
-          }
-          if (shouldRerun) {
-            testFileQueue.push(...originalTestFiles);
-            resolve(results);
-          } else if (allowed) {
-            console.log('allowing kill');
-            resolve(results);
-          } else {
-            console.log('rejecting with kill');
-            reject(err);
-          }
-        };
-        const setupWorkerHandle = (worker: WorkerInfo, id: number) => {
-          const replaceExpirationTimer = (worker: WorkerInfo) => {
-            // TODO: Didn't actually check if clearTimeout(null) does anything weird
-            clearTimeout(worker.expirationTimer!);
-            worker.expirationTimer = setTimeout(() => {
-              console.log('timeout', id);
-              killWorkers(
-                [...runningWorkers],
-                new Error(`Worker ${id} took longer than ${timeout}ms.`),
-              );
-            }, timeout);
-          };
-          replaceExpirationTimer(worker);
-          worker.process.on('message', async (message: ChildResult) => {
-            switch (message.type) {
-              case IPC.TEST: {
-                replaceExpirationTimer(worker);
-                testResults.set(message.key, message);
-                await hooks.on.testResult(message);
-                break;
-              }
-              case IPC.STOPPED_WORKER: {
-                console.log('stopped worker', id);
-                clearTimeout(worker.expirationTimer!);
-                workerCoverage.push(message.coverage);
-                runningWorkers.delete(worker);
-                if (worker.process.connected) {
-                  worker.process.disconnect();
-                }
-                worker.process.kill();
-                if (runningWorkers.size <= 0) {
-                  console.log('finished test run');
-                  const endTime = Date.now();
-                  const totalDuration = endTime - startTime;
-
-                  const totalCoverage = mergeCoverage(workerCoverage);
-
-                  const finalResults: FinalTesterResults = {
-                    coverage: totalCoverage.data,
-                    testResults,
-                    duration: totalDuration,
-                  };
-                  resolve(finalResults);
-                }
-                break;
-              }
-              case IPC.FILE_FINISHED: {
-                console.log('files left in queue:', testFileQueue.length);
-                pendingFileClient.deregisterRunningTest(message);
-
-                await hooks.on.fileFinished();
-
-                if (testFileQueue.length > 0) {
-                  pendingFileClient.addAnotherTestToWorker(worker);
-                }
-
-                if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
-                  const endTime = Date.now();
-                  const totalDuration = endTime - startTime;
-                  const results: TesterResults = { testResults, duration: totalDuration };
-
-                  const newFilesToAdd: Set<string> = new Set();
-                  await writeFile(durationsPath, JSON.stringify(testDurations));
-                  for await (const filePathIterator of hooks.on.allFilesFinished(
-                    results,
-                  )) {
-                    if (filePathIterator === undefined || filePathIterator === null) {
-                      continue;
-                    }
-                    for (const filePath of filePathIterator) {
-                      newFilesToAdd.add(filePath);
-                    }
-                  }
-                  testFileQueue.push(...newFilesToAdd);
-
-                  await Promise.all(
-                    workers.map(worker => stopWorker(worker.process, {})),
-                  );
-                }
-                break;
-              }
-            }
-          });
-          // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
-          worker.process.on('exit', (code, signal) => {
-            if (worker.process.connected) {
-              worker.process.disconnect();
-            }
-
-            console.log('worker exit', id, code, signal);
-            clearTimeout(worker.expirationTimer);
-            if (signal === 'SIGTERM' && !runningWorkers.has(worker)) {
-              return;
-            }
-            if (code !== 0 || runningWorkers.has(worker)) {
-              const otherWorkers = [...runningWorkers].filter(
-                otherWorker => otherWorker !== worker,
-              );
-              killWorkers(
-                otherWorkers,
-                new Error(
-                  `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`,
-                ),
-              );
-            }
-          });
-        };
-
-        for (let w = 0; w < workers.length; w++) {
-          setupWorkerHandle(workers[w], w);
-        }
-
-        pendingFileClient.addInitialTests();
-      });
-      if (firstResults === null) {
-        firstResults = results;
+      for (let w = 0; w < workers.length; w++) {
+        setupWorkerHandle(workers[w], w);
       }
-      if (testFileQueue.length <= 0) {
-        break;
-      }
-    } catch (err) {
-      console.error(err);
+
+      pendingFileClient.addInitialTests();
+    });
+    if (firstResults === null) {
+      firstResults = results;
+    }
+    if (testFileQueue.length <= 0) {
       break;
     }
   }
