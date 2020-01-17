@@ -18,13 +18,21 @@ const promiseSend: (...arg: any) => Promise<any> =
   process.send !== undefined ? promisify(process.send!.bind(process)) : undefined!;
 
 export class ChildProcessWorkerClient {
-  constructor(private readonly childProcess: ChildProcess) {
+  private currentOrderId: number = 0;
+  constructor(
+    private readonly childProcess: ChildProcess,
+  ) {
 
   }
 
-  send(data: any): Promise<any> {
+  send(type: string, data: any): Promise<any> {
+    const id = this.currentOrderId++;
     return new Promise((resolve, reject) => {
-      this.childProcess.send(data, err => {
+      this.childProcess.send({
+        type,
+        id,
+        data,
+      }, err => {
         if (err) {
           reject(err);
         } else {
@@ -35,21 +43,12 @@ export class ChildProcessWorkerClient {
   };  
 
   runTests(data: RunTestsData) {
-    const result: RunTestsPayload = {
-      type: IPC.RUN_TEST,
-      ...data,
-    };
-    return this.send(result);
+    return this.send(IPC.RUN_TEST, data);
   };
   
   stopWorker(data: StopWorkerData) {
-    const result: StopWorkerResult = {
-      type: IPC.STOP_WORKER,
-      ...data,
-    };
-    return this.send(result);
+    return this.send(IPC.STOP_WORKER, data);
   };
-  
 }
 export const submitTestResult = async (data: PassingTestData | FailingTestData) => {
   const result: TestResult = {
