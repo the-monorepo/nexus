@@ -6,6 +6,10 @@ export type Stats = {
   passed: number;
 };
 
+export type OrderData = {
+  index: number;
+};
+
 export type TesterResults = {
   testResults: Map<string, TestResult>;
   duration: number;
@@ -37,6 +41,11 @@ export type FailingTestData = {
 export type TestResult = (PassingTestData | FailingTestData) &
   TypeHolder<typeof IPC.TEST>;
 
+export type ManagerPayload<T, D> = {
+  type: T;
+  id: number;
+  data: D
+};
 export type FileFinishedResult = FileFinishedData & TypeHolder<typeof IPC.FILE_FINISHED>;
 export type RunTestData = {
   testPath: string;
@@ -49,10 +58,10 @@ export type FileFinishedData = RunTestData & {
 export type RunTestsData = {
   testsToRun: RunTestData[];
 };
-export type RunTestsPayload = RunTestsData & TypeHolder<typeof IPC.RUN_TEST>;
+export type RunTestsPayload = ManagerPayload<typeof IPC.RUN_TEST, RunTestsData>;
 
 export type StopWorkerData = {};
-export type StopWorkerResult = StopWorkerData & TypeHolder<typeof IPC.STOP_WORKER>;
+export type StopWorkerResult = ManagerPayload<typeof IPC.STOP_WORKER, StopWorkerData>;
 
 export type StoppedWorkerData = {
   coverage: Coverage;
