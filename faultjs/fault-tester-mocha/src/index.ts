@@ -118,7 +118,7 @@ export const initialize = async (options: Options) => {
         });
         break;
       }
-      case IPC.RUN_TEST: {
+      case IPC.TEST_FILE: {
         queue.push(data);
         runQueue();
         break;
