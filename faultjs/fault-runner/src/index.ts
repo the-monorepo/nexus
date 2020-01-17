@@ -11,7 +11,7 @@ import {
   RunTestData,
   FileFinishedData,
 } from '@fault/types';
-import { runTests, stopWorker } from '@fault/messages';
+import { ChildProcessWorkerClient } from '@fault/messages';
 import { join, resolve } from 'path';
 import {
   TestHookOptions,
@@ -31,6 +31,7 @@ type DurationData = {
 };
 type WorkerInfo = {
   expirationTimer: NodeJS.Timeout | null;
+  client: ChildProcessWorkerClient,
   process: ChildProcess;
 } & DurationData;
 type InternalTestData = {
@@ -166,7 +167,7 @@ const createStateClient = (
       };
       testsToRun.push(externalTestData);
     }
-    return runTests(worker.process, { testsToRun });
+    return worker.client.runTests({ testsToRun });
   };
 
   const isTestsPending = () => {
@@ -231,9 +232,11 @@ const createWorkers = (
 ) => {
   const workers: WorkerInfo[] = [];
   for (let w = 0; w < workerCount; w++) {
+    const childProcess = forkForTest(tester, testerOptions, setupFiles, env, cwd);
     const worker: WorkerInfo = {
       expirationTimer: null,
-      process: forkForTest(tester, testerOptions, setupFiles, env, cwd),
+      process: childProcess,
+      client: new ChildProcessWorkerClient(childProcess),
       totalPendingDuration: 0,
       pendingUnknownTestCount: 0,
     };
@@ -426,7 +429,7 @@ const runAndRecycleProcesses = async (
                 testFileQueue.push(...newFilesToAdd);
 
                 await Promise.all(
-                  workers.map(worker => stopWorker(worker.process, {})),
+                  workers.map(worker => worker.client.stopWorker({})),
                 );
               }
               break;
