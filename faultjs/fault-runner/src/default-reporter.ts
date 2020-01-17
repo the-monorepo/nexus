@@ -21,10 +21,10 @@ const titleFromPath = (path: string[]) => {
 export const groupTestsByFilePath = (testResults: Iterable<TestResult>) => {
   const grouped: Map<string, TestResult[]> = new Map();
   for (const testResult of testResults) {
-    if (!grouped.has(testResult.file)) {
-      grouped.set(testResult.file, [testResult]);
+    if (!grouped.has(testResult.data.file)) {
+      grouped.set(testResult.data.file, [testResult]);
     } else {
-      const groupedTestResults = grouped.get(testResult.file)!;
+      const groupedTestResults = grouped.get(testResult.data.file)!;
       groupedTestResults.push(testResult);
     }
   }
@@ -36,14 +36,14 @@ export const createPlugin = (contextOptions?) => {
     const { testResults, duration } = testerResults;
     const testResultsArr: TestResult[] = [...testResults.values()];
     const suiteResults = groupTestsByFilePath(testResultsArr);
-    testResultsArr.sort((a, b) => a.file.localeCompare(b.file));
+    testResultsArr.sort((a, b) => a.data.file.localeCompare(b.data.file));
 
     for (const testResult of testResultsArr) {
-      if (testResult.passed) {
+      if (testResult.data.passed) {
         continue;
       }
-      console.log(chalk.bold(titleFromPath(testResult.titlePath)));
-      console.log(chalk.red(testResult.stack));
+      console.log(chalk.bold(titleFromPath(testResult.data.titlePath)));
+      console.log(chalk.red(testResult.data.stack));
     }
 
     for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
@@ -52,7 +52,7 @@ export const createPlugin = (contextOptions?) => {
       const fileName = basename(filePath);
       const fileDir = dirname(filePath);
       const formattedFilePath = join(fileDir, chalk.bold(fileName));
-      const passed = !suiteResult.some(result => !result.passed);
+      const passed = !suiteResult.some(result => !result.data.passed);
       if (passed) {
         console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}`);
       } else {
@@ -65,12 +65,12 @@ export const createPlugin = (contextOptions?) => {
     console.log();
     const suiteCount = suiteResults.size;
     const suitePassedCount = Array.from(suiteResults.entries()).filter(
-      ([filePath, results]) => !results.some(result => !result.passed),
+      ([filePath, results]) => !results.some(result => !result.data.passed),
     ).length;
     const suiteFailedCount = suiteCount - suitePassedCount;
     reportPassFailCounts('Files:  ', suiteFailedCount, suitePassedCount, suiteCount);
 
-    const passedCount = testResultsArr.filter(result => result.passed).length;
+    const passedCount = testResultsArr.filter(result => result.data.passed).length;
     const totalCount = testResultsArr.length;
     const failedCount = totalCount - passedCount;
     reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
