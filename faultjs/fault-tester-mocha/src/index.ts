@@ -56,7 +56,8 @@ export const initialize = async (options: Options) => {
 
     return (async () => {
       while (queue.length > 0) {
-        const data = queue.pop()!;
+        const payload = queue.pop()!;
+        const data = payload.data;
         if (sandbox) {
           for (const { testPath, key } of data.testsToRun) {
             const mochaInstance = createMochaInstance(Mocha, mochaOptions, requireFiles);
