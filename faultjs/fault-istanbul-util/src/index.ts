@@ -1,4 +1,5 @@
 import { readFile } from 'mz/fs';
+import { CoverageMapData } from 'istanbul-lib-coverage';
 
 export const cloneCoverage = coverage => {
   if (Array.isArray(coverage)) {
@@ -74,19 +75,7 @@ export type FunctionCoverage = {
 export type FunctionMap = {
   [s: string]: FunctionCoverage;
 };
-export type Coverage = {
-  [s: string]: {
-    path: string;
-    statementMap: StatementMap;
-    fnMap: FunctionMap;
-    branchMap: any;
-    s: SCoverage;
-    f: FCoverage;
-    b: BCoverage;
-    _coverageSchema: string;
-    hash: string;
-  };
-};
+export type Coverage = CoverageMapData;
 export const subtractCoverage = (from: Coverage = {}, amount: Coverage | undefined) => {
   if (amount === undefined) {
     return cloneCoverage(from);
