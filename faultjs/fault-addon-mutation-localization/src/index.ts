@@ -867,8 +867,6 @@ export const getAstPath = (ast: t.File): NodePath<t.Program> => {
   return filePath!;
 };
 
-const isIfStatement = path => path.isIfStatement();
-
 export const forceConsequentSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, t.IfStatement>) => {
     path.get('alternate').registerAsWriteDependency();
@@ -879,9 +877,16 @@ export const FORCE_CONSEQUENT = Symbol('force-consequent');
 export const forceConsequentFactory = new SimpleInstructionFactory(
   FORCE_CONSEQUENT,
   forceConsequentSequence,
-  path =>
-    path.isIfStatement() &&
-    !(path.get('test').isBooleanLiteral() && path.node.test.value === true),
+  path => {
+    if (!path.isIfStatement()) {
+      return false;
+    }
+    const test = path.get('test');
+    if (!test.isBooleanLiteral()) {
+      return false;
+    }
+    return test.node.value;
+  }
 );
 
 export const forceAlternateSequence = createMutationSequenceFactory(
@@ -895,9 +900,17 @@ export const FORCE_ALTERNATE = Symbol('force-alternate');
 export const forceAlternateFactory = new SimpleInstructionFactory(
   FORCE_ALTERNATE,
   forceAlternateSequence,
-  path =>
-    path.isIfStatement() &&
-    !(path.get('test').isBooleanLiteral() && path.node.test.value === false),
+  path => {
+    if (!path.isIfStatement()) {
+      return false;
+    }
+    const test = path.get('test');
+    if (!test.isBooleanLiteral()) {
+      return false;
+    }
+    
+    return !test.node.value;
+  }
 );
 
 export const replaceValueSequence = createMutationSequenceFactory(
@@ -1414,7 +1427,14 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
                 const usedAsObject = isUsedAsObject(
                   { sequence: otherSequence, index: otherSequence.length - 1 },
                   otherSequences,
-                );
+                )
+                if (info.type === UNKNOWN_ACCESS) {
+                  throw new Error(`Was not expecting to match with access info of type ${info.type.toString()}`);
+                };
+                if (info.type === LITERAL_ACCESS) {
+                  // TODO: Could possibly consider replacing literals too
+                  continue;
+                }
                 if (isUsedWithOperator && usedAsObject) {
                   continue;
                 }
