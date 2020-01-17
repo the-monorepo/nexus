@@ -1,8 +1,4 @@
 /**
- * For when the tests in a file have completed
- */
-export const FILE_FINISHED = 'file-finished';
-/**
  * For recording assertion results
  */
 export const ASSERTION = 'submit-assertion-result';
@@ -19,7 +15,7 @@ export const STOP_WORKER = 'stop-worker';
 /**
  * Run a test
  */
-export const RUN_TEST = 'run-test';
+export const TEST_FILE = 'test-file';
 
 /**
  * Sent once the worker has finally stopped running/exitted
