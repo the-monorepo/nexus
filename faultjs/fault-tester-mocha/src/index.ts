@@ -1,4 +1,4 @@
-import { submitFileResult, stoppedWorker } from '@fault/messages';
+import { client } from './client';
 import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
 import { cloneCoverage } from '@fault/istanbul-util';
 import { createMochaInstance, runMochaInstance } from './mocha-util';
@@ -79,7 +79,7 @@ export const initialize = async (options: Options) => {
             clearCache();
 
             const duration = endTime! - startTime;
-            await submitFileResult({ duration, key, testPath });
+            await client.submitFileResult({ duration, key, testPath });
           }
         } else {
           // Sort tests alphabetically
@@ -93,7 +93,7 @@ export const initialize = async (options: Options) => {
           try {
             await runMochaInstance(mochaInstance, async () => {
               for (const { testPath, key } of data.testsToRun) {
-                await submitFileResult({
+                await client.submitFileResult({
                   testPath,
                   key,
                   duration: 0,
@@ -113,7 +113,7 @@ export const initialize = async (options: Options) => {
   process.on('message', (data: ParentResult) => {
     switch (data.type) {
       case IPC.STOP_WORKER: {
-        stoppedWorker({ coverage: global[COVERAGE_KEY] }).then(() => {
+        client.stoppedWorker({ coverage: global[COVERAGE_KEY] }).then(() => {
           process.exit(0);
         });
         break;

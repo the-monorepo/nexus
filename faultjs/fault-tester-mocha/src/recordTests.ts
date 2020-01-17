@@ -1,6 +1,6 @@
+import { client } from './client';
 import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 import Mocha from 'mocha';
-import { submitTestResult } from '@fault/messages';
 import { createHash } from 'crypto';
 
 const {
@@ -40,7 +40,7 @@ export class IPCReporter {
       .on(
         EVENT_TEST_PASS,
         commonTestHandle(testData => {
-          return submitTestResult({
+          return client.submitTestResult({
             ...testData,
             passed: true,
           });
@@ -50,7 +50,7 @@ export class IPCReporter {
         EVENT_TEST_FAIL,
         commonTestHandle((testData, test, err) => {
           const stack = err.stack;
-          return submitTestResult({
+          return client.submitTestResult({
             ...testData,
             passed: false,
             stack,

@@ -14,9 +14,6 @@ import {
 import { promisify } from 'util';
 import { ChildProcess } from 'child_process';
 
-const promiseSend: (...arg: any) => Promise<any> =
-  process.send !== undefined ? promisify(process.send!.bind(process)) : undefined!;
-
 export class ChildProcessWorkerClient {
   private currentOrderId: number = 0;
   constructor(
@@ -50,26 +47,32 @@ export class ChildProcessWorkerClient {
     return this.send(IPC.STOP_WORKER, data);
   };
 }
-export const submitTestResult = async (data: PassingTestData | FailingTestData) => {
-  const result: TestResult = {
-    ...data,
-    type: IPC.TEST,
+
+export class ManagerClient {
+  private currentOrderId = 0;
+  private readonly promiseSend: (...args: any) => Promise<any>;
+  constructor() {
+    this.promiseSend = promisify(process.send!.bind(process));
+  }
+
+  send(type: string, data: any) {
+    const id = this.currentOrderId++;
+    return this.promiseSend({
+      type,
+      id,
+      data,
+    });
+  }
+
+  submitTestResult (data: PassingTestData | FailingTestData) {
+    return this.send(IPC.TEST, data);
   };
-
-  return await promiseSend!(result);
-};
-
-export const submitFileResult = (data: FileFinishedData) => {
-  const result: FileFinishedResult = {
-    ...data,
-    type: IPC.TEST_FILE,
+  
+  submitFileResult(data: FileFinishedData) {
+    return this.send(IPC.TEST_FILE, data);
   };
-  return promiseSend(result);
-};
-
-export const stoppedWorker = (data: StoppedWorkerData) => {
-  return promiseSend({
-    type: IPC.STOPPED_WORKER,
-    ...data,
-  });
-};
+  
+  stoppedWorker(data: StoppedWorkerData) {
+    return this.send(IPC.STOPPED_WORKER, data);
+  };  
+}

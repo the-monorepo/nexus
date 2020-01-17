@@ -368,14 +368,14 @@ const runAndRecycleProcesses = async (
           switch (message.type) {
             case IPC.TEST: {
               replaceExpirationTimer(worker);
-              testResults.set(message.key, message);
+              testResults.set(message.data.key, message);
               await hooks.on.testResult(message);
               break;
             }
             case IPC.STOPPED_WORKER: {
               console.log('stopped worker', id);
               clearTimeout(worker.expirationTimer!);
-              workerCoverage.push(message.coverage);
+              workerCoverage.push(message.data.coverage);
               runningWorkers.delete(worker);
               if (worker.process.connected) {
                 worker.process.disconnect();
@@ -407,7 +407,9 @@ const runAndRecycleProcesses = async (
                 pendingFileClient.addAnotherTestToWorker(worker);
               }
 
+              
               if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
+                console.log('entered');
                 const endTime = Date.now();
                 const totalDuration = endTime - startTime;
                 const results: TesterResults = { testResults, duration: totalDuration };
@@ -543,7 +545,7 @@ export const run = async ({
 
   await hooks.on.complete(results);
 
-  return ![...results.testResults.values()].some(result => !result.passed);
+  return ![...results.testResults.values()].some(result => !result.data.passed);
 };
 
 export default run;
