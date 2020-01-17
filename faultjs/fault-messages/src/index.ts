@@ -43,7 +43,7 @@ export class ChildProcessWorkerClient {
   };  
 
   runTests(data: RunTestsData) {
-    return this.send(IPC.RUN_TEST, data);
+    return this.send(IPC.TEST_FILE, data);
   };
   
   stopWorker(data: StopWorkerData) {
@@ -62,7 +62,7 @@ export const submitTestResult = async (data: PassingTestData | FailingTestData) 
 export const submitFileResult = (data: FileFinishedData) => {
   const result: FileFinishedResult = {
     ...data,
-    type: IPC.FILE_FINISHED,
+    type: IPC.TEST_FILE,
   };
   return promiseSend(result);
 };

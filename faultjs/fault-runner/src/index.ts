@@ -397,7 +397,7 @@ const runAndRecycleProcesses = async (
               }
               break;
             }
-            case IPC.FILE_FINISHED: {
+            case IPC.TEST_FILE: {
               console.log('files left in queue:', testFileQueue.length);
               pendingFileClient.deregisterRunningTest(message);
 
