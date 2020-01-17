@@ -15,9 +15,6 @@ export type FinalTesterResults = {
   coverage: Coverage;
 } & TesterResults;
 
-type TypeHolder<T> = {
-  type: T;
-};
 export type TestData = {
   key: string;
   titlePath: string[];
@@ -34,15 +31,14 @@ export type FailingTestData = {
   stack: string | null;
 } & TestData;
 
-export type TestResult = (PassingTestData | FailingTestData) &
-  TypeHolder<typeof IPC.TEST>;
+export type TestResult = Payload<typeof IPC.TEST, (PassingTestData | FailingTestData)>;
 
 export type Payload<T, D> = {
   type: T;
   id: number;
   data: D
 };
-export type TestFileResult = Payload<typeof IPC.TEST_FILE, FileFinishedData>;
+export type FileFinishedResult = Payload<typeof IPC.TEST_FILE, FileFinishedData>;
 export type RunTestData = {
   testPath: string;
   key: any;
@@ -62,8 +58,7 @@ export type StopWorkerResult = Payload<typeof IPC.STOP_WORKER, StopWorkerData>;
 export type StoppedWorkerData = {
   coverage: Coverage;
 };
-export type StoppedWorkerResult = StoppedWorkerData &
-  TypeHolder<typeof IPC.STOPPED_WORKER>;
+export type StoppedWorkerResult = Payload<typeof IPC.STOPPED_WORKER, StoppedWorkerData>;
 
-export type ChildResult = TestResult | TestFileResult | StoppedWorkerResult;
+export type ChildResult = TestResult | FileFinishedResult | StoppedWorkerResult;
 export type ParentResult = StopWorkerResult | RunTestsPayload;

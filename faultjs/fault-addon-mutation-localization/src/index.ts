@@ -2007,20 +2007,20 @@ export const evaluateModifiedTestResult = (
   newResult: TestResult,
   testAstMap: Map<string, t.File>,
 ): TestEvaluation => {
-  const samePassFailResult = originalResult.passed === newResult.passed;
+  const samePassFailResult = originalResult.data.passed === newResult.data.passed;
   const endResultChange: number = samePassFailResult
     ? EndResult.UNCHANGED
-    : newResult.passed
+    : newResult.data.passed
     ? EndResult.BETTER
     : EndResult.WORSE;
   const errorChanged: boolean | null = (() => {
     if (!samePassFailResult) {
       return null;
     }
-    if (newResult.passed) {
+    if (newResult.data.passed) {
       return false;
     }
-    return (newResult as any).stack !== (originalResult as FailingTestData).stack;
+    return (newResult as any).stack !== (originalResult.data as FailingTestData).stack;
   })();
   const stackScore = evaluateStackDifference(originalResult, newResult, testAstMap);
 
@@ -2028,7 +2028,7 @@ export const evaluateModifiedTestResult = (
     stackScore,
     endResultChange,
     errorChanged,
-    previouslyFailing: !originalResult.passed,
+    previouslyFailing: !originalResult.data.passed,
   };
   return evaluation;
 };
@@ -2928,7 +2928,7 @@ const isRelevantTest = (
   nodeInfo: NodeInformation,
 ) => {
   // TODO: Could clean this up - Less linear searching
-  for (const [filePath, fileCoverage] of Object.entries(testResult.coverage)) {
+  for (const [filePath, fileCoverage] of Object.entries(testResult.data.coverage)) {
     const objMap = coverageObjs.get(filePath)!;
     if (objMap === undefined) {
       continue;
@@ -3327,9 +3327,9 @@ export const createPlugin = ({
           const failedCoverageMap = createCoverageMap({});
           for (const testResult of tester.testResults.values()) {
             // TODO: Maybe don't?
-            if (!testResult.passed) {
-              failingTestFiles.add(testResult.file);
-              failedCoverageMap.merge(testResult.coverage);
+            if (!testResult.data.passed) {
+              failingTestFiles.add(testResult.data.file);
+              failedCoverageMap.merge(testResult.data.coverage);
             }
           }
           const failedCoverage = failedCoverageMap.data;
@@ -3368,7 +3368,7 @@ export const createPlugin = ({
           originalAstMap = codeMapToAstMap(codeMap, babelOptions);
           const testCodeMap = await createFilePathToCodeMap([
             ...new Set(
-              [...tester.testResults.values()].map(testResult => testResult.file),
+              [...tester.testResults.values()].map(testResult => testResult.data.file),
             ),
           ]);
           testAstMap = codeMapToAstMap(testCodeMap, babelOptions);
@@ -3475,7 +3475,7 @@ export const createPlugin = ({
 
           if (
             mutationEvaluation.testsImproved ===
-              [...firstTesterResults.testResults.values()].filter(a => !a.passed)
+              [...firstTesterResults.testResults.values()].filter(a => !a.data.passed)
                 .length &&
             mutationEvaluation.testsWorsened === 0 &&
             previousInstructions !== null
@@ -3503,7 +3503,7 @@ export const createPlugin = ({
         }
         // TODO: DRY
         const testsToBeRerun = [...firstTesterResults.testResults.values()].map(
-          result => result.file,
+          result => result.data.file,
         );
         return testsToBeRerun;
       },

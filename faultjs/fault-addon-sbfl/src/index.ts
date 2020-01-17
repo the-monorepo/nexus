@@ -35,7 +35,7 @@ export const gatherFileResults = (
 ): Map<string, FileResult> => {
   const expressionResults: Map<string, ExpressionResult> = new Map();
   for (const testResult of testResults) {
-    const coverage = testResult.coverage;
+    const coverage = testResult.data.coverage;
     if (coverage === undefined) {
       continue;
     }
@@ -63,7 +63,7 @@ export const gatherFileResults = (
 
         const executionCount = fileCoverage.s[statementKey];
         if (executionCount > 0) {
-          if (testResult.passed) {
+          if (testResult.data.passed) {
             results.stats.passed++;
           } else {
             results.stats.failed++;
@@ -101,16 +101,15 @@ export const localizeFaults = (
   ignoreGlob: string[],
   scoringFn: InternalScoringFn,
 ): Fault[] => {
-  console.log('hjmh', ...[...fileResults.values()][0].expressions);
   const faults: Fault[] = [];
 
   // Gather all files that were executed in tests
   const selectedSourceFiles: Set<string> = new Set();
   for (const testResult of groupedTestResults) {
-    if (testResult.coverage === undefined) {
+    if (testResult.data.coverage === undefined) {
       continue;
     }
-    for (const fileCoverage of Object.values(testResult.coverage)) {
+    for (const fileCoverage of Object.values(testResult.data.coverage)) {
       selectedSourceFiles.add(fileCoverage.path);
     }
   }
