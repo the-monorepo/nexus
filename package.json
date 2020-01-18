@@ -115,8 +115,5 @@
     "hooks": {
       "pre-commit": "gulp precommit && git add ."
     }
-  },
-  "dependencies": {
-    "@pshaw/logger": "npm:@pshaw/logger@2.0.1"
   }
 }
