@@ -41,7 +41,6 @@ const arrayToInstructionEvaluations = (arr: any[]): InstructionEvaluation => {
 // Index representations:
 // F  P  SD, SI E
 const orderedEvaluations = [
-  [1, 0, 0, 0, 0],
   [0, 0, 0, 0, 0],
   [1, 0, 0, 0, 1],
   [1, 1, 0, 0, 0],

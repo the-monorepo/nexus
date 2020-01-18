@@ -883,7 +883,7 @@ export const forceConsequentFactory = new SimpleInstructionFactory(
     }
     const test = path.get('test');
     if (!test.isBooleanLiteral()) {
-      return false;
+      return true;
     }
     return test.node.value;
   }
@@ -906,7 +906,7 @@ export const forceAlternateFactory = new SimpleInstructionFactory(
     }
     const test = path.get('test');
     if (!test.isBooleanLiteral()) {
-      return false;
+      return true;
     }
     
     return !test.node.value;
@@ -1837,14 +1837,6 @@ export const compareMutationEvaluations = (
   r1: MutationEvaluation,
   r2: MutationEvaluation,
 ) => {
-  if (r1.crashed && r2.crashed) {
-    return 0;
-  } else if (r1.crashed && !r2.crashed) {
-    return -1;
-  } else if (!r1.crashed && r2.crashed) {
-    return 1;
-  }
-
   const goodThingsHappened1 = changedOrImprovedError(r1);
   const goodThingsHappened2 = changedOrImprovedError(r2);
   const goodThingsHappenedComparison =
@@ -1855,6 +1847,13 @@ export const compareMutationEvaluations = (
 
   if (!goodThingsHappened1 && !goodThingsHappened2) {
     return 0;
+  }
+
+  const evaluationDidNothingBad1 = evaluationDidNothingBad(r1);
+  const evaluationDidNothingBad2 = evaluationDidNothingBad(r2);
+  const evaluationDidNothingBadComparison = (evaluationDidNothingBad1 ? 1 : -1) - (evaluationDidNothingBad2 ? 1 : -1);
+  if (evaluationDidNothingBadComparison !== 0) {
+    return evaluationDidNothingBadComparison;
   }
 
   // TODO: TypeScript should have inferred that this would be the case..
@@ -1890,17 +1889,6 @@ export const compareMutationEvaluations = (
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
-
-  /*
-  const mutationCount = result1.mutationCount - result2.mutationCount;
-  if (mutationCount !== 0) {
-    return mutationCount;
-  }
-  const totalNodes = result2.totalNodes - result1.totalNodes;
-  if (totalNodes !== 0) {
-    return totalNodes;
-  }
-  */
 
   return 0;
 };
