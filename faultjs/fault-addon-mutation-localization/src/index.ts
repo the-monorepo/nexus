@@ -885,7 +885,7 @@ export const forceConsequentFactory = new SimpleInstructionFactory(
     if (!test.isBooleanLiteral()) {
       return true;
     }
-    return test.node.value;
+    return !test.node.value;
   }
 );
 
@@ -909,7 +909,7 @@ export const forceAlternateFactory = new SimpleInstructionFactory(
       return true;
     }
     
-    return !test.node.value;
+    return test.node.value;
   }
 );
 
