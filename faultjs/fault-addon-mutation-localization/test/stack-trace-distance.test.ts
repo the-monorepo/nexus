@@ -6,12 +6,15 @@ import { TestResult } from '@fault/types';
 
 const stubTestResult = (key: string, stack): TestResult => ({
   type: 'submit-test-result',
-  key,
-  titlePath: [],
-  file: __filename,
-  coverage: {},
-  passed: true,
-  stack,
+  id: 1,
+  data: {
+    key,
+    titlePath: [],
+    file: __filename,
+    coverage: {},
+    passed: true,
+    stack,  
+  }
 });
 
 const throwAnError = (further: boolean) => {
@@ -46,13 +49,13 @@ describe('stack trace distance', () => {
   it(executionDistanceFromStart.name, () => {
     const closerDistance = executionDistanceFromStart(
       ast,
-      closerStackFrame!.lineNumber,
-      closerStackFrame!.columnNumber,
+      closerStackFrame.lineNumber!,
+      closerStackFrame.columnNumber!,
     );
     const furtherDistance = executionDistanceFromStart(
       ast,
-      furtherStackFrame!.lineNumber,
-      furtherStackFrame!.columnNumber,
+      furtherStackFrame.lineNumber!,
+      furtherStackFrame.columnNumber!,
     );
 
     expect(closerDistance).not.toBeNull();
@@ -65,7 +68,7 @@ describe('stack trace distance', () => {
     const oldTestResult = stubTestResult(key, closerErr.stack);
     const newTestResult = stubTestResult(key, furtherErr.stack);
 
-    const astMap = new Map([[oldTestResult.file, ast]]);
+    const astMap = new Map([[oldTestResult.data.file, ast]]);
 
     const difference = evaluateStackDifference(oldTestResult, newTestResult, astMap)!;
 
