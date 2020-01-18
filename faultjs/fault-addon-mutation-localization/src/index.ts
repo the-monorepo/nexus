@@ -869,7 +869,7 @@ export const getAstPath = (ast: t.File): NodePath<t.Program> => {
 
 export const forceConsequentSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, t.IfStatement>) => {
-    path.get('alternate').registerAsWriteDependency();
+    // TODO: Add this back once you implement conflict-only dependencies: path.get('alternate').registerAsWriteDependency();
     path.setDynamic('test', () => t.booleanLiteral(true));
   },
 );
@@ -891,7 +891,7 @@ export const forceConsequentFactory = new SimpleInstructionFactory(
 
 export const forceAlternateSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<void, t.IfStatement>) => {
-    path.get('consequent').registerAsWriteDependency();
+    //TODO: Add this back once you implement conflict-only dependencies: path.get('consequent').registerAsWriteDependency();
     path.setDynamic('test', () => t.booleanLiteral(false));
   },
 );
@@ -1927,18 +1927,18 @@ export const evaluateStackDifference = (
   testAstMap: Map<string, t.File>,
 ): number | null => {
   // TODO: Just make passing test cases have null as the stack property
-  if ((newResult as any).stack == null || (originalResult as any).stack == null) {
+  if ((newResult.data as any).stack == null || (originalResult.data as any).stack == null) {
     return null;
   }
   const newStackInfo = ErrorStackParser.parse({
-    stack: (newResult as any).stack,
+    stack: (newResult.data as any).stack,
   } as Error);
   const oldStackInfo = ErrorStackParser.parse({
-    stack: (originalResult as any).stack,
+    stack: (originalResult.data as any).stack,
   } as Error);
 
   const findFrameFn = frame =>
-    normalize(originalResult.file).replace(/\\+/g, '/') ===
+    normalize(originalResult.data.file).replace(/\\+/g, '/') ===
     normalize(frame.fileName).replace(/\\+/g, '/');
   const firstNewStackFrame = newStackInfo.find(findFrameFn);
   const firstOldStackFrame = oldStackInfo.find(findFrameFn);
@@ -1951,12 +1951,12 @@ export const evaluateStackDifference = (
     return null;
   }
 
-  const ast = testAstMap.get(newResult.file);
+  const ast = testAstMap.get(newResult.data.file);
   if (ast === undefined) {
     return null;
   }
 
-  if (firstOldStackFrame.lineNumber == null || firstOldStackFrame.columnNumber == null) {
+  if (firstOldStackFrame.lineNumber === undefined || firstOldStackFrame.columnNumber === undefined || firstOldStackFrame.lineNumber === null || firstOldStackFrame.columnNumber === null) {
     return null;
   }
 
@@ -1965,11 +1965,11 @@ export const evaluateStackDifference = (
     firstOldStackFrame.lineNumber,
     firstOldStackFrame.columnNumber,
   );
-  if (originalDistanceFromStart == null) {
+  if (originalDistanceFromStart === null) {
     return null;
   }
 
-  if (firstNewStackFrame.lineNumber == null || firstNewStackFrame.columnNumber == null) {
+  if (firstNewStackFrame.lineNumber === undefined || firstNewStackFrame.columnNumber === undefined || firstNewStackFrame.lineNumber === null || firstNewStackFrame.columnNumber === null) {
     return null;
   }
   const newDistanceFromStart = executionDistanceFromStart(
@@ -2008,7 +2008,7 @@ export const evaluateModifiedTestResult = (
     if (newResult.data.passed) {
       return false;
     }
-    return (newResult as any).stack !== (originalResult.data as FailingTestData).stack;
+    return (newResult.data as any).stack !== (originalResult.data as FailingTestData).stack;
   })();
   const stackScore = evaluateStackDifference(originalResult, newResult, testAstMap);
 
@@ -2087,8 +2087,8 @@ const evaluateNewMutation = (
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   let errorsChanged = 0;
 
-  testsWorsened += difference.added.filter(result => !result.passed).length;
-  testsWorsened += difference.missing.filter(result => !result.passed).length;
+  testsWorsened += difference.added.filter(result => !result.data.passed).length;
+  testsWorsened += difference.missing.filter(result => !result.data.passed).length;
 
   const testsUnknown = difference.unknown.length;
 
@@ -2364,10 +2364,43 @@ const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
   }
   const bestEvaluation = evaluations.peek();
   return (
-    changedOrImprovedError(bestEvaluation) ||
-    (bestEvaluation.crashed && bestEvaluation.instructions.length >= 2)
+    changedOrImprovedError(bestEvaluation)
   );
 };
+
+export const shouldFinishMutations = (
+  instructions: Heap<Instruction<any>>,
+  instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  nodeInfoMap: Map<string, NodeInformation>,
+) => {
+  const instructionArr = [...instructions];
+
+  if (
+    !instructionArr
+      .map(
+        instruction => instructionEvaluations.get(instruction)!.mutationEvaluations,
+      )
+      .some(hasPromisingEvaluation)
+  ) {
+    //console.log('No promising instruction evaluations')
+    return true;
+  }
+
+  const allWriteDependencyKeys = [
+    ...new Set(
+      instructionArr.map(instruction => instruction.typedWriteDependencyKeys).flat(),
+    ),
+  ];
+  const allDependencyEvaluations = allWriteDependencyKeys.map(
+    key => nodeInfoMap.get(key)!.evaluations,
+  );
+  if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
+    //console.log('No promsiing node evalations')
+    return true;
+  }
+
+  return false;
+}
 
 export const createDefaultIsFinishedFn = ({
   mutationThreshold,
@@ -2386,48 +2419,20 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    const shouldFinish = (() => {
-      if (
-        durationThreshold !== undefined &&
-        testerResults.duration >= durationThreshold
-      ) {
-        console.log('a');
-        return true;
-      }
+    if (
+      durationThreshold !== undefined &&
+      testerResults.duration >= durationThreshold
+    ) {
+      console.log('a');
+      return true;
+    }
 
-      if (mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
-        console.log('b');
-        return true;
-      }
+    if (mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
+      console.log('b');
+      return true;
+    }
 
-      const instructionArr = [...instructions];
-
-      if (
-        !instructionArr
-          .map(
-            instruction => instructionEvaluations.get(instruction)!.mutationEvaluations,
-          )
-          .some(hasPromisingEvaluation)
-      ) {
-        //console.log('No promising instruction evaluations')
-        return true;
-      }
-
-      const allWriteDependencyKeys = [
-        ...new Set(
-          instructionArr.map(instruction => instruction.typedWriteDependencyKeys).flat(),
-        ),
-      ];
-      const allDependencyEvaluations = allWriteDependencyKeys.map(
-        key => nodeInfoMap.get(key)!.evaluations,
-      );
-      if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
-        //console.log('No promsiing node evalations')
-        return true;
-      }
-
-      return false;
-    })();
+    const shouldFinish = shouldFinishMutations(instructions, instructionEvaluations, nodeInfoMap);
 
     if (shouldFinish) {
       if (
@@ -2879,6 +2884,7 @@ export const differenceInTesterResults = (
     }
     notSeen.delete(key);
     const oldResult = originalResults.testResults.get(key)!;
+    console.log(oldResult)
     const testEvaluation = evaluateModifiedTestResult(oldResult, newResult, testAstMap);
     matches.push({
       evaluation: testEvaluation,
@@ -3230,14 +3236,7 @@ export const createPlugin = ({
     for (const block of instructionQueue) {
       instructionCount += block.length;
       if (
-        !isFinishedFn(
-          block,
-          tester,
-          nodeInfoMap,
-          instructionEvaluations,
-          mutationCount,
-          solutionCounter,
-        )
+        !shouldFinishMutations(block, instructionEvaluations, nodeInfoMap)
       ) {
         nonFinishingInstructionCount += block.length;
       }
