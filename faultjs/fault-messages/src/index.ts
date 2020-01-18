@@ -11,15 +11,32 @@ import {
   StopWorkerResult,
   RunTestsData,
 } from '@fault/types';
+import Heap from '@pshaw/binary-heap';
 import { promisify } from 'util';
 import { ChildProcess } from 'child_process';
 
 export class ChildProcessWorkerClient {
   private currentOrderId: number = 0;
+  private waitingForId: number = 0;
+  private payloadQueue: Heap<any> = new Heap((a, b) => b.id - a.id);
+  private running: boolean = false;
   constructor(
-    private readonly childProcess: ChildProcess,
-  ) {
+    private readonly childProcess: ChildProcess
+  ) {}
 
+  async on(data, on) {
+    this.payloadQueue.push(data);
+    if (this.running) {
+      return;
+    }
+    this.running = true;
+    while(this.payloadQueue.length > 0 && this.payloadQueue.peek().id === this.waitingForId) {
+      const payload = this.payloadQueue.pop();
+      
+      await on(payload);
+      this.waitingForId++;
+    }
+    this.running = false;
   }
 
   send(type: string, data: any): Promise<any> {
