@@ -15,28 +15,42 @@ import Heap from '@pshaw/binary-heap';
 import { promisify } from 'util';
 import { ChildProcess } from 'child_process';
 
-export class ChildProcessWorkerClient {
-  private currentOrderId: number = 0;
+export class IPCSerializer {
   private waitingForId: number = 0;
   private payloadQueue: Heap<any> = new Heap((a, b) => b.id - a.id);
   private running: boolean = false;
-  constructor(
-    private readonly childProcess: ChildProcess
-  ) {}
 
-  async on(data, on) {
+  on(data, on) {
     this.payloadQueue.push(data);
     if (this.running) {
       return;
-    }
+    }    
     this.running = true;
+
+    return this.runPayloads(on);
+  }
+
+  private async runPayloads(on) {
     while(this.payloadQueue.length > 0 && this.payloadQueue.peek().id === this.waitingForId) {
       const payload = this.payloadQueue.pop();
       
       await on(payload);
       this.waitingForId++;
     }
-    this.running = false;
+
+    this.running = false;    
+  }
+}
+
+export class ChildProcessWorkerClient {
+  private currentOrderId: number = 0;
+  private serializer = new IPCSerializer();
+  constructor(
+    private readonly childProcess: ChildProcess
+  ) {}
+
+  on(data, on) {
+    return this.serializer.on(data, on);
   }
 
   send(type: string, data: any): Promise<any> {
@@ -67,9 +81,15 @@ export class ChildProcessWorkerClient {
 
 export class ManagerClient {
   private currentOrderId = 0;
+  private serializer = new IPCSerializer();
   private readonly promiseSend: (...args: any) => Promise<any>;
+
   constructor() {
     this.promiseSend = promisify(process.send!.bind(process));
+  }
+
+  on(data, on) {
+    return this.serializer.on(data, on);
   }
 
   send(type: string, data: any) {

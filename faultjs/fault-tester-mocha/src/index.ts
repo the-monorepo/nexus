@@ -1,4 +1,5 @@
 import { client } from './client';
+import { IPCSerializer } from '@fault/messages';
 import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
 import { cloneCoverage } from '@fault/istanbul-util';
 import { createMochaInstance, runMochaInstance } from './mocha-util';
@@ -110,20 +111,22 @@ export const initialize = async (options: Options) => {
       running = false;
     })();
   };
-  process.on('message', (data: ParentResult) => {
-    switch (data.type) {
-      case IPC.STOP_WORKER: {
-        client.stoppedWorker({ coverage: global[COVERAGE_KEY] }).then(() => {
-          process.exit(0);
-        });
-        break;
-      }
-      case IPC.TEST_FILE: {
-        queue.push(data);
-        runQueue();
-        break;
-      }
-    }
+  process.on('message', (candidatePayload: ParentResult) => {
+    return client.on(candidatePayload, async (data) => {
+      switch (data.type) {
+        case IPC.STOP_WORKER: {
+          await client.stoppedWorker({ coverage: global[COVERAGE_KEY] }).then(() => {
+            process.exit(0);
+          });
+          break;
+        }
+        case IPC.TEST_FILE: {
+          queue.push(data);
+          await runQueue();
+          break;
+        }
+      }  
+    });
   });
 };
 export default initialize;
