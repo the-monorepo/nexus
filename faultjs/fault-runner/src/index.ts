@@ -364,79 +364,81 @@ const runAndRecycleProcesses = async (
           }, timeout);
         };
         replaceExpirationTimer(worker);
-        worker.process.on('message', async (message: ChildResult) => {
-          switch (message.type) {
-            case IPC.TEST: {
-              replaceExpirationTimer(worker);
-              testResults.set(message.data.key, message);
-              await hooks.on.testResult(message);
-              break;
-            }
-            case IPC.STOPPED_WORKER: {
-              console.log('stopped worker', id);
-              clearTimeout(worker.expirationTimer!);
-              workerCoverage.push(message.data.coverage);
-              runningWorkers.delete(worker);
-              if (worker.process.connected) {
-                worker.process.disconnect();
+        worker.process.on('message', async (candidateMessage: ChildResult) => {
+          await worker.client.on(candidateMessage, async (message: ChildResult) => {
+            switch (message.type) {
+              case IPC.TEST: {
+                replaceExpirationTimer(worker);
+                testResults.set(message.data.key, message);
+                await hooks.on.testResult(message);
+                break;
               }
-              worker.process.kill();
-              if (runningWorkers.size <= 0) {
-                console.log('finished test run');
-                const endTime = Date.now();
-                const totalDuration = endTime - startTime;
-
-                const totalCoverage = mergeCoverage(workerCoverage);
-
-                const finalResults: FinalTesterResults = {
-                  coverage: totalCoverage.data,
-                  testResults,
-                  duration: totalDuration,
-                };
-                resolve(finalResults);
-              }
-              break;
-            }
-            case IPC.TEST_FILE: {
-              console.log('files left in queue:', testFileQueue.length);
-              pendingFileClient.deregisterRunningTest(message.data);
-
-              await hooks.on.fileFinished();
-
-              if (testFileQueue.length > 0) {
-                pendingFileClient.addAnotherTestToWorker(worker);
-              }
-
-              
-              if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
-                console.log('entered');
-                const endTime = Date.now();
-                const totalDuration = endTime - startTime;
-                const results: TesterResults = { testResults, duration: totalDuration };
-
-                const newFilesToAdd: Set<string> = new Set();
-                await writeFile(durationsPath, JSON.stringify(testDurations));
-                console.log('????');
-                for await (const filePathIterator of hooks.on.allFilesFinished(
-                  results,
-                )) {
-                  console.log('XXXXXX');
-                  if (filePathIterator === undefined || filePathIterator === null) {
-                    continue;
-                  }
-                  for (const filePath of filePathIterator) {
-                    newFilesToAdd.add(filePath);
-                  }
+              case IPC.STOPPED_WORKER: {
+                console.log('stopped worker', id);
+                clearTimeout(worker.expirationTimer!);
+                workerCoverage.push(message.data.coverage);
+                runningWorkers.delete(worker);
+                if (worker.process.connected) {
+                  worker.process.disconnect();
                 }
-                testFileQueue.push(...newFilesToAdd);
-
-                await Promise.all(
-                  workers.map(worker => worker.client.stopWorker({})),
-                );
+                worker.process.kill();
+                if (runningWorkers.size <= 0) {
+                  console.log('finished test run');
+                  const endTime = Date.now();
+                  const totalDuration = endTime - startTime;
+  
+                  const totalCoverage = mergeCoverage(workerCoverage);
+  
+                  const finalResults: FinalTesterResults = {
+                    coverage: totalCoverage.data,
+                    testResults,
+                    duration: totalDuration,
+                  };
+                  resolve(finalResults);
+                }
+                break;
               }
-              break;
+              case IPC.TEST_FILE: {
+                console.log('files left in queue:', testFileQueue.length);
+                pendingFileClient.deregisterRunningTest(message.data);
+  
+                await hooks.on.fileFinished();
+  
+                if (testFileQueue.length > 0) {
+                  pendingFileClient.addAnotherTestToWorker(worker);
+                }
+  
+                
+                if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
+                  console.log('entered');
+                  const endTime = Date.now();
+                  const totalDuration = endTime - startTime;
+                  const results: TesterResults = { testResults, duration: totalDuration };
+  
+                  const newFilesToAdd: Set<string> = new Set();
+                  await writeFile(durationsPath, JSON.stringify(testDurations));
+                  console.log('????');
+                  for await (const filePathIterator of hooks.on.allFilesFinished(
+                    results,
+                  )) {
+                    console.log('XXXXXX');
+                    if (filePathIterator === undefined || filePathIterator === null) {
+                      continue;
+                    }
+                    for (const filePath of filePathIterator) {
+                      newFilesToAdd.add(filePath);
+                    }
+                  }
+                  testFileQueue.push(...newFilesToAdd);
+  
+                  await Promise.all(
+                    workers.map(worker => worker.client.stopWorker({})),
+                  );
+                }
+                break;
+              }
             }
-          }
+          });
         });
         // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
         worker.process.on('exit', (code, signal) => {
