@@ -58,7 +58,7 @@ const dataSet: TestData[] = [
     { sourceType: 'module' },
   ],
   [replaceBooleanFactory, 'true', 1],
-  [replaceStringFactory, '["hello", "my", "name", "is"]', 3],
+  [replaceStringFactory, '["hello", "my", "name", "is"]', 4],
   [
     replaceStringFactory,
     "import * as module1 from 'string1'; import * as module2 from 'string2'; a = 'string3';",
