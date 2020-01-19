@@ -2884,7 +2884,6 @@ export const differenceInTesterResults = (
     }
     notSeen.delete(key);
     const oldResult = originalResults.testResults.get(key)!;
-    console.log(oldResult)
     const testEvaluation = evaluateModifiedTestResult(oldResult, newResult, testAstMap);
     matches.push({
       evaluation: testEvaluation,
