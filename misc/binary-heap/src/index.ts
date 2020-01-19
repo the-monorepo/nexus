@@ -127,7 +127,7 @@ export const updateIndex = <T>(
   index: number,
 ) => {
   const item = arr[index];
-  deleteIndex(arr, locations, compareFn, index);
+  arr.splice(index, 1);
   push(arr, locations, compareFn, item);
 };
 
