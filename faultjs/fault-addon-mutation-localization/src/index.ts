@@ -35,7 +35,7 @@ import {
 import generate from '@babel/generator';
 import chalk from 'chalk';
 import * as micromatch from 'micromatch';
-import Heap from '@pshaw/binary-heap';
+import Queue from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
 import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
@@ -2336,7 +2336,7 @@ export const mutationEvalatuationMapToFaults = (
 };
 
 type IsFinishedFunction = (
-  instructions: Heap<Instruction<any>>,
+  instructions: Queue<Instruction<any>>,
   testerResults: TesterResults,
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
@@ -2358,7 +2358,7 @@ type DefaultIsFinishedOptions = {
   durationThreshold?: number;
 };
 
-const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
+const hasPromisingEvaluation = (evaluations: Queue<MutationEvaluation>) => {
   if (evaluations.length <= 0) {
     return true;
   }
@@ -2369,7 +2369,7 @@ const hasPromisingEvaluation = (evaluations: Heap<MutationEvaluation>) => {
 };
 
 export const shouldFinishMutations = (
-  instructions: Heap<Instruction<any>>,
+  instructions: Queue<Instruction<any>>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   nodeInfoMap: Map<string, NodeInformation>,
 ) => {
@@ -2451,7 +2451,7 @@ export const createDefaultIsFinishedFn = ({
   return isFinishedFn;
 };
 
-const getAffectedFilePaths = (instructions: Heap<Instruction<any>>): string[] => {
+const getAffectedFilePaths = (instructions: Queue<Instruction<any>>): string[] => {
   const filePaths = [
     ...new Set(
       [...instructions]
@@ -2495,8 +2495,8 @@ export const pathToPrimaryKey = (filePath: string, path: NodePath) => {
 };
 
 export const compareEvaluationHeaps = (
-  a: Heap<MutationEvaluation>,
-  b: Heap<MutationEvaluation>,
+  a: Queue<MutationEvaluation>,
+  b: Queue<MutationEvaluation>,
 ) => {
   if (a.length <= 0 && b.length >= 1) {
     const evaluation2 = b.peek();
@@ -2603,8 +2603,8 @@ export const compareInstruction = (
 export const instructionQueueComparator = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
-  block1: Heap<Instruction<any>>,
-  block2: Heap<Instruction<any>>,
+  block1: Queue<Instruction<any>>,
+  block2: Queue<Instruction<any>>,
 ): number => {
   const bestInstruction1 = block1.peek();
   const bestInstruction2 = block2.peek();
@@ -2628,13 +2628,13 @@ export const instructionQueueComparator = (
 
 export type InstructionEvaluation = {
   initial: number;
-  mutationEvaluations: Heap<MutationEvaluation>;
+  mutationEvaluations: Queue<MutationEvaluation>;
 };
 
 export const createInstructionEvaluation = (initial: number): InstructionEvaluation => {
   return {
     initial,
-    mutationEvaluations: new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst),
+    mutationEvaluations: new Queue(compareMutationEvaluationsWithLargeMutationCountsFirst),
   };
 };
 
@@ -2707,7 +2707,7 @@ export const initialiseEvaluationMaps = (
 
       const key = pathToPrimaryKey(filePath, writePath);
       nodeInfoMap.set(key, {
-        evaluations: new Heap(compareMutationEvaluationsWithLargeMutationCountsFirst),
+        evaluations: new Queue(compareMutationEvaluationsWithLargeMutationCountsFirst),
         instructions: [],
         path: writePath,
         coverageInfo,
@@ -2724,7 +2724,7 @@ export const initialiseEvaluationMaps = (
 
 const blockLengthToTotalDivisions = (n: number) => n * 2 - 1;
 const instructionBlocksToMaxInstructionsLeft = (
-  blocks: Iterable<Heap<Instruction<any>>>,
+  blocks: Iterable<Queue<Instruction<any>>>,
 ) => {
   let total = 0;
   for (const block of blocks) {
@@ -2952,8 +2952,8 @@ const addMutationEvaluation = (
   coverageObjMap: Map<string, Map<string, CoveragePathObj>>,
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
-  instructionQueue: Heap<Heap<Instruction<any>>>,
-  instructions: Heap<Instruction<any>>,
+  instructionQueue: Queue<Queue<Instruction<any>>>,
+  instructions: Queue<Instruction<any>>,
   mutationEvaluation: MutationEvaluation,
 ) => {
   const affectedKeys: Set<string> = new Set();
@@ -3055,12 +3055,12 @@ export const widenCoveragePath = (path: NodePath) => {
 };
 
 const addSplittedInstructionBlock = (
-  queue: Heap<Heap<Instruction<any>>>,
-  block: Heap<Instruction<any>>,
+  queue: Queue<Queue<Instruction<any>>>,
+  block: Queue<Instruction<any>>,
 ) => {
   const cloned = block.clone();
   const mid = Math.trunc(block.length / 2);
-  const part1: Heap<Instruction<any>> = new Heap(cloned.compareFn);
+  const part1: Queue<Instruction<any>> = new Queue(cloned.compareFn);
   for (let i = 0; i < mid; i++) {
     part1.push(cloned.pop()!);
   }
@@ -3082,9 +3082,9 @@ export const createInstructionQueue = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
 ) => {
-  const heapComparisonFn = (a: Heap<Instruction<any>>, b: Heap<Instruction<any>>) =>
+  const heapComparisonFn = (a: Queue<Instruction<any>>, b: Queue<Instruction<any>>) =>
     instructionQueueComparator(nodeInfoMap, instructionEvaluations, a, b);
-  return new Heap(heapComparisonFn);
+  return new Queue(heapComparisonFn);
 };
 
 export const createInstructionBlocks = (
@@ -3095,11 +3095,11 @@ export const createInstructionBlocks = (
   const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) =>
     compareInstructionWithInitialValues(nodeInfoMap, instructionEvaluations, a, b);
 
-  return instructionsList.map(instructions => new Heap(subHeapCompareFn, instructions));
+  return instructionsList.map(instructions => new Queue(subHeapCompareFn, instructions));
 };
 
 export type NodeInformation = {
-  evaluations: Heap<MutationEvaluation>;
+  evaluations: Queue<MutationEvaluation>;
   instructions: Instruction<any>[];
   coverageInfo: CoveragePathObj | null;
   path: NodePath;
@@ -3120,13 +3120,13 @@ export const createPlugin = ({
   const nodeInfoMap: Map<string, NodeInformation> = new Map();
   const instructionEvaluations: Map<Instruction<any>, InstructionEvaluation> = new Map();
 
-  let previousInstructions: Heap<Instruction<any>> = null!;
+  let previousInstructions: Queue<Instruction<any>> = null!;
   let codeMap: Map<string, string> = null!;
   let originalAstMap: Map<string, t.File> = null!;
   let testAstMap: Map<string, t.File> = null!;
   let coverageObjs: Map<string, Map<string, CoveragePathObj>> = null!;
   let finished = false;
-  const instructionQueue: Heap<Heap<Instruction<any>>> = createInstructionQueue(
+  const instructionQueue: Queue<Queue<Instruction<any>>> = createInstructionQueue(
     nodeInfoMap,
     instructionEvaluations,
   );
@@ -3155,7 +3155,7 @@ export const createPlugin = ({
     await (copyFile as any)(copyPath, filePath);
   };
 
-  const resetMutationsInInstruction = async (instructions: Heap<Instruction<any>>) => {
+  const resetMutationsInInstruction = async (instructions: Queue<Instruction<any>>) => {
     const filePathsToReset = getAffectedFilePaths(instructions);
     await Promise.all(filePathsToReset.map(resetFile));
   };
