@@ -43,8 +43,13 @@ export const deleteIndex = <T>(
   if (arr.length <= 0) {
     return undefined;
   }
+  if (arr.length - 1 === index) {
+    // No need to do anything other than pop if it's at the end of the heap
+    const poppedItem = arr.pop() as T;
+    return poppedItem;
+  }
   swap(arr, index, arr.length - 1);
-  const poppedItem = arr.pop()!;
+  const poppedItem = arr.pop() as T;
   locations.delete(poppedItem);
   updateIndex(arr, locations, compareFn, index);
   return poppedItem;
@@ -120,15 +125,17 @@ export const checkSwapWithChildren = <T>(
   }
 };
 
-export const updateIndex = <T>(
+const updateIndex = <T>(
   arr: T[],
   locations: Map<T, number>,
   compareFn: CompareFn<T>,
   index: number,
 ) => {
-  const item = arr[index];
-  arr.splice(index, 1);
-  push(arr, locations, compareFn, item);
+  const swappedWithParent = checkSwapWithParent(arr, locations, compareFn, index);
+  if (swappedWithParent) {
+    return;
+  }
+  checkSwapWithChildren(arr, locations, compareFn, index);
 };
 
 export const update = <T>(
@@ -141,7 +148,8 @@ export const update = <T>(
   if (index === undefined) {
     throw new Error(`Heap did not have item "${item}"`);
   }
-  return updateIndex(arr, locations, compareFn, index);
+  deleteIndex(arr, locations, compareFn, index);
+  push(arr, locations, compareFn, item);
 };
 
 /**
@@ -176,10 +184,6 @@ export class Heap<T> implements Iterable<T> {
 
   push(...item: T[]) {
     return push(this.arr, this.locations, this.compareFn, ...item);
-  }
-
-  updateIndex(index: number) {
-    return updateIndex(this.arr, this.locations, this.compareFn, index);
   }
 
   update(item: T) {
