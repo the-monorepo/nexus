@@ -122,8 +122,8 @@ const ASSIGNMENT = Symbol('assignment');
 const changedOrImprovedError = (evaluation: MutationEvaluation) => {
   return (
     !evaluation.crashed &&
-    (evaluation.testsImproved > 0 ||
-      evaluation.errorsChanged > 0 ||
+    (evaluation.testsImproved.length > 0 ||
+      evaluation.errorsChanged.length > 0 ||
       evaluation.stackEvaluation.improvement > 0)
   );
 };
@@ -132,7 +132,7 @@ const evaluationChangedOrImprovedErrorOrCrashed = (evaluation: MutationEvaluatio
 };
 
 const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
-  return evaluation.testsWorsened === 0 && evaluation.stackEvaluation.degradation === 0;
+  return !evaluation.crashed && evaluation.testsWorsened.length === 0 && evaluation.stackEvaluation.degradation === 0;
 };
 
 export type CategoryData<T> = {} & Array<T | CategoryData<T>>;
@@ -1863,14 +1863,14 @@ export const compareMutationEvaluations = (
   const stackEval1 = result1.stackEvaluation;
   const stackEval2 = result2.stackEvaluation;
 
-  const netTestsImproved1 = result1.testsImproved - result1.testsWorsened;
-  const netTestsImproved2 = result2.testsImproved - result2.testsWorsened;
+  const netTestsImproved1 = result1.testsImproved.length - result1.testsWorsened.length;
+  const netTestsImproved2 = result2.testsImproved.length - result2.testsWorsened.length;
   const netTestsImprovedComparison = netTestsImproved1 - netTestsImproved2;
   if (netTestsImprovedComparison !== 0) {
     return netTestsImprovedComparison;
   }
 
-  const testsImproved = result1.testsImproved - result2.testsImproved;
+  const testsImproved = result1.testsImproved.length - result2.testsImproved.length;
   if (testsImproved !== 0) {
     return testsImproved;
   }
@@ -1885,7 +1885,7 @@ export const compareMutationEvaluations = (
     return stackDegradationScore;
   }
 
-  const errorsChanged = result1.errorsChanged - result2.errorsChanged;
+  const errorsChanged = result1.errorsChanged.length - result2.errorsChanged.length;
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
@@ -2051,10 +2051,10 @@ export type CrashedMutationEvaluation = {
 } & CommonMutationEvaluation;
 export type NormalMutationEvaluation = {
   stackEvaluation: MutationStackEvaluation;
-  testsWorsened: number;
-  testsImproved: number;
-  errorsChanged: number;
-  testsUnknown: number;
+  testsWorsened: string[]; // Keys
+  testsImproved: string[]; // Keys
+  errorsChanged: string[]; // Keys
+  testsUnknown: string[]; // Keys
   crashed: false;
 } & CommonMutationEvaluation;
 
@@ -2082,28 +2082,28 @@ const evaluateNewMutation = (
   difference: TesterDifferencePayload,
   instructions: Instruction<any>[],
 ): MutationEvaluation => {
-  let testsWorsened = 0;
-  let testsImproved = 0;
+  const testsWorsened: string[] = [];
+  const testsImproved: string[] = [];
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
-  let errorsChanged = 0;
+  const errorsChanged: string[] = [];
 
-  testsWorsened += difference.added.filter(result => !result.data.passed).length;
-  testsWorsened += difference.missing.filter(result => !result.data.passed).length;
+  testsWorsened.push(...difference.added.filter(result => !result.data.passed).map(result => result.data.key));
+  testsWorsened.push(...difference.missing.filter(result => !result.data.passed).map(result => result.data.key));
 
-  const testsUnknown = difference.unknown.length;
+  const testsUnknown = difference.unknown.map(result => result.data.key);
 
   for (const payload of difference.matches) {
     const testEvaluation = payload.evaluation;
     // End result scores
     if (testEvaluation.endResultChange === EndResult.BETTER) {
-      testsImproved++;
+      testsImproved.push(payload.original.data.key);
     } else if (testEvaluation.endResultChange === EndResult.WORSE) {
-      testsWorsened++;
+      testsWorsened.push(payload.original.data.key);
     } else if (
       testEvaluation.errorChanged &&
       (testEvaluation.stackScore === 0 || testEvaluation.stackScore === null)
     ) {
-      errorsChanged++;
+      errorsChanged.push(payload.original.data.key);
     }
 
     if (testEvaluation.stackScore === null) {
@@ -3460,10 +3460,10 @@ export const createPlugin = ({
           ]);
 
           if (
-            mutationEvaluation.testsImproved ===
+            mutationEvaluation.testsImproved?.length ===
               [...firstTesterResults.testResults.values()].filter(a => !a.data.passed)
                 .length &&
-            mutationEvaluation.testsWorsened === 0 &&
+            mutationEvaluation.testsWorsened?.length === 0 &&
             previousInstructions !== null
           ) {
             const newSolutionDir = resolve(solutionsDir, (solutionCounter++).toString());
