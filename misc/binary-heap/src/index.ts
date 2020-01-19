@@ -126,11 +126,9 @@ export const updateIndex = <T>(
   compareFn: CompareFn<T>,
   index: number,
 ) => {
-  const swappedWithParent = checkSwapWithParent(arr, locations, compareFn, index);
-  if (swappedWithParent) {
-    return;
-  }
-  checkSwapWithChildren(arr, locations, compareFn, index);
+  const item = arr[index];
+  deleteIndex(arr, locations, compareFn, index);
+  push(arr, locations, compareFn, item);
 };
 
 export const update = <T>(
@@ -139,10 +137,11 @@ export const update = <T>(
   compareFn: CompareFn<T>,
   item: T,
 ) => {
-  if (!locations.has(item)) {
+  const index = locations.get(item);
+  if (index === undefined) {
     throw new Error(`Heap did not have item "${item}"`);
   }
-  return updateIndex(arr, locations, compareFn, locations.get(item)!);
+  return updateIndex(arr, locations, compareFn, index);
 };
 
 /**
