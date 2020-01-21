@@ -91,7 +91,7 @@ describe('heap', () => {
     const firstItem = arr[2];
     firstItem.score = 5000;
     arr.sort(compareFn).reverse();
-    heap.updateIndex(heap.position(thirdItem)!);
+    heap.update(thirdItem);
     expect([...heap.sortedIterator()]).toEqual(arr);
   });
 
