@@ -45,6 +45,22 @@ type Location = {
   filePath: string;
 } & ExpressionLocation;
 
+export const testStatsFromCoverageInfo = (info: CoveragePathObj) =>{
+  const stats: Stats = {
+    passed: 0,
+    failed: 0,
+  };
+  for(const testResult of info.coveredBy) {
+    if(testResult.data.passed) {
+      stats.passed++;
+    } else {
+      stats.failed++;
+    }
+  }
+
+  return stats;
+}
+
 const expressionLocationEquals = (
   loc1: ExpressionLocation | null | undefined,
   loc2: ExpressionLocation | null | undefined,
@@ -1764,13 +1780,35 @@ type CoveragePathObj = {
   path: NodePath;
   pathKey: string;
   originalLocation: Location;
-  testStats: Stats;
-  instructions: Set<Instruction<any>>;
+  coveredBy: TestResult[];
+  instructions: Set<Instruction<any>>,
 };
+
+export const isRelevantTestFromCoverage = (testResult: TestResult, coverageFilePath: string, coverageLocation: ExpressionLocation) => {
+  if (testResult.data.coverage === undefined) {
+    return false;
+  }
+
+  const fileCoverage = testResult.data.coverage[coverageFilePath];
+  if (fileCoverage === undefined) {
+    return false;
+  }
+
+  for(const [key, expressionLocation] of Object.entries(fileCoverage.statementMap)) {
+    if (expressionLocationEquals(expressionLocation, coverageLocation) && fileCoverage.s[key] > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 const findWidenedCoveragePaths = (
   astMap: Map<string, t.File>,
   locations: Location[],
-  fileResults: Map<string, FileResult>,
+  testResults: Map<string, TestResult>
 ): Map<string, Map<string, CoveragePathObj>> => {
   const nodePaths: Map<string, Map<string, CoveragePathObj>> = new Map();
   for (const filePath of astMap.keys()) {
@@ -1798,18 +1836,22 @@ const findWidenedCoveragePaths = (
         }
         const originalLocation = fileLocationPaths.get(key)!;
         fileLocationPaths.delete(key);
-        const expressionResult = fileResults
-          .get(filePath)!
-          .expressions.find(
-            result => locationToKeyIncludingEnd(filePath, result.location) === key,
-          )!;
+
         const widenedPath = widenCoveragePath(path);
+
+        const coveredBy: TestResult[] = [];
+        for(const testResult of testResults.values()) {
+          if (isRelevantTestFromCoverage(testResult, filePath, originalLocation)) {
+            coveredBy.push(testResult);
+          };
+        }
+
         nodePaths.get(filePath)!.set(coverageKey(loc), {
           instructions: new Set(),
           path: widenedPath,
           pathKey: pathToKey(widenedPath),
           originalLocation,
-          testStats: expressionResult.stats,
+          coveredBy,
         });
       },
     });
@@ -2674,6 +2716,16 @@ const aggregateDependencyMaps = (
   return aggregation;
 };
 
+export const initialiseTestInfoMap = (testInfoMap: Map<string, TestInformation>, tester: TesterResults) => {
+  for(const testResult of tester.testResults.values()) {
+    testInfoMap.set(testResult.data.key, {
+      fixes: 0,
+      errorChanges: 0,
+      total: 0,
+    });
+  }
+}
+
 export const initialiseEvaluationMaps = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
@@ -2918,8 +2970,12 @@ const testEvaluationChanged = (evaluation: TestEvaluation): boolean => {
 const isRelevantTest = (
   testResult: TestResult,
   coverageObjs: Map<string, Map<string, CoveragePathObj>>,
-  nodeInfo: NodeInformation,
+  coverageInfo: CoveragePathObj | null,
 ) => {
+  if (coverageInfo === null) {
+    return false;
+  }
+
   // TODO: Could clean this up - Less linear searching
   for (const [filePath, fileCoverage] of Object.entries(testResult.data.coverage)) {
     const objMap = coverageObjs.get(filePath)!;
@@ -2932,7 +2988,7 @@ const isRelevantTest = (
         continue;
       }
 
-      if (obj !== nodeInfo.coverageInfo) {
+      if (obj !== coverageInfo) {
         continue;
       }
 
@@ -2947,12 +3003,32 @@ const isRelevantTest = (
   return false;
 };
 
+export const addDifferencePayloadToTestInformation = (
+  differences: Iterable<TestDifferencePayload>,
+  testInfoMap: Map<string, TestInformation>,
+) => {
+  for (const payload of differences) {
+    const info = testInfoMap.get(payload.original.data.key);
+    if (info === undefined) {
+      continue;
+    }
+    
+    if (payload.evaluation.endResultChange === EndResult.BETTER) {
+      info.fixes++;
+    } else if (payload.evaluation.errorChanged !== null && payload.evaluation.errorChanged) {
+      info.errorChanges++;
+    }
+    info.total++;
+  }
+}
+
 const addMutationEvaluation = (
   difference: TesterDifferencePayload,
   coverageObjMap: Map<string, Map<string, CoveragePathObj>>,
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   instructionQueue: Queue<Queue<Instruction<any>>>,
+  testInfoMap: Map<string, TestInformation>,
   instructions: Queue<Instruction<any>>,
   mutationEvaluation: MutationEvaluation,
 ) => {
@@ -2967,13 +3043,16 @@ const addMutationEvaluation = (
     const changed = difference.matches.filter(match =>
       testEvaluationChanged(match.evaluation),
     );
+    
+    addDifferencePayloadToTestInformation(changed, testInfoMap);
+
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
 
       const matches: TestDifferencePayload[] = [];
       const unknown: TestResult[] = [...difference.unknown];
       for (const payload of changed) {
-        if (isRelevantTest(payload.original, coverageObjMap, nodeInfo)) {
+        if (isRelevantTest(payload.original, coverageObjMap, nodeInfo.coverageInfo)) {
           matches.push(payload);
         } else {
           unknown.push(payload.original);
@@ -2985,7 +3064,7 @@ const addMutationEvaluation = (
 
       const missing: TestResult[] = [];
       for (const missingResult of difference.missing) {
-        if (isRelevantTest(missingResult, coverageObjMap, nodeInfo)) {
+        if (isRelevantTest(missingResult, coverageObjMap, nodeInfo.coverageInfo)) {
           missing.push(missingResult);
         } else {
           unknown.push(missingResult);
@@ -3017,7 +3096,7 @@ const addMutationEvaluation = (
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
       const tests = difference.missing.filter(result =>
-        isRelevantTest(result, coverageObjMap, nodeInfo),
+        isRelevantTest(result, coverageObjMap, nodeInfo.coverageInfo),
       );
       if (tests.length <= 0) {
         continue;
@@ -3104,6 +3183,13 @@ export type NodeInformation = {
   coverageInfo: CoveragePathObj | null;
   path: NodePath;
 };
+
+type TestInformation = {
+  fixes: number;
+  errorChanges: number;
+  total: number;
+};
+
 export const createPlugin = ({
   faultFileDir = './faults/',
   babelOptions,
@@ -3119,6 +3205,7 @@ export const createPlugin = ({
 
   const nodeInfoMap: Map<string, NodeInformation> = new Map();
   const instructionEvaluations: Map<Instruction<any>, InstructionEvaluation> = new Map();
+  const testInfoMap: Map<string, TestInformation> = new Map();
 
   let previousInstructions: Queue<Instruction<any>> = null!;
   let codeMap: Map<string, string> = null!;
@@ -3221,6 +3308,7 @@ export const createPlugin = ({
         nodeInfoMap,
         instructionEvaluations,
         instructionQueue,
+        testInfoMap,
         previousInstructions,
         mutationEvaluation,
       );
@@ -3344,9 +3432,6 @@ export const createPlugin = ({
             }
           }
 
-          const fileResults = gatherFileResults(tester.testResults.values());
-          const totalPassFailStats = passFailStatsFromTests(tester.testResults.values());
-
           codeMap = await createFilePathToCodeMap([
             ...new Set(failingLocations.map(location => location.filePath)),
           ]);
@@ -3370,7 +3455,7 @@ export const createPlugin = ({
           const fullCoverageObjs = findWidenedCoveragePaths(
             originalAstMap,
             locations,
-            fileResults,
+            tester.testResults
           );
           addInstructionsToCoverageMap(allInstructions, fullCoverageObjs);
           console.log();
@@ -3400,6 +3485,8 @@ export const createPlugin = ({
             }
           }
 
+          initialiseTestInfoMap(testInfoMap, tester)
+
           initialiseEvaluationMaps(
             nodeInfoMap,
             instructionEvaluations,
@@ -3407,10 +3494,13 @@ export const createPlugin = ({
             relevantInstructions,
           );
 
+          const totalPassFailStats = passFailStatsFromTests(tester.testResults.values());
+
           for (const objMap of coverageObjs.values()) {
-            for (const obj of objMap.values()) {
-              const score = dstar(obj.testStats, totalPassFailStats);
-              for (const instruction of obj.instructions) {
+            for(const obj of objMap.values()) {
+              const testStats = testStatsFromCoverageInfo(obj);
+              const score = dstar(testStats, totalPassFailStats);
+              for(const instruction of obj.instructions) {
                 const evaluation = instructionEvaluations.get(instruction)!;
                 evaluation.initial = Math.max(
                   evaluation.initial,
