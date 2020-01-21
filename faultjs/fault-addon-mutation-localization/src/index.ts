@@ -1878,6 +1878,7 @@ const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
 export const compareMutationEvaluations = (
   r1: MutationEvaluation,
   r2: MutationEvaluation,
+  testInfoMap: Map<string, TestInformation>,
 ) => {
   const goodThingsHappened1 = changedOrImprovedError(r1);
   const goodThingsHappened2 = changedOrImprovedError(r2);
@@ -1905,16 +1906,22 @@ export const compareMutationEvaluations = (
   const stackEval1 = result1.stackEvaluation;
   const stackEval2 = result2.stackEvaluation;
 
-  const netTestsImproved1 = result1.testsImproved.length - result1.testsWorsened.length;
-  const netTestsImproved2 = result2.testsImproved.length - result2.testsWorsened.length;
-  const netTestsImprovedComparison = netTestsImproved1 - netTestsImproved2;
-  if (netTestsImprovedComparison !== 0) {
-    return netTestsImprovedComparison;
+  let testImprovementScore1 = 0;
+  let testImprovementScore2 = 0;
+
+  for(const key of result1.testsImproved) {
+    const info = testInfoMap.get(key)!;
+    testImprovementScore1 += info.total - info.fixes;
   }
 
-  const testsImproved = result1.testsImproved.length - result2.testsImproved.length;
-  if (testsImproved !== 0) {
-    return testsImproved;
+  for(const key of result2.testsImproved) {
+    const info = testInfoMap.get(key)!;
+    testImprovementScore2 += info.total - info.fixes;
+  }
+
+  const netTestsImprovedComparison = testImprovementScore1 - testImprovementScore2;
+  if (netTestsImprovedComparison !== 0) {
+    return netTestsImprovedComparison;
   }
 
   const stackImprovementScore = stackEval1.improvement - stackEval2.improvement;
@@ -1927,7 +1934,19 @@ export const compareMutationEvaluations = (
     return stackDegradationScore;
   }
 
-  const errorsChanged = result1.errorsChanged.length - result2.errorsChanged.length;
+  let errorsChangedScore1 = 0;
+  let errorsChangedScore2 = 0;
+  for(const key of result1.errorsChanged) {
+    const info = testInfoMap.get(key)!;
+    errorsChangedScore1 += info.total - (info.errorChanges + info.fixes);
+  }
+
+  for(const key of result2.errorsChanged) {
+    const info = testInfoMap.get(key)!;
+    errorsChangedScore2 += info.total - (info.errorChanges + info.fixes);
+  }
+
+  const errorsChanged = errorsChangedScore1 - errorsChangedScore2;
   if (errorsChanged !== 0) {
     return errorsChanged;
   }
