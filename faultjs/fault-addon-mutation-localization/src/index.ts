@@ -2754,6 +2754,7 @@ export const initialiseTestInfoMap = (testInfoMap: Map<string, TestInformation>,
       fixes: 0,
       errorChanges: 0,
       total: 0,
+      stackScoresImproved: 0,
     });
   }
 }
@@ -3050,6 +3051,8 @@ export const addDifferencePayloadToTestInformation = (
       info.fixes++;
     } else if (payload.evaluation.errorChanged !== null && payload.evaluation.errorChanged) {
       info.errorChanges++;
+    } else if (payload.evaluation.stackScore !== null && payload.evaluation.stackScore > 0) {
+      info.stackScoresImproved++;
     }
     info.total++;
   }
@@ -3222,6 +3225,7 @@ export type NodeInformation = {
 type TestInformation = {
   fixes: number;
   errorChanges: number;
+  stackScoresImproved: number;
   total: number;
 };
 
