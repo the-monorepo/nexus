@@ -2214,13 +2214,14 @@ export const locationToKeyIncludingEnd = (
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (
   a: MutationEvaluation,
   b: MutationEvaluation,
+  testInfoMap: Map<string, TestInformation>
 ) => {
   const instructionLengthComparison = b.instructions.length - a.instructions.length;
   if (instructionLengthComparison !== 0) {
     return instructionLengthComparison;
   }
 
-  return compareMutationEvaluations(a, b);
+  return compareMutationEvaluations(a, b, testInfoMap);
 };
 
 const shouldCountNode = (path: NodePath) =>
@@ -2266,6 +2267,7 @@ export const instructionChangedOrImprovedErrorOrHasNoEvaluations = (
 export const compareFinalInstructionEvaluations = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  testInfoMap: Map<string, TestInformation>,
   category1: CoveragePathObj,
   category2: CoveragePathObj,
 ): number => {
@@ -2276,6 +2278,7 @@ export const compareFinalInstructionEvaluations = (
       const intructionComparison = compareInstruction(
         nodeInfoMap,
         instructionEvaluations,
+        testInfoMap,
         instruction1,
         instruction2,
       );
@@ -2343,13 +2346,14 @@ export const compareFinalInstructionEvaluations = (
 export const mutationEvalatuationMapToFaults = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  testInfoMap: Map<string, TestInformation>,
   coverageObjs: Map<string, Map<string, CoveragePathObj>>,
 ): Fault[] => {
   const flattened = [...coverageObjs.values()].map(objMap => [...objMap.values()]).flat();
 
   const faults = flattened
     .sort((a, b) =>
-      compareFinalInstructionEvaluations(nodeInfoMap, instructionEvaluations, a, b),
+      compareFinalInstructionEvaluations(nodeInfoMap, instructionEvaluations, testInfoMap, a, b),
     )
     .map(
       (obj, i): Fault => {
@@ -2558,6 +2562,7 @@ export const pathToPrimaryKey = (filePath: string, path: NodePath) => {
 export const compareEvaluationHeaps = (
   a: Queue<MutationEvaluation>,
   b: Queue<MutationEvaluation>,
+  testInfoMap: Map<string, TestInformation>,
 ) => {
   if (a.length <= 0 && b.length >= 1) {
     const evaluation2 = b.peek();
@@ -2577,6 +2582,7 @@ export const compareEvaluationHeaps = (
     const instructionEvaluationComparison = compareMutationEvaluations(
       a.peek(),
       b.peek(),
+      testInfoMap
     );
     if (instructionEvaluationComparison !== 0) {
       return instructionEvaluationComparison;
@@ -2596,6 +2602,7 @@ const compareInitialInstructionValues = (
 export const compareInstructionWithInitialValues = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  testInfoMap: Map<string, TestInformation>,
   instruction1: Instruction<any>,
   instruction2: Instruction<any>,
 ) => {
@@ -2603,6 +2610,7 @@ export const compareInstructionWithInitialValues = (
   const intructionComparison = compareInstruction(
     nodeInfoMap,
     instructionEvaluations,
+    testInfoMap,
     instruction1,
     instruction2,
   );
@@ -2626,6 +2634,7 @@ export const compareInstructionWithInitialValues = (
 export const compareInstruction = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  testInfoMap: Map<string, TestInformation>,
   instruction1: Instruction<any>,
   instruction2: Instruction<any>,
 ) => {
@@ -2635,6 +2644,7 @@ export const compareInstruction = (
   const instructionEvaluationComparison = compareEvaluationHeaps(
     instructionEvaluations1.mutationEvaluations,
     instructionEvaluations2.mutationEvaluations,
+    testInfoMap,
   );
   if (instructionEvaluationComparison !== 0) {
     return instructionEvaluationComparison;
@@ -2645,14 +2655,15 @@ export const compareInstruction = (
 
   const bestNodeEvaluations1 = relevantKeys1
     .map(node => nodeInfoMap.get(node)!.evaluations)
-    .sort(compareEvaluationHeaps)[relevantKeys1.length - 1];
+    .sort((a, b) => compareEvaluationHeaps(a, b, testInfoMap))[relevantKeys1.length - 1];
   const bestNodeEvaluations2 = relevantKeys2
     .map(node => nodeInfoMap.get(node)!.evaluations)
-    .sort(compareEvaluationHeaps)[relevantKeys2.length - 1];
+    .sort((a, b) => compareEvaluationHeaps(a, b, testInfoMap))[relevantKeys2.length - 1];
 
   const nodeEvaluationComparison = compareEvaluationHeaps(
     bestNodeEvaluations1,
     bestNodeEvaluations2,
+    testInfoMap
   );
   if (nodeEvaluationComparison !== 0) {
     return nodeEvaluationComparison;
@@ -2664,6 +2675,7 @@ export const compareInstruction = (
 export const instructionQueueComparator = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  testInfoMap: Map<string, TestInformation>,
   block1: Queue<Instruction<any>>,
   block2: Queue<Instruction<any>>,
 ): number => {
@@ -2672,6 +2684,7 @@ export const instructionQueueComparator = (
   const instructionComparison = compareInstructionWithInitialValues(
     nodeInfoMap,
     instructionEvaluations,
+    testInfoMap,
     bestInstruction1,
     bestInstruction2,
   );
@@ -2692,10 +2705,10 @@ export type InstructionEvaluation = {
   mutationEvaluations: Queue<MutationEvaluation>;
 };
 
-export const createInstructionEvaluation = (initial: number): InstructionEvaluation => {
+export const createInstructionEvaluation = (initial: number, testInfoMap: Map<string, TestInformation>): InstructionEvaluation => {
   return {
     initial,
-    mutationEvaluations: new Queue(compareMutationEvaluationsWithLargeMutationCountsFirst),
+    mutationEvaluations: new Queue((a, b) => compareMutationEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap)),
   };
 };
 
@@ -2749,6 +2762,7 @@ export const initialiseEvaluationMaps = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
   coverageInfoMap: Map<string, Map<string, CoveragePathObj>>,
+  testInfoMap: Map<string, TestInformation>,
   instructions: Iterable<Instruction<any>>,
 ) => {
   const allDependencies = aggregateDependencyMaps(
@@ -2778,7 +2792,7 @@ export const initialiseEvaluationMaps = (
 
       const key = pathToPrimaryKey(filePath, writePath);
       nodeInfoMap.set(key, {
-        evaluations: new Queue(compareMutationEvaluationsWithLargeMutationCountsFirst),
+        evaluations: new Queue((a, b) => compareMutationEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap)),
         instructions: [],
         path: writePath,
         coverageInfo,
@@ -2789,7 +2803,7 @@ export const initialiseEvaluationMaps = (
     for (const key of instruction.indirectWriteDependencyKeys) {
       nodeInfoMap.get(key)!.instructions.push(instruction);
     }
-    instructionEvaluations.set(instruction, createInstructionEvaluation(0));
+    instructionEvaluations.set(instruction, createInstructionEvaluation(0, testInfoMap));
   }
 };
 
@@ -3178,20 +3192,22 @@ export const codeMapToAstMap = (
 
 export const createInstructionQueue = (
   nodeInfoMap: Map<string, NodeInformation>,
+  testInfoMap: Map<string, TestInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
 ) => {
   const heapComparisonFn = (a: Queue<Instruction<any>>, b: Queue<Instruction<any>>) =>
-    instructionQueueComparator(nodeInfoMap, instructionEvaluations, a, b);
+    instructionQueueComparator(nodeInfoMap, instructionEvaluations, testInfoMap, a, b);
   return new Queue(heapComparisonFn);
 };
 
 export const createInstructionBlocks = (
   nodeInfoMap: Map<string, NodeInformation>,
   instructionEvaluations: Map<Instruction<any>, InstructionEvaluation>,
+  testInfoMap: Map<string, TestInformation>,
   instructionsList: Instruction<any>[][],
 ) => {
   const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) =>
-    compareInstructionWithInitialValues(nodeInfoMap, instructionEvaluations, a, b);
+    compareInstructionWithInitialValues(nodeInfoMap, instructionEvaluations, testInfoMap, a, b);
 
   return instructionsList.map(instructions => new Queue(subHeapCompareFn, instructions));
 };
@@ -3232,10 +3248,7 @@ export const createPlugin = ({
   let testAstMap: Map<string, t.File> = null!;
   let coverageObjs: Map<string, Map<string, CoveragePathObj>> = null!;
   let finished = false;
-  const instructionQueue: Queue<Queue<Instruction<any>>> = createInstructionQueue(
-    nodeInfoMap,
-    instructionEvaluations,
-  );
+  let instructionQueue: Queue<Queue<Instruction<any>>> = null!;
   let firstRun = true;
   let firstTesterResults: TesterResults;
   const failingTestFiles: Set<string> = new Set();
@@ -3304,12 +3317,12 @@ export const createPlugin = ({
             previousIndirectNodeEvaluations.some(
               evaluation =>
                 evaluation.length > 0 &&
-                compareMutationEvaluations(mutationEvaluation, evaluation.peek()) > 0
+                compareMutationEvaluations(mutationEvaluation, evaluation.peek(), testInfoMap) > 0
             ) ||
             previousDirectNodeEvaluations.some(
               evaluations =>
                 evaluations.length <= 0 ||
-                compareMutationEvaluations(mutationEvaluation, evaluations.peek()) > 0
+                compareMutationEvaluations(mutationEvaluation, evaluations.peek(), testInfoMap) > 0
             )
           ) {
             if (instruction.variants !== undefined) {
@@ -3510,6 +3523,7 @@ export const createPlugin = ({
             nodeInfoMap,
             instructionEvaluations,
             fullCoverageObjs,
+            testInfoMap,
             relevantInstructions,
           );
 
@@ -3533,6 +3547,7 @@ export const createPlugin = ({
             compareInstructionWithInitialValues(
               nodeInfoMap,
               instructionEvaluations,
+              testInfoMap,
               a,
               b,
             ),
@@ -3544,11 +3559,16 @@ export const createPlugin = ({
           );
 
           const organizedInstructions = organizeInstructions(sortedInstructions);
-
+          instructionQueue = createInstructionQueue(
+            nodeInfoMap,
+            testInfoMap,
+            instructionEvaluations,
+          )
           instructionQueue.push(
             ...createInstructionBlocks(
               nodeInfoMap,
               instructionEvaluations,
+              testInfoMap,
               organizedInstructions,
             ),
           );
@@ -3653,6 +3673,7 @@ export const createPlugin = ({
         const faults = mutationEvalatuationMapToFaults(
           nodeInfoMap,
           instructionEvaluations,
+          testInfoMap,
           coverageObjs,
         );
 
