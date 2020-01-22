@@ -51,7 +51,7 @@ export const testStatsFromCoverageInfo = (info: CoveragePathObj) =>{
     failed: 0,
   };
   for(const testResult of info.coveredBy) {
-    if(testResult.data.passed) {
+    if(testResult.result.data.passed) {
       stats.passed++;
     } else {
       stats.failed++;
@@ -1770,6 +1770,9 @@ export const addInstructionsToCoverageMap = (
         });
         if (selectedObj !== null) {
           selectedObj.instructions.add(instruction);
+          for(const info of selectedObj.coveredBy) {
+            info.coverageInfo.set(coverageKey(selectedObj.originalLocation), selectedObj);
+          }
         }
       }
     }
@@ -1780,7 +1783,7 @@ type CoveragePathObj = {
   path: NodePath;
   pathKey: string;
   originalLocation: Location;
-  coveredBy: TestResult[];
+  coveredBy: TestInformation[];
   instructions: Set<Instruction<any>>,
 };
 
@@ -1808,7 +1811,7 @@ export const isRelevantTestFromCoverage = (testResult: TestResult, coverageFileP
 const findWidenedCoveragePaths = (
   astMap: Map<string, t.File>,
   locations: Location[],
-  testResults: Map<string, TestResult>
+  testInfoMap: Map<string, TestInformation>,
 ): Map<string, Map<string, CoveragePathObj>> => {
   const nodePaths: Map<string, Map<string, CoveragePathObj>> = new Map();
   for (const filePath of astMap.keys()) {
@@ -1839,10 +1842,10 @@ const findWidenedCoveragePaths = (
 
         const widenedPath = widenCoveragePath(path);
 
-        const coveredBy: TestResult[] = [];
-        for(const testResult of testResults.values()) {
-          if (isRelevantTestFromCoverage(testResult, filePath, originalLocation)) {
-            coveredBy.push(testResult);
+        const coveredBy: TestInformation[] = [];
+        for(const info of testInfoMap.values()) {
+          if (isRelevantTestFromCoverage(info.result, filePath, originalLocation)) {
+            coveredBy.push(info);
           };
         }
 
@@ -2755,6 +2758,8 @@ export const initialiseTestInfoMap = (testInfoMap: Map<string, TestInformation>,
       errorChanges: 0,
       total: 0,
       stackScoresImproved: 0,
+      result: testResult,
+      coverageInfo: new Map(),
     });
   }
 }
@@ -3069,6 +3074,8 @@ const addMutationEvaluation = (
   mutationEvaluation: MutationEvaluation,
 ) => {
   const affectedKeys: Set<string> = new Set();
+  const instructionsAffected: Set<Instruction<any>> = new Set();
+
   if (!difference.crashed) {
     for (const instruction of instructions) {
       for (const key of instruction.indirectWriteDependencyKeys) {
@@ -3079,8 +3086,17 @@ const addMutationEvaluation = (
     const changed = difference.matches.filter(match =>
       testEvaluationChanged(match.evaluation),
     );
-    
+
     addDifferencePayloadToTestInformation(changed, testInfoMap);
+
+    for(const payload of changed) {
+      const testInfo = testInfoMap.get(payload.original.data.key)!;
+      for(const coverageInfo of testInfo.coverageInfo.values()) {
+        for(const instruction of coverageInfo.instructions) {
+          instructionsAffected.add(instruction);
+        }
+      }
+    }
 
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
@@ -3145,12 +3161,13 @@ const addMutationEvaluation = (
     instructionEvaluations.get(instruction)!.mutationEvaluations.push(mutationEvaluation);
   }
 
-  const instructionsAffected: Set<Instruction<any>> = new Set(
-    [...affectedKeys]
-      .map(key => nodeInfoMap.get(key)!.instructions)
-      .flat()
-      .concat([...instructions]),
-  );
+  for(const key of affectedKeys) {
+    const info = nodeInfoMap.get(key)!;
+
+    for(const instruction of info.instructions) {
+      instructionsAffected.add(instruction);
+    }
+  }
 
   for (const instruction of instructionsAffected) {
     for (const block of instructionQueue) {
@@ -3227,6 +3244,8 @@ type TestInformation = {
   errorChanges: number;
   stackScoresImproved: number;
   total: number;
+  result: TestResult;
+  coverageInfo: Map<string, CoveragePathObj>;
 };
 
 export const createPlugin = ({
@@ -3491,7 +3510,7 @@ export const createPlugin = ({
           const fullCoverageObjs = findWidenedCoveragePaths(
             originalAstMap,
             locations,
-            tester.testResults
+            testInfoMap
           );
           addInstructionsToCoverageMap(allInstructions, fullCoverageObjs);
           console.log();
