@@ -35,12 +35,94 @@ import {
 import generate from '@babel/generator';
 import chalk from 'chalk';
 import * as micromatch from 'micromatch';
-import Queue from '@pshaw/binary-heap';
 import traverse from '@babel/traverse';
 import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
 import dstar from '@fault/sbfl-dstar';
 
+class Queue<T> {
+  private readonly arr: T[];
+  private invalidated = false;
+  private highest: T | undefined;
+  constructor(
+    public readonly compareFn: (a: T, b: T) => number,
+    arr: T[] = [],
+  ) {
+    this.arr = [...arr];
+    this.refindHighest();
+  }
+
+  some(callback: (item: T) => boolean) {
+    return this.some(callback);
+  }
+
+  clone(): Queue<T> {
+    return new Queue(this.compareFn, this.arr)
+  }
+
+  private refindHighest() {
+    if (this.arr.length <= 0) {
+      this.highest = undefined;
+      return;
+    }
+
+    let i = 1;
+    let highest: T = this.arr[0];
+    while(i < this.arr.length) {
+      const item = this.arr[i];
+      if (this.compareFn(item, highest) > 0) {
+        highest = item;
+      }
+      i++;
+    } 
+
+    this.highest = highest;
+    this.invalidated = false;
+  }
+
+  public update() {
+    this.invalidated = true;
+  }
+
+  private refindHighestIfInvalidated() {
+    if (!this.invalidated) {
+      return;
+    }
+    this.refindHighest();
+  }
+
+  pop() {
+    if (this.arr.length <= 0) {
+      return undefined;
+    }
+    this.refindHighestIfInvalidated();
+    this.arr.splice(this.arr.findIndex((item) => item === this.highest!), 1);
+    this.invalidated = true;
+    return this.highest;
+  }
+
+  peek(): T {
+    this.refindHighestIfInvalidated();
+    return this.highest!;
+  }
+
+  push(...item: T[]) {
+    this.arr.push(...item);
+    this.invalidated = true;
+  }
+
+  get length() {
+    return this.arr.length;
+  }
+
+  sortedIterator() {
+    return this.arr.sort(this.compareFn);
+  }
+
+  [Symbol.iterator]() {
+    return this.arr[Symbol.iterator]();
+  }
+}
 type Location = {
   filePath: string;
 } & ExpressionLocation;
@@ -3152,13 +3234,7 @@ const addMutationEvaluation = (
       .concat([...instructions]),
   );
 
-  for (const instruction of instructionsAffected) {
-    for (const block of instructionQueue) {
-      if (block.some(blockInstruction => blockInstruction === instruction)) {
-        instructionQueue.update(block);
-      }
-    }
-  }
+  instructionQueue.update();
 };
 
 export const widenCoveragePath = (path: NodePath) => {
