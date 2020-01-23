@@ -1985,10 +1985,6 @@ export const compareMutationEvaluations = (
     return goodThingsHappenedComparison;
   }
 
-  if (!goodThingsHappened1 && !goodThingsHappened2) {
-    return 0;
-  }
-
   const evaluationDidNothingBad1 = evaluationDidNothingBad(r1);
   const evaluationDidNothingBad2 = evaluationDidNothingBad(r2);
   const evaluationDidNothingBadComparison = (evaluationDidNothingBad1 ? 1 : -1) - (evaluationDidNothingBad2 ? 1 : -1);
@@ -2008,12 +2004,22 @@ export const compareMutationEvaluations = (
 
   for(const key of result1.testsImproved) {
     const info = testInfoMap.get(key)!;
-    testImprovementScore1 += info.total - info.fixes;
+    testImprovementScore1 += (info.total - info.fixes);
   }
 
   for(const key of result2.testsImproved) {
     const info = testInfoMap.get(key)!;
     testImprovementScore2 += info.total - info.fixes;
+  }
+  
+  for(const key of result1.testsWorsened) {
+    const info = testInfoMap.get(key)!;
+    testImprovementScore1 -= info.breaks;
+  }
+
+  for(const key of result2.testsWorsened) {
+    const info = testInfoMap.get(key)!;
+    testImprovementScore2 -= info.breaks;
   }
 
   const netTestsImprovedComparison = testImprovementScore1 - testImprovementScore2;
@@ -2041,6 +2047,16 @@ export const compareMutationEvaluations = (
   for(const key of result2.errorsChanged) {
     const info = testInfoMap.get(key)!;
     errorsChangedScore2 += info.total - (info.errorChanges + info.fixes);
+  }
+
+  for(const key of result1.testsWorsened) {
+    const info = testInfoMap.get(key)!;
+    errorsChangedScore1 -= info.breaks;
+  }
+
+  for(const key of result1.testsWorsened) {
+    const info = testInfoMap.get(key)!;
+    errorsChangedScore2 -= info.breaks;
   }
 
   const errorsChanged = errorsChangedScore1 - errorsChangedScore2;
@@ -2849,6 +2865,7 @@ export const initialiseTestInfoMap = (testInfoMap: Map<string, TestInformation>,
   for(const testResult of tester.testResults.values()) {
     testInfoMap.set(testResult.data.key, {
       fixes: 0,
+      breaks: 0,
       errorChanges: 0,
       total: 0,
       stackScoresImproved: 0,
@@ -3148,6 +3165,8 @@ export const addDifferencePayloadToTestInformation = (
     
     if (payload.evaluation.endResultChange === EndResult.BETTER) {
       info.fixes++;
+    } else if(payload.evaluation.endResultChange === EndResult.WORSE) {
+      info.breaks++;
     } else if (payload.evaluation.errorChanged !== null && payload.evaluation.errorChanged) {
       info.errorChanges++;
     } else if (payload.evaluation.stackScore !== null && payload.evaluation.stackScore > 0) {
@@ -3329,6 +3348,7 @@ export type NodeInformation = {
 
 type TestInformation = {
   fixes: number;
+  breaks: number;
   errorChanges: number;
   stackScoresImproved: number;
   total: number;
