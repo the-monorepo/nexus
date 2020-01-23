@@ -40,6 +40,20 @@ import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sb
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
 import dstar from '@fault/sbfl-dstar';
 
+const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
+  let i = 1;
+  let highest: T = arr[0];
+  while(i < arr.length) {
+    const item = arr[i];
+    if (compareFn(item, highest) > 0) {
+      highest = item;
+    }
+    i++;
+  } 
+
+  return highest;
+}
+
 class Queue<T> {
   private readonly arr: T[];
   private invalidated = false;
@@ -66,17 +80,7 @@ class Queue<T> {
       return;
     }
 
-    let i = 1;
-    let highest: T = this.arr[0];
-    while(i < this.arr.length) {
-      const item = this.arr[i];
-      if (this.compareFn(item, highest) > 0) {
-        highest = item;
-      }
-      i++;
-    } 
-
-    this.highest = highest;
+    this.highest = getHighest(this.arr, this.compareFn);
     this.invalidated = false;
   }
 
@@ -108,7 +112,15 @@ class Queue<T> {
 
   push(...item: T[]) {
     this.arr.push(...item);
-    this.invalidated = true;
+    
+    if (!this.invalidated) {
+      const highestOutOfNew = getHighest(item, this.compareFn);
+      if (this.arr.length <= 0) {
+        this.highest = highestOutOfNew
+      } else if(this.compareFn(highestOutOfNew, this.highest!) > 0) {
+        this.highest = highestOutOfNew;
+      }
+    }
   }
 
   get length() {
