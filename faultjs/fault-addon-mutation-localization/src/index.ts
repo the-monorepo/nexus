@@ -89,14 +89,15 @@ class Queue<T> {
   }
 
   private refindHighestIfInvalidated() {
-    if (!this.invalidated) {
-      return;
+    if (this.invalidated) {
+      this.refindHighest();
     }
-    this.refindHighest();
   }
 
   pop() {
     if (this.arr.length <= 0) {
+      this.highest = undefined;
+      this.invalidated = false;
       return undefined;
     }
     this.refindHighestIfInvalidated();
@@ -111,16 +112,17 @@ class Queue<T> {
   }
 
   push(...item: T[]) {
-    this.arr.push(...item);
-    
-    if (!this.invalidated) {
+    if (this.arr.length <= 0) {
+      this.highest = getHighest(item, this.compareFn);
+      this.invalidated = false;
+    } else if (!this.invalidated) {
       const highestOutOfNew = getHighest(item, this.compareFn);
-      if (this.arr.length <= 0) {
-        this.highest = highestOutOfNew
-      } else if(this.compareFn(highestOutOfNew, this.highest!) > 0) {
+      if(this.compareFn(highestOutOfNew, this.highest!) > 0) {
         this.highest = highestOutOfNew;
-      }
+      }  
     }
+    
+    this.arr.push(...item);
   }
 
   get length() {
