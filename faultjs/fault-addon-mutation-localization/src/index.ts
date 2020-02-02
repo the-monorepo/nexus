@@ -236,7 +236,7 @@ const changedOrImprovedError = (evaluation: MutationEvaluation) => {
     !evaluation.crashed &&
     (evaluation.testsImproved.length > 0 ||
       evaluation.errorsChanged.length > 0 ||
-      evaluation.stackEvaluation.improvement > 0)
+      evaluation.stackEvaluation.improvement.length > 0)
   );
 };
 const evaluationChangedOrImprovedErrorOrCrashed = (evaluation: MutationEvaluation) => {
@@ -244,7 +244,7 @@ const evaluationChangedOrImprovedErrorOrCrashed = (evaluation: MutationEvaluatio
 };
 
 const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
-  return !evaluation.crashed && evaluation.testsWorsened.length === 0 && evaluation.stackEvaluation.degradation === 0;
+  return !evaluation.crashed && evaluation.testsWorsened.length === 0 && evaluation.stackEvaluation.degradation.length === 0;
 };
 
 export type CategoryData<T> = {} & Array<T | CategoryData<T>>;
@@ -1967,17 +1967,38 @@ export type TestEvaluation = {
   stackScore: number | null;
 };
 
-const nothingChangedMutationStackEvaluation = (e: MutationStackEvaluation) => {
-  return e.degradation === 0 && e.improvement === 0;
+export const suspiciousnessScore = (
+  r1: NormalMutationEvaluation,
+  testInfoMap: Map<string, TestInformation>
+) => {
+  let score = 0;
+  for(const key of r1.testsImproved) {
+    const info = testInfoMap.get(key)!;
+    score += 1 / (info.fixes + 1);
+  }
+  for(const key of r1.stackEvaluation.improvement) {
+    const info = testInfoMap.get(key)!;
+    score += 1 / (info.fixes + info.stackScoresImproved + 1);
+  }
+  for(const key of r1.errorsChanged) {
+    const info = testInfoMap.get(key)!;
+    score += 1 / (info.fixes + info.stackScoresImproved + info.errorChanges + 1);
+  }
+  for(const key of r1.stackEvaluation.degradation) {
+    const info = testInfoMap.get(key)!;
+    score -= (1 + info.unchanged + info.stackScoresDegraded) / (info.total + 1);
+  }
+  for(const key of r1.testsWorsened) {
+    const info = testInfoMap.get(key);
+    score -= info === undefined ? 1 : ((1 + info.unchanged + info.stackScoresDegraded + info.breaks) / (info.total + 1));
+  }
+  
+  return score;
 };
 
-/**
- * From worst evaluation to best evaluation
- */
-export const compareMutationEvaluations = (
+export const compareSolutionProperties = (
   r1: MutationEvaluation,
   r2: MutationEvaluation,
-  testInfoMap: Map<string, TestInformation>,
 ) => {
   const goodThingsHappened1 = changedOrImprovedError(r1);
   const goodThingsHappened2 = changedOrImprovedError(r2);
@@ -1987,6 +2008,10 @@ export const compareMutationEvaluations = (
     return goodThingsHappenedComparison;
   }
 
+  if (!goodThingsHappened1 && !goodThingsHappened2) {
+    return 0;
+  }
+
   const evaluationDidNothingBad1 = evaluationDidNothingBad(r1);
   const evaluationDidNothingBad2 = evaluationDidNothingBad(r2);
   const evaluationDidNothingBadComparison = (evaluationDidNothingBad1 ? 1 : -1) - (evaluationDidNothingBad2 ? 1 : -1);
@@ -1994,79 +2019,29 @@ export const compareMutationEvaluations = (
     return evaluationDidNothingBadComparison;
   }
 
+  return 0;
+}
+
+/**
+ * From worst evaluation to best evaluation
+ */
+export const compareMutationEvaluations = (
+  r1: MutationEvaluation,
+  r2: MutationEvaluation,
+  testInfoMap: Map<string, TestInformation>,
+) => {
+  const solutionComparison = compareSolutionProperties(r1, r2);
+  if (solutionComparison !== 0) {
+    return solutionComparison;
+  }
+
   // TODO: TypeScript should have inferred that this would be the case..
   const result1 = r1 as NormalMutationEvaluation;
   const result2 = r2 as NormalMutationEvaluation;
 
-  const stackEval1 = result1.stackEvaluation;
-  const stackEval2 = result2.stackEvaluation;
-
-  let testImprovementScore1 = 0;
-  let testImprovementScore2 = 0;
-
-  for(const key of result1.testsImproved) {
-    const info = testInfoMap.get(key)!;
-    testImprovementScore1 += (info.total - info.fixes);
-  }
-
-  for(const key of result2.testsImproved) {
-    const info = testInfoMap.get(key)!;
-    testImprovementScore2 += info.total - info.fixes;
-  }
-  
-  for(const key of result1.testsWorsened) {
-    const info = testInfoMap.get(key)!;
-    testImprovementScore1 -= info.breaks;
-  }
-
-  for(const key of result2.testsWorsened) {
-    const info = testInfoMap.get(key)!;
-    testImprovementScore2 -= info.breaks;
-  }
-
-  const netTestsImprovedComparison = testImprovementScore1 - testImprovementScore2;
-  if (netTestsImprovedComparison !== 0) {
-    return netTestsImprovedComparison;
-  }
-
-  const stackImprovementScore = stackEval1.improvement - stackEval2.improvement;
-  if (stackImprovementScore !== 0) {
-    return stackImprovementScore;
-  }
-
-  const stackDegradationScore = stackEval2.degradation - stackEval1.degradation;
-  if (stackDegradationScore !== 0) {
-    return stackDegradationScore;
-  }
-
-  let errorsChangedScore1 = 0;
-  let errorsChangedScore2 = 0;
-  for(const key of result1.errorsChanged) {
-    const info = testInfoMap.get(key)!;
-    errorsChangedScore1 += info.total - (info.errorChanges + info.fixes);
-  }
-
-  for(const key of result2.errorsChanged) {
-    const info = testInfoMap.get(key)!;
-    errorsChangedScore2 += info.total - (info.errorChanges + info.fixes);
-  }
-
-  for(const key of result1.testsWorsened) {
-    const info = testInfoMap.get(key)!;
-    errorsChangedScore1 -= info.breaks;
-  }
-
-  for(const key of result1.testsWorsened) {
-    const info = testInfoMap.get(key)!;
-    errorsChangedScore2 -= info.breaks;
-  }
-
-  const errorsChanged = errorsChangedScore1 - errorsChangedScore2;
-  if (errorsChanged !== 0) {
-    return errorsChanged;
-  }
-
-  return 0;
+  const score1 = suspiciousnessScore(result1, testInfoMap);
+  const score2 = suspiciousnessScore(result2, testInfoMap);
+  return score1 - score2;
 };
 
 export const executionDistanceFromStart = (
@@ -2198,14 +2173,12 @@ export const evaluateModifiedTestResult = (
 };
 
 type MutationStackEvaluation = {
-  nulls: number;
-  improvement: number;
-  degradation: number;
+  improvement: string[];
+  degradation: string[];
 };
 const createMutationStackEvaluation = (): MutationStackEvaluation => ({
-  nulls: 0,
-  improvement: 0,
-  degradation: 0,
+  improvement: [],
+  degradation: [],
 });
 
 export type CommonMutationEvaluation = {
@@ -2282,12 +2255,12 @@ const evaluateNewMutation = (
       errorsChanged.push(payload.original.data.key);
     }
 
-    if (testEvaluation.stackScore === null) {
-      stackEvaluation.nulls++;
-    } else if (testEvaluation.stackScore > 0) {
-      stackEvaluation.improvement++;
-    } else if (testEvaluation.stackScore < 0) {
-      stackEvaluation.degradation++;
+    if (testEvaluation.stackScore !== null) {
+      if (testEvaluation.stackScore > 0) {
+        stackEvaluation.improvement.push(payload.original.data.key);
+      } else if (testEvaluation.stackScore < 0) {
+        stackEvaluation.degradation.push(payload.original.data.key);
+      }  
     }
   }
 
@@ -2499,13 +2472,13 @@ export const mutationEvalatuationMapToFaults = (
                   ...instructionEvaluations
                     .get(instruction)!
                     .mutationEvaluations.sortedIterator(),
-                ].map(e => ({ ...e, instructions: undefined })),
+                ].reverse().map(e => ({ ...e, instructions: undefined })),
                 nodes: keys.map(key =>
                   [...nodeInfoMap.get(key)!.evaluations.sortedIterator()].map(e => ({
                     ...e,
                     instructions: undefined,
                   })),
-                ),
+                ).reverse(),
               };
             }),
           },
@@ -2871,6 +2844,8 @@ export const initialiseTestInfoMap = (testInfoMap: Map<string, TestInformation>,
       errorChanges: 0,
       total: 0,
       stackScoresImproved: 0,
+      stackScoresDegraded: 0,
+      unchanged: 0,
       result: testResult,
       coverageInfo: new Map(),
     });
@@ -3171,8 +3146,14 @@ export const addDifferencePayloadToTestInformation = (
       info.breaks++;
     } else if (payload.evaluation.errorChanged !== null && payload.evaluation.errorChanged) {
       info.errorChanges++;
-    } else if (payload.evaluation.stackScore !== null && payload.evaluation.stackScore > 0) {
-      info.stackScoresImproved++;
+    } else if (payload.evaluation.stackScore !== null) {
+      if (payload.evaluation.stackScore > 0) {
+        info.stackScoresImproved++;
+      } else if (payload.evaluation.stackScore < 0) {
+        info.stackScoresDegraded++;
+      }
+    } else {
+      info.unchanged++;
     }
     info.total++;
   }
@@ -3189,7 +3170,6 @@ const addMutationEvaluation = (
   mutationEvaluation: MutationEvaluation,
 ) => {
   const affectedKeys: Set<string> = new Set();
-  const instructionsAffected: Set<Instruction<any>> = new Set();
 
   if (!difference.crashed) {
     for (const instruction of instructions) {
@@ -3203,15 +3183,6 @@ const addMutationEvaluation = (
     );
 
     addDifferencePayloadToTestInformation(changed, testInfoMap);
-
-    for(const payload of changed) {
-      const testInfo = testInfoMap.get(payload.original.data.key)!;
-      for(const coverageInfo of testInfo.coverageInfo.values()) {
-        for(const instruction of coverageInfo.instructions) {
-          instructionsAffected.add(instruction);
-        }
-      }
-    }
 
     for (const key of affectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
@@ -3260,28 +3231,21 @@ const addMutationEvaluation = (
       }
     }
 
-    for (const key of affectedKeys) {
-      const nodeInfo = nodeInfoMap.get(key)!;
-      const tests = difference.missing.filter(result =>
-        isRelevantTest(result, coverageObjMap, nodeInfo.coverageInfo),
-      );
-      if (tests.length <= 0) {
-        continue;
+    const filteredAffectedKeys = [...affectedKeys].filter(key => {
+      if (!nodeInfoMap.has(key)) {
+        return false;
       }
+      const nodeInfo = nodeInfoMap.get(key)!;
+      return difference.missing.some(result => isRelevantTest(result, coverageObjMap, nodeInfo.coverageInfo));
+    });
+    for (const key of filteredAffectedKeys) {
+      const nodeInfo = nodeInfoMap.get(key)!;
       nodeInfo.evaluations.push(mutationEvaluation);
     }
   }
 
   for (const instruction of instructions) {
     instructionEvaluations.get(instruction)!.mutationEvaluations.push(mutationEvaluation);
-  }
-
-  for(const key of affectedKeys) {
-    const info = nodeInfoMap.get(key)!;
-
-    for(const instruction of info.instructions) {
-      instructionsAffected.add(instruction);
-    }
   }
 
   instructionQueue.update();
@@ -3341,6 +3305,11 @@ export const createInstructionBlocks = (
   return instructionsList.map(instructions => new Queue(subHeapCompareFn, instructions));
 };
 
+export type NodeEvaluation = {
+  evaluation: MutationEvaluation,
+  nodes: number,
+};
+
 export type NodeInformation = {
   evaluations: Queue<MutationEvaluation>;
   instructions: Instruction<any>[];
@@ -3353,6 +3322,8 @@ type TestInformation = {
   breaks: number;
   errorChanges: number;
   stackScoresImproved: number;
+  stackScoresDegraded: number;
+  unchanged: number;
   total: number;
   result: TestResult;
   coverageInfo: Map<string, CoveragePathObj>;
