@@ -71,4 +71,4 @@ faults
 
 report.*.*.*.*.*.json
 
-.DC_Store
+.DS_Store
