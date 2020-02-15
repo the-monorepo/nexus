@@ -70,3 +70,5 @@ misc/*/stats.html
 faults
 
 report.*.*.*.*.*.json
+
+.DC_Store
