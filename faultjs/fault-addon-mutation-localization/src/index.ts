@@ -2009,7 +2009,7 @@ export const compareSolutionProperties = (
   }
 
   if (!goodThingsHappened1 && !goodThingsHappened2) {
-    return 0;
+    return null;
   }
 
   const evaluationDidNothingBad1 = evaluationDidNothingBad(r1);
@@ -2022,25 +2022,89 @@ export const compareSolutionProperties = (
   return 0;
 }
 
-/**
- * From worst evaluation to best evaluation
- */
-export const compareMutationEvaluations = (
-  r1: MutationEvaluation,
-  r2: MutationEvaluation,
+export const compareNodeEvaluations = (
+  result1: NodeEvaluation,
+  result2: NodeEvaluation,
   testInfoMap: Map<string, TestInformation>,
 ) => {
-  const solutionComparison = compareSolutionProperties(r1, r2);
+  const solutionComparison = compareSolutionProperties(result1.evaluation, result2.evaluation);
+  if (solutionComparison === null) {
+    return 0;
+  }
   if (solutionComparison !== 0) {
     return solutionComparison;
   }
 
-  // TODO: TypeScript should have inferred that this would be the case..
-  const result1 = r1 as NormalMutationEvaluation;
-  const result2 = r2 as NormalMutationEvaluation;
+  const r1 = result1.evaluation as NormalMutationEvaluation;
+  const r2 = result2.evaluation as NormalMutationEvaluation;
 
-  const score1 = suspiciousnessScore(result1, testInfoMap);
-  const score2 = suspiciousnessScore(result2, testInfoMap);
+  const score1 = suspiciousnessScore(r1, testInfoMap) / result1.nodes;
+  const score2 = suspiciousnessScore(r2, testInfoMap) / result2.nodes;
+
+  return score1 - score2;
+}
+
+/**
+ * From worst evaluation to best evaluation
+ */
+export const compareNodeInformation = (
+  info1: NodeInformation,
+  info2: NodeInformation,
+  testInfoMap: Map<string, TestInformation>,
+) => {
+  const a = info1.evaluations;
+  const b = info2.evaluations;
+  if (a.length <= 0 && b.length >= 1) {
+    const evaluation2 = b.peek().evaluation;
+    if (changedOrImprovedError(evaluation2)) {
+      return -1;
+    } else {
+      return 1;
+    }
+  } else if (a.length >= 1 && b.length <= 0) {
+    const evaluation1 = a.peek().evaluation;
+    if (changedOrImprovedError(evaluation1)) {
+      return 1;
+    } else {
+      return -1;
+    }
+  } else if (a.length >= 1 && b.length >= 1) {
+    const instructionEvaluationComparison = compareNodeEvaluations(
+      a.peek(),
+      b.peek(),
+      testInfoMap
+    );
+    if (instructionEvaluationComparison !== 0) {
+      return instructionEvaluationComparison;
+    }
+  }
+
+  return 0;
+};
+
+
+/**
+ * From worst evaluation to best evaluation
+ */
+export const compareMutationEvaluations = (
+  result1: MutationEvaluation,
+  result2: MutationEvaluation,
+  testInfoMap: Map<string, TestInformation>,
+) => {
+  const solutionComparison = compareSolutionProperties(result1, result2);
+  if (solutionComparison === null) {
+    return 0;
+  }
+  if (solutionComparison !== 0) {
+    return solutionComparison;
+  }
+
+  const r1 = result1 as NormalMutationEvaluation;
+  const r2 = result2 as NormalMutationEvaluation;
+
+  const score1 = suspiciousnessScore(r1, testInfoMap);
+  const score2 = suspiciousnessScore(r2, testInfoMap);
+
   return score1 - score2;
 };
 
@@ -2312,6 +2376,19 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
   return compareMutationEvaluations(a, b, testInfoMap);
 };
 
+const compareNodeEvaluationsWithLargeMutationCountsFirst = (
+  a: NodeEvaluation,
+  b: NodeEvaluation,
+  testInfoMap: Map<string, TestInformation>
+) => {
+  const instructionLengthComparison = b.evaluation.instructions.length - a.evaluation.instructions.length;
+  if (instructionLengthComparison !== 0) {
+    return instructionLengthComparison;
+  }
+
+  return compareNodeEvaluations(a, b, testInfoMap);
+};
+
 const shouldCountNode = (path: NodePath) =>
   !path.isExpressionStatement() && !path.isBlockStatement();
 
@@ -2348,7 +2425,7 @@ export const instructionChangedOrImprovedErrorOrHasNoEvaluations = (
 
   return (
     evals1.some(changedOrImprovedError) ||
-    nodeEvalLists.some(evals => evals.some(changedOrImprovedError))
+    nodeEvalLists.some(evals => evals.some((nodeInfo) => changedOrImprovedError(nodeInfo.evaluation)))
   );
 };
 
@@ -2475,8 +2552,11 @@ export const mutationEvalatuationMapToFaults = (
                 ].reverse().map(e => ({ ...e, instructions: undefined })),
                 nodes: keys.map(key =>
                   [...nodeInfoMap.get(key)!.evaluations.sortedIterator()].map(e => ({
-                    ...e,
-                    instructions: undefined,
+                    evaluation: {
+                      ...e.evaluation,
+                      instructions: undefined,
+                    },
+                    nodes: e.nodes,
                   })),
                 ).reverse(),
               };
@@ -2511,13 +2591,27 @@ type DefaultIsFinishedOptions = {
   durationThreshold?: number;
 };
 
+const isPromisingEvaluation = (evaluation: MutationEvaluation) => {
+  return changedOrImprovedError(evaluation);  
+}
+
 const hasPromisingEvaluation = (evaluations: Queue<MutationEvaluation>) => {
   if (evaluations.length <= 0) {
     return true;
   }
   const bestEvaluation = evaluations.peek();
   return (
-    changedOrImprovedError(bestEvaluation)
+    isPromisingEvaluation(bestEvaluation)
+  );
+};
+
+const hasPromisingNodeEvaluation = (evaluations: Queue<NodeEvaluation>) => {
+  if (evaluations.length <= 0) {
+    return true;
+  }
+  const bestEvaluation = evaluations.peek();
+  return (
+    isPromisingEvaluation(bestEvaluation.evaluation)
   );
 };
 
@@ -2547,7 +2641,7 @@ export const shouldFinishMutations = (
   const allDependencyEvaluations = allWriteDependencyKeys.map(
     key => nodeInfoMap.get(key)!.evaluations,
   );
-  if (!allDependencyEvaluations.some(hasPromisingEvaluation)) {
+  if (!allDependencyEvaluations.some(nodeEval => hasPromisingNodeEvaluation(nodeEval))) {
     //console.log('No promsiing node evalations')
     return true;
   }
@@ -2742,13 +2836,13 @@ export const compareInstruction = (
   const relevantKeys2 = instruction2.typedWriteDependencyKeys;
 
   const bestNodeEvaluations1 = relevantKeys1
-    .map(node => nodeInfoMap.get(node)!.evaluations)
-    .sort((a, b) => compareEvaluationHeaps(a, b, testInfoMap))[relevantKeys1.length - 1];
+    .map(node => nodeInfoMap.get(node)!)
+    .sort((a, b) => compareNodeInformation(a, b, testInfoMap))[relevantKeys1.length - 1];
   const bestNodeEvaluations2 = relevantKeys2
-    .map(node => nodeInfoMap.get(node)!.evaluations)
-    .sort((a, b) => compareEvaluationHeaps(a, b, testInfoMap))[relevantKeys2.length - 1];
+    .map(node => nodeInfoMap.get(node)!)
+    .sort((a, b) => compareNodeInformation(a, b, testInfoMap))[relevantKeys2.length - 1];
 
-  const nodeEvaluationComparison = compareEvaluationHeaps(
+  const nodeEvaluationComparison = compareNodeInformation(
     bestNodeEvaluations1,
     bestNodeEvaluations2,
     testInfoMap
@@ -2886,7 +2980,7 @@ export const initialiseEvaluationMaps = (
 
       const key = pathToPrimaryKey(filePath, writePath);
       nodeInfoMap.set(key, {
-        evaluations: new Queue((a, b) => compareMutationEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap)),
+        evaluations: new Queue((a, b) => compareNodeEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap)),
         instructions: [],
         path: writePath,
         coverageInfo,
@@ -3222,7 +3316,10 @@ const addMutationEvaluation = (
         },
         mutationEvaluation.instructions,
       );
-      nodeInfo.evaluations.push(nodeEvaluation);
+      nodeInfo.evaluations.push({
+        evaluation: nodeEvaluation,
+        nodes: affectedKeys.size
+      });
     }
   } else {
     for (const instruction of instructions) {
@@ -3238,9 +3335,14 @@ const addMutationEvaluation = (
       const nodeInfo = nodeInfoMap.get(key)!;
       return difference.missing.some(result => isRelevantTest(result, coverageObjMap, nodeInfo.coverageInfo));
     });
+
+    const newEvaluation = {
+      evaluation: mutationEvaluation,
+      nodes: filteredAffectedKeys.length,
+    };
     for (const key of filteredAffectedKeys) {
       const nodeInfo = nodeInfoMap.get(key)!;
-      nodeInfo.evaluations.push(mutationEvaluation);
+      nodeInfo.evaluations.push(newEvaluation);
     }
   }
 
@@ -3311,7 +3413,7 @@ export type NodeEvaluation = {
 };
 
 export type NodeInformation = {
-  evaluations: Queue<MutationEvaluation>;
+  evaluations: Queue<NodeEvaluation>;
   instructions: Instruction<any>[];
   coverageInfo: CoveragePathObj | null;
   path: NodePath;
@@ -3409,6 +3511,7 @@ export const createPlugin = ({
         if (evaluationChangedOrImprovedErrorOrCrashed(mutationEvaluation)) {
           const instruction = previousInstructions.peek();
 
+          /*if (
           const previousIndirectNodeEvaluations = instruction.indirectWriteDependencyKeys.map(
             key => nodeInfoMap.get(key)!.evaluations,
           );
@@ -3417,25 +3520,24 @@ export const createPlugin = ({
             key => nodeInfoMap.get(key)!.evaluations,
           );
 
-          if (
             previousIndirectNodeEvaluations.some(
               evaluation =>
                 evaluation.length > 0 &&
-                compareMutationEvaluations(mutationEvaluation, evaluation.peek(), testInfoMap) > 0
+                compareNodeMutations({ evaluation: mutationEvaluation, nodes: 1 }, evaluation.peek(), testInfoMap) > 0
             ) ||
             previousDirectNodeEvaluations.some(
               evaluations =>
                 evaluations.length <= 0 ||
-                compareMutationEvaluations(mutationEvaluation, evaluations.peek(), testInfoMap) > 0
+                compareNodeMutations({ evaluation: mutationEvaluation, nodes: 1 }, evaluations.peek(), testInfoMap) > 0
             )
-          ) {
+          ) {*/
             if (instruction.variants !== undefined) {
               instruction.variantIndex++;
               if (instruction.variantIndex < instruction.variants.length) {
                 instructionQueue.push(previousInstructions);
               }
             }
-          }
+          // }
         }
       }
       addMutationEvaluation(
