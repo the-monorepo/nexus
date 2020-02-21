@@ -1,11 +1,11 @@
 {
-  "name": "@pshaw/page-breaker-chrome-extension",
+  "name": "@pshaw/page-breaker-chrome",
   "version": "1.0.0",
   "description": "An assortment of tools that lets you test how robust your CSS handles less common inputs including right-to-left, special unicode markup, long words and more.",
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "misc/page-breaker-chrome-extension"
+    "directory": "misc/page-breaker-chrome"
   }
 }

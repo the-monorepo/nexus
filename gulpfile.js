@@ -533,7 +533,7 @@ const bundleWebpack = async () => {
         `${compilation.errors.length} errors:`,
         compilation.errors
           .map(chalk.redBright)
-          .map(error => error.stack)
+          .map(error => error.stack !== undefined ? error.stack : error)
           .join('\n\n'),
       );
     }
@@ -553,7 +553,7 @@ const serveBundles = () => {
   for (const { compiler, config } of compilers) {
     const mergedDevServerConfig = config.devServer;
     const server = new WebpackDevServer(compiler, mergedDevServerConfig);
-    const serverPort = port;
+    const serverPort = config.devServer.port !== undefined ? config.devServer.port : port;
     server.listen(serverPort, 'localhost', () => {
       l.info(
         `Serving '${chalk.cyan(config.name)}' on port ${chalk.cyan(
@@ -675,7 +675,7 @@ const moreServes = async () => {
 
         `);
         });
-        app.get('/', res => {
+        app.get('/', (req, res) => {
           res.redirect('/index.html');
         });
         await new Promise((resolve, reject) => {
