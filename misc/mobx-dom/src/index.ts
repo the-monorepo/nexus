@@ -738,8 +738,8 @@ export type ItemBlueprint<T> = (item: T, index: number) => unknown;
 // Helper for generating a map of array item to its index over a subset
 // of an array (used to lazily generate `newKeyToIndexMap` and
 // `oldKeyToIndexMap`)
-const generateMap = (list: unknown[], start: number, end: number) => {
-  const map = new Map();
+const generateMap = <T>(list: T[], start: number, end: number) => {
+  const map: Map<T, number> = new Map();
   for (let i = start; i <= end; i++) {
     map.set(list[i], i);
   }
@@ -1067,6 +1067,45 @@ export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
 };
 
 export type SFC<P, R> = (props: P) => R;
+
+
+export const rerender = () => {
+  return (element: DomElement, key, descriptor): any => {
+    let value = descriptor.value;
+    Object.defineProperty(element, key, {
+      get() {
+        return value;
+      },
+      set(newValue) {
+        value = newValue;
+        element.update();
+      }
+    });
+    element.update();
+  }
+}
+
+export class DomElement extends HTMLElement {
+  readonly renderRoot!: Element|DocumentFragment;
+
+  constructor() {
+    super();
+    this.renderRoot = this.attachShadow({ mode: 'open' });
+  }
+
+  public update() {
+    const renderPayload = this.render();
+    
+    render(
+      renderPayload,
+      this.renderRoot
+    );
+  }
+
+  protected render() {
+    return undefined;
+  }
+}
 /*
 export type StateSetter<S> = (state: S) => void;
 export type StatefulComponent<P, S, R> = (props: P, statePatch: S, setState: StateSetter<S>) => R;

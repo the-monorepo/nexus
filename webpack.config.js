@@ -1,7 +1,6 @@
 const { resolve } = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { HotModuleReplacementPlugin } = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackTemplate = require('html-webpack-template');
 
@@ -50,10 +49,12 @@ const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmarker');
 
 const resumeDir = resolve(miscDir, 'my-resume');
 
+const distPath = (packageDir) => resolve(packageDir, 'dist');
+
 const createDistOutput = packageDir => {
   return {
     filename: '[name].js',
-    path: resolve(packageDir, 'dist'),
+    path: distPath(packageDir),
     publicPath: '/',
   };
 };
@@ -93,7 +94,6 @@ const resumeConfig = {
       title: 'Patrick Shaw - Resume',
       links: [openSansUrl],
     }),
-    new HotModuleReplacementPlugin(),
     defaultBundleAnalyzerPlugin(resumeDir),
   ],
   devServer: {
@@ -124,8 +124,6 @@ const faultjsBenchmarkConfig = {
       title: `Fault.js benchmark results`,
       links: [openSansUrl],
     }),
-    new HotModuleReplacementPlugin(),
-    defaultBundleAnalyzerPlugin(faultjsBenchmarkDir),
   ],
   devServer: {
     port: 3001,
@@ -133,4 +131,29 @@ const faultjsBenchmarkConfig = {
   },
 };
 
-module.exports = [resumeConfig, faultjsBenchmarkConfig];
+const pageBreakerDir = resolve(miscDir, 'page-breaker-chrome');
+const pageBreakerConfig = {
+  name: 'page-breaker',
+  target: 'web',
+  resolve: {
+    extensions: tsxExtensions,
+  },
+  devtool: 'source-map',
+  module: {
+    rules: [svgRule, cssRule, sourceMapRule, babelRule],
+  },
+  entry: resolve(pageBreakerDir, 'src/index.tsx'),
+  output: createDistOutput(pageBreakerDir),
+  plugins: [
+    defaultHtmlWebpackPlugin({
+      title: `Page Breaker`,
+      links: [openSansUrl],
+    }),
+  ],
+  devServer: {
+    port: 3002,
+    compress: true,
+  },
+};
+
+module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerConfig];

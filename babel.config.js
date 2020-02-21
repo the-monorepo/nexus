@@ -51,6 +51,7 @@ module.exports = api => {
           './misc/my-resume',
           './misc/resume-template',
           './misc/mobx-dom',
+          './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
         ],
         plugins: plugins.concat([
