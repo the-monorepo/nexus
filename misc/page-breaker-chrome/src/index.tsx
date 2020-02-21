@@ -1,9 +1,12 @@
 import * as mbx from 'mobx-dom';
-//import { DomElement, rerender } from 'mobx-dom';
+
+import { Collapsible } from './Collapsible';
 
 const App = () => (
   <div>
-    Test
+    <Collapsible>
+      Test
+    </Collapsible>
   </div>
 );
 

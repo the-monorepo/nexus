@@ -1,9 +1,9 @@
 import * as mbx from 'mobx-dom';
 import { DomElement, rerender } from 'mobx-dom';
 
-import styles from './collapsible.css';
+import styles from './Collapsible.css';
 
-class Collapsible extends DomElement {
+export class Collapsible extends DomElement {
   render() {
     return (
       <>
@@ -11,6 +11,7 @@ class Collapsible extends DomElement {
         <section>
           <input id="collapsible" class="toggle" type="checkbox" />
           <label for="collapsible" class="lbl-toggle">More Info</label>
+          <slot/>
         </section>
       </>
     )
