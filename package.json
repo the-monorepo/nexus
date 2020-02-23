@@ -103,6 +103,7 @@
     "typescript": "^3.7.3",
     "webpack": "^4.41.6",
     "webpack-bundle-analyzer": "^3.6.0",
+    "webpack-dev-server": "^3.10.3",
     "winston": "^3.2.1"
   },
   "husky": {
