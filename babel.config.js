@@ -57,7 +57,7 @@ module.exports = api => {
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
           'babel-plugin-transform-mobx-jsx',
-          ['@babel/plugin-proposal-decorators', { legacy: true }],
+          ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
           classPropertyPlugin,
           '@babel/plugin-transform-strict-mode',
         ]),
