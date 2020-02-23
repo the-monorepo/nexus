@@ -314,6 +314,7 @@ export default declare((api, options) => {
       const nonStaticAttributeFields = fields.filter(
         field => !(field.type === ATTRIBUTE_TYPE && isLiteral(field.expression)),
       );
+      console.log('heh', children)
       const resultNode: ElementNode = {
         type: ELEMENT_TYPE,
         tag,
@@ -354,7 +355,6 @@ export default declare((api, options) => {
       );
       const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
 
-    
       const resultNode: SubcomponentNode = {
         type: SUBCOMPONENT_TYPE,
         nameExpression: jsxOpeningElementPath.get('name'),
@@ -363,6 +363,7 @@ export default declare((api, options) => {
           children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
         fields,
       };
+      console.log(resultNode.nameExpression.node, resultNode.children.length, resultNode.childrenTemplateId)
       return resultNode;
     }
   };
@@ -692,7 +693,7 @@ export default declare((api, options) => {
     }
   }
 
-  function* yieldFieldValuesFromNode(node: Node): Generator<any> {
+  function* yieldFieldValuesFromNode(node: Node): Generator<t.Node | null> {
     switch (node.type) {
       case ELEMENT_TYPE:
         for (const field of node.fields) {
@@ -711,7 +712,7 @@ export default declare((api, options) => {
         }
         break;
       case DYNAMIC_TYPE:
-        yield node.expression;
+        yield node.expression.node;
         break;
       case SUBCOMPONENT_TYPE:
         const objectProperties: any[] = [];
@@ -756,10 +757,34 @@ export default declare((api, options) => {
     node.type === ELEMENT_TYPE || node.type === TEXT_TYPE;
 
   function* yieldTemplateInfoFromRootNodes(nodes: Node[], templateId, scope) {
+    console.log();
+    const nodeStack: Node[] = [...nodes];
+    const dynamicNodes: (ElementNode | SubcomponentNode | DynamicSection)[] = [];
+    while (nodeStack.length > 0) {
+      const node = nodeStack.pop()!;
+      switch(node.type) {
+        case SUBCOMPONENT_TYPE:
+          yield* yieldTemplateInfoFromSubcomponentNode(node, scope);
+          dynamicNodes.push(node);
+          nodeStack.push(...node.children)
+          break;
+        case DYNAMIC_TYPE:
+          dynamicNodes.push(node);
+          break;
+        case ELEMENT_TYPE:
+          if (node.id !== null) {
+            dynamicNodes.push(node);
+          }
+          nodeStack.push(...node.children);
+          break;
+      }
+    }
     const subcomponentNodes: SubcomponentNode[] = nodes.filter(
       node => node.type === SUBCOMPONENT_TYPE,
     ) as SubcomponentNode[];
+    console.log(nodes);
     for (const subcomponentNode of subcomponentNodes) {
+      console.log('sbcomponent')
       yield* yieldTemplateInfoFromSubcomponentNode(subcomponentNode, scope);
     }
 
@@ -767,12 +792,7 @@ export default declare((api, options) => {
       | ElementNode
       | TextNode
     )[];
-    const dynamicElementLength = nodes.filter(
-      node =>
-        node.type === DYNAMIC_TYPE ||
-        node.type === SUBCOMPONENT_TYPE ||
-        (node.type === ELEMENT_TYPE && node.id),
-    ).length;
+    const dynamicElementLength = dynamicNodes.length;
     const args: Parameters<typeof t.callExpression>[1] = [t.stringLiteral(nodes.map(node => htmlFromNode(node)).join(''))];
     let templateMethod: string;
     if (nodesWithDom.length <= 0) {
