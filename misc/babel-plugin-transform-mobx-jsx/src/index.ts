@@ -118,7 +118,7 @@ type SubcomponentNode = {
   type: typeof SUBCOMPONENT_TYPE;
   nameExpression: tr.NodePath<t.JSXOpeningElement['name']>; // TODO
   children: Node[];
-  childrenTemplateId: any;
+  childrenTemplateId: t.Identifier | null;
   fields: SubcomponentField[];
 };
 /**
@@ -314,7 +314,6 @@ export default declare((api, options) => {
       const nonStaticAttributeFields = fields.filter(
         field => !(field.type === ATTRIBUTE_TYPE && isLiteral(field.expression)),
       );
-      console.log('heh', children)
       const resultNode: ElementNode = {
         type: ELEMENT_TYPE,
         tag,
@@ -359,11 +358,9 @@ export default declare((api, options) => {
         type: SUBCOMPONENT_TYPE,
         nameExpression: jsxOpeningElementPath.get('name'),
         children,
-        childrenTemplateId:
-          children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
+        childrenTemplateId: children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
         fields,
       };
-      console.log(resultNode.nameExpression.node, resultNode.children.length, resultNode.childrenTemplateId)
       return resultNode;
     }
   };
@@ -732,16 +729,26 @@ export default declare((api, options) => {
           }
         }
         if (node.childrenTemplateId) {
-          const childArgs: Parameters<typeof t.callExpression>[1] = [node.childrenTemplateId];
+          const fieldValues: Parameters<typeof t.callExpression>[1] = [];
           for (const childNode of node.children) {
-            childArgs.push(...yieldFieldValuesFromNode(childNode));
+            fieldValues.push(...yieldFieldValuesFromNode(childNode));
           }
-          objectProperties.push(
-            t.objectProperty(
-              t.identifier('children'),
-              mbxCallExpression('componentResult', childArgs),
-            ),
-          );
+          const domChildren = node.children.filter(nodeHasDom);
+          if (domChildren.length > 0) {
+            objectProperties.push(
+              t.objectProperty(
+                t.identifier('children'),
+                mbxCallExpression('componentResult', [node.childrenTemplateId, ...fieldValues])
+              ),
+            );
+          } else if (fieldValues.length > 0) {
+            objectProperties.push(
+              t.objectProperty(
+                t.identifier('children'),
+                fieldValues.length === 1 ? fieldValues[0] : t.arrayExpression([...fieldValues]),
+              ),
+            );    
+          }
         }
         // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
         if (!node.nameExpression.isJSXIdentifier()) {
@@ -757,60 +764,43 @@ export default declare((api, options) => {
     node.type === ELEMENT_TYPE || node.type === TEXT_TYPE;
 
   function* yieldTemplateInfoFromRootNodes(nodes: Node[], templateId, scope) {
-    console.log();
     const nodeStack: Node[] = [...nodes];
-    const dynamicNodes: (ElementNode | SubcomponentNode | DynamicSection)[] = [];
     while (nodeStack.length > 0) {
       const node = nodeStack.pop()!;
       switch(node.type) {
         case SUBCOMPONENT_TYPE:
           yield* yieldTemplateInfoFromSubcomponentNode(node, scope);
-          dynamicNodes.push(node);
-          nodeStack.push(...node.children)
-          break;
-        case DYNAMIC_TYPE:
-          dynamicNodes.push(node);
+          nodeStack.push(...node.children);
           break;
         case ELEMENT_TYPE:
-          if (node.id !== null) {
-            dynamicNodes.push(node);
-          }
           nodeStack.push(...node.children);
           break;
       }
-    }
-    const subcomponentNodes: SubcomponentNode[] = nodes.filter(
-      node => node.type === SUBCOMPONENT_TYPE,
-    ) as SubcomponentNode[];
-    console.log(nodes);
-    for (const subcomponentNode of subcomponentNodes) {
-      console.log('sbcomponent')
-      yield* yieldTemplateInfoFromSubcomponentNode(subcomponentNode, scope);
     }
 
     const nodesWithDom: (ElementNode | TextNode)[] = nodes.filter(nodeHasDom) as (
       | ElementNode
       | TextNode
     )[];
-    const dynamicElementLength = dynamicNodes.length;
+    const isDynamicChildren = hasDynamicNodes(nodes);
     const args: Parameters<typeof t.callExpression>[1] = [t.stringLiteral(nodes.map(node => htmlFromNode(node)).join(''))];
     let templateMethod: string;
     if (nodesWithDom.length <= 0) {
       return;
     } else if (nodesWithDom.length === 1) {
-      if (dynamicElementLength > 0) {
+      if (isDynamicChildren) {
         templateMethod = DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME;
       } else {
         templateMethod = STATIC_ELEMENT_TEMPLATE_FACTORY_NAME;
       }
     } else {
-      if (dynamicElementLength > 0) {
+      if (isDynamicChildren) {
         templateMethod = DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
       } else {
         templateMethod = STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
       }
     }
-    if (dynamicElementLength > 0) {
+    if (isDynamicChildren) {
       const rootParamId = scope.generateUidIdentifier('rootNode');
       const statements = [
         ...yieldDeclarationStatementsFromRootNodes(nodes, rootParamId, true),
@@ -826,7 +816,7 @@ export default declare((api, options) => {
   }
 
   function* yieldTemplateInfoFromSubcomponentNode(node: SubcomponentNode, scope) {
-    if (node.childrenTemplateId) {
+    if (node.childrenTemplateId !== null) {
       yield* yieldTemplateInfoFromRootNodes(
         node.children,
         node.childrenTemplateId,
