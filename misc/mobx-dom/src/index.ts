@@ -1085,27 +1085,6 @@ export const rerender = () => {
   }
 }
 
-export class DomElement extends HTMLElement {
-  readonly renderRoot!: Element|DocumentFragment;
-
-  constructor() {
-    super();
-    this.renderRoot = this.attachShadow({ mode: 'open' });
-  }
-
-  public update() {
-    const renderPayload = this.render();
-    
-    render(
-      renderPayload,
-      this.renderRoot
-    );
-  }
-
-  protected render() {
-    return undefined;
-  }
-}
 /*
 export type StateSetter<S> = (state: S) => void;
 export type StatefulComponent<P, S, R> = (props: P, statePatch: S, setState: StateSetter<S>) => R;
