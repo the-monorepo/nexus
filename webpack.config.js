@@ -5,6 +5,8 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackTemplate = require('html-webpack-template');
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
+const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
+const normalizeCssUrl = 'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css';
 
 const svgRule = {
   test: /\.svg$/,
@@ -107,6 +109,16 @@ const cssRule = {
   use: ['style-loader', 'css-loader'],
 };
 
+const sassModulesRule = {
+  test: /\.(sass|scss)$/,
+  use: ['style-loader', {
+    loader: 'css-loader',
+    options: {
+      modules: true,
+    }
+  }, 'sass-loader']
+}
+
 const faultjsBenchmarkConfig = {
   name: 'fault-benchmarker',
   target: 'web',
@@ -140,14 +152,14 @@ const pageBreakerConfig = {
   },
   devtool: 'source-map',
   module: {
-    rules: [svgRule, cssRule, sourceMapRule, babelRule],
+    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
   },
   entry: resolve(pageBreakerDir, 'src/index.tsx'),
   output: createDistOutput(pageBreakerDir),
   plugins: [
     defaultHtmlWebpackPlugin({
       title: `Page Breaker`,
-      links: [openSansUrl],
+      links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
     }),
   ],
   devServer: {
