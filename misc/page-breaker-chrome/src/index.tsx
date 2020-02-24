@@ -7,8 +7,8 @@ const Icon = ({ children }) => (
   <span class="material-icons">{children}</span>
 );
 
-const Button = ({ children }) => (
-  <button class={styles.button}>{children}</button>
+const Button = ({ children, ...other }) => (
+  <button {...other} class={styles.button}>{children}</button>
 );
 
 const SelectAndDragIcon = () => (
@@ -24,11 +24,11 @@ const FunctionHeadingH1 = ({ children }) => (
 );
 
 const App = () => (
-  <div>
+  <div class={styles.app}>
     <AppHeadingH1>Page breaker</AppHeadingH1>
     <section>
       <FunctionHeadingH1>Replace words</FunctionHeadingH1>
-      <Button><SelectAndDragIcon /></Button>
+      <Button title="Click or select a region to replace with page-breaking words"><SelectAndDragIcon /></Button>
     </section>
   </div>
 )
