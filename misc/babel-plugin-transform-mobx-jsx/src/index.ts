@@ -65,7 +65,7 @@ type PropertyField = {
 };
 type SpreadField = {
   type: typeof SPREAD_TYPE;
-  expression: tr.NodePath<t.Expression>;
+  expression: tr.NodePath<t.JSXSpreadAttribute['argument']>;
 };
 type EventField = {
   type: typeof EVENT_TYPE;
@@ -77,7 +77,7 @@ type AttributeField = {
   key: string;
   expression: tr.NodePath<Exclude<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>;
 };
-type ElementField = AttributeField | PropertyField | EventField; // TODO: SpreadType
+type ElementField = AttributeField | PropertyField | EventField | SpreadField; // TODO: SpreadType
 
 /**
  * We have no idea how many node will be in this section.
@@ -198,7 +198,7 @@ export default declare((api, options) => {
 
   const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
 
-  const valueExpressionFromJsxAttributeValue = (valuePath: tr.NodePath<t.JSXAttribute['value']>): tr.NodePath<t.JSXAttribute['value'] | Exclude<t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>  => {
+  const valueExpressionFromJsxAttributeValue = (valuePath: tr.NodePath<t.Expression>): tr.NodePath<t.JSXAttribute['value'] | Exclude<t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>  => {
     let current: tr.NodePath<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression']> = valuePath;
     while(current.isJSXExpressionContainer()) {
       current = valuePath.get('expression');
@@ -254,8 +254,13 @@ export default declare((api, options) => {
       const potentialId = scope.generateUidIdentifier(`${tag}$`);
       const fields: ElementField[] = jsxAttributePaths.map(
         (jsxAttributePath): ElementField => {
-          if (jsxAttributePath.isJSXSpreadAttribute()) {  
-            throw new Error('Not supported');
+          if (jsxAttributePath.isJSXSpreadAttribute()) {
+            const argumentPath = jsxAttributePath.get('argument');
+            const spreadExpressionPath = valueExpressionFromJsxAttributeValue(argumentPath);
+            return {
+              type: SPREAD_TYPE,
+              expression: spreadExpressionPath
+            }  
           } else if (jsxAttributePath.isJSXAttribute()) {
             const namePath = jsxAttributePath.get('name');
             const valuePath = jsxAttributePath.get('value');
@@ -667,6 +672,11 @@ export default declare((api, options) => {
                 case PROPERTY_TYPE:
                   yield mbxCallExpression(field.type, [node.id, field.setterId]);
                   break;
+                case SPREAD_TYPE:
+                  yield mbxCallExpression(field.type, [node.id]);
+                  break;
+                default:
+                  throw new Error(`Not supported: ${field.type}`);
               }
             }
             if (node.id !== null) {
