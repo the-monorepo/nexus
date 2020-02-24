@@ -1,0 +1,104 @@
+@import './constants.scss';
+
+.h900 {
+  font-size: 2.1875rem;
+  font-weight: 500;
+  letter-spacing: -0.01rem;
+  line-height: 2.5rem;
+  margin-top: $unit * 13;
+}
+
+.h800 {
+  font-size: 1.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.01rem;
+  line-height: 2rem;
+  margin-top: $unit * 10;
+}
+
+.h800.long-form {
+  line-height: 2rem;
+  margin-top: $unit * 12; 
+}
+
+.h700 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01rem;
+  line-height: 1.75rem;
+  margin-top: $unit * 10;
+}
+
+.h700.long-form {
+  line-height: 1.75rem;
+  margin-top: $unit * 10;  
+}
+
+.h600 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.008rem;
+  line-height: 1.5rem;
+  margin-top: $unit * 7;
+}
+
+.h600.long-form {
+  line-height: 1.5rem;
+  margin-top: $unit * 9;  
+}
+
+.h500 {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.006rem;
+  line-height: 1.25rem;
+  margin-top: $unit * 6;
+}
+
+.h500.long-form {
+  line-height: 1.5rem;
+  margin-top: $unit * 8;  
+}
+
+.h400 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.003rem;
+  line-height: 1rem;
+  margin-top: $unit * 4;
+}
+
+.h400.long-form {
+  line-height: 1.25rem;
+  margin-top: $unit * 6; 
+}
+
+.h300 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  line-height: 1rem;
+  margin-top: $unit * 5;
+}
+
+/*.h300.long-form {
+  line-height: 1rem;
+  margin-top: 20px;  
+}*/
+
+.h200 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1rem;
+  margin-top: $unit * 4;
+}
+
+.h100 {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1rem;
+  margin-top: $unit * 4;
+}
