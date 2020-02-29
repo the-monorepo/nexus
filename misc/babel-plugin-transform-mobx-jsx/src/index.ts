@@ -872,7 +872,7 @@ export default declare((api, options) => {
       for (const node of nodes) {
         componentResultArgs.push(...yieldFieldValuesFromNode(node));
       }
-      path.replaceWith(t.expressionStatement(t.arrayExpression(componentResultArgs)));
+      path.replaceWith(t.expressionStatement(componentResultArgs.length === 1 ? componentResultArgs[0] : t.arrayExpression(componentResultArgs)));
     } else {
       const fieldValues: Parameters<typeof t.callExpression>[1] = [];
       for (const node of nodes) {

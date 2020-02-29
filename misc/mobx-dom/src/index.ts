@@ -157,11 +157,11 @@ const textBlueprint = createBlueprint(
   (value: TextBlueprintInput, container, before) => {
     const node = document.createTextNode(value.toString());
     container.insertBefore(node, before);
-    return renderData(node, { node, value });
+    return renderData(node, node);
   },
   (state, value) => {
-    if (state.state.value !== value) {
-      state.state.node.data = value.toString();
+    if (state.state.data !== value) {
+      state.state.data = value.toString();
     }
   },
 );
