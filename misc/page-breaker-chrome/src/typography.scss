@@ -5,7 +5,10 @@
   font-weight: 500;
   letter-spacing: -0.01rem;
   line-height: 2.5rem;
-  margin-top: $unit * 13;
+  color: var(--txt-primary);
+  &.margin {
+    margin-top: $unit * 13;
+  }
 }
 
 .h800 {
@@ -13,12 +16,16 @@
   font-weight: 500;
   letter-spacing: -0.01rem;
   line-height: 2rem;
-  margin-top: $unit * 10;
-}
-
-.h800.long-form {
-  line-height: 2rem;
-  margin-top: $unit * 12; 
+  color: var(--txt-primary);
+  &.margin {
+    margin-top: $unit * 10;
+  }
+  &.long-form {
+    line-height: 2rem;
+    &.margin {
+      margin-top: $unit * 12; 
+    }
+  }  
 }
 
 .h700 {
@@ -26,12 +33,16 @@
   font-weight: 500;
   letter-spacing: -0.01rem;
   line-height: 1.75rem;
-  margin-top: $unit * 10;
-}
-
-.h700.long-form {
-  line-height: 1.75rem;
-  margin-top: $unit * 10;  
+  color: var(--txt-primary);
+  &.margin {
+    margin-top: $unit * 10;
+  }
+  &.long-form {
+    line-height: 1.75rem;
+    &.margin {
+      margin-top: $unit * 10; 
+    }  
+  }
 }
 
 .h600 {
@@ -39,25 +50,34 @@
   font-weight: 500;
   letter-spacing: -0.008rem;
   line-height: 1.5rem;
-  margin-top: $unit * 7;
+  color: var(--txt-primary);
+  &.margin {
+    margin-top: $unit * 7;
+  }  
+  &.long-form {
+    line-height: 1.5rem;
+    &.margin {
+      margin-top: $unit * 9;  
+    }
+  }  
 }
 
-.h600.long-form {
-  line-height: 1.5rem;
-  margin-top: $unit * 9;  
-}
 
 .h500 {
   font-size: 1rem;
   font-weight: 500;
   letter-spacing: -0.006rem;
   line-height: 1.25rem;
-  margin-top: $unit * 6;
-}
-
-.h500.long-form {
-  line-height: 1.5rem;
-  margin-top: $unit * 8;  
+  color: var(--txt-primary);
+  &.margin {
+    margin-top: $unit * 6;
+  }  
+  &.long-form {
+    line-height: 1.5rem;
+    &.margin {
+      margin-top: $unit * 8;  
+    }
+  }  
 }
 
 .h400 {
@@ -65,13 +85,19 @@
   font-weight: 600;
   letter-spacing: -0.003rem;
   line-height: 1rem;
-  margin-top: $unit * 4;
+  color: var(--txt-primary);
+  &.margin {
+    margin-top: $unit * 4;
+  }
+  
+  &.long-form {
+    line-height: 1.25rem;
+    &.margin {
+      margin-top: $unit * 6; 
+    }
+  }  
 }
 
-.h400.long-form {
-  line-height: 1.25rem;
-  margin-top: $unit * 6; 
-}
 
 .h300 {
   font-size: 0.75rem;
@@ -79,7 +105,10 @@
   letter-spacing: 0;
   text-transform: uppercase;
   line-height: 1rem;
-  margin-top: $unit * 5;
+  color: var(--txt-primary);
+  &.margin {
+    margin-top: $unit * 5;
+  }
 }
 
 /*.h300.long-form {
@@ -92,7 +121,10 @@
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1rem;
-  margin-top: $unit * 4;
+  color: var(--txt-secondary);
+  &.margin {
+    margin-top: $unit * 4;
+  }
 }
 
 .h100 {
@@ -100,5 +132,8 @@
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1rem;
-  margin-top: $unit * 4;
+  color: var(--txt-secondary);
+  &.margin {
+    margin-top: $unit * 4;
+  }
 }

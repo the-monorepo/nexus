@@ -1925,6 +1925,154 @@
   dependencies:
     "@types/node" ">= 8"
 
+"@polymer/font-roboto@^3.0.1":
+  version "3.0.2"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/font-roboto/-/font-roboto-3.0.2.tgz#80cdaa7225db2359130dfb2c6d9a3be1820020c3"
+  integrity sha1-gM2qciXbI1kTDfssbZo74YIAIMM=
+
+"@polymer/iron-a11y-announcer@^3.0.0-pre.26":
+  version "3.0.2"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-a11y-announcer/-/iron-a11y-announcer-3.0.2.tgz#730dd36ccb2e042ecd5160ba439c2bf2f8a97412"
+  integrity sha1-cw3TbMsuBC7NUWC6Q5wr8vipdBI=
+  dependencies:
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-a11y-keys-behavior@^3.0.0-pre.26", "@polymer/iron-a11y-keys-behavior@^3.0.1":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-a11y-keys-behavior/-/iron-a11y-keys-behavior-3.0.1.tgz#2868ea72912d2007ffab4734684a91f5aac49b84"
+  integrity sha1-KGjqcpEtIAf/q0c0aEqR9arEm4Q=
+  dependencies:
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-autogrow-textarea@^3.0.0-pre.26":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-autogrow-textarea/-/iron-autogrow-textarea-3.0.1.tgz#0205d9c5ca16f3afd505f41e9037989707d59dce"
+  integrity sha1-AgXZxcoW86/VBfQekDeYlwfVnc4=
+  dependencies:
+    "@polymer/iron-behaviors" "^3.0.0-pre.26"
+    "@polymer/iron-flex-layout" "^3.0.0-pre.26"
+    "@polymer/iron-validatable-behavior" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-behaviors@^3.0.0-pre.26", "@polymer/iron-behaviors@^3.0.1":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-behaviors/-/iron-behaviors-3.0.1.tgz#a3b6f876779a7f0a91a15e4423890968b6525901"
+  integrity sha1-o7b4dneafwqRoV5EI4kJaLZSWQE=
+  dependencies:
+    "@polymer/iron-a11y-keys-behavior" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-checked-element-behavior@^3.0.0-pre.26":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-checked-element-behavior/-/iron-checked-element-behavior-3.0.1.tgz#7a4b49646603657ab2c5e5ca7bd97f34444fdaf5"
+  integrity sha1-ektJZGYDZXqyxeXKe9l/NERP2vU=
+  dependencies:
+    "@polymer/iron-form-element-behavior" "^3.0.0-pre.26"
+    "@polymer/iron-validatable-behavior" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-flex-layout@^3.0.0-pre.26", "@polymer/iron-flex-layout@^3.0.1":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-flex-layout/-/iron-flex-layout-3.0.1.tgz#36f9e1a8eb792d279b2bc75d362628721ad37f0c"
+  integrity sha1-NvnhqOt5LSebK8ddNiYochrTfww=
+  dependencies:
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-form-element-behavior@^3.0.0-pre.26", "@polymer/iron-form-element-behavior@^3.0.1":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-form-element-behavior/-/iron-form-element-behavior-3.0.1.tgz#4c79e1981d7796ce659e997f3b8f5e14b4a075a4"
+  integrity sha1-THnhmB13ls5lnpl/O49eFLSgdaQ=
+  dependencies:
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-input@^3.0.0-pre.26":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-input/-/iron-input-3.0.1.tgz#dc866a25107f9b38d9ca4512dd9a3e51b78b4915"
+  integrity sha1-3IZqJRB/mzjZykUS3Zo+UbeLSRU=
+  dependencies:
+    "@polymer/iron-a11y-announcer" "^3.0.0-pre.26"
+    "@polymer/iron-validatable-behavior" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-meta@^3.0.0-pre.26":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-meta/-/iron-meta-3.0.1.tgz#7f140628d127b0a284f882f1bb323a261bc125f5"
+  integrity sha1-fxQGKNEnsKKE+ILxuzI6JhvBJfU=
+  dependencies:
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-range-behavior@^3.0.0-pre.26":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-range-behavior/-/iron-range-behavior-3.0.1.tgz#0aba35addb0a390bd3eafc307c35389cddbe8677"
+  integrity sha1-Cro1rdsKOQvT6vwwfDU4nN2+hnc=
+  dependencies:
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/iron-validatable-behavior@^3.0.0-pre.26":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/iron-validatable-behavior/-/iron-validatable-behavior-3.0.1.tgz#73538f005a07741c31b6fc1e981168c3d3e0d92b"
+  integrity sha1-c1OPAFoHdBwxtvwemBFow9Pg2Ss=
+  dependencies:
+    "@polymer/iron-meta" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/paper-behaviors@^3.0.1":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/paper-behaviors/-/paper-behaviors-3.0.1.tgz#83f1cd06489f484c1b108a2967fb01952df722ad"
+  integrity sha1-g/HNBkifSEwbEIopZ/sBlS33Iq0=
+  dependencies:
+    "@polymer/iron-behaviors" "^3.0.0-pre.26"
+    "@polymer/iron-checked-element-behavior" "^3.0.0-pre.26"
+    "@polymer/paper-ripple" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/paper-input@^3.0.1":
+  version "3.2.0"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/paper-input/-/paper-input-3.2.0.tgz#a07dbc1b009bac97a5a86eccb57d99b17bd96285"
+  integrity sha1-oH28GwCbrJelqG7MtX2ZsXvZYoU=
+  dependencies:
+    "@polymer/iron-a11y-keys-behavior" "^3.0.0-pre.26"
+    "@polymer/iron-autogrow-textarea" "^3.0.0-pre.26"
+    "@polymer/iron-behaviors" "^3.0.0-pre.26"
+    "@polymer/iron-form-element-behavior" "^3.0.0-pre.26"
+    "@polymer/iron-input" "^3.0.0-pre.26"
+    "@polymer/paper-styles" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/paper-progress@^3.0.1":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/paper-progress/-/paper-progress-3.0.1.tgz#2943054a909ad381236b3c7aecee078123bba839"
+  integrity sha1-KUMFSpCa04Ejazx67O4HgSO7qDk=
+  dependencies:
+    "@polymer/iron-flex-layout" "^3.0.0-pre.26"
+    "@polymer/iron-range-behavior" "^3.0.0-pre.26"
+    "@polymer/paper-styles" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/paper-ripple@^3.0.0-pre.26":
+  version "3.0.2"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/paper-ripple/-/paper-ripple-3.0.2.tgz#52566f5ee367942022ceaa991368105d21403de5"
+  integrity sha1-UlZvXuNnlCAizqqZE2gQXSFAPeU=
+  dependencies:
+    "@polymer/iron-a11y-keys-behavior" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/paper-styles@^3.0.0-pre.26", "@polymer/paper-styles@^3.0.1":
+  version "3.0.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/paper-styles/-/paper-styles-3.0.1.tgz#bd4962b83ab8432cd1cf197bb5222d3a08f135e1"
+  integrity sha1-vUliuDq4QyzRzxl7tSItOgjxNeE=
+  dependencies:
+    "@polymer/font-roboto" "^3.0.1"
+    "@polymer/iron-flex-layout" "^3.0.0-pre.26"
+    "@polymer/polymer" "^3.0.0"
+
+"@polymer/polymer@^3.0.0", "@polymer/polymer@^3.0.5":
+  version "3.3.1"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@polymer/polymer/-/polymer-3.3.1.tgz#9ad48992d2a96775f80b0673f3a615d6df8a3dfc"
+  integrity sha1-mtSJktKpZ3X4CwZz86YV1t+KPfw=
+  dependencies:
+    "@webcomponents/shadycss" "^1.9.1"
+
 "@reach/router@^1.2.1":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@reach/router/-/router-1.3.1.tgz#0a49f75fa9621323d6e21c803447bcfcde1713b2"
@@ -2796,6 +2944,11 @@
     "@webassemblyjs/ast" "1.8.5"
     "@webassemblyjs/wast-parser" "1.8.5"
     "@xtuc/long" "4.2.2"
+
+"@webcomponents/shadycss@^1.9.1":
+  version "1.9.5"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/@webcomponents/shadycss/-/shadycss-1.9.5.tgz#52672a34c18bb6dcdc95d1aa288015b2a75cd678"
+  integrity sha1-UmcqNMGLttzcldGqKIAVsqdc1ng=
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
@@ -10268,8 +10421,8 @@ node-releases@^1.1.29, node-releases@^1.1.49:
 
 node-sass@^4.13.1:
   version "4.13.1"
-  resolved "https://packages.atlassian.com/api/npm/npm-remote/node-sass/-/node-sass-4.13.1.tgz#9db5689696bb2eec2c32b98bfea4c7a2e992d0a3"
-  integrity sha1-nbVolpa7LuwsMrmL/qTHoumS0KM=
+  resolved "https://registry.yarnpkg.com/node-sass/-/node-sass-4.13.1.tgz#9db5689696bb2eec2c32b98bfea4c7a2e992d0a3"
+  integrity sha512-TTWFx+ZhyDx1Biiez2nB0L3YrCZ/8oHagaDalbuBSlqXgUPsdkUSzJsVxeDO9LtPB49+Fh3WQl3slABo6AotNw==
   dependencies:
     async-foreach "^0.1.3"
     chalk "^1.1.1"
@@ -10835,6 +10988,21 @@ pako@^1.0.10, pako@~1.0.5:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
+
+paper-range-slider@^3.0.0:
+  version "3.0.0"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/paper-range-slider/-/paper-range-slider-3.0.0.tgz#84bca1aefc415786c8554678714192302f3b1390"
+  integrity sha1-hLyhrvxBV4bIVUZ4cUGSMC87E5A=
+  dependencies:
+    "@polymer/iron-a11y-keys-behavior" "^3.0.1"
+    "@polymer/iron-behaviors" "^3.0.1"
+    "@polymer/iron-flex-layout" "^3.0.1"
+    "@polymer/iron-form-element-behavior" "^3.0.1"
+    "@polymer/paper-behaviors" "^3.0.1"
+    "@polymer/paper-input" "^3.0.1"
+    "@polymer/paper-progress" "^3.0.1"
+    "@polymer/paper-styles" "^3.0.1"
+    "@polymer/polymer" "^3.0.5"
 
 parallel-transform@^1.1.0:
   version "1.2.0"
@@ -14853,6 +15021,11 @@ xtend@^4.0.0, xtend@^4.0.2, xtend@~4.0.0, xtend@~4.0.1:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.2.tgz#bb72779f5fa465186b1f438f674fa347fdb5db54"
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
+
+xy-ui@^1.9.3:
+  version "1.9.3"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/xy-ui/-/xy-ui-1.9.3.tgz#a384e11295202891045ce646e7972140bc93667a"
+  integrity sha1-o4ThEpUgKJEEXOZG55chQLyTZno=
 
 y18n@^3.2.1:
   version "3.2.1"
