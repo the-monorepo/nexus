@@ -796,15 +796,22 @@ export default declare((api, options) => {
 
   function* yieldTemplateInfoFromRootNodes(nodes: Node[], templateId, scope) {
     const nodeStack: Node[] = [...nodes];
-    while (nodeStack.length > 0) {
+    while(nodeStack.length > 0) {
       const node = nodeStack.pop()!;
       switch(node.type) {
         case SUBCOMPONENT_TYPE:
-          yield* yieldTemplateInfoFromSubcomponentNode(node, scope);
-          nodeStack.push(...node.children);
+          if (node.childrenTemplateId !== null) {
+            yield* yieldTemplateInfoFromRootNodes(
+              node.children,
+              node.childrenTemplateId,
+              scope,
+            );    
+          } else {
+            nodeStack.push(...[...node.children].reverse());  
+          }
           break;
         case ELEMENT_TYPE:
-          nodeStack.push(...node.children);
+          nodeStack.push(...[...node.children].reverse());  
           break;
       }
     }
@@ -844,16 +851,6 @@ export default declare((api, options) => {
       args.push(arrowFunction);
     }
     yield constDeclaration(templateId, mbxCallExpression(templateMethod, args));
-  }
-
-  function* yieldTemplateInfoFromSubcomponentNode(node: SubcomponentNode, scope) {
-    if (node.childrenTemplateId !== null) {
-      yield* yieldTemplateInfoFromRootNodes(
-        node.children,
-        node.childrenTemplateId,
-        scope,
-      );
-    }
   }
 
   const replacePathWithDomNodeSyntax = (nodes: Node[], path: tr.NodePath, outerPath: tr.NodePath) => {
