@@ -5,6 +5,11 @@
   --themeColor: #{$accent};
 }
 
+body {
+  max-width: 400px;
+  min-width: 400px;
+}
+
 .button {
   padding: $unit * 2 $unit * 4;
   font-size: 2rem;
