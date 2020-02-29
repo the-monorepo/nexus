@@ -13,17 +13,11 @@ import 'xy-ui/components/xy-checkbox';
 import 'xy-ui/components/xy-input';
 import 'xy-ui/components/xy-button';
 
+// Prevents slider messing with the extension UI at the expense of font resizing
+document.documentElement.style.fontSize = "16px";
+
 const Icon = ({ children }) => (
   <span class="material-icons">{children}</span>
-);
-
-const Button = ({ children, class: className, ...other }) => (
-  <button
-    {...other}
-    class={cx(styles.button, className)}
-  >
-    {children}
-  </button>
 );
 
 const SelectAndDragIcon = () => (
@@ -89,9 +83,9 @@ const sliderSetEmSizeFromValue = action((e) => {
 })
 
 autorun(() => {
-  chrome.tabs.executeScript({
-    code: `document.documentElement.style.fontSize = "${fontState.size}px"`
-  });    
+  chrome.fontSettings.setDefaultFontSize({
+    pixelSize: fontState.size
+  });
 })
 
 const sliderSetMinMaxCharacters = action((e) => {
@@ -119,6 +113,11 @@ const previewWords = computed(() => {
 const languageState = observable({
   langs: [...window.navigator.languages],
 });
+
+autorun(() => {
+
+});
+
 const addLangPreference = {
   handle: action((e) => {
     try {
@@ -153,6 +152,15 @@ const buttonSetPrimaryLang = {
   }
 }
 
+const Button = ({ children, class: className, ...other }) => (
+  <xy-button
+    class={cx(text.h500, className)}
+    {...other}
+  >
+    {children}
+  </xy-button>
+);
+
 const MiscSettings = () => (
   <section>
     <FunctionHeadingH1>Misc</FunctionHeadingH1>
@@ -172,12 +180,12 @@ const MiscSettings = () => (
       <xy-input class={styles.editLang} $$submit={addLangPreference}/>
       <div $$click={buttonSetPrimaryLang} class={cx(styles.flexStretch, styles.wrap, styles.langPrefs)}>
         <div>
-          <xy-button type="primary" index={0}>{languageState.langs[0]}</xy-button>
+          <Button class={cx(styles.theme, styles.dark)} type="primary" index={0}>{languageState.langs[0]}</Button>
         </div>
         {
           languageState.langs.slice(1).map((lang, i) => (
             <div>
-              <xy-button index={i + 1}>{lang}</xy-button>
+              <Button index={i + 1}>{lang}</Button>
             </div>
           ))
         }
@@ -215,14 +223,14 @@ const ReplaceWordConfig = () => {
     <section>
       <FunctionHeadingH1 class={cx(text.margin, styles.inline)}>
         Replace words
-        <xy-button
+        <Button
           class={cx(styles.rightTextIcon, styles.selectableButton)}
           title="Click or select a region to replace with page-breaking words"
           toggle={true}
           $$click={onSelectToggle}
         >
-          <SelectAndDragIcon />&nbsp;Select
-        </xy-button>
+          <SelectAndDragIcon />&nbsp; Select
+        </Button>
       </FunctionHeadingH1>
       <Field labelContent='Word length' contentClass={styles.flexAlign}>
         {replaceWordState.character.min}
