@@ -49,16 +49,16 @@ export type ComponentBlueprint<
 export type CreateBlueprintFunction = {
   <V, N extends Node>(
     clone: MountFn<V, StatelessCloneInfo<N>>,
-  ): StatelessComponentBlueprint<V, N> & UnmountHolder<undefined>;
+  ): StatelessComponentBlueprint<V, N, undefined> & UnmountHolder<undefined>;
   <V, C, N extends Node>(
     clone: MountFn<V, RenderData<C, N>>,
     update: SetFn<C, V>,
-  ): StatefulComponentBlueprint<C, V, N> & UnmountHolder<undefined>;
+  ): StatefulComponentBlueprint<C, V, N, undefined> & UnmountHolder<undefined>;
   <V, C, N extends Node>(
     clone: MountFn<V, RenderData<C, N>>,
     update: undefined,
     unmount: Unmount<C>,
-  ): StatelessCloneInfo<N> & UnmountHolder<C>;
+  ): StatelessComponentBlueprint<V, N> & UnmountHolder<C>;
   <V, C, N extends Node>(
     clone: MountFn<V, RenderData<C, N>>,
     update: SetFn<C, V>,
@@ -78,12 +78,12 @@ export const renderData: CloneInfoFunction = <C, N extends Node | null>(
   state,
 });
 
-export const createBlueprint = ((mount, update, unmount) => ({
+export const createBlueprint: CreateBlueprintFunction = ((mount, update?, unmount?) => ({
   id: generateBlueprintUid(),
   mount,
   update,
   unmount,
-})) as CreateBlueprintFunction;
+}));
 
 abstract class CachedField implements Field {
   protected state = null;
@@ -211,22 +211,24 @@ export const replaceOldResult = <C, V, N extends Node>(
   return renderComponentResultNoSet(renderInfo, container, before);
 };
 
-export const componentResultFromValue = (value: any) => {
+const indexKeyer = (item, i) => i;
+export const componentResultFromValue = (value) => {
   const valueType = typeof value;
   if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-    return componentResult(textBlueprint, value);
+    return componentResult(textBlueprint, value as string | number | boolean);
   } else if (value[Symbol.iterator] !== undefined) {
-    return componentResult(mapBlueprint, value);
+    return map(value, indexKeyer, componentResultFromValue);
   } else {
     return value;
   }
 };
 
 const trackedNodes = new WeakMap<Node, RenderResult<any> | undefined>();
-export const render = (value: any, container: Node) => {
+export const render = (value: unknown, container: Node) => {
+  const renderResult = renderValue(value, trackedNodes.get(container), container, null)
   trackedNodes.set(
     container,
-    renderValue(value, trackedNodes.get(container), container, null),
+    renderResult,
   );
 };
 
@@ -541,9 +543,10 @@ export const elementBlueprint = (html: string, fieldFactory: FieldFactory) => {
   return createBlueprint(
     (fieldValues: readonly any[], container, before) => {
       const cloned = document.importNode(rootElement, true);
-      container.insertBefore(cloned, before);
+      console.log(rootElement.childNodes, container.cloneNode(), before?.cloneNode())
       const fields = fieldFactory(cloned);
       initialDomFieldSetter(fields, fieldValues);
+      container.insertBefore(cloned, before);
       return renderData(cloned, fields);
     },
     domFieldSetter,
@@ -559,9 +562,9 @@ export const fragmentBlueprint = (html: string, fieldFactory: FieldFactory) => {
     (fieldValues: readonly any[], container, before) => {
       const cloned = document.importNode(rootElement, true);
       const first = cloned.firstChild as Node;
-      container.insertBefore(cloned, before);
-      const fields = fieldFactory(container);
+      const fields = fieldFactory(cloned);
       initialDomFieldSetter(fields, fieldValues);
+      container.insertBefore(cloned, before);
       return renderData(first, fields);
     },
     domFieldSetter,
@@ -628,6 +631,7 @@ export const moveUntilBefore = (
 };
 
 const setAttribute = (el: Element, key: string, value: any) => {
+  console.log(el, key, value)
   if (value != null) {
     el.setAttribute(key, value);
   } else {
@@ -647,8 +651,7 @@ const removeEvent = (el: Element, key: string, eventObject) => {
 
 const setEvent = (el: Element, key: string, state, newValue) => {
   removeEvent(el, key, state);
-
-  if (newValue != null) {
+  if (newValue !== null && newValue !== undefined) {
     if (typeof newValue === 'function') {
       el.addEventListener(key, newValue);
     } else {
@@ -1055,7 +1058,7 @@ export const map = <V, C, R, CR extends ComponentResult<C, R, any>>(
   keyFn: KeyFn<V>,
   mapFn: MapFn<V, CR>,
 ) => {
-  return keyedComponents(values, keyFn, mapFn, true);
+  return keyedComponents<V, C, R, CR>(values, keyFn, mapFn, true);
 };
 
 export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
@@ -1063,27 +1066,10 @@ export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
   keyFn: KeyFn<V>,
   mapFn: MapFn<V, CR>,
 ) => {
-  return keyedComponents(values, keyFn, mapFn, false);
+  return keyedComponents<V, C, R, CR>(values, keyFn, mapFn, false);
 };
 
 export type SFC<P, R> = (props: P) => R;
-
-
-export const rerender = () => {
-  return (element: DomElement, key, descriptor): any => {
-    let value = descriptor.value;
-    Object.defineProperty(element, key, {
-      get() {
-        return value;
-      },
-      set(newValue) {
-        value = newValue;
-        element.update();
-      }
-    });
-    element.update();
-  }
-}
 
 /*
 export type StateSetter<S> = (state: S) => void;

@@ -553,14 +553,14 @@ export default declare((api, options) => {
     rootId: any,
     isRoot: boolean,
   ) {
-    const childrenWithDomNodesAssociatedWithThem: ElementNode[] = nodes.filter(
-      child => child.type === ELEMENT_TYPE,
-    ) as ElementNode[];
+    const childrenWithDomNodesAssociatedWithThem: (ElementNode|TextNode)[] = nodes.filter(
+      child => child.type === ELEMENT_TYPE || child.type == TEXT_TYPE,
+    ) as (ElementNode|TextNode)[];
 
     if (childrenWithDomNodesAssociatedWithThem.length > 0) {
       const firstNode = childrenWithDomNodesAssociatedWithThem[0];
       if (firstNode.id) {
-        if (isRoot && childrenWithDomNodesAssociatedWithThem.length === 1) {
+        if (isRoot && nodes.length === 1) {
           yield constDeclaration(firstNode.id, rootId);
         } else {
           yield constDeclaration(
@@ -568,11 +568,13 @@ export default declare((api, options) => {
             t.memberExpression(rootId, t.identifier('firstChild')),
           );
         }
-        yield* yieldDeclarationStatementsFromRootNodes(
-          firstNode.children,
-          firstNode.id,
-          false,
-        );
+        if (firstNode.type === ELEMENT_TYPE) {
+          yield* yieldDeclarationStatementsFromRootNodes(
+            firstNode.children,
+            firstNode.id,
+            false,
+          );  
+        }
       }
       for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c++) {
         const childNode = childrenWithDomNodesAssociatedWithThem[c];
@@ -593,11 +595,13 @@ export default declare((api, options) => {
               ),
             );
           }
-          yield* yieldDeclarationStatementsFromRootNodes(
-            childNode.children,
-            childNode.id,
-            false,
-          );
+          if (childNode.type === ELEMENT_TYPE) {
+            yield* yieldDeclarationStatementsFromRootNodes(
+              childNode.children,
+              childNode.id,
+              false,
+            );  
+          }
         }
       }
       // TODO: Could do previousSibling if the last node uses lastChild
@@ -611,11 +615,13 @@ export default declare((api, options) => {
             lastNode.id,
             t.memberExpression(rootId, t.identifier('lastChild')),
           );
-          yield* yieldDeclarationStatementsFromRootNodes(
-            lastNode.children,
-            lastNode.id,
-            false,
-          );
+          if (lastNode.type === ELEMENT_TYPE) {
+            yield* yieldDeclarationStatementsFromRootNodes(
+              lastNode.children,
+              lastNode.id,
+              false,
+            );  
+          }
         }
       }
     }
@@ -726,7 +732,7 @@ export default declare((api, options) => {
         for (const field of node.fields) {
           switch (field.type) {
             case SPREAD_TYPE:
-              objectProperties.push(field.expression.node);
+              objectProperties.push(t.spreadElement(field.expression.node));
               break;
             case SUBCOMPONENT_PROPERTY_TYPE:
               if (field.expression.node === null) {
@@ -748,7 +754,7 @@ export default declare((api, options) => {
             objectProperties.push(
               t.objectProperty(
                 t.identifier('children'),
-                mbxCallExpression('componentResult', [node.childrenTemplateId, ...fieldValues])
+                mbxCallExpression('componentResult', [node.childrenTemplateId, t.arrayExpression([...fieldValues])])
               ),
             );
           } else if (fieldValues.length > 0) {
@@ -797,7 +803,7 @@ export default declare((api, options) => {
     let templateMethod: string;
     if (nodesWithDom.length <= 0) {
       return;
-    } else if (nodesWithDom.length === 1) {
+    } else if (nodes.length === 1) {
       if (isDynamicChildren) {
         templateMethod = DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME;
       } else {
@@ -851,19 +857,15 @@ export default declare((api, options) => {
       for (const node of nodes) {
         componentResultArgs.push(...yieldFieldValuesFromNode(node));
       }
-      if (componentResultArgs.length === 1) {
-        path.replaceWith(t.expressionStatement(componentResultArgs[0]));
-      } else {
-        path.replaceWith(t.expressionStatement(t.arrayExpression(componentResultArgs)));
-      }
+      path.replaceWith(t.expressionStatement(t.arrayExpression(componentResultArgs)));
     } else {
-      const componentResultArgs: Parameters<typeof t.callExpression>[1] = [templateId];
+      const fieldValues: Parameters<typeof t.callExpression>[1] = [];
       for (const node of nodes) {
-        const fieldValues = t.arrayExpression([...yieldFieldValuesFromNode(node)]);
-        componentResultArgs.push(fieldValues);
+        const nodeFieldValues = yieldFieldValuesFromNode(node);
+        fieldValues.push(...nodeFieldValues);
       }
       path.replaceWith(
-        t.expressionStatement(mbxCallExpression('componentResult', componentResultArgs)),
+        t.expressionStatement(mbxCallExpression('componentResult', [templateId, t.arrayExpression(fieldValues)])),
       );
     }
   };
