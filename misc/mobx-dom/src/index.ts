@@ -543,7 +543,6 @@ export const elementBlueprint = (html: string, fieldFactory: FieldFactory) => {
   return createBlueprint(
     (fieldValues: readonly any[], container, before) => {
       const cloned = document.importNode(rootElement, true);
-      console.log(rootElement.childNodes, container.cloneNode(), before?.cloneNode())
       const fields = fieldFactory(cloned);
       initialDomFieldSetter(fields, fieldValues);
       container.insertBefore(cloned, before);
@@ -631,7 +630,6 @@ export const moveUntilBefore = (
 };
 
 const setAttribute = (el: Element, key: string, value: any) => {
-  console.log(el, key, value)
   if (value != null) {
     el.setAttribute(key, value);
   } else {
