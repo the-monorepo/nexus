@@ -88,6 +88,7 @@
     "mocha": "^6.2.2",
     "mz": "^2.7.0",
     "node-fetch": "^2.6.0",
+    "node-sass": "^4.13.1",
     "prettier": "^1.19.1",
     "puppeteer": "^2.0.0",
     "rewiremock": "^3.13.9",

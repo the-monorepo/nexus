@@ -116,7 +116,12 @@ const sassModulesRule = {
     options: {
       modules: true,
     }
-  }, 'sass-loader']
+  }, {
+    loader: 'sass-loader',
+    options: {
+      sourceMap: true,
+    }
+  }]
 }
 
 const faultjsBenchmarkConfig = {
