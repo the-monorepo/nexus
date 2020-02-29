@@ -31,7 +31,7 @@ const SelectAndDragIcon = () => (
 );
 
 const AppHeadingH1 = ({ children }) => (
-  <h1 class={text.h800}>{children}</h1>
+  <h1 class={text.h700}>{children}</h1>
 );
 
 const FunctionHeadingH1 = ({ children, class: className }) => (
@@ -80,9 +80,19 @@ const fontState = observable({
   size: browserFontSize,
 });
 
-const sliderSetEmSize = action((e) => {
+const sliderSetEmSizeFromImmediateValue = action((e) => {
   fontState.size = e.target.immediateValue;
 });
+
+const sliderSetEmSizeFromValue = action((e) => {
+  fontState.size = e.target.value;
+})
+
+autorun(() => {
+  chrome.tabs.executeScript({
+    code: `document.documentElement.style.fontSize = "${fontState.size}px"`
+  });    
+})
 
 const sliderSetMinMaxCharacters = action((e) => {
   replaceWordState.character.min = e.target.valueMin;
@@ -153,7 +163,8 @@ const MiscSettings = () => (
         $value={browserFontSize}
         pin={true}
         class={cx(styles.singleSliderHack, styles.sliderContainer)}
-        $$immediate-value-change={sliderSetEmSize}
+        $$immediate-value-change={sliderSetEmSizeFromImmediateValue}
+        $$value-change={sliderSetEmSizeFromValue}
       />
     </Field>
     <Field labelContent="Language preferences" contentClass={styles.flexStretch}>
@@ -174,6 +185,28 @@ const MiscSettings = () => (
   </section>
 );
 
+const selectState = observable({
+  selectMode: false,
+});
+
+autorun(() => {
+  if (selectState.selectMode) {
+    document.body.style.cursor = 'auto';
+  } else {
+    document.body.style.cursor = null;
+  }
+});
+
+const onSelectToggle = {
+  handle: action((e) => {
+    const isSelected = !e.target.checked;
+    selectState.selectMode = isSelected;
+  }),
+  option: {
+    passive: true
+  }
+}
+
 const ReplaceWordConfig = () => {
   const min = Math.min(replaceWordState.character.min, CHARACTER_SLIDER_MIN);
   const max = Math.max(replaceWordState.character.max, CHARACTER_SLIDER_MAX);
@@ -185,8 +218,9 @@ const ReplaceWordConfig = () => {
           class={cx(styles.rightTextIcon, styles.selectableButton)}
           title="Click or select a region to replace with page-breaking words"
           toggle={true}
+          $$click={onSelectToggle}
         >
-          <SelectAndDragIcon /> Select
+          <SelectAndDragIcon />&nbsp;Select
         </xy-button>
       </FunctionHeadingH1>
       <Field labelContent='Word length' contentClass={styles.flexAlign}>
