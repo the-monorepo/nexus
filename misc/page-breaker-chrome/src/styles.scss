@@ -55,7 +55,7 @@ $app-padding: $unit * 10;
 
 .appHeader {
   background: $primary;
-  padding: $app-padding;
+  padding: $app-padding / 2 $app-padding;
 }
 
 .singleSliderHack {

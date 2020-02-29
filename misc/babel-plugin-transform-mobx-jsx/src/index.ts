@@ -212,15 +212,15 @@ export default declare((api, options) => {
     outerPath: tr.NodePath,
   ) => {
     const children: Node[] = [];
-    let previousChildIsDynamic = false;
+    let previousNode: Node | null = null;
     for (const childPath of jsxChildrenPaths) {
       for (const node of yieldDomNodeFromNodeSimplified(
         childPath,
-        previousChildIsDynamic,
+        previousNode !== null && isDynamicDomlessNode(previousNode),
         scope,
         outerPath,
       )) {
-        previousChildIsDynamic = isDynamicDomlessNode(node);
+        previousNode = node;
         children.push(node);
       }
     }
@@ -490,31 +490,26 @@ export default declare((api, options) => {
       scope,
       outerPath,
     );
-    let previous = domNodeIterator.next();
-    if (!previous.done) {
-      if (previous.value.type !== TEXT_TYPE) {
-        yield previous.value;
-      }
-      let current = domNodeIterator.next();
-      while (!current.done) {
-        if (previous.value.type === TEXT_TYPE && current.value.type === TEXT_TYPE) {
-          // If there's two text nodes you can just concacatinate them
-          previous.value.text += current.value.text;
-          current = domNodeIterator.next();
-        } else if (previous.value.type === TEXT_TYPE) {
-          yield previous.value;
-        } else {
-          yield current.value;
-          previous = current;
-          current = domNodeIterator.next();
-        }
-      }
-      if (previous.value.type === TEXT_TYPE) {
-        yield previous.value;
-      }
+    const firstIteration = domNodeIterator.next();
+    if (firstIteration.done) {
+      return;
     }
+    let previous: Node = firstIteration.value;
+    for(const current of domNodeIterator) {
+      if (previous.type === TEXT_TYPE) {
+        if (current.type === TEXT_TYPE) {
+          previous.text += current.text;
+        } else {
+          yield previous;
+        }
+      } else {
+        yield previous;
+      }
+      previous = current;
+    }
+    yield previous
   }
-
+  
   const htmlFromNode = (node: Node): string => {
     switch (node.type) {
       case ELEMENT_TYPE:
@@ -552,12 +547,23 @@ export default declare((api, options) => {
     nodes: Node[],
     rootId: any,
     isRoot: boolean,
+    scope: tr.Scope,
   ) {
     const childrenWithDomNodesAssociatedWithThem: (ElementNode|TextNode)[] = nodes.filter(
       child => child.type === ELEMENT_TYPE || child.type == TEXT_TYPE,
     ) as (ElementNode|TextNode)[];
-
     if (childrenWithDomNodesAssociatedWithThem.length > 0) {
+      for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c ++) {
+        const previous = childrenWithDomNodesAssociatedWithThem[c - 1];
+        const current = childrenWithDomNodesAssociatedWithThem[c];
+        if (previous.type === TEXT_TYPE && current.type === TEXT_TYPE) {
+          if (previous.id === null) {
+            // Need this to split text up when there's 2 text nodes next to each other in the blueprint
+            previous.id = scope.generateDeclaredUidIdentifier('partialText');
+          }
+        }
+      }
+      
       const firstNode = childrenWithDomNodesAssociatedWithThem[0];
       if (firstNode.id) {
         if (isRoot && nodes.length === 1) {
@@ -573,6 +579,7 @@ export default declare((api, options) => {
             firstNode.children,
             firstNode.id,
             false,
+            scope
           );  
         }
       }
@@ -580,6 +587,12 @@ export default declare((api, options) => {
         const childNode = childrenWithDomNodesAssociatedWithThem[c];
         if (childNode.id) {
           const previousNode = childrenWithDomNodesAssociatedWithThem[c - 1];
+          if (previousNode.type === TEXT_TYPE && childNode.type === TEXT_TYPE) {
+            yield t.expressionStatement(t.callExpression(
+              t.memberExpression(previousNode.id!, t.identifier('splitText')),
+              [t.numericLiteral(previousNode.text.length)]
+            ));
+          }
           if (previousNode.id) {
             yield constDeclaration(
               childNode.id,
@@ -600,6 +613,7 @@ export default declare((api, options) => {
               childNode.children,
               childNode.id,
               false,
+              scope,
             );  
           }
         }
@@ -620,6 +634,7 @@ export default declare((api, options) => {
               lastNode.children,
               lastNode.id,
               false,
+              scope,
             );  
           }
         }
@@ -819,7 +834,7 @@ export default declare((api, options) => {
     if (isDynamicChildren) {
       const rootParamId = scope.generateUidIdentifier('rootNode');
       const statements = [
-        ...yieldDeclarationStatementsFromRootNodes(nodes, rootParamId, true),
+        ...yieldDeclarationStatementsFromRootNodes(nodes, rootParamId, true, scope),
       ];
       const fieldExpressions = [...yieldFieldExpressionsFromNodes(nodes, rootParamId)];
       statements.push(t.returnStatement(t.arrayExpression(fieldExpressions)));

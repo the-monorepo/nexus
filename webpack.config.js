@@ -3,6 +3,7 @@ const { resolve } = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackTemplate = require('html-webpack-template');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
 const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
@@ -149,7 +150,7 @@ const faultjsBenchmarkConfig = {
 };
 
 const pageBreakerDir = resolve(miscDir, 'page-breaker-chrome');
-const pageBreakerConfig = {
+const pageBreakerFrontendConfig = {
   name: 'page-breaker',
   target: 'web',
   resolve: {
@@ -166,6 +167,16 @@ const pageBreakerConfig = {
       title: `Page Breaker`,
       links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
     }),
+    new CopyPlugin([
+      {
+        from: resolve(pageBreakerDir, 'src/manifest.json'),
+        to: resolve(pageBreakerDir, 'dist/manifest.json')
+      },
+      {
+        from: resolve(pageBreakerDir, 'src/icon.png'),
+        to: resolve(pageBreakerDir, 'dist/icon.png')
+      }
+    ])
   ],
   devServer: {
     port: 3002,
@@ -173,4 +184,4 @@ const pageBreakerConfig = {
   },
 };
 
-module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerConfig];
+module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig];
