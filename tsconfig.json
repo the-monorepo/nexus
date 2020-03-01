@@ -14,7 +14,7 @@
     "jsx": "preserve",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "lib": ["esnext"]
+    "lib": ["esnext", "dom"]
   },
   "exclude": [
     "node_modules", 
