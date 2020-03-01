@@ -1,0 +1,102 @@
+@import './constants.scss';
+
+:root {
+  // For xy-ui
+  --themeColor: #{$accent};
+}
+
+body {
+  max-width: 400px;
+  min-width: 400px;
+}
+
+.button {
+  padding: $unit * 2 $unit * 4;
+  font-size: 2rem;
+}
+
+$app-padding: $unit * 10;
+.appContent {
+  padding: $app-padding;
+}
+
+.flexStretch {
+  display: flex;
+  align-items: stretch;
+}
+
+.flexAlign {
+  display: flex;
+  align-items: center;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: $unit;
+  color: var(--txt-secondary);
+}
+
+.inline {
+  display: inline-block;
+}
+
+.fieldContent {
+  min-height: $unit * 10;
+}
+
+.rightTextIcon {
+  vertical-align: middle;
+  margin-left: $unit * 2;
+}
+
+.selectableButton[checked] {
+  background: var(--themeColor);
+  color: $txt-primary-white;
+}
+
+.appHeader {
+  background: $primary;
+  padding: $app-padding / 2 $app-padding;
+}
+
+.singleSliderHack {
+  --paper-single-range-slider-pin-color: #{$accent};
+  --paper-single-range-slider-knob-color: #{$accent};
+  --paper-progress-active-color: #{$accent};
+}
+
+.rangeSliderHack {
+  --paper-range-slider-width: 100%;
+  --primary-color: #{$accent};
+}
+
+.sliderContainer {
+  flex-grow: 1;
+}
+
+.checkboxContainer {
+  margin-bottom: $unit * 4;
+}
+
+.editLang {
+  margin-right: $unit * 2;
+}
+
+$langPrefGap: $unit;
+.langPrefs > * {
+  padding: $langPrefGap;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.langPrefs > * > * {
+  height: 100%;
+}
+
+.langPrefs {
+  margin: -$langPrefGap;
+}
