@@ -1,21 +1,25 @@
 import { declare } from '@babel/helper-plugin-utils';
 import jsx from '@babel/plugin-syntax-jsx';
 import helper from '@babel/helper-builder-react-jsx';
-import { types as t } from '@babel/core';
-import { JSXAttribute, JSXElement, JSXFragment, JSXText } from '@babel/types';
+import { JSXElement, JSXText } from '@babel/types';
+import * as core from '@babel/core';
+import * as t from '@babel/types';
 import { JSXExpressionContainer } from '@babel/types';
-import { NodePath } from '@babel/traverse';
+
+import * as tr from '@babel/traverse';
 
 const mbxMemberExpression = (field: string) => {
   return t.memberExpression(t.identifier('mbx'), t.identifier(field));
 };
 
-const mbxCallExpression = (functionName, args) => {
+const mbxCallExpression = (functionName: string, args: Parameters<typeof t.callExpression>[1]) => {
   return t.callExpression(mbxMemberExpression(functionName), args);
 };
 
-const attributeLiteralToHTMLAttributeString = field => {
-  const { key: name, expression: literal } = field;
+const attributeLiteralToHTMLAttributeString = (field: AttributeField) => {
+  const { key: name, expression: literalPath } = field;
+  // TODO: Refactor
+  const literal = literalPath.node;
   if (literal === false) {
     /*
       To represent a false value, the attribute has to be omitted altogether.
@@ -51,27 +55,29 @@ const SPREAD_TYPE = 'spread';
 const EVENT_TYPE = 'event';
 const ATTRIBUTE_TYPE = 'attribute';
 
+type JSXChildrenNode = t.JSXText | t.JSXExpressionContainer | t.JSXSpreadChild | t.JSXElement | t.JSXFragment;
+
 type PropertyField = {
   type: typeof PROPERTY_TYPE;
   key: string;
-  expression: any;
+  expression: tr.NodePath<Exclude<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>;
   setterId: any;
 };
 type SpreadField = {
   type: typeof SPREAD_TYPE;
-  expression: any;
+  expression: tr.NodePath<t.JSXSpreadAttribute['argument']>;
 };
 type EventField = {
   type: typeof EVENT_TYPE;
   key: string;
-  expression: any;
+  expression: tr.NodePath<Exclude<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>;
 };
 type AttributeField = {
   type: typeof ATTRIBUTE_TYPE;
   key: string;
-  expression: any;
+  expression: tr.NodePath<Exclude<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>;
 };
-type ElementField = AttributeField | PropertyField | EventField; // TODO: SpreadType
+type ElementField = AttributeField | PropertyField | EventField | SpreadField; // TODO: SpreadType
 
 /**
  * We have no idea how many node will be in this section.
@@ -79,7 +85,7 @@ type ElementField = AttributeField | PropertyField | EventField; // TODO: Spread
  */
 type DynamicSection = {
   type: typeof DYNAMIC_TYPE;
-  expression: any;
+  expression: tr.NodePath;
 };
 /**
  * Just a typical HTML/XML element
@@ -89,14 +95,14 @@ type ElementNode = {
   tag: string;
   children: Node[];
   fields: ElementField[];
-  id: any;
+  id: t.Identifier | null;
 };
 
 const SUBCOMPONENT_PROPERTY_TYPE = 'subcomponent_property';
 type SubcomponentPropertyField = {
   type: typeof SUBCOMPONENT_PROPERTY_TYPE;
   key: string;
-  expression: any;
+  expression: tr.NodePath<t.Expression | null>;
 };
 
 type SubcomponentField = SubcomponentPropertyField | SpreadField;
@@ -110,9 +116,9 @@ type SubcomponentField = SubcomponentPropertyField | SpreadField;
  */
 type SubcomponentNode = {
   type: typeof SUBCOMPONENT_TYPE;
-  nameExpression: any;
+  nameExpression: tr.NodePath<t.JSXOpeningElement['name']>; // TODO
   children: Node[];
-  childrenTemplateId: any;
+  childrenTemplateId: t.Identifier | null;
   fields: SubcomponentField[];
 };
 /**
@@ -121,7 +127,7 @@ type SubcomponentNode = {
 type TextNode = {
   type: typeof TEXT_TYPE;
   text: string;
-  id?: any;
+  id: t.Identifier | null;
 };
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
 
@@ -129,7 +135,7 @@ export default declare((api, options) => {
   api.assertVersion(7);
 
   function domNodeFromJSXText(
-    path: t.NodePath<JSXText>,
+    path: tr.NodePath<JSXText>,
     previousIsDynamic: boolean,
     scope,
   ) {
@@ -140,19 +146,20 @@ export default declare((api, options) => {
     return tag[0].toLowerCase() === tag[0];
   };
 
-  const isLiteral = (value): boolean =>
-    value &&
-    value.type.match(/Literal$/) &&
-    (value.type !== 'TemplateLiteral' || value.expressions.length <= 0);
+  const isLiteral = (value: tr.NodePath<any>): boolean => {
+    return value.node !== undefined && value.node !== null &&
+      value.node.type.match(/Literal$/) !== null &&
+      (!value.isTemplateLiteral() || value.node.expressions.length <= 0);
+  }
 
-  const isStatic = value => {
+  /*const isStatic = value => {
     return (
       value &&
       (isLiteral(value) ||
         t.isArrowFunctionExpression(value) ||
         t.isFunctionExpression(value))
     );
-  };
+  };*/
 
   const fieldType = (name: string) => {
     return name.match(/^\$\$/)
@@ -162,7 +169,7 @@ export default declare((api, options) => {
       : ATTRIBUTE_TYPE;
   };
 
-  const findProgramAndOuterPath = (path: t.NodePath) => {
+  const findProgramAndOuterPath = (path: tr.NodePath) => {
     const parent = path.parentPath;
     if (!parent) {
       return { program: path };
@@ -176,7 +183,7 @@ export default declare((api, options) => {
     }
   };
 
-  const isRootJSXNode = (path: t.NodePath) => {
+  const isRootJSXNode = (path: tr.NodePath) => {
     const parent = path.parentPath;
 
     if (parent.isJSXFragment() || parent.isJSXElement()) {
@@ -191,24 +198,29 @@ export default declare((api, options) => {
 
   const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
 
-  const valueExpressionFromJsxAttributeValue = (valuePath: t.NodePath<JSXAttribute>) =>
-    valuePath.isJSXExpressionContainer() ? valuePath.node.expression : valuePath.node;
+  const valueExpressionFromJsxAttributeValue = (valuePath: tr.NodePath<t.Expression>): tr.NodePath<t.JSXAttribute['value'] | Exclude<t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>  => {
+    let current: tr.NodePath<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression']> = valuePath;
+    while(current.isJSXExpressionContainer()) {
+      current = valuePath.get('expression');
+    }
+    return current as any;
+  }
 
   const domNodesFromJSXChildren = (
-    jsxChildrenPaths: t.NodePath<JSXElement['children']>[],
-    scope,
-    outerPath,
+    jsxChildrenPaths: tr.NodePath<JSXChildrenNode>[],
+    scope: tr.Scope,
+    outerPath: tr.NodePath,
   ) => {
-    const children: t.NodePath<Node>[] = [];
-    let previousChildIsDynamic = false;
+    const children: Node[] = [];
+    let previousNode: Node | null = null;
     for (const childPath of jsxChildrenPaths) {
       for (const node of yieldDomNodeFromNodeSimplified(
         childPath,
-        previousChildIsDynamic,
+        previousNode !== null && isDynamicDomlessNode(previousNode),
         scope,
         outerPath,
       )) {
-        previousChildIsDynamic = isDynamicDomlessNode(node);
+        previousNode = node;
         children.push(node);
       }
     }
@@ -225,66 +237,81 @@ export default declare((api, options) => {
   };
 
   const domNodeFromJSXElement = (
-    path: t.NodePath<JSXElement>,
-    previousIsDynamic,
-    scope,
-    outerPath,
+    path: tr.NodePath<JSXElement>,
+    previousIsDynamic: boolean,
+    scope: tr.Scope,
+    outerPath: tr.NodePath,
   ): SubcomponentNode | ElementNode => {
     const jsxOpeningElementPath = path.get('openingElement');
-    const jsxAttributePaths = jsxOpeningElementPath.get('attributes');
+    const jsxAttributePathsOrPath = jsxOpeningElementPath.get('attributes');
+    const jsxAttributePaths = Array.isArray(jsxAttributePathsOrPath) ? jsxAttributePathsOrPath : [ jsxAttributePathsOrPath ];
     const jsxOpeningElementNamePath = jsxOpeningElementPath.get('name');
     if (
       jsxOpeningElementNamePath.isJSXIdentifier() &&
       isElementTag(jsxOpeningElementNamePath.node.name)
     ) {
-      const tag = jsxOpeningElementPath.node.name.name;
+      const tag = jsxOpeningElementNamePath.node.name;
       const potentialId = scope.generateUidIdentifier(`${tag}$`);
       const fields: ElementField[] = jsxAttributePaths.map(
-        (jsxAttributePath: NodePath<t.JSXAttribute>): ElementField => {
-          const namePath = jsxAttributePath.get('name');
-          const valuePath = jsxAttributePath.get('value');
-          const type = fieldType(namePath.node.name);
-          switch (type) {
-            case PROPERTY_TYPE:
-              const key = cleanFieldName(namePath.node.name);
-              const setterId = (() => {
-                if (setterMap.has(key)) {
-                  return setterMap.get(key);
-                } else {
-                  const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
-                  const elementId = outerPath.scope.generateUidIdentifier('element');
-                  const valueId = outerPath.scope.generateUidIdentifier('value');
-
-                  outerPath.insertBefore(
-                    constDeclaration(
-                      id,
-                      t.arrowFunctionExpression(
-                        [elementId, valueId],
-                        t.assignmentExpression(
-                          '=',
-                          t.memberExpression(elementId, t.identifier(key)),
-                          valueId,
+        (jsxAttributePath): ElementField => {
+          if (jsxAttributePath.isJSXSpreadAttribute()) {
+            const argumentPath = jsxAttributePath.get('argument');
+            const spreadExpressionPath = valueExpressionFromJsxAttributeValue(argumentPath);
+            return {
+              type: SPREAD_TYPE,
+              expression: spreadExpressionPath
+            }  
+          } else if (jsxAttributePath.isJSXAttribute()) {
+            const namePath = jsxAttributePath.get('name');
+            const valuePath = jsxAttributePath.get('value');
+            if (namePath.isJSXNamespacedName()) {
+              throw new Error('Not supported');
+            } else if (namePath.isJSXIdentifier()) {
+              const type = fieldType(namePath.node.name);
+              switch (type) {
+                case PROPERTY_TYPE:
+                  const key = cleanFieldName(namePath.node.name);
+                  const setterId = (() => {
+                    if (setterMap.has(key)) {
+                      return setterMap.get(key)!;
+                    } else {
+                      const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
+                      const elementId = outerPath.scope.generateUidIdentifier('element');
+                      const valueId = outerPath.scope.generateUidIdentifier('value');
+    
+                      outerPath.insertBefore(
+                        constDeclaration(
+                          id,
+                          t.arrowFunctionExpression(
+                            [elementId, valueId],
+                            t.assignmentExpression(
+                              '=',
+                              t.memberExpression(elementId, t.identifier(key)),
+                              valueId,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                  setterMap.set(key, id);
-                  return id;
-                }
-              })();
-              return {
-                type,
-                setterId,
-                expression: valueExpressionFromJsxAttributeValue(valuePath),
-                key,
-              };
-            default:
-              return {
-                type,
-                key: cleanFieldName(namePath.node.name),
-                expression: valueExpressionFromJsxAttributeValue(valuePath),
-              } as ElementField;
+                      );
+                      setterMap.set(key, id);
+                      return id;
+                    }
+                  })();
+                  return {
+                    type,
+                    setterId,
+                    expression: valueExpressionFromJsxAttributeValue(valuePath),
+                    key,
+                  };
+                default:
+                  return {
+                    type,
+                    key: cleanFieldName(namePath.node.name),
+                    expression: valueExpressionFromJsxAttributeValue(valuePath),
+                  } as ElementField;
+              }  
+            }
           }
+          throw new Error('Not supported');
         },
       );
       const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
@@ -309,28 +336,34 @@ export default declare((api, options) => {
           if (jsxAttributePath.isJSXSpreadAttribute()) {
             const result: SpreadField = {
               type: SPREAD_TYPE,
-              expression: jsxAttributePath.node.argument, // TODO: Check this is right
+              expression: jsxAttributePath.get('argument'), // TODO: Check this is right
             };
             return result;
-          } else {
-            const result: SubcomponentPropertyField = {
-              type: SUBCOMPONENT_PROPERTY_TYPE,
-              key: jsxAttributePath.node.name.name,
-              expression: valueExpressionFromJsxAttributeValue(
-                jsxAttributePath.get('value'),
-              ),
-            };
-            return result;
+          } else if (jsxAttributePath.isJSXAttribute()) {
+            const namePath = jsxAttributePath.get('name');
+            if (namePath.isJSXNamespacedName()) {
+              throw new Error('Not supported');
+            } else if (namePath.isJSXIdentifier()) {
+              const result: SubcomponentPropertyField = {
+                type: SUBCOMPONENT_PROPERTY_TYPE,
+                key: namePath.node.name,
+                expression: valueExpressionFromJsxAttributeValue(
+                  jsxAttributePath.get('value'),
+                ),
+              };
+              return result;  
+            }
           }
+          throw new Error('Not supported');
         },
       );
       const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
+
       const resultNode: SubcomponentNode = {
         type: SUBCOMPONENT_TYPE,
-        nameExpression: jsxOpeningElementPath.node.name,
+        nameExpression: jsxOpeningElementPath.get('name'),
         children,
-        childrenTemplateId:
-          children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
+        childrenTemplateId: children.length > 0 ? scope.generateUidIdentifier('subTemplate') : null,
         fields,
       };
       return resultNode;
@@ -340,7 +373,7 @@ export default declare((api, options) => {
   const domNodeFromString = (
     aString: string,
     previousIsDynamic: boolean,
-    scope,
+    scope: tr.Scope,
   ): TextNode | null => {
     const html = aString.replace(/^\s*\n\s*|\s*\n\s*$/g, '');
     if (html === '') {
@@ -358,7 +391,7 @@ export default declare((api, options) => {
   };
 
   function* yieldDomNodeFromJSXFragment(
-    path: t.NodePath<JSXFragment>,
+    path: tr.NodePath<t.JSXFragment>,
     previousIsDynamic: boolean,
     scope,
     outerPath,
@@ -377,7 +410,7 @@ export default declare((api, options) => {
   }
 
   function* yieldDomNodeFromJSXExpressionContainerNode(
-    path: t.NodePath<JSXExpressionContainer>,
+    path: tr.NodePath<JSXExpressionContainer>,
     previousIsDynamic: boolean,
     scope,
     outerPath,
@@ -413,13 +446,13 @@ export default declare((api, options) => {
     } else {
       yield {
         type: DYNAMIC_TYPE,
-        expression: expressionPath.node,
+        expression: expressionPath,
       };
     }
   }
 
   function* yieldDomNodeFromNodeNonSimplified(
-    path: t.NodePath<JSXElement['children'][0]>,
+    path: tr.NodePath<JSXElement['children'][0]>,
     previousIsDynamic,
     scope,
     outerPath,
@@ -446,7 +479,7 @@ export default declare((api, options) => {
   }
 
   function* yieldDomNodeFromNodeSimplified(
-    path: t.NodePath<JSXElement | JSXFragment>,
+    path: tr.NodePath<JSXChildrenNode>,
     previousIsDynamic: boolean,
     scope,
     outerPath,
@@ -457,31 +490,26 @@ export default declare((api, options) => {
       scope,
       outerPath,
     );
-    let previous = domNodeIterator.next();
-    if (!previous.done) {
-      if (previous.value.type !== TEXT_TYPE) {
-        yield previous.value;
-      }
-      let current = domNodeIterator.next();
-      while (!current.done) {
-        if (previous.value.type === TEXT_TYPE && current.value.type === TEXT_TYPE) {
-          // If there's two text nodes you can just concacatinate them
-          previous.value.text += current.value.text;
-          current = domNodeIterator.next();
-        } else if (previous.value.type === TEXT_TYPE) {
-          yield previous.value;
-        } else {
-          yield current.value;
-          previous = current;
-          current = domNodeIterator.next();
-        }
-      }
-      if (previous.value.type === TEXT_TYPE) {
-        yield previous.value;
-      }
+    const firstIteration = domNodeIterator.next();
+    if (firstIteration.done) {
+      return;
     }
+    let previous: Node = firstIteration.value;
+    for(const current of domNodeIterator) {
+      if (previous.type === TEXT_TYPE) {
+        if (current.type === TEXT_TYPE) {
+          previous.text += current.text;
+        } else {
+          yield previous;
+        }
+      } else {
+        yield previous;
+      }
+      previous = current;
+    }
+    yield previous
   }
-
+  
   const htmlFromNode = (node: Node): string => {
     switch (node.type) {
       case ELEMENT_TYPE:
@@ -519,15 +547,26 @@ export default declare((api, options) => {
     nodes: Node[],
     rootId: any,
     isRoot: boolean,
+    scope: tr.Scope,
   ) {
-    const childrenWithDomNodesAssociatedWithThem: ElementNode[] = nodes.filter(
-      child => child.type === ELEMENT_TYPE,
-    ) as ElementNode[];
-
+    const childrenWithDomNodesAssociatedWithThem: (ElementNode|TextNode)[] = nodes.filter(
+      child => child.type === ELEMENT_TYPE || child.type == TEXT_TYPE,
+    ) as (ElementNode|TextNode)[];
     if (childrenWithDomNodesAssociatedWithThem.length > 0) {
+      for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c ++) {
+        const previous = childrenWithDomNodesAssociatedWithThem[c - 1];
+        const current = childrenWithDomNodesAssociatedWithThem[c];
+        if (previous.type === TEXT_TYPE && current.type === TEXT_TYPE) {
+          if (previous.id === null) {
+            // Need this to split text up when there's 2 text nodes next to each other in the blueprint
+            previous.id = scope.generateDeclaredUidIdentifier('partialText');
+          }
+        }
+      }
+      
       const firstNode = childrenWithDomNodesAssociatedWithThem[0];
       if (firstNode.id) {
-        if (isRoot && childrenWithDomNodesAssociatedWithThem.length === 1) {
+        if (isRoot && nodes.length === 1) {
           yield constDeclaration(firstNode.id, rootId);
         } else {
           yield constDeclaration(
@@ -535,16 +574,25 @@ export default declare((api, options) => {
             t.memberExpression(rootId, t.identifier('firstChild')),
           );
         }
-        yield* yieldDeclarationStatementsFromRootNodes(
-          firstNode.children,
-          firstNode.id,
-          false,
-        );
+        if (firstNode.type === ELEMENT_TYPE) {
+          yield* yieldDeclarationStatementsFromRootNodes(
+            firstNode.children,
+            firstNode.id,
+            false,
+            scope
+          );  
+        }
       }
       for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c++) {
         const childNode = childrenWithDomNodesAssociatedWithThem[c];
         if (childNode.id) {
           const previousNode = childrenWithDomNodesAssociatedWithThem[c - 1];
+          if (previousNode.type === TEXT_TYPE && childNode.type === TEXT_TYPE) {
+            yield t.expressionStatement(t.callExpression(
+              t.memberExpression(previousNode.id!, t.identifier('splitText')),
+              [t.numericLiteral(previousNode.text.length)]
+            ));
+          }
           if (previousNode.id) {
             yield constDeclaration(
               childNode.id,
@@ -560,11 +608,14 @@ export default declare((api, options) => {
               ),
             );
           }
-          yield* yieldDeclarationStatementsFromRootNodes(
-            childNode.children,
-            childNode.id,
-            false,
-          );
+          if (childNode.type === ELEMENT_TYPE) {
+            yield* yieldDeclarationStatementsFromRootNodes(
+              childNode.children,
+              childNode.id,
+              false,
+              scope,
+            );  
+          }
         }
       }
       // TODO: Could do previousSibling if the last node uses lastChild
@@ -578,11 +629,14 @@ export default declare((api, options) => {
             lastNode.id,
             t.memberExpression(rootId, t.identifier('lastChild')),
           );
-          yield* yieldDeclarationStatementsFromRootNodes(
-            lastNode.children,
-            lastNode.id,
-            false,
-          );
+          if (lastNode.type === ELEMENT_TYPE) {
+            yield* yieldDeclarationStatementsFromRootNodes(
+              lastNode.children,
+              lastNode.id,
+              false,
+              scope,
+            );  
+          }
         }
       }
     }
@@ -605,7 +659,7 @@ export default declare((api, options) => {
     return null;
   };
 
-  function* yieldFieldExpressionsFromNodes(nodes: Node[], rootId) {
+  function* yieldFieldExpressionsFromNodes(nodes: Node[], rootId: t.Identifier) {
     let previousConsecutiveDynamicNodeCount = 0;
     for (const node of nodes) {
       switch (node.type) {
@@ -626,6 +680,10 @@ export default declare((api, options) => {
                 case EVENT_TYPE:
                 case ATTRIBUTE_TYPE:
                   if (!isLiteral(field.expression)) {
+                    if (node.id === null) {
+                      throw new Error('Not supported');
+                    }
+          
                     yield mbxCallExpression(field.type, [
                       node.id,
                       t.stringLiteral(field.key),
@@ -635,9 +693,16 @@ export default declare((api, options) => {
                 case PROPERTY_TYPE:
                   yield mbxCallExpression(field.type, [node.id, field.setterId]);
                   break;
+                case SPREAD_TYPE:
+                  yield mbxCallExpression(field.type, [node.id]);
+                  break;
+                default:
+                  throw new Error(`Not supported: ${field.type}`);
               }
             }
-            yield* yieldFieldExpressionsFromNodes(node.children, node.id);
+            if (node.id !== null) {
+              yield* yieldFieldExpressionsFromNodes(node.children, node.id);
+            }  
           }
           break;
         case SUBCOMPONENT_TYPE:
@@ -656,18 +721,18 @@ export default declare((api, options) => {
     }
   }
 
-  function* yieldFieldValuesFromNode(node: Node) {
+  function* yieldFieldValuesFromNode(node: Node): Generator<t.Node | null> {
     switch (node.type) {
       case ELEMENT_TYPE:
         for (const field of node.fields) {
           switch (field.type) {
             case ATTRIBUTE_TYPE:
               if (!isLiteral(field.expression)) {
-                yield field.expression;
+                yield field.expression.node;
               }
               break;
             default:
-              yield field.expression;
+              yield field.expression.node;
           }
         }
         for (const childNode of node.children) {
@@ -675,36 +740,52 @@ export default declare((api, options) => {
         }
         break;
       case DYNAMIC_TYPE:
-        yield node.expression;
+        yield node.expression.node;
         break;
       case SUBCOMPONENT_TYPE:
         const objectProperties: any[] = [];
         for (const field of node.fields) {
           switch (field.type) {
             case SPREAD_TYPE:
-              objectProperties.push(field.expression);
+              objectProperties.push(t.spreadElement(field.expression.node));
               break;
             case SUBCOMPONENT_PROPERTY_TYPE:
+              if (field.expression.node === null) {
+                throw new Error('Not supported');
+              }
               objectProperties.push(
-                t.objectProperty(t.identifier(field.key), field.expression),
+                t.objectProperty(t.identifier(field.key), field.expression.node),
               );
               break;
           }
         }
         if (node.childrenTemplateId) {
-          const childArgs: any[] = [node.childrenTemplateId];
+          const fieldValues: Parameters<typeof t.callExpression>[1] = [];
           for (const childNode of node.children) {
-            childArgs.push(...yieldFieldValuesFromNode(childNode));
+            fieldValues.push(...yieldFieldValuesFromNode(childNode));
           }
-          objectProperties.push(
-            t.objectProperty(
-              t.identifier('children'),
-              mbxCallExpression('componentResult', childArgs),
-            ),
-          );
+          const domChildren = node.children.filter(nodeHasDom);
+          if (domChildren.length > 0) {
+            objectProperties.push(
+              t.objectProperty(
+                t.identifier('children'),
+                mbxCallExpression('componentResult', [node.childrenTemplateId, t.arrayExpression([...fieldValues])])
+              ),
+            );
+          } else if (fieldValues.length > 0) {
+            objectProperties.push(
+              t.objectProperty(
+                t.identifier('children'),
+                fieldValues.length === 1 ? fieldValues[0] : t.arrayExpression([...fieldValues]),
+              ),
+            );    
+          }
         }
         // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
-        yield t.callExpression(t.identifier(node.nameExpression.name), [
+        if (!node.nameExpression.isJSXIdentifier()) {
+          throw new Error('Not supported');
+        }
+        yield t.callExpression(t.identifier(node.nameExpression.node.name), [
           t.objectExpression(objectProperties),
         ]);
     }
@@ -714,63 +795,65 @@ export default declare((api, options) => {
     node.type === ELEMENT_TYPE || node.type === TEXT_TYPE;
 
   function* yieldTemplateInfoFromRootNodes(nodes: Node[], templateId, scope) {
-    const subcomponentNodes: SubcomponentNode[] = nodes.filter(
-      node => node.type === SUBCOMPONENT_TYPE,
-    ) as SubcomponentNode[];
-    for (const subcomponentNode of subcomponentNodes) {
-      yield* yieldTemplateInfoFromSubcomponentNode(subcomponentNode, scope);
+    const nodeStack: Node[] = [...nodes];
+    while(nodeStack.length > 0) {
+      const node = nodeStack.pop()!;
+      switch(node.type) {
+        case SUBCOMPONENT_TYPE:
+          if (node.childrenTemplateId !== null) {
+            yield* yieldTemplateInfoFromRootNodes(
+              node.children,
+              node.childrenTemplateId,
+              scope,
+            );    
+          } else {
+            nodeStack.push(...[...node.children].reverse());  
+          }
+          break;
+        case ELEMENT_TYPE:
+          nodeStack.push(...[...node.children].reverse());  
+          break;
+      }
     }
 
     const nodesWithDom: (ElementNode | TextNode)[] = nodes.filter(nodeHasDom) as (
       | ElementNode
       | TextNode
     )[];
-    const dynamicElementLength = nodes.filter(
-      node =>
-        node.type === DYNAMIC_TYPE ||
-        node.type === SUBCOMPONENT_TYPE ||
-        (node.type === ELEMENT_TYPE && node.id),
-    ).length;
-    const args = [t.stringLiteral(nodes.map(node => htmlFromNode(node)).join(''))];
+    const isDynamicChildren = hasDynamicNodes(nodes);
+    const args: Parameters<typeof t.callExpression>[1] = [t.stringLiteral(nodes.map(node => htmlFromNode(node)).join(''))];
     let templateMethod: string;
     if (nodesWithDom.length <= 0) {
       return;
-    } else if (nodesWithDom.length === 1) {
-      if (dynamicElementLength > 0) {
+    } else if (nodes.length === 1) {
+      if (isDynamicChildren) {
         templateMethod = DYNAMIC_ELEMENT_TEMPLATE_FACTORY_NAME;
       } else {
         templateMethod = STATIC_ELEMENT_TEMPLATE_FACTORY_NAME;
       }
     } else {
-      if (dynamicElementLength > 0) {
+      if (isDynamicChildren) {
         templateMethod = DYNAMIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
       } else {
         templateMethod = STATIC_FRAGMENT_TEMPLATE_FACTORY_NAME;
       }
     }
-    if (dynamicElementLength > 0) {
+    if (isDynamicChildren) {
       const rootParamId = scope.generateUidIdentifier('rootNode');
       const statements = [
-        ...yieldDeclarationStatementsFromRootNodes(nodes, rootParamId, true),
+        ...yieldDeclarationStatementsFromRootNodes(nodes, rootParamId, true, scope),
       ];
       const fieldExpressions = [...yieldFieldExpressionsFromNodes(nodes, rootParamId)];
       statements.push(t.returnStatement(t.arrayExpression(fieldExpressions)));
-      args.push(t.arrowFunctionExpression([rootParamId], t.blockStatement(statements)));
+
+      const blockStatement = t.blockStatement(statements);
+      const arrowFunction = t.arrowFunctionExpression([rootParamId], blockStatement);
+      args.push(arrowFunction);
     }
     yield constDeclaration(templateId, mbxCallExpression(templateMethod, args));
   }
 
-  function* yieldTemplateInfoFromSubcomponentNode(node: SubcomponentNode, scope) {
-    if (node.childrenTemplateId) {
-      yield* yieldTemplateInfoFromRootNodes(
-        node.children,
-        node.childrenTemplateId,
-        scope,
-      );
-    }
-  }
-
-  const replacePathWithDomNodeSyntax = (nodes: Node[], path, outerPath) => {
+  const replacePathWithDomNodeSyntax = (nodes: Node[], path: tr.NodePath, outerPath: tr.NodePath) => {
     const templateId = path.scope.generateUidIdentifier('template');
     const templateDeclarations = yieldTemplateInfoFromRootNodes(
       nodes,
@@ -786,18 +869,15 @@ export default declare((api, options) => {
       for (const node of nodes) {
         componentResultArgs.push(...yieldFieldValuesFromNode(node));
       }
-      if (componentResultArgs.length === 1) {
-        path.replaceWith(t.expressionStatement(componentResultArgs[0]));
-      } else {
-        path.replaceWith(t.expressionStatement(t.arrayExpression(componentResultArgs)));
-      }
+      path.replaceWith(t.expressionStatement(componentResultArgs.length === 1 ? componentResultArgs[0] : t.arrayExpression(componentResultArgs)));
     } else {
-      const componentResultArgs = [templateId];
+      const fieldValues: Parameters<typeof t.callExpression>[1] = [];
       for (const node of nodes) {
-        componentResultArgs.push(t.arrayExpression([...yieldFieldValuesFromNode(node)]));
+        const nodeFieldValues = yieldFieldValuesFromNode(node);
+        fieldValues.push(...nodeFieldValues);
       }
       path.replaceWith(
-        t.expressionStatement(mbxCallExpression('componentResult', componentResultArgs)),
+        t.expressionStatement(mbxCallExpression('componentResult', [templateId, t.arrayExpression(fieldValues)])),
       );
     }
   };
@@ -814,18 +894,22 @@ export default declare((api, options) => {
   // returns a closure that returns an identifier or memberExpression node
   // based on the given id
   const createIdentifierParser = (id: string) => () => {
-    return id
-      .split('.')
-      .map(name => t.identifier(name))
-      .reduce((object, property) => t.memberExpression(object, property));
+    const identifiers = id.split('.')
+      .map(name => t.identifier(name));
+    let cur: t.Identifier | t.MemberExpression = identifiers[0];
+    for(let i = 1; i < identifiers.length; i++) {
+      cur = t.memberExpression(cur, identifiers[i]);
+    }
+    return cur;
   };
 
-  let setterMap: Map;
+  // TODO: Type it properly
+  let setterMap: Map<string, any>;
   const visitor = helper({
     pre(state) {
       const tagName = state.tagName;
       const args = state.args;
-      if (t.react.isCompatTag(tagName)) {
+      if (core.types.react.isCompatTag(tagName)) {
         args.push(t.stringLiteral(tagName));
       } else {
         args.push(state.tagExpr);
@@ -883,7 +967,7 @@ export default declare((api, options) => {
     },
   };
 
-  visitor.JSXFragment = function(path: t.NodePath) {
+  visitor.JSXFragment = function(path: tr.NodePath<t.JSXFragment>) {
     if (isRootJSXNode(path)) {
       const outerPath = path.findParent(
         parentPath => parentPath === undefined || parentPath.parentPath.isProgram(),

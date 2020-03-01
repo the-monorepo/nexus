@@ -1,0 +1,19 @@
+{
+  "name": "@pshaw/page-breaker-chrome",
+  "version": "1.0.0",
+  "description": "An assortment of tools that lets you test how robust your CSS handles less common inputs including right-to-left, special unicode markup, long words and more.",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "misc/page-breaker-chrome"
+  },
+  "devDependencies": {
+    "node-sass": "^4.13.1",
+    "sass-loader": "^8.0.2"
+  },
+  "dependencies": {
+    "paper-range-slider": "^3.0.0",
+    "xy-ui": "^1.9.3"
+  }
+}

@@ -27,7 +27,7 @@
     "access": "public"
   },
   "dependencies": {
-    "isomorphic-git": "^0.51.12",
+    "isomorphic-git": "^0.78.5",
     "streamfilter": "2"
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34"

@@ -1,11 +1,13 @@
 const { resolve } = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { HotModuleReplacementPlugin } = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackTemplate = require('html-webpack-template');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
+const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
+const normalizeCssUrl = 'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css';
 
 const svgRule = {
   test: /\.svg$/,
@@ -50,10 +52,12 @@ const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmarker');
 
 const resumeDir = resolve(miscDir, 'my-resume');
 
+const distPath = (packageDir) => resolve(packageDir, 'dist');
+
 const createDistOutput = packageDir => {
   return {
     filename: '[name].js',
-    path: resolve(packageDir, 'dist'),
+    path: distPath(packageDir),
     publicPath: '/',
   };
 };
@@ -93,7 +97,6 @@ const resumeConfig = {
       title: 'Patrick Shaw - Resume',
       links: [openSansUrl],
     }),
-    new HotModuleReplacementPlugin(),
     defaultBundleAnalyzerPlugin(resumeDir),
   ],
   devServer: {
@@ -106,6 +109,21 @@ const cssRule = {
   test: /\.css$/,
   use: ['style-loader', 'css-loader'],
 };
+
+const sassModulesRule = {
+  test: /\.(sass|scss)$/,
+  use: ['style-loader', {
+    loader: 'css-loader',
+    options: {
+      modules: true,
+    }
+  }, {
+    loader: 'sass-loader',
+    options: {
+      sourceMap: true,
+    }
+  }]
+}
 
 const faultjsBenchmarkConfig = {
   name: 'fault-benchmarker',
@@ -124,8 +142,6 @@ const faultjsBenchmarkConfig = {
       title: `Fault.js benchmark results`,
       links: [openSansUrl],
     }),
-    new HotModuleReplacementPlugin(),
-    defaultBundleAnalyzerPlugin(faultjsBenchmarkDir),
   ],
   devServer: {
     port: 3001,
@@ -133,4 +149,39 @@ const faultjsBenchmarkConfig = {
   },
 };
 
-module.exports = [resumeConfig, faultjsBenchmarkConfig];
+const pageBreakerDir = resolve(miscDir, 'page-breaker-chrome');
+const pageBreakerFrontendConfig = {
+  name: 'page-breaker',
+  target: 'web',
+  resolve: {
+    extensions: tsxExtensions,
+  },
+  devtool: 'source-map',
+  module: {
+    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+  },
+  entry: resolve(pageBreakerDir, 'src/index.tsx'),
+  output: createDistOutput(pageBreakerDir),
+  plugins: [
+    defaultHtmlWebpackPlugin({
+      title: `Page Breaker`,
+      links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
+    }),
+    new CopyPlugin([
+      {
+        from: resolve(pageBreakerDir, 'src/manifest.json'),
+        to: resolve(pageBreakerDir, 'dist/manifest.json')
+      },
+      {
+        from: resolve(pageBreakerDir, 'src/icon.png'),
+        to: resolve(pageBreakerDir, 'dist/icon.png')
+      }
+    ])
+  ],
+  devServer: {
+    port: 3002,
+    compress: true,
+  },
+};
+
+module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig];
