@@ -13,6 +13,16 @@ import 'xy-ui/components/xy-checkbox';
 import 'xy-ui/components/xy-input';
 import 'xy-ui/components/xy-button';
 
+const browserFontSize = (() => {
+  // TODO: Find out if there's a better way
+  const tempEl = document.createElement('div');
+  tempEl.style.height = '1rem';
+  document.body.appendChild(tempEl);
+  const size = tempEl.offsetHeight;
+  document.body.removeChild(tempEl);
+  return size;
+})();
+
 // Prevents slider messing with the extension UI at the expense of font resizing
 document.documentElement.style.fontSize = "16px";
 
@@ -60,15 +70,6 @@ const replaceWordState = observable({
   },
 });
 
-const browserFontSize = (() => {
-  // TODO: Find out if there's a better way
-  const tempEl = document.createElement('div');
-  tempEl.style.height = '1rem';
-  document.body.appendChild(tempEl);
-  const size = tempEl.offsetHeight;
-  document.body.removeChild(tempEl);
-  return size;
-})();
 
 const fontState = observable({
   size: browserFontSize,
