@@ -48,6 +48,7 @@
     "micromatch": "^4.0.2"
   },
   "devDependencies": {
+    "babel-preset-airbnb": "^4.4.0",
     "cross-spawn": "^6.0.5",
     "isomorphic-git": "^0.58.1"
   }

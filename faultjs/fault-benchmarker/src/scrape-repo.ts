@@ -111,6 +111,7 @@ const run = async () => {
   let prCount = 0;
   do {
     data = await retrievePrs(after);
+    console.log(data)
 
     for (const pullRequest of data.data.repository.pullRequests.edges) {
       prCount++;
