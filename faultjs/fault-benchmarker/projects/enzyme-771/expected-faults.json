@@ -1,15 +1,15 @@
 {
-  "./lib/chai/core/assertions.js": [
+  "./src/ShallowWrapper.js": [
     {
       "type": "within",
       "location": {
         "start": {
-          "line": 1464,
+          "line": 1034,
           "column": 6
         },
         "end": {
-          "line": 1464,
-          "column": 59
+          "line": 1034,
+          "column": 50
         }
       }
     }
