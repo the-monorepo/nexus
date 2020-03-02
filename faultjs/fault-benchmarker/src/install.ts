@@ -20,7 +20,7 @@ const main = async () => {
       onlyFiles: true,
     });
     const command = `${packagePaths.length > 0 ? 'yarn' : 'npm'} install ${
-      packagePaths.length > 0 ? '--pure-lockfile' : '--no-package-lock --no-save'
+      packagePaths.length > 0 ? '--pure-lockfile' : ''
     }`;
     console.log(command);
     const p = exec(command, { cwd: resolvedProjectDir });
