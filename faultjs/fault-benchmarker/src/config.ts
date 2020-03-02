@@ -33,6 +33,7 @@ export const config: BenchmarkConfig = [
     },
     babelOptions: {
       sourceType: 'module',
+      plugins: ['jsx']
     },
   },
   {
@@ -47,6 +48,7 @@ export const config: BenchmarkConfig = [
     },
     babelOptions: {
       sourceType: 'module',
+      plugins: ['jsx']
     },
   },
   {
