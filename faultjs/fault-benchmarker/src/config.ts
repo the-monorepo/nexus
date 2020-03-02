@@ -30,7 +30,10 @@ export const config: BenchmarkConfig = [
     ],
     testOptions: {
       sandbox: false
-    }
+    },
+    babelOptions: {
+      sourceType: 'module',
+    },
   },
   {
     glob: 'enzyme-*',
@@ -41,7 +44,10 @@ export const config: BenchmarkConfig = [
     ],
     testOptions: {
       sandbox: false
-    }
+    },
+    babelOptions: {
+      sourceType: 'module',
+    },
   },
   {
     glob: 'sinon-*',
