@@ -1,48 +1,51 @@
 import React from 'react';
-import cheerio from 'cheerio';
 import flatten from 'lodash/flatten';
 import unique from 'lodash/uniq';
 import compact from 'lodash/compact';
+import cheerio from 'cheerio';
+import assign from 'object.assign';
 
 import ComplexSelector from './ComplexSelector';
-import createWrapperComponent from './ReactWrapperComponent';
 import {
-  instHasClassName,
-  childrenOfInst,
-  parentsOfInst,
-  buildInstPredicate,
-  instEqual,
-  treeFilter,
-  getNode,
-  internalInstanceOrComponent,
-} from './MountedTraversal';
-import {
-  renderWithOptions,
-  Simulate,
-  findDOMNode,
-  unmountComponentAtNode,
-} from './react-compat';
-import {
-  mapNativeEventNames,
+  nodeEqual,
+  nodeMatches,
   containsChildrenSubArray,
+  propFromEvent,
+  withSetStateAllowed,
   propsOfNode,
   typeOfNode,
+  isReactElementAlike,
   displayNameOfNode,
+  isFunctionalComponent,
+  isCustomComponentElement,
   ITERATOR_SYMBOL,
 } from './Utils';
 import {
-  debugInsts,
+  debugNodes,
 } from './Debug';
-import { REACT15 } from './version';
+import {
+  getTextFromNode,
+  hasClassName,
+  childrenOfNode,
+  parentsOfNode,
+  treeFilter,
+  buildPredicate,
+} from './ShallowTraversal';
+import {
+  createShallowRenderer,
+  renderToStaticMarkup,
+  batchedUpdates,
+  isDOMComponentElement,
+} from './react-compat';
 
 /**
  * Finds all nodes in the current wrapper nodes' render trees that match the provided predicate
  * function.
  *
- * @param {ReactWrapper} wrapper
+ * @param {ShallowWrapper} wrapper
  * @param {Function} predicate
  * @param {Function} filter
- * @returns {ReactWrapper}
+ * @returns {ShallowWrapper}
  */
 function findWhereUnwrapped(wrapper, predicate, filter = treeFilter) {
   return wrapper.flatMap(n => filter(n.getNode(), predicate));
@@ -52,45 +55,45 @@ function findWhereUnwrapped(wrapper, predicate, filter = treeFilter) {
  * Returns a new wrapper instance with only the nodes of the current wrapper instance that match
  * the provided predicate function.
  *
- * @param {ReactWrapper} wrapper
+ * @param {ShallowWrapper} wrapper
  * @param {Function} predicate
- * @returns {ReactWrapper}
+ * @returns {ShallowWrapper}
  */
 function filterWhereUnwrapped(wrapper, predicate) {
   return wrapper.wrap(compact(wrapper.getNodes().filter(predicate)));
 }
 
 /**
- * @class ReactWrapper
+ * @class ShallowWrapper
  */
-class ReactWrapper {
+class ShallowWrapper {
 
   constructor(nodes, root, options = {}) {
-    if (!global.window && !global.document) {
-      throw new Error(
-        'It looks like you called `mount()` without a global document being loaded.',
-      );
-    }
-
     if (!root) {
-      const ReactWrapperComponent = createWrapperComponent(nodes, options);
-      this.component = renderWithOptions(
-        <ReactWrapperComponent
-          Component={nodes.type}
-          props={nodes.props}
-          context={options.context}
-        />,
-      options);
       this.root = this;
-      this.node = this.component.getWrappedComponent();
+      this.unrendered = nodes;
+      this.renderer = createShallowRenderer();
+      withSetStateAllowed(() => {
+        batchedUpdates(() => {
+          this.renderer.render(nodes, options.context);
+          const instance = this.instance();
+          if (
+            options.lifecycleExperimental &&
+            instance &&
+            typeof instance.componentDidMount === 'function'
+          ) {
+            instance.componentDidMount();
+          }
+        });
+      });
+      this.node = this.renderer.getRenderOutput();
       this.nodes = [this.node];
       this.length = 1;
     } else {
-      this.component = null;
       this.root = root;
-      if (!nodes) {
-        this.nodes = [];
-      } else if (!Array.isArray(nodes)) {
+      this.unrendered = null;
+      this.renderer = null;
+      if (!Array.isArray(nodes)) {
         this.node = nodes;
         this.nodes = [nodes];
       } else {
@@ -100,60 +103,40 @@ class ReactWrapper {
       this.length = this.nodes.length;
     }
     this.options = options;
-    this.complexSelector = new ComplexSelector(
-      buildInstPredicate,
-      findWhereUnwrapped,
-      childrenOfInst,
-    );
+    this.complexSelector = new ComplexSelector(buildPredicate, findWhereUnwrapped, childrenOfNode);
   }
 
   /**
-   * Returns the wrapped component.
+   * Returns the wrapped ReactElement.
    *
-   * @return {ReactComponent}
+   * @return {ReactElement}
    */
   getNode() {
     if (this.length !== 1) {
       throw new Error(
-        'ReactWrapper::getNode() can only be called when wrapping one node',
+        'ShallowWrapper::getNode() can only be called when wrapping one node',
       );
     }
-    return this.nodes[0];
+    return this.root === this ? this.renderer.getRenderOutput() : this.node;
   }
 
   /**
-   * Returns the the wrapped components.
+   * Returns the wrapped ReactElements.
    *
-   * @return {Array<ReactComponent>}
+   * @return {Array<ReactElement>}
    */
   getNodes() {
-    return this.nodes;
+    return this.root === this ? [this.renderer.getRenderOutput()] : this.nodes;
   }
 
   /**
-   * If the root component contained a ref, you can access it here
-   * and get a wrapper around it.
-   *
-   * NOTE: can only be called on a wrapper instance that is also the root instance.
-   *
-   * @param {String} refname
-   * @returns {ReactWrapper}
-   */
-  ref(refname) {
-    if (this.root !== this) {
-      throw new Error('ReactWrapper::ref(refname) can only be called on the root');
-    }
-    return this.wrap(this.instance().refs[refname]);
-  }
-
-  /**
-   * Gets the instance of the component being rendered as the root node passed into `mount()`.
+   * Gets the instance of the component being rendered as the root node passed into `shallow()`.
    *
    * NOTE: can only be called on a wrapper instance that is also the root instance.
    *
    * Example:
    * ```
-   * const wrapper = mount(<MyComponent />);
+   * const wrapper = shallow(<MyComponent />);
    * const inst = wrapper.instance();
    * expect(inst).to.be.instanceOf(MyComponent);
    * ```
@@ -161,9 +144,9 @@ class ReactWrapper {
    */
   instance() {
     if (this.root !== this) {
-      throw new Error('ReactWrapper::instance() can only be called on the root');
+      throw new Error('ShallowWrapper::instance() can only be called on the root');
     }
-    return this.component.getInstance();
+    return this.renderer._instance ? this.renderer._instance._instance : null;
   }
 
   /**
@@ -172,47 +155,87 @@ class ReactWrapper {
    *
    * NOTE: can only be called on a wrapper instance that is also the root instance.
    *
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   update() {
     if (this.root !== this) {
-      // TODO(lmr): this requirement may not be necessary for the ReactWrapper
-      throw new Error('ReactWrapper::update() can only be called on the root');
+      throw new Error('ShallowWrapper::update() can only be called on the root');
     }
     this.single('update', () => {
-      this.component.forceUpdate();
+      this.node = this.renderer.getRenderOutput();
+      this.nodes = [this.node];
     });
     return this;
   }
 
   /**
-   * A method that unmounts the component. This can be used to simulate a component going through
-   * and unmount/mount lifecycle.
+   * A method is for re-render with new props and context.
+   * This calls componentDidUpdate method if lifecycleExperimental is enabled.
    *
-   * @returns {ReactWrapper}
+   * NOTE: can only be called on a wrapper instance that is also the root instance.
+   *
+   * @param {Object} props
+   * @param {Object} context
+   * @returns {ShallowWrapper}
    */
-  unmount() {
-    if (this.root !== this) {
-      throw new Error('ReactWrapper::unmount() can only be called on the root');
-    }
-    this.single('unmount', () => {
-      this.component.setState({ mount: false });
-    });
-    return this;
-  }
+  rerender(props, context) {
+    this.single('rerender', () => {
+      withSetStateAllowed(() => {
+        const instance = this.instance();
+        const state = instance.state;
+        const prevProps = instance.props;
+        const prevContext = instance.context;
+        const nextProps = props || prevProps;
+        const nextContext = context || prevContext;
+        batchedUpdates(() => {
+          let shouldRender = true;
+          // dirty hack:
+          // make sure that componentWillReceiveProps is called before shouldComponentUpdate
+          let originalComponentWillReceiveProps;
+          if (
+            this.options.lifecycleExperimental &&
+            instance &&
+            typeof instance.componentWillReceiveProps === 'function'
+          ) {
+            instance.componentWillReceiveProps(nextProps, nextContext);
+            originalComponentWillReceiveProps = instance.componentWillReceiveProps;
+            instance.componentWillReceiveProps = () => {};
+          }
+          // dirty hack: avoid calling shouldComponentUpdate twice
+          let originalShouldComponentUpdate;
+          if (
+            this.options.lifecycleExperimental &&
+            instance &&
+            typeof instance.shouldComponentUpdate === 'function'
+          ) {
+            shouldRender = instance.shouldComponentUpdate(nextProps, state, nextContext);
+            originalShouldComponentUpdate = instance.shouldComponentUpdate;
+          }
+          if (shouldRender) {
+            if (props) this.unrendered = React.cloneElement(this.unrendered, props);
+            if (originalShouldComponentUpdate) {
+              instance.shouldComponentUpdate = () => true;
+            }
 
-  /**
-   * A method that re-mounts the component. This can be used to simulate a component going through
-   * an unmount/mount lifecycle.
-   *
-   * @returns {ReactWrapper}
-   */
-  mount() {
-    if (this.root !== this) {
-      throw new Error('ReactWrapper::mount() can only be called on the root');
-    }
-    this.single('mount', () => {
-      this.component.setState({ mount: true });
+            this.renderer.render(this.unrendered, nextContext);
+
+            if (originalShouldComponentUpdate) {
+              instance.shouldComponentUpdate = originalShouldComponentUpdate;
+            }
+            if (
+              this.options.lifecycleExperimental &&
+              instance &&
+              typeof instance.componentDidUpdate === 'function'
+            ) {
+              instance.componentDidUpdate(prevProps, state, prevContext);
+            }
+            this.update();
+          }
+          if (originalComponentWillReceiveProps) {
+            instance.componentWillReceiveProps = originalComponentWillReceiveProps;
+          }
+        });
+      });
     });
     return this;
   }
@@ -228,15 +251,13 @@ class ReactWrapper {
    * NOTE: can only be called on a wrapper instance that is also the root instance.
    *
    * @param {Object} props object
-   * @param {Function} cb - callback function
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
-  setProps(props, callback = undefined) {
+  setProps(props) {
     if (this.root !== this) {
-      throw new Error('ReactWrapper::setProps() can only be called on the root');
+      throw new Error('ShallowWrapper::setProps() can only be called on the root');
     }
-    this.component.setChildProps(props, callback);
-    return this;
+    return this.rerender(props);
   }
 
   /**
@@ -250,13 +271,21 @@ class ReactWrapper {
    *
    * @param {Object} state to merge
    * @param {Function} cb - callback function
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   setState(state, callback = undefined) {
     if (this.root !== this) {
-      throw new Error('ReactWrapper::setState() can only be called on the root');
+      throw new Error('ShallowWrapper::setState() can only be called on the root');
     }
-    this.instance().setState(state, callback);
+    if (isFunctionalComponent(this.instance())) {
+      throw new Error('ShallowWrapper::setState() can only be called on class components');
+    }
+    this.single('setState', () => {
+      withSetStateAllowed(() => {
+        this.instance().setState(state, callback);
+        this.update();
+      });
+    });
     return this;
   }
 
@@ -267,11 +296,11 @@ class ReactWrapper {
    * NOTE: can only be called on a wrapper instance that is also the root instance.
    *
    * @param {Object} context object
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   setContext(context) {
     if (this.root !== this) {
-      throw new Error('ReactWrapper::setContext() can only be called on the root');
+      throw new Error('ShallowWrapper::setContext() can only be called on the root');
     }
     if (!this.options.context) {
       throw new Error(
@@ -279,36 +308,15 @@ class ReactWrapper {
         'a context option',
       );
     }
-    this.component.setChildContext(context);
-    return this;
+    return this.rerender(null, context);
   }
 
   /**
-   * Whether or not a given react element matches the current render tree.
-   * It will determine if the wrapper root node "looks like" the expected
-   * element by checking if all props of the expected element are present
-   * on the wrapper root node and equals to each other.
+   * Whether or not a given react element exists in the shallow render tree.
    *
    * Example:
    * ```
-   * // MyComponent outputs <div class="foo">Hello</div>
-   * const wrapper = mount(<MyComponent />);
-   * expect(wrapper.matchesElement(<div>Hello</div>)).to.equal(true);
-   * ```
-   *
-   * @param {ReactElement} node
-   * @returns {Boolean}
-   */
-  matchesElement(node) {
-    return this.single('matchesElement', () => instEqual(node, this.getNode(), (a, b) => a <= b));
-  }
-
-  /**
-   * Whether or not a given react element exists in the mount render tree.
-   *
-   * Example:
-   * ```
-   * const wrapper = mount(<MyComponent />);
+   * const wrapper = shallow(<MyComponent />);
    * expect(wrapper.contains(<div className="foo bar" />)).to.equal(true);
    * ```
    *
@@ -316,14 +324,23 @@ class ReactWrapper {
    * @returns {Boolean}
    */
   contains(nodeOrNodes) {
+    if (!isReactElementAlike(nodeOrNodes)) {
+      throw new Error(
+        'ShallowWrapper::contains() can only be called with ReactElement (or array of them), ' +
+        'string or number as argument.',
+      );
+    }
+
     const predicate = Array.isArray(nodeOrNodes)
-      ? other => containsChildrenSubArray(instEqual, other, nodeOrNodes)
-      : other => instEqual(nodeOrNodes, other);
+      ? other => containsChildrenSubArray(nodeEqual, other, nodeOrNodes)
+      : other => nodeEqual(nodeOrNodes, other);
+
     return findWhereUnwrapped(this, predicate).length > 0;
   }
 
   /**
-   * Whether or not a given react element exists in the current render tree.
+   * Whether or not a given react element exists in the shallow render tree.
+   * Match is based on the expected element and not on wrappers element.
    * It will determine if one of the wrappers element "looks like" the expected
    * element by checking if all props of the expected element are present
    * on the wrappers element and equals to each other.
@@ -331,7 +348,7 @@ class ReactWrapper {
    * Example:
    * ```
    * // MyComponent outputs <div><div class="foo">Hello</div></div>
-   * const wrapper = mount(<MyComponent />);
+   * const wrapper = shallow(<MyComponent />);
    * expect(wrapper.containsMatchingElement(<div>Hello</div>)).to.equal(true);
    * ```
    *
@@ -339,19 +356,20 @@ class ReactWrapper {
    * @returns {Boolean}
    */
   containsMatchingElement(node) {
-    const predicate = other => instEqual(node, other, (a, b) => a <= b);
+    const predicate = other => nodeMatches(node, other, (a, b) => a <= b);
     return findWhereUnwrapped(this, predicate).length > 0;
   }
 
   /**
-   * Whether or not all the given react elements exists in the current render tree.
+   * Whether or not all the given react elements exists in the shallow render tree.
+   * Match is based on the expected element and not on wrappers element.
    * It will determine if one of the wrappers element "looks like" the expected
    * element by checking if all props of the expected element are present
    * on the wrappers element and equals to each other.
    *
    * Example:
    * ```
-   * const wrapper = mount(<MyComponent />);
+   * const wrapper = shallow(<MyComponent />);
    * expect(wrapper.containsAllMatchingElements([
    *   <div>Hello</div>,
    *   <div>Goodbye</div>,
@@ -362,20 +380,21 @@ class ReactWrapper {
    * @returns {Boolean}
    */
   containsAllMatchingElements(nodes) {
-    const invertedEquals = (n1, n2) => instEqual(n2, n1, (a, b) => a <= b);
+    const invertedEquals = (n1, n2) => nodeMatches(n2, n1, (a, b) => a <= b);
     const predicate = other => containsChildrenSubArray(invertedEquals, other, nodes);
     return findWhereUnwrapped(this, predicate).length > 0;
   }
 
   /**
-   * Whether or not one of the given react elements exists in the current render tree.
+   * Whether or not one of the given react elements exists in the shallow render tree.
+   * Match is based on the expected element and not on wrappers element.
    * It will determine if one of the wrappers element "looks like" the expected
    * element by checking if all props of the expected element are present
    * on the wrappers element and equals to each other.
    *
    * Example:
    * ```
-   * const wrapper = mount(<MyComponent />);
+   * const wrapper = shallow(<MyComponent />);
    * expect(wrapper.containsAnyMatchingElements([
    *   <div>Hello</div>,
    *   <div>Goodbye</div>,
@@ -390,10 +409,47 @@ class ReactWrapper {
   }
 
   /**
+   * Whether or not a given react element exists in the shallow render tree.
+   *
+   * Example:
+   * ```
+   * const wrapper = shallow(<MyComponent />);
+   * expect(wrapper.contains(<div className="foo bar" />)).to.equal(true);
+   * ```
+   *
+   * @param {ReactElement} node
+   * @returns {Boolean}
+   */
+  equals(node) {
+    return this.single('equals', () => nodeEqual(this.getNode(), node));
+  }
+
+  /**
+   * Whether or not a given react element matches the shallow render tree.
+   * Match is based on the expected element and not on wrapper root node.
+   * It will determine if the wrapper root node "looks like" the expected
+   * element by checking if all props of the expected element are present
+   * on the wrapper root node and equals to each other.
+   *
+   * Example:
+   * ```
+   * // MyComponent outputs <div class="foo">Hello</div>
+   * const wrapper = shallow(<MyComponent />);
+   * expect(wrapper.matchesElement(<div>Hello</div>)).to.equal(true);
+   * ```
+   *
+   * @param {ReactElement} node
+   * @returns {Boolean}
+   */
+  matchesElement(node) {
+    return this.single('matchesElement', () => nodeMatches(node, this.getNode(), (a, b) => a <= b));
+  }
+
+  /**
    * Finds every node in the render tree of the current wrapper that matches the provided selector.
    *
    * @param {String|Function} selector
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   find(selector) {
     return this.complexSelector.find(selector, this);
@@ -408,7 +464,7 @@ class ReactWrapper {
    * @returns {boolean}
    */
   is(selector) {
-    const predicate = buildInstPredicate(selector);
+    const predicate = buildPredicate(selector);
     return this.single('is', n => predicate(n));
   }
 
@@ -418,24 +474,16 @@ class ReactWrapper {
    * @returns {boolean}
    */
   isEmptyRender() {
-    return this.single('isEmptyRender', (n) => {
-      // Stateful components and stateless function components have different internal structures,
-      // so we need to find the correct internal instance, and validate the rendered node type
-      // equals 2, which is the `ReactNodeTypes.EMPTY` value.
-      if (REACT15) {
-        return internalInstanceOrComponent(n)._renderedNodeType === 2;
-      }
-
-      return findDOMNode(n) === null;
-    });
+    return this.type() === null;
   }
 
   /**
    * Returns a new wrapper instance with only the nodes of the current wrapper instance that match
-   * the provided predicate function.
+   * the provided predicate function. The predicate should receive a wrapped node as its first
+   * argument.
    *
    * @param {Function} predicate
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   filterWhere(predicate) {
     return filterWhereUnwrapped(this, n => predicate(this.wrap(n)));
@@ -446,10 +494,10 @@ class ReactWrapper {
    * the provided selector.
    *
    * @param {String|Function} selector
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   filter(selector) {
-    const predicate = buildInstPredicate(selector);
+    const predicate = buildPredicate(selector);
     return filterWhereUnwrapped(this, predicate);
   }
 
@@ -458,10 +506,10 @@ class ReactWrapper {
    * the provided selector. Essentially the inverse of `filter`.
    *
    * @param {String|Function} selector
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   not(selector) {
-    const predicate = buildInstPredicate(selector);
+    const predicate = buildPredicate(selector);
     return filterWhereUnwrapped(this, n => !predicate(n));
   }
 
@@ -475,7 +523,7 @@ class ReactWrapper {
    * @returns {String}
    */
   text() {
-    return this.single('text', n => findDOMNode(n).textContent);
+    return this.single('text', getTextFromNode);
   }
 
   /**
@@ -486,11 +534,7 @@ class ReactWrapper {
    * @returns {String}
    */
   html() {
-    return this.single('html', (n) => {
-      const node = findDOMNode(n);
-      return node === null ? null :
-        node.outerHTML.replace(/\sdata-(reactid|reactroot)+="([^"]*)+"/g, '');
-    });
+    return this.single('html', n => (this.type() === null ? null : renderToStaticMarkup(n)));
   }
 
   /**
@@ -501,8 +545,17 @@ class ReactWrapper {
    * @returns {CheerioWrapper}
    */
   render() {
-    const html = this.html();
-    return html === null ? cheerio() : cheerio.load(html).root();
+    return this.type() === null ? cheerio() : cheerio.load(this.html()).root();
+  }
+
+  /**
+   * A method that unmounts the component. This can be used to simulate a component going through
+   * and unmount/mount lifecycle.
+   * @returns {ShallowWrapper}
+   */
+  unmount() {
+    this.renderer.unmount();
+    return this;
   }
 
   /**
@@ -510,24 +563,26 @@ class ReactWrapper {
    * testing events should be met with some skepticism.
    *
    * @param {String} event
-   * @param {Object} mock (optional)
-   * @returns {ReactWrapper}
+   * @param {Array} args
+   * @returns {ShallowWrapper}
    */
-  simulate(event, mock = {}) {
-    this.single('simulate', (n) => {
-      const mappedEvent = mapNativeEventNames(event);
-      const eventFn = Simulate[mappedEvent];
-      if (!eventFn) {
-        throw new TypeError(`ReactWrapper::simulate() event '${event}' does not exist`);
-      }
-
-      eventFn(findDOMNode(n), mock);
-    });
+  simulate(event, ...args) {
+    const handler = this.prop(propFromEvent(event));
+    if (handler) {
+      withSetStateAllowed(() => {
+        // TODO(lmr): create/use synthetic events
+        // TODO(lmr): emulate React's event propagation
+        batchedUpdates(() => {
+          handler(...args);
+        });
+        this.root.update();
+      });
+    }
     return this;
   }
 
   /**
-   * Returns the props hash for the root node of the wrapper.
+   * Returns the props hash for the current node of the wrapper.
    *
    * NOTE: can only be called on a wrapper of a single node.
    *
@@ -548,7 +603,10 @@ class ReactWrapper {
    */
   state(name) {
     if (this.root !== this) {
-      throw new Error('ReactWrapper::state() can only be called on the root');
+      throw new Error('ShallowWrapper::state() can only be called on the root');
+    }
+    if (isFunctionalComponent(this.instance())) {
+      throw new Error('ShallowWrapper::state() can only be called on class components');
     }
     const _state = this.single('state', () => this.instance().state);
     if (name !== undefined) {
@@ -568,10 +626,16 @@ class ReactWrapper {
    */
   context(name) {
     if (this.root !== this) {
-      throw new Error('ReactWrapper::context() can only be called on the root');
+      throw new Error('ShallowWrapper::context() can only be called on the root');
+    }
+    if (!this.options.context) {
+      throw new Error(
+        'ShallowWrapper::context() can only be called on a wrapper that was originally passed ' +
+        'a context option',
+      );
     }
     const _context = this.single('context', () => this.instance().context);
-    if (name !== undefined) {
+    if (name) {
       return _context[name];
     }
     return _context;
@@ -581,10 +645,10 @@ class ReactWrapper {
    * Returns a new wrapper with all of the children of the current wrapper.
    *
    * @param {String|Function} [selector]
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   children(selector) {
-    const allChildren = this.flatMap(n => childrenOfInst(n.getNode()));
+    const allChildren = this.flatMap(n => childrenOfNode(n.getNode()));
     return selector ? allChildren.filter(selector) : allChildren;
   }
 
@@ -592,7 +656,7 @@ class ReactWrapper {
    * Returns a new wrapper with a specific child
    *
    * @param {Number} [index]
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   childAt(index) {
     return this.single('childAt', () => this.children().at(index));
@@ -605,11 +669,11 @@ class ReactWrapper {
    * NOTE: can only be called on a wrapper of a single node.
    *
    * @param {String|Function} [selector]
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   parents(selector) {
     const allParents = this.wrap(
-        this.single('parents', n => parentsOfInst(n, this.root.getNode())),
+        this.single('parents', n => parentsOfNode(n, this.root.getNode())),
     );
     return selector ? allParents.filter(selector) : allParents;
   }
@@ -617,7 +681,7 @@ class ReactWrapper {
   /**
    * Returns a wrapper around the immediate parent of the current node.
    *
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   parent() {
     return this.flatMap(n => [n.parents().get(0)]);
@@ -626,16 +690,28 @@ class ReactWrapper {
   /**
    *
    * @param {String|Function} selector
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   closest(selector) {
     return this.is(selector) ? this : this.parents().filter(selector).first();
   }
 
   /**
-   * Returns the value of  prop with the given name of the root node.
+   * Shallow renders the current node and returns a shallow wrapper around it.
    *
-   * @param {String} propName
+   * NOTE: can only be called on wrapper of a single node.
+   *
+   * @param options object
+   * @returns {ShallowWrapper}
+   */
+  shallow(options) {
+    return this.single('shallow', n => new ShallowWrapper(n, null, options));
+  }
+
+  /**
+   * Returns the value of prop with the given name of the current node.
+   *
+   * @param propName
    * @returns {*}
    */
   prop(propName) {
@@ -648,47 +724,47 @@ class ReactWrapper {
    * @returns {String}
    */
   key() {
-    return this.single('key', n => getNode(n).key);
+    return this.single('key', n => n.key);
   }
 
   /**
-   * Returns the type of the root node of this wrapper. If it's a composite component, this will be
-   * the component constructor. If it's native DOM node, it will be a string.
+   * Returns the type of the current node of this wrapper. If it's a composite component, this will
+   * be the component constructor. If it's a native DOM node, it will be a string.
    *
    * @returns {String|Function}
    */
   type() {
-    return this.single('type', n => typeOfNode(getNode(n)));
+    return this.single('type', typeOfNode);
   }
 
   /**
-   * Returns the name of the root node of this wrapper.
+   * Returns the name of the current node of this wrapper.
    *
    * In order of precedence => type.displayName -> type.name -> type.
    *
    * @returns {String}
    */
   name() {
-    return this.single('name', n => displayNameOfNode(getNode(n)));
+    return this.single('name', displayNameOfNode);
   }
 
   /**
-   * Returns whether or not the current root node has the given class name or not.
+   * Returns whether or not the current node has the given class name or not.
    *
    * NOTE: can only be called on a wrapper of a single node.
    *
-   * @param {String} className
+   * @param className
    * @returns {Boolean}
    */
   hasClass(className) {
     if (className && className.indexOf('.') !== -1) {
       // eslint-disable-next-line no-console
       console.warn(
-        'It looks like you\'re calling `ReactWrapper::hasClass()` with a CSS selector. ' +
+        'It looks like you\'re calling `ShallowWrapper::hasClass()` with a CSS selector. ' +
         'hasClass() expects a class name, not a CSS selector.',
       );
     }
-    return this.single('hasClass', n => instHasClassName(n, className));
+    return this.single('hasClass', n => hasClassName(n, className));
   }
 
   /**
@@ -696,7 +772,7 @@ class ReactWrapper {
    * wrapper around the corresponding node passed in as the first argument.
    *
    * @param {Function} fn
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   forEach(fn) {
     this.getNodes().forEach((n, i) => fn.call(this, this.wrap(n), i));
@@ -704,7 +780,7 @@ class ReactWrapper {
   }
 
   /**
-   * Maps the current array of nodes to another array. Each node is passed in as a `ReactWrapper`
+   * Maps the current array of nodes to another array. Each node is passed in as a `ShallowWrapper`
    * to the map function.
    *
    * @param {Function} fn
@@ -715,8 +791,8 @@ class ReactWrapper {
   }
 
   /**
-   * Reduces the current array of nodes to another array.
-   * Each node is passed in as a `ShallowWrapper` to the reducer function.
+   * Reduces the current array of nodes to a value. Each node is passed in as a `ShallowWrapper`
+   * to the reducer function.
    *
    * @param {Function} fn - the reducer function
    * @param {*} initialValue - the initial value
@@ -764,9 +840,9 @@ class ReactWrapper {
    */
   some(selector) {
     if (this.root === this) {
-      throw new Error('ReactWrapper::some() can not be called on the root');
+      throw new Error('ShallowWrapper::some() can not be called on the root');
     }
-    const predicate = buildInstPredicate(selector);
+    const predicate = buildPredicate(selector);
     return this.getNodes().some(predicate);
   }
 
@@ -787,7 +863,7 @@ class ReactWrapper {
    * @returns {Boolean}
    */
   every(selector) {
-    const predicate = buildInstPredicate(selector);
+    const predicate = buildPredicate(selector);
     return this.getNodes().every(predicate);
   }
 
@@ -807,7 +883,7 @@ class ReactWrapper {
    * all of the mapped nodes flattened (and de-duplicated).
    *
    * @param {Function} fn
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   flatMap(fn) {
     const nodes = this.getNodes().map((n, i) => fn.call(this, this.wrap(n), i));
@@ -819,10 +895,11 @@ class ReactWrapper {
 
   /**
    * Finds all nodes in the current wrapper nodes' render trees that match the provided predicate
-   * function.
+   * function. The predicate function will receive the nodes inside a ShallowWrapper as its
+   * first argument.
    *
    * @param {Function} predicate
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   findWhere(predicate) {
     return findWhereUnwrapped(this, n => predicate(this.wrap(n)));
@@ -831,7 +908,7 @@ class ReactWrapper {
   /**
    * Returns the node at a given index of the current wrapper.
    *
-   * @param {Number} index
+   * @param index
    * @returns {ReactElement}
    */
   get(index) {
@@ -841,8 +918,8 @@ class ReactWrapper {
   /**
    * Returns a wrapper around the node at a given index of the current wrapper.
    *
-   * @param {Number} index
-   * @returns {ReactWrapper}
+   * @param index
+   * @returns {ShallowWrapper}
    */
   at(index) {
     return this.wrap(this.getNodes()[index]);
@@ -851,7 +928,7 @@ class ReactWrapper {
   /**
    * Returns a wrapper around the first node of the current wrapper.
    *
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   first() {
     return this.at(0);
@@ -860,19 +937,30 @@ class ReactWrapper {
   /**
    * Returns a wrapper around the last node of the current wrapper.
    *
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   last() {
     return this.at(this.length - 1);
   }
 
   /**
-   * Returns true if the current wrapper has no nodes. False otherwise.
+   * Delegates to exists()
    *
    * @returns {boolean}
    */
   isEmpty() {
-    return this.length === 0;
+    // eslint-disable-next-line no-console
+    console.warn('Enzyme::Deprecated method isEmpty() called, use exists() instead.');
+    return !this.exists();
+  }
+
+  /**
+   * Returns true if the current wrapper has nodes. False otherwise.
+   *
+   * @returns {boolean}
+   */
+  exists() {
+    return this.length > 0;
   }
 
   /**
@@ -880,7 +968,7 @@ class ReactWrapper {
    * This is primarily used to enforce that certain methods are only run on a wrapper when it is
    * wrapping a single node.
    *
-   * @param {Function} fn
+   * @param fn
    * @returns {*}
    */
   single(name, fn) {
@@ -898,14 +986,14 @@ class ReactWrapper {
    * Helpful utility method to create a new wrapper with the same root as the current wrapper, with
    * any nodes passed in as the first parameter automatically wrapped.
    *
-   * @param {ReactWrapper|ReactElement|Array<ReactElement>} node
-   * @returns {ReactWrapper}
+   * @param node
+   * @returns {ShallowWrapper}
    */
   wrap(node) {
-    if (node instanceof ReactWrapper) {
+    if (node instanceof ShallowWrapper) {
       return node;
     }
-    return new ReactWrapper(node, this.root);
+    return new ShallowWrapper(node, this.root);
   }
 
   /**
@@ -914,14 +1002,14 @@ class ReactWrapper {
    * @returns {String}
    */
   debug() {
-    return debugInsts(this.getNodes());
+    return debugNodes(this.getNodes());
   }
 
   /**
    * Invokes intercepter and returns itself. intercepter is called with itself.
    * This is helpful when debugging nodes in method chains.
    * @param fn
-   * @returns {ReactWrapper}
+   * @returns {ShallowWrapper}
    */
   tap(intercepter) {
     intercepter(this);
@@ -929,31 +1017,28 @@ class ReactWrapper {
   }
 
   /**
-   * Detaches the react tree from the DOM. Runs `ReactDOM.unmountComponentAtNode()` under the hood.
+   * Primarily useful for HOCs (higher-order components), this method may only be
+   * run on a single, non-DOM node, and will return the node, shallow-rendered.
    *
-   * This method will most commonly be used as a "cleanup" method if you decide to use the
-   * `attachTo` option in `mount(node, options)`.
-   *
-   * The method is intentionally not "fluent" (in that it doesn't return `this`) because you should
-   * not be doing anything with this wrapper after this method is called.
+   * @param options object
+   * @returns {ShallowWrapper}
    */
-  detach() {
-    if (this.root !== this) {
-      throw new Error('ReactWrapper::detach() can only be called on the root');
-    }
-    if (!this.options.attachTo) {
-      throw new Error(
-        'ReactWrapper::detach() can only be called on when the `attachTo` option was passed into ' +
-        '`mount()`.',
-      );
-    }
-    unmountComponentAtNode(this.options.attachTo);
+  dive(options = {}) {
+    const name = 'dive';
+    return this.single(name, (n) => {
+      if (isDOMComponentElement(n)) {
+        throw new TypeError(`ShallowWrapper::${name}() can not be called on DOM components`);
+      }
+      if (!isCustomComponentElement(n)) {
+        throw new TypeError(`ShallowWrapper::${name}() can only be called on components`);
+      }
+      return new ShallowWrapper(n, null, assign({}, this.options, options));
+    });
   }
 }
 
-
 if (ITERATOR_SYMBOL) {
-  Object.defineProperty(ReactWrapper.prototype, ITERATOR_SYMBOL, {
+  Object.defineProperty(ShallowWrapper.prototype, ITERATOR_SYMBOL, {
     configurable: true,
     value: function iterator() {
       return this.nodes[ITERATOR_SYMBOL]();
@@ -961,4 +1046,4 @@ if (ITERATOR_SYMBOL) {
   });
 }
 
-export default ReactWrapper;
+export default ShallowWrapper;

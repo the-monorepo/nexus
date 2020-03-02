@@ -50,6 +50,8 @@
   "devDependencies": {
     "babel-preset-airbnb": "^4.4.0",
     "cross-spawn": "^6.0.5",
-    "isomorphic-git": "^0.58.1"
+    "isomorphic-git": "^0.58.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }
