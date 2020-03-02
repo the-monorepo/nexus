@@ -29,7 +29,7 @@ export const config: BenchmarkConfig = [
       './withDom.js'
     ],
     testOptions: {
-      sandbox: true
+      sandbox: false
     }
   },
   {
@@ -40,14 +40,14 @@ export const config: BenchmarkConfig = [
       './withDom.js'
     ],
     testOptions: {
-      sandbox: true
+      sandbox: false
     }
   },
   {
     glob: 'sinon-*',
     testMatch: './test/**/*-test.js',
     testOptions: {
-      sandbox: true,
+      sandbox: false,
     },
   },
   {
@@ -68,7 +68,7 @@ export const config: BenchmarkConfig = [
     glob: 'node-convict-*',
     testMatch: './test/*-tests.js',
     testOptions: {
-      sandbox: true,
+      sandbox: false,
     },
   },
   {
