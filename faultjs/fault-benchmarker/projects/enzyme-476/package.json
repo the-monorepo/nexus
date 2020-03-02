@@ -62,7 +62,7 @@
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.4",
     "babel-eslint": "^6.0.2",
-    "babel-preset-airbnb": "^1.1.1",
+    "babel-preset-airbnb": "^4.4.0",
     "babel-register": "^6.7.2",
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
