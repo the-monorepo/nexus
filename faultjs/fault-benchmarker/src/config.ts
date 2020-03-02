@@ -22,6 +22,14 @@ export type BenchmarkConfig = GlobbedConfig[];
 
 export const config: BenchmarkConfig = [
   {
+    glob: 'enzyme-427',
+    testMatch: './test/*.js',
+    setupFiles: [
+      resolve(__dirname, './hooks/babel'),
+      './withDom.js'
+    ]
+  },
+  {
     glob: 'sinon-*',
     testMatch: './test/**/*-test.js',
     testOptions: {
