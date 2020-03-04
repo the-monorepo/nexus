@@ -11,7 +11,7 @@ export const passFailStatsFromTests = (testResults: Iterable<TestResult>): Stats
     failed: 0,
   };
   for (const testResult of testResults) {
-    if (testResult.passed) {
+    if (testResult.data.passed) {
       stats.passed++;
     } else {
       stats.failed++;
