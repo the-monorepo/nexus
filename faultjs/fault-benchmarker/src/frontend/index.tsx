@@ -38,7 +38,7 @@ const projectResults: ProjectResult[] = benchmarkResults.projects.map(
       results,
     };
   },
-);
+).sort((a, b) => a.name.localeCompare(b.name));
 
 const TableHeader = () => (
   <tr>
@@ -194,7 +194,7 @@ const projectResultsToRankings = (
       ...projectResult.results.map(result => (result ? result.rankings.length : 0)),
     );
   }
-  for (const ranking of [1, 3, 5, 10, 100]) {
+  for (const ranking of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]) {
     const algoRankings: number[] = algorithmNames.map((algorithmName, i) => {
       let count = 0;
       for (const projectResult of projectResults) {
