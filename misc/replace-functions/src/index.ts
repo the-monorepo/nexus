@@ -140,7 +140,7 @@ function mockValue<R>(
   }
   function handleContainer(createMockStubCallback, mockCallback) {
     // .size == 0 to see if we haven't done any recursion yet
-    if (recursive || ogToMockedMap.size == 0) {
+    if (recursive || ogToMockedMap.size === 0) {
       const mocked = createMockStubCallback(realValue);
       ogToMockedMap.set(realValue, mocked);
       return mockCallback(

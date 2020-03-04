@@ -550,7 +550,7 @@ export default declare((api, options) => {
     scope: tr.Scope,
   ) {
     const childrenWithDomNodesAssociatedWithThem: (ElementNode|TextNode)[] = nodes.filter(
-      child => child.type === ELEMENT_TYPE || child.type == TEXT_TYPE,
+      child => child.type === ELEMENT_TYPE || child.type === TEXT_TYPE,
     ) as (ElementNode|TextNode)[];
     if (childrenWithDomNodesAssociatedWithThem.length > 0) {
       for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c ++) {
