@@ -7759,8 +7759,8 @@ gulp-sourcemaps@^2.6.4:
 
 gulp-typescript@^6.0.0-alpha.1:
   version "6.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/gulp-typescript/-/gulp-typescript-6.0.0-alpha.1.tgz#fcb0dbbc79c34201f0945c6323c194a8f5455a04"
-  integrity sha512-KoT0TTfjfT7w3JItHkgFH1T/zK4oXWC+a8xxKfniRfVcA0Fa1bKrIhztYelYmb+95RB80OLMBreknYkdwzdi2Q==
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/gulp-typescript/-/gulp-typescript-6.0.0-alpha.1.tgz#fcb0dbbc79c34201f0945c6323c194a8f5455a04"
+  integrity sha1-/LDbvHnDQgHwlFxjI8GUqPVFWgQ=
   dependencies:
     ansi-colors "^4.1.1"
     plugin-error "^1.0.1"
@@ -14386,6 +14386,11 @@ typescript@^3.7.3:
   version "3.8.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.2.tgz#91d6868aaead7da74f493c553aeff76c0c0b1d5a"
   integrity sha512-EgOVgL/4xfVrCMbhYKUQTdF37SQn4Iw73H5BgCrF1Abdun7Kwy/QZsE/ssAy0y4LxBbvua3PIbFsbRczWWnDdQ==
+
+typescript@^3.8.3:
+  version "3.8.3"
+  resolved "https://packages.atlassian.com/api/npm/npm-remote/typescript/-/typescript-3.8.3.tgz#409eb8544ea0335711205869ec458ab109ee1061"
+  integrity sha1-QJ64VE6gM1cRIFhp7EWKsQnuEGE=
 
 uglify-js@3.4.x:
   version "3.4.10"
