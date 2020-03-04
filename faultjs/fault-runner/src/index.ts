@@ -316,9 +316,6 @@ const runAndRecycleProcesses = async (
         console.log('Killing workers');
         for (const otherWorker of someWorkers) {
           clearTimeout(otherWorker.expirationTimer!);
-          if (otherWorker.process.connected) {
-            otherWorker.process.disconnect();
-          }
           otherWorker.process.kill(ERROR_SIGNAL);
         }
         // TODO: DRY (see tester results creation above)
@@ -378,9 +375,6 @@ const runAndRecycleProcesses = async (
                 clearTimeout(worker.expirationTimer!);
                 workerCoverage.push(message.data.coverage);
                 runningWorkers.delete(worker);
-                if (worker.process.connected) {
-                  worker.process.disconnect();
-                }
                 worker.process.kill();
                 if (runningWorkers.size <= 0) {
                   console.log('finished test run');
@@ -442,10 +436,6 @@ const runAndRecycleProcesses = async (
         });
         // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
         worker.process.on('exit', (code, signal) => {
-          if (worker.process.connected) {
-            worker.process.disconnect();
-          }
-
           console.log('worker exit', id, code, signal);
           clearTimeout(worker.expirationTimer);
           if (signal === 'SIGTERM' && !runningWorkers.has(worker)) {
