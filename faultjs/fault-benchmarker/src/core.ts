@@ -287,28 +287,40 @@ export const run = async () => {
       resolve(projectDir, 'coverage/coverage-final.json'),
     );
 
-    // MBFL
-    /*
-    const mbflName = 'mbfl';
-    await flRunner.run({
-      ...commonRunnerOptions,
-      addons: [
-        require('@fault/addon-mutation-localization').default({
-          faultFileDir: faultFileDir(projectDir, mbflName),
-          ignoreGlob,
-          mapToIstanbul: true,
-          console: true,
-          babelOptions,
-          // allowPartialTestRuns: sandbox,
-        }),
-      ],
-    });*/
+    const mutationPlugins = [
+      {
+        name: 'mbfl',
+        path: '@fault/addon-mutation-localization-v1',
+        skipEvaluation: true,
+      },
+      {
+        name: 'mbfl-new',
+        path: '@fault/addon-mutation-localization',
+        skipEvaluation: true,
+      }
+    ]
+
+    for(const { name, path } of mutationPlugins.filter(config => config.skipEvaluation !== true)) {
+      await flRunner.run({
+        ...commonRunnerOptions,
+        addons: [
+          require(path).default({
+            faultFileDir: faultFileDir(projectDir, name),
+            ignoreGlob,
+            mapToIstanbul: true,
+            console: true,
+            babelOptions,
+            // allowPartialTestRuns: sandbox,
+          }),
+        ],
+      });
+    }
 
     const expectedFaults = (convertFileFaultDataToFaults(
       require(resolve(projectDir, 'expected-faults.json')),
     ) as any) as ExpectedFault[];
 
-    for (const { name } of (sbflAlgorithms as any)) {
+    for (const { name } of (sbflAlgorithms as any).concat(mutationPlugins)) {
       const actualFaults = convertFileFaultDataToFaults(
         require(faultFilePath(projectDir, name)),
       );
