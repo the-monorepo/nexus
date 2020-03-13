@@ -1,0 +1,38 @@
+::slotted(*) {
+  color: #F0F;
+  %test {
+    font-size: 20px;
+  }
+  
+  %test2 {
+    font-size: 30px;
+  }
+  
+  .rawr {
+    font-size: 100px;
+  }
+  shaw-section {
+    background: #0F0;
+    display: block;
+    shaw-h1 {
+      @extend %test2;
+    }
+    shaw-h2 {
+      @extend %test;
+    }
+  }
+  
+  shaw-section shaw-section {
+    background: #F00;
+    color: #0F0;
+    shaw-h1 {
+      @extend %test;
+    }
+  }  
+}
+
+
+/*
+::slotted(shaw-section) {
+}
+*/

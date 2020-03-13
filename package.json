@@ -92,6 +92,7 @@
     "node-fetch": "^2.6.0",
     "prettier": "^1.19.1",
     "puppeteer": "^2.0.0",
+    "raw-loader": "^4.0.0",
     "rewiremock": "^3.13.9",
     "rollup": "^1.26.3",
     "rollup-plugin-babel": "^4.3.3",
