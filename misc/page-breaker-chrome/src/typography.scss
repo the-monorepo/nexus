@@ -1,4 +1,4 @@
-@import './constants.scss';
+@use './constants.scss' as c;
 
 .h900 {
   font-size: 2.1875rem;
@@ -7,7 +7,7 @@
   line-height: 2.5rem;
   color: var(--txt-primary);
   &.margin {
-    margin-top: $unit * 13;
+    margin-top: c.$unit * 13;
   }
 }
 
@@ -18,12 +18,12 @@
   line-height: 2rem;
   color: var(--txt-primary);
   &.margin {
-    margin-top: $unit * 10;
+    margin-top: c.$unit * 10;
   }
   &.long-form {
     line-height: 2rem;
     &.margin {
-      margin-top: $unit * 12; 
+      margin-top: c.$unit * 12; 
     }
   }  
 }
@@ -35,12 +35,12 @@
   line-height: 1.75rem;
   color: var(--txt-primary);
   &.margin {
-    margin-top: $unit * 10;
+    margin-top: c.$unit * 10;
   }
   &.long-form {
     line-height: 1.75rem;
     &.margin {
-      margin-top: $unit * 10; 
+      margin-top: c.$unit * 10; 
     }  
   }
 }
@@ -52,12 +52,12 @@
   line-height: 1.5rem;
   color: var(--txt-primary);
   &.margin {
-    margin-top: $unit * 7;
+    margin-top: c.$unit * 7;
   }  
   &.long-form {
     line-height: 1.5rem;
     &.margin {
-      margin-top: $unit * 9;  
+      margin-top: c.$unit * 9;  
     }
   }  
 }
@@ -70,12 +70,12 @@
   line-height: 1.25rem;
   color: var(--txt-primary);
   &.margin {
-    margin-top: $unit * 6;
+    margin-top: c.$unit * 6;
   }  
   &.long-form {
     line-height: 1.5rem;
     &.margin {
-      margin-top: $unit * 8;  
+      margin-top: c.$unit * 8;  
     }
   }  
 }
@@ -87,13 +87,13 @@
   line-height: 1rem;
   color: var(--txt-primary);
   &.margin {
-    margin-top: $unit * 4;
+    margin-top: c.$unit * 4;
   }
   
   &.long-form {
     line-height: 1.25rem;
     &.margin {
-      margin-top: $unit * 6; 
+      margin-top: c.$unit * 6; 
     }
   }  
 }
@@ -107,7 +107,7 @@
   line-height: 1rem;
   color: var(--txt-primary);
   &.margin {
-    margin-top: $unit * 5;
+    margin-top: c.$unit * 5;
   }
 }
 
@@ -123,7 +123,7 @@
   line-height: 1rem;
   color: var(--txt-secondary);
   &.margin {
-    margin-top: $unit * 4;
+    margin-top: c.$unit * 4;
   }
 }
 
@@ -134,6 +134,6 @@
   line-height: 1rem;
   color: var(--txt-secondary);
   &.margin {
-    margin-top: $unit * 4;
+    margin-top: c.$unit * 4;
   }
 }
