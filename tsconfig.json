@@ -8,7 +8,7 @@
     "strict": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": false,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
     "jsx": "preserve",
