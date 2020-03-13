@@ -129,6 +129,26 @@ const sassModulesRule = {
   }]
 }
 
+
+const webcomponentsSassModulesRule = {
+  test: /\.(sass|scss)$/,
+  use: [
+    {
+      loader: 'raw-loader'
+    },
+    {
+      loader: 'sass-loader',
+      options: {
+        sourceMap: true,
+        implementation: require('sass'),
+        sassOptions: {
+          fiber: require('fibers'),
+        }
+      }
+    }
+  ]
+}
+
 const faultjsBenchmarkConfig = {
   name: 'fault-benchmarker',
   target: 'web',
@@ -188,4 +208,29 @@ const pageBreakerFrontendConfig = {
   },
 };
 
-module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig];
+const semanticDocumentsDir = resolve(miscDir, 'semantic-documents');
+const semanticDocumentsConfig = {
+  name: 'semantic-documents',
+  target: 'web',
+  resolve: {
+    extensions: tsxExtensions,
+  },
+  devtool: 'source-map',
+  module: {
+    rules: [svgRule, webcomponentsSassModulesRule, sourceMapRule, babelRule],
+  },
+  entry: resolve(semanticDocumentsDir, 'src/index.tsx'),
+  output: createDistOutput(pageBreakerDir),
+  plugins: [
+    defaultHtmlWebpackPlugin({
+      title: `Semantic Documents`,
+      links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
+    }),
+  ],
+  devServer: {
+    port: 3003,
+    compress: true,
+  },
+};
+
+module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig, semanticDocumentsConfig];

@@ -53,6 +53,7 @@ module.exports = api => {
           './misc/mobx-dom',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
+          './misc/semantic-documents'
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
