@@ -121,6 +121,10 @@ const sassModulesRule = {
     loader: 'sass-loader',
     options: {
       sourceMap: true,
+      implementation: require('sass'),
+      sassOptions: {
+        fiber: require('fibers'),
+      }
     }
   }]
 }
