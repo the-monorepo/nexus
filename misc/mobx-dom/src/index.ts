@@ -1069,6 +1069,72 @@ export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
 
 export type SFC<P, R> = (props: P) => R;
 
+export type FC<P, R> = (props: P) => R;
+
+export const rerender = <P, R>() => {
+  return <C, V>(target: DomElement<C, V>, key, descriptor: PropertyDescriptor) => {
+    const descriptorSetter = (value) => {
+      descriptor.value = value;
+      target[UPDATE]();
+    };
+    if (descriptor.value !== undefined) {
+      return {
+        set: descriptorSetter,
+        get: () => {
+          return descriptor.value;
+        },
+      }
+    } else if (descriptor.set !== undefined) {
+      return {
+        set: descriptorSetter,
+        get: descriptor.get,
+      }
+    } else {
+      throw new Error('Not supported');
+    }
+  }
+};
+
+export const UPDATE = Symbol('update');
+
+export abstract class RootlessDomElement<C, V> extends HTMLElement {
+  private renderRoot: Node;
+
+  constructor() {
+    super();
+    this.renderRoot = this.mountRenderRoot();
+  }
+
+  abstract mountRenderRoot(): Node;
+
+  connectedCallback() {
+    this[UPDATE]();
+  }
+
+  disconnectedCallback() {
+    render(null, this.renderRoot);
+  }
+
+  [UPDATE]() {
+    const result = this.render();
+    render(result, this.renderRoot);
+  }
+
+  abstract render(): ComponentResult<C, V, Node>;
+}
+
+export abstract class LightDomElement<C, V> extends RootlessDomElement<C, V> {
+  mountRenderRoot() {
+    return this;
+  }
+}
+
+export abstract class DomElement<C, V> extends RootlessDomElement<C, V> {
+  mountRenderRoot() {
+    return this.attachShadow({ mode: 'open' });
+  }
+}
+
 /*
 export type StateSetter<S> = (state: S) => void;
 export type StatefulComponent<P, S, R> = (props: P, statePatch: S, setState: StateSetter<S>) => R;
