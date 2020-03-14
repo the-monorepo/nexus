@@ -105,19 +105,23 @@ const resumeConfig = {
   },
 };
 
+const cssModuleLoader = {
+  loader: 'css-loader',
+  options: {
+    modules: {
+      localIdentName: '[name]__[local]--[hash:base64:5]'        
+    },
+  }
+};
+
 const cssRule = {
   test: /\.css$/,
-  use: ['style-loader', 'css-loader'],
+  use: ['style-loader', cssModuleLoader],
 };
 
 const sassModulesRule = {
   test: /\.(sass|scss)$/,
-  use: ['style-loader', {
-    loader: 'css-loader',
-    options: {
-      modules: true,
-    }
-  }, {
+  use: ['style-loader', cssModuleLoader, {
     loader: 'sass-loader',
     options: {
       sourceMap: true,
@@ -217,7 +221,7 @@ const semanticDocumentsConfig = {
   },
   devtool: 'source-map',
   module: {
-    rules: [svgRule, webcomponentsSassModulesRule, sourceMapRule, babelRule],
+    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
   },
   entry: resolve(semanticDocumentsDir, 'src/index.tsx'),
   output: createDistOutput(pageBreakerDir),
