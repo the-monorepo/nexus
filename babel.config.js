@@ -3,7 +3,18 @@ module.exports = api => {
   const esm = env === 'esm';
   const test = env === 'test';
   const development = env === 'development';
-  const plugins = ['@babel/plugin-proposal-optional-chaining'];
+
+  const classPropertyPlugin = [
+    '@babel/plugin-proposal-class-properties',
+    { loose: true },
+  ];
+  
+  const plugins = [
+    '@babel/plugin-proposal-optional-chaining',
+    ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
+    classPropertyPlugin,
+    '@babel/plugin-transform-strict-mode',
+  ];
   if (test) {
     plugins.push(
       [
@@ -21,31 +32,39 @@ module.exports = api => {
       'rewiremock/babel',
     );
   }
-  const classPropertyPlugin = [
-    '@babel/plugin-proposal-class-properties',
-    { loose: true },
+  const presets = [
+    [
+      '@babel/preset-env',
+      {
+        modules: esm ? false : undefined,
+        targets: {
+          node: development || test ? 'current' : '8',
+          esmodules: esm,
+        },
+      },
+    ],
   ];
   return {
-    presets: [
-      [
-        '@babel/preset-env',
-        {
-          modules: esm ? false : undefined,
-          targets: {
-            node: development || test ? 'current' : '6',
-            esmodules: esm,
-          },
-        },
-      ],
-      [
-        '@babel/preset-typescript',
-        {
-          jsxPragma: 'mbx',
-        },
-      ],
-    ],
-    plugins: plugins.concat([classPropertyPlugin]),
+    presets: presets.concat([
+      '@babel/preset-typescript',
+    ]),
+    plugins,
     overrides: [
+      {
+        test: [
+          './misc/semantic-documents'
+        ],
+        plugins,
+        presets: presets.concat([
+          '@babel/preset-react',
+          [
+            '@babel/preset-typescript',
+            {
+              jsxPragma: 'React'
+            }
+          ]
+        ]),
+      },
       {
         test: [
           './misc/my-resume',
@@ -53,14 +72,10 @@ module.exports = api => {
           './misc/mobx-dom',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
-          './misc/semantic-documents'
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
           'babel-plugin-transform-mobx-jsx',
-          ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
-          classPropertyPlugin,
-          '@babel/plugin-transform-strict-mode',
         ]),
         presets: [
           [
@@ -73,6 +88,9 @@ module.exports = api => {
               },
             },
           ],
+          ['@babel/preset-typescript', {
+            jsxPragma: 'mbx',
+          }]
         ],
       },
     ],
