@@ -1,0 +1,22 @@
+{
+  "name": "semantic-documents",
+  "version": "1.0.0-alpha.0",
+  "description": "TODO",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "misc/scheduler"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.js",
+  "module": "./esm/index.js"
+}

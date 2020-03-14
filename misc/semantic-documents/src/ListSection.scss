@@ -1,0 +1,11 @@
+.listSection {
+  .h1 {
+    @extend %h300;
+  }
+  &.gutterBottom {
+    margin-bottom: grid.$unit * 2;
+  }
+  .gutterBottom {
+    margin-bottom: grid.$unit;
+  }
+}

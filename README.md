@@ -11,9 +11,12 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/html-template`](misc/html-template/README.md) | A HTML template generator
 1.1.3 | [`@pshaw/resume-template`](misc/resume-template/README.md) | A template you can use to generate resumes
 1.0.0-alpha.0 | [`babel-plugin-transform-mobx-jsx`](misc/babel-plugin-transform-mobx-jsx/README.md) | Convert JSX into MobXElement renderables
+1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
+1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
+1.0.0-alpha.0 | [`semantic-documents`](misc/semantic-documents/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 
 ### UI
