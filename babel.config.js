@@ -38,7 +38,7 @@ module.exports = api => {
       {
         modules: esm ? false : undefined,
         targets: {
-          node: development || test ? 'current' : '8',
+          node: development || test ? 'current' : '10',
           esmodules: esm,
         },
       },
