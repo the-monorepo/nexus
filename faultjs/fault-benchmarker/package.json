@@ -1,7 +1,7 @@
 {
   "name": "@fault/benchmarker",
   "version": "1.0.0-alpha.0",
-  "description": "Benchmarking library for measuring various fault localization/repair algorithms in Fault.js",
+  "description": "Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",

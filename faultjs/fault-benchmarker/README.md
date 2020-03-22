@@ -1,6 +1,6 @@
 # Benchmarker
 
-Benchmarking library for measuring various fault localization/repair algorithms in Fault.js
+Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
 
 ## Installation
 
