@@ -53,7 +53,7 @@ const orderedEvaluations = [
   [0, 0, 0, 1, 0],
   [0, 1, 0, 0, 0],
 ];
-describe('sorting', () => {
+describe.skip('sorting', () => {
   describe(compareMutationEvaluations.name, () => {
     for (let i = 0; i < orderedEvaluations.length - 1; i++) {
       const lesser = arrayToMutationEvaluation(orderedEvaluations[i]);
