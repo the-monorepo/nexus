@@ -1,6 +1,6 @@
 {
-  "name": "@pshaw/binary-heap",
-  "description": "A implementation of a binary heap",
+  "name": "@pshaw/keyed-binary-heap",
+  "description": "A implementation of a binary heap with O(1) search & item updates",
   "keywords": [
     "heap",
     "typescript",
