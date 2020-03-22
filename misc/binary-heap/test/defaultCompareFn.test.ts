@@ -1,5 +1,5 @@
 import { defaultCompareFn } from '../src/index';
-it.skip(defaultCompareFn.name, () => {
+it(defaultCompareFn.name, () => {
   expect(defaultCompareFn(0, 0)).toBe(0);
   expect(defaultCompareFn('0', 0)).toBe(0);
   expect(defaultCompareFn(0, '0')).toBe(0);
