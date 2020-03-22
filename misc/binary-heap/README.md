@@ -1,15 +1,15 @@
-# Binary Heap
+# Keyed Binary Heap
 
-A implementation of a binary heap
+A implementation of a binary heap with O(1) search & item updates
 
 ## Installation
 
 ```bash
-npm install --save @pshaw/binary-heap@1.0.0-alpha.0
+npm install --save @pshaw/keyed-binary-heap@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add @pshaw/binary-heap@1.0.0-alpha.0
+yarn add @pshaw/keyed-binary-heap@1.0.0-alpha.0
 ```
 
 ---
