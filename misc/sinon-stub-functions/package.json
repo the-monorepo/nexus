@@ -32,5 +32,8 @@
   },
   "peerDependencies": {
     "sinon": "^7.3.2"
+  },
+  "devDependencies": {
+    "sinon": "^9.0.1"
   }
 }
