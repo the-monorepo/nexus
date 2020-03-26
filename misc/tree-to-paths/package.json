@@ -1,0 +1,22 @@
+{
+  "name": "tree-to-paths",
+  "version": "1.0.0-alpha.0",
+  "description": "Get the path to each leaf node in a tree",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "misc/tree-paths"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.js",
+  "module": "./esm/index.js"
+}
