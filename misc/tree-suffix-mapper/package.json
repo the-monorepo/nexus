@@ -1,7 +1,7 @@
 {
-  "name": "tree-to-paths",
+  "name": "tree-suffix-mapper",
   "version": "1.0.0-alpha.0",
-  "description": "Get the path to each leaf node in a tree",
+  "description": "Maps suffixes of a tree to particular values",
   "license": "MIT",
   "sideEffects": false,
   "repository": {
@@ -18,5 +18,6 @@
     "access": "public"
   },
   "main": "./lib/index.js",
-  "module": "./esm/index.js"
+  "module": "./esm/index.js",
+  "types": "./src/index.ts"
 }
