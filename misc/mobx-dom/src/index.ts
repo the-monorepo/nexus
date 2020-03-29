@@ -1098,7 +1098,7 @@ export const rerender = <P, R>() => {
 export const UPDATE = Symbol('update');
 
 export abstract class RootlessDomElement<C, V> extends HTMLElement {
-  private renderRoot: Node;
+  protected renderRoot: Node;
 
   constructor() {
     super();
