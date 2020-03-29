@@ -1,5 +1,5 @@
 {
-  "name": "@semantic-documents/suffix-matcher",
+  "name": "@semantic-documents/classname-picker",
   "version": "1.0.0-alpha.0",
   "description": "TODO",
   "license": "MIT",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "semantic-documents/semantic-documents-suffix-matcher"
+    "directory": "semantic-documents/semantic-documents-classname-picker"
   },
   "files": [
     "lib",
