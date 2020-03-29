@@ -91,6 +91,6 @@ describe('tree-suffix-mapper', () => {
 
   it('matchSuffix', () => {
     expect(expectedSuffixMap.suffixes.get('c').suffixes.get('b').suffixes.get('a').value).toBe(2);
-    expect(matchSuffix(expectedSuffixMap, ['a', 'b', 'c'])).toBe(2);
+    expect(matchSuffix(expectedSuffixMap, ['a', 'b', 'c'].reverse())).toBe(2);
   });
 })
