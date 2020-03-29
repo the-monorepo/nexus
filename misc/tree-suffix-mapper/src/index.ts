@@ -82,13 +82,11 @@ export const createSuffixRoot = <T, K, V>(
   return rootSuffixNode;
 }
 
-export const matchSuffix = <K, V>(suffixNode: SuffixNode<K, V>, pathKeys: K[]): V | undefined => {
+export const matchSuffix = <K, V>(suffixNode: SuffixNode<K, V>, pathKeys: Iterable<K>): V | undefined => {
   let currentValue: V | undefined = suffixNode.value;
   let currentSuffixNode: SuffixNode<K, V> | undefined = suffixNode;
 
-  for(let k = pathKeys.length - 1; k >= 0; k--) {
-    const key = pathKeys[k];
-
+  for(const key of pathKeys) {
     currentSuffixNode = currentSuffixNode.suffixes.get(key);
     if (currentSuffixNode === undefined) {
        break;
