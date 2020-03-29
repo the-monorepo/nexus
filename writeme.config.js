@@ -6,6 +6,10 @@ module.exports = {
         test: './{build-packages,misc,faultjs}/mobx*/',
       },
       {
+        category: 'Semantic documents',
+        test: './semantic-documents/*'
+      },
+      {
         category: 'Build tooling',
         test: './{build-packages,misc,faultjs}/{build-util,gulp-*}',
       },
