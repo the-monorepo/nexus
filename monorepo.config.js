@@ -1,6 +1,6 @@
 module.exports = {
   buildProjects: ['build-packages'],
-  projectsDirs: ['misc', 'faultjs'],
+  projectsDirs: ['misc', 'faultjs', 'semantic-documents'],
   serve: {
     servers: [
       /*{
