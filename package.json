@@ -6,7 +6,8 @@
       "misc/*",
       "faultjs/*",
       "build-packages/*",
-      "semantic-documents/*"
+      "semantic-documents/*",
+      "patrick-shaw/*"
     ]
   },
   "private": true,
