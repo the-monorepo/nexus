@@ -66,6 +66,10 @@ misc/*/lib/
 misc/*/esm/
 misc/*/dist/
 misc/*/stats.html
+semantic-documents/*/lib/
+semantic-documents/*/esm/
+semantic-documents/*/dist/
+semantic-documents/*/stats.html
 
 faults
 
