@@ -11,7 +11,7 @@ import {
   StopWorkerResult,
   RunTestsData,
 } from '@fault/types';
-import Heap from '@pshaw/binary-heap';
+import Heap from '@pshaw/keyed-binary-heap';
 import { promisify } from 'util';
 import { ChildProcess } from 'child_process';
 
