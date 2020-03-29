@@ -21,13 +21,13 @@ export function* traverseUpDomTreeAndYieldSemanticTypes(node: Node, ignoreBounda
 }
 
 const IGNORE_BOUNDARIES_ATTRIBUTE = 'ignore-boundaries';
-export abstract class SemanticElement extends HTMLElement {
+export abstract class SuffixElement extends HTMLElement {
   private readonly semanticElement: HTMLElement;
 
   constructor(
     private readonly styleRoot: StyleRoot,
-    type: Symbol,
     elementName: string,
+    type?: Symbol,
   ) {
     super();
     this[SEMANTIC_TYPE] = type;
