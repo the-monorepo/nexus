@@ -114,7 +114,7 @@ function codeStream(options) {
       '**/*.{js,jsx,ts,tsx}',
       '!**/node_modules/**',
       '!coverage/**',
-      '!{build-packages,misc,faultjs}/*/{dist,lib,esm,coverage}/**',
+      '!{build-packages,misc,semantic-documents,faultjs}/*/{dist,lib,esm,coverage}/**',
       '!faultjs/fault-benchmarker/{disabled-projects,projects}/**',
     ],
     {
@@ -351,10 +351,10 @@ async function testNoBuild() {
     const passed = await runner.run({
       tester: '@fault/tester-mocha',
       testMatch: [
-        './{faultjs,misc,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
+        './{faultjs,misc,semantic-documents,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
         '!./**/node_modules/**',
         '!./coverage',
-        '!./{faultjs,misc,build-packages}/*/{dist,lib,esm}/**/*',
+        '!./{faultjs,misc,semantic-documents,build-packages}/*/{dist,lib,esm}/**/*',
         '!./faultjs/fault-benchmarker/{disabled-projects,projects}/**',
       ],
       addons: [

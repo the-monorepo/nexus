@@ -5,7 +5,8 @@
     "packages": [
       "misc/*",
       "faultjs/*",
-      "build-packages/*"
+      "build-packages/*",
+      "semantic-documents/*"
     ]
   },
   "private": true,
