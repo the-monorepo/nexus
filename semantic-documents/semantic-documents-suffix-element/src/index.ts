@@ -1,4 +1,4 @@
-import { pickClassName, StyleRoot, createStyleRoot } from '@semantic-documents/suffix-matcher';
+import { pickClassName, StyleRoot, createStyleRoot } from '@semantic-documents/classname-picker';
 import cx from 'classnames';
 
 export { createStyleRoot, StyleRoot };
