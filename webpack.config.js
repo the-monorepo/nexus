@@ -49,8 +49,9 @@ const jsxExtensions = ['.js', '.jsx'];
 const miscDir = resolve(__dirname, './misc');
 const faultjsDir = resolve(__dirname, 'faultjs');
 const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmarker');
+const patrickShawDir = resolve(__dirname, 'patrick-shaw');
 
-const resumeDir = resolve(miscDir, 'my-resume');
+const resumeDir = resolve(patrickShawDir, 'my-resume');
 
 const distPath = (packageDir) => resolve(packageDir, 'dist');
 
@@ -108,9 +109,21 @@ const resumeConfig = {
 const cssModuleLoader = {
   loader: 'css-loader',
   options: {
+    esModule: true,
     modules: {
       localIdentName: '[name]__[local]--[hash:base64:5]'        
     },
+  }
+};
+
+const sassLoader = {
+  loader: 'sass-loader',
+  options: {
+    sourceMap: true,
+    implementation: require('sass'),
+    sassOptions: {
+      fiber: require('fibers'),
+    }
   }
 };
 
@@ -121,35 +134,14 @@ const cssRule = {
 
 const sassModulesRule = {
   test: /\.(sass|scss)$/,
-  use: ['style-loader', cssModuleLoader, {
-    loader: 'sass-loader',
-    options: {
-      sourceMap: true,
-      implementation: require('sass'),
-      sassOptions: {
-        fiber: require('fibers'),
-      }
-    }
-  }]
+  use: ['style-loader', cssModuleLoader, sassLoader]
 }
-
 
 const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
   use: [
-    {
-      loader: 'raw-loader'
-    },
-    {
-      loader: 'sass-loader',
-      options: {
-        sourceMap: true,
-        implementation: require('sass'),
-        sassOptions: {
-          fiber: require('fibers'),
-        }
-      }
-    }
+    cssModuleLoader,
+    sassLoader,
   ]
 }
 
@@ -221,7 +213,7 @@ const semanticDocumentsConfig = {
   },
   devtool: 'source-map',
   module: {
-    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+    rules: [svgRule, webcomponentsSassModulesRule, sourceMapRule, babelRule],
   },
   entry: resolve(semanticDocumentsDir, 'src/index.tsx'),
   output: createDistOutput(pageBreakerDir),
