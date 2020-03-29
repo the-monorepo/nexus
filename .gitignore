@@ -70,6 +70,10 @@ semantic-documents/*/lib/
 semantic-documents/*/esm/
 semantic-documents/*/dist/
 semantic-documents/*/stats.html
+patrick-shaw/*/lib/
+patrick-shaw/*/esm/
+patrick-shaw/*/dist/
+patrick-shaw/*/stats.html
 
 faults
 
