@@ -6,9 +6,9 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`@pshaw/binary-heap`](misc/binary-heap/README.md) | A implementation of a binary heap
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/html-template`](misc/html-template/README.md) | A HTML template generator
+1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.3 | [`@pshaw/resume-template`](misc/resume-template/README.md) | A template you can use to generate resumes
 1.0.0-alpha.0 | [`babel-plugin-transform-mobx-jsx`](misc/babel-plugin-transform-mobx-jsx/README.md) | Convert JSX into MobXElement renderables
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
@@ -18,11 +18,21 @@ Version | Package | Description
 1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
 1.0.0-alpha.0 | [`semantic-documents`](misc/semantic-documents/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
+1.0.0-alpha.0 | [`tree-suffix-mapper`](misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
 
 ### UI
 Version | Package | Description
 --- | --- | ---
 1.0.0-alpha.0 | [`mobx-dom`](misc/mobx-dom/README.md) | Create interactive UIs with seamless state management using MobX
+
+### Semantic documents
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.0 | [`@semantic-documents/element`](semantic-documents/semantic-documents-element/README.md) | TODO
+1.0.0-alpha.0 | [`@semantic-documents/html5-symbols`](semantic-documents/semantic-documents-html5-symbols/README.md) | TODO
+1.0.0-alpha.0 | [`@semantic-documents/matcher-info`](semantic-documents/semantic-documents-matcher-info/README.md) | TODO
+1.0.0-alpha.0 | [`@semantic-documents/suffix-element`](semantic-documents/semantic-documents-suffix-element/README.md) | TODO
+1.0.0-alpha.0 | [`@semantic-documents/suffix-matcher`](semantic-documents/semantic-documents-suffix-matcher/README.md) | TODO
 
 ### Build tooling
 Version | Package | Description
@@ -63,7 +73,7 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/addon-istanbul`](faultjs/fault-addon-istanbul/README.md) | Report istanbul coverage
 1.0.0-alpha.0 | [`@fault/addon-mutation-localization`](faultjs/fault-addon-mutation-localization/README.md) | Fault AST localization
 1.0.0-alpha.0 | [`@fault/addon-sbfl`](faultjs/fault-addon-sbfl/README.md) | A spectrum based localization addon
-1.0.0-alpha.0 | [`@fault/benchmarker`](faultjs/fault-benchmarker/README.md) | Benchmarking library for measuring various fault localization/repair algorithms in Fault.js
+1.0.0-alpha.0 | [`@fault/benchmarker`](faultjs/fault-benchmarker/README.md) | Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
 1.0.0-alpha.0 | [`@fault/istanbul-util`](faultjs/fault-istanbul-util/README.md) | Helper functions for use with istanbul
 1.0.0-alpha.0 | [`@fault/localization-util`](faultjs/fault-localization-util/README.md) | Utility package containing common fault localization methods
 1.0.0-alpha.0 | [`@fault/messages`](faultjs/fault-messages/README.md) | Helper methods for easier communication between the main @fault/runner process and its workers
