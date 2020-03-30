@@ -1,13 +1,13 @@
 {
-  "name": "@semantic-documents/html5-elements",
+  "name": "@semantic-documents/html-elements",
   "version": "1.0.0-alpha.0",
-  "description": "Helper HTMLElement classes that implement elements that use the @semantic-documents/html5-symbols",
+  "description": "Helper HTMLElement classes that implement elements that use the @semantic-documents/html-symbols",
   "license": "MIT",
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "semantic-documents/semantic-documents-html5-elements"
+    "directory": "semantic-documents/semantic-documents-html-elements"
   },
   "files": [
     "lib",

@@ -1,5 +1,5 @@
 import { SemanticElement, StyleRoot } from '@semantic-documents/element';
-import * as types from '@semantic-documents/html5-symbols';
+import * as types from '@semantic-documents/html-symbols';
 
 export const createElements = (styleRoot: StyleRoot) => ({
   H1: class extends SemanticElement {
