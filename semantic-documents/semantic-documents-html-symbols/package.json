@@ -1,5 +1,5 @@
 {
-  "name": "@semantic-documents/html5-symbols",
+  "name": "@semantic-documents/html-symbols",
   "version": "1.0.0-alpha.0",
   "description": "TODO",
   "license": "MIT",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "semantic-documents/semantic-documents-html5-symbols"
+    "directory": "semantic-documents/semantic-documents-html-symbols"
   },
   "files": [
     "lib",
