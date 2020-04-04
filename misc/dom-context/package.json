@@ -1,0 +1,21 @@
+{
+  "name": "dom-context",
+  "version": "1.0.0-alpha.0",
+  "description": "A React Context API-like context API for web components",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "patrick-shaw/webcomponent-context"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "types": "./src/index.ts"
+}
