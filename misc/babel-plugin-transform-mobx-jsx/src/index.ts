@@ -382,6 +382,7 @@ export default declare((api, options) => {
     return {
       type: TEXT_TYPE,
       text: html,
+      // TODO: We could probably do id assignment post DOM node tree collection
       id: previousIsDynamic ? scope.generateUidIdentifier('text') : null,
     };
   };
@@ -625,6 +626,14 @@ export default declare((api, options) => {
             childrenWithDomNodesAssociatedWithThem.length - 1
           ];
         if (lastNode.id) {
+          const previousNode = childrenWithDomNodesAssociatedWithThem[childrenWithDomNodesAssociatedWithThem.length - 2];
+          if (previousNode.type === TEXT_TYPE && lastNode.type === TEXT_TYPE) {
+            const previousId = childrenWithDomNodesAssociatedWithThem.length === 2 ? t.identifier('firstChild') : previousNode.id!;
+            yield t.expressionStatement(t.callExpression(
+              t.memberExpression(t.memberExpression(rootId, previousId), t.identifier('splitText')),
+              [t.numericLiteral(previousNode.text.length)]
+            ));
+          }
           yield constDeclaration(
             lastNode.id,
             t.memberExpression(rootId, t.identifier('lastChild')),
