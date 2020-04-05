@@ -1071,26 +1071,30 @@ export type SFC<P, R> = (props: P) => R;
 
 export type FC<P, R> = (props: P) => R;
 
-export const rerender = <P, R>() => {
-  return <C, V>(target: DomElement<C, V>, key, descriptor: PropertyDescriptor) => {
-    const descriptorSetter = (value) => {
-      descriptor.value = value;
-      target[UPDATE]();
-    };
-    if (descriptor.value !== undefined) {
-      return {
-        set: descriptorSetter,
-        get: () => {
-          return descriptor.value;
-        },
+export const rerender = (target) => {
+  const symbol = Symbol(`hidden-${target.key}`);
+  console.log(target);
+  return {
+    ...target,
+    key: symbol,
+    finisher(a) {
+      const clazz = a.prototype;
+      console.log(clazz);
+      console.log(Object.getOwnPropertyNames(clazz))
+      switch (target.kind) {
+        case 'field':
+          Object.defineProperty(clazz, target.key, {
+            get: function() {
+              console.log('got', this[symbol])
+              return this[symbol];
+            },
+            set: function(value) {
+              console.log('set');
+              this[symbol] = value;
+              this[UPDATE]();
+            }
+          });
       }
-    } else if (descriptor.set !== undefined) {
-      return {
-        set: descriptorSetter,
-        get: descriptor.get,
-      }
-    } else {
-      throw new Error('Not supported');
     }
   }
 };
