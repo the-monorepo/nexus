@@ -1072,30 +1072,24 @@ export type SFC<P, R> = (props: P) => R;
 export type FC<P, R> = (props: P) => R;
 
 export const rerender = (target) => {
-  const symbol = Symbol(`hidden-${target.key}`);
-  console.log(target);
+  const symbol = Symbol(`${target.key.toString()}-value`);
   return {
     ...target,
     key: symbol,
-    finisher(a) {
-      const clazz = a.prototype;
-      console.log(clazz);
-      console.log(Object.getOwnPropertyNames(clazz))
-      switch (target.kind) {
-        case 'field':
-          Object.defineProperty(clazz, target.key, {
-            get: function() {
-              console.log('got', this[symbol])
-              return this[symbol];
-            },
-            set: function(value) {
-              console.log('set');
-              this[symbol] = value;
-              this[UPDATE]();
-            }
-          });
+    extras: [{
+      kind: 'method',
+      key: target.key,
+      placement: 'prototype',
+      descriptor: {
+        get: function() {
+          return this[symbol];
+        },
+        set: function(value) {
+          this[symbol] = value;
+          this[UPDATE]();
+        }
       }
-    }
+    }],
   }
 };
 
