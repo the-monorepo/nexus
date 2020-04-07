@@ -30,11 +30,12 @@ export const createContext = (contextName?: string) => {
   const PROVIDER = Symbol(`${contextName}-provider`);
 
   const consumerDecorator = <T>(target) => {
-    const consumerSymbol = Symbol(`${contextName}-consumer-value`);
+    const consumerValueSymbol = Symbol(`${contextName}-consumer-value`);
+    const consumerDefaultSymbol = Symbol(`${contextName}-consumer-value`);
     console.log('consumerStuff', target);
     return {
       ...target,
-      key: consumerSymbol,
+      key: consumerDefaultSymbol,
       extras: [{
         kind: 'field',
         key: PROVIDER,
@@ -47,13 +48,26 @@ export const createContext = (contextName?: string) => {
         initializer: () => null,
       },
       {
+        kind: 'field',
+        key: consumerValueSymbol,
+        placement: 'own',
+        initializer: function() {
+          return this[consumerDefaultSymbol];
+        },
+        descriptor: {
+          configurable: true,
+          writable: false,
+          enumerable: false,
+        },
+      },
+      {
         kind: 'method',
         key: target.key,
         placement: 'prototype',
         descriptor: {
           get: function() {
-            return this[PROVIDER] !== null ? this[PROVIDER][PROVIDER_VALUE] : this[consumerSymbol];
-          }
+            return this[PROVIDER] !== null ? this[consumerValueSymbol] : this[consumerDefaultSymbol];
+          },
         }
       }],
       finisher: (clazz) => {
@@ -76,7 +90,6 @@ export const createContext = (contextName?: string) => {
 
   const providerDecorator = (target) => {
     const symbol = Symbol(`${contextName}-alias-provider-value`);
-    console.log('provider target', target);
     return {
       ...target,
       key: symbol,
