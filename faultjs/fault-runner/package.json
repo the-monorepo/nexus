@@ -23,6 +23,5 @@
     "testing",
     "test-runner",
     "typescript"
-  ],
-  "dependencies": {}
+  ]
 }

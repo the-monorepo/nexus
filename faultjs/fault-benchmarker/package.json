@@ -12,7 +12,6 @@
     "report": "webpack-dev-server --watch --mode development",
     "scrape-repo": "node ./lib/scrape-repo.js"
   },
-  "private": false,
   "files": [
     "lib",
     "src",

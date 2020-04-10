@@ -13,7 +13,6 @@
     "formats"
   ],
   "license": "MIT",
-  "private": false,
   "sideEffects": false,
   "repository": {
     "type": "git",

@@ -12,7 +12,6 @@
   ],
   "main": "./src/index.js",
   "license": "MIT",
-  "private": false,
   "files": [
     "lib",
     "src",
