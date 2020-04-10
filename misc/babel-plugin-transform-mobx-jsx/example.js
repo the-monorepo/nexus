@@ -1,3 +1,0 @@
-<div>
-  <TableHeader />
-</div>;
