@@ -1,0 +1,23 @@
+{
+  "name": "@pshaw/semantic-documents",
+  "version": "1.0.0-alpha.0",
+  "description": "A nice, sensible, web component based Semantic Document API",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "patrick-shaw/semantic-documents"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "types": "./src/index.ts"
+}

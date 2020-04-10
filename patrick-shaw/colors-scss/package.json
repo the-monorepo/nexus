@@ -1,0 +1,21 @@
+{
+  "name": "@pshaw/colors-scss",
+  "version": "1.0.0-alpha.0",
+  "description": "Nice colors SCSS package",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "patrick-shaw/colors-scss"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./src/index.scss"
+}
