@@ -8,7 +8,7 @@ const main = async () => {
   const resolved =
     typeof path === 'string'
       ? resolve(projectsDir, path)
-      : path.map(glob => resolve(projectsDir, glob));
+      : path.map((glob) => resolve(projectsDir, glob));
   const projectDirs = await globby(resolved, {
     onlyDirectories: true,
     expandDirectories: false,
@@ -34,7 +34,7 @@ const main = async () => {
         }
       });
 
-      p.stdout.on('data', function(data) {
+      p.stdout.on('data', function (data) {
         console.log(data.toString());
       });
     });

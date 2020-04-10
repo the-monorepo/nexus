@@ -24,9 +24,7 @@ const commonTestHandle = (submitHandle: SubmitHandle) => {
     const coverage = subtractCoverage(global[COVERAGE_KEY], global.beforeTestCoverage);
     const hash =
       test!.titlePath().join('_') +
-      createHash('sha1')
-        .update(test!.body)
-        .digest('base64');
+      createHash('sha1').update(test!.body).digest('base64');
     const duration = test.duration! * 1000;
     const file = test.file!;
     const titlePath = test.titlePath();
@@ -39,7 +37,7 @@ export class IPCReporter {
     runner
       .on(
         EVENT_TEST_PASS,
-        commonTestHandle(testData => {
+        commonTestHandle((testData) => {
           return client.submitTestResult({
             ...testData,
             passed: true,

@@ -8,8 +8,8 @@ const _template$ = mbx.elementTemplate(
   '<tr><td class="col-md-1"><!----></td><td class="col-md-4"><a><!----></a></td><td class="col-md-1"><a><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td><td class="col-md-6"></td></tr>',
 );
 
-const Row = props =>
-  (function() {
+const Row = (props) =>
+  (function () {
     const _root$ = _template$();
 
     const _td$ = _root$.childNodes[0];
@@ -45,7 +45,7 @@ const _template$2 = mbx.elementTemplate(
 const _template$3 = mbx.elementTemplate('<!---->');
 
 const Main = () =>
-  (function() {
+  (function () {
     const _root$2 = _template$2();
 
     const _div$ = _root$2.childNodes[0];
@@ -96,8 +96,8 @@ const Main = () =>
         mbx.property('onclick', () => client.swapRows),
       ),
       mbx.children(_marker$3, () =>
-        repeat(store.data, d =>
-          (function() {
+        repeat(store.data, (d) =>
+          (function () {
             const _root$3 = _template$3();
 
             return mbx.dynamicNode(
@@ -118,7 +118,7 @@ const Main = () =>
 const _template$4 = mbx.elementTemplate('<!---->');
 
 render(
-  (function() {
+  (function () {
     const _root$4 = _template$4();
 
     return mbx.dynamicNode(_root$4, mbx.subComponent(Main, _root$4, undefined));

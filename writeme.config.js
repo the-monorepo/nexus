@@ -7,7 +7,7 @@ module.exports = {
       },
       {
         category: 'Semantic documents',
-        test: './semantic-documents/*'
+        test: './semantic-documents/*',
       },
       {
         category: 'Build tooling',

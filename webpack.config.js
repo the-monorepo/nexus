@@ -7,7 +7,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
 const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
-const normalizeCssUrl = 'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css';
+const normalizeCssUrl =
+  'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css';
 
 const svgRule = {
   test: /\.svg$/,
@@ -55,7 +56,7 @@ const resumeDir = resolve(patrickShawDir, 'my-resume');
 
 const distPath = (packageDir) => resolve(packageDir, 'dist');
 
-const createDistOutput = packageDir => {
+const createDistOutput = (packageDir) => {
   return {
     filename: '[name].js',
     path: distPath(packageDir),
@@ -63,7 +64,7 @@ const createDistOutput = packageDir => {
   };
 };
 
-const defaultHtmlWebpackPlugin = options => {
+const defaultHtmlWebpackPlugin = (options) => {
   return new HtmlWebpackPlugin({
     inject: false,
     template: HtmlWebpackTemplate,
@@ -111,9 +112,9 @@ const cssModuleLoader = {
   options: {
     esModule: true,
     modules: {
-      localIdentName: '[name]__[local]--[hash:base64:5]'        
+      localIdentName: '[name]__[local]--[hash:base64:5]',
     },
-  }
+  },
 };
 
 const sassLoader = {
@@ -123,8 +124,8 @@ const sassLoader = {
     implementation: require('sass'),
     sassOptions: {
       fiber: require('fibers'),
-    }
-  }
+    },
+  },
 };
 
 const cssRule = {
@@ -134,16 +135,13 @@ const cssRule = {
 
 const sassModulesRule = {
   test: /\.(sass|scss)$/,
-  use: ['style-loader', cssModuleLoader, sassLoader]
-}
+  use: ['style-loader', cssModuleLoader, sassLoader],
+};
 
 const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
-  use: [
-    cssModuleLoader,
-    sassLoader,
-  ]
-}
+  use: [cssModuleLoader, sassLoader],
+};
 
 const faultjsBenchmarkConfig = {
   name: 'fault-benchmarker',
@@ -190,13 +188,13 @@ const pageBreakerFrontendConfig = {
     new CopyPlugin([
       {
         from: resolve(pageBreakerDir, 'src/manifest.json'),
-        to: resolve(pageBreakerDir, 'dist/manifest.json')
+        to: resolve(pageBreakerDir, 'dist/manifest.json'),
       },
       {
         from: resolve(pageBreakerDir, 'src/icon.png'),
-        to: resolve(pageBreakerDir, 'dist/icon.png')
-      }
-    ])
+        to: resolve(pageBreakerDir, 'dist/icon.png'),
+      },
+    ]),
   ],
   devServer: {
     port: 3002,

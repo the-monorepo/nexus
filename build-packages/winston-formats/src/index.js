@@ -5,7 +5,7 @@ const moment = require('moment');
 const { SPLAT } = require('triple-beam');
 const { format } = require('winston');
 
-module.exports.errors = format(info => {
+module.exports.errors = format((info) => {
   if (info instanceof Error) {
     /*
       TODO: Winston 3.0.0 removes .message for errors for some reason.
@@ -41,30 +41,30 @@ module.exports.timestamp = format(
 );
 
 // Aligns all the information before the message section of the log
-module.exports.align = format(info => {
+module.exports.align = format((info) => {
   const messageIndentation = 8;
   info.levelPadding = ' '.repeat(messageIndentation - info.level.length);
   return info;
 });
 
 // Colorizes/formats javascript objects and timestamps
-module.exports.colorize = format(info => {
+module.exports.colorize = format((info) => {
   info.timestamp = chalk.gray(info.timestamp);
   return info;
 });
 
 // Specifies the order in which all the information is printed out
-module.exports.printer = format.printf(info => {
+module.exports.printer = format.printf((info) => {
   const timestampString = info.timestamp;
   const splat = info[SPLAT];
   const splatList = splat
-    ? splat.map(item => (item === undefined ? 'undefined' : item))
+    ? splat.map((item) => (item === undefined ? 'undefined' : item))
     : [];
   const levelPadding = info.levelPadding ? info.levelPadding : '';
   const selectedMessage = info.errorMessage ? info.errorMessage : info.message;
   const message = selectedMessage === undefined ? 'undefined' : selectedMessage;
   const tags = info.tags ? info.tags : [];
-  const displayTagsString = tags.map(tag => `[${tag}]`).join('');
+  const displayTagsString = tags.map((tag) => `[${tag}]`).join('');
   return [
     timestampString,
     info.level + levelPadding,
@@ -72,6 +72,6 @@ module.exports.printer = format.printf(info => {
     message,
     ...splatList,
   ]
-    .filter(item => item !== undefined)
+    .filter((item) => item !== undefined)
     .join(' ');
 });

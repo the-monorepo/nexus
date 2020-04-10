@@ -174,7 +174,7 @@ describe.skip('sorting', () => {
       ...createInstructionBlocks(
         nodeEvaluations,
         instructionEvaluations,
-        instructions.map(instruction => [instruction]),
+        instructions.map((instruction) => [instruction]),
       ),
     );
 

@@ -31,12 +31,12 @@ export type FailingTestData = {
   stack: string | null;
 } & TestData;
 
-export type TestResult = Payload<typeof IPC.TEST, (PassingTestData | FailingTestData)>;
+export type TestResult = Payload<typeof IPC.TEST, PassingTestData | FailingTestData>;
 
 export type Payload<T, D> = {
   type: T;
   id: number;
-  data: D
+  data: D;
 };
 export type FileFinishedResult = Payload<typeof IPC.TEST_FILE, FileFinishedData>;
 export type RunTestData = {

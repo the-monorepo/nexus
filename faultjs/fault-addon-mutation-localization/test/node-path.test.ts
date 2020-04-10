@@ -41,7 +41,7 @@ it('instruction factory integration', () => {
   expect(instructions).toHaveLength(3);
 
   const forceConsequentInstructions = instructions.filter(
-    instruction => instruction.type === FORCE_CONSEQUENT,
+    (instruction) => instruction.type === FORCE_CONSEQUENT,
   );
   expect(forceConsequentInstructions).toHaveLength(1);
 
@@ -77,7 +77,7 @@ it('instruction factory integration', () => {
   const identifierPaths: NodePath[] = [];
   let nullPath: NodePath = null!;
   astPath.traverse({
-    enter: path => {
+    enter: (path) => {
       if (path.isIdentifier() && path.node.name === 'a') {
         identifierPaths.push(path);
       }
@@ -96,7 +96,7 @@ it('instruction factory integration', () => {
   // TODO: Could probably check the whole array not just parts of it
   const dependentPaths = getDependencyPaths(writeDependencies);
   const dependentKeys = dependentPaths.map(pathToKey);
-  const expectedDependentKeys = [testPath, ...identifierPaths/*, alternatePath*/].map(
+  const expectedDependentKeys = [testPath, ...identifierPaths /*, alternatePath*/].map(
     pathToKey,
   );
   expect(dependentKeys).toEqual(expect.arrayContaining(expectedDependentKeys));

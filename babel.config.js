@@ -1,4 +1,4 @@
-module.exports = api => {
+module.exports = (api) => {
   const env = api.env();
   const esm = env === 'esm';
   const test = env === 'test';
@@ -8,7 +8,7 @@ module.exports = api => {
     '@babel/plugin-proposal-class-properties',
     { loose: true },
   ];
-  
+
   const plugins = [
     '@babel/plugin-proposal-optional-chaining',
     ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
@@ -45,9 +45,7 @@ module.exports = api => {
     ],
   ];
   return {
-    presets: presets.concat([
-      '@babel/preset-typescript',
-    ]),
+    presets: presets.concat(['@babel/preset-typescript']),
     plugins,
     overrides: [
       {
@@ -73,9 +71,12 @@ module.exports = api => {
               },
             },
           ],
-          ['@babel/preset-typescript', {
-            jsxPragma: 'mbx',
-          }]
+          [
+            '@babel/preset-typescript',
+            {
+              jsxPragma: 'mbx',
+            },
+          ],
         ],
       },
     ],

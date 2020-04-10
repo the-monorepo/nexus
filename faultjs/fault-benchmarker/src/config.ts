@@ -24,31 +24,25 @@ export const config: BenchmarkConfig = [
   {
     glob: 'enzyme-{427,476,519}',
     testMatch: './test/*.js',
-    setupFiles: [
-      resolve(__dirname, './hooks/babel'),
-      './withDom.js'
-    ],
+    setupFiles: [resolve(__dirname, './hooks/babel'), './withDom.js'],
     testOptions: {
-      sandbox: false
+      sandbox: false,
     },
     babelOptions: {
       sourceType: 'module',
-      plugins: ['jsx']
+      plugins: ['jsx'],
     },
   },
   {
     glob: 'enzyme-*',
     testMatch: './test/**/*.{js,jsx}',
-    setupFiles: [
-      resolve(__dirname, './hooks/babel'),
-      './withDom.js'
-    ],
+    setupFiles: [resolve(__dirname, './hooks/babel'), './withDom.js'],
     testOptions: {
-      sandbox: false
+      sandbox: false,
     },
     babelOptions: {
       sourceType: 'module',
-      plugins: ['jsx']
+      plugins: ['jsx'],
     },
   },
   {

@@ -16,7 +16,7 @@ export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
 export const runMochaInstance = async (mochaInstance, runHandle) => {
   return new Promise((resolve, reject) => {
     try {
-      mochaInstance.run(async failures => {
+      mochaInstance.run(async (failures) => {
         try {
           await runHandle(failures);
           resolve(failures);
