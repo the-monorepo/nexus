@@ -18,7 +18,7 @@
     "directory": "misc/mock-functitons-jest"
   },
   "keywords": [
-    "sinon",
+    "jest",
     "stub",
     "testing",
     "test",
