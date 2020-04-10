@@ -24,6 +24,5 @@
     "fault-localization",
     "sbfl",
     "dstar"
-  ],
-  "dependencies": {}
+  ]
 }
