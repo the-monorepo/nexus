@@ -355,6 +355,22 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"
       ],
       [
+        "@fault/addon-mutation-localization",
+        "workspace:faultjs/fault-addon-mutation-localization"
+      ],
+      [
+        "@fault/addon-sbfl",
+        "workspace:faultjs/fault-addon-sbfl"
+      ],
+      [
+        "@fault/runner",
+        "workspace:faultjs/fault-runner"
+      ],
+      [
+        "@fault/sbfl-dstar",
+        "workspace:faultjs/fault-sbfl-dstar"
+      ],
+      [
         "@pshaw/winston-formats",
         "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"
       ],
@@ -381,6 +397,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@typescript-eslint/parser",
         "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.27.0"
+      ],
+      [
+        "@writeme/core",
+        "workspace:misc/writeme-core"
       ],
       [
         "babel-loader",
@@ -639,6 +659,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/preset-react", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.4"],
             ["@babel/preset-typescript", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"],
             ["@babel/register", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"],
+            ["@fault/addon-mutation-localization", "workspace:faultjs/fault-addon-mutation-localization"],
+            ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
+            ["@fault/runner", "workspace:faultjs/fault-runner"],
+            ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.17"],
             ["@types/babel__traverse", "npm:7.0.10"],
@@ -646,6 +670,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/mz", "npm:2.7.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.27.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.27.0"],
+            ["@writeme/core", "workspace:misc/writeme-core"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
             ["build-pshaw-logger", [
@@ -17616,6 +17641,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/preset-react", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.4"],
             ["@babel/preset-typescript", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"],
             ["@babel/register", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"],
+            ["@fault/addon-mutation-localization", "workspace:faultjs/fault-addon-mutation-localization"],
+            ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
+            ["@fault/runner", "workspace:faultjs/fault-runner"],
+            ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.17"],
             ["@types/babel__traverse", "npm:7.0.10"],
@@ -17623,6 +17652,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/mz", "npm:2.7.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.27.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.27.0"],
+            ["@writeme/core", "workspace:misc/writeme-core"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
             ["build-pshaw-logger", [
