@@ -1,15 +1,15 @@
-# Suffix Matcher
+# Classname Picker
 
 TODO
 
 ## Installation
 
 ```bash
-npm install --save @semantic-documents/suffix-matcher@1.0.0-alpha.0
+npm install --save @semantic-documents/classname-picker@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add @semantic-documents/suffix-matcher@1.0.0-alpha.0
+yarn add @semantic-documents/classname-picker@1.0.0-alpha.0
 ```
 
 ---
