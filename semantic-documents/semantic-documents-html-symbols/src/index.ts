@@ -3,6 +3,7 @@ import { MatcherInfo } from '@semantic-documents/matcher-info';
 export const SECTION = Symbol('section');
 export const HEADER = Symbol('header');
 export const FOOTER = Symbol('footer');
+export const PARAGRAPH = Symbol('paragraph');
 
 const HEADING_SYMBOLS = [Symbol('h1'), Symbol('h2'), Symbol('h3'), Symbol('h4'), Symbol('h5'), Symbol('h6')];
 
@@ -24,3 +25,4 @@ export const h3: MatcherInfoFactory = simpleMatcherInfoFactory(HEADING_3);
 export const h4: MatcherInfoFactory = simpleMatcherInfoFactory(HEADING_4);
 export const h5: MatcherInfoFactory = simpleMatcherInfoFactory(HEADING_5);
 export const h6: MatcherInfoFactory = simpleMatcherInfoFactory(HEADING_6);
+export const p: MatcherInfoFactory = simpleMatcherInfoFactory(PARAGRAPH);

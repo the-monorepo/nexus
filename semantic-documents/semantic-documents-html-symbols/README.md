@@ -1,15 +1,15 @@
-# Html5 Symbols
+# Html Symbols
 
 TODO
 
 ## Installation
 
 ```bash
-npm install --save @semantic-documents/html5-symbols@1.0.0-alpha.0
+npm install --save @semantic-documents/html-symbols@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add @semantic-documents/html5-symbols@1.0.0-alpha.0
+yarn add @semantic-documents/html-symbols@1.0.0-alpha.0
 ```
 
 ---
