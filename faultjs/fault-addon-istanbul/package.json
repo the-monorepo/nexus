@@ -18,14 +18,12 @@
     "directory": "faultjs/fault-istanbul-reporter"
   },
   "keywords": [
-    "sinon",
-    "stub",
+    "coverage",
+    "faultjs",
     "testing",
-    "test",
-    "typescript",
-    "util",
-    "helper",
-    "function"
+    "istanbul",
+    "logging",
+    "typescript"
   ],
   "dependencies": {
     "istanbul-lib-report": "^2.0.8",
