@@ -1,11 +1,16 @@
-import { SemanticElement, StyleRoot } from '@semantic-documents/element';
+import SemanticElement from '@semantic-documents/element';
+import type { StyleRoot } from '@semantic-documents/element';
+
 import * as types from '@semantic-documents/html-symbols';
 
-export const createElements = (styleRoot: StyleRoot) => ({
+export type { StyleRoot };
+
+export const createElements = (styleRoot: StyleRoot, styles: string) => ({
   H1: class extends SemanticElement {
     constructor() {
       super(
         styleRoot,
+        styles,
         'h1',
         types.HEADING_1,
       );
@@ -15,6 +20,7 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'h2',
         types.HEADING_2
       )
@@ -24,6 +30,7 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'h3',
         types.HEADING_3
       )
@@ -33,6 +40,7 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'h4',
         types.HEADING_4
       )
@@ -42,6 +50,7 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'h5',
         types.HEADING_5
       );
@@ -51,8 +60,19 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'h6',
         types.HEADING_6
+      )
+    }
+  },
+  P: class extends SemanticElement {
+    constructor() {
+      super(
+        styleRoot,
+        styles,
+        'p',
+        types.PARAGRAPH,
       )
     }
   },
@@ -60,6 +80,7 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'header',
         types.HEADER,
       )
@@ -69,6 +90,7 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'footer',
         types.FOOTER,
       )
@@ -78,9 +100,18 @@ export const createElements = (styleRoot: StyleRoot) => ({
     constructor() {
       super(
         styleRoot,
+        styles,
         'section',
         types.SECTION,
       )
     }
   }
-})
+});
+
+export type HTMLSemanticDocumentElements = ReturnType<typeof createElements>;
+
+export const defineCustomElements = (prefix: string, elements: HTMLSemanticDocumentElements) => {
+  for(const key of Object.keys(elements)) {
+    window.customElements.define(`${prefix}-${key.toLowerCase()}`, elements[key]);
+  }
+}
