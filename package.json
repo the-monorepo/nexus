@@ -54,6 +54,7 @@
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "@writeme/core": "workspace:misc/writeme-core",
+    "@yarnpkg/pnpify": "^2.0.0-rc.20",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
     "build-pshaw-logger": "npm:@pshaw/logger@2.0.1",

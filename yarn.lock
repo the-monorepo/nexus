@@ -3574,6 +3574,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/emscripten@npm:^1.38.0":
+  version: 1.39.3
+  resolution: "@types/emscripten@npm:1.39.3"
+  checksum: 2/dd6453e0de7e5ec31850e021749a2ea6c25af9477d41cc973b1d6ce6cd14da97301d13da7a75e6161064800b0fcfb6c8e4be4b1b730039f724d8decd4e3b8fff
+  languageName: node
+  linkType: hard
+
 "@types/eslint-visitor-keys@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/eslint-visitor-keys@npm:1.0.0"
@@ -4376,6 +4383,46 @@ __metadata:
   version: 4.2.2
   resolution: "@xtuc/long@npm:4.2.2"
   checksum: 2/ec09a359f98e9f8c47bf6c965e73b520a1a65e93f1febf6472babc8b6b0b425a2084452be103da5be11aec8c502ecfa29400713d55ef774579d04f691db44a2d
+  languageName: node
+  linkType: hard
+
+"@yarnpkg/fslib@npm:^2.0.0-rc.17":
+  version: 2.0.0-rc.17
+  resolution: "@yarnpkg/fslib@npm:2.0.0-rc.17"
+  dependencies:
+    "@yarnpkg/libzip": ^2.0.0-rc.10
+  checksum: 2/4e90a046f1645bac793c88811beb7da945af63cc9ce48930199714050c601adb52c7dab1dd3cac7d9fb200dbade4bcf15248925b98ccb3ed7546c339b9f66817
+  languageName: node
+  linkType: hard
+
+"@yarnpkg/libzip@npm:^2.0.0-rc.10":
+  version: 2.0.0-rc.10
+  resolution: "@yarnpkg/libzip@npm:2.0.0-rc.10"
+  dependencies:
+    "@types/emscripten": ^1.38.0
+  checksum: 2/95ae332b349eee4d53e0f098b7d1e4a399960d6661f33873f26cce47d32daa7e0cca7fbeb5f236aa17a20a1e5fd0d250e585267ec356df7732b6a835d934bd66
+  languageName: node
+  linkType: hard
+
+"@yarnpkg/pnpify@npm:^2.0.0-rc.20":
+  version: 2.0.0-rc.20
+  resolution: "@yarnpkg/pnpify@npm:2.0.0-rc.20"
+  dependencies:
+    "@yarnpkg/fslib": ^2.0.0-rc.17
+    chalk: ^3.0.0
+    comment-json: ^2.2.0
+    cross-spawn: 6.0.5
+  peerDependencies:
+    eslint: "*"
+    typescript: "*"
+  peerDependenciesMeta:
+    eslint:
+      optional: true
+    typescript:
+      optional: true
+  bin:
+    pnpify: ./lib/cli.js
+  checksum: 2/26b1656ffe13ce6760b3abd94d6bbc0f63b567cb7cabecaf14517a61dc79cbefb09bd07732a300e922c3f4edc7c6119c4500f30f9fa39cd67194ae154c5accce
   languageName: node
   linkType: hard
 
@@ -6915,6 +6962,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"comment-json@npm:^2.2.0":
+  version: 2.4.2
+  resolution: "comment-json@npm:2.4.2"
+  dependencies:
+    core-util-is: ^1.0.2
+    esprima: ^4.0.1
+    has-own-prop: ^2.0.0
+    repeat-string: ^1.6.1
+  checksum: 2/80bc181741f7966946e09ba253e97a4709288acb65e8b30e641efbca0a1a2c79f31d4df6cd1412a17ddb3d1289f552ec13e1d3f983b42ac84de6344fd062cf3d
+  languageName: node
+  linkType: hard
+
 "commondir@npm:^1.0.1":
   version: 1.0.1
   resolution: "commondir@npm:1.0.1"
@@ -7281,7 +7340,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-util-is@npm:1.0.2, core-util-is@npm:~1.0.0":
+"core-util-is@npm:1.0.2, core-util-is@npm:^1.0.2, core-util-is@npm:~1.0.0":
   version: 1.0.2
   resolution: "core-util-is@npm:1.0.2"
   checksum: 2/089015ee3c462dfceba70faa1df83b42a7bb35db26dae6af283247b06fe3216c65fccd9f00eebcaf98300dc31e981d56aae9f90b624f8f6ff1153e235ff88b65
@@ -8846,7 +8905,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esprima@npm:^4.0.0":
+"esprima@npm:^4.0.0, esprima@npm:^4.0.1":
   version: 4.0.1
   resolution: "esprima@npm:4.0.1"
   bin:
@@ -10799,6 +10858,13 @@ fsevents@^1.2.7:
   version: 4.0.0
   resolution: "has-flag@npm:4.0.0"
   checksum: 2/2e5391139d3d287231ccb58659702392f6e3abeac3296fb4721afaff46493f3d9b99a9329ae015dfe973aa206ed5c75f43e86aec0267dce79aa5c2b6e811b3ad
+  languageName: node
+  linkType: hard
+
+"has-own-prop@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "has-own-prop@npm:2.0.0"
+  checksum: 2/8513ff905297afb7b65f4e22012a2c8e20ab006067841015bf338cfd23019b6c7cec89b5192b4cb7eaaa2a5370d2474dc9a0bcfdfd71100c45b8d3be9882f45b
   languageName: node
   linkType: hard
 
@@ -14159,6 +14225,7 @@ fsevents@^1.2.7:
     "@typescript-eslint/eslint-plugin": ^2.27.0
     "@typescript-eslint/parser": ^2.27.0
     "@writeme/core": "workspace:misc/writeme-core"
+    "@yarnpkg/pnpify": ^2.0.0-rc.20
     babel-loader: ^8.1.0
     babel-plugin-istanbul: ^6.0.0
     build-pshaw-logger: "npm:@pshaw/logger@2.0.1"
