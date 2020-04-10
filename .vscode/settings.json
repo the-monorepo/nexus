@@ -3,7 +3,7 @@
   "eslint.nodePath": ".vscode/pnpify",
   "prettier.prettierPath": ".vscode/pnpify/prettier/index.js",
   "typescript.tsdk": ".vscode/pnpify/typescript/lib",
-  "files.exclude": {
+  "search.exclude": {
     ".pnp.js": true,
     ".yarn/**": true,
     "yarn-error.log": true,
