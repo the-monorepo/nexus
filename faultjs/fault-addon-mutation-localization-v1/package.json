@@ -19,14 +19,13 @@
     "directory": "faultjs/fault-mutation-localization"
   },
   "keywords": [
-    "sinon",
-    "stub",
     "testing",
     "test",
     "typescript",
-    "util",
-    "helper",
-    "function"
+    "faultjs",
+    "fault-localization",
+    "repair",
+    "debugging"
   ],
   "dependencies": {
     "@babel/parser": "^7.5.0",

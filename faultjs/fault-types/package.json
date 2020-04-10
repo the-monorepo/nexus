@@ -18,13 +18,10 @@
     "directory": "faultjs/fault-localization-util"
   },
   "keywords": [
-    "sinon",
-    "stub",
     "testing",
     "test",
     "typescript",
-    "util",
-    "helper",
-    "function"
+    "fault-localization",
+    "faultjs"
   ]
 }

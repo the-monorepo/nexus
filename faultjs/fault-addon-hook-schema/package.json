@@ -18,14 +18,10 @@
     "directory": "faultjs/fault-addon-hook-schema"
   },
   "keywords": [
-    "sinon",
-    "stub",
-    "testing",
-    "test",
     "typescript",
     "util",
     "helper",
-    "function"
+    "utility"
   ],
   "dependencies": {
     "stacktrace-js": "^2.0.0"

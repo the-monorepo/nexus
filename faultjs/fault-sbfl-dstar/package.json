@@ -18,14 +18,12 @@
     "directory": "faultjs/fault-sbfl-dstar"
   },
   "keywords": [
-    "sinon",
-    "stub",
     "testing",
     "test",
     "typescript",
-    "util",
-    "helper",
-    "function"
+    "fault-localization",
+    "sbfl",
+    "dstar"
   ],
   "dependencies": {}
 }

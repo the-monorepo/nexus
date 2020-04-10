@@ -18,13 +18,8 @@
     "directory": "faultjs/record-faults"
   },
   "keywords": [
-    "sinon",
-    "stub",
-    "testing",
-    "test",
     "typescript",
     "util",
-    "helper",
-    "function"
+    "fautltjs"
   ]
 }
