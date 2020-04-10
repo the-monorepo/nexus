@@ -1,0 +1,56 @@
+@use './grid.scss';
+h1, h2, h3, h4, h5, h6, p {
+  all: unset;
+  display: block;
+}
+
+%t1 {
+  font-size: (96rem)/16;
+}
+
+%t2 {
+  font-size: (60rem)/16;
+}
+
+%t3 {
+  font-size: (48rem)/16;
+}
+
+%t4 {
+  font-size: (34rem)/16;
+}
+
+%t5 {
+  font-size: (24rem)/16;
+}
+
+%t6 {
+  font-size: (20rem)/16;
+}
+
+.section1h1 {
+  @extend %t4;
+  margin-bottom: grid.$unit * 2;
+}
+
+.section2h1 {
+  @extend %t5;
+  margin-bottom: grid.$unit * 1;
+}
+
+.section3h1 {
+  @extend %t6;
+  margin-bottom: grid.$unit * 1;
+}
+
+.section1 {
+  margin-bottom: grid.$unit * 3;
+}
+
+.section2 {
+  margin-bottom: grid.$unit * 2;
+}
+
+.section3 {
+  margin-bottom: grid.$unit * 1;
+}
