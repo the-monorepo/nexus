@@ -51,7 +51,7 @@ it('initialiseEvaluationMaps', () => {
     const nodeToInstructions = new Map();
     const allPaths: NodePath[] = [];
     traverse(ast, {
-      enter: path => allPaths.push(path),
+      enter: (path) => allPaths.push(path),
     });
     const instruction = createInstruction(allPaths);
     const instructions = [instruction];

@@ -10,7 +10,7 @@ module.exports = function gitFileFilter(filterFn, options = {}) {
       const stagedPaths = await stagedPathsPromise;
 
       const match = stagedPaths.some(
-        stagedPath => relative(stagedPath, file.path) === '',
+        (stagedPath) => relative(stagedPath, file.path) === '',
       );
 
       cb(!match);

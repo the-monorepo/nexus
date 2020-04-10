@@ -13,8 +13,8 @@ const stubTestResult = (key: string, stack): TestResult => ({
     file: __filename,
     coverage: {},
     passed: true,
-    stack,  
-  }
+    stack,
+  },
 });
 
 const throwAnError = (further: boolean) => {

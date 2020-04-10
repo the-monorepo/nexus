@@ -96,7 +96,7 @@ describe('simple factories', () => {
       const instructions = [...factoryWrapper.createInstructions(astMap)];
 
       expect(
-        instructions.map(instruction => ({
+        instructions.map((instruction) => ({
           keys: instruction.conflictWriteDependencyKeys,
           variantLength: instruction.variants?.length,
         })),

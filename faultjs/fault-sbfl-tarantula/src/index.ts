@@ -27,7 +27,7 @@ export const tarantula = (
   if (passingPerTotalPassing === Number.POSITIVE_INFINITY) {
     return 0;
   }
-  const result =  
+  const result =
     failingPerTotalFailing / (failingPerTotalFailing + passingPerTotalPassing);
   console.log(result, codeElementTestStateCounts, totalTestStateCounts);
   return result;

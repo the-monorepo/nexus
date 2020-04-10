@@ -111,13 +111,14 @@ export const calculateExamScore = (
   const expectedExactLocations: Set<string> = new Set(
     expectedFaults
       .filter(
-        expectedFault => expectedFault.type === EXACT || expectedFault.type === undefined,
+        (expectedFault) =>
+          expectedFault.type === EXACT || expectedFault.type === undefined,
       )
-      .map(expectedFault => mostSpecificFaultKey(projectDir, expectedFault)),
+      .map((expectedFault) => mostSpecificFaultKey(projectDir, expectedFault)),
   );
 
   const withinLocations: WithinFault[] = expectedFaults.filter(
-    expectedFault => expectedFault.type === WITHIN,
+    (expectedFault) => expectedFault.type === WITHIN,
   ) as WithinFault[];
   let sum = 0;
   let nonFaultElementsInspected = 0; // The first fault will still need to be counted as 1 line so start with 1
@@ -197,7 +198,7 @@ const findConfig = (
       ? projectConfig.glob
       : [projectConfig.glob];
 
-    const resolvedGlobs = globs.map(glob =>
+    const resolvedGlobs = globs.map((glob) =>
       resolve('./projects', glob).replace(/\\+/g, '/'),
     );
 
@@ -236,7 +237,7 @@ export const run = async () => {
         ? projectConfig.testMatch
         : [projectConfig.testMatch]
       : ['**/*.test.{js,jsx,ts,tsx}']
-    ).map(filePath => resolve(projectDir, filePath).replace(/\\+/g, '/'));
+    ).map((filePath) => resolve(projectDir, filePath).replace(/\\+/g, '/'));
 
     const projectOutput = {};
 
@@ -297,10 +298,12 @@ export const run = async () => {
         name: 'mbfl-new',
         path: '@fault/addon-mutation-localization',
         skipEvaluation: true,
-      }
-    ]
+      },
+    ];
 
-    for(const { name, path } of mutationPlugins.filter(config => config.skipEvaluation !== true)) {
+    for (const { name, path } of mutationPlugins.filter(
+      (config) => config.skipEvaluation !== true,
+    )) {
       await flRunner.run({
         ...commonRunnerOptions,
         addons: [

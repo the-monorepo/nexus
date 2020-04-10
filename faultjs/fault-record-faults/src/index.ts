@@ -145,13 +145,13 @@ export const recordFaults = (filePath: string, toRecord: Fault[]) => {
   });
 };
 
-const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
+const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFilePath);
 
 export const reportFaults = async (faults: Fault[]) => {
   const rankedFaults = sortBySuspciousness(
     faults
       .filter(
-        fault =>
+        (fault) =>
           fault.score !== null &&
           fault.score !== Number.NEGATIVE_INFINITY &&
           fault.score !== Number.NaN,

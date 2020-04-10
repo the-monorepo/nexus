@@ -88,7 +88,7 @@ export function mergeHooks<H extends HookSchema>(
   hooksList: (RecursivePartial<Hooks<H>> | HookCallback | undefined)[],
   value: H | null | HookCallbackFactory | [H | null | HookCallbackFactory, MergeOptions],
 ): Hooks<H> {
-  const filteredHooksList = hooksList.filter(hooks => !!hooks) as (
+  const filteredHooksList = hooksList.filter((hooks) => !!hooks) as (
     | RecursivePartial<Hooks<H>>
     | HookCallback
   )[];
@@ -113,7 +113,7 @@ export function mergeHooks<H extends HookSchema>(
   } else {
     return Object.keys(value).reduce((merged, key) => {
       merged[key] = mergeHooks(
-        filteredHooksList.map(hooks => hooks[key]),
+        filteredHooksList.map((hooks) => hooks[key]),
         value[key] as any,
       );
       return merged;
@@ -129,27 +129,26 @@ export function mergeHookOptions<H extends HookSchema, O extends HookSchema>(
   beforeAfterSchemaObj: H,
   onSchemaObj: O = {} as any,
 ): CompleteHooksOptions<H, O> {
-  const definedHookOptionsList = hookOptionsList.filter(hookOptions => !!hookOptions) as (
-    | HookOptions<H, O>
-    | RecursivePartial<Hooks<H>>
-  )[];
+  const definedHookOptionsList = hookOptionsList.filter(
+    (hookOptions) => !!hookOptions,
+  ) as (HookOptions<H, O> | RecursivePartial<Hooks<H>>)[];
   return {
     before: mergeHooks(
       definedHookOptionsList
-        .filter(hookOptions => !!hookOptions.before)
-        .map(hookOptions => hookOptions.before as RecursivePartial<Hooks<H>>),
+        .filter((hookOptions) => !!hookOptions.before)
+        .map((hookOptions) => hookOptions.before as RecursivePartial<Hooks<H>>),
       beforeAfterSchemaObj,
     ),
     after: mergeHooks(
       definedHookOptionsList
-        .filter(hookOptions => !!hookOptions.after)
-        .map(hookOptions => hookOptions.after as RecursivePartial<Hooks<H>>),
+        .filter((hookOptions) => !!hookOptions.after)
+        .map((hookOptions) => hookOptions.after as RecursivePartial<Hooks<H>>),
       beforeAfterSchemaObj,
     ),
     on: mergeHooks(
       definedHookOptionsList
-        .filter(hookOptions => !!hookOptions.on)
-        .map(hookOptions => hookOptions.on as RecursivePartial<Hooks<O>>),
+        .filter((hookOptions) => !!hookOptions.on)
+        .map((hookOptions) => hookOptions.on as RecursivePartial<Hooks<O>>),
       onSchemaObj,
     ),
   };
