@@ -8,10 +8,6 @@
     "url": "https://github.com/PatrickShaw/monorepo.git",
     "directory": "misc/page-breaker-chrome"
   },
-  "devDependencies": {
-    "node-sass": "^4.13.1",
-    "sass-loader": "^8.0.2"
-  },
   "dependencies": {
     "classnames": "^2.2.6",
     "mobx": "^5.15.4",

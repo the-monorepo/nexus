@@ -18,7 +18,6 @@ Version | Package | Description
 1.0.0-alpha.0 | [`babel-plugin-transform-mobx-jsx`](misc/babel-plugin-transform-mobx-jsx/README.md) | Convert JSX into MobXElement renderables
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
-2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
@@ -50,12 +49,10 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.4.3 | [`@pshaw/markdown-util`](misc/markdown-util/README.md) | A helper package for writing markdown files
-3.1.3 | [`@writeme/core`](misc/writeme-core/README.md) | A readme generator
 
 ### Logging
 Version | Package | Description
 --- | --- | ---
-2.0.4 | [`@pshaw/logger`](misc/logger/README.md) | A preformatted, opinionated logger
 1.5.3 | [`@pshaw/winston-formats`](build-packages/winston-formats/README.md) | A set of Winston formats
 
 ### ESLint
