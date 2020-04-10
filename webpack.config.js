@@ -204,29 +204,4 @@ const pageBreakerFrontendConfig = {
   },
 };
 
-const semanticDocumentsDir = resolve(miscDir, 'semantic-documents');
-const semanticDocumentsConfig = {
-  name: 'semantic-documents',
-  target: 'web',
-  resolve: {
-    extensions: tsxExtensions,
-  },
-  devtool: 'source-map',
-  module: {
-    rules: [svgRule, webcomponentsSassModulesRule, sourceMapRule, babelRule],
-  },
-  entry: resolve(semanticDocumentsDir, 'src/index.tsx'),
-  output: createDistOutput(pageBreakerDir),
-  plugins: [
-    defaultHtmlWebpackPlugin({
-      title: `Semantic Documents`,
-      links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
-    }),
-  ],
-  devServer: {
-    port: 3003,
-    compress: true,
-  },
-};
-
-module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig, semanticDocumentsConfig];
+module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig];

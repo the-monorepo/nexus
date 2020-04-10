@@ -52,21 +52,6 @@ module.exports = api => {
     overrides: [
       {
         test: [
-          './misc/semantic-documents'
-        ],
-        plugins,
-        presets: presets.concat([
-          '@babel/preset-react',
-          [
-            '@babel/preset-typescript',
-            {
-              jsxPragma: 'React'
-            }
-          ]
-        ]),
-      },
-      {
-        test: [
           './misc/my-resume',
           './misc/resume-template',
           './misc/mobx-dom',
