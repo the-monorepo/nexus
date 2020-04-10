@@ -13,6 +13,9 @@
     "sass-loader": "^8.0.2"
   },
   "dependencies": {
+    "classnames": "^2.2.6",
+    "mobx": "^5.15.4",
+    "mobx-dom": "workspace:misc/mobx-dom",
     "paper-range-slider": "^3.0.0",
     "xy-ui": "^1.9.3"
   }
