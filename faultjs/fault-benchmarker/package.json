@@ -43,7 +43,8 @@
     "@fault/sbfl-op2": "1.0.0-alpha.0",
     "@fault/sbfl-tarantula": "1.0.0-alpha.0",
     "@fault/tester-mocha": "1.0.0-alpha.0",
-    "micromatch": "^4.0.2"
+    "micromatch": "^4.0.2",
+    "mobx-dom": "workspace:misc/mobx-dom"
   },
   "devDependencies": {
     "babel-preset-airbnb": "^4.4.0",
