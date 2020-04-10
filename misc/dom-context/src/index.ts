@@ -1,5 +1,3 @@
-export const RESPECT_BOUNDARIES_ATTRIBUTE = 'respect-boundaries';
-
 export const findParentProvider = (node: Node, providerSet: Set<any>, respectBoundaries: boolean): any | null => {
   let current: Node | null = node;
 
@@ -22,20 +20,44 @@ export const findParentProvider = (node: Node, providerSet: Set<any>, respectBou
   return current;
 };
 
-export const createContext = (contextName?: string) => {
+const CONNECTED_CALLBACK_FIELD = 'connectedCallback';
+const DISCONNECTED_CALLBACK_FIELD = 'disconnectedCallback';
+
+const overrideSuperIfAvailable = (clazz, functionName: string | symbol, extendedFn) => {
+  const property = Object.getOwnPropertyDescriptor(clazz.prototype, functionName);
+  
+  console.log(clazz.name, functionName, property)
+  Object.defineProperty(clazz.prototype, functionName, {
+    configurable: true,
+    writable: false,
+    enumerable: false,
+    ...property,
+    value: property !== undefined ? function(...args) {
+      extendedFn.call(this, ...args);
+      property.value.call(this, ...args);
+    } : extendedFn,
+  });
+}
+
+const createContext = (contextName?: string) => {
   // TODO: Could consider reworking this to use a data structure that would provider quicker lookups of which provider to use
   const providerSet: Set<any> = new Set();
 
   const PROVIDER_VALUE = Symbol(`${contextName}-provider-value`);
   const PROVIDER = Symbol(`${contextName}-provider`);
+  const SET_PROVIDER = Symbol(`${contextName}-set-provider`);
 
-  const consumerDecorator = <T>(target) => {
-    const consumerValueSymbol = Symbol(`${contextName}-consumer-value`);
-    const consumerDefaultSymbol = Symbol(`${contextName}-consumer-value`);
-    console.log('consumerStuff', target);
+  const FIND_PROVIDER = Symbol(`${contextName}-find-consumer`);
+
+  const UPDATE_CONSUMER_PROVIDERS = Symbol(`${contextName}-update-consumer-providers`);
+
+  const CONSUMERS = Symbol(`${contextName}-consumers`);
+
+  const SET_CONSUMER_VALUE = Symbol(`${contextName}-set-consumer-value`);
+
+  const consumerDecorator = (target) => {
     return {
       ...target,
-      key: consumerDefaultSymbol,
       extras: [{
         kind: 'field',
         key: PROVIDER,
@@ -48,42 +70,53 @@ export const createContext = (contextName?: string) => {
         initializer: () => null,
       },
       {
-        kind: 'field',
-        key: consumerValueSymbol,
-        placement: 'own',
-        initializer: function() {
-          return this[consumerDefaultSymbol];
-        },
+        kind: 'method',
+        key: SET_PROVIDER,
+        placement: 'prototype',
         descriptor: {
-          configurable: true,
-          writable: false,
-          enumerable: false,
-        },
+          value: function(value) {
+            if (value === null) {
+              if (this[PROVIDER] !== null) {
+                this[PROVIDER][CONSUMERS].delete(this);
+              }
+              this[SET_CONSUMER_VALUE](undefined, this[PROVIDER]);
+            } else {
+              value[CONSUMERS].add(this);
+              this[SET_CONSUMER_VALUE](value[PROVIDER_VALUE], this[PROVIDER]);
+            }
+          }
+        }
       },
       {
         kind: 'method',
-        key: target.key,
+        key: FIND_PROVIDER,
         placement: 'prototype',
         descriptor: {
-          get: function() {
-            return this[PROVIDER] !== null ? this[consumerValueSymbol] : this[consumerDefaultSymbol];
-          },
+          value: function() {
+            this[SET_PROVIDER](findParentProvider(this.parentNode, providerSet, false));
+          }
+        }
+      },
+      {
+        kind: 'method',
+        key: SET_CONSUMER_VALUE,
+        placement: 'prototype',
+        descriptor: {
+          value: function(value, hasProvider) {
+            return this[target.key](value, hasProvider);
+          }
         }
       }],
       finisher: (clazz) => {
-        return class Consumer extends clazz { 
-          connectedCallback() {
-            if (this.isConnected) {
-              this[PROVIDER] = findParentProvider(this.parentNode, providerSet, false);
-            }
-            super.connectedCallback();
+        overrideSuperIfAvailable(clazz, CONNECTED_CALLBACK_FIELD, function() {
+          if (this.isConnected) {
+            this[FIND_PROVIDER]();
           }
+        });
 
-          disconnectedCallback() {
-            this[PROVIDER] = null;
-            super.disconnectedCallback();
-          }
-        }
+        overrideSuperIfAvailable(clazz, DISCONNECTED_CALLBACK_FIELD, function() {
+          this[SET_PROVIDER](null);
+        });
       }
     }
   };
@@ -93,7 +126,14 @@ export const createContext = (contextName?: string) => {
     return {
       ...target,
       key: symbol,
-      extras: [{
+      extras: [
+        {
+          kind: 'field',
+          key: CONSUMERS,
+          placement: 'own',
+          descriptor: { configurable: false, writable: false, enumerable: false },
+          initializer: () => new Set(),
+        }, {
         kind: 'method',
         key: target.key,
         placement: 'prototype',
@@ -103,6 +143,10 @@ export const createContext = (contextName?: string) => {
           },
           set: function(value) {
             this[symbol] = value;
+            console.log('setting', value, 'for consumers:', this[CONSUMERS])
+            for (const consumer of this[CONSUMERS]) {
+              consumer[SET_CONSUMER_VALUE](value, this);
+            }
           }
         }
       }, {
@@ -119,16 +163,29 @@ export const createContext = (contextName?: string) => {
         }
       }],
       finisher: (clazz) => {
-        return class Provider extends clazz {
-          connectedCallback() {
-            providerSet.add(this);
-            super.connectedCallback();
+        overrideSuperIfAvailable(clazz, CONNECTED_CALLBACK_FIELD, function() {
+          providerSet.add(this);
+          const parentProvider = findParentProvider(this.parentNode, providerSet, false);
+          if (parentProvider !== null) {
+            parentProvider[UPDATE_CONSUMER_PROVIDERS]();
           }
-          disconnectedCallback() {
-            providerSet.delete(this);
-            super.disconnectedCallback();
+        });
+
+        overrideSuperIfAvailable(clazz, DISCONNECTED_CALLBACK_FIELD, function() {
+          providerSet.delete(this);
+          this[UPDATE_CONSUMER_PROVIDERS]();
+        });
+
+        Object.defineProperty(clazz.prototype, UPDATE_CONSUMER_PROVIDERS, {
+          configurable: true,
+          writable: false,
+          enumerable: false,
+          value: function() {
+            for (const consumer of this[CONSUMERS]) {
+              consumer[FIND_PROVIDER]();
+            }
           }
-        }
+        });
       }
     }
   };
@@ -138,3 +195,5 @@ export const createContext = (contextName?: string) => {
     provider: providerDecorator,
   }
 };
+
+export default createContext;
