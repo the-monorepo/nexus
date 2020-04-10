@@ -66,7 +66,7 @@ function mockProperties<T, V, R>(
   ogToMockedMap: Map<any, any> = new Map(),
 ): Replaced<T, R> & V {
   const propertyDescriptors = Object.getOwnPropertyDescriptors(value);
-  Object.keys(propertyDescriptors).forEach(key => {
+  Object.keys(propertyDescriptors).forEach((key) => {
     const propertyDescriptor = propertyDescriptors[key];
     const mockedPropertyDescriptor =
       propertyDescriptor.get || propertyDescriptor.set
