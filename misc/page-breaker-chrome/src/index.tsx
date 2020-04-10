@@ -24,38 +24,36 @@ const browserFontSize = (() => {
 })();
 
 // Prevents slider messing with the extension UI at the expense of font resizing
-document.documentElement.style.fontSize = "16px";
+document.documentElement.style.fontSize = '16px';
 
-const Icon = ({ children }) => (
-  <span class="material-icons">{children}</span>
-);
+const Icon = ({ children }) => <span className="material-icons">{children}</span>;
 
-const SelectAndDragIcon = () => (
-  <Icon>photo_size_select_small</Icon>
-);
+const SelectAndDragIcon = () => <Icon>photo_size_select_small</Icon>;
 
-const AppHeadingH1 = ({ children }) => (
-  <h1 class={text.h700}>{children}</h1>
-);
+const AppHeadingH1 = ({ children }) => <h1 className={text.h700}>{children}</h1>;
 
 const FunctionHeadingH1 = ({ children, class: className }) => (
-  <h1 class={cx(text.h600, className)}>{children}</h1>
+  <h1 className={cx(text.h600, className)}>{children}</h1>
 );
 
 const FunctionConfigSubheadngH1 = ({ children }) => (
-  <h1 class={cx(text.h500, text.margin)}>{children}</h1>
+  <h1 className={cx(text.h500, text.margin)}>{children}</h1>
 );
 
 const FieldLabel = ({ children, ...other }) => (
-  <label for={name} class={cx(text.h400, text.margin, styles.fieldLabel)} {...other}>{children}</label>
+  <label
+    htmlFor={name}
+    className={cx(text.h400, text.margin, styles.fieldLabel)}
+    {...other}
+  >
+    {children}
+  </label>
 );
 
 const Field = ({ name, children, labelContent, labelClass, contentClass }) => (
-  <section class={cx(styles.field, labelClass)}>
+  <section className={cx(styles.field, labelClass)}>
     <FieldLabel name={name}>{labelContent}</FieldLabel>
-    <div class={cx(styles.fieldContent, contentClass)}>
-      {children}
-    </div>
+    <div className={cx(styles.fieldContent, contentClass)}>{children}</div>
   </section>
 );
 
@@ -70,7 +68,6 @@ const replaceWordState = observable({
   },
 });
 
-
 const fontState = observable({
   size: browserFontSize,
 });
@@ -81,13 +78,13 @@ const sliderSetEmSizeFromImmediateValue = action((e) => {
 
 const sliderSetEmSizeFromValue = action((e) => {
   fontState.size = e.target.value;
-})
+});
 
 autorun(() => {
   chrome.fontSettings.setDefaultFontSize({
-    pixelSize: fontState.size
+    pixelSize: fontState.size,
   });
-})
+});
 
 const sliderSetMinMaxCharacters = action((e) => {
   replaceWordState.character.min = e.target.valueMin;
@@ -100,11 +97,13 @@ const pickWord = (letters: string) => {
 
 const previewWords = computed(() => {
   const words: string[] = [];
-  for(let i = 0; i < 5; i++) {
-    const letterCount = Math.random() * (replaceWordState.character.max - replaceWordState.character.min) + replaceWordState.character.min;
+  for (let i = 0; i < 5; i++) {
+    const letterCount =
+      Math.random() * (replaceWordState.character.max - replaceWordState.character.min) +
+      replaceWordState.character.min;
     const generatedWord: string[] = [];
-    for(let i = 0; i < letterCount; i++) {
-      generatedWord[i] = pickWord("abcdefghijklmnopqrstuvwxyz");
+    for (let i = 0; i < letterCount; i++) {
+      generatedWord[i] = pickWord('abcdefghijklmnopqrstuvwxyz');
     }
     words[i] = generatedWord.join('');
   }
@@ -115,9 +114,7 @@ const languageState = observable({
   langs: [...window.navigator.languages],
 });
 
-autorun(() => {
-
-});
+autorun(() => {});
 
 const addLangPreference = {
   handle: action((e) => {
@@ -128,17 +125,15 @@ const addLangPreference = {
         languageState.langs.push(newLang);
       } else {
         languageState.langs.unshift(languageState.langs.splice(index, 1)[0]);
-      }  
-      console.log(...languageState.langs)
+      }
+      console.log(...languageState.langs);
       e.target.reset();
-    } catch(err) {
-
-    }
+    } catch (err) {}
   }),
   options: {
     passive: true,
-  }
-}
+  },
+};
 
 const buttonSetPrimaryLang = {
   handle: (e) => {
@@ -150,14 +145,11 @@ const buttonSetPrimaryLang = {
   },
   options: {
     passive: true,
-  }
-}
+  },
+};
 
 const Button = ({ children, class: className, ...other }) => (
-  <xy-button
-    class={cx(text.h500, className)}
-    {...other}
-  >
+  <xy-button class={cx(text.h500, className)} {...other}>
     {children}
   </xy-button>
 );
@@ -178,18 +170,21 @@ const MiscSettings = () => (
       />
     </Field>
     <Field labelContent="Language preferences" contentClass={styles.flexStretch}>
-      <xy-input class={styles.editLang} $$submit={addLangPreference}/>
-      <div $$click={buttonSetPrimaryLang} class={cx(styles.flexStretch, styles.wrap, styles.langPrefs)}>
+      <xy-input class={styles.editLang} $$submit={addLangPreference} />
+      <div
+        $$click={buttonSetPrimaryLang}
+        className={cx(styles.flexStretch, styles.wrap, styles.langPrefs)}
+      >
         <div>
-          <Button class={cx(styles.theme, styles.dark)} type="primary" index={0}>{languageState.langs[0]}</Button>
+          <Button class={cx(styles.theme, styles.dark)} type="primary" index={0}>
+            {languageState.langs[0]}
+          </Button>
         </div>
-        {
-          languageState.langs.slice(1).map((lang, i) => (
-            <div>
-              <Button index={i + 1}>{lang}</Button>
-            </div>
-          ))
-        }
+        {languageState.langs.slice(1).map((lang, i) => (
+          <div>
+            <Button index={i + 1}>{lang}</Button>
+          </div>
+        ))}
       </div>
     </Field>
   </section>
@@ -213,9 +208,9 @@ const onSelectToggle = {
     selectState.selectMode = isSelected;
   }),
   option: {
-    passive: true
-  }
-}
+    passive: true,
+  },
+};
 
 const ReplaceWordConfig = () => {
   const min = Math.min(replaceWordState.character.min, CHARACTER_SLIDER_MIN);
@@ -230,10 +225,11 @@ const ReplaceWordConfig = () => {
           toggle={true}
           $$click={onSelectToggle}
         >
-          <SelectAndDragIcon />&nbsp; Select
+          <SelectAndDragIcon />
+          &nbsp; Select
         </Button>
       </FunctionHeadingH1>
-      <Field labelContent='Word length' contentClass={styles.flexAlign}>
+      <Field labelContent="Word length" contentClass={styles.flexAlign}>
         {replaceWordState.character.min}
         <paper-range-slider
           min={min}
@@ -244,28 +240,22 @@ const ReplaceWordConfig = () => {
           class={cx(styles.sliderContainer, styles.rangeSliderHack)}
           pin={true}
         />
-        {replaceWordState.character.max}            
+        {replaceWordState.character.max}
       </Field>
     </section>
   );
 };
 
 const ReplaceWordExample = ({ children }) => {
-  return (
-    <p class={cx(text.h200, text.margin)}>
-      {children}
-    </p>
-  );
+  return <p className={cx(text.h200, text.margin)}>{children}</p>;
 };
 
 const ReplaceWordPreview = () => (
   <section>
     <FunctionConfigSubheadngH1>Preview</FunctionConfigSubheadngH1>
-    {
-      previewWords.get().map(word => (
-        <ReplaceWordExample>{word}</ReplaceWordExample>
-      ))
-    }
+    {previewWords.get().map((word) => (
+      <ReplaceWordExample>{word}</ReplaceWordExample>
+    ))}
   </section>
 );
 
@@ -274,19 +264,19 @@ const ReplaceWidth = () => (
     <ReplaceWordConfig />
     <ReplaceWordPreview />
   </section>
-);;
+);
 
 const App = () => (
   <>
-    <header class={cx(styles.appHeader, styles.theme, styles.dark)}>
+    <header className={cx(styles.appHeader, styles.theme, styles.dark)}>
       <AppHeadingH1>Page breaker</AppHeadingH1>
     </header>
-    <main class={cx(styles.appContent, styles.theme, styles.light)}>
+    <main className={cx(styles.appContent, styles.theme, styles.light)}>
       <MiscSettings />
       <ReplaceWidth />
     </main>
   </>
-)
+);
 
 const rootElement = document.getElementById('root');
 

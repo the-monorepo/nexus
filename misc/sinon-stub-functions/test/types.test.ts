@@ -17,7 +17,7 @@ beforeEach(() => {
     someRegex: /regex/,
   };
   anArray = [
-    function() {
+    function () {
       return anArrayFunctionReturnValue;
     },
     1,
@@ -202,8 +202,8 @@ describe('only mocks functions', () => {
     const mockedObject = stubFunctions(aObjectLiteral);
     expect(mockedObject.returnObject()).not.toBe(aObjectLiteral.returnObject());
     Object.getOwnPropertyNames(mockedObject)
-      .filter(key => key !== 'returnObject')
-      .forEach(key => {
+      .filter((key) => key !== 'returnObject')
+      .forEach((key) => {
         expect(mockedObject[key]).toBe(aObjectLiteral[key]);
       });
   });
@@ -301,16 +301,16 @@ describe('onMockedFunction', () => {
     const mockedObject = stubFunctions(objectWithFunctions, undefined, (fn, ogFn) =>
       fn.callsFake(() => ogFn()),
     );
-    Object.keys(objectWithFunctions).forEach(key => {
+    Object.keys(objectWithFunctions).forEach((key) => {
       expect(objectWithFunctions[key]()).toBe(mockedObject[key]());
     });
   });
   it('works with parameters', () => {
-    const arrayWithFunctions = [val => val];
+    const arrayWithFunctions = [(val) => val];
     const mockedArray = stubFunctions(arrayWithFunctions, undefined, (fn, ogFn) =>
       fn.callsFake((...other) => ogFn(...other)),
     );
-    Object.keys(mockedArray).forEach(key => {
+    Object.keys(mockedArray).forEach((key) => {
       expect(mockedArray[key](1337)).toBe(arrayWithFunctions[key](1337));
     });
   });
