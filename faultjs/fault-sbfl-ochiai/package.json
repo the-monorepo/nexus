@@ -24,6 +24,5 @@
     "fault-localization",
     "sbfl",
     "ochiai"
-  ],
-  "dependencies": {}
+  ]
 }
