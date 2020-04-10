@@ -18,13 +18,11 @@
     "directory": "faultjs/fault-tester-mocha"
   },
   "keywords": [
-    "sinon",
-    "stub",
     "testing",
     "test",
     "typescript",
-    "util",
-    "helper",
-    "function"
+    "fault-localization",
+    "sbfl",
+    "mocha"
   ]
 }

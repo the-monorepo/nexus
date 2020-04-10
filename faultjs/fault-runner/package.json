@@ -18,14 +18,11 @@
     "directory": "faultjs/fault-runner"
   },
   "keywords": [
-    "sinon",
-    "stub",
-    "testing",
+    "faultjs",
     "test",
-    "typescript",
-    "util",
-    "helper",
-    "function"
+    "testing",
+    "test-runner",
+    "typescript"
   ],
   "dependencies": {}
 }

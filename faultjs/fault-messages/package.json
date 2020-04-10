@@ -18,13 +18,7 @@
     "directory": "faultjs/fault-messages"
   },
   "keywords": [
-    "sinon",
-    "stub",
-    "testing",
-    "test",
-    "typescript",
-    "util",
-    "helper",
-    "function"
+    "faultjs",
+    "ipc"
   ]
 }

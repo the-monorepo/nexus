@@ -18,14 +18,13 @@
     "directory": "faultjs/fault-chai"
   },
   "keywords": [
-    "sinon",
-    "stub",
     "testing",
     "test",
     "typescript",
-    "util",
-    "helper",
-    "function"
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "sbfl"
   ],
   "dependencies": {
     "stacktrace-js": "^2.0.0"

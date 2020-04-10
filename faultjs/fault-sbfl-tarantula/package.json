@@ -18,14 +18,12 @@
     "directory": "faultjs/fault-sbfl-tarantula"
   },
   "keywords": [
-    "sinon",
-    "stub",
     "testing",
     "test",
     "typescript",
-    "util",
-    "helper",
-    "function"
+    "fault-localization",
+    "sbfl",
+    "tarantula"
   ],
   "dependencies": {}
 }

@@ -26,14 +26,13 @@
     "directory": "faultjs/fault-ast-localization"
   },
   "keywords": [
-    "sinon",
-    "stub",
     "testing",
     "test",
     "typescript",
-    "util",
-    "helper",
-    "function"
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "benchmark"
   ],
   "dependencies": {
     "@babel/parser": "^7.5.0",
