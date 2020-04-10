@@ -3557,6 +3557,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cross-spawn", "npm:6.0.5"],
             ["isomorphic-git", "npm:0.58.2"],
             ["micromatch", "npm:4.0.2"],
+            ["mobx-dom", "workspace:misc/mobx-dom"],
             ["webpack-cli", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:3.3.11"],
             ["webpack-dev-server", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:3.10.3"]
           ],

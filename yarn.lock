@@ -1623,6 +1623,7 @@ __metadata:
     cross-spawn: ^6.0.5
     isomorphic-git: ^0.58.1
     micromatch: ^4.0.2
+    mobx-dom: "workspace:misc/mobx-dom"
     webpack-cli: ^3.3.11
     webpack-dev-server: ^3.10.3
   languageName: unknown

@@ -8,7 +8,6 @@ import cx from 'classnames';
 
 import { autorun, observable, action, computed } from 'mobx';
 
-import 'paper-range-slider';
 import 'xy-ui/components/xy-checkbox';
 import 'xy-ui/components/xy-input';
 import 'xy-ui/components/xy-button';
