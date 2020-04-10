@@ -6,17 +6,22 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
+1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/html-template`](misc/html-template/README.md) | A HTML template generator
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.3 | [`@pshaw/resume-template`](misc/resume-template/README.md) | A template you can use to generate resumes
+1.0.0-alpha.0 | [`@pshaw/semantic-documents`](patrick-shaw/semantic-documents/README.md) | A nice, sensible, web component based Semantic Document API
+1.0.0-alpha.0 | [`@pshaw/semantic-documents-scss`](patrick-shaw/semantic-documents-scss/README.md) | SCSS files for @pshaw/semantic-documents-scss
+1.0.0-alpha.0 | [`@pshaw/semantic-documents-style-root`](patrick-shaw/semantic-documents-style-root/README.md) | Semantic document style root for @pshaw/semantic-documents-scss
+1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
 1.0.0-alpha.0 | [`babel-plugin-transform-mobx-jsx`](misc/babel-plugin-transform-mobx-jsx/README.md) | Convert JSX into MobXElement renderables
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
+1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
 2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
-1.0.0-alpha.0 | [`semantic-documents`](misc/semantic-documents/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 1.0.0-alpha.0 | [`tree-suffix-mapper`](misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
 
@@ -28,11 +33,11 @@ Version | Package | Description
 ### Semantic documents
 Version | Package | Description
 --- | --- | ---
+1.0.0-alpha.0 | [`@semantic-documents/classname-picker`](semantic-documents/semantic-documents-classname-picker/README.md) | TODO
 1.0.0-alpha.0 | [`@semantic-documents/element`](semantic-documents/semantic-documents-element/README.md) | TODO
-1.0.0-alpha.0 | [`@semantic-documents/html5-symbols`](semantic-documents/semantic-documents-html5-symbols/README.md) | TODO
+1.0.0-alpha.0 | [`@semantic-documents/html-elements`](semantic-documents/semantic-documents-html-elements/README.md) | Helper HTMLElement classes that implement elements that use the @semantic-documents/html-symbols
+1.0.0-alpha.0 | [`@semantic-documents/html-symbols`](semantic-documents/semantic-documents-html-symbols/README.md) | TODO
 1.0.0-alpha.0 | [`@semantic-documents/matcher-info`](semantic-documents/semantic-documents-matcher-info/README.md) | TODO
-1.0.0-alpha.0 | [`@semantic-documents/suffix-element`](semantic-documents/semantic-documents-suffix-element/README.md) | TODO
-1.0.0-alpha.0 | [`@semantic-documents/suffix-matcher`](semantic-documents/semantic-documents-suffix-matcher/README.md) | TODO
 
 ### Build tooling
 Version | Package | Description
