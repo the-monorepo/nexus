@@ -78,12 +78,12 @@ export const renderData: CloneInfoFunction = <C, N extends Node | null>(
   state,
 });
 
-export const createBlueprint: CreateBlueprintFunction = ((mount, update?, unmount?) => ({
+export const createBlueprint: CreateBlueprintFunction = (mount, update?, unmount?) => ({
   id: generateBlueprintUid(),
   mount,
   update,
   unmount,
-}));
+});
 
 abstract class CachedField implements Field {
   protected state = null;
@@ -225,11 +225,8 @@ export const componentResultFromValue = (value) => {
 
 const trackedNodes = new WeakMap<Node, RenderResult<any> | undefined>();
 export const render = (value: unknown, container: Node) => {
-  const renderResult = renderValue(value, trackedNodes.get(container), container, null)
-  trackedNodes.set(
-    container,
-    renderResult,
-  );
+  const renderResult = renderValue(value, trackedNodes.get(container), container, null);
+  trackedNodes.set(container, renderResult);
 };
 
 export const updateComponentResultsArray = <C, V, N extends Node>(
@@ -528,7 +525,7 @@ const domFieldSetter = (
   }
 };
 
-const domFieldUnmount = fields => {
+const domFieldUnmount = (fields) => {
   for (const field of fields) {
     if (field.unmount !== undefined) {
       field.unmount();
@@ -1077,20 +1074,22 @@ export const rerender = (target) => {
     return {
       ...target,
       key: symbol,
-      extras: [{
-        kind: 'method',
-        key: target.key,
-        placement: 'prototype',
-        descriptor: {
-          get: function() {
-            return this[symbol];
+      extras: [
+        {
+          kind: 'method',
+          key: target.key,
+          placement: 'prototype',
+          descriptor: {
+            get: function () {
+              return this[symbol];
+            },
+            set: function (value) {
+              this[symbol] = value;
+              this[UPDATE]();
+            },
           },
-          set: function(value) {
-            this[symbol] = value;
-            this[UPDATE]();
-          }
-        }
-      }],
+        },
+      ],
     };
   } else {
     const descriptor = (() => {
@@ -1098,19 +1097,19 @@ export const rerender = (target) => {
       if (oldDescriptor.value !== undefined) {
         return {
           ...oldDescriptor,
-          value: function(...args) {
+          value: function (...args) {
             this[symbol](...args);
             this[UPDATE]();
-          }
-        }
+          },
+        };
       } else if (oldDescriptor.set !== undefined) {
         return {
           ...oldDescriptor,
-          set: function(value) {
+          set: function (value) {
             this[symbol] = value;
             this[UPDATE]();
-          }
-        }
+          },
+        };
       } else {
         throw new Error(`Expected either a field, method or setter`);
       }
@@ -1118,10 +1117,12 @@ export const rerender = (target) => {
     return {
       ...target,
       key: symbol,
-      extras: [{
-        ...target,
-        descriptor,
-      }]
+      extras: [
+        {
+          ...target,
+          descriptor,
+        },
+      ],
     };
   }
 };

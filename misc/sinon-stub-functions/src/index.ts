@@ -8,7 +8,7 @@ export const stubFunctions = <T>(
 ) => {
   return replaceFunctions(
     value,
-    originalFn => {
+    (originalFn) => {
       const stubedFn = stub();
       onStubFunction(stubedFn, originalFn);
       return stubedFn;

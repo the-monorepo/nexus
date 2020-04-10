@@ -6,7 +6,7 @@ export const mockFunctions = <T>(
 ) => {
   return replaceFunctions(
     value,
-    originalFn => {
+    (originalFn) => {
       const mockedFn = jest.fn();
       onMockFunction(mockedFn, originalFn);
       return mockedFn;

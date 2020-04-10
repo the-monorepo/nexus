@@ -75,8 +75,8 @@ export function overrideConsoleLogger(aLogger) {
     TODO: Note that string interpolation with console.log won't work
     (E.g. console.log("%s", "test") will print "%stest")
   */
-  const createPlaceholders = args => new Array(args.length).fill('%s').join(' ');
-  Object.keys(aLogger.levels).forEach(level => {
+  const createPlaceholders = (args) => new Array(args.length).fill('%s').join(' ');
+  Object.keys(aLogger.levels).forEach((level) => {
     // eslint-disable-next-line no-console
     console[level] = (...args) => aLogger[level](createPlaceholders(args), ...args);
   });

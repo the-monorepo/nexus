@@ -48,7 +48,7 @@ function packageNameToTitle(packageName: string) {
   return packageName
     .replace(/^@[^/]+\//, '')
     .replace(/-+/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase());
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 function getTitle(options) {
@@ -103,7 +103,7 @@ function projectOptionsToMd(projects: Project[], rootDir: string): string {
   let md = '';
   for (const project of projects) {
     const filteredPackages = project.packages
-      .filter(packageOptions => packageOptions && !packageOptions.private)
+      .filter((packageOptions) => packageOptions && !packageOptions.private)
       .sort((a, b) => (a.name < b.name ? -1 : a.name === b.name ? 0 : 1));
     if (filteredPackages.length <= 0) {
       continue;
@@ -232,7 +232,7 @@ async function testToPaths(packageDir: string, test: string | string[]) {
   if (!test) {
     throw new Error("'test' was undefined");
   }
-  const joinedGlobs = testToGlobs(test).map(glob => join(packageDir, glob));
+  const joinedGlobs = testToGlobs(test).map((glob) => join(packageDir, glob));
   return await globby(joinedGlobs, { onlyFiles: false });
 }
 
@@ -284,7 +284,7 @@ export async function genReadmeFromPackageDir(
     if (projectsConfig) {
       const overrideProjects: any[] = projectsConfig.overrides
         ? await Promise.all(
-            projectsConfig.overrides.map(async project => ({
+            projectsConfig.overrides.map(async (project) => ({
               ...project,
               testPaths: await testToPaths(packageDir, project.test),
             })),
@@ -295,15 +295,16 @@ export async function genReadmeFromPackageDir(
         {
           ...projectsConfig,
           testPaths: defaultPaths.filter(
-            path => !overrideProjects.some(project => project.testPaths.includes(path)),
+            (path) =>
+              !overrideProjects.some((project) => project.testPaths.includes(path)),
           ),
         },
       ].concat(overrideProjects);
 
       const expandedProjectsConfig = await Promise.all(
-        allProjects.map(async project => {
+        allProjects.map(async (project) => {
           const packages = await Promise.all(
-            project.testPaths.map(async path => {
+            project.testPaths.map(async (path) => {
               let writemeOptions;
               const nestedHooks = genReadmeFromPackageDirHookUtil.merge([
                 {
