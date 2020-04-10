@@ -1073,23 +1073,56 @@ export type FC<P, R> = (props: P) => R;
 
 export const rerender = (target) => {
   const symbol = Symbol(`${target.key.toString()}-value`);
-  return {
-    ...target,
-    key: symbol,
-    extras: [{
-      kind: 'method',
-      key: target.key,
-      placement: 'prototype',
-      descriptor: {
-        get: function() {
-          return this[symbol];
-        },
-        set: function(value) {
-          this[symbol] = value;
-          this[UPDATE]();
+  if (target.kind === 'field') {
+    return {
+      ...target,
+      key: symbol,
+      extras: [{
+        kind: 'method',
+        key: target.key,
+        placement: 'prototype',
+        descriptor: {
+          get: function() {
+            return this[symbol];
+          },
+          set: function(value) {
+            this[symbol] = value;
+            this[UPDATE]();
+          }
         }
+      }],
+    };
+  } else {
+    const descriptor = (() => {
+      const oldDescriptor = target.descriptor;
+      if (oldDescriptor.value !== undefined) {
+        return {
+          ...oldDescriptor,
+          value: function(...args) {
+            this[symbol](...args);
+            this[UPDATE]();
+          }
+        }
+      } else if (oldDescriptor.set !== undefined) {
+        return {
+          ...oldDescriptor,
+          set: function(value) {
+            this[symbol] = value;
+            this[UPDATE]();
+          }
+        }
+      } else {
+        throw new Error(`Expected either a field, method or setter`);
       }
-    }],
+    })();
+    return {
+      ...target,
+      key: symbol,
+      extras: [{
+        ...target,
+        descriptor,
+      }]
+    };
   }
 };
 
