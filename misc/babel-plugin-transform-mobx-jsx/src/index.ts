@@ -16,32 +16,25 @@ const mbxCallExpression = (functionName: string, args: Parameters<typeof t.callE
   return t.callExpression(mbxMemberExpression(functionName), args);
 };
 
-const attributeLiteralToHTMLAttributeString = (field: AttributeField) => {
+const attributeLiteralToHTMLAttributeString = (field: LiteralAttributeField) => {
   const { key: name, expression: literalPath } = field;
   // TODO: Refactor
   const literal = literalPath.node;
-  if (literal === false) {
-    /*
-      To represent a false value, the attribute has to be omitted altogether.
-      @see https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#boolean-attributes
-    */
-    return '';
-  }
+
   if (literal === null) {
     // This is like <element attrName/>
     return `${name}`;
   }
-  switch (literal.type) {
-    case 'StringLiteral':
-      return `${name}="${literal.value.replace(/"/g, '\\"')}"`;
-    case 'BooleanLiteral':
-      return literal.value ? name : '';
-    case 'NumericLiteral':
-      return `${name}="${literal.value}"`;
-    case 'TemplateLiteral':
-      return literal.quasis[0];
-    default:
-      return `${name}="${literal.value.toString()}"`;
+  if (literalPath.isStringLiteral()) {
+    return `${name}=${literalPath}`;
+  } else if (literalPath.isBooleanLiteral()) {
+    return literalPath.node.value ? name : '';
+  } else if (literalPath.isNumericLiteral() || literalPath.isBig) {
+    return `${name}="${literalPath.node.value}"`;
+  } else if (literalPath.isTemplateLiteral()) {
+    return literalPath.node.quasis[0];
+  } else if (literal.value !== undefined) {
+    return `${name}=${literalPath.node.value.toString()}`;
   }
 };
 
@@ -63,20 +56,32 @@ type PropertyField = {
   expression: tr.NodePath<Exclude<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>;
   setterId: any;
 };
+
 type SpreadField = {
   type: typeof SPREAD_TYPE;
   expression: tr.NodePath<t.JSXSpreadAttribute['argument']>;
 };
+
 type EventField = {
   type: typeof EVENT_TYPE;
   key: string;
   expression: tr.NodePath<Exclude<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>;
 };
-type AttributeField = {
+
+type DynamicAttributeField = {
   type: typeof ATTRIBUTE_TYPE;
   key: string;
   expression: tr.NodePath<Exclude<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>;
 };
+
+type LiteralAttributeField = {
+  type: typeof ATTRIBUTE_TYPE;
+  key: string;
+  expression: tr.NodePath<Exclude<t.Literal, t.JSXAttribute['value']>>
+}
+
+type AttributeField = DynamicAttributeField | LiteralAttributeField;
+
 type ElementField = AttributeField | PropertyField | EventField | SpreadField; // TODO: SpreadType
 
 /**
@@ -121,6 +126,7 @@ type SubcomponentNode = {
   childrenTemplateId: t.Identifier | null;
   fields: SubcomponentField[];
 };
+
 /**
  * Just a text node
  */
@@ -129,6 +135,7 @@ type TextNode = {
   text: string;
   id: t.Identifier | null;
 };
+
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
 
 export default declare((api, options) => {
@@ -148,7 +155,7 @@ export default declare((api, options) => {
 
   const isLiteral = (value: tr.NodePath<any>): boolean => {
     return value.node !== undefined && value.node !== null &&
-      value.node.type.match(/Literal$/) !== null &&
+      value.isLiteral() &&
       (!value.isTemplateLiteral() || value.node.expressions.length <= 0);
   }
 
@@ -198,7 +205,7 @@ export default declare((api, options) => {
 
   const cleanFieldName = (name: string) => name.replace(/^\$?\$?/, '');
 
-  const valueExpressionFromJsxAttributeValue = (valuePath: tr.NodePath<t.Expression>): tr.NodePath<t.JSXAttribute['value'] | Exclude<t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>  => {
+  const valueExpressionFromJsxAttributeValue = (valuePath: tr.NodePath<t.JSXAttribute['value']>): tr.NodePath<t.JSXAttribute['value'] | Exclude<t.JSXExpressionContainer['expression'], t.JSXExpressionContainer>>  => {
     let current: tr.NodePath<t.JSXAttribute['value'] | t.JSXExpressionContainer['expression']> = valuePath;
     while(current.isJSXExpressionContainer()) {
       current = valuePath.get('expression');
