@@ -4,7 +4,7 @@ import { report } from '@fault/addon-istanbul';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
 
-const simplifyPath = absoluteFilePath => relative(process.cwd(), absoluteFilePath);
+const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFilePath);
 
 const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
   console.log(
@@ -52,7 +52,7 @@ export const createPlugin = (contextOptions?) => {
       const fileName = basename(filePath);
       const fileDir = dirname(filePath);
       const formattedFilePath = join(fileDir, chalk.bold(fileName));
-      const passed = !suiteResult.some(result => !result.data.passed);
+      const passed = !suiteResult.some((result) => !result.data.passed);
       if (passed) {
         console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}`);
       } else {
@@ -65,12 +65,12 @@ export const createPlugin = (contextOptions?) => {
     console.log();
     const suiteCount = suiteResults.size;
     const suitePassedCount = Array.from(suiteResults.entries()).filter(
-      ([filePath, results]) => !results.some(result => !result.data.passed),
+      ([filePath, results]) => !results.some((result) => !result.data.passed),
     ).length;
     const suiteFailedCount = suiteCount - suitePassedCount;
     reportPassFailCounts('Files:  ', suiteFailedCount, suitePassedCount, suiteCount);
 
-    const passedCount = testResultsArr.filter(result => result.data.passed).length;
+    const passedCount = testResultsArr.filter((result) => result.data.passed).length;
     const totalCount = testResultsArr.length;
     const failedCount = totalCount - passedCount;
     reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);

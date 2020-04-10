@@ -111,7 +111,7 @@ const run = async () => {
   let prCount = 0;
   do {
     data = await retrievePrs(after);
-    console.log(data)
+    console.log(data);
 
     for (const pullRequest of data.data.repository.pullRequests.edges) {
       prCount++;
@@ -143,7 +143,7 @@ const run = async () => {
       }
 
       const testFiles = pullRequest.node.files.nodes.filter(
-        file => !!file.path.match(/((\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b)$/i),
+        (file) => !!file.path.match(/((\btest\b.*\.([tj]sx?|flow))|\binput\b|\bout\b)$/i),
       );
       if (testFiles.length <= 0) {
         logSkipMessage('Could not find any tests changed in the PR');
@@ -151,8 +151,8 @@ const run = async () => {
       }
 
       const nonTestSourceFiles = pullRequest.node.files.nodes.filter(
-        file =>
-          !testFiles.some(testFile => testFile.path === file.path) &&
+        (file) =>
+          !testFiles.some((testFile) => testFile.path === file.path) &&
           !!file.path.match(/\.([tj]sx?|flow)$/i),
       );
       if (nonTestSourceFiles.length <= 0) {
@@ -208,7 +208,7 @@ const run = async () => {
   }
   log.info(`Searched ${prCount} PRs - ${spicyPullRequests.length} have potential`);
 
-  const cloneablePrs = spicyPullRequests.filter(pr => pr.oid != null);
+  const cloneablePrs = spicyPullRequests.filter((pr) => pr.oid != null);
   log.info(
     `${cloneablePrs.length} clonable out of ${spicyPullRequests.length} viable PRs (they couldn't be checked out)`,
   );
@@ -247,7 +247,7 @@ const run = async () => {
           cwd: cloneDir,
           stdio: 'inherit',
         });
-        npmInstallProcess.on('close', code => {
+        npmInstallProcess.on('close', (code) => {
           if (code !== 0) {
             reject(new Error('Failed to install'));
           } else {

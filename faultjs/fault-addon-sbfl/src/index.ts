@@ -152,7 +152,7 @@ export const filterOutUnexecutedResults = (
         filePath,
         {
           sourcePath: result.sourcePath,
-          expressions: result.expressions.filter(expressionResult => {
+          expressions: result.expressions.filter((expressionResult) => {
             return expressionResult.stats.failed > 0 || expressionResult.stats.passed > 0;
           }),
         },
@@ -170,7 +170,7 @@ export const createPlugin = ({
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob)
     ? ignoreGlob
     : [ignoreGlob]
-  ).map(glob => path.resolve('.', glob).replace(/\\+/g, '/'));
+  ).map((glob) => path.resolve('.', glob).replace(/\\+/g, '/'));
   return {
     on: {
       complete: async (results: FinalTesterResults) => {
@@ -180,7 +180,7 @@ export const createPlugin = ({
           testResults,
           filterOutUnexecutedResults(gatherFileResults(testResults)),
           resolvedIgnoreGlob,
-          expressionPassFailStats =>
+          (expressionPassFailStats) =>
             scoringFn(expressionPassFailStats, totalPassFailStats),
         );
         if (printToConsole) {

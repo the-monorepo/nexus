@@ -31,7 +31,7 @@ function swapSrcWith(srcPath, newDirName) {
 }
 
 function createSrcDirSwapper(dir) {
-  return srcPath => swapSrcWith(srcPath, dir);
+  return (srcPath) => swapSrcWith(srcPath, dir);
 }
 
 function packagesGlobFromPackagesDirName(dirName) {
@@ -54,7 +54,7 @@ function mockGlob(dirName, folderName) {
 
 function globSrcMiscFromPackagesDirName(dirNames) {
   return dirNames
-    .map(dirName => [
+    .map((dirName) => [
       packageSubDirGlob(dirName, 'src'),
       `!${srcTranspiledGlob(dirName, 'src')}`,
       `!${mockGlob(dirName, 'src')}`,
@@ -64,13 +64,13 @@ function globSrcMiscFromPackagesDirName(dirNames) {
 
 function globSrcCodeFromPackagesDirName(dirNames) {
   return dirNames
-    .map(dirName => [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`])
+    .map((dirName) => [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`])
     .flat();
 }
 
 function globBuildOutputFromPackagesDirName(dirNames) {
   return dirNames
-    .map(dirName => [
+    .map((dirName) => [
       packageSubDirGlob(dirName, 'lib'),
       packageSubDirGlob(dirName, 'esm'),
       packageSubDirGlob(dirName, 'dist'),
@@ -125,7 +125,7 @@ function codeStream(options) {
 }
 
 function simplePipeLogger(l, verb) {
-  return through.obj(function(file, enc, callback) {
+  return through.obj(function (file, enc, callback) {
     l.info(`${verb} '${chalk.cyan(file.relative)}'`);
     callback(null, file);
   });
@@ -149,7 +149,7 @@ function copyPipes(stream, l, dir) {
     .pipe(changed('.', { transformPath: createSrcDirSwapper(dir) }))
     .pipe(simplePipeLogger(l, 'Copying'))
     .pipe(
-      rename(filePath => {
+      rename((filePath) => {
         filePath.dirname = swapSrcWith(filePath.dirname, dir);
         return filePath;
       }),
@@ -180,22 +180,22 @@ function transpilePipes(stream, babelOptions, dir, chalkFn) {
     .pipe(sourcemaps.init())
     .pipe(babel(babelOptions))
     .pipe(
-      rename(filePath => {
+      rename((filePath) => {
         filePath.dirname = swapSrcWith(filePath.dirname, dir);
         return filePath;
       }),
     )
-    .pipe(sourcemaps.mapSources(filePath => filePath.replace(/.*\/src\//g, '../src/')))
+    .pipe(sourcemaps.mapSources((filePath) => filePath.replace(/.*\/src\//g, '../src/')))
     .pipe(sourcemaps.write('.'));
 }
 
-const scriptTranspileStream = (wrapStreamFn = stream => stream) => {
+const scriptTranspileStream = (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
     transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright),
   ).pipe(gulp.dest('.'));
 };
 
-const esmTranspileStream = (wrapStreamFn = stream => stream) => {
+const esmTranspileStream = (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
     transpilePipes(
       packagesSrcCodeStream(),
@@ -269,7 +269,7 @@ async function writeme() {
       },
     },
     on: {
-      error: async err => {
+      error: async (err) => {
         l.error(err.stack);
       },
     },
@@ -282,7 +282,7 @@ gulp.task('build', build);
 
 gulp.task('watch', function watch() {
   gulp.watch(
-    packagesDirNames.map(dirName => sourceGlobFromPackagesDirName(dirName)),
+    packagesDirNames.map((dirName) => sourceGlobFromPackagesDirName(dirName)),
     { ignoreInitial: false, events: 'all' },
     gulp.parallel(copy, transpile),
   );
@@ -318,12 +318,12 @@ function formatStaged() {
 }
 gulp.task('format-staged', formatStaged);
 
-let withTypeCheckPipes = stream => {
+let withTypeCheckPipes = (stream) => {
   const typescript = require('typescript');
   const gulpTypescript = require('gulp-typescript');
   const tsProject = gulpTypescript.createProject('tsconfig.json', { typescript });
 
-  withTypeCheckPipes = stream => {
+  withTypeCheckPipes = (stream) => {
     return stream.pipe(tsProject(gulpTypescript.reporter.defaultReporter()));
   };
 
@@ -370,7 +370,7 @@ async function testNoBuild() {
               },
               ignoreGlob: flIgnoreGlob,
               mapToIstanbul: true,
-              onMutation: mutatedFilePaths => {
+              onMutation: (mutatedFilePaths) => {
                 return new Promise((resolve, reject) => {
                   let scriptFinish = false;
                   let esmFinish = false;
@@ -379,7 +379,7 @@ async function testNoBuild() {
                       resolve();
                     }
                   };
-                  const rejectOnStreamError = stream => stream.on('error', reject);
+                  const rejectOnStreamError = (stream) => stream.on('error', reject);
                   scriptTranspileStream(rejectOnStreamError).on('end', () => {
                     scriptFinish = true;
                     checkToFinish();
@@ -456,8 +456,8 @@ const webpackCompilers = () => {
   const webpackConfigs = require('./webpack.config');
 
   return webpackConfigs
-    .filter(config => micromatch.isMatch(config.name, names))
-    .map(config => {
+    .filter((config) => micromatch.isMatch(config.name, names))
+    .map((config) => {
       const mergedConfig = {
         mode: mode === 'prod' ? 'production' : 'development',
         ...config,
@@ -470,7 +470,7 @@ const webpackCompilers = () => {
 };
 
 // From: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
-const humanReadableFileSize = size => {
+const humanReadableFileSize = (size) => {
   const i = Math.floor(Math.log(size) / Math.log(1024));
   return `${(size / Math.pow(1024, i)).toFixed(2) * 1} ${
     ['B', 'kB', 'MB', 'GB', 'TB'][i]
@@ -486,7 +486,7 @@ const bundleRollup = async () => {
 const bundleWebpack = async () => {
   const compilers = webpackCompilers();
 
-  const compilersStatsPromises = compilers.map(info => {
+  const compilersStatsPromises = compilers.map((info) => {
     return new Promise((resolve, reject) => {
       info.compiler.run((err, stats) => {
         if (err) {
@@ -507,7 +507,7 @@ const bundleWebpack = async () => {
 
     const filesMessage = Object.values(compilation.assets)
       .map(
-        asset =>
+        (asset) =>
           ` - ${chalk.cyan(asset.existsAt)} ${chalk.magenta(
             humanReadableFileSize(asset.size()),
           )}`,
@@ -522,7 +522,7 @@ const bundleWebpack = async () => {
       messages.push(
         `${compilation.warnings.length} warnings:`,
         compilation.warnings
-          .map(warning => warning.stack)
+          .map((warning) => warning.stack)
           .map(chalk.yellow)
           .join('\n\n'),
       );
@@ -533,7 +533,7 @@ const bundleWebpack = async () => {
         `${compilation.errors.length} errors:`,
         compilation.errors
           .map(chalk.redBright)
-          .map(error => error.stack !== undefined ? error.stack : error)
+          .map((error) => (error.stack !== undefined ? error.stack : error))
           .join('\n\n'),
       );
     }
@@ -590,8 +590,8 @@ const rollupCompilers = () => {
   const configs = require('./rollup.config');
 
   return configs
-    .filter(config => micromatch.isMatch(config.input, names))
-    .map(config => {
+    .filter((config) => micromatch.isMatch(config.input, names))
+    .map((config) => {
       const mergedConfig = {
         ...config,
       };
@@ -658,7 +658,7 @@ const moreServes = async () => {
         });
 
         const app = express();
-        outputObj.output.map(output => {
+        outputObj.output.map((output) => {
           app.get(`/${output.fileName}`, (req, res) => {
             res.send(output.code);
           });
@@ -679,7 +679,7 @@ const moreServes = async () => {
           res.redirect('/index.html');
         });
         await new Promise((resolve, reject) => {
-          app.listen(serverPort, err => {
+          app.listen(serverPort, (err) => {
             if (err) {
               reject(err);
             } else {

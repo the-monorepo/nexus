@@ -24,7 +24,7 @@ const main = async () => {
         await readFile(resolve(dir, 'faults/mbfl/mutations-attempted.txt'), 'utf8'),
       );
       const index = mbflResults.findIndex(
-        fault =>
+        (fault) =>
           fault.other.evaluation.length <= 0 ||
           fault.other.evaluation[0].evaluation.overallPositiveEffect === 0,
       );
@@ -45,8 +45,8 @@ const main = async () => {
               );
             }
             const fineScores = mbflResults.slice(0, index);
-            let lowestFineScore = Math.min(...fineScores.map(fault => fault.score)) - 1;
-            const mappedFineScores = fineScores.map(fault => ({
+            let lowestFineScore = Math.min(...fineScores.map((fault) => fault.score)) - 1;
+            const mappedFineScores = fineScores.map((fault) => ({
               ...fault,
               score: lowestFineScore--,
             }));
@@ -59,7 +59,7 @@ const main = async () => {
                   const result = scores.get(key2) - scores.get(key1);
                   return result;
                 })
-                .map(fault => ({ ...fault, score: lowestFineScore-- })),
+                .map((fault) => ({ ...fault, score: lowestFineScore-- })),
             );
             await recordFaults(filePath, newResults);
           }

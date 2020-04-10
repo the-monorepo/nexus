@@ -31,7 +31,7 @@ type DurationData = {
 };
 type WorkerInfo = {
   expirationTimer: NodeJS.Timeout | null;
-  client: ChildProcessWorkerClient,
+  client: ChildProcessWorkerClient;
   process: ChildProcess;
 } & DurationData;
 type InternalTestData = {
@@ -46,13 +46,13 @@ type TestDurations = {
 const isSmallestDuration = (worker: DurationData, workers: DurationData[]) => {
   if (worker.pendingUnknownTestCount > 0) {
     return !workers.some(
-      otherWorker =>
+      (otherWorker) =>
         otherWorker !== worker &&
         otherWorker.pendingUnknownTestCount < worker.pendingUnknownTestCount,
     );
   } else {
     return !workers.some(
-      otherWorker =>
+      (otherWorker) =>
         otherWorker !== worker &&
         otherWorker.totalPendingDuration < worker.totalPendingDuration,
     );
@@ -380,9 +380,9 @@ const runAndRecycleProcesses = async (
                   console.log('finished test run');
                   const endTime = Date.now();
                   const totalDuration = endTime - startTime;
-  
+
                   const totalCoverage = mergeCoverage(workerCoverage);
-  
+
                   const finalResults: FinalTesterResults = {
                     coverage: totalCoverage.data,
                     testResults,
@@ -395,20 +395,19 @@ const runAndRecycleProcesses = async (
               case IPC.TEST_FILE: {
                 console.log('files left in queue:', testFileQueue.length);
                 pendingFileClient.deregisterRunningTest(message.data);
-  
+
                 await hooks.on.fileFinished();
-  
+
                 if (testFileQueue.length > 0) {
                   pendingFileClient.addAnotherTestToWorker(worker);
                 }
-  
-                
+
                 if (!pendingFileClient.isTestsPending() && testFileQueue.length <= 0) {
                   console.log('entered');
                   const endTime = Date.now();
                   const totalDuration = endTime - startTime;
                   const results: TesterResults = { testResults, duration: totalDuration };
-  
+
                   const newFilesToAdd: Set<string> = new Set();
                   await writeFile(durationsPath, JSON.stringify(testDurations));
                   console.log('????');
@@ -424,9 +423,9 @@ const runAndRecycleProcesses = async (
                     }
                   }
                   testFileQueue.push(...newFilesToAdd);
-  
+
                   await Promise.all(
-                    workers.map(worker => worker.client.stopWorker({})),
+                    workers.map((worker) => worker.client.stopWorker({})),
                   );
                 }
                 break;
@@ -443,7 +442,7 @@ const runAndRecycleProcesses = async (
           }
           if (code !== 0 || runningWorkers.has(worker)) {
             const otherWorkers = [...runningWorkers].filter(
-              otherWorker => otherWorker !== worker,
+              (otherWorker) => otherWorker !== worker,
             );
             killWorkers(
               otherWorkers,
@@ -537,7 +536,7 @@ export const run = async ({
 
   await hooks.on.complete(results);
 
-  return ![...results.testResults.values()].some(result => !result.data.passed);
+  return ![...results.testResults.values()].some((result) => !result.data.passed);
 };
 
 export default run;

@@ -43,25 +43,22 @@ import dstar from '@fault/sbfl-dstar';
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;
   let highest: T = arr[0];
-  while(i < arr.length) {
+  while (i < arr.length) {
     const item = arr[i];
     if (compareFn(item, highest) > 0) {
       highest = item;
     }
     i++;
-  } 
+  }
 
   return highest;
-}
+};
 
 class Queue<T> {
   private readonly arr: T[];
   private invalidated = false;
   private highest: T | undefined;
-  constructor(
-    public readonly compareFn: (a: T, b: T) => number,
-    arr: T[] = [],
-  ) {
+  constructor(public readonly compareFn: (a: T, b: T) => number, arr: T[] = []) {
     this.arr = [...arr];
     this.refindHighest();
   }
@@ -71,7 +68,7 @@ class Queue<T> {
   }
 
   clone(): Queue<T> {
-    return new Queue(this.compareFn, this.arr)
+    return new Queue(this.compareFn, this.arr);
   }
 
   private refindHighest() {
@@ -101,7 +98,10 @@ class Queue<T> {
       return undefined;
     }
     this.refindHighestIfInvalidated();
-    this.arr.splice(this.arr.findIndex((item) => item === this.highest!), 1);
+    this.arr.splice(
+      this.arr.findIndex((item) => item === this.highest!),
+      1,
+    );
     this.invalidated = true;
     return this.highest;
   }
@@ -117,11 +117,11 @@ class Queue<T> {
       this.invalidated = false;
     } else if (!this.invalidated) {
       const highestOutOfNew = getHighest(item, this.compareFn);
-      if(this.compareFn(highestOutOfNew, this.highest!) > 0) {
+      if (this.compareFn(highestOutOfNew, this.highest!) > 0) {
         this.highest = highestOutOfNew;
-      }  
+      }
     }
-    
+
     this.arr.push(...item);
   }
 
@@ -141,13 +141,13 @@ type Location = {
   filePath: string;
 } & ExpressionLocation;
 
-export const testStatsFromCoverageInfo = (info: CoveragePathObj) =>{
+export const testStatsFromCoverageInfo = (info: CoveragePathObj) => {
   const stats: Stats = {
     passed: 0,
     failed: 0,
   };
-  for(const testResult of info.coveredBy) {
-    if(testResult.result.data.passed) {
+  for (const testResult of info.coveredBy) {
+    if (testResult.result.data.passed) {
       stats.passed++;
     } else {
       stats.failed++;
@@ -155,7 +155,7 @@ export const testStatsFromCoverageInfo = (info: CoveragePathObj) =>{
   }
 
   return stats;
-}
+};
 
 const expressionLocationEquals = (
   loc1: ExpressionLocation | null | undefined,
@@ -244,7 +244,11 @@ const evaluationChangedOrImprovedErrorOrCrashed = (evaluation: MutationEvaluatio
 };
 
 const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
-  return !evaluation.crashed && evaluation.testsWorsened.length === 0 && evaluation.stackEvaluation.degradation.length === 0;
+  return (
+    !evaluation.crashed &&
+    evaluation.testsWorsened.length === 0 &&
+    evaluation.stackEvaluation.degradation.length === 0
+  );
 };
 
 export type CategoryData<T> = {} & Array<T | CategoryData<T>>;
@@ -252,7 +256,7 @@ const recursiveIncludes = (match: any, arr: any) => {
   if (match === arr) {
     return true;
   } else if (Array.isArray(arr)) {
-    return arr.some(item => recursiveIncludes(match, item));
+    return arr.some((item) => recursiveIncludes(match, item));
   }
 };
 /**
@@ -456,7 +460,7 @@ export class ReplaceWithMultipleMutation
     return {
       path: this.thisWrapper.traverseToThisPath(rootPath) as NodePath,
       value: (this.valueWrapper.traverseToThisPath(rootPath) as NodePath[]).map(
-        path => path.node,
+        (path) => path.node,
       ),
     };
   }
@@ -617,7 +621,7 @@ export const createMutationSequenceFactory = <D, T>(
 
 export const findParentWithType = (path: NodePath) =>
   path.find(
-    parentPath =>
+    (parentPath) =>
       parentPath.node !== null &&
       parentPath.node !== undefined &&
       parentPath.node.type !== null &&
@@ -669,7 +673,7 @@ export const dependenciesToWriteKeys = (
   ...new Set(
     [...dependencies]
       .map(([filePath, dependency]) =>
-        dependency.writes.map(writePath => pathToPrimaryKey(filePath, writePath)),
+        dependency.writes.map((writePath) => pathToPrimaryKey(filePath, writePath)),
       )
       .flat(),
   ),
@@ -717,7 +721,7 @@ export const mutationWrapperToInstruction = (
     type,
     dependencies,
     wrapper.mutations.map(
-      wrapperMutation =>
+      (wrapperMutation) =>
         new InstructionFactoryMutation(filePath, pathKeys, wrapperMutation),
     ),
     variants,
@@ -733,15 +737,17 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
   ) {}
 
   setup(asts: Map<string, t.File>) {
-    const setupObjects = this.simpleInstructionFactories.map(factory => factory.setup());
+    const setupObjects = this.simpleInstructionFactories.map((factory) =>
+      factory.setup(),
+    );
     for (const ast of asts.values()) {
       traverse(ast, {
-        enter: path => {
+        enter: (path) => {
           for (const setupObject of setupObjects) {
             setupObject?.enter?.(path);
           }
         },
-        exit: path => {
+        exit: (path) => {
           for (const setupObject of setupObjects) {
             setupObject?.exit?.(path);
           }
@@ -753,7 +759,7 @@ export class InstructionFactory implements AbstractInstructionFactory<any> {
   *createInstructions(asts: Map<string, t.File>): IterableIterator<Instruction<any>> {
     for (const [filePath, ast] of asts) {
       const instructions: Instruction<any>[] = [];
-      const enter = path => {
+      const enter = (path) => {
         let pathKeys: TraverseKey[] = null!;
         for (const instructionFactory of this.simpleInstructionFactories) {
           for (const { type, wrapper, variants } of instructionFactory.pathToInstructions(
@@ -871,15 +877,15 @@ const isParentOrChild = (path1: NodePath<any>, path2: NodePath<any>) => {
   }
 
   // TODO: Would be faster if we just got the filePath from somewhere
-  const programPath1 = path1.find(p => p.isProgram());
-  const programPath2 = path2.find(p => p.isProgram());
+  const programPath1 = path1.find((p) => p.isProgram());
+  const programPath2 = path2.find((p) => p.isProgram());
 
   const isSameProgram = programPath1.node === programPath2.node;
   return isSameProgram;
 };
 
 const isConflictingPaths = (d1: NodePath[], d2: NodePath[]) => {
-  return d1.some(path => d2.some(otherPath => isParentOrChild(path, otherPath)));
+  return d1.some((path) => d2.some((otherPath) => isParentOrChild(path, otherPath)));
 };
 
 const isConflictingDependencyInfos = (info1: DependencyInfo, info2: DependencyInfo) => {
@@ -906,7 +912,7 @@ const isConflictingDependencies = (
 };
 
 const organizeInstructions = (instructions: Iterable<Instruction<any>>) => {
-  return [...instructions].map(instruction => [instruction]);
+  return [...instructions].map((instruction) => [instruction]);
   /*
   const instructionBlocks: Instruction<any>[][] = [];
   for(const newInstruction of instructions) {
@@ -933,24 +939,24 @@ export const executeInstructions = (
   instructions: Iterable<Instruction<any>>,
 ): void => {
   console.log(
-    [...instructions].map(instruction => {
+    [...instructions].map((instruction) => {
       const type = instruction.type;
       const [filePath, dependencies] = [...instruction.conflictDependencies][0];
       return [
         type,
         ...dependencies.writes
-          .map(path =>
+          .map((path) =>
             path.find(
-              parentPath => parentPath.node !== null && parentPath.node.loc != null,
+              (parentPath) => parentPath.node !== null && parentPath.node.loc != null,
             ),
           )
-          .map(path => locationToKeyIncludingEnd(filePath, path.node.loc)),
+          .map((path) => locationToKeyIncludingEnd(filePath, path.node.loc)),
       ];
     }),
   );
   [...instructions]
-    .map(instruction =>
-      instruction.mutations.map(mutation => ({
+    .map((instruction) =>
+      instruction.mutations.map((mutation) => ({
         mutation,
         state: mutation.setup(
           asts,
@@ -960,14 +966,14 @@ export const executeInstructions = (
         ),
       })),
     )
-    .forEach(payload => payload.map(({ mutation, state }) => mutation.execute(state)));
+    .forEach((payload) => payload.map(({ mutation, state }) => mutation.execute(state)));
 };
 
 export const getAstPath = (ast: t.File): NodePath<t.Program> => {
   let filePath: NodePath<t.Program>;
 
   traverse(ast, {
-    enter: path => {
+    enter: (path) => {
       if (path.isProgram()) {
         filePath = path;
       } else {
@@ -989,7 +995,7 @@ export const FORCE_CONSEQUENT = Symbol('force-consequent');
 export const forceConsequentFactory = new SimpleInstructionFactory(
   FORCE_CONSEQUENT,
   forceConsequentSequence,
-  path => {
+  (path) => {
     if (!path.isIfStatement()) {
       return false;
     }
@@ -998,7 +1004,7 @@ export const forceConsequentFactory = new SimpleInstructionFactory(
       return true;
     }
     return !test.node.value;
-  }
+  },
 );
 
 export const forceAlternateSequence = createMutationSequenceFactory(
@@ -1012,7 +1018,7 @@ export const FORCE_ALTERNATE = Symbol('force-alternate');
 export const forceAlternateFactory = new SimpleInstructionFactory(
   FORCE_ALTERNATE,
   forceAlternateSequence,
-  path => {
+  (path) => {
     if (!path.isIfStatement()) {
       return false;
     }
@@ -1020,14 +1026,14 @@ export const forceAlternateFactory = new SimpleInstructionFactory(
     if (!test.isBooleanLiteral()) {
       return true;
     }
-    
+
     return test.node.value;
-  }
+  },
 );
 
 export const replaceValueSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<any, any>) => {
-    path.setDataDynamic('value', value => value);
+    path.setDataDynamic('value', (value) => value);
   },
 );
 
@@ -1065,7 +1071,7 @@ const createValueVariantCollector = (
     const blocks: ValueVariantInfo[][] = [[]];
     const scopedNodes: ScopedNodeVariantInfo[][] = [];
     return {
-      enter: subPath => {
+      enter: (subPath) => {
         count++;
         if (subPath.isScope()) {
           blocks.push([]);
@@ -1085,19 +1091,19 @@ const createValueVariantCollector = (
           });
         }
       },
-      exit: subPath => {
+      exit: (subPath) => {
         if (subPath.isScope()) {
           for (const { node, nodeNumber } of scopedNodes[scopedNodes.length - 1]) {
             node[symbol] = filterVariantDuplicates(
               ([] as ValueVariantInfo[])
                 .concat(...blocks)
-                .filter(info => info.value !== node[key])
+                .filter((info) => info.value !== node[key])
                 .sort(
                   (a, b) =>
                     Math.abs(nodeNumber - b.nodeNumber) -
                     Math.abs(nodeNumber - a.nodeNumber),
                 )
-                .map(info => info.value),
+                .map((info) => info.value),
             );
           }
           blocks.pop();
@@ -1117,7 +1123,7 @@ export const createValueInstructionFactory = (
     factorySymbol,
     replaceValueSequence,
     condition,
-    path => {
+    (path) => {
       return [...path.node[symbol as any]];
     },
     createValueVariantCollector(condition, symbol),
@@ -1127,15 +1133,15 @@ export const createValueInstructionFactory = (
 const isReplaceableStringLiteral = (path: NodePath) => {
   return (
     path.isStringLiteral() &&
-    path.find(parentPath => parentPath.isImportDeclaration()) == null
+    path.find((parentPath) => parentPath.isImportDeclaration()) == null
   );
 };
 export const CHANGE_STRING = Symbol('change-string');
 const STRINGS = Symbol('strings');
 export const replaceStringFactory = new SimpleInstructionFactory(
   CHANGE_STRING,
-  createMutationSequenceFactory(wrapper => {
-    wrapper.setDataDynamic('value', aString => aString);
+  createMutationSequenceFactory((wrapper) => {
+    wrapper.setDataDynamic('value', (aString) => aString);
   }),
   isReplaceableStringLiteral,
   (path: NodePath) => [...path.node[STRINGS]],
@@ -1178,7 +1184,7 @@ export const replaceNumberFactory = new SimpleInstructionFactory(
     const values = [
       ...new Set([...nodePath.node[NUMBERS], node.value - 1, node.value + 1]),
     ]
-      .filter(value => !filterOut.has(value))
+      .filter((value) => !filterOut.has(value))
       .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
     return values;
   },
@@ -1189,14 +1195,14 @@ const CHANGE_BOOLEAN = Symbol('change-boolean');
 export const replaceBooleanFactory = new SimpleInstructionFactory(
   CHANGE_BOOLEAN,
   replaceValueSequence,
-  path => path.isBooleanLiteral(),
+  (path) => path.isBooleanLiteral(),
   (path: NodePath<t.BooleanLiteral>) => [!path.node.value],
 );
 
 type IdentifierProps = string;
 export const replaceIdentifierSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<IdentifierProps, t.Identifier>) => {
-    path.setDataDynamic('name', name => name);
+    path.setDataDynamic('name', (name) => name);
   },
 );
 const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
@@ -1210,11 +1216,11 @@ const isInvalidReplaceIdentifierParentPath = (parentPath: NodePath) => {
 const isReplaceableIdentifier = (path: NodePath) => {
   if (path.isIdentifier()) {
     const statementPath = path.find(
-      subPath => subPath.isStatement() || subPath.isFunction(),
+      (subPath) => subPath.isStatement() || subPath.isFunction(),
     );
     return (
       path.find(
-        parentPath =>
+        (parentPath) =>
           parentPath.node === statementPath.node ||
           isInvalidReplaceIdentifierParentPath(parentPath),
       ).node === statementPath.node
@@ -1459,7 +1465,7 @@ export const isUsedAsObject = (
   sequences: AccessInfo[][],
 ) => {
   const accessSequence = identifierInfo.sequence;
-  return sequences.some(sequence => {
+  return sequences.some((sequence) => {
     if (sequence.length <= accessSequence.length) {
       return false;
     }
@@ -1480,7 +1486,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
   CHANGE_IDENTIFIER,
   replaceIdentifierSequence,
   isReplaceableIdentifier,
-  path => [...path.node[REPLACEMENT_IDENTIFIER_PATHS]],
+  (path) => [...path.node[REPLACEMENT_IDENTIFIER_PATHS]],
   () => {
     const blocks: AccessInfo[][][] = [[]];
     return {
@@ -1504,14 +1510,14 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
             const identifierInfo: IdentifierInfo = path.node[IDENTIFIER_INFO];
 
             const parentDeclarator = path.find(
-              subPath =>
+              (subPath) =>
                 subPath.isVariableDeclarator() ||
                 subPath.isStatement() ||
                 subPath.isAssignmentExpression(),
             );
             const isOnLeftSide = !parentDeclarator.isStatement();
             const operatorParent = path.find(
-              subPath =>
+              (subPath) =>
                 subPath.isAssignmentExpression() ||
                 subPath.isBinaryExpression() ||
                 subPath.isUnaryExpression() ||
@@ -1539,10 +1545,12 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
                 const usedAsObject = isUsedAsObject(
                   { sequence: otherSequence, index: otherSequence.length - 1 },
                   otherSequences,
-                )
+                );
                 if (info.type === UNKNOWN_ACCESS) {
-                  throw new Error(`Was not expecting to match with access info of type ${info.type.toString()}`);
-                };
+                  throw new Error(
+                    `Was not expecting to match with access info of type ${info.type.toString()}`,
+                  );
+                }
                 if (info.type === LITERAL_ACCESS) {
                   // TODO: Could possibly consider replacing literals too
                   continue;
@@ -1565,7 +1573,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           );
         }
       },
-      exit: path => {
+      exit: (path) => {
         if (path.isScope()) {
           blocks.pop();
         }
@@ -1653,7 +1661,7 @@ export const rightNullifyBinaryOrLogicalOperatorFactory = new SimpleInstructionF
 
 export const assignmentSequence = createMutationSequenceFactory(
   (path: NodePathMutationWrapper<OperatorProps, t.AssignmentExpression>) => {
-    path.setDataDynamic('operator', operator => operator);
+    path.setDataDynamic('operator', (operator) => operator);
   },
 );
 
@@ -1674,7 +1682,7 @@ export const CHANGE_ASSIGNMENT_OPERATOR = Symbol('change-assignment-operator');
 export const replaceAssignmentOperatorFactory = new SimpleInstructionFactory(
   CHANGE_ASSIGNMENT_OPERATOR,
   assignmentSequence,
-  path => {
+  (path) => {
     if (!path.isAssignmentExpression()) {
       return false;
     }
@@ -1706,7 +1714,7 @@ export const swapFunctionCallArgumentsSequence = ({
 };
 
 export const SWAP_FUNCTION_CALL = Symbol('swap-function-call');
-export const swapFunctionCallArgumentsFactory = simpleInstructionFactory(function*(
+export const swapFunctionCallArgumentsFactory = simpleInstructionFactory(function* (
   nodePath: NodePath,
 ) {
   if (nodePath.isCallExpression() && nodePath.node.loc) {
@@ -1744,7 +1752,7 @@ export const swapFunctionDeclarationParametersSequence = ({
 
 export const SWAP_FUNCTION_PARAMS = Symbol('swap-function-params');
 export const swapFunctionDeclarationParametersFactory = simpleInstructionFactory(
-  function*(nodePath) {
+  function* (nodePath) {
     if (nodePath.isFunction() && nodePath.node.loc) {
       const node = nodePath.node;
       for (let p = 1; p < node.params.length; p++) {
@@ -1775,7 +1783,7 @@ export const deleteStatementSequence = ({ index }: DeleteStatementArgs) => {
 };
 
 export const DELETE_STATEMENT = Symbol('delete-statement');
-export const deleteStatementFactory = simpleInstructionFactory(function*(path) {
+export const deleteStatementFactory = simpleInstructionFactory(function* (path) {
   if (path.isBlock() || path.isProgram()) {
     const bodyPaths = path.get('body');
     if (Array.isArray(bodyPaths)) {
@@ -1852,7 +1860,7 @@ export const addInstructionsToCoverageMap = (
       }
       for (const writePath of fileDependencies.writes) {
         let selectedObj: CoveragePathObj | null = null as any;
-        writePath.find(path => {
+        writePath.find((path) => {
           if (path.node.loc == null) {
             return false;
           }
@@ -1866,7 +1874,7 @@ export const addInstructionsToCoverageMap = (
         });
         if (selectedObj !== null) {
           selectedObj.instructions.add(instruction);
-          for(const info of selectedObj.coveredBy) {
+          for (const info of selectedObj.coveredBy) {
             info.coverageInfo.set(coverageKey(selectedObj.originalLocation), selectedObj);
           }
         }
@@ -1880,10 +1888,14 @@ type CoveragePathObj = {
   pathKey: string;
   originalLocation: Location;
   coveredBy: TestInformation[];
-  instructions: Set<Instruction<any>>,
+  instructions: Set<Instruction<any>>;
 };
 
-export const isRelevantTestFromCoverage = (testResult: TestResult, coverageFilePath: string, coverageLocation: ExpressionLocation) => {
+export const isRelevantTestFromCoverage = (
+  testResult: TestResult,
+  coverageFilePath: string,
+  coverageLocation: ExpressionLocation,
+) => {
   if (testResult.data.coverage === undefined) {
     return false;
   }
@@ -1893,8 +1905,11 @@ export const isRelevantTestFromCoverage = (testResult: TestResult, coverageFileP
     return false;
   }
 
-  for(const [key, expressionLocation] of Object.entries(fileCoverage.statementMap)) {
-    if (expressionLocationEquals(expressionLocation, coverageLocation) && fileCoverage.s[key] > 0) {
+  for (const [key, expressionLocation] of Object.entries(fileCoverage.statementMap)) {
+    if (
+      expressionLocationEquals(expressionLocation, coverageLocation) &&
+      fileCoverage.s[key] > 0
+    ) {
       return true;
     } else {
       return false;
@@ -1902,7 +1917,7 @@ export const isRelevantTestFromCoverage = (testResult: TestResult, coverageFileP
   }
 
   return false;
-}
+};
 
 const findWidenedCoveragePaths = (
   astMap: Map<string, t.File>,
@@ -1916,8 +1931,8 @@ const findWidenedCoveragePaths = (
   for (const [filePath, ast] of astMap.entries()) {
     const fileLocationPaths: Map<string, Location> = new Map(
       locations
-        .filter(location => filePath === location.filePath)
-        .map(location => [
+        .filter((location) => filePath === location.filePath)
+        .map((location) => [
           locationToKeyIncludingEnd(location.filePath, location),
           location,
         ]),
@@ -1939,10 +1954,10 @@ const findWidenedCoveragePaths = (
         const widenedPath = widenCoveragePath(path);
 
         const coveredBy: TestInformation[] = [];
-        for(const info of testInfoMap.values()) {
+        for (const info of testInfoMap.values()) {
           if (isRelevantTestFromCoverage(info.result, filePath, originalLocation)) {
             coveredBy.push(info);
-          };
+          }
         }
 
         nodePaths.get(filePath)!.set(coverageKey(loc), {
@@ -1969,30 +1984,34 @@ export type TestEvaluation = {
 
 export const suspiciousnessScore = (
   r1: NormalMutationEvaluation,
-  testInfoMap: Map<string, TestInformation>
+  testInfoMap: Map<string, TestInformation>,
 ) => {
   let score = 0;
-  for(const key of r1.testsImproved) {
+  for (const key of r1.testsImproved) {
     const info = testInfoMap.get(key)!;
     score += 1 / (info.fixes + 1);
   }
-  for(const key of r1.stackEvaluation.improvement) {
+  for (const key of r1.stackEvaluation.improvement) {
     const info = testInfoMap.get(key)!;
     score += 1 / (info.fixes + info.stackScoresImproved + 1);
   }
-  for(const key of r1.errorsChanged) {
+  for (const key of r1.errorsChanged) {
     const info = testInfoMap.get(key)!;
     score += 1 / (info.fixes + info.stackScoresImproved + info.errorChanges + 1);
   }
-  for(const key of r1.stackEvaluation.degradation) {
+  for (const key of r1.stackEvaluation.degradation) {
     const info = testInfoMap.get(key)!;
     score -= (1 + info.unchanged + info.stackScoresDegraded) / (info.total + 1);
   }
-  for(const key of r1.testsWorsened) {
+  for (const key of r1.testsWorsened) {
     const info = testInfoMap.get(key);
-    score -= info === undefined ? 1 : ((1 + info.unchanged + info.stackScoresDegraded + info.breaks) / (info.total + 1));
+    score -=
+      info === undefined
+        ? 1
+        : (1 + info.unchanged + info.stackScoresDegraded + info.breaks) /
+          (info.total + 1);
   }
-  
+
   return score;
 };
 
@@ -2014,20 +2033,24 @@ export const compareSolutionProperties = (
 
   const evaluationDidNothingBad1 = evaluationDidNothingBad(r1);
   const evaluationDidNothingBad2 = evaluationDidNothingBad(r2);
-  const evaluationDidNothingBadComparison = (evaluationDidNothingBad1 ? 1 : -1) - (evaluationDidNothingBad2 ? 1 : -1);
+  const evaluationDidNothingBadComparison =
+    (evaluationDidNothingBad1 ? 1 : -1) - (evaluationDidNothingBad2 ? 1 : -1);
   if (evaluationDidNothingBadComparison !== 0) {
     return evaluationDidNothingBadComparison;
   }
 
   return 0;
-}
+};
 
 export const compareNodeEvaluations = (
   result1: NodeEvaluation,
   result2: NodeEvaluation,
   testInfoMap: Map<string, TestInformation>,
 ) => {
-  const solutionComparison = compareSolutionProperties(result1.evaluation, result2.evaluation);
+  const solutionComparison = compareSolutionProperties(
+    result1.evaluation,
+    result2.evaluation,
+  );
   if (solutionComparison === null) {
     return 0;
   }
@@ -2042,7 +2065,7 @@ export const compareNodeEvaluations = (
   const score2 = suspiciousnessScore(r2, testInfoMap) / result2.nodes;
 
   return score1 - score2;
-}
+};
 
 /**
  * From worst evaluation to best evaluation
@@ -2072,7 +2095,7 @@ export const compareNodeInformation = (
     const instructionEvaluationComparison = compareNodeEvaluations(
       a.peek(),
       b.peek(),
-      testInfoMap
+      testInfoMap,
     );
     if (instructionEvaluationComparison !== 0) {
       return instructionEvaluationComparison;
@@ -2081,7 +2104,6 @@ export const compareNodeInformation = (
 
   return 0;
 };
-
 
 /**
  * From worst evaluation to best evaluation
@@ -2116,7 +2138,7 @@ export const executionDistanceFromStart = (
   let newDistanceFromStart = 0;
   let doneWithTraversal = false;
   traverse(ast, {
-    exit: path => {
+    exit: (path) => {
       if (doneWithTraversal) {
         path.skip();
         return;
@@ -2142,7 +2164,10 @@ export const evaluateStackDifference = (
   testAstMap: Map<string, t.File>,
 ): number | null => {
   // TODO: Just make passing test cases have null as the stack property
-  if ((newResult.data as any).stack == null || (originalResult.data as any).stack == null) {
+  if (
+    (newResult.data as any).stack == null ||
+    (originalResult.data as any).stack == null
+  ) {
     return null;
   }
   const newStackInfo = ErrorStackParser.parse({
@@ -2152,7 +2177,7 @@ export const evaluateStackDifference = (
     stack: (originalResult.data as any).stack,
   } as Error);
 
-  const findFrameFn = frame =>
+  const findFrameFn = (frame) =>
     normalize(originalResult.data.file).replace(/\\+/g, '/') ===
     normalize(frame.fileName).replace(/\\+/g, '/');
   const firstNewStackFrame = newStackInfo.find(findFrameFn);
@@ -2171,7 +2196,12 @@ export const evaluateStackDifference = (
     return null;
   }
 
-  if (firstOldStackFrame.lineNumber === undefined || firstOldStackFrame.columnNumber === undefined || firstOldStackFrame.lineNumber === null || firstOldStackFrame.columnNumber === null) {
+  if (
+    firstOldStackFrame.lineNumber === undefined ||
+    firstOldStackFrame.columnNumber === undefined ||
+    firstOldStackFrame.lineNumber === null ||
+    firstOldStackFrame.columnNumber === null
+  ) {
     return null;
   }
 
@@ -2184,7 +2214,12 @@ export const evaluateStackDifference = (
     return null;
   }
 
-  if (firstNewStackFrame.lineNumber === undefined || firstNewStackFrame.columnNumber === undefined || firstNewStackFrame.lineNumber === null || firstNewStackFrame.columnNumber === null) {
+  if (
+    firstNewStackFrame.lineNumber === undefined ||
+    firstNewStackFrame.columnNumber === undefined ||
+    firstNewStackFrame.lineNumber === null ||
+    firstNewStackFrame.columnNumber === null
+  ) {
     return null;
   }
   const newDistanceFromStart = executionDistanceFromStart(
@@ -2223,7 +2258,9 @@ export const evaluateModifiedTestResult = (
     if (newResult.data.passed) {
       return false;
     }
-    return (newResult.data as any).stack !== (originalResult.data as FailingTestData).stack;
+    return (
+      (newResult.data as any).stack !== (originalResult.data as FailingTestData).stack
+    );
   })();
   const stackScore = evaluateStackDifference(originalResult, newResult, testAstMap);
 
@@ -2300,10 +2337,18 @@ const evaluateNewMutation = (
   const stackEvaluation: MutationStackEvaluation = createMutationStackEvaluation();
   const errorsChanged: string[] = [];
 
-  testsWorsened.push(...difference.added.filter(result => !result.data.passed).map(result => result.data.key));
-  testsWorsened.push(...difference.missing.filter(result => !result.data.passed).map(result => result.data.key));
+  testsWorsened.push(
+    ...difference.added
+      .filter((result) => !result.data.passed)
+      .map((result) => result.data.key),
+  );
+  testsWorsened.push(
+    ...difference.missing
+      .filter((result) => !result.data.passed)
+      .map((result) => result.data.key),
+  );
 
-  const testsUnknown = difference.unknown.map(result => result.data.key);
+  const testsUnknown = difference.unknown.map((result) => result.data.key);
 
   for (const payload of difference.matches) {
     const testEvaluation = payload.evaluation;
@@ -2324,7 +2369,7 @@ const evaluateNewMutation = (
         stackEvaluation.improvement.push(payload.original.data.key);
       } else if (testEvaluation.stackScore < 0) {
         stackEvaluation.degradation.push(payload.original.data.key);
-      }  
+      }
     }
   }
 
@@ -2366,7 +2411,7 @@ export const locationToKeyIncludingEnd = (
 const compareMutationEvaluationsWithLargeMutationCountsFirst = (
   a: MutationEvaluation,
   b: MutationEvaluation,
-  testInfoMap: Map<string, TestInformation>
+  testInfoMap: Map<string, TestInformation>,
 ) => {
   const instructionLengthComparison = b.instructions.length - a.instructions.length;
   if (instructionLengthComparison !== 0) {
@@ -2379,9 +2424,10 @@ const compareMutationEvaluationsWithLargeMutationCountsFirst = (
 const compareNodeEvaluationsWithLargeMutationCountsFirst = (
   a: NodeEvaluation,
   b: NodeEvaluation,
-  testInfoMap: Map<string, TestInformation>
+  testInfoMap: Map<string, TestInformation>,
 ) => {
-  const instructionLengthComparison = b.evaluation.instructions.length - a.evaluation.instructions.length;
+  const instructionLengthComparison =
+    b.evaluation.instructions.length - a.evaluation.instructions.length;
   if (instructionLengthComparison !== 0) {
     return instructionLengthComparison;
   }
@@ -2395,7 +2441,7 @@ const shouldCountNode = (path: NodePath) =>
 const getTotalNodes = (path: NodePath) => {
   let count = 0;
 
-  const enter = subPath => {
+  const enter = (subPath) => {
     if (shouldCountNode(subPath)) {
       count++;
     }
@@ -2415,7 +2461,7 @@ export const instructionChangedOrImprovedErrorOrHasNoEvaluations = (
   instruction: Instruction<any>,
 ) => {
   const evals1 = [...instructionEvaluations.get(instruction)!.mutationEvaluations];
-  const nodeEvalLists = instruction.typedWriteDependencyKeys.map(key => [
+  const nodeEvalLists = instruction.typedWriteDependencyKeys.map((key) => [
     ...nodeInfoMap.get(key)!.evaluations,
   ]);
 
@@ -2425,7 +2471,9 @@ export const instructionChangedOrImprovedErrorOrHasNoEvaluations = (
 
   return (
     evals1.some(changedOrImprovedError) ||
-    nodeEvalLists.some(evals => evals.some((nodeInfo) => changedOrImprovedError(nodeInfo.evaluation)))
+    nodeEvalLists.some((evals) =>
+      evals.some((nodeInfo) => changedOrImprovedError(nodeInfo.evaluation)),
+    )
   );
 };
 
@@ -2465,7 +2513,7 @@ export const compareFinalInstructionEvaluations = (
     }
   } else if (instructions1.size <= 0 && instructions2.size >= 1) {
     if (
-      [...instructions2].some(instruction =>
+      [...instructions2].some((instruction) =>
         instructionChangedOrImprovedErrorOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
@@ -2479,7 +2527,7 @@ export const compareFinalInstructionEvaluations = (
     }
   } else if (instructions1.size >= 1 && instructions2.size <= 0) {
     if (
-      [...instructions1].some(instruction =>
+      [...instructions1].some((instruction) =>
         instructionChangedOrImprovedErrorOrHasNoEvaluations(
           nodeInfoMap,
           instructionEvaluations,
@@ -2514,11 +2562,19 @@ export const mutationEvalatuationMapToFaults = (
   testInfoMap: Map<string, TestInformation>,
   coverageObjs: Map<string, Map<string, CoveragePathObj>>,
 ): Fault[] => {
-  const flattened = [...coverageObjs.values()].map(objMap => [...objMap.values()]).flat();
+  const flattened = [...coverageObjs.values()]
+    .map((objMap) => [...objMap.values()])
+    .flat();
 
   const faults = flattened
     .sort((a, b) =>
-      compareFinalInstructionEvaluations(nodeInfoMap, instructionEvaluations, testInfoMap, a, b),
+      compareFinalInstructionEvaluations(
+        nodeInfoMap,
+        instructionEvaluations,
+        testInfoMap,
+        a,
+        b,
+      ),
     )
     .map(
       (obj, i): Fault => {
@@ -2530,16 +2586,16 @@ export const mutationEvalatuationMapToFaults = (
             end: obj.originalLocation.end,
           },
           other: {
-            instructions: [...obj.instructions].map(instruction => {
+            instructions: [...obj.instructions].map((instruction) => {
               const keys = instruction.typedWriteDependencyKeys;
               return {
                 type: instruction.type.toString(),
                 initial: instructionEvaluations.get(instruction)!.initial,
                 locations: [...instruction.conflictDependencies.values()][0].writes
-                  .map(path =>
-                    path.find(parent => parent.node != null && parent.node.loc != null),
+                  .map((path) =>
+                    path.find((parent) => parent.node != null && parent.node.loc != null),
                   )
-                  .map(path =>
+                  .map((path) =>
                     locationToKeyIncludingEnd(
                       obj.originalLocation.filePath,
                       path.node.loc,
@@ -2549,16 +2605,20 @@ export const mutationEvalatuationMapToFaults = (
                   ...instructionEvaluations
                     .get(instruction)!
                     .mutationEvaluations.sortedIterator(),
-                ].reverse().map(e => ({ ...e, instructions: undefined })),
-                nodes: keys.map(key =>
-                  [...nodeInfoMap.get(key)!.evaluations.sortedIterator()].map(e => ({
-                    evaluation: {
-                      ...e.evaluation,
-                      instructions: undefined,
-                    },
-                    nodes: e.nodes,
-                  })),
-                ).reverse(),
+                ]
+                  .reverse()
+                  .map((e) => ({ ...e, instructions: undefined })),
+                nodes: keys
+                  .map((key) =>
+                    [...nodeInfoMap.get(key)!.evaluations.sortedIterator()].map((e) => ({
+                      evaluation: {
+                        ...e.evaluation,
+                        instructions: undefined,
+                      },
+                      nodes: e.nodes,
+                    })),
+                  )
+                  .reverse(),
               };
             }),
           },
@@ -2592,17 +2652,15 @@ type DefaultIsFinishedOptions = {
 };
 
 const isPromisingEvaluation = (evaluation: MutationEvaluation) => {
-  return changedOrImprovedError(evaluation);  
-}
+  return changedOrImprovedError(evaluation);
+};
 
 const hasPromisingEvaluation = (evaluations: Queue<MutationEvaluation>) => {
   if (evaluations.length <= 0) {
     return true;
   }
   const bestEvaluation = evaluations.peek();
-  return (
-    isPromisingEvaluation(bestEvaluation)
-  );
+  return isPromisingEvaluation(bestEvaluation);
 };
 
 const hasPromisingNodeEvaluation = (evaluations: Queue<NodeEvaluation>) => {
@@ -2610,9 +2668,7 @@ const hasPromisingNodeEvaluation = (evaluations: Queue<NodeEvaluation>) => {
     return true;
   }
   const bestEvaluation = evaluations.peek();
-  return (
-    isPromisingEvaluation(bestEvaluation.evaluation)
-  );
+  return isPromisingEvaluation(bestEvaluation.evaluation);
 };
 
 export const shouldFinishMutations = (
@@ -2624,9 +2680,7 @@ export const shouldFinishMutations = (
 
   if (
     !instructionArr
-      .map(
-        instruction => instructionEvaluations.get(instruction)!.mutationEvaluations,
-      )
+      .map((instruction) => instructionEvaluations.get(instruction)!.mutationEvaluations)
       .some(hasPromisingEvaluation)
   ) {
     //console.log('No promising instruction evaluations')
@@ -2635,19 +2689,21 @@ export const shouldFinishMutations = (
 
   const allWriteDependencyKeys = [
     ...new Set(
-      instructionArr.map(instruction => instruction.typedWriteDependencyKeys).flat(),
+      instructionArr.map((instruction) => instruction.typedWriteDependencyKeys).flat(),
     ),
   ];
   const allDependencyEvaluations = allWriteDependencyKeys.map(
-    key => nodeInfoMap.get(key)!.evaluations,
+    (key) => nodeInfoMap.get(key)!.evaluations,
   );
-  if (!allDependencyEvaluations.some(nodeEval => hasPromisingNodeEvaluation(nodeEval))) {
+  if (
+    !allDependencyEvaluations.some((nodeEval) => hasPromisingNodeEvaluation(nodeEval))
+  ) {
     //console.log('No promsiing node evalations')
     return true;
   }
 
   return false;
-}
+};
 
 export const createDefaultIsFinishedFn = ({
   mutationThreshold,
@@ -2666,10 +2722,7 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    if (
-      durationThreshold !== undefined &&
-      testerResults.duration >= durationThreshold
-    ) {
+    if (durationThreshold !== undefined && testerResults.duration >= durationThreshold) {
       console.log('a');
       return true;
     }
@@ -2679,7 +2732,11 @@ export const createDefaultIsFinishedFn = ({
       return true;
     }
 
-    const shouldFinish = shouldFinishMutations(instructions, instructionEvaluations, nodeInfoMap);
+    const shouldFinish = shouldFinishMutations(
+      instructions,
+      instructionEvaluations,
+      nodeInfoMap,
+    );
 
     if (shouldFinish) {
       if (
@@ -2702,7 +2759,7 @@ const getAffectedFilePaths = (instructions: Queue<Instruction<any>>): string[] =
   const filePaths = [
     ...new Set(
       [...instructions]
-        .map(instruction => [...instruction.conflictDependencies.keys()])
+        .map((instruction) => [...instruction.conflictDependencies.keys()])
         .flat(),
     ),
   ];
@@ -2719,7 +2776,7 @@ const faultFileName = 'faults.json';
 
 export function* iteratorWithNoDuplicates<T>(
   iterable: Iterable<T>,
-  getKey: (item: T) => any = item => item,
+  getKey: (item: T) => any = (item) => item,
 ) {
   const seen: Set<T> = new Set();
   for (const item of iterable) {
@@ -2734,7 +2791,7 @@ export function* iteratorWithNoDuplicates<T>(
 
 export const pathToKey = (path: NodePath): string => {
   return getTraverseKeys(path)
-    .map(key => (typeof key === 'string' ? `${key}` : `[${key}]`))
+    .map((key) => (typeof key === 'string' ? `${key}` : `[${key}]`))
     .join('.');
 };
 export const pathToPrimaryKey = (filePath: string, path: NodePath) => {
@@ -2764,7 +2821,7 @@ export const compareEvaluationHeaps = (
     const instructionEvaluationComparison = compareMutationEvaluations(
       a.peek(),
       b.peek(),
-      testInfoMap
+      testInfoMap,
     );
     if (instructionEvaluationComparison !== 0) {
       return instructionEvaluationComparison;
@@ -2836,16 +2893,16 @@ export const compareInstruction = (
   const relevantKeys2 = instruction2.typedWriteDependencyKeys;
 
   const bestNodeEvaluations1 = relevantKeys1
-    .map(node => nodeInfoMap.get(node)!)
+    .map((node) => nodeInfoMap.get(node)!)
     .sort((a, b) => compareNodeInformation(a, b, testInfoMap))[relevantKeys1.length - 1];
   const bestNodeEvaluations2 = relevantKeys2
-    .map(node => nodeInfoMap.get(node)!)
+    .map((node) => nodeInfoMap.get(node)!)
     .sort((a, b) => compareNodeInformation(a, b, testInfoMap))[relevantKeys2.length - 1];
 
   const nodeEvaluationComparison = compareNodeInformation(
     bestNodeEvaluations1,
     bestNodeEvaluations2,
-    testInfoMap
+    testInfoMap,
   );
   if (nodeEvaluationComparison !== 0) {
     return nodeEvaluationComparison;
@@ -2887,10 +2944,15 @@ export type InstructionEvaluation = {
   mutationEvaluations: Queue<MutationEvaluation>;
 };
 
-export const createInstructionEvaluation = (initial: number, testInfoMap: Map<string, TestInformation>): InstructionEvaluation => {
+export const createInstructionEvaluation = (
+  initial: number,
+  testInfoMap: Map<string, TestInformation>,
+): InstructionEvaluation => {
   return {
     initial,
-    mutationEvaluations: new Queue((a, b) => compareMutationEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap)),
+    mutationEvaluations: new Queue((a, b) =>
+      compareMutationEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap),
+    ),
   };
 };
 
@@ -2930,8 +2992,11 @@ const aggregateDependencyMaps = (
   return aggregation;
 };
 
-export const initialiseTestInfoMap = (testInfoMap: Map<string, TestInformation>, tester: TesterResults) => {
-  for(const testResult of tester.testResults.values()) {
+export const initialiseTestInfoMap = (
+  testInfoMap: Map<string, TestInformation>,
+  tester: TesterResults,
+) => {
+  for (const testResult of tester.testResults.values()) {
     testInfoMap.set(testResult.data.key, {
       fixes: 0,
       breaks: 0,
@@ -2944,7 +3009,7 @@ export const initialiseTestInfoMap = (testInfoMap: Map<string, TestInformation>,
       coverageInfo: new Map(),
     });
   }
-}
+};
 
 export const initialiseEvaluationMaps = (
   nodeInfoMap: Map<string, NodeInformation>,
@@ -2954,7 +3019,7 @@ export const initialiseEvaluationMaps = (
   instructions: Iterable<Instruction<any>>,
 ) => {
   const allDependencies = aggregateDependencyMaps(
-    [...instructions].map(instruction => instruction.indirectDependencies),
+    [...instructions].map((instruction) => instruction.indirectDependencies),
   );
   for (const [filePath, fileDependencies] of allDependencies) {
     // Wouldn't exist if there's a indirect dependency in a file that's excluded from babel istanbul coverage
@@ -2962,7 +3027,7 @@ export const initialiseEvaluationMaps = (
     for (const writePath of fileDependencies.writes) {
       //console.log(pathToKey(writePath));
       let coverageInfo: CoveragePathObj | null = null;
-      writePath.find(parentPath => {
+      writePath.find((parentPath) => {
         if (parentPath.node.loc == null) {
           return false;
         }
@@ -2980,7 +3045,9 @@ export const initialiseEvaluationMaps = (
 
       const key = pathToPrimaryKey(filePath, writePath);
       nodeInfoMap.set(key, {
-        evaluations: new Queue((a, b) => compareNodeEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap)),
+        evaluations: new Queue((a, b) =>
+          compareNodeEvaluationsWithLargeMutationCountsFirst(a, b, testInfoMap),
+        ),
         instructions: [],
         path: writePath,
         coverageInfo,
@@ -3023,7 +3090,7 @@ const instructionBlocksToMaxInstructionsLeft = (
 // added eval goes to: "= 1", "= a", "= c", "b ="
 
 export const travelUpToRootDependencyPath = (path: NodePath) => {
-  return path.find(path => {
+  return path.find((path) => {
     if (path.isStatement() || path.isBlockParent()) {
       return true;
     }
@@ -3079,7 +3146,7 @@ export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
 
     // TODO: Traverse skips certain node paths like the "values" of binary operators
     rootPath.traverse({
-      enter: subPath => {
+      enter: (subPath) => {
         if (subPath.isFunction()) {
           subPath.skip();
           return;
@@ -3233,12 +3300,15 @@ export const addDifferencePayloadToTestInformation = (
     if (info === undefined) {
       continue;
     }
-    
+
     if (payload.evaluation.endResultChange === EndResult.BETTER) {
       info.fixes++;
-    } else if(payload.evaluation.endResultChange === EndResult.WORSE) {
+    } else if (payload.evaluation.endResultChange === EndResult.WORSE) {
       info.breaks++;
-    } else if (payload.evaluation.errorChanged !== null && payload.evaluation.errorChanged) {
+    } else if (
+      payload.evaluation.errorChanged !== null &&
+      payload.evaluation.errorChanged
+    ) {
       info.errorChanges++;
     } else if (payload.evaluation.stackScore !== null) {
       if (payload.evaluation.stackScore > 0) {
@@ -3251,7 +3321,7 @@ export const addDifferencePayloadToTestInformation = (
     }
     info.total++;
   }
-}
+};
 
 const addMutationEvaluation = (
   difference: TesterDifferencePayload,
@@ -3272,7 +3342,7 @@ const addMutationEvaluation = (
       }
     }
 
-    const changed = difference.matches.filter(match =>
+    const changed = difference.matches.filter((match) =>
       testEvaluationChanged(match.evaluation),
     );
 
@@ -3318,7 +3388,7 @@ const addMutationEvaluation = (
       );
       nodeInfo.evaluations.push({
         evaluation: nodeEvaluation,
-        nodes: affectedKeys.size
+        nodes: affectedKeys.size,
       });
     }
   } else {
@@ -3328,12 +3398,14 @@ const addMutationEvaluation = (
       }
     }
 
-    const filteredAffectedKeys = [...affectedKeys].filter(key => {
+    const filteredAffectedKeys = [...affectedKeys].filter((key) => {
       if (!nodeInfoMap.has(key)) {
         return false;
       }
       const nodeInfo = nodeInfoMap.get(key)!;
-      return difference.missing.some(result => isRelevantTest(result, coverageObjMap, nodeInfo.coverageInfo));
+      return difference.missing.some((result) =>
+        isRelevantTest(result, coverageObjMap, nodeInfo.coverageInfo),
+      );
     });
 
     const newEvaluation = {
@@ -3402,14 +3474,22 @@ export const createInstructionBlocks = (
   instructionsList: Instruction<any>[][],
 ) => {
   const subHeapCompareFn = (a: Instruction<any>, b: Instruction<any>) =>
-    compareInstructionWithInitialValues(nodeInfoMap, instructionEvaluations, testInfoMap, a, b);
+    compareInstructionWithInitialValues(
+      nodeInfoMap,
+      instructionEvaluations,
+      testInfoMap,
+      a,
+      b,
+    );
 
-  return instructionsList.map(instructions => new Queue(subHeapCompareFn, instructions));
+  return instructionsList.map(
+    (instructions) => new Queue(subHeapCompareFn, instructions),
+  );
 };
 
 export type NodeEvaluation = {
-  evaluation: MutationEvaluation,
-  nodes: number,
+  evaluation: MutationEvaluation;
+  nodes: number;
 };
 
 export type NodeInformation = {
@@ -3465,7 +3545,7 @@ export const createPlugin = ({
   const resolvedIgnoreGlob = (Array.isArray(ignoreGlob)
     ? ignoreGlob
     : [ignoreGlob]
-  ).map(glob => resolve('.', glob).replace(/\\+/g, '/'));
+  ).map((glob) => resolve('.', glob).replace(/\\+/g, '/'));
 
   const originalPathToCopyPath: Map<string, string> = new Map();
   let copyFileId = 0;
@@ -3531,12 +3611,12 @@ export const createPlugin = ({
                 compareNodeMutations({ evaluation: mutationEvaluation, nodes: 1 }, evaluations.peek(), testInfoMap) > 0
             )
           ) {*/
-            if (instruction.variants !== undefined) {
-              instruction.variantIndex++;
-              if (instruction.variantIndex < instruction.variants.length) {
-                instructionQueue.push(previousInstructions);
-              }
+          if (instruction.variants !== undefined) {
+            instruction.variantIndex++;
+            if (instruction.variantIndex < instruction.variants.length) {
+              instructionQueue.push(previousInstructions);
             }
+          }
           // }
         }
       }
@@ -3560,9 +3640,7 @@ export const createPlugin = ({
     let nonFinishingInstructionCount = 0;
     for (const block of instructionQueue) {
       instructionCount += block.length;
-      if (
-        !shouldFinishMutations(block, instructionEvaluations, nodeInfoMap)
-      ) {
+      if (!shouldFinishMutations(block, instructionEvaluations, nodeInfoMap)) {
         nonFinishingInstructionCount += block.length;
       }
     }
@@ -3605,7 +3683,7 @@ export const createPlugin = ({
     const mutatedFilePaths = getAffectedFilePaths(instructions);
     console.log(mutatedFilePaths);
     await Promise.all(
-      mutatedFilePaths.map(filePath =>
+      mutatedFilePaths.map((filePath) =>
         createTempCopyOfFileIfItDoesntExist(filePath).then(() =>
           overwriteWithMutatedAst(filePath, newAstMap),
         ),
@@ -3671,13 +3749,13 @@ export const createPlugin = ({
           }
 
           codeMap = await createFilePathToCodeMap([
-            ...new Set(failingLocations.map(location => location.filePath)),
+            ...new Set(failingLocations.map((location) => location.filePath)),
           ]);
 
           originalAstMap = codeMapToAstMap(codeMap, babelOptions);
           const testCodeMap = await createFilePathToCodeMap([
             ...new Set(
-              [...tester.testResults.values()].map(testResult => testResult.data.file),
+              [...tester.testResults.values()].map((testResult) => testResult.data.file),
             ),
           ]);
           testAstMap = codeMapToAstMap(testCodeMap, babelOptions);
@@ -3687,13 +3765,13 @@ export const createPlugin = ({
           ];
           console.log(
             'instructions',
-            allInstructions.map(a => a.type),
+            allInstructions.map((a) => a.type),
           );
 
           const fullCoverageObjs = findWidenedCoveragePaths(
             originalAstMap,
             locations,
-            testInfoMap
+            testInfoMap,
           );
           addInstructionsToCoverageMap(allInstructions, fullCoverageObjs);
           console.log();
@@ -3705,7 +3783,7 @@ export const createPlugin = ({
                 filePath,
                 new Map(
                   [...objs].filter(([key, obj]) => {
-                    return failingLocations.some(failingLocation =>
+                    return failingLocations.some((failingLocation) =>
                       fileLocationEquals(obj.originalLocation, failingLocation),
                     );
                   }),
@@ -3723,7 +3801,7 @@ export const createPlugin = ({
             }
           }
 
-          initialiseTestInfoMap(testInfoMap, tester)
+          initialiseTestInfoMap(testInfoMap, tester);
 
           initialiseEvaluationMaps(
             nodeInfoMap,
@@ -3736,10 +3814,10 @@ export const createPlugin = ({
           const totalPassFailStats = passFailStatsFromTests(tester.testResults.values());
 
           for (const objMap of coverageObjs.values()) {
-            for(const obj of objMap.values()) {
+            for (const obj of objMap.values()) {
               const testStats = testStatsFromCoverageInfo(obj);
               const score = dstar(testStats, totalPassFailStats);
-              for(const instruction of obj.instructions) {
+              for (const instruction of obj.instructions) {
                 const evaluation = instructionEvaluations.get(instruction)!;
                 evaluation.initial = Math.max(
                   evaluation.initial,
@@ -3761,7 +3839,7 @@ export const createPlugin = ({
 
           console.log(
             'sorted instructions',
-            sortedInstructions.map(a => a.type),
+            sortedInstructions.map((a) => a.type),
           );
 
           const organizedInstructions = organizeInstructions(sortedInstructions);
@@ -3769,7 +3847,7 @@ export const createPlugin = ({
             nodeInfoMap,
             testInfoMap,
             instructionEvaluations,
-          )
+          );
           instructionQueue.push(
             ...createInstructionBlocks(
               nodeInfoMap,
@@ -3796,7 +3874,7 @@ export const createPlugin = ({
 
           if (
             mutationEvaluation.testsImproved?.length ===
-              [...firstTesterResults.testResults.values()].filter(a => !a.data.passed)
+              [...firstTesterResults.testResults.values()].filter((a) => !a.data.passed)
                 .length &&
             mutationEvaluation.testsWorsened?.length === 0 &&
             previousInstructions !== null
@@ -3824,7 +3902,7 @@ export const createPlugin = ({
         }
         // TODO: DRY
         const testsToBeRerun = [...firstTesterResults.testResults.values()].map(
-          result => result.data.file,
+          (result) => result.data.file,
         );
         return testsToBeRerun;
       },
@@ -3872,7 +3950,7 @@ export const createPlugin = ({
           mutationsAttempted.toString(),
         );
         Promise.all(
-          [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
+          [...originalPathToCopyPath.values()].map((copyPath) => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
 
         // console.log(failingLocationKeys);

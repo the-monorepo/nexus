@@ -1,7 +1,7 @@
 import { readFile } from 'mz/fs';
 import { CoverageMapData } from 'istanbul-lib-coverage';
 
-export const cloneCoverage = coverage => {
+export const cloneCoverage = (coverage) => {
   if (Array.isArray(coverage)) {
     return coverage.map(cloneCoverage);
   } else if (typeof coverage === 'object') {
@@ -44,7 +44,7 @@ export const diffBranchObjectCount = (from: BCoverage, amount: BCoverage) => {
   return diff;
 };
 
-const notZero = value => value !== 0;
+const notZero = (value) => value !== 0;
 
 export type FCoverage = {
   [s: string]: number;
@@ -103,7 +103,7 @@ export const subtractCoverage = (from: Coverage = {}, amount: Coverage | undefin
     const hasChanged =
       Object.values(fileDiff.s).some(notZero) ||
       Object.values(fileDiff.f).some(notZero) ||
-      Object.values(fileDiff.b).some(arr => arr.some(notZero));
+      Object.values(fileDiff.b).some((arr) => arr.some(notZero));
     if (hasChanged) {
       diff[filePath] = fileDiff;
     }
@@ -123,7 +123,7 @@ export const getTotalExecutedStatements = (coverage: Coverage): number => {
   let total = 0;
 
   for (const fileCoverage of Object.values(coverage)) {
-    total += Object.values(fileCoverage.s).filter(value => value > 0).length;
+    total += Object.values(fileCoverage.s).filter((value) => value > 0).length;
   }
 
   return total;

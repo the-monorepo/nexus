@@ -34,29 +34,25 @@ import chalk from 'chalk';
 import * as micromatch from 'micromatch';
 import traverse from '@babel/traverse';
 
-
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;
   let highest: T = arr[0];
-  while(i < arr.length) {
+  while (i < arr.length) {
     const item = arr[i];
     if (compareFn(item, highest) > 0) {
       highest = item;
     }
     i++;
-  } 
+  }
 
   return highest;
-}
+};
 
 class Heap<T> {
-  private  arr: T[];
+  private arr: T[];
   private invalidated = false;
   private highest: T | undefined;
-  constructor(
-    public readonly compareFn: (a: T, b: T) => number,
-    arr: T[] = [],
-  ) {
+  constructor(public readonly compareFn: (a: T, b: T) => number, arr: T[] = []) {
     this.arr = [...arr];
     this.refindHighest();
   }
@@ -66,7 +62,7 @@ class Heap<T> {
   }
 
   clone(): Heap<T> {
-    return new Heap(this.compareFn, this.arr)
+    return new Heap(this.compareFn, this.arr);
   }
 
   private refindHighest() {
@@ -90,7 +86,7 @@ class Heap<T> {
   }
 
   delete(a) {
-    this.arr = this.arr.filter(b => a !== b);
+    this.arr = this.arr.filter((b) => a !== b);
     if (a === this.highest) {
       this.invalidated = true;
     }
@@ -103,7 +99,10 @@ class Heap<T> {
       return undefined;
     }
     this.refindHighestIfInvalidated();
-    this.arr.splice(this.arr.findIndex((item) => item === this.highest!), 1);
+    this.arr.splice(
+      this.arr.findIndex((item) => item === this.highest!),
+      1,
+    );
     this.invalidated = true;
     return this.highest;
   }
@@ -119,11 +118,11 @@ class Heap<T> {
       this.invalidated = false;
     } else if (!this.invalidated) {
       const highestOutOfNew = getHighest(item, this.compareFn);
-      if(this.compareFn(highestOutOfNew, this.highest!) > 0) {
+      if (this.compareFn(highestOutOfNew, this.highest!) > 0) {
         this.highest = highestOutOfNew;
-      }  
+      }
     }
-    
+
     this.arr.push(...item);
   }
 
@@ -381,7 +380,17 @@ export const binaryOperationCategories = [
   ['^', ['&', '<<', '>>>', '>>'], ['|', '>>', '<<']],
   [['&', '&&']],
   [['|', '||']],
-  [['&&', '||'], [['>=', '>'], ['<=', '<']], [['!=', '=='], ['!==', '===']]],
+  [
+    ['&&', '||'],
+    [
+      ['>=', '>'],
+      ['<=', '<'],
+    ],
+    [
+      ['!=', '=='],
+      ['!==', '==='],
+    ],
+  ],
   [['**', '*'], '%', ['/', '*'], ['-', '+']],
 ];
 
@@ -406,7 +415,7 @@ abstract class SingleLocationInstruction implements Instruction {
   async process(data, cache) {
     const ast = await cache.get(this.location.filePath);
 
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(nodePath =>
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter((nodePath) =>
       this.filterNodePath(nodePath),
     );
     assertFoundNodePaths(nodePaths, this.location);
@@ -441,7 +450,9 @@ class BinaryInstruction extends SingleLocationInstruction {
     return this.operators.length;
   }
 
-  async processNodePaths(nodePaths: NodePath<t.BinaryExpression | t.LogicalExpression>[]) {
+  async processNodePaths(
+    nodePaths: NodePath<t.BinaryExpression | t.LogicalExpression>[],
+  ) {
     const operator = this.operators.pop()!;
     const nodePath = nodePaths[0];
     if (this.nullifyLeft) {
@@ -463,9 +474,13 @@ class BinaryInstruction extends SingleLocationInstruction {
       }
     }
     if (['||', '&&'].includes(operator)) {
-      nodePath.replaceWith(t.logicalExpression(operator as any, nodePath.node.left, nodePath.node.right));
+      nodePath.replaceWith(
+        t.logicalExpression(operator as any, nodePath.node.left, nodePath.node.right),
+      );
     } else {
-      nodePath.replaceWith(t.binaryExpression(operator as any, nodePath.node.left, nodePath.node.right));
+      nodePath.replaceWith(
+        t.binaryExpression(operator as any, nodePath.node.left, nodePath.node.right),
+      );
     }
   }
 
@@ -628,8 +643,9 @@ class DeleteStatementInstruction implements Instruction {
     this.lastProcessedStatementBlock = statements;
     this.recalculateMutationResults();
     console.log(
-      `${statements.statements.length} left in statement & ${this.statementBlocks.length +
-        1} blocks left`,
+      `${statements.statements.length} left in statement & ${
+        this.statementBlocks.length + 1
+      } blocks left`,
     );
     const sortedStatements = [...statements.statements].sort((a, b) => {
       const comparison = a.filePath.localeCompare(b.filePath);
@@ -665,7 +681,7 @@ class DeleteStatementInstruction implements Instruction {
         filePath: statement.filePath,
       });
       const filteredNodePaths = nodePaths.filter(
-        path =>
+        (path) =>
           path.parentPath &&
           (path.parentPath.node.body || path.parentPath.node.consequent),
       );
@@ -693,7 +709,7 @@ class DeleteStatementInstruction implements Instruction {
         if (statement.type === IF_TRUE) {
           path.set('test', t.booleanLiteral(true));
         } else if (statement.type === IF_FALSE) {
-          path.set('test', t.booleanLiteral(false))
+          path.set('test', t.booleanLiteral(false));
         } else {
           throw new Error(`Statement type not recognized ${statement.type}`);
         }
@@ -844,7 +860,7 @@ const recursiveIncludes = (match: any, arr: any) => {
   if (match === arr) {
     return true;
   } else if (Array.isArray(arr)) {
-    return arr.some(item => recursiveIncludes(match, item));
+    return arr.some((item) => recursiveIncludes(match, item));
   }
 };
 /**
@@ -876,7 +892,7 @@ export const matchAndFlattenCategoryData = <T>(match: T, categories: CategoryDat
   const alreadyAddedSet = new Set();
   return flattened
     .reverse()
-    .filter(item => {
+    .filter((item) => {
       if (alreadyAddedSet.has(item)) {
         return false;
       } else {
@@ -1005,7 +1021,7 @@ class ReplaceNumberFactory implements InstructionFactory<ReplaceNumberInstructio
           node.value + 1,
         ]),
       ]
-        .filter(value => !filterOut.has(value))
+        .filter((value) => !filterOut.has(value))
         .sort((a, b) => Math.abs(b - node.value) - Math.abs(a - node.value));
       yield createInstructionHolder(
         new ReplaceNumberInstruction(
@@ -1030,8 +1046,8 @@ class ReplaceStringFactory implements InstructionFactory<ReplaceStringInstructio
     const node = nodePath.node;
     if (nodePath.isStringLiteral() && node.loc) {
       const alreadySeen = new Set();
-      const values = node[STRINGS]!.filter(value => value !== node.value).reverse();
-      const filteredValues = values.filter(value => {
+      const values = node[STRINGS]!.filter((value) => value !== node.value).reverse();
+      const filteredValues = values.filter((value) => {
         if (alreadySeen.has(value)) {
           return false;
         }
@@ -1133,7 +1149,7 @@ class ReplaceIdentifierFactory
 
       const alreadySeen: Set<string> = new Set([node.name]);
 
-      const filteredNames = possibleNames.filter(name => {
+      const filteredNames = possibleNames.filter((name) => {
         if (alreadySeen.has(name)) {
           return false;
         }
@@ -1202,7 +1218,7 @@ class SwapFunctionCallArgumentsInstruction implements Instruction {
   async process(data, cache: AstCache) {
     const ast = await cache.get(this.location.filePath);
 
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(path =>
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter((path) =>
       path.isCallExpression(),
     );
     assertFoundNodePaths(nodePaths, this.location);
@@ -1271,7 +1287,7 @@ class SwapFunctionParametersInstruction implements Instruction {
   async process(data, cache: AstCache) {
     const ast = await cache.get(this.location.filePath);
 
-    const nodePaths = findNodePathsWithLocation(ast, this.location).filter(path =>
+    const nodePaths = findNodePathsWithLocation(ast, this.location).filter((path) =>
       path.isFunction(),
     );
     assertFoundNodePaths(nodePaths, this.location);
@@ -1482,12 +1498,12 @@ const statementDepth = (statements: StatementInformation[]) => {
 
 const findAllNodePaths = async (cache: AstCache, locations: Location[]) => {
   const nodePaths: NodePath[] = [];
-  const filePaths: Set<string> = new Set(locations.map(location => location.filePath));
+  const filePaths: Set<string> = new Set(locations.map((location) => location.filePath));
   for (const filePath of filePaths) {
     const fileLocationPaths: Set<string> = new Set(
       locations
-        .filter(location => filePath === location.filePath)
-        .map(location => locationToKeyIncludingEnd(location.filePath, location)),
+        .filter((location) => filePath === location.filePath)
+        .map((location) => locationToKeyIncludingEnd(location.filePath, location)),
     );
 
     const ast = await cache.get(filePath);
@@ -1547,7 +1563,7 @@ async function identifyUnknownInstruction(
   derivedFromPassingTest: boolean,
   cache: AstCache,
 ): Promise<StatementInformation[][]> {
-  const filePaths = new Set(nodePaths.map(nodePath => nodePath.filePath));
+  const filePaths = new Set(nodePaths.map((nodePath) => nodePath.filePath));
   for (const filePath of filePaths) {
     const nodeCounts: number[] = [];
     const names: PreviousIdentifiersData[] = [
@@ -1580,10 +1596,10 @@ async function identifyUnknownInstruction(
         if (couldBeVariableNameReplaceable(path)) {
           // Little confusing to read
           path.node[PREVIOUS_IDENTIFIER_NAMES] = ([] as string[]).concat(
-            ...names.map(info =>
+            ...names.map((info) =>
               [...info.declarations, ...info.references]
                 .sort((a, b) => a.order - b.order)
-                .map(nameData => nameData.name),
+                .map((nameData) => nameData.name),
             ),
           );
           names[names.length - 1].references.push({
@@ -1611,10 +1627,10 @@ async function identifyUnknownInstruction(
       if (isStatementContainer(path)) {
         const popped = names.pop()!;
         const declarationNameSet = new Set(
-          popped.declarations.map(nameData => nameData.name),
+          popped.declarations.map((nameData) => nameData.name),
         );
         const referencesThatWerentDeclaredInScope = popped.references.filter(
-          nameData => !declarationNameSet.has(nameData.name),
+          (nameData) => !declarationNameSet.has(nameData.name),
         );
         names[names.length - 1].references.push(...referencesThatWerentDeclaredInScope);
         stringBlocks.pop();
@@ -1638,8 +1654,8 @@ async function identifyUnknownInstruction(
   for (const filePath of filePaths) {
     const expressionKeys: Set<string> = new Set(
       nodePaths
-        .filter(nodePath => nodePath.filePath === filePath)
-        .map(nodePath => {
+        .filter((nodePath) => nodePath.filePath === filePath)
+        .map((nodePath) => {
           const statement = getStatementOrBlock(nodePath);
           if (statement.node.loc) {
             return expressionKey(filePath, statement.node);
@@ -1787,7 +1803,7 @@ async function identifyUnknownInstruction(
   }
   console.log(
     'statement blocks',
-    statementBlocks.map(statementBlock => statementBlock.length),
+    statementBlocks.map((statementBlock) => statementBlock.length),
   );
   return statementBlocks;
 }
@@ -1969,7 +1985,10 @@ export const evaluateStackDifference = (
   newResult: TestResult,
 ): StackEvaluation => {
   // TODO: Just make passing test cases have null as the stack property
-  if ((newResult.data as any).stack == null || (originalResult.data as any).stack == null) {
+  if (
+    (newResult.data as any).stack == null ||
+    (originalResult.data as any).stack == null
+  ) {
     return {
       stackColumnScore: null,
       stackLineScore: null,
@@ -2028,7 +2047,9 @@ export const evaluateModifiedTestResult = (
     if (newResult.data.passed) {
       return false;
     }
-    return (newResult.data as any).stack !== (originalResult.data as FailingTestData).stack;
+    return (
+      (newResult.data as any).stack !== (originalResult.data as FailingTestData).stack
+    );
   })();
   const stackEvaluation = evaluateStackDifference(originalResult, newResult);
 
@@ -2291,7 +2312,7 @@ export const mutationEvalatuationMapToFaults = (
           ),
           totalAtomicMutationsPerformed: lE.totalAtomicMutationsPerformed,
           totalNodes: lE.totalNodes,
-          evaluation: lE.evaluations.map(e => ({
+          evaluation: lE.evaluations.map((e) => ({
             type: e.evaluation.type.toString(),
             ...e,
           })),
@@ -2360,15 +2381,15 @@ export const createDefaultIsFinishedFn = ({
 
     if (data.mutationEvaluations.length > 0) {
       // TODO: Might need to rethink using mutationCount if multi mutation instructions exist outside the delete statement phase
-      const hasAtomicMutations = data.mutationEvaluations.some(e => e.atomicMutation);
+      const hasAtomicMutations = data.mutationEvaluations.some((e) => e.atomicMutation);
       const mostSpecificMutations = data.mutationEvaluations.filter(
-        e => e.atomicMutation === hasAtomicMutations,
+        (e) => e.atomicMutation === hasAtomicMutations,
       );
       const mostSpecificMutationsOnlyContainCrashes =
-        mostSpecificMutations.filter(evaluation => evaluation.crashed).length ===
+        mostSpecificMutations.filter((evaluation) => evaluation.crashed).length ===
         mostSpecificMutations.length;
       if (!mostSpecificMutationsOnlyContainCrashes) {
-        const containsUsefulMutations = data.mutationEvaluations.some(evaluation => {
+        const containsUsefulMutations = data.mutationEvaluations.some((evaluation) => {
           const improved =
             !evaluation.crashed &&
             (evaluation.testsImproved > 0 ||
@@ -2377,11 +2398,11 @@ export const createDefaultIsFinishedFn = ({
               evaluation.stackEvaluation.columnImprovementScore > 0);
           const nothingChangedInNonDeleteStatement =
             !evaluation.crashed &&
-            (evaluation.errorsChanged === 0 &&
-              evaluation.testsImproved === 0 &&
-              evaluation.testsWorsened === 0 &&
-              nothingChangedMutationStackEvaluation(evaluation.stackEvaluation) &&
-              evaluation.type !== DELETE_STATEMENT);
+            evaluation.errorsChanged === 0 &&
+            evaluation.testsImproved === 0 &&
+            evaluation.testsWorsened === 0 &&
+            nothingChangedMutationStackEvaluation(evaluation.stackEvaluation) &&
+            evaluation.type !== DELETE_STATEMENT;
           return improved || nothingChangedInNonDeleteStatement;
         });
         if (!containsUsefulMutations) {
@@ -2514,7 +2535,7 @@ const resetMutationsInInstruction = async (instruction: InstructionHolder) => {
 
   // Revert all mutated files
   await Promise.all(
-    Object.keys(previousMutationResults.locations).map(filePath => resetFile(filePath)),
+    Object.keys(previousMutationResults.locations).map((filePath) => resetFile(filePath)),
   );
 };
 
@@ -2547,9 +2568,10 @@ export const createPlugin = ({
   const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
   let mutationCount = 0;
 
-  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(
-    glob => resolve('.', glob).replace(/\\+/g, '/'),
-  );
+  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob)
+    ? ignoreGlob
+    : [ignoreGlob]
+  ).map((glob) => resolve('.', glob).replace(/\\+/g, '/'));
   const analyzeEvaluation = async (
     mutationEvaluation: MutationEvaluation,
     cache: AstCache,
@@ -2644,11 +2666,11 @@ export const createPlugin = ({
     const mutatedFilePaths = Object.keys(mutationResults.locations);
     console.log(mutatedFilePaths);
     await Promise.all(
-      mutatedFilePaths.map(filePath => createTempCopyOfFileIfItDoesntExist(filePath)),
+      mutatedFilePaths.map((filePath) => createTempCopyOfFileIfItDoesntExist(filePath)),
     );
 
     await Promise.all(
-      mutatedFilePaths.map(async filePath => {
+      mutatedFilePaths.map(async (filePath) => {
         const originalCodeText = await readFile(filePath, 'utf8');
         const ast = await cache.get(filePath);
         const { code } = generate(
@@ -2809,7 +2831,7 @@ export const createPlugin = ({
 
           if (previousRunWasPartial && !mutationEvaluation.crashed) {
             const testsToBeRerun = [...firstTesterResults.testResults.values()].map(
-              result => result.data.file,
+              (result) => result.data.file,
             );
             previousRunWasPartial = false;
             console.log('proceeding with full test run');
@@ -2818,7 +2840,7 @@ export const createPlugin = ({
 
           if (
             mutationEvaluation.testsImproved ===
-              [...firstTesterResults.testResults.values()].filter(a => !a.data.passed)
+              [...firstTesterResults.testResults.values()].filter((a) => !a.data.passed)
                 .length &&
             mutationEvaluation.testsWorsened === 0 &&
             previousInstruction
@@ -2852,7 +2874,7 @@ export const createPlugin = ({
         } else {
           // TODO: DRY
           const testsToBeRerun = [...firstTesterResults.testResults.values()].map(
-            result => result.data.file,
+            (result) => result.data.file,
           );
           return testsToBeRerun;
         }
@@ -2902,7 +2924,7 @@ export const createPlugin = ({
           mutationsAttempted.toString(),
         );
         Promise.all(
-          [...originalPathToCopyPath.values()].map(copyPath => unlink(copyPath)),
+          [...originalPathToCopyPath.values()].map((copyPath) => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
 
         console.log(failingLocationKeys);

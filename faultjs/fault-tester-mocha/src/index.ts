@@ -25,7 +25,7 @@ export const initialize = async (options: Options) => {
     bail = false,
   } = options;
 
-  const requireFiles = relativeRequireFiles.map(filePath =>
+  const requireFiles = relativeRequireFiles.map((filePath) =>
     require.resolve(filePath, {
       paths: [process.cwd()],
     }),
@@ -125,7 +125,7 @@ export const initialize = async (options: Options) => {
           await runQueue();
           break;
         }
-      }  
+      }
     });
   });
 };

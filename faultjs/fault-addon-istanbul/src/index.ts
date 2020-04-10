@@ -9,12 +9,12 @@ export const report = ({ coverage }: FinalTesterResults, contextOptions) => {
   const context = createContext(contextOptions);
 
   const tree = summarizers.pkg(coverageMap);
-  ['json', 'lcov', 'text'].forEach(reporter =>
+  ['json', 'lcov', 'text'].forEach((reporter) =>
     tree.visit(create(reporter as any, {}), context),
   );
 };
 
-export const createPlugin = contextOptions => {
+export const createPlugin = (contextOptions) => {
   const plugin: PartialTestHookOptions = {
     on: {
       complete: (testerResults: FinalTesterResults) => {
