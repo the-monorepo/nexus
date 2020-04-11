@@ -1,7 +1,12 @@
 /// <reference path="global.d.ts" />
+import Chart from 'chart.js'; 
+import "chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js";
+
 import * as mbx from 'mobx-dom';
+
 import benchmarkResults from '../../benchmark-results.json';
 import './styles.css';
+
 type Ranking = {
   rank: number;
   count: number;
@@ -17,8 +22,8 @@ type ProjectResult = {
   max: number;
   results: Result[];
 };
-const algorithmNames = Object.keys(benchmarkResults.average);
-const projectResults: ProjectResult[] = benchmarkResults.projects.map(
+const algorithmNames = Object.keys(benchmarkResults.average !== undefined ? benchmarkResults.average : {});
+const projectResults: ProjectResult[] = (benchmarkResults.projects !== undefined ? benchmarkResults.projects : []).map(
   (project): ProjectResult => {
     const results: Result[] = [];
     for (const algorithmName of algorithmNames) {

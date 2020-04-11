@@ -1559,6 +1559,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/addon-hook-schema@workspace:faultjs/fault-addon-hook-schema"
   dependencies:
+    hook-schema: "workspace:misc/hook-schema"
     stacktrace-js: ^2.0.0
   languageName: unknown
   linkType: soft
@@ -1567,8 +1568,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/addon-istanbul@workspace:faultjs/fault-addon-istanbul"
   dependencies:
-    istanbul-lib-report: ^2.0.8
-    istanbul-reports: ^2.2.6
+    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
+    "@fault/types": "workspace:faultjs/fault-types"
+    istanbul-lib-coverage: ^3.0.0
+    istanbul-lib-report: ^3.0.0
+    istanbul-reports: ^3.0.2
   languageName: unknown
   linkType: soft
 
@@ -1598,7 +1602,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/addon-sbfl@1.0.0-alpha.0, @fault/addon-sbfl@workspace:faultjs/fault-addon-sbfl":
+"@fault/addon-sbfl@workspace:faultjs/fault-addon-sbfl":
   version: 0.0.0-use.local
   resolution: "@fault/addon-sbfl@workspace:faultjs/fault-addon-sbfl"
   dependencies:
@@ -1611,19 +1615,27 @@ __metadata:
   resolution: "@fault/benchmarker@workspace:faultjs/fault-benchmarker"
   dependencies:
     "@babel/parser": ^7.5.0
-    "@fault/addon-sbfl": 1.0.0-alpha.0
-    "@fault/record-faults": 1.0.0-alpha.0
-    "@fault/runner": 1.0.0-alpha.0
-    "@fault/sbfl-barinel": 1.0.0-alpha.0
-    "@fault/sbfl-dstar": 1.0.0-alpha.0
-    "@fault/sbfl-op2": 1.0.0-alpha.0
-    "@fault/sbfl-tarantula": 1.0.0-alpha.0
+    "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
+    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
+    "@fault/runner": "workspace:faultjs/fault-runner"
+    "@fault/sbfl-barinel": "workspace:faultjs/fault-sbfl-barinel"
+    "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
+    "@fault/sbfl-ochiai": "workspace:faultjs/fault-sbfl-ochiai"
+    "@fault/sbfl-op2": "workspace:faultjs/fault-sbfl-op2"
+    "@fault/sbfl-tarantula": "workspace:faultjs/fault-sbfl-tarantula"
     "@fault/tester-mocha": 1.0.0-alpha.0
+    "@pshaw/logger": "workspace:misc/logger"
+    "@pshaw/winston-formats": "workspace:build-packages/winston-formats"
     babel-preset-airbnb: ^4.4.0
+    chalk: ^4.0.0
+    chart.js: ^2.9.3
+    chartjs-chart-box-and-violin-plot: ^2.3.0
     cross-spawn: ^6.0.5
     isomorphic-git: ^0.58.1
     micromatch: ^4.0.2
     mobx-dom: "workspace:misc/mobx-dom"
+    mz: ^2.7.0
+    source-map-support: ^0.5.16
     webpack-cli: ^3.3.11
     webpack-dev-server: ^3.10.3
   languageName: unknown
@@ -1647,28 +1659,40 @@ __metadata:
 "@fault/messages@workspace:faultjs/fault-messages":
   version: 0.0.0-use.local
   resolution: "@fault/messages@workspace:faultjs/fault-messages"
+  dependencies:
+    "@fault/types": "workspace:faultjs/fault-types"
+    "@pshaw/keyed-binary-heap": "workspace:misc/keyed-binary-heap"
   languageName: unknown
   linkType: soft
 
-"@fault/record-faults@1.0.0-alpha.0, @fault/record-faults@workspace:faultjs/fault-record-faults":
+"@fault/record-faults@workspace:faultjs/fault-record-faults":
   version: 0.0.0-use.local
   resolution: "@fault/record-faults@workspace:faultjs/fault-record-faults"
   languageName: unknown
   linkType: soft
 
-"@fault/runner@1.0.0-alpha.0, @fault/runner@workspace:faultjs/fault-runner":
+"@fault/runner@workspace:faultjs/fault-runner":
   version: 0.0.0-use.local
   resolution: "@fault/runner@workspace:faultjs/fault-runner"
+  dependencies:
+    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
+    "@fault/addon-istanbul": "workspace:faultjs/fault-addon-istanbul"
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
+    "@fault/messages": "workspace:faultjs/fault-messages"
+    "@fault/types": "workspace:faultjs/fault-types"
+    chalk: ^4.0.0
+    globby: ^11.0.0
+    istanbul-lib-coverage: ^3.0.0
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-barinel@1.0.0-alpha.0, @fault/sbfl-barinel@workspace:faultjs/fault-sbfl-barinel":
+"@fault/sbfl-barinel@workspace:faultjs/fault-sbfl-barinel":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-barinel@workspace:faultjs/fault-sbfl-barinel"
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-dstar@1.0.0-alpha.0, @fault/sbfl-dstar@workspace:faultjs/fault-sbfl-dstar":
+"@fault/sbfl-dstar@workspace:faultjs/fault-sbfl-dstar":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-dstar@workspace:faultjs/fault-sbfl-dstar"
   languageName: unknown
@@ -1680,13 +1704,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-op2@1.0.0-alpha.0, @fault/sbfl-op2@workspace:faultjs/fault-sbfl-op2":
+"@fault/sbfl-op2@workspace:faultjs/fault-sbfl-op2":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-op2@workspace:faultjs/fault-sbfl-op2"
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-tarantula@1.0.0-alpha.0, @fault/sbfl-tarantula@workspace:faultjs/fault-sbfl-tarantula":
+"@fault/sbfl-tarantula@workspace:faultjs/fault-sbfl-tarantula":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-tarantula@workspace:faultjs/fault-sbfl-tarantula"
   languageName: unknown
@@ -3140,6 +3164,13 @@ __metadata:
   resolution: "@semantic-documents/matcher-info@workspace:semantic-documents/semantic-documents-matcher-info"
   languageName: unknown
   linkType: soft
+
+"@sgratzl/science@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@sgratzl/science@npm:2.0.0"
+  checksum: 2/0ed65107c7e3131256a11ef5677beb9184126377235f2a5899adb1e367ff0061e8e9d7830d9e6ebd413e3de1f5f34fd59b6328f7bc9906a64963e22f2d977fed
+  languageName: node
+  linkType: hard
 
 "@sinonjs/commons@npm:^1, @sinonjs/commons@npm:^1.6.0, @sinonjs/commons@npm:^1.7.0, @sinonjs/commons@npm:^1.7.2":
   version: 1.7.2
@@ -6471,6 +6502,45 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chart.js@npm:^2.8.0, chart.js@npm:^2.9.3":
+  version: 2.9.3
+  resolution: "chart.js@npm:2.9.3"
+  dependencies:
+    chartjs-color: ^2.1.0
+    moment: ^2.10.2
+  checksum: 2/8e3f10e003941c1c77a5209cd08ed342a41c7c6a2ed93722b7ea1366c804bb2349d957e066f2abb7a3399d6ebebe83a298a15cbc960bc64846bc127e94f77f27
+  languageName: node
+  linkType: hard
+
+"chartjs-chart-box-and-violin-plot@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "chartjs-chart-box-and-violin-plot@npm:2.3.0"
+  dependencies:
+    "@sgratzl/science": ^2.0.0
+    chart.js: ^2.8.0
+  checksum: 2/01ff4e9cf9cd07eaf203cd94acae67a7462ab3729fc74cdc58f3bbe2740ab39697b78c454ac5deeb2bec2284ec20dd528e1a8532fa3eb9b5357049f6f46f026f
+  languageName: node
+  linkType: hard
+
+"chartjs-color-string@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "chartjs-color-string@npm:0.6.0"
+  dependencies:
+    color-name: ^1.0.0
+  checksum: 2/29f7ef3ebf5af1a76034da3148e1f230eee0c0f6df497ab7072ce5fb9c11ff37f5f030d2a2a5f1fd9230895d9aa294b455c5dd0f0e04f38688c69d0ccbdca7dd
+  languageName: node
+  linkType: hard
+
+"chartjs-color@npm:^2.1.0":
+  version: 2.4.1
+  resolution: "chartjs-color@npm:2.4.1"
+  dependencies:
+    chartjs-color-string: ^0.6.0
+    color-convert: ^1.9.3
+  checksum: 2/850408dfcda057ef0115018d5c83b88f5539cf93bbae8389bd3c5caa405a18e1f1d89b22a26107e1559248206a4ad6243294a820d50f042c6782a1d9d09fb3de
+  languageName: node
+  linkType: hard
+
 "check-types@npm:^8.0.3":
   version: 8.0.3
   resolution: "check-types@npm:8.0.3"
@@ -6792,7 +6862,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-convert@npm:^1.9.0, color-convert@npm:^1.9.1":
+"color-convert@npm:^1.9.0, color-convert@npm:^1.9.1, color-convert@npm:^1.9.3":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
   dependencies:
@@ -12303,12 +12373,33 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"istanbul-lib-report@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "istanbul-lib-report@npm:3.0.0"
+  dependencies:
+    istanbul-lib-coverage: ^3.0.0
+    make-dir: ^3.0.0
+    supports-color: ^7.1.0
+  checksum: 2/aada59dfceae04005f684031a627f1e9730634262a5426837a9b60c49530d626dc727be5930e7ae6303ce0d4357fb8331eda0935b8c6b999df5d376bdc825991
+  languageName: node
+  linkType: hard
+
 "istanbul-reports@npm:^2.2.6":
   version: 2.2.7
   resolution: "istanbul-reports@npm:2.2.7"
   dependencies:
     html-escaper: ^2.0.0
   checksum: 2/828f4afd30f1248aaf2ae65a606aa889611165de2c71eaa6a8953eeb4bdbf4b19072b5ec224d465a7511ed02a63a8fabf08c915ab08f7016310a512d4e14c2ac
+  languageName: node
+  linkType: hard
+
+"istanbul-reports@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "istanbul-reports@npm:3.0.2"
+  dependencies:
+    html-escaper: ^2.0.0
+    istanbul-lib-report: ^3.0.0
+  checksum: 2/d4ed416e13fe0fc709566439086660ddab58dce9d6a655053c5315715aac8225bc7e9fcae553c2c3d8cc66cd4b59498a50b92d543a4820c5be0e5ee30178cdf0
   languageName: node
   linkType: hard
 
@@ -14021,7 +14112,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.22.1":
+"moment@npm:^2.10.2, moment@npm:^2.22.1":
   version: 2.24.0
   resolution: "moment@npm:2.24.0"
   checksum: 2/983617bc51c8121a88d9530671fb9e5dc2c71d67ba5bf1b16ebef25b51bd3d1291f17735ac33e8604f4984a275561dfe0fb883664eceacf8f67291ffd26acee9
