@@ -25,24 +25,24 @@ const browserFontSize = (() => {
 // Prevents slider messing with the extension UI at the expense of font resizing
 document.documentElement.style.fontSize = '16px';
 
-const Icon = ({ children }) => <span className="material-icons">{children}</span>;
+const Icon = ({ children }) => <span class="material-icons">{children}</span>;
 
 const SelectAndDragIcon = () => <Icon>photo_size_select_small</Icon>;
 
-const AppHeadingH1 = ({ children }) => <h1 className={text.h700}>{children}</h1>;
+const AppHeadingH1 = ({ children }) => <h1 class={text.h700}>{children}</h1>;
 
 const FunctionHeadingH1 = ({ children, class: className }) => (
-  <h1 className={cx(text.h600, className)}>{children}</h1>
+  <h1 class={cx(text.h600, className)}>{children}</h1>
 );
 
 const FunctionConfigSubheadngH1 = ({ children }) => (
-  <h1 className={cx(text.h500, text.margin)}>{children}</h1>
+  <h1 class={cx(text.h500, text.margin)}>{children}</h1>
 );
 
 const FieldLabel = ({ children, ...other }) => (
   <label
     htmlFor={name}
-    className={cx(text.h400, text.margin, styles.fieldLabel)}
+    class={cx(text.h400, text.margin, styles.fieldLabel)}
     {...other}
   >
     {children}
@@ -50,9 +50,9 @@ const FieldLabel = ({ children, ...other }) => (
 );
 
 const Field = ({ name, children, labelContent, labelClass, contentClass }) => (
-  <section className={cx(styles.field, labelClass)}>
+  <section class={cx(styles.field, labelClass)}>
     <FieldLabel name={name}>{labelContent}</FieldLabel>
-    <div className={cx(styles.fieldContent, contentClass)}>{children}</div>
+    <div class={cx(styles.fieldContent, contentClass)}>{children}</div>
   </section>
 );
 
@@ -172,7 +172,7 @@ const MiscSettings = () => (
       <xy-input class={styles.editLang} $$submit={addLangPreference} />
       <div
         $$click={buttonSetPrimaryLang}
-        className={cx(styles.flexStretch, styles.wrap, styles.langPrefs)}
+        class={cx(styles.flexStretch, styles.wrap, styles.langPrefs)}
       >
         <div>
           <Button class={cx(styles.theme, styles.dark)} type="primary" index={0}>
@@ -246,7 +246,7 @@ const ReplaceWordConfig = () => {
 };
 
 const ReplaceWordExample = ({ children }) => {
-  return <p className={cx(text.h200, text.margin)}>{children}</p>;
+  return <p class={cx(text.h200, text.margin)}>{children}</p>;
 };
 
 const ReplaceWordPreview = () => (
@@ -267,10 +267,10 @@ const ReplaceWidth = () => (
 
 const App = () => (
   <>
-    <header className={cx(styles.appHeader, styles.theme, styles.dark)}>
+    <header class={cx(styles.appHeader, styles.theme, styles.dark)}>
       <AppHeadingH1>Page breaker</AppHeadingH1>
     </header>
-    <main className={cx(styles.appContent, styles.theme, styles.light)}>
+    <main class={cx(styles.appContent, styles.theme, styles.light)}>
       <MiscSettings />
       <ReplaceWidth />
     </main>
