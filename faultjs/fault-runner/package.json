@@ -23,5 +23,15 @@
     "testing",
     "test-runner",
     "typescript"
-  ]
+  ],
+  "dependencies": {
+    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema",
+    "@fault/addon-istanbul": "workspace:faultjs/fault-addon-istanbul",
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util",
+    "@fault/messages": "workspace:faultjs/fault-messages",
+    "@fault/types": "workspace:faultjs/fault-types",
+    "chalk": "^4.0.0",
+    "globby": "^11.0.0",
+    "istanbul-lib-coverage": "^3.0.0"
+  }
 }

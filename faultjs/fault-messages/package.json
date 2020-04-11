@@ -20,5 +20,9 @@
   "keywords": [
     "faultjs",
     "ipc"
-  ]
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types",
+    "@pshaw/keyed-binary-heap": "workspace:misc/keyed-binary-heap"
+  }
 }

@@ -281,7 +281,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ["@pshaw/eslint-config-typescript", ["workspace:build-packages/eslint-config-typescript"]],
       ["@pshaw/html-template", ["workspace:misc/html-template"]],
       ["@pshaw/keyed-binary-heap", ["workspace:misc/keyed-binary-heap"]],
-      ["@pshaw/logger", ["workspace:misc/logger"]],
+      ["@pshaw/logger", ["virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:misc/logger", "workspace:misc/logger"]],
       ["@pshaw/markdown-util", ["workspace:misc/markdown-util"]],
       ["@pshaw/my-resume", ["workspace:patrick-shaw/my-resume"]],
       ["@pshaw/page-breaker-chrome", ["workspace:misc/page-breaker-chrome"]],
@@ -3483,6 +3483,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-addon-hook-schema/",
           "packageDependencies": [
             ["@fault/addon-hook-schema", "workspace:faultjs/fault-addon-hook-schema"],
+            ["hook-schema", "workspace:misc/hook-schema"],
             ["stacktrace-js", "npm:2.0.2"]
           ],
           "linkType": "SOFT",
@@ -3493,8 +3494,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-addon-istanbul/",
           "packageDependencies": [
             ["@fault/addon-istanbul", "workspace:faultjs/fault-addon-istanbul"],
-            ["istanbul-lib-report", "npm:2.0.8"],
-            ["istanbul-reports", "npm:2.2.7"]
+            ["@fault/addon-hook-schema", "workspace:faultjs/fault-addon-hook-schema"],
+            ["@fault/types", "workspace:faultjs/fault-types"],
+            ["istanbul-lib-coverage", "npm:3.0.0"],
+            ["istanbul-lib-report", "npm:3.0.0"],
+            ["istanbul-reports", "npm:3.0.2"]
           ],
           "linkType": "SOFT",
         }]
@@ -3550,14 +3554,22 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/runner", "workspace:faultjs/fault-runner"],
             ["@fault/sbfl-barinel", "workspace:faultjs/fault-sbfl-barinel"],
             ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
+            ["@fault/sbfl-ochiai", "workspace:faultjs/fault-sbfl-ochiai"],
             ["@fault/sbfl-op2", "workspace:faultjs/fault-sbfl-op2"],
             ["@fault/sbfl-tarantula", "workspace:faultjs/fault-sbfl-tarantula"],
             ["@fault/tester-mocha", "workspace:faultjs/fault-tester-mocha"],
+            ["@pshaw/logger", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:misc/logger"],
+            ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
             ["babel-preset-airbnb", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:4.5.0"],
+            ["chalk", "npm:4.0.0"],
+            ["chart.js", "npm:2.9.3"],
+            ["chartjs-chart-box-and-violin-plot", "npm:2.3.0"],
             ["cross-spawn", "npm:6.0.5"],
             ["isomorphic-git", "npm:0.58.2"],
             ["micromatch", "npm:4.0.2"],
             ["mobx-dom", "workspace:misc/mobx-dom"],
+            ["mz", "npm:2.7.0"],
+            ["source-map-support", "npm:0.5.16"],
             ["webpack-cli", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:3.3.11"],
             ["webpack-dev-server", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:3.10.3"]
           ],
@@ -3588,7 +3600,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-messages", {
           "packageLocation": "./faultjs/fault-messages/",
           "packageDependencies": [
-            ["@fault/messages", "workspace:faultjs/fault-messages"]
+            ["@fault/messages", "workspace:faultjs/fault-messages"],
+            ["@fault/types", "workspace:faultjs/fault-types"],
+            ["@pshaw/keyed-binary-heap", "workspace:misc/keyed-binary-heap"]
           ],
           "linkType": "SOFT",
         }]
@@ -3606,7 +3620,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-runner", {
           "packageLocation": "./faultjs/fault-runner/",
           "packageDependencies": [
-            ["@fault/runner", "workspace:faultjs/fault-runner"]
+            ["@fault/runner", "workspace:faultjs/fault-runner"],
+            ["@fault/addon-hook-schema", "workspace:faultjs/fault-addon-hook-schema"],
+            ["@fault/addon-istanbul", "workspace:faultjs/fault-addon-istanbul"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
+            ["@fault/messages", "workspace:faultjs/fault-messages"],
+            ["@fault/types", "workspace:faultjs/fault-types"],
+            ["chalk", "npm:4.0.0"],
+            ["globby", "npm:11.0.0"],
+            ["istanbul-lib-coverage", "npm:3.0.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -5093,6 +5115,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "HARD",
         }],
+        ["virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:misc/logger", {
+          "packageLocation": "./.yarn/$$virtual/@pshaw-logger-virtual-494f85ec0d/1/misc/logger/",
+          "packageDependencies": [
+            ["@pshaw/logger", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:misc/logger"],
+            ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
+            ["mockdate", "npm:2.0.5"],
+            ["winston", "npm:3.2.1"]
+          ],
+          "packagePeers": [
+            "@pshaw/winston-formats"
+          ],
+          "linkType": "SOFT",
+        }],
         ["workspace:misc/logger", {
           "packageLocation": "./misc/logger/",
           "packageDependencies": [
@@ -5336,6 +5371,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@semantic-documents/matcher-info", "workspace:semantic-documents/semantic-documents-matcher-info"]
           ],
           "linkType": "SOFT",
+        }]
+      ]],
+      ["@sgratzl/science", [
+        ["npm:2.0.0", {
+          "packageLocation": "./.yarn/cache/@sgratzl-science-npm-2.0.0-3510cc8b40-2.zip/node_modules/@sgratzl/science/",
+          "packageDependencies": [
+            ["@sgratzl/science", "npm:2.0.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["@sinonjs/commons", [
@@ -9210,6 +9254,49 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/chardet-npm-0.7.0-27933dd6c7-2.zip/node_modules/chardet/",
           "packageDependencies": [
             ["chardet", "npm:0.7.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["chart.js", [
+        ["npm:2.9.3", {
+          "packageLocation": "./.yarn/cache/chart.js-npm-2.9.3-8b7649c089-2.zip/node_modules/chart.js/",
+          "packageDependencies": [
+            ["chart.js", "npm:2.9.3"],
+            ["chartjs-color", "npm:2.4.1"],
+            ["moment", "npm:2.24.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["chartjs-chart-box-and-violin-plot", [
+        ["npm:2.3.0", {
+          "packageLocation": "./.yarn/cache/chartjs-chart-box-and-violin-plot-npm-2.3.0-d43c231c07-2.zip/node_modules/chartjs-chart-box-and-violin-plot/",
+          "packageDependencies": [
+            ["chartjs-chart-box-and-violin-plot", "npm:2.3.0"],
+            ["@sgratzl/science", "npm:2.0.0"],
+            ["chart.js", "npm:2.9.3"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["chartjs-color", [
+        ["npm:2.4.1", {
+          "packageLocation": "./.yarn/cache/chartjs-color-npm-2.4.1-c16310d721-2.zip/node_modules/chartjs-color/",
+          "packageDependencies": [
+            ["chartjs-color", "npm:2.4.1"],
+            ["chartjs-color-string", "npm:0.6.0"],
+            ["color-convert", "npm:1.9.3"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["chartjs-color-string", [
+        ["npm:0.6.0", {
+          "packageLocation": "./.yarn/cache/chartjs-color-string-npm-0.6.0-49eec5a83f-2.zip/node_modules/chartjs-color-string/",
+          "packageDependencies": [
+            ["chartjs-color-string", "npm:0.6.0"],
+            ["color-name", "npm:1.1.4"]
           ],
           "linkType": "HARD",
         }]
@@ -15758,6 +15845,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["supports-color", "npm:6.1.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:3.0.0", {
+          "packageLocation": "./.yarn/cache/istanbul-lib-report-npm-3.0.0-660f97340a-2.zip/node_modules/istanbul-lib-report/",
+          "packageDependencies": [
+            ["istanbul-lib-report", "npm:3.0.0"],
+            ["istanbul-lib-coverage", "npm:3.0.0"],
+            ["make-dir", "npm:3.0.2"],
+            ["supports-color", "npm:7.1.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["istanbul-reports", [
@@ -15766,6 +15863,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["istanbul-reports", "npm:2.2.7"],
             ["html-escaper", "npm:2.0.2"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:3.0.2", {
+          "packageLocation": "./.yarn/cache/istanbul-reports-npm-3.0.2-6ccd67e17e-2.zip/node_modules/istanbul-reports/",
+          "packageDependencies": [
+            ["istanbul-reports", "npm:3.0.2"],
+            ["html-escaper", "npm:2.0.2"],
+            ["istanbul-lib-report", "npm:3.0.0"]
           ],
           "linkType": "HARD",
         }]
