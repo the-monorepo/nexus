@@ -1,16 +1,16 @@
-# Eslint Config Typescript
+# Eslint Config Plugin Typescript
 
 A pratical Typescript style preset for ESLint
 
 ## Installation
 
 ```bash
-npm install --save-dev @pshaw/eslint-plugin-typescript-config
+npm install --save @pshaw/eslint-config-plugin-typescript
 ```
 or
 ```bash
-yarn add --dev @pshaw/eslint-plugin-typescript-config
+yarn add @pshaw/eslint-config-plugin-typescript
 ```
 
 ---
-This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
+This documentation was generated using [writeme](https://www.npmjs.com/package/@writeme/core)
