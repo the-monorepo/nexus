@@ -47,6 +47,7 @@
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl",
     "@fault/runner": "workspace:faultjs/fault-runner",
     "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar",
+    "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha",
     "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core",
     "@pshaw/eslint-config-preset": "workspace:build-packages/eslint-config-preset",
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats",

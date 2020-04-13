@@ -4,6 +4,6 @@
   "description": "An example of how to use writeme",
   "version": "1.0.0",
   "dependencies": {
-    "@pshaw/writeme": "^1.0.3"
+    "@writeme/core": "^1.0.3"
   }
 }
