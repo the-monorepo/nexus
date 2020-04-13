@@ -11133,7 +11133,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:patrick-shaw/semantic-documents-style-root", {
           "packageLocation": "./patrick-shaw/semantic-documents-style-root/",
           "packageDependencies": [
-            ["@pshaw/semantic-documents-style-root", "workspace:patrick-shaw/semantic-documents-style-root"]
+            ["@pshaw/semantic-documents-style-root", "workspace:patrick-shaw/semantic-documents-style-root"],
+            ["@pshaw/semantic-documents-scss", "workspace:patrick-shaw/semantic-documents-scss"],
+            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
+            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"]
           ],
           "linkType": "SOFT",
         }]
