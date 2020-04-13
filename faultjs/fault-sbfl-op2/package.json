@@ -24,5 +24,8 @@
     "fault-localization",
     "sbfl",
     "op2"
-  ]
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }

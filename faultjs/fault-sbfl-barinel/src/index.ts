@@ -1,4 +1,4 @@
-import { Stats } from '@fault/addon-sbfl';
+import type { Stats } from '@fault/addon-sbfl';
 export const barinel = (codeElementStats: Stats) => {
   if (codeElementStats.passed + codeElementStats.failed === 0) {
     return null;

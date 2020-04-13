@@ -1667,30 +1667,40 @@ __metadata:
 "@fault/sbfl-barinel@workspace:faultjs/fault-sbfl-barinel":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-barinel@workspace:faultjs/fault-sbfl-barinel"
+  dependencies:
+    "@fault/types": "workspace:faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
 "@fault/sbfl-dstar@workspace:faultjs/fault-sbfl-dstar":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-dstar@workspace:faultjs/fault-sbfl-dstar"
+  dependencies:
+    "@fault/types": "workspace:faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
 "@fault/sbfl-ochiai@workspace:faultjs/fault-sbfl-ochiai":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-ochiai@workspace:faultjs/fault-sbfl-ochiai"
+  dependencies:
+    "@fault/types": "workspace:faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
 "@fault/sbfl-op2@workspace:faultjs/fault-sbfl-op2":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-op2@workspace:faultjs/fault-sbfl-op2"
+  dependencies:
+    "@fault/types": "workspace:faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
 "@fault/sbfl-tarantula@workspace:faultjs/fault-sbfl-tarantula":
   version: 0.0.0-use.local
   resolution: "@fault/sbfl-tarantula@workspace:faultjs/fault-sbfl-tarantula"
+  dependencies:
+    "@fault/types": "workspace:faultjs/fault-types"
   languageName: unknown
   linkType: soft
 

@@ -9496,7 +9496,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-sbfl-barinel", {
           "packageLocation": "./faultjs/fault-sbfl-barinel/",
           "packageDependencies": [
-            ["@fault/sbfl-barinel", "workspace:faultjs/fault-sbfl-barinel"]
+            ["@fault/sbfl-barinel", "workspace:faultjs/fault-sbfl-barinel"],
+            ["@fault/types", "workspace:faultjs/fault-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -9505,7 +9506,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-sbfl-dstar", {
           "packageLocation": "./faultjs/fault-sbfl-dstar/",
           "packageDependencies": [
-            ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"]
+            ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
+            ["@fault/types", "workspace:faultjs/fault-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -9514,7 +9516,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-sbfl-ochiai", {
           "packageLocation": "./faultjs/fault-sbfl-ochiai/",
           "packageDependencies": [
-            ["@fault/sbfl-ochiai", "workspace:faultjs/fault-sbfl-ochiai"]
+            ["@fault/sbfl-ochiai", "workspace:faultjs/fault-sbfl-ochiai"],
+            ["@fault/types", "workspace:faultjs/fault-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -9523,7 +9526,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-sbfl-op2", {
           "packageLocation": "./faultjs/fault-sbfl-op2/",
           "packageDependencies": [
-            ["@fault/sbfl-op2", "workspace:faultjs/fault-sbfl-op2"]
+            ["@fault/sbfl-op2", "workspace:faultjs/fault-sbfl-op2"],
+            ["@fault/types", "workspace:faultjs/fault-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -9532,7 +9536,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-sbfl-tarantula", {
           "packageLocation": "./faultjs/fault-sbfl-tarantula/",
           "packageDependencies": [
-            ["@fault/sbfl-tarantula", "workspace:faultjs/fault-sbfl-tarantula"]
+            ["@fault/sbfl-tarantula", "workspace:faultjs/fault-sbfl-tarantula"],
+            ["@fault/types", "workspace:faultjs/fault-types"]
           ],
           "linkType": "SOFT",
         }]

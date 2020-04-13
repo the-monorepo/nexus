@@ -1,4 +1,4 @@
-import { Stats } from '@fault/types';
+import type { Stats } from '@fault/types';
 
 export const op2 = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats) => {
   return (
