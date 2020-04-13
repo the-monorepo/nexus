@@ -4410,7 +4410,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "is-path-inside",
-        "npm:2.1.0"
+        "npm:3.0.2"
       ],
       [
         "is-plain-obj",
@@ -9374,9 +9374,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-addon-mutation-localization-v1/",
           "packageDependencies": [
             ["@fault/addon-mutation-localization-v1", "workspace:faultjs/fault-addon-mutation-localization-v1"],
+            ["@babel/generator", "npm:7.9.5"],
             ["@babel/parser", "npm:7.9.4"],
+            ["@babel/traverse", "npm:7.9.5"],
+            ["@babel/types", "npm:7.9.5"],
+            ["@fault/addon-hook-schema", "workspace:faultjs/fault-addon-hook-schema"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
+            ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
+            ["@fault/types", "workspace:faultjs/fault-types"],
             ["@types/pouchdb", "npm:6.4.0"],
+            ["chalk", "npm:4.0.0"],
+            ["del", "npm:5.1.0"],
             ["error-stack-parser", "npm:2.0.6"],
+            ["istanbul-lib-coverage", "npm:3.0.0"],
+            ["micromatch", "npm:4.0.2"],
+            ["mz", "npm:2.7.0"],
             ["pouchdb", "npm:7.2.1"],
             ["pouchdb-adapter-memory", "npm:7.2.1"],
             ["pouchdb-find", "npm:7.2.1"]
@@ -9421,10 +9433,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["chart.js", "npm:2.9.3"],
             ["chartjs-chart-box-and-violin-plot", "npm:2.3.0"],
             ["cross-spawn", "npm:6.0.5"],
+            ["del", "npm:5.1.0"],
+            ["globby", "npm:11.0.0"],
             ["isomorphic-git", "npm:0.58.2"],
             ["micromatch", "npm:4.0.2"],
             ["mobx-dom", "workspace:misc/mobx-dom"],
             ["mz", "npm:2.7.0"],
+            ["node-fetch", "npm:2.6.0"],
             ["source-map-support", "npm:0.5.16"],
             ["webpack-cli", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:3.3.11"],
             ["webpack-dev-server", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:3.10.3"]
@@ -9437,6 +9452,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-istanbul-util/",
           "packageDependencies": [
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
+            ["istanbul-lib-coverage", "npm:3.0.0"],
             ["istanbul-lib-report", "npm:2.0.8"],
             ["istanbul-reports", "npm:2.2.7"],
             ["mz", "npm:2.7.0"]
@@ -9448,7 +9464,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-localization-util", {
           "packageLocation": "./faultjs/fault-localization-util/",
           "packageDependencies": [
-            ["@fault/localization-util", "workspace:faultjs/fault-localization-util"]
+            ["@fault/localization-util", "workspace:faultjs/fault-localization-util"],
+            ["@fault/types", "workspace:faultjs/fault-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -9469,6 +9486,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-record-faults/",
           "packageDependencies": [
             ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["chalk", "npm:4.0.0"],
             ["mz", "npm:2.7.0"]
           ],
