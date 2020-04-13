@@ -124,7 +124,9 @@ const addLangPreference = {
       }
       console.log(...languageState.langs);
       e.target.reset();
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   }),
   options: {
     passive: true,
