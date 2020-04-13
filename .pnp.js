@@ -2077,6 +2077,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:1.0.0"
       ],
       [
+        "assertion-error",
+        "npm:1.1.0"
+      ],
+      [
         "assign-symbols",
         "npm:1.0.0"
       ],
@@ -2517,6 +2521,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:0.12.0"
       ],
       [
+        "chai",
+        "npm:4.2.0"
+      ],
+      [
         "chalk",
         "npm:3.0.0"
       ],
@@ -2551,6 +2559,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "chartjs-color-string",
         "npm:0.6.0"
+      ],
+      [
+        "check-error",
+        "npm:1.0.2"
       ],
       [
         "check-types",
@@ -2975,6 +2987,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "dedent",
         "npm:0.7.0"
+      ],
+      [
+        "deep-eql",
+        "npm:3.0.1"
       ],
       [
         "deep-equal",
@@ -3759,6 +3775,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "get-caller-file",
         "npm:2.0.5"
+      ],
+      [
+        "get-func-name",
+        "npm:2.0.0"
       ],
       [
         "get-pkg-repo",
@@ -5575,6 +5595,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "path-type",
         "npm:3.0.0"
+      ],
+      [
+        "pathval",
+        "npm:1.1.0"
       ],
       [
         "pbkdf2",
@@ -9390,6 +9414,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/tester-mocha", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:faultjs/fault-tester-mocha"],
             ["@pshaw/logger", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:misc/logger"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
+            ["chai", "npm:4.2.0"],
             ["chalk", "npm:4.0.0"],
             ["chart.js", "npm:2.9.3"],
             ["chartjs-chart-box-and-violin-plot", "npm:2.3.0"],
@@ -10965,7 +10990,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pshaw/eslint-config-plugin-typescript", "workspace:build-packages/eslint-config-plugin-typescript"],
             ["@typescript-eslint/eslint-plugin", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:2.27.0"],
             ["eslint-config-prettier", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:6.10.1"],
-            ["eslint-plugin-import", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:2.20.2"]
+            ["eslint-plugin-import", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:2.20.2"],
+            ["eslint-plugin-react", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:7.19.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -13661,6 +13687,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["assertion-error", [
+        ["npm:1.1.0", {
+          "packageLocation": "./.yarn/cache/assertion-error-npm-1.1.0-66b893015e-2.zip/node_modules/assertion-error/",
+          "packageDependencies": [
+            ["assertion-error", "npm:1.1.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["assign-symbols", [
         ["npm:1.0.0", {
           "packageLocation": "./.yarn/cache/assign-symbols-npm-1.0.0-fd803ccdf1-2.zip/node_modules/assign-symbols/",
@@ -15000,6 +15035,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["chai", [
+        ["npm:4.2.0", {
+          "packageLocation": "./.yarn/cache/chai-npm-4.2.0-b777309e5a-2.zip/node_modules/chai/",
+          "packageDependencies": [
+            ["chai", "npm:4.2.0"],
+            ["assertion-error", "npm:1.1.0"],
+            ["check-error", "npm:1.0.2"],
+            ["deep-eql", "npm:3.0.1"],
+            ["get-func-name", "npm:2.0.0"],
+            ["pathval", "npm:1.1.0"],
+            ["type-detect", "npm:4.0.8"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["chalk", [
         ["npm:1.1.3", {
           "packageLocation": "./.yarn/cache/chalk-npm-1.1.3-59144c3a87-2.zip/node_modules/chalk/",
@@ -15117,6 +15167,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["chartjs-color-string", "npm:0.6.0"],
             ["color-name", "npm:1.1.4"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["check-error", [
+        ["npm:1.0.2", {
+          "packageLocation": "./.yarn/cache/check-error-npm-1.0.2-00c540c6e9-2.zip/node_modules/check-error/",
+          "packageDependencies": [
+            ["check-error", "npm:1.0.2"]
           ],
           "linkType": "HARD",
         }]
@@ -16523,6 +16582,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["deep-eql", [
+        ["npm:3.0.1", {
+          "packageLocation": "./.yarn/cache/deep-eql-npm-3.0.1-9a66c09c65-2.zip/node_modules/deep-eql/",
+          "packageDependencies": [
+            ["deep-eql", "npm:3.0.1"],
+            ["type-detect", "npm:4.0.8"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["deep-equal", [
         ["npm:1.1.1", {
           "packageLocation": "./.yarn/cache/deep-equal-npm-1.1.1-67ff9c29b9-2.zip/node_modules/deep-equal/",
@@ -17851,6 +17920,29 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "eslint"
           ],
           "linkType": "HARD",
+        }],
+        ["virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:7.19.0", {
+          "packageLocation": "./.yarn/$$virtual/eslint-plugin-react-virtual-5f929d132f/0/cache/eslint-plugin-react-npm-7.19.0-cf65a17ee2-2.zip/node_modules/eslint-plugin-react/",
+          "packageDependencies": [
+            ["eslint-plugin-react", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:7.19.0"],
+            ["array-includes", "npm:3.1.1"],
+            ["doctrine", "npm:2.1.0"],
+            ["eslint", null],
+            ["has", "npm:1.0.3"],
+            ["jsx-ast-utils", "npm:2.2.3"],
+            ["object.entries", "npm:1.1.1"],
+            ["object.fromentries", "npm:2.0.2"],
+            ["object.values", "npm:1.1.1"],
+            ["prop-types", "npm:15.7.2"],
+            ["resolve", "patch:resolve@npm%3A1.15.1#builtin<compat/resolve>::version=1.15.1&hash=8fccd0"],
+            ["semver", "npm:6.3.0"],
+            ["string.prototype.matchall", "npm:4.0.2"],
+            ["xregexp", "npm:4.3.0"]
+          ],
+          "packagePeers": [
+            "eslint"
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["eslint-scope", [
@@ -19147,6 +19239,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/get-caller-file-npm-2.0.5-80e8a86305-2.zip/node_modules/get-caller-file/",
           "packageDependencies": [
             ["get-caller-file", "npm:2.0.5"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["get-func-name", [
+        ["npm:2.0.0", {
+          "packageLocation": "./.yarn/cache/get-func-name-npm-2.0.0-afbf363765-2.zip/node_modules/get-func-name/",
+          "packageDependencies": [
+            ["get-func-name", "npm:2.0.0"]
           ],
           "linkType": "HARD",
         }]
@@ -25231,6 +25332,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/path-type-npm-4.0.0-10d47fc86a-2.zip/node_modules/path-type/",
           "packageDependencies": [
             ["path-type", "npm:4.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["pathval", [
+        ["npm:1.1.0", {
+          "packageLocation": "./.yarn/cache/pathval-npm-1.1.0-238ccd3696-2.zip/node_modules/pathval/",
+          "packageDependencies": [
+            ["pathval", "npm:1.1.0"]
           ],
           "linkType": "HARD",
         }]

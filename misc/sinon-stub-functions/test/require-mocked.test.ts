@@ -1,4 +1,5 @@
 import rewiremock from 'rewiremock';
+
 import { stubFunctions } from '../src';
 describe('require', () => {
   it('exports mocked modules work', () => {
