@@ -1,11 +1,7 @@
 {
   "parser": "@typescript-eslint/parser",
   "extends": [
-    "@pshaw/eslint-config-core",
-    "@pshaw/eslint-config-react",
-    "@pshaw/eslint-config-typescript",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "@pshaw/eslint-config-preset"
   ],  
   "globals": {
     "expect": "writable"
@@ -26,7 +22,6 @@
     }
   },
   "rules": {
-    "react/prop-types": "off",
     "no-console": "warn",
   },
   "overrides": [{
