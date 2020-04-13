@@ -1,6 +1,8 @@
 import { exec } from 'child_process';
-import globby from 'globby';
+
 import { resolve } from 'path';
+
+import globby from 'globby';
 
 const main = async () => {
   const projectsDir = './projects';

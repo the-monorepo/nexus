@@ -1,3 +1,6 @@
+import { parse } from '@babel/parser';
+import * as t from '@babel/types';
+
 import {
   deleteStatementSequence,
   getAstPath,
@@ -6,8 +9,6 @@ import {
   getTraverseKeys,
   mutationWrapperToInstruction,
 } from '../src/index';
-import { parse } from '@babel/parser';
-import * as t from '@babel/types';
 describe('sequences', () => {
   const ast1 = it('delete statement', () => {
     const filePath = '';

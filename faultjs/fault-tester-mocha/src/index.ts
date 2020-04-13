@@ -1,7 +1,10 @@
-import { client } from './client';
-import { IPCSerializer } from '@fault/messages';
-import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
 import { cloneCoverage } from '@fault/istanbul-util';
+import { IPCSerializer } from '@fault/messages';
+
+import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
+
+import { client } from './client';
+
 import { createMochaInstance, runMochaInstance } from './mocha-util';
 
 const COVERAGE_KEY = '__coverage__';

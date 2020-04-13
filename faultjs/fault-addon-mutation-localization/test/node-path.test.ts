@@ -1,3 +1,6 @@
+import { parse } from '@babel/parser';
+import { NodePath } from '@babel/traverse';
+
 import {
   getAstPath,
   forceConsequentFactory,
@@ -10,8 +13,6 @@ import {
   pathToKey,
   widenCoveragePath,
 } from '../src/index';
-import { parse } from '@babel/parser';
-import { NodePath } from '@babel/traverse';
 
 const ast1 = parse(
   'const a = Math.random(); if(a > 0.5) { console.log("consequent") } else { console.log("alternate") }; null;',

@@ -1,11 +1,12 @@
+import { parse } from '@babel/parser';
+import traverse, { NodePath } from '@babel/traverse';
+
 import {
   Instruction,
   getAstPath,
   initialiseEvaluationMaps,
   pathToPrimaryKey,
 } from '../src';
-import { parse } from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
 const code = 'let a = 0; 1 + 2; () => {}';
 const ast = parse(code);
 const filePath = 'test';

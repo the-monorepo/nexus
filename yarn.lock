@@ -2945,24 +2945,18 @@ __metadata:
 "@pshaw/eslint-config-plugin-import@workspace:build-packages/eslint-config-plugin-import":
   version: 0.0.0-use.local
   resolution: "@pshaw/eslint-config-plugin-import@workspace:build-packages/eslint-config-plugin-import"
-  dependencies:
-    "@typescript-eslint/eslint-plugin": ^1.4.0
   languageName: unknown
   linkType: soft
 
 "@pshaw/eslint-config-plugin-react@workspace:build-packages/eslint-config-plugin-react":
   version: 0.0.0-use.local
   resolution: "@pshaw/eslint-config-plugin-react@workspace:build-packages/eslint-config-plugin-react"
-  dependencies:
-    eslint-plugin-react: ^7.12.4
   languageName: unknown
   linkType: soft
 
 "@pshaw/eslint-config-plugin-typescript@workspace:build-packages/eslint-config-plugin-typescript":
   version: 0.0.0-use.local
   resolution: "@pshaw/eslint-config-plugin-typescript@workspace:build-packages/eslint-config-plugin-typescript"
-  dependencies:
-    "@typescript-eslint/eslint-plugin": ^1.4.0
   languageName: unknown
   linkType: soft
 
@@ -2974,7 +2968,10 @@ __metadata:
     "@pshaw/eslint-config-plugin-import": "workspace:build-packages/eslint-config-plugin-import"
     "@pshaw/eslint-config-plugin-react": "workspace:build-packages/eslint-config-plugin-react"
     "@pshaw/eslint-config-plugin-typescript": "workspace:build-packages/eslint-config-plugin-typescript"
+    "@typescript-eslint/eslint-plugin": ^2.27.0
     eslint-config-prettier: ^6.10.1
+    eslint-plugin-import: ^2.20.2
+    eslint-plugin-react: ^7.19.0
   languageName: unknown
   linkType: soft
 
@@ -4077,22 +4074,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^1.4.0":
-  version: 1.13.0
-  resolution: "@typescript-eslint/eslint-plugin@npm:1.13.0"
-  dependencies:
-    "@typescript-eslint/experimental-utils": 1.13.0
-    eslint-utils: ^1.3.1
-    functional-red-black-tree: ^1.0.1
-    regexpp: ^2.0.1
-    tsutils: ^3.7.0
-  peerDependencies:
-    "@typescript-eslint/parser": ^1.9.0
-    eslint: ^5.0.0
-  checksum: 2/48982decc44aec167356b89b63d67561519a9edd6e192bee270c41559041cc12511a9239399dae27fd68cfc0a6a7830c3d6ae91b361e84e421b05d6c026cd2be
-  languageName: node
-  linkType: hard
-
 "@typescript-eslint/eslint-plugin@npm:^2.27.0":
   version: 2.27.0
   resolution: "@typescript-eslint/eslint-plugin@npm:2.27.0"
@@ -4109,19 +4090,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 2/4373cddd9062a4640ab00f3553c839689109f26ed347523924053109bce6ed3adb7c6c89945076480bade28db91530a02911dd549aa252a805ceebf0f285280b
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/experimental-utils@npm:1.13.0":
-  version: 1.13.0
-  resolution: "@typescript-eslint/experimental-utils@npm:1.13.0"
-  dependencies:
-    "@types/json-schema": ^7.0.3
-    "@typescript-eslint/typescript-estree": 1.13.0
-    eslint-scope: ^4.0.0
-  peerDependencies:
-    eslint: "*"
-  checksum: 2/10b725398dfc2e01aa2cd525bedf15bd0beb14c792f35325c374f027590fd30db68f3713d5a215119c657dc3462fc114e11eb42e0fe5ca5869622fa39d59a13d
   languageName: node
   linkType: hard
 
@@ -4154,16 +4122,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 2/e9b28622d498ec62467263ca95d2679b9f093ee37e5b7ccaf6930597a3f0f5bfd934d1b85aa8b6b43e48bfa126dac2fba7f094706ac4e261eb7eea8d868255f9
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/typescript-estree@npm:1.13.0":
-  version: 1.13.0
-  resolution: "@typescript-eslint/typescript-estree@npm:1.13.0"
-  dependencies:
-    lodash.unescape: 4.0.1
-    semver: 5.5.0
-  checksum: 2/89520f05cb7225df5b966ba0c8d2d2d2d8c2481bee18bbe3f862a56ebf275cf1156a4c22d6b789908801810ecf820b5a19c16159a6edf0e751f78a859581e88d
   languageName: node
   linkType: hard
 
@@ -8780,7 +8738,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:^7.12.4, eslint-plugin-react@npm:^7.19.0":
+"eslint-plugin-react@npm:^7.19.0":
   version: 7.19.0
   resolution: "eslint-plugin-react@npm:7.19.0"
   dependencies:
@@ -8802,7 +8760,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-scope@npm:^4.0.0, eslint-scope@npm:^4.0.3":
+"eslint-scope@npm:^4.0.3":
   version: 4.0.3
   resolution: "eslint-scope@npm:4.0.3"
   dependencies:
@@ -8822,7 +8780,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-utils@npm:^1.3.1, eslint-utils@npm:^1.4.3":
+"eslint-utils@npm:^1.4.3":
   version: 1.4.3
   resolution: "eslint-utils@npm:1.4.3"
   dependencies:
@@ -13311,13 +13269,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash.unescape@npm:4.0.1":
-  version: 4.0.1
-  resolution: "lodash.unescape@npm:4.0.1"
-  checksum: 2/3fa28bfc513a7cabe4ee8e6fc312c83b9d724c0c7d4ceca6ff9c1a9f6b46200e935e374e73f9db7564a8fc4c2028e3106338156e736ad8362ffb99478fe145dc
-  languageName: node
-  linkType: hard
-
 "lodash.uniq@npm:^4.5.0":
   version: 4.5.0
   resolution: "lodash.uniq@npm:4.5.0"
@@ -14135,7 +14086,6 @@ fsevents@^1.2.7:
     "@types/babel__traverse": ^7.0.7
     "@types/mocha": ^7.0.2
     "@types/mz": ^2.7.0
-    "@typescript-eslint/eslint-plugin": ^2.27.0
     "@typescript-eslint/parser": ^2.27.0
     "@writeme/core": "workspace:misc/writeme-core"
     "@yarnpkg/pnpify": ^2.0.0-rc.20
@@ -17804,15 +17754,6 @@ resolve@1.1.x:
   languageName: node
   linkType: hard
 
-"semver@npm:5.5.0":
-  version: 5.5.0
-  resolution: "semver@npm:5.5.0"
-  bin:
-    semver: ./bin/semver
-  checksum: 2/2e1c199c79342641547b541d36dd997b365fd7aa40ece8acabeafd9eccd5e3240f7337b494c4bd27a9317fda541ee3e90d01d1e3ce7d4c83d42dbf2599b7ba61
-  languageName: node
-  linkType: hard
-
 "semver@npm:7.0.0":
   version: 7.0.0
   resolution: "semver@npm:7.0.0"
@@ -19505,7 +19446,7 @@ resolve@1.1.x:
   languageName: node
   linkType: hard
 
-"tsutils@npm:^3.17.1, tsutils@npm:^3.7.0":
+"tsutils@npm:^3.17.1":
   version: 3.17.1
   resolution: "tsutils@npm:3.17.1"
   dependencies:

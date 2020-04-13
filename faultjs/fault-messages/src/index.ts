@@ -1,3 +1,6 @@
+import { ChildProcess } from 'child_process';
+import { promisify } from 'util';
+
 import {
   IPC,
   PassingTestData,
@@ -12,8 +15,6 @@ import {
   RunTestsData,
 } from '@fault/types';
 import Heap from '@pshaw/keyed-binary-heap';
-import { promisify } from 'util';
-import { ChildProcess } from 'child_process';
 
 export class IPCSerializer {
   private waitingForId = 0;

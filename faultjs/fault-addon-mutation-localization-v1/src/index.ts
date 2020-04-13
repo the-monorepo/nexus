@@ -1,4 +1,10 @@
+import { tmpdir } from 'os';
+import { join, resolve, basename } from 'path';
+
+import generate from '@babel/generator';
 import { parse, ParserOptions } from '@babel/parser';
+import { NodePath } from '@babel/traverse';
+import traverse from '@babel/traverse';
 import {
   File,
   AssignmentExpression,
@@ -6,22 +12,10 @@ import {
   BaseNode,
   Statement,
 } from '@babel/types';
-import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import * as t from '@babel/types';
-import {
-  TesterResults,
-  TestResult,
-  FailingTestData,
-  FinalTesterResults,
-} from '@fault/types';
-import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'mz/fs';
-import { createCoverageMap } from 'istanbul-lib-coverage';
-import { join, resolve, basename } from 'path';
-import { tmpdir } from 'os';
-import del from 'del';
+import { PartialTestHookOptions } from '@fault/addon-hook-schema';
+
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
-import ErrorStackParser from 'error-stack-parser';
-import { NodePath } from '@babel/traverse';
 import {
   reportFaults,
   Fault,
@@ -29,10 +23,18 @@ import {
   recordFaults,
   sortBySuspciousness,
 } from '@fault/record-faults';
-import generate from '@babel/generator';
+import {
+  TesterResults,
+  TestResult,
+  FailingTestData,
+  FinalTesterResults,
+} from '@fault/types';
 import chalk from 'chalk';
+import del from 'del';
+import ErrorStackParser from 'error-stack-parser';
+import { createCoverageMap } from 'istanbul-lib-coverage';
 import * as micromatch from 'micromatch';
-import traverse from '@babel/traverse';
+import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'mz/fs';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;

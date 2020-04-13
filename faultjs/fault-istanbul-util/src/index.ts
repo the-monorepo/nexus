@@ -1,5 +1,5 @@
-import { readFile } from 'mz/fs';
 import { CoverageMapData } from 'istanbul-lib-coverage';
+import { readFile } from 'mz/fs';
 
 export const cloneCoverage = (coverage) => {
   if (Array.isArray(coverage)) {
