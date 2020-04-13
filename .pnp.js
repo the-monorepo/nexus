@@ -11110,7 +11110,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:patrick-shaw/semantic-documents", {
           "packageLocation": "./patrick-shaw/semantic-documents/",
           "packageDependencies": [
-            ["@pshaw/semantic-documents", "workspace:patrick-shaw/semantic-documents"]
+            ["@pshaw/semantic-documents", "workspace:patrick-shaw/semantic-documents"],
+            ["@pshaw/semantic-documents-scss", "workspace:patrick-shaw/semantic-documents-scss"],
+            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
+            ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"],
+            ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"],
+            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"]
           ],
           "linkType": "SOFT",
         }]
@@ -11246,7 +11251,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:semantic-documents/semantic-documents-classname-picker", {
           "packageLocation": "./semantic-documents/semantic-documents-classname-picker/",
           "packageDependencies": [
-            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"]
+            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
+            ["@semantic-documents/matcher-info", "workspace:semantic-documents/semantic-documents-matcher-info"],
+            ["tree-suffix-mapper", "workspace:misc/tree-suffix-mapper"]
           ],
           "linkType": "SOFT",
         }]
@@ -11255,7 +11262,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:semantic-documents/semantic-documents-element", {
           "packageLocation": "./semantic-documents/semantic-documents-element/",
           "packageDependencies": [
-            ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"]
+            ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"],
+            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
+            ["dom-context", "workspace:misc/dom-context"]
           ],
           "linkType": "SOFT",
         }]
@@ -11264,7 +11273,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:semantic-documents/semantic-documents-html-elements", {
           "packageLocation": "./semantic-documents/semantic-documents-html-elements/",
           "packageDependencies": [
-            ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"]
+            ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"],
+            ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"],
+            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"]
           ],
           "linkType": "SOFT",
         }]
@@ -11273,7 +11284,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:semantic-documents/semantic-documents-html-symbols", {
           "packageLocation": "./semantic-documents/semantic-documents-html-symbols/",
           "packageDependencies": [
-            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"]
+            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"],
+            ["@semantic-documents/matcher-info", "workspace:semantic-documents/semantic-documents-matcher-info"]
           ],
           "linkType": "SOFT",
         }]

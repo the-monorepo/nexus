@@ -19,5 +19,9 @@
   },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@semantic-documents/element": "workspace:semantic-documents/semantic-documents-element",
+    "@semantic-documents/html-symbols": "workspace:semantic-documents/semantic-documents-html-symbols"
+  }
 }
