@@ -13,4 +13,4 @@ yarn add --dev gulp-staged@1.0.0-alpha.6
 ```
 
 ---
-This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
+This documentation was generated using [writeme](https://www.npmjs.com/package/@writeme/core)
