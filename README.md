@@ -64,9 +64,9 @@ Version | Package | Description
 ### TSLint
 Version | Package | Description
 --- | --- | ---
-1.4.2 | [`@pshaw/eslint-config-core`](build-packages/eslint-config-core/README.md) | A pratical style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-react`](build-packages/eslint-config-react/README.md) | A pratical React style preset for ESLint
-1.4.3 | [`@pshaw/eslint-config-typescript`](build-packages/eslint-config-typescript/README.md) | A pratical Typescript style preset for ESLint
+1.4.2 | [`@pshaw/eslint-core-config`](build-packages/eslint-core-config/README.md) | A pratical style preset for ESLint
+1.4.2 | [`@pshaw/eslint-plugin-react-config`](build-packages/eslint-plugin-react-config/README.md) | A pratical React style preset for ESLint
+1.4.3 | [`@pshaw/eslint-plugin-typescript-config`](build-packages/eslint-plugin-typescript-config/README.md) | A pratical Typescript style preset for ESLint
 
 ### Fault localization
 Version | Package | Description
