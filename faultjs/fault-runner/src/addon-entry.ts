@@ -16,9 +16,10 @@ export const run = async () => {
     }
   }
 
-  const runner = require(require.resolve(modulePath, {
+  const resolvedModulePath = require.resolve(modulePath, {
     paths: [process.cwd()],
-  })).default;
+  });
+  const runner = require(resolvedModulePath).default;
   try {
     await Promise.resolve(runner(testerOptions));
   } catch (err) {

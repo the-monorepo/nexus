@@ -9359,6 +9359,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/types", "npm:7.9.5"],
             ["@fault/localization-util", "workspace:faultjs/fault-localization-util"],
             ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
+            ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
             ["@types/pouchdb", "npm:6.4.0"],
             ["error-stack-parser", "npm:2.0.6"],
             ["pouchdb", "npm:7.2.1"],
