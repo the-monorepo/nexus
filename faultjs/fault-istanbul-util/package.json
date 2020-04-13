@@ -26,6 +26,7 @@
   ],
   "dependencies": {
     "istanbul-lib-report": "^2.0.8",
-    "istanbul-reports": "^2.2.6"
+    "istanbul-reports": "^2.2.6",
+    "mz": "^2.7.0"
   }
 }

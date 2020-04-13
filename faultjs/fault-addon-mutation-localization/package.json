@@ -27,7 +27,12 @@
     "debugging"
   ],
   "dependencies": {
+    "@babel/generator": "^7.9.5",
     "@babel/parser": "^7.5.0",
+    "@babel/traverse": "^7.9.5",
+    "@babel/types": "^7.9.5",
+    "@fault/localization-util": "workspace:faultjs/fault-localization-util",
+    "@fault/record-faults": "workspace:faultjs/fault-record-faults",
     "@types/pouchdb": "^6.4.0",
     "error-stack-parser": "^2.0.3",
     "pouchdb": "^7.1.1",

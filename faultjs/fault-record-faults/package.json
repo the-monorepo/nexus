@@ -21,5 +21,9 @@
     "typescript",
     "util",
     "fautltjs"
-  ]
+  ],
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "mz": "^2.7.0"
+  }
 }

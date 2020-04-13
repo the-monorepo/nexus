@@ -278,7 +278,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ["@fault/sbfl-ochiai", ["workspace:faultjs/fault-sbfl-ochiai"]],
       ["@fault/sbfl-op2", ["workspace:faultjs/fault-sbfl-op2"]],
       ["@fault/sbfl-tarantula", ["workspace:faultjs/fault-sbfl-tarantula"]],
-      ["@fault/tester-mocha", ["workspace:faultjs/fault-tester-mocha"]],
+      ["@fault/tester-mocha", ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:faultjs/fault-tester-mocha", "workspace:faultjs/fault-tester-mocha"]],
       ["@fault/types", ["workspace:faultjs/fault-types"]],
       ["@pshaw/build-util", ["workspace:build-packages/build-util"]],
       ["@pshaw/colors-scss", ["workspace:patrick-shaw/colors-scss"]],
@@ -878,7 +878,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@fault/tester-mocha",
-        "workspace:faultjs/fault-tester-mocha"
+        "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"
       ],
       [
         "@fault/types",
@@ -7383,6 +7383,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
             ["@fault/runner", "workspace:faultjs/fault-runner"],
             ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
+            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
             ["@pshaw/eslint-config-core", "workspace:build-packages/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:build-packages/eslint-config-preset"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
@@ -9327,7 +9328,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-addon-mutation-localization/",
           "packageDependencies": [
             ["@fault/addon-mutation-localization", "workspace:faultjs/fault-addon-mutation-localization"],
+            ["@babel/generator", "npm:7.9.5"],
             ["@babel/parser", "npm:7.9.4"],
+            ["@babel/traverse", "npm:7.9.5"],
+            ["@babel/types", "npm:7.9.5"],
+            ["@fault/localization-util", "workspace:faultjs/fault-localization-util"],
+            ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
             ["@types/pouchdb", "npm:6.4.0"],
             ["error-stack-parser", "npm:2.0.6"],
             ["pouchdb", "npm:7.2.1"],
@@ -9357,6 +9363,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-addon-sbfl/",
           "packageDependencies": [
             ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
+            ["@fault/localization-util", "workspace:faultjs/fault-localization-util"],
+            ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
+            ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
+            ["micromatch", "npm:4.0.2"],
             ["stacktrace-js", "npm:2.0.2"]
           ],
           "linkType": "SOFT",
@@ -9369,6 +9379,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/benchmarker", "workspace:faultjs/fault-benchmarker"],
             ["@babel/parser", "npm:7.9.4"],
             ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
             ["@fault/runner", "workspace:faultjs/fault-runner"],
             ["@fault/sbfl-barinel", "workspace:faultjs/fault-sbfl-barinel"],
@@ -9376,7 +9387,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/sbfl-ochiai", "workspace:faultjs/fault-sbfl-ochiai"],
             ["@fault/sbfl-op2", "workspace:faultjs/fault-sbfl-op2"],
             ["@fault/sbfl-tarantula", "workspace:faultjs/fault-sbfl-tarantula"],
-            ["@fault/tester-mocha", "workspace:faultjs/fault-tester-mocha"],
+            ["@fault/tester-mocha", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:faultjs/fault-tester-mocha"],
             ["@pshaw/logger", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:misc/logger"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
             ["chalk", "npm:4.0.0"],
@@ -9400,7 +9411,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["istanbul-lib-report", "npm:2.0.8"],
-            ["istanbul-reports", "npm:2.2.7"]
+            ["istanbul-reports", "npm:2.2.7"],
+            ["mz", "npm:2.7.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -9429,7 +9441,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:faultjs/fault-record-faults", {
           "packageLocation": "./faultjs/fault-record-faults/",
           "packageDependencies": [
-            ["@fault/record-faults", "workspace:faultjs/fault-record-faults"]
+            ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
+            ["chalk", "npm:4.0.0"],
+            ["mz", "npm:2.7.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -9446,7 +9460,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/types", "workspace:faultjs/fault-types"],
             ["chalk", "npm:4.0.0"],
             ["globby", "npm:11.0.0"],
-            ["istanbul-lib-coverage", "npm:3.0.0"]
+            ["istanbul-lib-coverage", "npm:3.0.0"],
+            ["mz", "npm:2.7.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -9497,10 +9512,41 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/tester-mocha", [
+        ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha", {
+          "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-cf6048cf94/1/faultjs/fault-tester-mocha/",
+          "packageDependencies": [
+            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
+            ["@fault/messages", "workspace:faultjs/fault-messages"],
+            ["@fault/types", "workspace:faultjs/fault-types"],
+            ["mocha", "npm:7.1.1"]
+          ],
+          "packagePeers": [
+            "mocha"
+          ],
+          "linkType": "SOFT",
+        }],
+        ["virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:faultjs/fault-tester-mocha", {
+          "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-aa9a615be9/1/faultjs/fault-tester-mocha/",
+          "packageDependencies": [
+            ["@fault/tester-mocha", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:faultjs/fault-tester-mocha"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
+            ["@fault/messages", "workspace:faultjs/fault-messages"],
+            ["@fault/types", "workspace:faultjs/fault-types"],
+            ["mocha", null]
+          ],
+          "packagePeers": [
+            "mocha"
+          ],
+          "linkType": "SOFT",
+        }],
         ["workspace:faultjs/fault-tester-mocha", {
           "packageLocation": "./faultjs/fault-tester-mocha/",
           "packageDependencies": [
-            ["@fault/tester-mocha", "workspace:faultjs/fault-tester-mocha"]
+            ["@fault/tester-mocha", "workspace:faultjs/fault-tester-mocha"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
+            ["@fault/messages", "workspace:faultjs/fault-messages"],
+            ["@fault/types", "workspace:faultjs/fault-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -10919,8 +10965,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pshaw/eslint-config-plugin-typescript", "workspace:build-packages/eslint-config-plugin-typescript"],
             ["@typescript-eslint/eslint-plugin", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:2.27.0"],
             ["eslint-config-prettier", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:6.10.1"],
-            ["eslint-plugin-import", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:2.20.2"],
-            ["eslint-plugin-react", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:7.19.0"]
+            ["eslint-plugin-import", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:2.20.2"]
           ],
           "linkType": "SOFT",
         }]
@@ -17806,29 +17851,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "eslint"
           ],
           "linkType": "HARD",
-        }],
-        ["virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:7.19.0", {
-          "packageLocation": "./.yarn/$$virtual/eslint-plugin-react-virtual-5f929d132f/0/cache/eslint-plugin-react-npm-7.19.0-cf65a17ee2-2.zip/node_modules/eslint-plugin-react/",
-          "packageDependencies": [
-            ["eslint-plugin-react", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:7.19.0"],
-            ["array-includes", "npm:3.1.1"],
-            ["doctrine", "npm:2.1.0"],
-            ["eslint", null],
-            ["has", "npm:1.0.3"],
-            ["jsx-ast-utils", "npm:2.2.3"],
-            ["object.entries", "npm:1.1.1"],
-            ["object.fromentries", "npm:2.0.2"],
-            ["object.values", "npm:1.1.1"],
-            ["prop-types", "npm:15.7.2"],
-            ["resolve", "patch:resolve@npm%3A1.15.1#builtin<compat/resolve>::version=1.15.1&hash=8fccd0"],
-            ["semver", "npm:6.3.0"],
-            ["string.prototype.matchall", "npm:4.0.2"],
-            ["xregexp", "npm:4.3.0"]
-          ],
-          "packagePeers": [
-            "eslint"
-          ],
-          "linkType": "HARD",
         }]
       ]],
       ["eslint-scope", [
@@ -23578,6 +23600,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
             ["@fault/runner", "workspace:faultjs/fault-runner"],
             ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
+            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
             ["@pshaw/eslint-config-core", "workspace:build-packages/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:build-packages/eslint-config-preset"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],

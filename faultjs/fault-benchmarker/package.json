@@ -36,6 +36,7 @@
   "dependencies": {
     "@babel/parser": "^7.5.0",
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl",
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util",
     "@fault/record-faults": "workspace:faultjs/fault-record-faults",
     "@fault/runner": "workspace:faultjs/fault-runner",
     "@fault/sbfl-barinel": "workspace:faultjs/fault-sbfl-barinel",
