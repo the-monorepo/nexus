@@ -3064,7 +3064,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/my-resume@workspace:patrick-shaw/my-resume"
   dependencies:
-    "@pshaw/resume-template": ^1.1.3
+    "@pshaw/resume-template": "workspace:misc/resume-template"
+    express: ^4.17.1
+    mobx-dom: "workspace:misc/mobx-dom"
+    puppeteer: ^2.1.1
   languageName: unknown
   linkType: soft
 
@@ -3080,7 +3083,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/resume-template@^1.1.3, @pshaw/resume-template@workspace:misc/resume-template":
+"@pshaw/resume-template@workspace:misc/resume-template":
   version: 0.0.0-use.local
   resolution: "@pshaw/resume-template@workspace:misc/resume-template"
   dependencies:
@@ -3094,6 +3097,7 @@ __metadata:
     jss-nested: ^6.0.1
     jss-plugin-camel-case: ^10.0.0-alpha.7
     mobx: ^5.9.0
+    mobx-dom: "workspace:misc/mobx-dom"
   languageName: unknown
   linkType: soft
 
@@ -14250,7 +14254,6 @@ fsevents@^1.2.7:
     node-fetch: ^2.6.0
     plugin-error: ^1.0.1
     prettier: ^2.0.1
-    puppeteer: ^2.0.0
     raw-loader: ^4.0.0
     rewiremock: ^3.13.9
     rollup: ^2.1.0
@@ -16503,7 +16506,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"puppeteer@npm:^2.0.0":
+"puppeteer@npm:^2.1.1":
   version: 2.1.1
   resolution: "puppeteer@npm:2.1.1"
   dependencies:
