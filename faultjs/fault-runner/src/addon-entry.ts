@@ -1,5 +1,5 @@
 export const run = async () => {
-  const [nodePath, filePath, modulePath, optionsJson, importPathJson] = process.argv;
+  const [,, modulePath, optionsJson, importPathJson] = process.argv;
   const testerOptions = JSON.parse(optionsJson);
   const importPaths = JSON.parse(importPathJson);
   for (const importPath of importPaths) {
