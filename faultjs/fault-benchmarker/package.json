@@ -55,7 +55,6 @@
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
-    "babel-preset-airbnb": "^4.4.0",
     "cross-spawn": "^6.0.5",
     "isomorphic-git": "^0.58.1",
     "webpack-cli": "^3.3.11",
