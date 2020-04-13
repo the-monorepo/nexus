@@ -1,8 +1,9 @@
 import './unstyled.scss';
 import * as mbx from 'mobx-dom';
+
 import './globals.scss';
-import text from './typography.scss';
 import styles from './styles.scss';
+import text from './typography.scss';
 
 import cx from 'classnames';
 
@@ -40,11 +41,7 @@ const FunctionConfigSubheadngH1 = ({ children }) => (
 );
 
 const FieldLabel = ({ children, ...other }) => (
-  <label
-    htmlFor={name}
-    class={cx(text.h400, text.margin, styles.fieldLabel)}
-    {...other}
-  >
+  <label htmlFor={name} class={cx(text.h400, text.margin, styles.fieldLabel)} {...other}>
     {children}
   </label>
 );
