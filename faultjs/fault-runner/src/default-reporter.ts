@@ -1,7 +1,9 @@
 import { relative, dirname, basename, join } from 'path';
+
 import chalk from 'chalk';
-import { report } from '@fault/addon-istanbul';
+
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import { report } from '@fault/addon-istanbul';
 import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
 
 const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFilePath);

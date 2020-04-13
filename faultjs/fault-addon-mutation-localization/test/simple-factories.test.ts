@@ -1,3 +1,5 @@
+import { parse, ParserOptions } from '@babel/parser';
+
 import {
   AbstractSimpleInstructionFactory,
   InstructionFactory,
@@ -15,7 +17,6 @@ import {
   leftNullifyBinaryOrLogicalOperatorFactory,
   rightNullifyBinaryOrLogicalOperatorFactory,
 } from '../src';
-import { parse, ParserOptions } from '@babel/parser';
 type Code = string;
 type Factory = AbstractSimpleInstructionFactory<any, any>;
 type ExpectedInstructionCount = number;

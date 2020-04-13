@@ -1,4 +1,5 @@
 import { Fault } from '@fault/record-faults';
+
 import { calculateExamScore } from '../src/core';
 describe('measure', () => {
   describe('exact match', () => {

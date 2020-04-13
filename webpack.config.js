@@ -1,8 +1,8 @@
 const { resolve } = require('path');
 
+const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const CopyPlugin = require('copy-webpack-plugin');
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
 const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';

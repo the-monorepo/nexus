@@ -1,3 +1,5 @@
+import { parse } from '@babel/parser';
+
 import {
   compareMutationEvaluations,
   compareEvaluationHeaps,
@@ -14,7 +16,6 @@ import {
   createInstructionBlocks,
   NodeInformation,
 } from '../src/index';
-import { parse } from '@babel/parser';
 const arrToString = (arr: number[]) => `[${arr.join(', ')}]`;
 
 const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
