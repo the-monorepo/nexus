@@ -3076,6 +3076,10 @@ __metadata:
 "@pshaw/semantic-documents-style-root@workspace:patrick-shaw/semantic-documents-style-root":
   version: 0.0.0-use.local
   resolution: "@pshaw/semantic-documents-style-root@workspace:patrick-shaw/semantic-documents-style-root"
+  dependencies:
+    "@pshaw/semantic-documents-scss": "workspace:patrick-shaw/semantic-documents-scss"
+    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker"
+    "@semantic-documents/html-symbols": "workspace:semantic-documents/semantic-documents-html-symbols"
   languageName: unknown
   linkType: soft
 
