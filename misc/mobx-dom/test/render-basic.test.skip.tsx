@@ -7,7 +7,7 @@ describe.skip('basic rendering', () => {
     root = document.createElement('body');
   });
   it.skip('div tag string', () => {
-    render(root, <div className="test" />);
+    render(root, <div class="test" />);
   });
 
   it.skip('HTMLElement constructor', () => {
@@ -25,7 +25,7 @@ describe.skip('basic rendering', () => {
   });
 
   it.skip('SFC', () => {
-    const SFC = () => <div className="test" />;
+    const SFC = () => <div class="test" />;
     render(root, <SFC />);
   });
 

@@ -118,7 +118,7 @@ const ResultsTable = ({ projectResults, invertColors, total }: ResultsTableProps
   const averageMax = Math.max(...averages);
 
   return (
-    <table className="table">
+    <table class="table">
       <tbody>
         <TableHeader />
         {projectResults.map(result => (
@@ -373,7 +373,7 @@ const Main = () => {
   // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
   return (
     <div>
-      <header className="page-title">
+      <header class="page-title">
         <h1>Fault.js benchmark results</h1>
       </header>
       <label htmlFor="separate-sandboxed">Separate sandboxed</label>
@@ -386,13 +386,13 @@ const Main = () => {
         }}
         checked={true}
       ></input>
-      <div className="page">
+      <div class="page">
         <violin-chart
           $data={{ real: examResults[1], artificial: examResults[0] }}
           class="violin"
         />
         {tableResults.map(tableResult => (
-          <section className={tableResult.class}>
+          <section class={tableResult.class}>
             <h2>{tableResult.title}</h2>
             <ResultsTable
               projectResults={tableResult.projectResults}
