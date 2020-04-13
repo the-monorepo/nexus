@@ -7464,7 +7464,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["node-fetch", "npm:2.6.0"],
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.4"],
-            ["puppeteer", "npm:2.1.1"],
             ["raw-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:4.0.0"],
             ["rewiremock", "npm:3.13.9"],
             ["rollup", "npm:2.6.0"],
@@ -11092,7 +11091,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./patrick-shaw/my-resume/",
           "packageDependencies": [
             ["@pshaw/my-resume", "workspace:patrick-shaw/my-resume"],
-            ["@pshaw/resume-template", "workspace:misc/resume-template"]
+            ["@pshaw/resume-template", "workspace:misc/resume-template"],
+            ["express", "npm:4.17.1"],
+            ["mobx-dom", "workspace:misc/mobx-dom"],
+            ["puppeteer", "npm:2.1.1"]
           ],
           "linkType": "SOFT",
         }]
@@ -11125,7 +11127,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jss-global", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:3.0.0"],
             ["jss-nested", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:6.0.1"],
             ["jss-plugin-camel-case", "npm:10.1.1"],
-            ["mobx", "npm:5.15.4"]
+            ["mobx", "npm:5.15.4"],
+            ["mobx-dom", "workspace:misc/mobx-dom"]
           ],
           "linkType": "SOFT",
         }]
@@ -23817,7 +23820,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["node-fetch", "npm:2.6.0"],
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.4"],
-            ["puppeteer", "npm:2.1.1"],
             ["raw-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:4.0.0"],
             ["rewiremock", "npm:3.13.9"],
             ["rollup", "npm:2.6.0"],
