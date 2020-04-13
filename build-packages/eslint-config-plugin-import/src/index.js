@@ -1,6 +1,6 @@
 module.exports = {
-  extends: ['plugin:import/typescript'],
   rules: {
+    'import/default': 'off',
     'import/order': [
       'error',
       {
