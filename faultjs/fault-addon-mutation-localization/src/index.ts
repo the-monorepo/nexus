@@ -11,7 +11,6 @@ import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 
-import dstar from '@fault/sbfl-dstar';
 import {
   TesterResults,
   TestResult,
@@ -42,6 +41,7 @@ import {
   recordFaults,
   sortBySuspciousness,
 } from '@fault/record-faults';
+import dstar from '@fault/sbfl-dstar';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;
