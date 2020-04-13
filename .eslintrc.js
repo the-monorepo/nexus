@@ -1,4 +1,8 @@
-{
+const commonRules = {
+  'react/react-in-jsx-scope': 'off',
+  "react/jsx-key": 'off'
+}
+module.exports = {
   "parser": "@typescript-eslint/parser",
   "extends": [
     "@pshaw/eslint-config-preset"
@@ -25,7 +29,7 @@
     "import/extensions": [
       ".js",
       ".jsx",
-      ".ts",,
+      ".ts",
       ".tsx"
     ],
     "import/resolver": {
@@ -37,26 +41,31 @@
           ".tsx"
         ]
       }
-    },
+    }
   },
-  "rules": {
-    "no-console": "warn",
+  rules: {
+    ...commonRules,
   },
   "overrides": [{
     "files": [ "**/examples/**" ],
     "rules": {
+      ...commonRules,
       "no-console": "off",
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
     "files": ["**/test/**", "build-packages/**", "**/*.config.js", "**/gulpfile.js"],
     "rules": {
+      ...commonRules,
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
     "files": ["misc/jest-mock-functions/**"],
     "env": {
       "jest": true
+    },
+    "rules": {
+      ...commonRules,
     }
   }]
 }

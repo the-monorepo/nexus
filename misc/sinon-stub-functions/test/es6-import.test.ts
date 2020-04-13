@@ -1,5 +1,6 @@
-import { stubFunctions } from '../src';
 import rewiremock from 'rewiremock';
+
+import { stubFunctions } from '../src';
 import * as es6 from './es6-module';
 import * as commonjs from './exports-module';
 rewiremock('./exports-module').with(

@@ -1,4 +1,5 @@
 import { stub } from 'sinon';
+
 import { replaceFunctions, RecursionOptions } from 'replace-functions';
 
 export const stubFunctions = <T>(

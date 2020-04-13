@@ -2,12 +2,12 @@ module.exports = {
   plugins: [
     //'@typescript-eslint/eslint-plugin',
     'eslint-plugin-import',
-    //'eslint-plugin-react',
+    'eslint-plugin-react',
   ],
   extends: [
     'eslint:recommended',
     'plugin:import/errors',
-    //'plugin:react/recommended',
+    'plugin:react/recommended',
     //'plugin:@typescript-eslint/eslint-recommended',
     //'plugin:@typescript-eslint/recommended',
     '@pshaw/eslint-config-core',
