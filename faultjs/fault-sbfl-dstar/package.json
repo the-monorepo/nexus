@@ -24,5 +24,8 @@
     "fault-localization",
     "sbfl",
     "dstar"
-  ]
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }
