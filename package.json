@@ -101,7 +101,6 @@
     "node-fetch": "^2.6.0",
     "plugin-error": "^1.0.1",
     "prettier": "^2.0.1",
-    "puppeteer": "^2.0.0",
     "raw-loader": "^4.0.0",
     "rewiremock": "^3.13.9",
     "rollup": "^2.1.0",
