@@ -14153,6 +14153,7 @@ fsevents@^1.2.7:
     "@types/babel__traverse": ^7.0.7
     "@types/mocha": ^7.0.2
     "@types/mz": ^2.7.0
+    "@typescript-eslint/eslint-plugin": ^2.27.0
     "@typescript-eslint/parser": ^2.27.0
     "@writeme/core": "workspace:misc/writeme-core"
     "@yarnpkg/pnpify": ^2.0.0-rc.20
