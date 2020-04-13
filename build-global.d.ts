@@ -1,3 +1,3 @@
 import { expect } from 'chai';
 
-declare const expect: typeof expect;
+export declare const expect: typeof expect;
