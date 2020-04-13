@@ -1,4 +1,4 @@
-import { Stats } from '@fault/types';
+import type { Stats } from '@fault/types';
 
 export const dStar = (
   codeElementTestStateCounts: Stats,

@@ -24,5 +24,8 @@
     "fault-localization",
     "sbfl",
     "tarantula"
-  ]
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }
