@@ -166,7 +166,7 @@ function genReadme({
   md += section('Development', development);
   md += '---\n';
   md +=
-    'This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)\n';
+    'This documentation was generated using [writeme](https://www.npmjs.com/package/@writeme/core)\n';
   return md;
 }
 

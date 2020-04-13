@@ -64,9 +64,11 @@ Version | Package | Description
 ### TSLint
 Version | Package | Description
 --- | --- | ---
-1.4.2 | [`@pshaw/eslint-core-config`](build-packages/eslint-core-config/README.md) | A pratical style preset for ESLint
-1.4.2 | [`@pshaw/eslint-plugin-react-config`](build-packages/eslint-plugin-react-config/README.md) | A pratical React style preset for ESLint
-1.4.3 | [`@pshaw/eslint-plugin-typescript-config`](build-packages/eslint-plugin-typescript-config/README.md) | A pratical Typescript style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-core`](build-packages/eslint-config-core/README.md) | A pratical style preset for ESLint
+1.4.3 | [`@pshaw/eslint-config-plugin-import`](build-packages/eslint-config-plugin-import/README.md) | eslint-plugin-import configuration
+1.4.2 | [`@pshaw/eslint-config-plugin-react`](build-packages/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
+1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](build-packages/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-preset`](build-packages/eslint-config-preset/README.md) | A pratical style preset for ESLint
 
 ### Fault localization
 Version | Package | Description
@@ -91,4 +93,4 @@ Version | Package | Description
 
 
 ---
-This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
+This documentation was generated using [writeme](https://www.npmjs.com/package/@writeme/core)
