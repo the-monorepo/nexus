@@ -1,5 +1,6 @@
 module.exports = {
   rules: {
+    'no-unused-vars': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-use-before-define': 'warn',
