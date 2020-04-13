@@ -1,13 +1,16 @@
 import 'source-map-support/register';
-import { requestProjectDirs } from './requestProjectDirs';
 import { resolve } from 'path';
-import { readFile, writeFile } from 'mz/fs';
+
 import {
   locationToKeyIncludingEnd,
   compareMutationEvaluations,
   DELETE_STATEMENT,
 } from '@fault/addon-mutation-localization';
+import { readFile, writeFile } from 'mz/fs';
+
 import { recordFaults, convertFileFaultDataToFaults } from '@fault/record-faults';
+
+import { requestProjectDirs } from './requestProjectDirs';
 // TODO: This is just a temporary script to see if FaultJs does better with SBFL techniques
 const algos = ['dstar-2', 'op2'];
 const main = async () => {

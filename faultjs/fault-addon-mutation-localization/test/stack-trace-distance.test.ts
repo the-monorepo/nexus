@@ -1,8 +1,10 @@
-import { executionDistanceFromStart, evaluateStackDifference } from '../src';
 import { readFileSync } from 'fs';
+
 import { parse } from '@babel/parser';
-import ErrorStackParser from 'error-stack-parser';
 import { TestResult } from '@fault/types';
+import ErrorStackParser from 'error-stack-parser';
+
+import { executionDistanceFromStart, evaluateStackDifference } from '../src';
 
 const stubTestResult = (key: string, stack): TestResult => ({
   type: 'submit-test-result',

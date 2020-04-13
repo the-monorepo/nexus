@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+
 import { ParserOptions } from '@babel/parser';
 export type ProjectConfig = {
   // Setup files to use (E.g. Babel register to transpile files)

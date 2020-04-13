@@ -1,4 +1,5 @@
 import { Coverage } from '@fault/istanbul-util';
+
 import * as IPC from './ipc';
 export { IPC };
 export type Stats = {

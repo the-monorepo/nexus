@@ -24,8 +24,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
-  "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^1.4.0"
-  }
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }

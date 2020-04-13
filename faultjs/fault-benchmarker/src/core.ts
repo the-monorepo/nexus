@@ -1,25 +1,26 @@
 import 'source-map-support/register';
-import { consoleTransport, logger } from '@pshaw/logger';
 
-import { writeFile } from 'mz/fs';
-import * as flRunner from '@fault/runner';
 import { resolve, normalize } from 'path';
-
-import * as micromatch from 'micromatch';
-import chalk from 'chalk';
 
 import {
   readCoverageFile,
   getTotalExecutedStatements,
   ExpressionLocation,
 } from '@fault/istanbul-util';
+import chalk from 'chalk';
+
+import * as micromatch from 'micromatch';
+import { writeFile } from 'mz/fs';
+
 import { createPlugin } from '@fault/addon-sbfl';
 import { convertFileFaultDataToFaults, ScorelessFault } from '@fault/record-faults';
-import { dStar } from '@fault/sbfl-dstar';
-import { tarantula } from '@fault/sbfl-tarantula';
-import { ochiai } from '@fault/sbfl-ochiai';
+import * as flRunner from '@fault/runner';
 import { barinel } from '@fault/sbfl-barinel';
+import { dStar } from '@fault/sbfl-dstar';
+import { ochiai } from '@fault/sbfl-ochiai';
 import { op2 } from '@fault/sbfl-op2';
+import { tarantula } from '@fault/sbfl-tarantula';
+import { consoleTransport, logger } from '@pshaw/logger';
 
 import { BenchmarkConfig, ProjectConfig } from './config';
 import benchmarkConfig from './config';

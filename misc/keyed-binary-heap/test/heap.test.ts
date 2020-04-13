@@ -1,6 +1,7 @@
+import { exceptions } from 'winston';
+
 import { leftIndex, parentIndex, rightIndex, swap } from '../src/index';
 import Heap from '../src/index';
-import { exceptions } from 'winston';
 
 type ScoreHolder = {
   score: number;
