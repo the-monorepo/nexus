@@ -31,7 +31,6 @@
     "@pshaw/eslint-config-plugin-typescript": "workspace:build-packages/eslint-config-plugin-typescript",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "eslint-config-prettier": "^6.10.1",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-react": "^7.19.0"
+    "eslint-plugin-import": "^2.20.2"
   }
 }

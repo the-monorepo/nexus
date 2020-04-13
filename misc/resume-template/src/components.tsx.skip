@@ -45,14 +45,14 @@ class ResumeLinkText extends MobxElement {
             }
           }
         `}</style>
-        <span className="webLink">
+        <span class="webLink">
           <slot />
         </span>
         {/*
           People who print the resume can't click on the link, obviously, 
           so have to show the link as text
         */}
-        <span className="printLink">
+        <span class="printLink">
           {this.props.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
         </span>
       </>
@@ -86,8 +86,8 @@ class Contact extends MobxElement {
             margin-right: 0.5em;
           }
           `}</style>
-        <EntryLink className="contact" href={this.props.href}>
-          <img {...this.props.icon} aria-hidden className="icon" />
+        <EntryLink class="contact" href={this.props.href}>
+          <img {...this.props.icon} aria-hidden class="icon" />
           <ResumeLinkText href={this.props.href}>
             <slot />
           </ResumeLinkText>
@@ -140,9 +140,9 @@ class Header extends MobxElement {
                       }          
           `}
         </style>
-        <header className="header pageGrid">
-          <div className="headingContainer">
-            <Typography variant="h3" className="heading">
+        <header class="header pageGrid">
+          <div class="headingContainer">
+            <Typography variant="h3" class="heading">
               <slot />
             </Typography>
           </div>
@@ -192,7 +192,7 @@ class Topic extends MobxElement {
             color="primary"
             component="h1"
             // color="textSecondary"
-            className="heading"
+            class="heading"
           >
             {this.props.heading}
           </Typography>
@@ -217,7 +217,7 @@ class EntryTopic extends MobxElement {
               margin-bottom: 24px !important;
             }
           `}</style>
-        <Topic className="entryTopic" heading={this.props.heading}>
+        <Topic class="entryTopic" heading={this.props.heading}>
           <slot />
         </Topic>
       </>
@@ -255,16 +255,16 @@ class Entry extends MobxElement {
           `}</style>
         <section>
           {this.props.leftHeading ? (
-            <EntryHeading component="h1" className="entryHeading leftHeading">
+            <EntryHeading component="h1" class="entryHeading leftHeading">
               {this.props.leftHeading} /&nbsp;
             </EntryHeading>
           ) : null}
-          <EntryHeading component="h2" className="entryHeading">
+          <EntryHeading component="h2" class="entryHeading">
             {this.props.rightHeading}
           </EntryHeading>
           {/*TODO: Subtext won't appear if no date*/}
           {this.props.startDate || this.props.endDate ? (
-            <EntryText component="p" variant="caption" className="subtext">
+            <EntryText component="p" variant="caption" class="subtext">
               <DateRange
                 start={this.props.startDate}
                 end={this.props.endDate}
@@ -397,7 +397,7 @@ class ListLabel extends MobxElement {
               font-weight: ${theme.typography.fontWeightMedium};
             }
           `}</style>
-        <EntryText className="label" color="textPrimary" {...this.props}>
+        <EntryText class="label" color="textPrimary" {...this.props}>
           <slot />
         </EntryText>
       </>
@@ -418,7 +418,7 @@ class LabeledList extends MobxElement {
                   }
           `}
         </style>
-        <div className="list">
+        <div class="list">
           {this.props.items.map(({ label, items }) => (
             <p>
               <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
@@ -566,7 +566,7 @@ class HackathonEntry extends MobxElement {
           startDate={undefined}
           endDate={undefined}
         >
-          <Typography component="p" variant="caption" className="prize">
+          <Typography component="p" variant="caption" class="prize">
             <em>{this.props.prize}</em>
           </Typography>
         </Entry>
@@ -629,11 +629,11 @@ class Resume extends MobxElement {
             flex-direction: column;
           }
           `}</style>
-        <div className="pageGrid">
-          <Header className="header" data={this.props.data}>
+        <div class="pageGrid">
+          <Header class="header" data={this.props.data}>
             {this.props.data.details.name}
           </Header>
-          <main className="main">
+          <main class="main">
             <EntryTopic heading="Experience">
               <EntryMapper Component={ExperienceEntry} data={this.props.data.work} />
             </EntryTopic>
@@ -641,7 +641,7 @@ class Resume extends MobxElement {
               <EntryMapper Component={ProjectEntry} data={this.props.data.projects} />
             </EntryTopic>
           </main>
-          <aside className="aside">
+          <aside class="aside">
             <EntryTopic heading="Education">
               <EntryMapper Component={EducationEntry} data={this.props.data.education} />
             </EntryTopic>
