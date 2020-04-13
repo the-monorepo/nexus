@@ -5,11 +5,11 @@ A pratical React style preset for ESLint
 ## Installation
 
 ```bash
-npm install --save-dev @pshaw/eslint-config-react
+npm install --save-dev @pshaw/eslint-plugin-react-config
 ```
 or
 ```bash
-yarn add --dev @pshaw/eslint-config-react
+yarn add --dev @pshaw/eslint-plugin-react-config
 ```
 
 ---

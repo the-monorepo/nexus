@@ -65,13 +65,14 @@ const defaultHtmlWebpackPlugin = (options) => {
     template: resolve(__dirname, 'template.html'),
     title: options.title,
     tags: {
-      headTags: options.links
-        .map(linkHref => HtmlWebpackPlugin.createHtmlTagObject(
+      headTags: options.links.map((linkHref) =>
+        HtmlWebpackPlugin.createHtmlTagObject(
           'link',
           { href: linkHref, rel: 'stylesheet' },
-          undefined
-        ))
-    }
+          undefined,
+        ),
+      ),
+    },
   });
 };
 
@@ -140,7 +141,7 @@ const sassModulesRule = {
 };
 
 const webcomponentsSassModulesRule = {
-  test: /\.(sass|scss)$/, 
+  test: /\.(sass|scss)$/,
   use: [cssModuleLoader, sassLoader],
 };
 
