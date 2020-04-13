@@ -1270,7 +1270,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.7.4, @babel/traverse@npm:^7.8.3, @babel/traverse@npm:^7.8.4, @babel/traverse@npm:^7.8.6, @babel/traverse@npm:^7.9.0":
+"@babel/traverse@npm:^7.7.4, @babel/traverse@npm:^7.8.3, @babel/traverse@npm:^7.8.4, @babel/traverse@npm:^7.8.6, @babel/traverse@npm:^7.9.0, @babel/traverse@npm:^7.9.5":
   version: 7.9.5
   resolution: "@babel/traverse@npm:7.9.5"
   dependencies:
@@ -1556,7 +1556,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/addon-mutation-localization@workspace:faultjs/fault-addon-mutation-localization"
   dependencies:
+    "@babel/generator": ^7.9.5
     "@babel/parser": ^7.5.0
+    "@babel/traverse": ^7.9.5
+    "@babel/types": ^7.9.5
+    "@fault/localization-util": "workspace:faultjs/fault-localization-util"
+    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
     "@types/pouchdb": ^6.4.0
     error-stack-parser: ^2.0.3
     pouchdb: ^7.1.1
@@ -1569,6 +1574,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/addon-sbfl@workspace:faultjs/fault-addon-sbfl"
   dependencies:
+    "@fault/localization-util": "workspace:faultjs/fault-localization-util"
+    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
+    "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
+    micromatch: ^4.0.2
     stacktrace-js: ^2.0.0
   languageName: unknown
   linkType: soft
@@ -1579,6 +1588,7 @@ __metadata:
   dependencies:
     "@babel/parser": ^7.5.0
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
     "@fault/record-faults": "workspace:faultjs/fault-record-faults"
     "@fault/runner": "workspace:faultjs/fault-runner"
     "@fault/sbfl-barinel": "workspace:faultjs/fault-sbfl-barinel"
@@ -1609,6 +1619,7 @@ __metadata:
   dependencies:
     istanbul-lib-report: ^2.0.8
     istanbul-reports: ^2.2.6
+    mz: ^2.7.0
   languageName: unknown
   linkType: soft
 
@@ -1630,6 +1641,9 @@ __metadata:
 "@fault/record-faults@workspace:faultjs/fault-record-faults":
   version: 0.0.0-use.local
   resolution: "@fault/record-faults@workspace:faultjs/fault-record-faults"
+  dependencies:
+    chalk: ^4.0.0
+    mz: ^2.7.0
   languageName: unknown
   linkType: soft
 
@@ -1645,6 +1659,7 @@ __metadata:
     chalk: ^4.0.0
     globby: ^11.0.0
     istanbul-lib-coverage: ^3.0.0
+    mz: ^2.7.0
   languageName: unknown
   linkType: soft
 
@@ -1681,6 +1696,12 @@ __metadata:
 "@fault/tester-mocha@1.0.0-alpha.0, @fault/tester-mocha@workspace:faultjs/fault-tester-mocha":
   version: 0.0.0-use.local
   resolution: "@fault/tester-mocha@workspace:faultjs/fault-tester-mocha"
+  dependencies:
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
+    "@fault/messages": "workspace:faultjs/fault-messages"
+    "@fault/types": "workspace:faultjs/fault-types"
+  peerDependencies:
+    mocha: "*"
   languageName: unknown
   linkType: soft
 
@@ -2971,7 +2992,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^2.27.0
     eslint-config-prettier: ^6.10.1
     eslint-plugin-import: ^2.20.2
-    eslint-plugin-react: ^7.19.0
   languageName: unknown
   linkType: soft
 
@@ -14079,6 +14099,7 @@ fsevents@^1.2.7:
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
     "@fault/runner": "workspace:faultjs/fault-runner"
     "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
+    "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha"
     "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core"
     "@pshaw/eslint-config-preset": "workspace:build-packages/eslint-config-preset"
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats"
