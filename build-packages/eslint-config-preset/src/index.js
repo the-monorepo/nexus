@@ -1,6 +1,6 @@
 module.exports = {
   plugins: [
-    //'@typescript-eslint/eslint-plugin',
+    '@typescript-eslint/eslint-plugin',
     'eslint-plugin-import',
     'eslint-plugin-react',
   ],
@@ -8,11 +8,11 @@ module.exports = {
     'eslint:recommended',
     'plugin:import/errors',
     'plugin:react/recommended',
-    //'plugin:@typescript-eslint/eslint-recommended',
-    //'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
     '@pshaw/eslint-config-core',
     '@pshaw/eslint-config-plugin-react',
-    //'@pshaw/eslint-config-plugin-typescript',
+    '@pshaw/eslint-config-plugin-typescript',
     '@pshaw/eslint-config-plugin-import',
     'prettier',
     'prettier/@typescript-eslint',
