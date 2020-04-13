@@ -5,7 +5,7 @@ import 'source-map-support/register';
 import fs from 'fs';
 import { resolve } from 'path';
 
-import { consoleTransport } from 'build-pshaw-logger';
+import { consoleTransport } from '@pshaw/logger';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import del from 'del';

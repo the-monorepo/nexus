@@ -1543,9 +1543,21 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/addon-mutation-localization-v1@workspace:faultjs/fault-addon-mutation-localization-v1"
   dependencies:
+    "@babel/generator": ^7.9.5
     "@babel/parser": ^7.5.0
+    "@babel/traverse": ^7.9.5
+    "@babel/types": ^7.9.5
+    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
+    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
+    "@fault/types": "workspace:faultjs/fault-types"
     "@types/pouchdb": ^6.4.0
+    chalk: ^4.0.0
+    del: ^5.1.0
     error-stack-parser: ^2.0.3
+    istanbul-lib-coverage: ^3.0.0
+    micromatch: ^4.0.2
+    mz: ^2.7.0
     pouchdb: ^7.1.1
     pouchdb-adapter-memory: ^7.1.1
     pouchdb-find: ^7.1.1
@@ -1605,10 +1617,13 @@ __metadata:
     chart.js: ^2.9.3
     chartjs-chart-box-and-violin-plot: ^2.3.0
     cross-spawn: ^6.0.5
+    del: ^5.1.0
+    globby: ^11.0.0
     isomorphic-git: ^0.58.1
     micromatch: ^4.0.2
     mobx-dom: "workspace:misc/mobx-dom"
     mz: ^2.7.0
+    node-fetch: ^2.6.0
     source-map-support: ^0.5.16
     webpack-cli: ^3.3.11
     webpack-dev-server: ^3.10.3
@@ -1619,6 +1634,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/istanbul-util@workspace:faultjs/fault-istanbul-util"
   dependencies:
+    istanbul-lib-coverage: ^3.0.0
     istanbul-lib-report: ^2.0.8
     istanbul-reports: ^2.2.6
     mz: ^2.7.0
@@ -1628,6 +1644,8 @@ __metadata:
 "@fault/localization-util@workspace:faultjs/fault-localization-util":
   version: 0.0.0-use.local
   resolution: "@fault/localization-util@workspace:faultjs/fault-localization-util"
+  dependencies:
+    "@fault/types": "workspace:faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
@@ -1644,6 +1662,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/record-faults@workspace:faultjs/fault-record-faults"
   dependencies:
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
     chalk: ^4.0.0
     mz: ^2.7.0
   languageName: unknown
