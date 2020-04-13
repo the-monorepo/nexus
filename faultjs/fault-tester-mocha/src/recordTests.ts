@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 
-import { subtractCoverage, Coverage } from '@fault/istanbul-util';
-
 import Mocha from 'mocha';
+
+import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 
 import { client } from './client';
 

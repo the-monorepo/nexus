@@ -10,14 +10,7 @@ import { File, AssignmentExpression, Expression, Statement } from '@babel/types'
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
-import { passFailStatsFromTests, Stats } from '@fault/localization-util';
-import {
-  reportFaults,
-  Fault,
-  ScorelessFault,
-  recordFaults,
-  sortBySuspciousness,
-} from '@fault/record-faults';
+
 import dstar from '@fault/sbfl-dstar';
 import {
   TesterResults,
@@ -40,6 +33,15 @@ import {
   copyFile,
   accessSync,
 } from 'mz/fs';
+
+import { passFailStatsFromTests, Stats } from '@fault/localization-util';
+import {
+  reportFaults,
+  Fault,
+  ScorelessFault,
+  recordFaults,
+  sortBySuspciousness,
+} from '@fault/record-faults';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;

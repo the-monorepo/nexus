@@ -2,17 +2,17 @@ import 'source-map-support/register';
 
 import { resolve, normalize } from 'path';
 
-import {
-  readCoverageFile,
-  getTotalExecutedStatements,
-  ExpressionLocation,
-} from '@fault/istanbul-util';
 import chalk from 'chalk';
 
 import * as micromatch from 'micromatch';
 import { writeFile } from 'mz/fs';
 
 import { createPlugin } from '@fault/addon-sbfl';
+import {
+  readCoverageFile,
+  getTotalExecutedStatements,
+  ExpressionLocation,
+} from '@fault/istanbul-util';
 import { convertFileFaultDataToFaults, ScorelessFault } from '@fault/record-faults';
 import * as flRunner from '@fault/runner';
 import { barinel } from '@fault/sbfl-barinel';
