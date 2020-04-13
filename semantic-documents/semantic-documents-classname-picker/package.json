@@ -19,5 +19,9 @@
   },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@semantic-documents/matcher-info": "workspace:semantic-documents/semantic-documents-matcher-info",
+    "tree-suffix-mapper": "workspace:misc/tree-suffix-mapper"
+  }
 }
