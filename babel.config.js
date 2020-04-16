@@ -50,7 +50,7 @@ module.exports = (api) => {
     overrides: [
       {
         test: [
-          './misc/my-resume',
+          './patrick-shaw/my-resume',
           './misc/resume-template',
           './misc/mobx-dom',
           './misc/page-breaker-chrome',
