@@ -1,4 +1,4 @@
-import rewiremock from 'rewiremock';
+import rewiremock from 'rewiremock/node';
 
 import { stubFunctions } from '../src';
 import * as es6 from './es6-module';
