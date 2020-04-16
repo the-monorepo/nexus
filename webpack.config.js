@@ -85,29 +85,6 @@ const defaultBundleAnalyzerPlugin = (packageDir, options) => {
   });
 };
 
-const resumeConfig = {
-  name: 'Resume',
-  target: 'web',
-  resolve: {
-    extensions: tsxExtensions,
-  },
-  module: {
-    rules: [svgRule, sourceMapRule, babelRule],
-  },
-  entry: resolve(resumeDir, 'src/index.tsx'),
-  output: createDistOutput(resumeDir),
-  plugins: [
-    defaultHtmlWebpackPlugin({
-      title: 'Patrick Shaw - Resume',
-      links: [openSansUrl],
-    }),
-    defaultBundleAnalyzerPlugin(resumeDir),
-  ],
-  devServer: {
-    port: 3000,
-    compress: true,
-  },
-};
 
 const cssModuleLoader = {
   loader: 'css-loader',
@@ -143,6 +120,30 @@ const sassModulesRule = {
 const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
   use: [cssModuleLoader, sassLoader],
+};
+
+const resumeConfig = {
+  name: 'Resume',
+  target: 'web',
+  resolve: {
+    extensions: tsxExtensions,
+  },
+  module: {
+    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+  },
+  entry: resolve(resumeDir, 'src/index.tsx'),
+  output: createDistOutput(resumeDir),
+  plugins: [
+    defaultHtmlWebpackPlugin({
+      title: 'Patrick Shaw - Resume',
+      links: [openSansUrl],
+    }),
+    defaultBundleAnalyzerPlugin(resumeDir),
+  ],
+  devServer: {
+    port: 3000,
+    compress: true,
+  },
 };
 
 const faultjsBenchmarkConfig = {
