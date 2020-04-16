@@ -90,8 +90,6 @@
     "html-webpack-plugin": "^4.2.0",
     "html-webpack-template": "^6.2.0",
     "husky": "^4.2.3",
-    "istanbul": "^0.4.5",
-    "jest-mock": "^25.1.0",
     "json-loader": "^0.5.7",
     "lerna": "^3.18.3",
     "micromatch": "^4.0.2",

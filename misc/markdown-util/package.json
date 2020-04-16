@@ -28,5 +28,9 @@
     "js-yaml": "^3.12.1",
     "mz": "^2.7.0"
   },
-  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "devDependencies": {
+    "rewiremock": "^3.13.9",
+    "sinon": "^9.0.2"
+  }
 }
