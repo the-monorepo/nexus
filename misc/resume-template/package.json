@@ -28,7 +28,7 @@
     "jss": "^9.8.7",
     "jss-plugin-camel-case": "^10.0.0-alpha.7",
     "mobx": "^5.9.0",
-    "mobx-dom": "workspace:misc/mobx-dom"
+    "name-tbd-dom": "workspace:misc/name-tbd-dom"
   },
   "devDependencies": {
     "jss": "^9.8.7",

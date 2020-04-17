@@ -17,7 +17,7 @@
   "dependencies": {
     "@pshaw/resume-template": "workspace:misc/resume-template",
     "express": "^4.17.1",
-    "mobx-dom": "workspace:misc/mobx-dom",
+    "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "puppeteer": "^2.1.1"
   }
 }
