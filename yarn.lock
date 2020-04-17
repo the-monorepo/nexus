@@ -1644,8 +1644,8 @@ __metadata:
   resolution: "@fault/istanbul-util@workspace:faultjs/fault-istanbul-util"
   dependencies:
     istanbul-lib-coverage: ^3.0.0
-    istanbul-lib-report: ^2.0.8
-    istanbul-reports: ^2.2.6
+    istanbul-lib-report: ^3.0.0
+    istanbul-reports: ^3.0.2
     mz: ^2.7.0
   languageName: unknown
   linkType: soft
@@ -12343,13 +12343,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"istanbul-lib-coverage@npm:^2.0.5":
-  version: 2.0.5
-  resolution: "istanbul-lib-coverage@npm:2.0.5"
-  checksum: 2/72737ebc48c31a45ab80fb1161b4c79a7d035d3088007ec55ec7a53b8bf6ae107a8222335e018978720270d71f2036abe73e150da4733f573be32398ad6aedd1
-  languageName: node
-  linkType: hard
-
 "istanbul-lib-coverage@npm:^3.0.0":
   version: 3.0.0
   resolution: "istanbul-lib-coverage@npm:3.0.0"
@@ -12372,17 +12365,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"istanbul-lib-report@npm:^2.0.8":
-  version: 2.0.8
-  resolution: "istanbul-lib-report@npm:2.0.8"
-  dependencies:
-    istanbul-lib-coverage: ^2.0.5
-    make-dir: ^2.1.0
-    supports-color: ^6.1.0
-  checksum: 2/63b898ed9e59f84eacfccb1b1450c09815ca8a70b7ff763ad489dd332d1ead6a81eefdc4e14e61ab6d05feaba78d8f3231d5eaa9ef3207ce5cd74be437393f1f
-  languageName: node
-  linkType: hard
-
 "istanbul-lib-report@npm:^3.0.0":
   version: 3.0.0
   resolution: "istanbul-lib-report@npm:3.0.0"
@@ -12391,15 +12373,6 @@ fsevents@^1.2.7:
     make-dir: ^3.0.0
     supports-color: ^7.1.0
   checksum: 2/aada59dfceae04005f684031a627f1e9730634262a5426837a9b60c49530d626dc727be5930e7ae6303ce0d4357fb8331eda0935b8c6b999df5d376bdc825991
-  languageName: node
-  linkType: hard
-
-"istanbul-reports@npm:^2.2.6":
-  version: 2.2.7
-  resolution: "istanbul-reports@npm:2.2.7"
-  dependencies:
-    html-escaper: ^2.0.0
-  checksum: 2/828f4afd30f1248aaf2ae65a606aa889611165de2c71eaa6a8953eeb4bdbf4b19072b5ec224d465a7511ed02a63a8fabf08c915ab08f7016310a512d4e14c2ac
   languageName: node
   linkType: hard
 
