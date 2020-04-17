@@ -1,6 +1,6 @@
-# Babel Plugin Transform Mobx Jsx
+# Babel Plugin Transform Name Tbd Jsx
 
-Convert JSX into MobXElement renderables
+Convert JSX logic to name-tbd
 
 ## Installation
 

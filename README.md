@@ -15,19 +15,15 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/semantic-documents-scss`](patrick-shaw/semantic-documents-scss/README.md) | SCSS files for @pshaw/semantic-documents-scss
 1.0.0-alpha.0 | [`@pshaw/semantic-documents-style-root`](patrick-shaw/semantic-documents-style-root/README.md) | Semantic document style root for @pshaw/semantic-documents-scss
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
-1.0.0-alpha.0 | [`babel-plugin-transform-name-tbd-jsx`](misc/babel-plugin-transform-name-tbd-jsx/README.md) | Convert JSX into MobXElement renderables
+1.0.0-alpha.0 | [`babel-plugin-transform-name-tbd-jsx`](misc/babel-plugin-transform-name-tbd-jsx/README.md) | Convert JSX logic to name-tbd
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
+1.0.0-alpha.0 | [`name-tbd-dom`](misc/name-tbd-dom/README.md) | Create interactive UIs with seamless state management using MobX
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 1.0.0-alpha.0 | [`tree-suffix-mapper`](misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
-
-### UI
-Version | Package | Description
---- | --- | ---
-1.0.0-alpha.0 | [`name-tbd-dom`](misc/name-tbd-dom/README.md) | Create interactive UIs with seamless state management using MobX
 
 ### Semantic documents
 Version | Package | Description
