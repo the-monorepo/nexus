@@ -58,19 +58,9 @@ module.exports = (api) => {
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
-          'babel-plugin-transform-mobx-jsx',
+          'babel-plugin-transform-name-tbd-jsx',
         ]),
         presets: [
-          [
-            '@babel/preset-env',
-            {
-              modules: esm ? false : undefined,
-              targets: {
-                esmodules: esm,
-                browsers: ['last 1 Chrome versions'],
-              },
-            },
-          ],
           [
             '@babel/preset-typescript',
             {
