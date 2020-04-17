@@ -4518,7 +4518,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "istanbul-reports",
-        "npm:2.2.7"
+        "npm:3.0.2"
       ],
       [
         "iterate-iterator",
@@ -9447,8 +9447,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["istanbul-lib-coverage", "npm:3.0.0"],
-            ["istanbul-lib-report", "npm:2.0.8"],
-            ["istanbul-reports", "npm:2.2.7"],
+            ["istanbul-lib-report", "npm:3.0.0"],
+            ["istanbul-reports", "npm:3.0.2"],
             ["mz", "npm:2.7.0"]
           ],
           "linkType": "SOFT",
@@ -21747,13 +21747,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["istanbul-lib-coverage", [
-        ["npm:2.0.5", {
-          "packageLocation": "./.yarn/cache/istanbul-lib-coverage-npm-2.0.5-cccbc9487c-2.zip/node_modules/istanbul-lib-coverage/",
-          "packageDependencies": [
-            ["istanbul-lib-coverage", "npm:2.0.5"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:3.0.0", {
           "packageLocation": "./.yarn/cache/istanbul-lib-coverage-npm-3.0.0-654bb0146d-2.zip/node_modules/istanbul-lib-coverage/",
           "packageDependencies": [
@@ -21779,16 +21772,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["istanbul-lib-report", [
-        ["npm:2.0.8", {
-          "packageLocation": "./.yarn/cache/istanbul-lib-report-npm-2.0.8-a32df3b969-2.zip/node_modules/istanbul-lib-report/",
-          "packageDependencies": [
-            ["istanbul-lib-report", "npm:2.0.8"],
-            ["istanbul-lib-coverage", "npm:2.0.5"],
-            ["make-dir", "npm:2.1.0"],
-            ["supports-color", "npm:6.1.0"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:3.0.0", {
           "packageLocation": "./.yarn/cache/istanbul-lib-report-npm-3.0.0-660f97340a-2.zip/node_modules/istanbul-lib-report/",
           "packageDependencies": [
@@ -21801,14 +21784,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["istanbul-reports", [
-        ["npm:2.2.7", {
-          "packageLocation": "./.yarn/cache/istanbul-reports-npm-2.2.7-c74b74b940-2.zip/node_modules/istanbul-reports/",
-          "packageDependencies": [
-            ["istanbul-reports", "npm:2.2.7"],
-            ["html-escaper", "npm:2.0.2"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:3.0.2", {
           "packageLocation": "./.yarn/cache/istanbul-reports-npm-3.0.2-6ccd67e17e-2.zip/node_modules/istanbul-reports/",
           "packageDependencies": [
