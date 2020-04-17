@@ -53,8 +53,8 @@
     "chartjs-chart-box-and-violin-plot": "^2.3.0",
     "globby": "^11.0.0",
     "micromatch": "^4.0.2",
-    "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "mz": "^2.7.0",
+    "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {

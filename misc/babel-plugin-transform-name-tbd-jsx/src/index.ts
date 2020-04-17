@@ -687,7 +687,7 @@ export default declare((api, options) => {
             yield t.expressionStatement(
               t.callExpression(
                 t.memberExpression(
-                  t.memberExpression(rootId, previousId),
+                  previousId,
                   t.identifier('splitText'),
                 ),
                 [t.numericLiteral(previousNode.text.length)],
