@@ -5,11 +5,11 @@ Convert JSX into MobXElement renderables
 ## Installation
 
 ```bash
-npm install --save babel-plugin-transform-mobx-jsx@1.0.0-alpha.0
+npm install --save babel-plugin-transform-name-tbd-jsx@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add babel-plugin-transform-mobx-jsx@1.0.0-alpha.0
+yarn add babel-plugin-transform-name-tbd-jsx@1.0.0-alpha.0
 ```
 
 ---
