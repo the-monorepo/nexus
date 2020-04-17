@@ -1,7 +1,7 @@
 {
-  "name": "babel-plugin-transform-mobx-jsx",
+  "name": "babel-plugin-transform-name-tbd",
   "version": "1.0.0-alpha.0",
-  "description": "Convert JSX into MobXElement renderables",
+  "description": "Convert JSX logic to name-tbd",
   "license": "MIT",
   "sideEffects": false,
   "repository": {

@@ -2,7 +2,7 @@
 import Chart from 'chart.js'; 
 import "chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js";
 
-import * as mbx from 'mobx-dom';
+import * as mbx from 'name-tbd-dom';
 
 import benchmarkResults from '../../benchmark-results.json';
 import './styles.css';

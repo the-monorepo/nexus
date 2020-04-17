@@ -11,7 +11,7 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "mobx": "^5.15.4",
-    "mobx-dom": "workspace:misc/mobx-dom",
+    "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "paper-range-slider": "^3.0.0",
     "xy-ui": "^1.9.3"
   }

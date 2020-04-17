@@ -52,7 +52,7 @@ module.exports = (api) => {
         test: [
           './patrick-shaw/my-resume',
           './misc/resume-template',
-          './misc/mobx-dom',
+          './misc/name-tbd-dom',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
         ],
