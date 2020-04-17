@@ -23,7 +23,7 @@ module.exports = (api) => {
           useInlineSourceMaps: true,
           exclude: [
             '**/*.test.{js,jsx,ts,tsx}',
-            './{faultjs,misc}/*/test/**',
+            './{faultjs,misc,patrick-shaw,semantic-documents}/*/test/**',
             './test/**',
             '**/{lib,esm,dist}/**',
           ],
