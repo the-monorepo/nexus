@@ -1630,7 +1630,7 @@ __metadata:
     globby: ^11.0.0
     isomorphic-git: ^0.58.1
     micromatch: ^4.0.2
-    mobx-dom: "workspace:misc/mobx-dom"
+    name-tbd-dom: "workspace:misc/name-tbd-dom"
     mz: ^2.7.0
     node-fetch: ^2.6.0
     source-map-support: ^0.5.16
@@ -3077,7 +3077,7 @@ __metadata:
   dependencies:
     "@pshaw/resume-template": "workspace:misc/resume-template"
     express: ^4.17.1
-    mobx-dom: "workspace:misc/mobx-dom"
+    name-tbd-dom: "workspace:misc/name-tbd-dom"
     puppeteer: ^2.1.1
   languageName: unknown
   linkType: soft
@@ -3088,7 +3088,7 @@ __metadata:
   dependencies:
     classnames: ^2.2.6
     mobx: ^5.15.4
-    mobx-dom: "workspace:misc/mobx-dom"
+    name-tbd-dom: "workspace:misc/name-tbd-dom"
     paper-range-slider: ^3.0.0
     xy-ui: ^1.9.3
   languageName: unknown
@@ -3108,7 +3108,7 @@ __metadata:
     jss-nested: ^6.0.1
     jss-plugin-camel-case: ^10.0.0-alpha.7
     mobx: ^5.9.0
-    mobx-dom: "workspace:misc/mobx-dom"
+    name-tbd-dom: "workspace:misc/name-tbd-dom"
   languageName: unknown
   linkType: soft
 
@@ -14027,9 +14027,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mobx-dom@workspace:misc/mobx-dom":
+"name-tbd-dom@workspace:misc/name-tbd-dom":
   version: 0.0.0-use.local
-  resolution: "mobx-dom@workspace:misc/mobx-dom"
+  resolution: "name-tbd-dom@workspace:misc/name-tbd-dom"
   dependencies:
     "@babel/core": ^7.4.0
     "@babel/helper-builder-react-jsx": ^7.3.0

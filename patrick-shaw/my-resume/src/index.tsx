@@ -1,19 +1,19 @@
 console.log('TODO');
 /*import { createResume } from '@pshaw/resume-template';
-import * as mbx from 'mobx-dom';
+import * as mbx from 'name-tbd-dom';
 import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
 mbx.render(rootElement, <Resume data={data} />);*/
 /*
-import * as mbx from 'mobx-dom';
+import * as mbx from 'name-tbd-dom';
 import map from 'mobx-map';
-import { MobxElement } from 'mobx-dom';
+import { MobxElement } from 'name-tbd-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
-import { render } from 'mobx-dom/src';
+import { render } from 'name-tbd-dom/src';
 No double assignment of props
-import * as mbx from 'mobx-dom';
-import { MobxElement, map } from 'mobx-dom';
+import * as mbx from 'name-tbd-dom';
+import { MobxElement, map } from 'name-tbd-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 <div>
   <>Lol</>
@@ -98,8 +98,8 @@ class Test extends React.Component {
 }
 ReactDOM.render(<Test/>, document.getElementById('root'));
 */
-/*import * as mbx from 'mobx-dom';
-import { MobxElement } from 'mobx-dom';
+/*import * as mbx from 'name-tbd-dom';
+import { MobxElement } from 'name-tbd-dom';
 import map from 'mobx-map';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 const store = observable({

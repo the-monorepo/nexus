@@ -1,4 +1,4 @@
-import * as mbx from 'mobx-dom';
+import * as mbx from 'name-tbd-dom';
 
 export const Template = () => (
   <>

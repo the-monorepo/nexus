@@ -27,7 +27,7 @@ Version | Package | Description
 ### UI
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`mobx-dom`](misc/mobx-dom/README.md) | Create interactive UIs with seamless state management using MobX
+1.0.0-alpha.0 | [`name-tbd-dom`](misc/name-tbd-dom/README.md) | Create interactive UIs with seamless state management using MobX
 
 ### Semantic documents
 Version | Package | Description
