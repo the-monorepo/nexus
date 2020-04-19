@@ -6,11 +6,11 @@
   "module": "./esm/index.js",
   "main": "./lib/index.js",
   "scripts": {
-    "start": "node --max-old-space-size=4096 ./lib/index.js",
-    "results": "node ./lib/results.js",
+    "start": "yarn node --max-old-space-size=4096 ./lib/index.js",
+    "results": "yarn node ./lib/results.js",
     "build": "yarn start && yarn results",
     "report": "webpack-dev-server --watch --mode development",
-    "scrape-repo": "node ./lib/scrape-repo.js"
+    "scrape-repo": "yarn node ./lib/scrape-repo.js"
   },
   "files": [
     "lib",
@@ -34,7 +34,9 @@
     "benchmark"
   ],
   "dependencies": {
+    "@babel/core": "^7.9.0",
     "@babel/parser": "^7.5.0",
+    "@babel/register": "^7.9.0",
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl",
     "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util",
     "@fault/record-faults": "workspace:faultjs/fault-record-faults",
@@ -44,7 +46,7 @@
     "@fault/sbfl-ochiai": "workspace:faultjs/fault-sbfl-ochiai",
     "@fault/sbfl-op2": "workspace:faultjs/fault-sbfl-op2",
     "@fault/sbfl-tarantula": "workspace:faultjs/fault-sbfl-tarantula",
-    "@fault/tester-mocha": "1.0.0-alpha.0",
+    "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha",
     "@pshaw/logger": "workspace:misc/logger",
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats",
     "chai": "^4.2.0",
@@ -53,6 +55,7 @@
     "chartjs-chart-box-and-violin-plot": "^2.3.0",
     "globby": "^11.0.0",
     "micromatch": "^4.0.2",
+    "mocha": "^7.1.1",
     "mz": "^2.7.0",
     "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "source-map-support": "^0.5.16"

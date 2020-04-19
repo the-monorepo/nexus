@@ -3,9 +3,12 @@ export const run = async () => {
   const testerOptions = JSON.parse(optionsJson);
   const importPaths = JSON.parse(importPathJson);
   for (const importPath of importPaths) {
-    const requiredModule = require(require.resolve(importPath, {
+    console.log('cwd', process.cwd(), process.execPath, process.execArgv);
+    const resolvedImportPath = require.resolve(importPath, {
       paths: [process.cwd()],
-    }));
+    });
+    console.log('????', resolvedImportPath)
+    const requiredModule = require(resolvedImportPath);
 
     if (requiredModule !== undefined) {
       if (typeof requiredModule === 'function') {
