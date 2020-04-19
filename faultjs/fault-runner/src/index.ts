@@ -525,7 +525,9 @@ export const run = async ({
   await hooks.on.start();
 
   const internalOptions: InternalRunOptions = {
-    tester,
+    tester: require.resolve(tester, {
+      paths: [process.cwd()],
+    }),
     testMatch: Array.isArray(testMatch) ? testMatch : [testMatch],
     workerCount: processCount,
     setupFiles,
