@@ -5,7 +5,7 @@ import { resolve, normalize } from 'path';
 import chalk from 'chalk';
 
 import * as micromatch from 'micromatch';
-import { writeFile } from 'mz/fs';
+import { writeFile, readFile } from 'fs/promises';
 
 import { createPlugin } from '@fault/addon-sbfl';
 import {
@@ -320,13 +320,13 @@ export const run = async () => {
       });
     }
 
-    const expectedFaults = (convertFileFaultDataToFaults(
-      require(resolve(projectDir, 'expected-faults.json')),
-    ) as any) as ExpectedFault[];
+    const expectedFaults = convertFileFaultDataToFaults(
+      JSON.parse(await readFile(resolve(projectDir, 'expected-faults.json'), 'utf8'))
+    ) as ExpectedFault[];
 
-    for (const { name } of (sbflAlgorithms as any).concat(mutationPlugins)) {
+    for (const { name } of (sbflAlgorithms as any)) {
       const actualFaults = convertFileFaultDataToFaults(
-        require(faultFilePath(projectDir, name)),
+        JSON.parse(await readFile(resolve(faultFilePath(projectDir, name)), 'utf8'))
       );
 
       const totalExecutableStatements = getTotalExecutedStatements(coverage);
