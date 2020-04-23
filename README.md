@@ -18,6 +18,7 @@ Version | Package | Description
 1.0.0-alpha.0 | [`babel-plugin-transform-name-tbd-jsx`](misc/babel-plugin-transform-name-tbd-jsx/README.md) | Convert JSX logic to name-tbd
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
+2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.0.0-alpha.0 | [`name-tbd-dom`](misc/name-tbd-dom/README.md) | Create interactive UIs with seamless state management using MobX
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
@@ -37,7 +38,6 @@ Version | Package | Description
 ### Build tooling
 Version | Package | Description
 --- | --- | ---
-3.0.1 | [`@pshaw/build-util`](build-packages/build-util/README.md) | Tries to save some time by providing basic build configurations
 1.0.0-alpha.6 | [`gulp-staged`](build-packages/gulp-staged/README.md) | A gulp plugin that filters out unstaged files from streams
 1.0.0-alpha.5 | [`gulp-status-git-filter`](build-packages/gulp-status-git-filter/README.md) | A gulp plugin that filters out files based off their git status
 
@@ -45,10 +45,12 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.4.3 | [`@pshaw/markdown-util`](misc/markdown-util/README.md) | A helper package for writing markdown files
+3.1.3 | [`@writeme/core`](misc/writeme-core/README.md) | A readme generator
 
 ### Logging
 Version | Package | Description
 --- | --- | ---
+2.0.4 | [`@pshaw/logger`](misc/logger/README.md) | A preformatted, opinionated logger
 1.5.3 | [`@pshaw/winston-formats`](build-packages/winston-formats/README.md) | A set of Winston formats
 
 ### ESLint
