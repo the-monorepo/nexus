@@ -72,7 +72,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-react": "^7.19.0",
     "expect": "^25.1.0",
-    "fibers": "^4.0.2",
+    "fibers": "^5.0.0",
     "file-loader": "^6.0.0",
     "globby": "^11.0.0",
     "globy": "^0.1.8",
