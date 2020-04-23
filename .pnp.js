@@ -171,10 +171,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:faultjs/fault-types"
       },
       {
-        "name": "@pshaw/build-util",
-        "reference": "workspace:build-packages/build-util"
-      },
-      {
         "name": "@pshaw/eslint-config-core",
         "reference": "workspace:build-packages/eslint-config-core"
       },
@@ -1207,10 +1203,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@polymer/polymer",
         "npm:3.3.1"
-      ],
-      [
-        "@pshaw/build-util",
-        "workspace:build-packages/build-util"
       ],
       [
         "@pshaw/colors-scss",
@@ -9516,7 +9508,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
             ["@pshaw/logger", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#workspace:misc/logger"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
-            ["babel-plugin-istanbul", "npm:6.0.0"],
             ["chai", "npm:4.2.0"],
             ["chalk", "npm:4.0.0"],
             ["chart.js", "npm:2.9.3"],
@@ -11005,15 +10996,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@webcomponents/shadycss", "npm:1.9.6"]
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["@pshaw/build-util", [
-        ["workspace:build-packages/build-util", {
-          "packageLocation": "./build-packages/build-util/",
-          "packageDependencies": [
-            ["@pshaw/build-util", "workspace:build-packages/build-util"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["@pshaw/colors-scss", [

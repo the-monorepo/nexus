@@ -1623,7 +1623,6 @@ __metadata:
     "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha"
     "@pshaw/logger": "workspace:misc/logger"
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats"
-    babel-plugin-istanbul: ^6.0.0
     chai: ^4.2.0
     chalk: ^4.0.0
     chart.js: ^2.9.3
@@ -2974,12 +2973,6 @@ __metadata:
   checksum: 2/d1bdb4625209a0a67cd4330d34ad47cd656e82f2280e78bca5b3e18ec85d6a17fcde730cc3ff73dc2774546debbb29a8f580b24fc4954a0e29dc3ffed0ea28bd
   languageName: node
   linkType: hard
-
-"@pshaw/build-util@workspace:build-packages/build-util":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/build-util@workspace:build-packages/build-util"
-  languageName: unknown
-  linkType: soft
 
 "@pshaw/colors-scss@workspace:patrick-shaw/colors-scss":
   version: 0.0.0-use.local
