@@ -32,7 +32,6 @@
     "@fault/types": "workspace:faultjs/fault-types",
     "chalk": "^4.0.0",
     "globby": "^11.0.0",
-    "istanbul-lib-coverage": "^3.0.0",
-    "mz": "^2.7.0"
+    "istanbul-lib-coverage": "^3.0.0"
   }
 }

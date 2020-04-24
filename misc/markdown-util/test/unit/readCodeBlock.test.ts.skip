@@ -3,7 +3,7 @@ import mock from 'rewiremock/node';
 import { stub } from 'sinon';
 
 mock.enable();
-mock('mz/fs').with({
+mock('fs/promises').with({
   readFile: async () => 'test',
 });
 mock('js-yaml').with({

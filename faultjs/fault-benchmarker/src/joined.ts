@@ -6,7 +6,7 @@ import {
   compareMutationEvaluations,
   DELETE_STATEMENT,
 } from '@fault/addon-mutation-localization';
-import { readFile, writeFile } from 'mz/fs';
+import { readFile, writeFile } from 'fs/promises';
 
 import { recordFaults, convertFileFaultDataToFaults } from '@fault/record-faults';
 

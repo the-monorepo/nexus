@@ -1557,7 +1557,6 @@ __metadata:
     error-stack-parser: ^2.0.3
     istanbul-lib-coverage: ^3.0.0
     micromatch: ^4.0.2
-    mz: ^2.7.0
     pouchdb: ^7.1.1
     pouchdb-adapter-memory: ^7.1.1
     pouchdb-find: ^7.1.1
@@ -1585,7 +1584,6 @@ __metadata:
     error-stack-parser: ^2.0.6
     istanbul-lib-coverage: ^3.0.0
     micromatch: ^4.0.2
-    mz: ^2.7.0
     pouchdb: ^7.1.1
     pouchdb-adapter-memory: ^7.1.1
     pouchdb-find: ^7.1.1
@@ -1633,7 +1631,6 @@ __metadata:
     isomorphic-git: ^0.58.1
     micromatch: ^4.0.2
     mocha: ^7.1.1
-    mz: ^2.7.0
     name-tbd-dom: "workspace:misc/name-tbd-dom"
     node-fetch: ^2.6.0
     source-map-support: ^0.5.16
@@ -1649,7 +1646,6 @@ __metadata:
     istanbul-lib-coverage: ^3.0.0
     istanbul-lib-report: ^3.0.0
     istanbul-reports: ^3.0.2
-    mz: ^2.7.0
   languageName: unknown
   linkType: soft
 
@@ -1676,7 +1672,6 @@ __metadata:
   dependencies:
     "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
     chalk: ^4.0.0
-    mz: ^2.7.0
   languageName: unknown
   linkType: soft
 
@@ -1692,7 +1687,6 @@ __metadata:
     chalk: ^4.0.0
     globby: ^11.0.0
     istanbul-lib-coverage: ^3.0.0
-    mz: ^2.7.0
   languageName: unknown
   linkType: soft
 
@@ -3062,7 +3056,6 @@ __metadata:
   resolution: "@pshaw/markdown-util@workspace:misc/markdown-util"
   dependencies:
     js-yaml: ^3.12.1
-    mz: ^2.7.0
     rewiremock: ^3.13.9
     sinon: ^9.0.2
   languageName: unknown
@@ -3841,15 +3834,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mz@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "@types/mz@npm:2.7.0"
-  dependencies:
-    "@types/node": "*"
-  checksum: 2/878d75631be7a7b2d8befa705e29fe7b73d42819085e46c0d83eeed17e647a0a63e99cce98622b2c55ff573f1d0e154a5bb4cacb95cf53e8cf3ea1df6fb704b2
-  languageName: node
-  linkType: hard
-
 "@types/node-fetch@npm:*":
   version: 2.5.6
   resolution: "@types/node-fetch@npm:2.5.6"
@@ -4486,7 +4470,6 @@ __metadata:
     fs-extra: ^7.0.1
     globby: ^9.0.0
     hook-schema: ^2.2.3
-    mz: ^2.7.0
   languageName: unknown
   linkType: soft
 
@@ -14391,7 +14374,6 @@ fsevents@^1.2.7:
     "@storybook/core": 5.3.17
     "@types/babel__traverse": ^7.0.7
     "@types/mocha": ^7.0.2
-    "@types/mz": ^2.7.0
     "@typescript-eslint/eslint-plugin": ^2.27.0
     "@typescript-eslint/parser": ^2.27.0
     "@writeme/core": "workspace:misc/writeme-core"
@@ -14432,7 +14414,6 @@ fsevents@^1.2.7:
     micromatch: ^4.0.2
     minimist: ^1.2.5
     mocha: ^7.1.1
-    mz: ^2.7.0
     node-fetch: ^2.6.0
     plugin-error: ^1.0.1
     prettier: ^2.0.1
@@ -14537,7 +14518,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mz@npm:^2.5.0, mz@npm:^2.7.0":
+"mz@npm:^2.5.0":
   version: 2.7.0
   resolution: "mz@npm:2.7.0"
   dependencies:

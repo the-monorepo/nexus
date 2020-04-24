@@ -31,7 +31,7 @@ import {
   mkdir,
   copyFile,
   accessSync,
-} from 'mz/fs';
+} from 'fs/promises';
 
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
 import {
@@ -3560,7 +3560,7 @@ export const createPlugin = ({
       throw new Error(`Copied/cached path for ${filePath} was ${copyPath}`);
     }
     console.log('copying', copyPath, filePath);
-    await (copyFile as any)(copyPath, filePath);
+    await copyFile(copyPath, filePath);
   };
 
   const resetMutationsInInstruction = async (instructions: Queue<Instruction<any>>) => {
@@ -3574,8 +3574,7 @@ export const createPlugin = ({
       const copyPath = resolve(copyTempDir, fileId.toString());
       originalPathToCopyPath.set(filePath, copyPath);
       console.log('writing', filePath, copyPath);
-      // TODO: type doesn't seem to account for mz/fs
-      return (copyFile as any)(filePath, copyPath);
+      return copyFile(filePath, copyPath);
     }
     return Promise.resolve();
   };

@@ -56,7 +56,6 @@
     "globby": "^11.0.0",
     "micromatch": "^4.0.2",
     "mocha": "^7.1.1",
-    "mz": "^2.7.0",
     "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "source-map-support": "^0.5.16"
   },
