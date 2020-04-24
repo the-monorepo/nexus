@@ -25,8 +25,7 @@
     "access": "public"
   },
   "dependencies": {
-    "js-yaml": "^3.12.1",
-    "mz": "^2.7.0"
+    "js-yaml": "^3.12.1"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
   "devDependencies": {

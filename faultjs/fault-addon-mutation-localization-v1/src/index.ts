@@ -34,7 +34,7 @@ import del from 'del';
 import ErrorStackParser from 'error-stack-parser';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import * as micromatch from 'micromatch';
-import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'mz/fs';
+import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'fs/promises';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;

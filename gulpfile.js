@@ -441,7 +441,7 @@ const webpackCompilers = () => {
   const globby = require('globby');
   const { resolve } = require('path');
   const micromatch = require('micromatch');
-  const { access, readFile } = require('mz/fs');
+  const { readFile, access } = require('fs/promises');
 
   const args = minimist(process.argv.slice(2));
 
@@ -575,7 +575,7 @@ const rollupCompilers = () => {
   const globby = require('globby');
   const { resolve } = require('path');
   const micromatch = require('micromatch');
-  const { access, readFile } = require('mz/fs');
+  const { access, readFile } = require('fs/promises');
 
   const args = minimist(process.argv.slice(2));
 

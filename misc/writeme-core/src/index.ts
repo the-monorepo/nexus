@@ -2,7 +2,7 @@
 import { pathExists } from 'fs-extra';
 import globby from 'globby';
 import { fromSchema, HookOptionsOf } from 'hook-schema';
-import { writeFile, readFile } from 'mz/fs';
+import { writeFile, readFile } from 'fs/promises';
 import { join, relative, resolve } from 'path';
 
 function section(title, content) {

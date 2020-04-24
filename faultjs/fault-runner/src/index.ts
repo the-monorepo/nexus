@@ -6,7 +6,7 @@ import { join, resolve } from 'path';
 import globby from 'globby';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 
-import { readFile, writeFile } from 'mz/fs';
+import { readFile, writeFile } from 'fs/promises';
 
 import {
   TestHookOptions,

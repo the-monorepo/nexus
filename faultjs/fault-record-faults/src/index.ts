@@ -5,7 +5,7 @@ import { relative } from 'path';
 
 import { ExpressionLocation } from '@fault/istanbul-util';
 import chalk from 'chalk';
-import { writeFile, readFile } from 'mz/fs';
+import { writeFile, readFile } from 'fs/promises';
 
 export type ScorelessFault = {
   location: ExpressionLocation;

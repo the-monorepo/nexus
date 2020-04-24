@@ -1509,10 +1509,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:7.0.2"
       ],
       [
-        "@types/mz",
-        "npm:2.7.0"
-      ],
-      [
         "@types/node",
         "npm:11.15.12"
       ],
@@ -7486,7 +7482,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.17"],
             ["@types/babel__traverse", "npm:7.0.10"],
             ["@types/mocha", "npm:7.0.2"],
-            ["@types/mz", "npm:2.7.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@writeme/core", "workspace:misc/writeme-core"],
@@ -7530,7 +7525,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["micromatch", "npm:4.0.2"],
             ["minimist", "npm:1.2.5"],
             ["mocha", "npm:7.1.1"],
-            ["mz", "npm:2.7.0"],
             ["node-fetch", "npm:2.6.0"],
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.5"],
@@ -9439,7 +9433,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["error-stack-parser", "npm:2.0.6"],
             ["istanbul-lib-coverage", "npm:3.0.0"],
             ["micromatch", "npm:4.0.2"],
-            ["mz", "npm:2.7.0"],
             ["pouchdb", "npm:7.2.1"],
             ["pouchdb-adapter-memory", "npm:7.2.1"],
             ["pouchdb-find", "npm:7.2.1"]
@@ -9466,7 +9459,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["error-stack-parser", "npm:2.0.6"],
             ["istanbul-lib-coverage", "npm:3.0.0"],
             ["micromatch", "npm:4.0.2"],
-            ["mz", "npm:2.7.0"],
             ["pouchdb", "npm:7.2.1"],
             ["pouchdb-adapter-memory", "npm:7.2.1"],
             ["pouchdb-find", "npm:7.2.1"]
@@ -9518,7 +9510,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["isomorphic-git", "npm:0.58.2"],
             ["micromatch", "npm:4.0.2"],
             ["mocha", "npm:7.1.1"],
-            ["mz", "npm:2.7.0"],
             ["name-tbd-dom", "workspace:misc/name-tbd-dom"],
             ["node-fetch", "npm:2.6.0"],
             ["source-map-support", "npm:0.5.18"],
@@ -9535,8 +9526,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["istanbul-lib-coverage", "npm:3.0.0"],
             ["istanbul-lib-report", "npm:3.0.0"],
-            ["istanbul-reports", "npm:3.0.2"],
-            ["mz", "npm:2.7.0"]
+            ["istanbul-reports", "npm:3.0.2"]
           ],
           "linkType": "SOFT",
         }]
@@ -9568,8 +9558,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
-            ["chalk", "npm:4.0.0"],
-            ["mz", "npm:2.7.0"]
+            ["chalk", "npm:4.0.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -9586,8 +9575,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/types", "workspace:faultjs/fault-types"],
             ["chalk", "npm:4.0.0"],
             ["globby", "npm:11.0.0"],
-            ["istanbul-lib-coverage", "npm:3.0.0"],
-            ["mz", "npm:2.7.0"]
+            ["istanbul-lib-coverage", "npm:3.0.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -11140,7 +11128,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@pshaw/markdown-util", "workspace:misc/markdown-util"],
             ["js-yaml", "npm:3.13.1"],
-            ["mz", "npm:2.7.0"],
             ["rewiremock", "npm:3.13.9"],
             ["sinon", "npm:9.0.2"]
           ],
@@ -12209,16 +12196,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["@types/mz", [
-        ["npm:2.7.0", {
-          "packageLocation": "./.yarn/cache/@types-mz-npm-2.7.0-6d28da6bba-2.zip/node_modules/@types/mz/",
-          "packageDependencies": [
-            ["@types/mz", "npm:2.7.0"],
-            ["@types/node", "npm:11.15.12"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["@types/node", [
         ["npm:11.15.12", {
           "packageLocation": "./.yarn/cache/@types-node-npm-11.15.12-6721193d1f-2.zip/node_modules/@types/node/",
@@ -12984,8 +12961,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:11.15.12"],
             ["fs-extra", "npm:7.0.1"],
             ["globby", "npm:9.2.0"],
-            ["hook-schema", "workspace:misc/hook-schema"],
-            ["mz", "npm:2.7.0"]
+            ["hook-schema", "workspace:misc/hook-schema"]
           ],
           "linkType": "SOFT",
         }]
@@ -24044,7 +24020,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.17"],
             ["@types/babel__traverse", "npm:7.0.10"],
             ["@types/mocha", "npm:7.0.2"],
-            ["@types/mz", "npm:2.7.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@writeme/core", "workspace:misc/writeme-core"],
@@ -24088,7 +24063,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["micromatch", "npm:4.0.2"],
             ["minimist", "npm:1.2.5"],
             ["mocha", "npm:7.1.1"],
-            ["mz", "npm:2.7.0"],
             ["node-fetch", "npm:2.6.0"],
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.5"],
