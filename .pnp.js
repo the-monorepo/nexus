@@ -1510,7 +1510,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@types/node",
-        "npm:11.15.12"
+        "npm:13.13.4"
       ],
       [
         "@types/node-fetch",
@@ -7482,6 +7482,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.17"],
             ["@types/babel__traverse", "npm:7.0.10"],
             ["@types/mocha", "npm:7.0.2"],
+            ["@types/node", "npm:13.13.4"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@writeme/core", "workspace:misc/writeme-core"],
@@ -9573,6 +9574,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
+            ["@types/node", "npm:13.13.4"],
             ["chalk", "npm:4.0.0"],
             ["globby", "npm:11.0.0"],
             ["istanbul-lib-coverage", "npm:3.0.0"]
@@ -12208,6 +12210,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-node-npm-13.13.2-15aa70594a-2.zip/node_modules/@types/node/",
           "packageDependencies": [
             ["@types/node", "npm:13.13.2"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:13.13.4", {
+          "packageLocation": "./.yarn/cache/@types-node-npm-13.13.4-1e30c2a062-2.zip/node_modules/@types/node/",
+          "packageDependencies": [
+            ["@types/node", "npm:13.13.4"]
           ],
           "linkType": "HARD",
         }]
@@ -24020,6 +24029,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.17"],
             ["@types/babel__traverse", "npm:7.0.10"],
             ["@types/mocha", "npm:7.0.2"],
+            ["@types/node", "npm:13.13.4"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.29.0"],
             ["@writeme/core", "workspace:misc/writeme-core"],
