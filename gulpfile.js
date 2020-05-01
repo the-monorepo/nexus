@@ -325,7 +325,7 @@ async function testNoBuild() {
       testerOptions: {
         sandbox: true,
       },
-      timeout: 60000,
+      timeout: 10000,
     });
     if (!passed) {
       process.exit(1);
