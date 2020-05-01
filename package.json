@@ -26,6 +26,10 @@
     "writeme": "gulp writeme",
     "webpack": "gulp webpack",
     "prepublishOnly": "gulp prepublish",
+    "serve": "gulp serve",
+    "serve:my-resume": "gulp serve --name='my-resume'",
+    "serve:fault-benchmarker": "gulp serve --name='fault-benchmarker'",
+    "serve:page-breaker": "gulp serve --name='page-breaker'",
     "ci-test": "gulp ci-test"
   },
   "keywords": [

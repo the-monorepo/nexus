@@ -122,7 +122,7 @@ const webcomponentsSassModulesRule = {
 };
 
 const resumeConfig = {
-  name: 'Resume',
+  name: 'my-resume',
   target: 'web',
   resolve: {
     extensions: tsxExtensions,

@@ -1,5 +1,5 @@
 /* eslint-disable */
-/// <reference path="custom.d.ts" />
+import './custom.d.ts';
 import classNames from 'classnames';
 import { format as formatDate } from 'date-fns/esm/index';
 import jss from 'jss';
