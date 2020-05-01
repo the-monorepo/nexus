@@ -6,6 +6,7 @@ import {
 } from '../src/value-checks';
 import { isHwbColor } from '../src/index';
 import * as suites from './inputs/suites';
+import jest from 'jest-mock';
 const floatParsingFunctions = [
   isValidAlphaValue,
   isValidHue,

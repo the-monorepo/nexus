@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@byexample/types": "workspace:byexample/types",
-    "css-color-checker": "^1.6.1"
+    "css-color-checker": "workspace:misc/css-color-checker"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^5.3.18",

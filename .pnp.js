@@ -35,6 +35,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/convict-util"
       },
       {
+        "name": "css-color-checker",
+        "reference": "workspace:misc/css-color-checker"
+      },
+      {
         "name": "custom-element",
         "reference": "workspace:misc/custom-element"
       },
@@ -69,6 +73,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@pshaw/markdown-util",
         "reference": "workspace:misc/markdown-util"
+      },
+      {
+        "name": "named-css-colors",
+        "reference": "workspace:misc/named-css-colors"
       },
       {
         "name": "@pshaw/page-breaker-chrome",
@@ -3402,7 +3410,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "css-color-checker",
-        "npm:1.6.1"
+        "workspace:misc/css-color-checker"
       ],
       [
         "css-loader",
@@ -5767,6 +5775,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "mz",
         "npm:2.7.0"
+      ],
+      [
+        "named-css-colors",
+        "workspace:misc/named-css-colors"
       ],
       [
         "nan",
@@ -11750,7 +11762,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@byexample/types", "workspace:byexample/types"],
             ["@storybook/addon-actions", "npm:5.3.18"],
             ["@storybook/addon-knobs", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.18"],
-            ["css-color-checker", "npm:1.6.1"],
+            ["css-color-checker", "workspace:misc/css-color-checker"],
             ["prop-types", "npm:15.7.2"],
             ["react", "npm:16.13.1"],
             ["react-dom", "virtual:58af721a5e102befd3db3b7f4714e6b1f53d7103d86d872dff43a1645d17b5e1705e12e0f9455b9fd4096abd5318ae432f1fd47e56039d15a5fff6a86988789b#npm:16.13.1"]
@@ -11768,7 +11780,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@byexample/types", "workspace:byexample/types"],
             ["@storybook/addon-actions", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:4.1.18"],
             ["@storybook/addon-knobs", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:4.1.18"],
-            ["css-color-checker", "npm:1.6.1"],
+            ["css-color-checker", "workspace:misc/css-color-checker"],
             ["prop-types", "npm:15.7.2"],
             ["react", "npm:16.13.1"],
             ["react-dom", "virtual:58af721a5e102befd3db3b7f4714e6b1f53d7103d86d872dff43a1645d17b5e1705e12e0f9455b9fd4096abd5318ae432f1fd47e56039d15a5fff6a86988789b#npm:16.13.1"]
@@ -11786,7 +11798,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@byexample/types", "workspace:byexample/types"],
             ["@storybook/addon-actions", "npm:5.3.18"],
             ["@storybook/addon-knobs", "virtual:e6fff3a060ec208f57306de3f0bdb77fb0064c33b65506504e226c7e5021b5930519e94e72fc2fc4d29c23928bbcec0851c995d22ced735d5e02671ce296ec71#npm:5.3.18"],
-            ["css-color-checker", "npm:1.6.1"],
+            ["css-color-checker", "workspace:misc/css-color-checker"],
             ["prop-types", "npm:15.7.2"],
             ["react", "npm:16.13.1"],
             ["react-dom", "virtual:58af721a5e102befd3db3b7f4714e6b1f53d7103d86d872dff43a1645d17b5e1705e12e0f9455b9fd4096abd5318ae432f1fd47e56039d15a5fff6a86988789b#npm:16.13.1"]
@@ -21812,12 +21824,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["css-color-checker", [
-        ["npm:1.6.1", {
-          "packageLocation": "./.yarn/cache/css-color-checker-npm-1.6.1-b9f719fd7d-3.zip/node_modules/css-color-checker/",
+        ["workspace:misc/css-color-checker", {
+          "packageLocation": "./misc/css-color-checker/",
           "packageDependencies": [
-            ["css-color-checker", "npm:1.6.1"]
+            ["css-color-checker", "workspace:misc/css-color-checker"],
+            ["jest-mock", "npm:25.5.0"]
           ],
-          "linkType": "HARD",
+          "linkType": "SOFT",
         }]
       ]],
       ["css-loader", [
@@ -30120,6 +30133,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["thenify-all", "npm:1.6.0"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["named-css-colors", [
+        ["workspace:misc/named-css-colors", {
+          "packageLocation": "./misc/named-css-colors/",
+          "packageDependencies": [
+            ["named-css-colors", "workspace:misc/named-css-colors"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["nan", [

@@ -1646,7 +1646,7 @@ __metadata:
     "@byexample/types": "workspace:byexample/types"
     "@storybook/addon-actions": ^5.3.18
     "@storybook/addon-knobs": ^5.3.18
-    css-color-checker: ^1.6.1
+    css-color-checker: "workspace:misc/css-color-checker"
     prop-types: ^15.7.2
     react: ^16.6.1
     react-dom: ^16.4.2
@@ -10098,12 +10098,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-color-checker@npm:^1.6.1":
-  version: 1.6.1
-  resolution: "css-color-checker@npm:1.6.1"
-  checksum: 3/8ebf3e7d8b6f02f23f741d7df4397f23064f2b34e8322e0ba6d408ce13b26e22bd07d1cd41c79aa93803de85ca23a2ac3ea2f29a000b00c64ba4a6e28e2135af
-  languageName: node
-  linkType: hard
+"css-color-checker@workspace:misc/css-color-checker":
+  version: 0.0.0-use.local
+  resolution: "css-color-checker@workspace:misc/css-color-checker"
+  dependencies:
+    jest-mock: ^25.5.0
+  languageName: unknown
+  linkType: soft
 
 "css-loader@npm:^1.0.1":
   version: 1.0.1
@@ -15543,7 +15544,7 @@ fsevents@~2.1.1:
   languageName: unknown
   linkType: soft
 
-"jest-mock@npm:^25.3.0":
+"jest-mock@npm:^25.3.0, jest-mock@npm:^25.5.0":
   version: 25.5.0
   resolution: "jest-mock@npm:25.5.0"
   dependencies:
@@ -17580,6 +17581,12 @@ fsevents@~2.1.1:
   checksum: 3/063966dd8e05dfe952038e88d14fb0a3816d9fa391b5afc75d19e2247b7471fd98ca85ffca45d950b9aab4f8f7536aecf63509af031e1785549468b6400eeda5
   languageName: node
   linkType: hard
+
+"named-css-colors@workspace:misc/named-css-colors":
+  version: 0.0.0-use.local
+  resolution: "named-css-colors@workspace:misc/named-css-colors"
+  languageName: unknown
+  linkType: soft
 
 "nan@npm:^2.12.1":
   version: 2.14.1
