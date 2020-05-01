@@ -27,14 +27,14 @@ function mapType(type: Type, typeInfo: TypeInfo, options) {
       const properties = {};
       const required = [];
       if (options.assumeRequired) {
-        Object.keys(objectType.fields).forEach(key => {
+        Object.keys(objectType.fields).forEach((key) => {
           const fieldTypeInfo = objectType.fields[key];
           if (fieldTypeInfo.undefinedCount <= 0) {
             required.push(key);
           }
         });
       }
-      Object.keys(objectType.fields).forEach(key => {
+      Object.keys(objectType.fields).forEach((key) => {
         const fieldTypeInfo = objectType.fields[key];
         properties[key] = createSchema(fieldTypeInfo, options);
       });
@@ -79,7 +79,7 @@ export function createSchema(typeInfo: TypeInfo, options = {}) {
     ...options,
   };
 
-  const swaggerTypes = typeInfo.types.map(type =>
+  const swaggerTypes = typeInfo.types.map((type) =>
     mapType(type, typeInfo, optionsWithDefaults),
   );
   let schema = undefined;

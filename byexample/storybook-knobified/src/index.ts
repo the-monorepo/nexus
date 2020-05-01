@@ -1,6 +1,10 @@
 // TODO: Should probably mock @storybook/addon-knobs
-import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
+import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
+
+import { isCssColor } from 'css-color-checker';
+import PropTypes from 'prop-types';
+
 import {
   ObjectType,
   DefaultTypeName,
@@ -8,8 +12,6 @@ import {
   extractTypeInfo,
   defaultTypeTests,
 } from '@byexample/types';
-import { isCssColor } from 'css-color-checker';
-import PropTypes from 'prop-types';
 
 function propTypeMatches(testedPropType, expectedPropType) {
   if (testedPropType === expectedPropType) {
@@ -37,7 +39,7 @@ function knobBasedOffExamples(value, typeInfo: TypeInfo, key) {
       case DefaultTypeName.string:
         return type[isCssColorSymb] ? color(key, value) : text(key, value);
       case DefaultTypeName.array:
-        return array(key, !!value ? value : []);
+        return array(key, value ? value : []);
       case DefaultTypeName.function:
         return action(key, value);
       case DefaultTypeName.object:
@@ -59,7 +61,7 @@ function shimDefaultTypeTests(typeTests) {
       typeCheck: ({ example }) => {
         return typeTests[key].typeCheck(example);
       },
-      value: propData => {
+      value: (propData) => {
         const examples = propData.map(({ example }) => example);
         return typeTests[key].value(examples);
       },
@@ -72,7 +74,7 @@ function withPropTypeCheck(typeCheck, expectedPropType) {
   function checkProps(data) {
     return typeCheck({ example: data.defaultProp }) || typeCheck(data);
   }
-  return data => {
+  return (data) => {
     const { propType } = data;
     if (propType) {
       return propTypeMatches(propType, expectedPropType) || checkProps(data);
@@ -85,7 +87,7 @@ function knobTypeTests(extractTypeInfoFn) {
   // TODO: Remove the any
   const defaultTests: any = defaultTypeTests(extractTypeInfoFn);
   const ogValueFn = defaultTests.string.value;
-  defaultTests.string.value = examples => {
+  defaultTests.string.value = (examples) => {
     const ogValue = ogValueFn(examples);
     let isColor = true;
     for (const example of examples) {
@@ -131,7 +133,7 @@ function propKeys(examples, Component = {}) {
     [].concat(
       Object.keys(propTypes ? propTypes : {}),
       Object.keys(defaultProps ? defaultProps : {}),
-      ...examples.map(example => Object.keys(example)),
+      ...examples.map((example) => Object.keys(example)),
     ),
   );
 }
@@ -142,7 +144,7 @@ function extractKnobInfo(examples, Component = {}, options) {
   // Wasteful copying of proptype and default prop data
   const typeInfo = Array.from(keys.values()).reduce((datum, key) => {
     datum[key] = extractTypeInfo(
-      examples.map(example => ({
+      examples.map((example) => ({
         example: example[key],
         propType: propTypes[key],
         defaultProp: defaultProps[key],
@@ -174,7 +176,7 @@ export function fromExamples(
     undefinedCount: 0,
   };
   return {
-    knobified: example => {
+    knobified: (example) => {
       return knobified(example, typeInfo, options);
     },
   };
@@ -188,7 +190,7 @@ export function knobified(example, typeInfo, options: any = {}) {
   if (types.length > 1) {
     throw new Error(
       `Expecting root values to be object types. Root value types included [ ${types
-        .map(type => type.name)
+        .map((type) => type.name)
         .join(', ')} ]`,
     );
   }

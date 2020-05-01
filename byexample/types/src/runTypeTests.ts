@@ -1,5 +1,5 @@
-import { Type } from './type-info-types';
 import { TypeTest } from './TypeTest';
+import { Type } from './type-info-types';
 import { nullCounts, undefinedCounts } from './util';
 
 export function runTypeTests(
@@ -9,8 +9,8 @@ export function runTypeTests(
   const undefinedCount = undefinedCounts(values);
   const nullCount = nullCounts(values);
   const passedTests = Object.keys(typeTests)
-    .map(key => typeTests[key])
-    .filter(typeTest => {
+    .map((key) => typeTests[key])
+    .filter((typeTest) => {
       for (const value of values) {
         if (typeTest.typeCheck(value)) {
           return true;

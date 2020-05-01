@@ -9,7 +9,7 @@ const extraBuildIgnoreGlobs = ['build-packages/**', ...dependencyGlobs];
 
 const faultJsBenchmarkerProjectGlobs = [
   'faultjs/fault-benchmarker/{disabled-projects,projects}/**',
-]
+];
 
 const extraFormatIgnoreGlobs = [
   ...dependencyGlobs,
@@ -20,10 +20,7 @@ const extraFormatIgnoreGlobs = [
 
 const extraBuildArtifactGlobs = ['coverage/**'];
 
-const extraTestIgnoreGlobs = [
-  ...dependencyGlobs,
-  ...faultJsBenchmarkerProjectGlobs,
-];
+const extraTestIgnoreGlobs = [...dependencyGlobs, ...faultJsBenchmarkerProjectGlobs];
 
 const serve = {
   servers: {
@@ -94,7 +91,6 @@ const testableGlobs = [
 ];
 
 const watchableGlobs = projects.map((project) => `${project}/**`);
-console.log(formatableGlobs);
 module.exports = {
   testableGlobs,
   buildableSourceCodeGlobs,

@@ -4,10 +4,10 @@
  */
 import { DefaultTypeName } from './DefaultTypeName';
 
-export interface Type {
+export type Type = {
   name: string;
   [k: string]: any;
-}
+};
 
 export enum NumberFormat {
   none = 'none',
@@ -15,36 +15,36 @@ export enum NumberFormat {
   // TODO: float
 }
 
-export interface NumberType extends Type {
+export type NumberType = {
   name: DefaultTypeName.number;
   format: NumberFormat;
-}
+} & Type;
 
-export interface StringType extends Type {
+export type StringType = {
   name: DefaultTypeName.string;
-}
+} & Type;
 
-export interface Fields {
+export type Fields = {
   [key: string]: TypeInfo;
-}
+};
 
-export interface ObjectType extends Type {
+export type ObjectType = {
   name: DefaultTypeName.object;
   fields: Fields;
-}
+} & Type;
 
-export interface ArrayType extends Type {
+export type ArrayType = {
   name: DefaultTypeName.array;
   items: TypeInfo;
-}
+} & Type;
 
-export interface FunctionType extends Type {
+export type FunctionType = {
   name: DefaultTypeName.function;
-}
+} & Type;
 
-export interface BooleanType extends Type {
+export type BooleanType = {
   name: DefaultTypeName.boolean;
-}
+} & Type;
 
 export type DefaultType =
   | NumberType
@@ -54,14 +54,14 @@ export type DefaultType =
   | FunctionType
   | BooleanType;
 
-export interface TypeInfo {
+export type TypeInfo = {
   types: Type[];
   undefinedCount: number;
   nullCount: number;
-}
+};
 
-export interface DefaultTypeInfo {
+export type DefaultTypeInfo = {
   types: DefaultType[];
   undefinedCount: number;
   nullCount: number;
-}
+};

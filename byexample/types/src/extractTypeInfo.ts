@@ -1,6 +1,6 @@
 import { defaultTypeTests } from './defaultTypeTests';
-import { DefaultTypeInfo, DefaultType } from './type-info-types';
 import { runTypeTests } from './runTypeTests';
+import { DefaultTypeInfo, DefaultType } from './type-info-types';
 
 export function extractTypeInfo<T>(
   examples: T[] | T,
@@ -11,6 +11,6 @@ export function extractTypeInfo<T>(
   return {
     nullCount,
     undefinedCount,
-    types: values.map(value => value(examples)),
+    types: values.map((value) => value(examples)),
   };
 }

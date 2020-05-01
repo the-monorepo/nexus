@@ -1,7 +1,7 @@
 export class MatcherInfo {
   constructor(
-    public readonly type: Symbol,
+    public readonly type: symbol,
     public readonly className: string,
-    public readonly children: MatcherInfo[]  
+    public readonly children: MatcherInfo[],
   ) {}
 }

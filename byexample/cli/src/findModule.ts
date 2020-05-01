@@ -1,6 +1,6 @@
 export function findModule(moduleName: string) {
   const prefixes = ['@byexample/', 'byexample-', ''];
-  const compiledModuleNames = prefixes.map(prefix => prefix + moduleName);
+  const compiledModuleNames = prefixes.map((prefix) => prefix + moduleName);
   let aModule = undefined;
   let finalModuleName = undefined;
   let i = 0;
