@@ -3,27 +3,26 @@ const codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
 
 const projects = require('./package.json').workspaces;
 
-const dependencyGlobs = [
-  '.yarn/**',
-  '**/node_modules/**',
+const dependencyGlobs = ['.yarn/**', '**/node_modules/**'];
+
+const extraBuildIgnoreGlobs = ['build-packages/**', ...dependencyGlobs];
+
+const faultJsBenchmarkerProjectGlobs = [
+  'faultjs/fault-benchmarker/{disabled-projects,projects}/**',
 ]
 
-const extraBuildIgnoreGlobs = [
-  'build-packages/**',
-  ...dependencyGlobs,
-];
-
 const extraFormatIgnoreGlobs = [
-  ...extraBuildIgnoreGlobs,
+  ...dependencyGlobs,
+  ...faultJsBenchmarkerProjectGlobs,
+  'pnp.js',
+  'pnp.cjs',
 ];
 
-const extraBuildArtifactGlobs = [
-  'coverage/**',
-];
+const extraBuildArtifactGlobs = ['coverage/**'];
 
 const extraTestIgnoreGlobs = [
   ...dependencyGlobs,
-  'faultjs/fault-benchmarker/{disabled-projects,projects}/**',
+  ...faultJsBenchmarkerProjectGlobs,
 ];
 
 const serve = {
@@ -39,7 +38,7 @@ const serve = {
         input: './misc/page-breaker-chrome/src/index.tsx',
       },
     ],
-  }
+  },
 };
 
 // Automated stuff should go here
@@ -48,65 +47,54 @@ const defaultArtifactDirNames = ['esm', 'lib', 'dist'];
 const buildIgnoreGlobs = extraBuildIgnoreGlobs;
 
 const defaultProjectArtifactsGlobs = [
-  ...projects.map(
-    packageGlob => 
-      defaultArtifactDirNames.map(artifactDirName => `${packageGlob}/${artifactDirName}/**`)
-  ).flat(),
-  ...projects.map(packageGlob => `${packageGlob}/README.md`)
+  ...projects
+    .map((packageGlob) =>
+      defaultArtifactDirNames.map(
+        (artifactDirName) => `${packageGlob}/${artifactDirName}/**`,
+      ),
+    )
+    .flat(),
+  ...projects.map((packageGlob) => `${packageGlob}/README.md`),
 ];
 
-const buildArtifactGlobs = [
-  ...extraBuildArtifactGlobs,
-  ...defaultProjectArtifactsGlobs,
-];
+const buildArtifactGlobs = [...extraBuildArtifactGlobs, ...defaultProjectArtifactsGlobs];
 
-const allCodeGlobs = codeExtensions.map(extension => `**/*.${extension}`);
+const allCodeGlobs = codeExtensions.map((extension) => `**/*.${extension}`);
 
-const nonIgnoredSourceGlobs = projects.map(
-  packageGlobs => `${packageGlobs}/src/**`,
-);
+const nonIgnoredSourceGlobs = projects.map((packageGlobs) => `${packageGlobs}/src/**`);
 
-const nonIgnoredSourceCodeGlobs = nonIgnoredSourceGlobs.map(
-  glob => 
-    codeExtensions.map(extension => `${glob}/*.${extension}`),
-).flat();
+const nonIgnoredSourceCodeGlobs = nonIgnoredSourceGlobs
+  .map((glob) => codeExtensions.map((extension) => `${glob}/*.${extension}`))
+  .flat();
 
 const buildableSourceCodeGlobs = [
   ...nonIgnoredSourceCodeGlobs,
-  ...buildIgnoreGlobs.map(glob => `!${glob}`),
+  ...buildIgnoreGlobs.map((glob) => `!${glob}`),
 ];
 
 const buildableSourceAssetGlobs = [
   ...nonIgnoredSourceGlobs,
-  ...nonIgnoredSourceCodeGlobs.map(
-    glob => `!${glob}/*`
-  ),
-  ...buildIgnoreGlobs.map(glob => `!${glob}`),
+  ...nonIgnoredSourceCodeGlobs.map((glob) => `!${glob}/*`),
+  ...buildIgnoreGlobs.map((glob) => `!${glob}`),
 ];
 
-const formatIgnoreGlobs = [
-  ...buildArtifactGlobs,
-  ...extraFormatIgnoreGlobs,
-]
+const formatIgnoreGlobs = [...buildArtifactGlobs, ...extraFormatIgnoreGlobs];
 
-const formatableGlobs = [
-  ...formatIgnoreGlobs.map(glob => `!${glob}`),
-  ...allCodeGlobs,
-];
+const formatableGlobs = [...allCodeGlobs, ...formatIgnoreGlobs.map((glob) => `!${glob}`)];
 
-const testIgnoreGlobs = [
-  ...buildArtifactGlobs,
-  ...extraTestIgnoreGlobs
-];
+const testIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
 
 const testableGlobs = [
-  ...projects.map(
-    project => codeExtensions.map(extension => `${project}/**/*.test.${extension}`)
-  ).flat(),
-  ...testIgnoreGlobs.map(glob => `!${glob}`),
+  ...projects
+    .map((project) =>
+      codeExtensions.map((extension) => `${project}/**/*.test.${extension}`),
+    )
+    .flat(),
+  ...testIgnoreGlobs.map((glob) => `!${glob}`),
 ];
 
-const watchableGlobs = projects.map(project => `${project}/**`);
+const watchableGlobs = projects.map((project) => `${project}/**`);
+console.log(formatableGlobs);
 module.exports = {
   testableGlobs,
   buildableSourceCodeGlobs,
