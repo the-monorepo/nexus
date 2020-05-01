@@ -1,27 +1,3 @@
-import { tmpdir } from 'os';
-import { join, resolve, basename, normalize } from 'path';
-
-import generate from '@babel/generator';
-import { parse, ParserOptions } from '@babel/parser';
-import { NodePath } from '@babel/traverse';
-import traverse from '@babel/traverse';
-import * as t from '@babel/types';
-import { File, AssignmentExpression, Expression, Statement } from '@babel/types';
-import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
-import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
-
-import {
-  TesterResults,
-  TestResult,
-  FailingTestData,
-  FinalTesterResults,
-} from '@fault/types';
-import chalk from 'chalk';
-import del from 'del';
-import ErrorStackParser from 'error-stack-parser';
-import { createCoverageMap } from 'istanbul-lib-coverage';
-import * as micromatch from 'micromatch';
 import {
   readFile,
   writeFile,
@@ -32,6 +8,25 @@ import {
   copyFile,
   accessSync,
 } from 'fs/promises';
+import { tmpdir } from 'os';
+import { join, resolve, basename, normalize } from 'path';
+
+import generate from '@babel/generator';
+import { parse, ParserOptions } from '@babel/parser';
+import { NodePath } from '@babel/traverse';
+import traverse from '@babel/traverse';
+import * as t from '@babel/types';
+import { File, AssignmentExpression, Expression, Statement } from '@babel/types';
+
+import chalk from 'chalk';
+import del from 'del';
+import ErrorStackParser from 'error-stack-parser';
+import { createCoverageMap } from 'istanbul-lib-coverage';
+import * as micromatch from 'micromatch';
+
+import { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
+import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
 import {
@@ -42,6 +37,12 @@ import {
   sortBySuspciousness,
 } from '@fault/record-faults';
 import dstar from '@fault/sbfl-dstar';
+import {
+  TesterResults,
+  TestResult,
+  FailingTestData,
+  FinalTesterResults,
+} from '@fault/types';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;

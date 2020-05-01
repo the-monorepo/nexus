@@ -1,12 +1,11 @@
 import { fork, ChildProcess } from 'child_process';
 
+import { readFile, writeFile } from 'fs/promises';
 import { cpus } from 'os';
 import { join, resolve } from 'path';
 
 import globby from 'globby';
 import { createCoverageMap } from 'istanbul-lib-coverage';
-
-import { readFile, writeFile } from 'fs/promises';
 
 import {
   TestHookOptions,

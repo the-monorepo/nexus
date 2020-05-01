@@ -1,11 +1,12 @@
 import { mkdirSync } from 'fs';
+import { writeFile, readFile } from 'fs/promises';
 import { dirname } from 'path';
 
 import { relative } from 'path';
 
-import { ExpressionLocation } from '@fault/istanbul-util';
 import chalk from 'chalk';
-import { writeFile, readFile } from 'fs/promises';
+
+import { ExpressionLocation } from '@fault/istanbul-util';
 
 export type ScorelessFault = {
   location: ExpressionLocation;

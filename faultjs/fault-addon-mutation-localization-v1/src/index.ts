@@ -1,3 +1,4 @@
+import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join, resolve, basename } from 'path';
 
@@ -13,8 +14,14 @@ import {
   Statement,
 } from '@babel/types';
 import * as t from '@babel/types';
-import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 
+import chalk from 'chalk';
+import del from 'del';
+import ErrorStackParser from 'error-stack-parser';
+import { createCoverageMap } from 'istanbul-lib-coverage';
+import * as micromatch from 'micromatch';
+
+import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import {
   reportFaults,
@@ -29,12 +36,6 @@ import {
   FailingTestData,
   FinalTesterResults,
 } from '@fault/types';
-import chalk from 'chalk';
-import del from 'del';
-import ErrorStackParser from 'error-stack-parser';
-import { createCoverageMap } from 'istanbul-lib-coverage';
-import * as micromatch from 'micromatch';
-import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'fs/promises';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
   let i = 1;

@@ -1,11 +1,11 @@
 import 'source-map-support/register';
 
+import { writeFile, readFile } from 'fs/promises';
 import { resolve, normalize } from 'path';
 
 import chalk from 'chalk';
 
 import * as micromatch from 'micromatch';
-import { writeFile, readFile } from 'fs/promises';
 
 import { createPlugin } from '@fault/addon-sbfl';
 import {
@@ -321,12 +321,12 @@ export const run = async () => {
     }
 
     const expectedFaults = convertFileFaultDataToFaults(
-      JSON.parse(await readFile(resolve(projectDir, 'expected-faults.json'), 'utf8'))
+      JSON.parse(await readFile(resolve(projectDir, 'expected-faults.json'), 'utf8')),
     ) as ExpectedFault[];
 
-    for (const { name } of (sbflAlgorithms as any)) {
+    for (const { name } of sbflAlgorithms as any) {
       const actualFaults = convertFileFaultDataToFaults(
-        JSON.parse(await readFile(resolve(faultFilePath(projectDir, name)), 'utf8'))
+        JSON.parse(await readFile(resolve(faultFilePath(projectDir, name)), 'utf8')),
       );
 
       const totalExecutableStatements = getTotalExecutedStatements(coverage);

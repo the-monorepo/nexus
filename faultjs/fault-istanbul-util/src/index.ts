@@ -1,5 +1,6 @@
-import { CoverageMapData } from 'istanbul-lib-coverage';
 import { readFile } from 'fs/promises';
+
+import { CoverageMapData } from 'istanbul-lib-coverage';
 
 export const cloneCoverage = (coverage) => {
   if (Array.isArray(coverage)) {

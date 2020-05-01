@@ -1,7 +1,8 @@
 import util from 'util';
 
-import * as psFormats from '@pshaw/winston-formats';
 import { createLogger, format, transports } from 'winston';
+
+import * as psFormats from '@pshaw/winston-formats';
 
 export type TransportOptions = {
   level?: string;

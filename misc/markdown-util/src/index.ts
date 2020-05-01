@@ -1,7 +1,7 @@
+import { readFile } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { safeLoad } from 'js-yaml';
-import { readFile } from 'fs/promises';
 /**
  * Map from extensions to language info
  */
