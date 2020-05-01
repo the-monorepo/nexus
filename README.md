@@ -6,11 +6,6 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.5 | [`@byexample/cli`](byexample/cli/README.md) | Use byexample packages using a CLI
-1.0.0-alpha.5 | [`@byexample/openapi`](byexample/openapi/README.md) | Generate OpenAPI schemas from examples
-1.0.0-alpha.5 | [`@byexample/storybook-addon-auto-knobs`](byexample/storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
-1.0.0-alpha.5 | [`@byexample/storybook-knobified`](byexample/storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
-1.0.0-alpha.5 | [`@byexample/types`](byexample/types/README.md) | Extract type information from examples
 1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/html-template`](misc/html-template/README.md) | A HTML template generator
@@ -20,10 +15,12 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/semantic-documents-scss`](patrick-shaw/semantic-documents-scss/README.md) | SCSS files for @pshaw/semantic-documents-scss
 1.0.0-alpha.0 | [`@pshaw/semantic-documents-style-root`](patrick-shaw/semantic-documents-style-root/README.md) | Semantic document style root for @pshaw/semantic-documents-scss
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
+1.6.1 | [`css-color-checker`](misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
 2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
+1.6.1 | [`named-css-colors`](misc/named-css-colors/README.md) | Package of named CSS colors and their values
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
@@ -43,6 +40,15 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@semantic-documents/html-elements`](semantic-documents/semantic-documents-html-elements/README.md) | Helper HTMLElement classes that implement elements that use the @semantic-documents/html-symbols
 1.0.0-alpha.0 | [`@semantic-documents/html-symbols`](semantic-documents/semantic-documents-html-symbols/README.md) | TODO
 1.0.0-alpha.0 | [`@semantic-documents/matcher-info`](semantic-documents/semantic-documents-matcher-info/README.md) | TODO
+
+### By Example
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.5 | [`@byexample/cli`](byexample/cli/README.md) | Use byexample packages using a CLI
+1.0.0-alpha.5 | [`@byexample/openapi`](byexample/openapi/README.md) | Generate OpenAPI schemas from examples
+1.0.0-alpha.5 | [`@byexample/storybook-addon-auto-knobs`](byexample/storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
+1.0.0-alpha.5 | [`@byexample/storybook-knobified`](byexample/storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
+1.0.0-alpha.5 | [`@byexample/types`](byexample/types/README.md) | Extract type information from examples
 
 ### Build tooling
 Version | Package | Description
@@ -77,7 +83,7 @@ Version | Package | Description
 1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](build-packages/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
 1.4.2 | [`@pshaw/eslint-config-preset`](build-packages/eslint-config-preset/README.md) | A pratical style preset for ESLint
 
-### Fault localization
+### FaultJS
 Version | Package | Description
 --- | --- | ---
 1.0.0-alpha.0 | [`@fault/addon-hook-schema`](faultjs/fault-addon-hook-schema/README.md) | Hook schema for Fault.js addons
