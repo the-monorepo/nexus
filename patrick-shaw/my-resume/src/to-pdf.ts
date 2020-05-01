@@ -1,6 +1,6 @@
-import puppeteer from 'puppeteer';
-import express from 'express';
 import { logger, consoleTransport } from '@pshaw/logger';
+import express from 'express';
+import puppeteer from 'puppeteer';
 const l = logger().add(consoleTransport());
 l.info('Serving bundle...');
 const app = express();

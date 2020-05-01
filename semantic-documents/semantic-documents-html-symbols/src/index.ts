@@ -5,16 +5,30 @@ export const HEADER = Symbol('header');
 export const FOOTER = Symbol('footer');
 export const PARAGRAPH = Symbol('paragraph');
 
-const HEADING_SYMBOLS = [Symbol('h1'), Symbol('h2'), Symbol('h3'), Symbol('h4'), Symbol('h5'), Symbol('h6')];
+const HEADING_SYMBOLS = [
+  Symbol('h1'),
+  Symbol('h2'),
+  Symbol('h3'),
+  Symbol('h4'),
+  Symbol('h5'),
+  Symbol('h6'),
+];
 
-export const [HEADING_1, HEADING_2, HEADING_3, HEADING_4, HEADING_5, HEADING_6] = HEADING_SYMBOLS;
-export type MatcherInfoFactory = (className: string) => (...children: MatcherInfo[]) => MatcherInfo;
+export const [
+  HEADING_1,
+  HEADING_2,
+  HEADING_3,
+  HEADING_4,
+  HEADING_5,
+  HEADING_6,
+] = HEADING_SYMBOLS;
+export type MatcherInfoFactory = (
+  className: string,
+) => (...children: MatcherInfo[]) => MatcherInfo;
 
-const simpleMatcherInfoFactory = (type: Symbol): MatcherInfoFactory => (className) => (...children) => new MatcherInfo(
-  type,
-  className,
-  children,
-);
+const simpleMatcherInfoFactory = (type: symbol): MatcherInfoFactory => (className) => (
+  ...children
+) => new MatcherInfo(type, className, children);
 
 export const section: MatcherInfoFactory = simpleMatcherInfoFactory(SECTION);
 export const header: MatcherInfoFactory = simpleMatcherInfoFactory(HEADER);

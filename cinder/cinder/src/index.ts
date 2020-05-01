@@ -1155,7 +1155,6 @@ export abstract class RootlessDomElement<C, V> extends HTMLElement {
   abstract render(): ComponentResult<C, V, Node>;
 }
 
-
 export abstract class LightDomElement<C, V> extends RootlessDomElement<C, V> {
   mountRenderRoot() {
     return this;

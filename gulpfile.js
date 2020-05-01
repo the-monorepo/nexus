@@ -4,6 +4,7 @@ require('source-map-support/register');
  */
 const { join, sep, relative } = require('path');
 
+const pshawLogger = require('build-pshaw-logger');
 const chalk = require('chalk');
 
 const gulp = require('gulp');
@@ -11,7 +12,7 @@ const changed = require('gulp-changed');
 
 const rename = require('gulp-rename');
 
-const PluginError = require('plugin-error'); 
+const PluginError = require('plugin-error');
 const through = require('through2');
 
 const staged = require('gulp-staged');
@@ -32,8 +33,6 @@ function createSrcDirSwapper(dir) {
   return (srcPath) => swapSrcWith(srcPath, dir);
 }
 
-
-const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream(options) {
@@ -50,13 +49,11 @@ function packagesSrcCodeStream(options) {
   });
 }
 
-const formatStream = (options) => gulp.src(
-  config.formatableGlobs,
-  {
+const formatStream = (options) =>
+  gulp.src(config.formatableGlobs, {
     base: '.',
     ...options,
-  },
-);
+  });
 
 function simplePipeLogger(l, verb) {
   return through.obj(function (file, enc, callback) {

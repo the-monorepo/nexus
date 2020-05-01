@@ -1,11 +1,12 @@
-import { runTypeTests } from '../../src/runTypeTests';
-import { typeTest } from '../../src/TypeTest';
 import jest from 'jest-mock';
+
+import { typeTest } from '../../src/TypeTest';
+import { runTypeTests } from '../../src/runTypeTests';
 function testResult(values, checks, expectedResult) {
   it('correct result', () => {
     const expectedValues = [];
     checks
-      .filter(check => expectedResult.checks.includes(check))
+      .filter((check) => expectedResult.checks.includes(check))
       .forEach((check, i) => {
         expectedValues.push(i);
       });
@@ -14,7 +15,7 @@ function testResult(values, checks, expectedResult) {
     expect(result.undefinedCount).toBe(expectedResult.undefinedCount);
     expect(result.nullCount).toBe(expectedResult.nullCount);
     expect(result.values.length).toBe(expectedValues.length);
-    expectedValues.forEach(value => expect(result.values.includes(value)).toBe(true));
+    expectedValues.forEach((value) => expect(result.values.includes(value)).toBe(true));
   });
 }
 describe('run-single-type', () => {

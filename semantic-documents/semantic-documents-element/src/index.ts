@@ -1,7 +1,6 @@
-import createContext from 'dom-context';
-
 import { pickClassName, createStyleRoot } from '@semantic-documents/classname-picker';
 import type { StyleRoot } from '@semantic-documents/classname-picker';
+import createContext from 'dom-context';
 
 export type { StyleRoot };
 export { createStyleRoot };
@@ -16,8 +15,7 @@ export class OverrideHierachyElement extends HTMLElement {
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' })
-      .appendChild(document.createElement('slot'));
+    this.attachShadow({ mode: 'open' }).appendChild(document.createElement('slot'));
   }
 }
 
@@ -26,7 +24,7 @@ abstract class SemanticElement extends HTMLElement {
 
   @elementHierachyContext.provider
   private hierachy: any[];
-  
+
   private semanticType: any;
 
   constructor(
@@ -50,24 +48,24 @@ abstract class SemanticElement extends HTMLElement {
 
     this.hierachy = [elementName];
   }
-  
+
   @elementHierachyContext.consumer
   private onHierachyChange(hierachy = []) {
     if (hierachy === undefined) {
       return;
     }
     this.hierachy = [this.semanticType, ...hierachy];
-    this.update(this.hierachy); 
+    this.update(this.hierachy);
   }
-  
+
   connectedCallback() {
     console.log('test');
   }
-  
+
   disconnectedCallback() {
-    console.log('disc')
+    console.log('disc');
   }
-  
+
   update(hierachy) {
     const className = pickClassName(this.styleRoot, hierachy);
     if (className !== undefined) {

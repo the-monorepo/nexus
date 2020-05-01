@@ -10,7 +10,7 @@ export function defaultModuleAction(moduleName: string) {
   console.log(`Using module '${chalk.cyan(result.name)}'`);
 
   const stdin = process.openStdin();
-  stdin.on('data', input => {
+  stdin.on('data', (input) => {
     let output = undefined;
     if (result.module.fromInput) {
       output = result.module.fromInput(input);

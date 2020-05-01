@@ -1,4 +1,6 @@
 import { DefaultTypeName } from './DefaultTypeName';
+import { typeTest, TypeTest } from './TypeTest';
+import { extractTypeInfo } from './extractTypeInfo';
 import {
   isBoolean,
   isObject,
@@ -17,9 +19,7 @@ import {
   ArrayType,
   ObjectType,
 } from './type-info-types';
-import { typeTest, TypeTest } from './TypeTest';
 import { allAreIntegers } from './util';
-import { extractTypeInfo } from './extractTypeInfo';
 
 export function defaultTypeTests(extractTypeInfoFunction = extractTypeInfo) {
   return {
@@ -35,7 +35,7 @@ export function defaultTypeTests(extractTypeInfoFunction = extractTypeInfo) {
       const type: FunctionType = { name: DefaultTypeName.function };
       return type;
     }),
-    number: typeTest(isNumber, values => {
+    number: typeTest(isNumber, (values) => {
       const type: NumberType = {
         name: DefaultTypeName.number,
         format: allAreIntegers(values.filter(isNumber))
@@ -44,13 +44,13 @@ export function defaultTypeTests(extractTypeInfoFunction = extractTypeInfo) {
       };
       return type;
     }),
-    array: typeTest(isArray, values => {
+    array: typeTest(isArray, (values) => {
       /*
        * TODO: Currently doesn't necessarily behave as expected.
        * E.g. Examples = [[1, 1, 1], ['', '', '']] will return a type
        * that expects an array of both strings and numbers
        */
-      const arrayValues = values.filter(value => isArray(value));
+      const arrayValues = values.filter((value) => isArray(value));
       const allValues = [].concat(...arrayValues);
       const items = extractTypeInfoFunction(allValues);
       const type: ArrayType = {
@@ -59,17 +59,17 @@ export function defaultTypeTests(extractTypeInfoFunction = extractTypeInfo) {
       };
       return type;
     }),
-    object: typeTest(isObject, values => {
-      const objectValues = values.filter(value => isObject(value));
+    object: typeTest(isObject, (values) => {
+      const objectValues = values.filter((value) => isObject(value));
       const keyToValuesMap = new Map<string, { [k: string]: any }>();
-      objectValues.forEach(objectValue => {
-        Object.keys(objectValue).forEach(key => {
+      objectValues.forEach((objectValue) => {
+        Object.keys(objectValue).forEach((key) => {
           keyToValuesMap.set(key, []);
         });
       });
       // Gather the values for each key
       for (const key of keyToValuesMap.keys()) {
-        objectValues.forEach(objectValue => {
+        objectValues.forEach((objectValue) => {
           keyToValuesMap.get(key).push(objectValue[key]);
         });
       }

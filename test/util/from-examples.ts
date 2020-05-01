@@ -1,6 +1,6 @@
-import { extractTypeInfo } from '@byexample/types';
 import { createSchema } from '@byexample/openapi';
 import { knobified } from '@byexample/storybook-knobified';
+import { extractTypeInfo } from '@byexample/types';
 export type ExpectOutputFunction<T> = (expectedOutput: any, options?: any) => T;
 export type Tester<T> = ExpectOutputFunction<T> & {
   toThrowError(error?: Error): T;
@@ -35,14 +35,14 @@ function mapToTestersObject<T>(conversionFunctionsObject: T): Testers<T> {
 export function examples(examples: any[]) {
   const typeInfo = extractTypeInfo(examples);
   return {
-    typeInfo: expectedTypeInfo => {
+    typeInfo: (expectedTypeInfo) => {
       it('typeInfo', () => {
         expect(typeInfo).toEqual(expectedTypeInfo);
       });
       const testers = mapToTestersObject({
-        openapi: options => createSchema(expectedTypeInfo, options),
-        storybook: options => {
-          const shallowCopy = examples.map(example => ({ ...example }));
+        openapi: (options) => createSchema(expectedTypeInfo, options),
+        storybook: (options) => {
+          const shallowCopy = examples.map((example) => ({ ...example }));
           knobified(examples, expectedTypeInfo, options);
           return shallowCopy;
         },

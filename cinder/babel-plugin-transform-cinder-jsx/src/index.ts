@@ -160,11 +160,16 @@ type TextNode = {
 
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
 
-const jsxIdentifierOrNamespaceToNonJsxSyntax = (identifier: tr.NodePath<t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName>): t.MemberExpression | t.Identifier => {
+const jsxIdentifierOrNamespaceToNonJsxSyntax = (
+  identifier: tr.NodePath<t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName>,
+): t.MemberExpression | t.Identifier => {
   if (identifier.isJSXIdentifier()) {
     return t.identifier(identifier.node.name);
   } else if (identifier.isJSXMemberExpression()) {
-    return t.memberExpression(jsxIdentifierOrNamespaceToNonJsxSyntax(identifier.get('object')), jsxIdentifierOrNamespaceToNonJsxSyntax(identifier.get('property')));
+    return t.memberExpression(
+      jsxIdentifierOrNamespaceToNonJsxSyntax(identifier.get('object')),
+      jsxIdentifierOrNamespaceToNonJsxSyntax(identifier.get('property')),
+    );
   } else {
     throw new Error('TODO');
   }
@@ -831,7 +836,12 @@ export default declare((api, options) => {
               break;
             case SUBCOMPONENT_PROPERTY_TYPE:
               objectProperties.push(
-                t.objectProperty(t.identifier(field.key), field.expression.node === null ? t.booleanLiteral(true) : field.expression.node),
+                t.objectProperty(
+                  t.identifier(field.key),
+                  field.expression.node === null
+                    ? t.booleanLiteral(true)
+                    : field.expression.node,
+                ),
               );
               break;
           }
@@ -864,9 +874,10 @@ export default declare((api, options) => {
           }
         }
         // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
-        yield t.callExpression(jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression), [
-          t.objectExpression(objectProperties),
-        ]);
+        yield t.callExpression(
+          jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression),
+          [t.objectExpression(objectProperties)],
+        );
     }
   }
 

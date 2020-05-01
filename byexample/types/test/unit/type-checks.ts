@@ -9,9 +9,9 @@ import {
 import { typeValues } from '../inputs/typeValues';
 function testTypeCheckWithtypes(name, validValues, typeCheck) {
   describe(name, () => {
-    validValues.forEach(key =>
+    validValues.forEach((key) =>
       describe(`${key} (valid)`, () => {
-        typeValues[key].forEach(value => {
+        typeValues[key].forEach((value) => {
           it(`${value}`, () => {
             expect(typeCheck(value)).toBe(true);
           });
@@ -19,10 +19,10 @@ function testTypeCheckWithtypes(name, validValues, typeCheck) {
       }),
     );
     Object.keys(typeValues)
-      .filter(key => !validValues.includes(key))
-      .forEach(key => {
+      .filter((key) => !validValues.includes(key))
+      .forEach((key) => {
         describe(key, () => {
-          typeValues[key].forEach(value => {
+          typeValues[key].forEach((value) => {
             it(`${value}`, () => {
               expect(typeCheck(value)).toBe(false);
             });
