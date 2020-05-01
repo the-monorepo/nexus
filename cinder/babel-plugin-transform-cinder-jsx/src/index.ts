@@ -160,6 +160,16 @@ type TextNode = {
 
 type Node = DynamicSection | ElementNode | TextNode | SubcomponentNode;
 
+const jsxIdentifierOrNamespaceToNonJsxSyntax = (identifier: tr.NodePath<t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName>): t.MemberExpression | t.Identifier => {
+  if (identifier.isJSXIdentifier()) {
+    return t.identifier(identifier.node.name);
+  } else if (identifier.isJSXMemberExpression()) {
+    return t.memberExpression(jsxIdentifierOrNamespaceToNonJsxSyntax(identifier.get('object')), jsxIdentifierOrNamespaceToNonJsxSyntax(identifier.get('property')));
+  } else {
+    throw new Error('TODO');
+  }
+};
+
 export default declare((api, options) => {
   api.assertVersion(7);
 
@@ -385,7 +395,7 @@ export default declare((api, options) => {
           } else if (jsxAttributePath.isJSXAttribute()) {
             const namePath = jsxAttributePath.get('name');
             if (namePath.isJSXNamespacedName()) {
-              throw new Error('Not supported');
+              throw new Error('JSX namespaces not supported');
             } else if (namePath.isJSXIdentifier()) {
               const result: SubcomponentPropertyField = {
                 type: SUBCOMPONENT_PROPERTY_TYPE,
@@ -397,7 +407,7 @@ export default declare((api, options) => {
               return result;
             }
           }
-          throw new Error('Not supported');
+          throw new Error(`Not supported: ${jsxAttributePath.node.type}`);
         },
       );
       const children = domNodesFromJSXChildren(path.get('children'), scope, outerPath);
@@ -750,7 +760,8 @@ export default declare((api, options) => {
                 case ATTRIBUTE_TYPE:
                   if (!isLiteral(field.expression)) {
                     if (node.id === null) {
-                      throw new Error('Not supported');
+                      console.log(node);
+                      throw new Error('Null attribute id not supported');
                     }
 
                     yield cinderCallExpression(field.type, [
@@ -766,7 +777,7 @@ export default declare((api, options) => {
                   yield cinderCallExpression(field.type, [node.id]);
                   break;
                 default:
-                  throw new Error(`Not supported: ${field.type}`);
+                  throw new Error(`Field not supported: ${field}`);
               }
             }
             if (node.id !== null) {
@@ -819,11 +830,8 @@ export default declare((api, options) => {
               objectProperties.push(t.spreadElement(field.expression.node));
               break;
             case SUBCOMPONENT_PROPERTY_TYPE:
-              if (field.expression.node === null) {
-                throw new Error('Not supported');
-              }
               objectProperties.push(
-                t.objectProperty(t.identifier(field.key), field.expression.node),
+                t.objectProperty(t.identifier(field.key), field.expression.node === null ? t.booleanLiteral(true) : field.expression.node),
               );
               break;
           }
@@ -856,10 +864,7 @@ export default declare((api, options) => {
           }
         }
         // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
-        if (!node.nameExpression.isJSXIdentifier()) {
-          throw new Error('Not supported');
-        }
-        yield t.callExpression(t.identifier(node.nameExpression.node.name), [
+        yield t.callExpression(jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression), [
           t.objectExpression(objectProperties),
         ]);
     }
