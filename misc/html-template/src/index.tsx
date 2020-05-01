@@ -1,4 +1,4 @@
-import * as mbx from 'name-tbd-dom';
+import * as mbx from 'cinder';
 
 export const Template = () => (
   <>

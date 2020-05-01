@@ -52,13 +52,13 @@ module.exports = (api) => {
         test: [
           './patrick-shaw/my-resume',
           './misc/resume-template',
-          './misc/name-tbd-dom',
+          './misc/cinder',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
-          'babel-plugin-transform-name-tbd-jsx',
+          'babel-plugin-transform-cinder-jsx',
         ]),
         presets: [
           [

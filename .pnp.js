@@ -23,8 +23,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:."
       },
       {
-        "name": "babel-plugin-transform-name-tbd-jsx",
-        "reference": "workspace:misc/babel-plugin-transform-name-tbd-jsx"
+        "name": "babel-plugin-transform-cinder-jsx",
+        "reference": "workspace:misc/babel-plugin-transform-cinder-jsx"
+      },
+      {
+        "name": "cinder",
+        "reference": "workspace:misc/cinder"
       },
       {
         "name": "@pshaw/convict-util",
@@ -65,10 +69,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@pshaw/markdown-util",
         "reference": "workspace:misc/markdown-util"
-      },
-      {
-        "name": "name-tbd-dom",
-        "reference": "workspace:misc/name-tbd-dom"
       },
       {
         "name": "@pshaw/page-breaker-chrome",
@@ -262,7 +262,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "fallbackPool": [
       [
         "@babel/cli",
-        "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.4"
+        "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.4"
       ],
       [
         "@babel/code-frame",
@@ -450,7 +450,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@babel/plugin-syntax-jsx",
-        "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"
+        "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"
       ],
       [
         "@babel/plugin-syntax-nullish-coalescing-operator",
@@ -2205,6 +2205,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:6.18.0"
       ],
       [
+        "babel-plugin-transform-cinder-jsx",
+        "workspace:misc/babel-plugin-transform-cinder-jsx"
+      ],
+      [
         "babel-plugin-transform-inline-consecutive-adds",
         "npm:0.4.3"
       ],
@@ -2219,10 +2223,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "babel-plugin-transform-minify-booleans",
         "npm:6.9.4"
-      ],
-      [
-        "babel-plugin-transform-name-tbd-jsx",
-        "workspace:misc/babel-plugin-transform-name-tbd-jsx"
       ],
       [
         "babel-plugin-transform-property-literals",
@@ -2551,6 +2551,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "ci-info",
         "npm:2.0.0"
+      ],
+      [
+        "cinder",
+        "workspace:misc/cinder"
       ],
       [
         "cipher-base",
@@ -5069,10 +5073,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.7.0"
       ],
       [
-        "name-tbd-dom",
-        "workspace:misc/name-tbd-dom"
-      ],
-      [
         "nan",
         "npm:2.14.1"
       ],
@@ -7336,12 +7336,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {
           "packageLocation": "./",
           "packageDependencies": [
-            ["@babel/cli", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.4"],
+            ["@babel/cli", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.4"],
             ["@babel/core", "npm:7.9.6"],
             ["@babel/plugin-proposal-class-properties", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.8.3"],
             ["@babel/plugin-proposal-decorators", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.8.3"],
             ["@babel/plugin-proposal-optional-chaining", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"],
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"],
             ["@babel/plugin-transform-strict-mode", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.8.3"],
             ["@babel/preset-env", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.6"],
             ["@babel/preset-react", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.4"],
@@ -7365,7 +7365,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@yarnpkg/pnpify", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.0-rc.22"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
-            ["babel-plugin-transform-name-tbd-jsx", "workspace:misc/babel-plugin-transform-name-tbd-jsx"],
+            ["babel-plugin-transform-cinder-jsx", "workspace:misc/babel-plugin-transform-cinder-jsx"],
             ["build-pshaw-logger", [
               "@pshaw/logger",
               "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.1"
@@ -7420,10 +7420,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@babel/cli", [
-        ["virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.4", {
-          "packageLocation": "./.yarn/$$virtual/@babel-cli-virtual-0bafb20669/0/cache/@babel-cli-npm-7.8.4-c620cdce18-3.zip/node_modules/@babel/cli/",
+        ["virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.4", {
+          "packageLocation": "./.yarn/$$virtual/@babel-cli-virtual-0411f3a027/0/cache/@babel-cli-npm-7.8.4-c620cdce18-3.zip/node_modules/@babel/cli/",
           "packageDependencies": [
-            ["@babel/cli", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.4"],
+            ["@babel/cli", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.4"],
             ["@babel/core", "npm:7.9.6"],
             ["chokidar", "npm:2.1.8"],
             ["commander", "npm:4.1.1"],
@@ -8054,10 +8054,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@babel/plugin-syntax-jsx", [
-        ["virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3", {
-          "packageLocation": "./.yarn/$$virtual/@babel-plugin-syntax-jsx-virtual-763470446b/0/cache/@babel-plugin-syntax-jsx-npm-7.8.3-94a25f09a5-3.zip/node_modules/@babel/plugin-syntax-jsx/",
+        ["virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3", {
+          "packageLocation": "./.yarn/$$virtual/@babel-plugin-syntax-jsx-virtual-00a8f23132/0/cache/@babel-plugin-syntax-jsx-npm-7.8.3-94a25f09a5-3.zip/node_modules/@babel/plugin-syntax-jsx/",
           "packageDependencies": [
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"],
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"],
             ["@babel/core", "npm:7.9.6"],
             ["@babel/helper-plugin-utils", "npm:7.8.3"]
           ],
@@ -8548,7 +8548,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/helper-builder-react-jsx", "npm:7.9.0"],
             ["@babel/helper-builder-react-jsx-experimental", "npm:7.9.5"],
             ["@babel/helper-plugin-utils", "npm:7.8.3"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"]
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"]
           ],
           "packagePeers": [
             "@babel/core"
@@ -8564,7 +8564,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/core", "npm:7.9.6"],
             ["@babel/helper-builder-react-jsx-experimental", "npm:7.9.5"],
             ["@babel/helper-plugin-utils", "npm:7.8.3"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"]
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"]
           ],
           "packagePeers": [
             "@babel/core"
@@ -8579,7 +8579,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/plugin-transform-react-jsx-self", "virtual:7a86026827f5cd42d3ca779d4fa6030e60400fd4089cc9345f3df8f57d0d03f82a8db83543f8ccd1cb210d95d3e24ff2caac71c3d3725971d905fa9a9e33822a#npm:7.9.0"],
             ["@babel/core", "npm:7.9.6"],
             ["@babel/helper-plugin-utils", "npm:7.8.3"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"]
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"]
           ],
           "packagePeers": [
             "@babel/core"
@@ -8594,7 +8594,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/plugin-transform-react-jsx-source", "virtual:7a86026827f5cd42d3ca779d4fa6030e60400fd4089cc9345f3df8f57d0d03f82a8db83543f8ccd1cb210d95d3e24ff2caac71c3d3725971d905fa9a9e33822a#npm:7.9.0"],
             ["@babel/core", "npm:7.9.6"],
             ["@babel/helper-plugin-utils", "npm:7.8.3"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"]
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"]
           ],
           "packagePeers": [
             "@babel/core"
@@ -9373,13 +9373,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["chalk", "npm:4.0.0"],
             ["chart.js", "npm:2.9.3"],
             ["chartjs-chart-box-and-violin-plot", "npm:2.3.0"],
+            ["cinder", "workspace:misc/cinder"],
             ["cross-spawn", "npm:6.0.5"],
             ["del", "npm:5.1.0"],
             ["globby", "npm:11.0.0"],
             ["isomorphic-git", "npm:0.58.2"],
             ["micromatch", "npm:4.0.2"],
             ["mocha", "npm:7.1.2"],
-            ["name-tbd-dom", "workspace:misc/name-tbd-dom"],
             ["node-fetch", "npm:2.6.0"],
             ["source-map-support", "npm:0.5.19"],
             ["webpack-cli", "virtual:620dcfde9b296bea64d066e76570b4afefd40bc5d91f9093c8bbe47557b1daa0e1d83982df98a74849fdb309c7f10e45513e081d35ab941768bae1bd2349eee3#npm:3.3.11"],
@@ -11011,8 +11011,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@pshaw/my-resume", "workspace:patrick-shaw/my-resume"],
             ["@pshaw/resume-template", "workspace:misc/resume-template"],
+            ["cinder", "workspace:misc/cinder"],
             ["express", "npm:4.17.1"],
-            ["name-tbd-dom", "workspace:misc/name-tbd-dom"],
             ["puppeteer", "npm:2.1.1"]
           ],
           "linkType": "SOFT",
@@ -11023,9 +11023,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/page-breaker-chrome/",
           "packageDependencies": [
             ["@pshaw/page-breaker-chrome", "workspace:misc/page-breaker-chrome"],
+            ["cinder", "workspace:misc/cinder"],
             ["classnames", "npm:2.2.6"],
             ["mobx", "npm:5.15.4"],
-            ["name-tbd-dom", "workspace:misc/name-tbd-dom"],
             ["paper-range-slider", "npm:3.0.0"],
             ["xy-ui", "npm:1.9.6"]
           ],
@@ -11040,14 +11040,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/classnames", "npm:2.2.10"],
             ["@types/date-fns", "npm:2.6.0"],
             ["@types/jss", "npm:9.5.8"],
+            ["cinder", "workspace:misc/cinder"],
             ["classnames", "npm:2.2.6"],
             ["date-fns", "npm:2.12.0"],
             ["jss", "npm:9.8.7"],
             ["jss-global", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:3.0.0"],
             ["jss-nested", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:6.0.1"],
             ["jss-plugin-camel-case", "npm:10.1.1"],
-            ["mobx", "npm:5.15.4"],
-            ["name-tbd-dom", "workspace:misc/name-tbd-dom"]
+            ["mobx", "npm:5.15.4"]
           ],
           "linkType": "SOFT",
         }]
@@ -14191,6 +14191,22 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["babel-plugin-transform-cinder-jsx", [
+        ["workspace:misc/babel-plugin-transform-cinder-jsx", {
+          "packageLocation": "./misc/babel-plugin-transform-cinder-jsx/",
+          "packageDependencies": [
+            ["babel-plugin-transform-cinder-jsx", "workspace:misc/babel-plugin-transform-cinder-jsx"],
+            ["@babel/cli", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.4"],
+            ["@babel/core", "npm:7.9.6"],
+            ["@babel/helper-builder-react-jsx", "npm:7.9.0"],
+            ["@babel/helper-plugin-utils", "npm:7.8.3"],
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"],
+            ["@babel/traverse", "npm:7.9.6"],
+            ["@babel/types", "npm:7.9.6"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["babel-plugin-transform-inline-consecutive-adds", [
         ["npm:0.4.3", {
           "packageLocation": "./.yarn/cache/babel-plugin-transform-inline-consecutive-adds-npm-0.4.3-1ed470a8dc-3.zip/node_modules/babel-plugin-transform-inline-consecutive-adds/",
@@ -14225,22 +14241,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["babel-plugin-transform-minify-booleans", "npm:6.9.4"]
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["babel-plugin-transform-name-tbd-jsx", [
-        ["workspace:misc/babel-plugin-transform-name-tbd-jsx", {
-          "packageLocation": "./misc/babel-plugin-transform-name-tbd-jsx/",
-          "packageDependencies": [
-            ["babel-plugin-transform-name-tbd-jsx", "workspace:misc/babel-plugin-transform-name-tbd-jsx"],
-            ["@babel/cli", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.4"],
-            ["@babel/core", "npm:7.9.6"],
-            ["@babel/helper-builder-react-jsx", "npm:7.9.0"],
-            ["@babel/helper-plugin-utils", "npm:7.8.3"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"],
-            ["@babel/traverse", "npm:7.9.6"],
-            ["@babel/types", "npm:7.9.6"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["babel-plugin-transform-property-literals", [
@@ -15326,6 +15326,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["ci-info", "npm:2.0.0"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["cinder", [
+        ["workspace:misc/cinder", {
+          "packageLocation": "./misc/cinder/",
+          "packageDependencies": [
+            ["cinder", "workspace:misc/cinder"],
+            ["@babel/core", "npm:7.9.6"],
+            ["@babel/helper-builder-react-jsx", "npm:7.9.0"],
+            ["@babel/helper-plugin-utils", "npm:7.8.3"],
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["cipher-base", [
@@ -23561,12 +23574,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",
           "packageDependencies": [
             ["monorepo", "workspace:."],
-            ["@babel/cli", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.4"],
+            ["@babel/cli", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.4"],
             ["@babel/core", "npm:7.9.6"],
             ["@babel/plugin-proposal-class-properties", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.8.3"],
             ["@babel/plugin-proposal-decorators", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.8.3"],
             ["@babel/plugin-proposal-optional-chaining", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"],
+            ["@babel/plugin-syntax-jsx", "virtual:a2f6c2e6d7099bbd3959c76213d7c18b9b559afdd959eb31c7e245e7d0c7f9dd1a58b764d5e4e4091b8785bc578727e9c6c42695632946ec5b4879bab0559dd7#npm:7.8.3"],
             ["@babel/plugin-transform-strict-mode", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.8.3"],
             ["@babel/preset-env", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.6"],
             ["@babel/preset-react", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.4"],
@@ -23590,7 +23603,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@yarnpkg/pnpify", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.0-rc.22"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
-            ["babel-plugin-transform-name-tbd-jsx", "workspace:misc/babel-plugin-transform-name-tbd-jsx"],
+            ["babel-plugin-transform-cinder-jsx", "workspace:misc/babel-plugin-transform-cinder-jsx"],
             ["build-pshaw-logger", [
               "@pshaw/logger",
               "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.1"
@@ -23743,19 +23756,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["thenify-all", "npm:1.6.0"]
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["name-tbd-dom", [
-        ["workspace:misc/name-tbd-dom", {
-          "packageLocation": "./misc/name-tbd-dom/",
-          "packageDependencies": [
-            ["name-tbd-dom", "workspace:misc/name-tbd-dom"],
-            ["@babel/core", "npm:7.9.6"],
-            ["@babel/helper-builder-react-jsx", "npm:7.9.0"],
-            ["@babel/helper-plugin-utils", "npm:7.8.3"],
-            ["@babel/plugin-syntax-jsx", "virtual:ee521634da0dcee0556c31a3a99020ecd19c61594c551e598cee54d3ebff9a0f19b4ac2368590b4abfba340b9d91e8ee2bdae37d61243e307d2ddc061f4778ac#npm:7.8.3"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["nan", [

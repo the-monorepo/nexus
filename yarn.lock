@@ -1625,13 +1625,13 @@ __metadata:
     chalk: ^4.0.0
     chart.js: ^2.9.3
     chartjs-chart-box-and-violin-plot: ^2.3.0
+    cinder: "workspace:misc/cinder"
     cross-spawn: ^6.0.5
     del: ^5.1.0
     globby: ^11.0.0
     isomorphic-git: ^0.58.1
     micromatch: ^4.0.2
     mocha: ^7.1.1
-    name-tbd-dom: "workspace:misc/name-tbd-dom"
     node-fetch: ^2.6.0
     source-map-support: ^0.5.16
     webpack-cli: ^3.3.11
@@ -3068,8 +3068,8 @@ __metadata:
   resolution: "@pshaw/my-resume@workspace:patrick-shaw/my-resume"
   dependencies:
     "@pshaw/resume-template": "workspace:misc/resume-template"
+    cinder: "workspace:misc/cinder"
     express: ^4.17.1
-    name-tbd-dom: "workspace:misc/name-tbd-dom"
     puppeteer: ^2.1.1
   languageName: unknown
   linkType: soft
@@ -3078,9 +3078,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/page-breaker-chrome@workspace:misc/page-breaker-chrome"
   dependencies:
+    cinder: "workspace:misc/cinder"
     classnames: ^2.2.6
     mobx: ^5.15.4
-    name-tbd-dom: "workspace:misc/name-tbd-dom"
     paper-range-slider: ^3.0.0
     xy-ui: ^1.9.3
   languageName: unknown
@@ -3093,6 +3093,7 @@ __metadata:
     "@types/classnames": ^2.2.7
     "@types/date-fns": ^2.6.0
     "@types/jss": ^9.5.7
+    cinder: "workspace:misc/cinder"
     classnames: ^2.2.6
     date-fns: ^2.0.0-alpha.27
     jss: ^9.8.7
@@ -3100,7 +3101,6 @@ __metadata:
     jss-nested: ^6.0.1
     jss-plugin-camel-case: ^10.0.0-alpha.7
     mobx: ^5.9.0
-    name-tbd-dom: "workspace:misc/name-tbd-dom"
   languageName: unknown
   linkType: soft
 
@@ -5677,6 +5677,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-plugin-transform-cinder-jsx@workspace:misc/babel-plugin-transform-cinder-jsx":
+  version: 0.0.0-use.local
+  resolution: "babel-plugin-transform-cinder-jsx@workspace:misc/babel-plugin-transform-cinder-jsx"
+  dependencies:
+    "@babel/cli": ^7.4.3
+    "@babel/core": ^7.8.4
+    "@babel/helper-builder-react-jsx": ^7.8.3
+    "@babel/helper-plugin-utils": ^7.8.3
+    "@babel/plugin-syntax-jsx": ^7.8.3
+    "@babel/traverse": ^7.8.4
+    "@babel/types": ^7.8.3
+  languageName: unknown
+  linkType: soft
+
 "babel-plugin-transform-inline-consecutive-adds@npm:^0.4.3":
   version: 0.4.3
   resolution: "babel-plugin-transform-inline-consecutive-adds@npm:0.4.3"
@@ -5704,20 +5718,6 @@ __metadata:
   checksum: 3/5bdd11f0aed48266d13a0ae95d59968a26f9b86009e9e1e5a4b8a44e94d74fc2ead5c1f0534110a65855fd4c2c852005a81ebd2f31baa2ede2d702ac900bbaa3
   languageName: node
   linkType: hard
-
-"babel-plugin-transform-name-tbd-jsx@workspace:misc/babel-plugin-transform-name-tbd-jsx":
-  version: 0.0.0-use.local
-  resolution: "babel-plugin-transform-name-tbd-jsx@workspace:misc/babel-plugin-transform-name-tbd-jsx"
-  dependencies:
-    "@babel/cli": ^7.4.3
-    "@babel/core": ^7.8.4
-    "@babel/helper-builder-react-jsx": ^7.8.3
-    "@babel/helper-plugin-utils": ^7.8.3
-    "@babel/plugin-syntax-jsx": ^7.8.3
-    "@babel/traverse": ^7.8.4
-    "@babel/types": ^7.8.3
-  languageName: unknown
-  linkType: soft
 
 "babel-plugin-transform-property-literals@npm:^6.9.4":
   version: 6.9.4
@@ -6705,6 +6705,17 @@ __metadata:
   checksum: 3/553fe83c085fce5e19e20f85b993f24a463e6f805803837a8868607bb68b1300567868694a5dff1beca6c54926a4c0be1cc9ef0c35f810653d590bf64183f6a0
   languageName: node
   linkType: hard
+
+"cinder@workspace:misc/cinder":
+  version: 0.0.0-use.local
+  resolution: "cinder@workspace:misc/cinder"
+  dependencies:
+    "@babel/core": ^7.4.0
+    "@babel/helper-builder-react-jsx": ^7.3.0
+    "@babel/helper-plugin-utils": ^7.0.0
+    "@babel/plugin-syntax-jsx": ^7.2.0
+  languageName: unknown
+  linkType: soft
 
 "cipher-base@npm:^1.0.0, cipher-base@npm:^1.0.1, cipher-base@npm:^1.0.3":
   version: 1.0.4
@@ -14087,7 +14098,7 @@ fsevents@~2.1.1:
     "@yarnpkg/pnpify": ^2.0.0-rc.22
     babel-loader: ^8.1.0
     babel-plugin-istanbul: ^6.0.0
-    babel-plugin-transform-name-tbd-jsx: "workspace:misc/babel-plugin-transform-name-tbd-jsx"
+    babel-plugin-transform-cinder-jsx: "workspace:misc/babel-plugin-transform-cinder-jsx"
     build-pshaw-logger: "npm:@pshaw/logger@2.0.1"
     chalk: ^3.0.0
     codecov: ^3.6.1
@@ -14227,17 +14238,6 @@ fsevents@~2.1.1:
   checksum: 3/063966dd8e05dfe952038e88d14fb0a3816d9fa391b5afc75d19e2247b7471fd98ca85ffca45d950b9aab4f8f7536aecf63509af031e1785549468b6400eeda5
   languageName: node
   linkType: hard
-
-"name-tbd-dom@workspace:misc/name-tbd-dom":
-  version: 0.0.0-use.local
-  resolution: "name-tbd-dom@workspace:misc/name-tbd-dom"
-  dependencies:
-    "@babel/core": ^7.4.0
-    "@babel/helper-builder-react-jsx": ^7.3.0
-    "@babel/helper-plugin-utils": ^7.0.0
-    "@babel/plugin-syntax-jsx": ^7.2.0
-  languageName: unknown
-  linkType: soft
 
 "nan@npm:^2.12.1":
   version: 2.14.1

@@ -6,8 +6,8 @@ import jss from 'jss';
 import envelope from './envelope.svg';
 import github from './github.svg';
 import linkedin from './linkedin.svg';
-import * as mbx from 'name-tbd-dom';
-import { MobxElement } from 'name-tbd-dom';
+import * as mbx from 'cinder';
+import { MobxElement } from 'cinder';
 
 const theme = {
   typography: {
