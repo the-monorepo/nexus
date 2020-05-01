@@ -85,7 +85,6 @@ const defaultBundleAnalyzerPlugin = (packageDir, options) => {
   });
 };
 
-
 const cssModuleLoader = {
   loader: 'css-loader',
   options: {

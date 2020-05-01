@@ -21,10 +21,10 @@ const main = async () => {
     const packagePaths = await globby(resolve(resolvedProjectDir, 'yarn.lock'), {
       onlyFiles: true,
     });
-    
+
     const args = ['install'];
-    if(packagePaths.length > 0) {
-      args.push('--pure-lockfile');      
+    if (packagePaths.length > 0) {
+      args.push('--pure-lockfile');
     }
     const p = spawn(packagePaths.length > 0 ? 'yarn' : 'npm', args, {
       cwd: resolvedProjectDir,
@@ -32,7 +32,7 @@ const main = async () => {
       env: {
         ...process.env,
         NODE_OPTIONS: undefined,
-      }
+      },
     });
     await new Promise((resolve, reject) => {
       p.addListener('error', reject);

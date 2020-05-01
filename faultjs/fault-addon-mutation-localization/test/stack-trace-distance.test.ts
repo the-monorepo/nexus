@@ -1,8 +1,10 @@
 import { readFileSync } from 'fs';
 
 import { parse } from '@babel/parser';
-import { TestResult } from '@fault/types';
+
 import ErrorStackParser from 'error-stack-parser';
+
+import { TestResult } from '@fault/types';
 
 import { executionDistanceFromStart, evaluateStackDifference } from '../src';
 

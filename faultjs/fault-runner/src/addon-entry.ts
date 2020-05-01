@@ -1,5 +1,5 @@
 export const run = async () => {
-  const [,, modulePath, optionsJson, importPathJson] = process.argv;
+  const [, , modulePath, optionsJson, importPathJson] = process.argv;
   const testerOptions = JSON.parse(optionsJson);
   const importPaths = JSON.parse(importPathJson);
   for (const importPath of importPaths) {
@@ -7,7 +7,7 @@ export const run = async () => {
     const resolvedImportPath = require.resolve(importPath, {
       paths: [process.cwd()],
     });
-    console.log('????', resolvedImportPath)
+    console.log('????', resolvedImportPath);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const requiredModule = require(resolvedImportPath);
 

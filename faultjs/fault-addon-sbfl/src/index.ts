@@ -1,15 +1,14 @@
 import path from 'path';
 
+import * as micromatch from 'micromatch';
+
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { ExpressionLocation } from '@fault/istanbul-util';
-
-import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
-
-import * as micromatch from 'micromatch';
 
 import { passFailStatsFromTests } from '@fault/localization-util';
 import { recordFaults, reportFaults, Fault } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar';
+import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
 
 export type Stats = {
   passed: number;

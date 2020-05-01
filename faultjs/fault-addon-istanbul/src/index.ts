@@ -15,7 +15,7 @@ export const report = ({ coverage }: FinalTesterResults, contextOptions) => {
   for (const reportType of ['text', 'json', 'lcov']) {
     const report = create(reportType);
 
-    report.execute(context);  
+    report.execute(context);
   }
 };
 

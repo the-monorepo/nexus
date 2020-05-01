@@ -1,4 +1,5 @@
 import 'source-map-support/register';
+import { readFile, writeFile } from 'fs/promises';
 import { resolve } from 'path';
 
 import {
@@ -6,7 +7,6 @@ import {
   compareMutationEvaluations,
   DELETE_STATEMENT,
 } from '@fault/addon-mutation-localization';
-import { readFile, writeFile } from 'fs/promises';
 
 import { recordFaults, convertFileFaultDataToFaults } from '@fault/record-faults';
 
