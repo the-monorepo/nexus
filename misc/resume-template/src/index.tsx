@@ -1,4 +1,5 @@
-import * as mbx from 'mobx-dom';
+import * as mbx from 'name-tbd-dom';
+
 import './jss-register';
 import { Resume } from './components';
 

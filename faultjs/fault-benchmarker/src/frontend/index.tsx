@@ -1,7 +1,12 @@
 /// <reference path="global.d.ts" />
-import * as mbx from 'mobx-dom';
+import Chart from 'chart.js'; 
+import "chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js";
+
+import * as mbx from 'name-tbd-dom';
+
 import benchmarkResults from '../../benchmark-results.json';
 import './styles.css';
+
 type Ranking = {
   rank: number;
   count: number;
@@ -17,8 +22,8 @@ type ProjectResult = {
   max: number;
   results: Result[];
 };
-const algorithmNames = Object.keys(benchmarkResults.average);
-const projectResults: ProjectResult[] = benchmarkResults.projects.map(
+const algorithmNames = Object.keys(benchmarkResults.average !== undefined ? benchmarkResults.average : {});
+const projectResults: ProjectResult[] = (benchmarkResults.projects !== undefined ? benchmarkResults.projects : []).map(
   (project): ProjectResult => {
     const results: Result[] = [];
     for (const algorithmName of algorithmNames) {
@@ -113,7 +118,7 @@ const ResultsTable = ({ projectResults, invertColors, total }: ResultsTableProps
   const averageMax = Math.max(...averages);
 
   return (
-    <table className="table">
+    <table class="table">
       <tbody>
         <TableHeader />
         {projectResults.map(result => (
@@ -368,7 +373,7 @@ const Main = () => {
   // TODO: JSX boolean (without explicitly saying XXX={true}) doesn't works
   return (
     <div>
-      <header className="page-title">
+      <header class="page-title">
         <h1>Fault.js benchmark results</h1>
       </header>
       <label htmlFor="separate-sandboxed">Separate sandboxed</label>
@@ -381,13 +386,13 @@ const Main = () => {
         }}
         checked={true}
       ></input>
-      <div className="page">
+      <div class="page">
         <violin-chart
           $data={{ real: examResults[1], artificial: examResults[0] }}
           class="violin"
         />
         {tableResults.map(tableResult => (
-          <section className={tableResult.class}>
+          <section class={tableResult.class}>
             <h2>{tableResult.title}</h2>
             <ResultsTable
               projectResults={tableResult.projectResults}

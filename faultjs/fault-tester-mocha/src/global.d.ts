@@ -1,1 +1,1 @@
-declare const beforeTestCoverage: Coverage;
+export declare const beforeTestCoverage: Coverage;

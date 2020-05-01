@@ -12,10 +12,9 @@
   "version": "1.4.2",
   "main": "./src/index.js",
   "files": [
-    "index.js"
+    "./src/index.js"
   ],
   "license": "MIT",
-  "private": false,
   "sideEffects": false,
   "repository": {
     "type": "git",

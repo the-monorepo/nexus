@@ -19,5 +19,10 @@
   },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@pshaw/semantic-documents-scss": "workspace:patrick-shaw/semantic-documents-scss",
+    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker",
+    "@semantic-documents/html-symbols": "workspace:semantic-documents/semantic-documents-html-symbols"
+  }
 }

@@ -25,5 +25,7 @@
     "sbfl",
     "op2"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }

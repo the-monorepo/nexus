@@ -4,7 +4,7 @@
     "skipLibCheck": true,
     "pretty": true,
     "target": "esnext",
-    "module": "commonjs",
+    "module": "esnext",
     "strict": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -17,7 +17,7 @@
     "lib": ["esnext", "dom"]
   },
   "exclude": [
-    "node_modules", 
+    "**/.yarn/**",
     "**/node_modules",
     "**/build",
     "**/lib",

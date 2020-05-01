@@ -1,6 +1,8 @@
-import { exec } from 'child_process';
-import globby from 'globby';
+import { spawn } from 'child_process';
+
 import { resolve } from 'path';
+
+import globby from 'globby';
 
 const main = async () => {
   const projectsDir = './projects';
@@ -19,23 +21,27 @@ const main = async () => {
     const packagePaths = await globby(resolve(resolvedProjectDir, 'yarn.lock'), {
       onlyFiles: true,
     });
-    const command = `${packagePaths.length > 0 ? 'yarn' : 'npm'} install ${
-      packagePaths.length > 0 ? '--pure-lockfile' : ''
-    }`;
-    console.log(command);
-    const p = exec(command, { cwd: resolvedProjectDir });
+    
+    const args = ['install'];
+    if(packagePaths.length > 0) {
+      args.push('--pure-lockfile');      
+    }
+    const p = spawn(packagePaths.length > 0 ? 'yarn' : 'npm', args, {
+      cwd: resolvedProjectDir,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        NODE_OPTIONS: undefined,
+      }
+    });
     await new Promise((resolve, reject) => {
       p.addListener('error', reject);
       p.addListener('exit', (code, signal) => {
         if (code !== 0) {
-          reject();
+          reject({ code, signal });
         } else {
           resolve();
         }
-      });
-
-      p.stdout.on('data', function (data) {
-        console.log(data.toString());
       });
     });
   }

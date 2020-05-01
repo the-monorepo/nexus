@@ -1,7 +1,20 @@
-import globby from 'globby';
 import { fork, ChildProcess } from 'child_process';
+
+import { cpus } from 'os';
+import { join, resolve } from 'path';
+
+import globby from 'globby';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 
+import { readFile, writeFile } from 'fs/promises';
+
+import {
+  TestHookOptions,
+  PartialTestHookOptions,
+  schema,
+} from '@fault/addon-hook-schema';
+import { Coverage } from '@fault/istanbul-util';
+import { ChildProcessWorkerClient } from '@fault/messages';
 import {
   IPC,
   TestResult,
@@ -11,17 +24,8 @@ import {
   RunTestData,
   FileFinishedData,
 } from '@fault/types';
-import { ChildProcessWorkerClient } from '@fault/messages';
-import { join, resolve } from 'path';
-import {
-  TestHookOptions,
-  PartialTestHookOptions,
-  schema,
-} from '@fault/addon-hook-schema';
+
 import * as defaultReporter from './default-reporter';
-import { cpus } from 'os';
-import { readFile, writeFile } from 'mz/fs';
-import { Coverage } from '@fault/istanbul-util';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
@@ -521,7 +525,9 @@ export const run = async ({
   await hooks.on.start();
 
   const internalOptions: InternalRunOptions = {
-    tester,
+    tester: require.resolve(tester, {
+      paths: [process.cwd()],
+    }),
     testMatch: Array.isArray(testMatch) ? testMatch : [testMatch],
     workerCount: processCount,
     setupFiles,

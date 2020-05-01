@@ -1,11 +1,15 @@
 export const run = async () => {
-  const [nodePath, filePath, modulePath, optionsJson, importPathJson] = process.argv;
+  const [,, modulePath, optionsJson, importPathJson] = process.argv;
   const testerOptions = JSON.parse(optionsJson);
   const importPaths = JSON.parse(importPathJson);
   for (const importPath of importPaths) {
-    const requiredModule = require(require.resolve(importPath, {
+    console.log('cwd', process.cwd(), process.execPath, process.execArgv);
+    const resolvedImportPath = require.resolve(importPath, {
       paths: [process.cwd()],
-    }));
+    });
+    console.log('????', resolvedImportPath)
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const requiredModule = require(resolvedImportPath);
 
     if (requiredModule !== undefined) {
       if (typeof requiredModule === 'function') {
@@ -16,9 +20,10 @@ export const run = async () => {
     }
   }
 
-  const runner = require(require.resolve(modulePath, {
+  const resolvedModulePath = require.resolve(modulePath, {
     paths: [process.cwd()],
-  })).default;
+  });
+  const runner = require(resolvedModulePath).default;
   try {
     await Promise.resolve(runner(testerOptions));
   } catch (err) {

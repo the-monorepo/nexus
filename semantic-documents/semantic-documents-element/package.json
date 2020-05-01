@@ -19,5 +19,9 @@
   },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker",
+    "dom-context": "workspace:misc/dom-context"
+  }
 }

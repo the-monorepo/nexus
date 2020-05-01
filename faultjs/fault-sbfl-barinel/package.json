@@ -25,5 +25,7 @@
     "sbfl",
     "barinel"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }

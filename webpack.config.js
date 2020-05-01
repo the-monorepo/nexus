@@ -1,9 +1,8 @@
 const { resolve } = require('path');
 
+const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const HtmlWebpackTemplate = require('html-webpack-template');
-const CopyPlugin = require('copy-webpack-plugin');
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
 const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
@@ -43,10 +42,6 @@ const babelRule = {
 
 const tsxExtensions = ['.tsx', '.ts', '.jsx', '.js'];
 
-const tsExtensions = ['.ts', '.js'];
-
-const jsxExtensions = ['.js', '.jsx'];
-
 const miscDir = resolve(__dirname, './misc');
 const faultjsDir = resolve(__dirname, 'faultjs');
 const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmarker');
@@ -66,11 +61,18 @@ const createDistOutput = (packageDir) => {
 
 const defaultHtmlWebpackPlugin = (options) => {
   return new HtmlWebpackPlugin({
-    inject: false,
-    template: HtmlWebpackTemplate,
-    appMountId: 'root',
-    mobile: true,
-    ...options,
+    inject: true,
+    template: resolve(__dirname, 'template.html'),
+    title: options.title,
+    tags: {
+      headTags: options.links.map((linkHref) =>
+        HtmlWebpackPlugin.createHtmlTagObject(
+          'link',
+          { href: linkHref, rel: 'stylesheet' },
+          undefined,
+        ),
+      ),
+    },
   });
 };
 
@@ -83,29 +85,6 @@ const defaultBundleAnalyzerPlugin = (packageDir, options) => {
   });
 };
 
-const resumeConfig = {
-  name: 'Resume',
-  target: 'web',
-  resolve: {
-    extensions: tsxExtensions,
-  },
-  module: {
-    rules: [svgRule, sourceMapRule, babelRule],
-  },
-  entry: resolve(resumeDir, 'src/index.tsx'),
-  output: createDistOutput(resumeDir),
-  plugins: [
-    defaultHtmlWebpackPlugin({
-      title: 'Patrick Shaw - Resume',
-      links: [openSansUrl],
-    }),
-    defaultBundleAnalyzerPlugin(resumeDir),
-  ],
-  devServer: {
-    port: 3000,
-    compress: true,
-  },
-};
 
 const cssModuleLoader = {
   loader: 'css-loader',
@@ -141,6 +120,30 @@ const sassModulesRule = {
 const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
   use: [cssModuleLoader, sassLoader],
+};
+
+const resumeConfig = {
+  name: 'Resume',
+  target: 'web',
+  resolve: {
+    extensions: tsxExtensions,
+  },
+  module: {
+    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+  },
+  entry: resolve(resumeDir, 'src/index.tsx'),
+  output: createDistOutput(resumeDir),
+  plugins: [
+    defaultHtmlWebpackPlugin({
+      title: 'Patrick Shaw - Resume',
+      links: [openSansUrl],
+    }),
+    defaultBundleAnalyzerPlugin(resumeDir),
+  ],
+  devServer: {
+    port: 3000,
+    compress: true,
+  },
 };
 
 const faultjsBenchmarkConfig = {

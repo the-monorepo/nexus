@@ -1,7 +1,8 @@
 import 'source-map-support/register';
-import globby from 'globby';
-import { resolve, basename } from 'path';
 import fs from 'fs';
+import { resolve, basename } from 'path';
+
+import globby from 'globby';
 const { writeFile } = fs.promises;
 
 type ProjectResult = {

@@ -1,13 +1,27 @@
+import { tmpdir } from 'os';
+import { join, resolve, basename, normalize } from 'path';
+
+import generate from '@babel/generator';
 import { parse, ParserOptions } from '@babel/parser';
+import { NodePath } from '@babel/traverse';
+import traverse from '@babel/traverse';
+import * as t from '@babel/types';
 import { File, AssignmentExpression, Expression, Statement } from '@babel/types';
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import * as t from '@babel/types';
+import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
+import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
+
 import {
   TesterResults,
   TestResult,
   FailingTestData,
   FinalTesterResults,
 } from '@fault/types';
+import chalk from 'chalk';
+import del from 'del';
+import ErrorStackParser from 'error-stack-parser';
+import { createCoverageMap } from 'istanbul-lib-coverage';
+import * as micromatch from 'micromatch';
 import {
   readFile,
   writeFile,
@@ -17,14 +31,9 @@ import {
   mkdir,
   copyFile,
   accessSync,
-} from 'mz/fs';
-import { createCoverageMap } from 'istanbul-lib-coverage';
-import { join, resolve, basename, normalize } from 'path';
-import { tmpdir } from 'os';
-import del from 'del';
-import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
-import ErrorStackParser from 'error-stack-parser';
-import { NodePath } from '@babel/traverse';
+} from 'fs/promises';
+
+import { passFailStatsFromTests, Stats } from '@fault/localization-util';
 import {
   reportFaults,
   Fault,
@@ -32,12 +41,6 @@ import {
   recordFaults,
   sortBySuspciousness,
 } from '@fault/record-faults';
-import generate from '@babel/generator';
-import chalk from 'chalk';
-import * as micromatch from 'micromatch';
-import traverse from '@babel/traverse';
-import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
-import { passFailStatsFromTests, Stats } from '@fault/localization-util';
 import dstar from '@fault/sbfl-dstar';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
@@ -3557,7 +3560,7 @@ export const createPlugin = ({
       throw new Error(`Copied/cached path for ${filePath} was ${copyPath}`);
     }
     console.log('copying', copyPath, filePath);
-    await (copyFile as any)(copyPath, filePath);
+    await copyFile(copyPath, filePath);
   };
 
   const resetMutationsInInstruction = async (instructions: Queue<Instruction<any>>) => {
@@ -3571,8 +3574,7 @@ export const createPlugin = ({
       const copyPath = resolve(copyTempDir, fileId.toString());
       originalPathToCopyPath.set(filePath, copyPath);
       console.log('writing', filePath, copyPath);
-      // TODO: type doesn't seem to account for mz/fs
-      return (copyFile as any)(filePath, copyPath);
+      return copyFile(filePath, copyPath);
     }
     return Promise.resolve();
   };

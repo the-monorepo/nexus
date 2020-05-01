@@ -25,5 +25,8 @@
     "fault-localization",
     "debugging",
     "util"
-  ]
+  ],
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }

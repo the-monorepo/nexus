@@ -1,0 +1,28 @@
+{
+  "name": "@pshaw/eslint-config-plugin-import",
+  "description": "eslint-plugin-import configuration",
+  "keywords": [
+    "config",
+    "eslint",
+    "javasript",
+    "style",
+    "lint",
+    "preset"
+  ],
+  "version": "1.4.3",
+  "main": "./src/index.js",
+  "files": [
+    "./src/index.js"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "build-packages/eslint-config-plugin-import"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}
