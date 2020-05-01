@@ -3,21 +3,28 @@ const codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
 
 const projects = require('./package.json').workspaces;
 
-const extraBuildIgnoreGlobs = [
-  'build-packages/**',
+const dependencyGlobs = [
   '.yarn/**',
   '**/node_modules/**',
+]
+
+const extraBuildIgnoreGlobs = [
+  'build-packages/**',
+  ...dependencyGlobs,
 ];
 
 const extraFormatIgnoreGlobs = [
   ...extraBuildIgnoreGlobs,
-]
+];
 
 const extraBuildArtifactGlobs = [
   'coverage/**',
 ];
 
-const extraTestIgnoreGlobs = [];
+const extraTestIgnoreGlobs = [
+  ...dependencyGlobs,
+  'faultjs/fault-benchmarker/{disabled-projects,projects}/**',
+];
 
 const serve = {
   servers: {
