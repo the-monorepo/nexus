@@ -6,6 +6,11 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
+1.0.0-alpha.5 | [`@byexample/cli`](byexample/cli/README.md) | Use byexample packages using a CLI
+1.0.0-alpha.5 | [`@byexample/openapi`](byexample/openapi/README.md) | Generate OpenAPI schemas from examples
+1.0.0-alpha.5 | [`@byexample/storybook-addon-auto-knobs`](byexample/storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
+1.0.0-alpha.5 | [`@byexample/storybook-knobified`](byexample/storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
+1.0.0-alpha.5 | [`@byexample/types`](byexample/types/README.md) | Extract type information from examples
 1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/html-template`](misc/html-template/README.md) | A HTML template generator

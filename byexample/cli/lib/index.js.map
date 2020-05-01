@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/index.ts"],"names":["run","parse","process","argv"],"mappings":";;;;;;;AAAA;;AAEO,SAASA,GAAT,GAAe;AACpB,0CAAkBC,KAAlB,CAAwBC,OAAO,CAACC,IAAhC;AACD","sourcesContent":["import { createArgParser } from './createArgParser';\n\nexport function run() {\n  createArgParser().parse(process.argv);\n}\n"],"file":"index.js"}

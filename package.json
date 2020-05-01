@@ -7,7 +7,8 @@
     "faultjs/*",
     "build-packages/*",
     "semantic-documents/*",
-    "patrick-shaw/*"
+    "patrick-shaw/*",
+    "byexample/*"
   ],
   "private": true,
   "npmClient": "yarn",
@@ -48,6 +49,9 @@
     "@babel/preset-react": "^7.9.1",
     "@babel/preset-typescript": "^7.9.0",
     "@babel/register": "^7.9.0",
+    "@byexample/openapi": "workspace:byexample/openapi",
+    "@byexample/storybook-knobified": "workspace:byexample/storybook-knobified",
+    "@byexample/types": "workspace:byexample/types",
     "@fault/addon-mutation-localization": "workspace:faultjs/fault-addon-mutation-localization",
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl",
     "@fault/runner": "workspace:faultjs/fault-runner",
@@ -56,6 +60,8 @@
     "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core",
     "@pshaw/eslint-config-preset": "workspace:build-packages/eslint-config-preset",
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats",
+    "@storybook/addon-actions": "^5.3.18",
+    "@storybook/addon-knobs": "^5.3.18",
     "@storybook/core": "5.3.17",
     "@types/babel__traverse": "^7.0.7",
     "@types/mocha": "^7.0.2",
