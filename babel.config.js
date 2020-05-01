@@ -64,7 +64,7 @@ module.exports = (api) => {
           [
             '@babel/preset-typescript',
             {
-              jsxPragma: 'mbx',
+              jsxPragma: 'cinder',
             },
           ],
         ],

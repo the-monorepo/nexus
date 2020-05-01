@@ -282,4 +282,4 @@ const App = () => (
 
 const rootElement = document.getElementById('root');
 
-autorun(() => mbx.render(<App />, rootElement));
+autorun(() => cinder.render(<App />, rootElement));

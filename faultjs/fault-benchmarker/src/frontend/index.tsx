@@ -405,5 +405,5 @@ const Main = () => {
   );
 };
 
-const rerender = () => mbx.render(<Main />, document.getElementById('root'));
+const rerender = () => cinder.render(<Main />, document.getElementById('root'));
 rerender();

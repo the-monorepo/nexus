@@ -7,15 +7,15 @@ import { JSXElement, JSXText } from '@babel/types';
 import * as t from '@babel/types';
 import { JSXExpressionContainer } from '@babel/types';
 
-const mbxMemberExpression = (field: string) => {
-  return t.memberExpression(t.identifier('mbx'), t.identifier(field));
+const cinderMemberExpression = (field: string) => {
+  return t.memberExpression(t.identifier('cinder'), t.identifier(field));
 };
 
-const mbxCallExpression = (
+const cinderCallExpression = (
   functionName: string,
   args: Parameters<typeof t.callExpression>[1],
 ) => {
-  return t.callExpression(mbxMemberExpression(functionName), args);
+  return t.callExpression(cinderMemberExpression(functionName), args);
 };
 
 const attributeLiteralToHTMLAttributeString = (field: LiteralAttributeField) => {
@@ -714,9 +714,9 @@ export default declare((api, options) => {
     previousConsecutiveDynamicNodeCount: number,
   ) => {
     if (previousConsecutiveDynamicNodeCount === 1) {
-      return mbxCallExpression('children', [rootId, beforeId]);
+      return cinderCallExpression('children', [rootId, beforeId]);
     } else if (previousConsecutiveDynamicNodeCount >= 2) {
-      return mbxCallExpression('dynamicSection', [
+      return cinderCallExpression('dynamicSection', [
         rootId,
         beforeId,
         t.numericLiteral(previousConsecutiveDynamicNodeCount),
@@ -750,17 +750,17 @@ export default declare((api, options) => {
                       throw new Error('Not supported');
                     }
 
-                    yield mbxCallExpression(field.type, [
+                    yield cinderCallExpression(field.type, [
                       node.id,
                       t.stringLiteral(field.key),
                     ]);
                   }
                   break;
                 case PROPERTY_TYPE:
-                  yield mbxCallExpression(field.type, [node.id, field.setterId]);
+                  yield cinderCallExpression(field.type, [node.id, field.setterId]);
                   break;
                 case SPREAD_TYPE:
-                  yield mbxCallExpression(field.type, [node.id]);
+                  yield cinderCallExpression(field.type, [node.id]);
                   break;
                 default:
                   throw new Error(`Not supported: ${field.type}`);
@@ -835,7 +835,7 @@ export default declare((api, options) => {
             objectProperties.push(
               t.objectProperty(
                 t.identifier('children'),
-                mbxCallExpression('componentResult', [
+                cinderCallExpression('componentResult', [
                   node.childrenTemplateId,
                   t.arrayExpression([...fieldValues]),
                 ]),
@@ -923,7 +923,7 @@ export default declare((api, options) => {
       const arrowFunction = t.arrowFunctionExpression([rootParamId], blockStatement);
       args.push(arrowFunction);
     }
-    yield constDeclaration(templateId, mbxCallExpression(templateMethod, args));
+    yield constDeclaration(templateId, cinderCallExpression(templateMethod, args));
   }
 
   const replacePathWithDomNodeSyntax = (
@@ -961,7 +961,7 @@ export default declare((api, options) => {
       }
       path.replaceWith(
         t.expressionStatement(
-          mbxCallExpression('componentResult', [
+          cinderCallExpression('componentResult', [
             templateId,
             t.arrayExpression(fieldValues),
           ]),
@@ -973,8 +973,8 @@ export default declare((api, options) => {
   const THROW_IF_NAMESPACE =
     options.throwIfNamespace === undefined ? true : !!options.throwIfNamespace;
 
-  const PRAGMA_DEFAULT = options.pragma || 'mbx.createElement';
-  const PRAGMA_FRAG_DEFAULT = options.pragmaFrag || 'mbx.Fragment';
+  const PRAGMA_DEFAULT = options.pragma || 'cinder.createElement';
+  const PRAGMA_FRAG_DEFAULT = options.pragmaFrag || 'cinder.Fragment';
 
   const JSX_ANNOTATION_REGEX = /\*?\s*@jsx\s+([^\s]+)/;
   const JSX_FRAG_ANNOTATION_REGEX = /\*?\s*@jsxFrag\s+([^\s]+)/;

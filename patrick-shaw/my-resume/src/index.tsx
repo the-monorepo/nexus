@@ -4,7 +4,7 @@ import * as cinder from 'mobx-dom';
 import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
-mbx.render(rootElement, <Resume data={data} />);*/
+cinder.render(rootElement, <Resume data={data} />);*/
 /*
 import * as cinder from 'mobx-dom';
 import map from 'mobx-map';
@@ -47,7 +47,7 @@ class Test extends MobxElement {
 }
 
 window.customElements.define('x-test', Test);
-mbx.render(document.getElementById('root'), <Test obj={store.obj} />);
+cinder.render(document.getElementById('root'), <Test obj={store.obj} />);
 */
 /*
 import * as React from 'react';
@@ -188,14 +188,14 @@ const Test = (
     <div>This should be at the bottom</div>
   </>
 );
-mbx.render(document.getElementById('root'), <Test bleh="rawr" arr={store.arr} />);
+cinder.render(document.getElementById('root'), <Test bleh="rawr" arr={store.arr} />);
 setInterval(tick);*/
 /*const Rawr = <p class="rawr">
   <div class="test"/>
   <div class="test2"/>
 </p>
 const Outer = <div><span>{<Rawr/>}</span></div>;
-mbx.render(document.getElementById('root'), <Outer/>, undefined, { root: true });
+cinder.render(document.getElementById('root'), <Outer/>, undefined, { root: true });
 
 /*
 console.warn('Create outer');
@@ -278,6 +278,6 @@ Test.template = (
   </>
 );
 window.customElements.define('x-test', Test);
-mbx.render(document.getElementById('root'), <Test />);
+cinder.render(document.getElementById('root'), <Test />);
 
 */
