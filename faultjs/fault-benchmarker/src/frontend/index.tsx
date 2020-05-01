@@ -1,4 +1,3 @@
-/// <reference path="global.d.ts" />
 import Chart from 'chart.js'; 
 import "chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js";
 
