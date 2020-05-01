@@ -2,8 +2,8 @@ module.exports = {
   projects: {
     overrides: [
       {
-        category: 'UI',
-        test: './{build-packages,misc,faultjs}/mobx*/',
+        category: 'Cinder',
+        test: './cinder/*/',
       },
       {
         category: 'Semantic documents',

@@ -23,7 +23,7 @@ module.exports = (api) => {
           useInlineSourceMaps: true,
           exclude: [
             '**/*.test.{js,jsx,ts,tsx}',
-            './{faultjs,misc,patrick-shaw,semantic-documents}/*/test/**',
+            './{faultjs,misc,patrick-shaw,semantic-documents,cinder}/*/test/**',
             './test/**',
             '**/{lib,esm,dist}/**',
           ],
@@ -52,7 +52,7 @@ module.exports = (api) => {
         test: [
           './patrick-shaw/my-resume',
           './misc/resume-template',
-          './misc/cinder',
+          './cinder/cinder',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
         ],

@@ -116,7 +116,7 @@ function codeStream(options) {
       '!.yarn/**',
       '!**/node_modules/**',
       '!coverage/**',
-      '!{build-packages,misc,semantic-documents,patrick-shaw,faultjs}/*/{dist,lib,esm,coverage}/**',
+      '!{build-packages,misc,semantic-documents,cinder,patrick-shaw,faultjs}/*/{dist,lib,esm,coverage}/**',
       '!faultjs/fault-benchmarker/{disabled-projects,projects}/**',
     ],
     {
@@ -139,7 +139,7 @@ async function clean() {
     ...globBuildOutputFromPackagesDirName(packagesDirNames),
     ...globBuildOutputFromPackagesDirName(buildPackagesDirNames),
     './README.md',
-    './{build-packages,faultjs,misc,semantic-documents,patrick-shaw}/*/README.md',
+    './{build-packages,faultjs,misc,semantic-documents,cinder,patrick-shaw}/*/README.md',
     './faultjs/fault-benchmarker/{disabled-projects,projects}/*/{faults,coverage,fault-results.json}',
     './faultjs/fault-benchmarker/benchmark-results.json',
   ]);
@@ -353,11 +353,11 @@ async function testNoBuild() {
     const passed = await runner.run({
       tester: '@fault/tester-mocha',
       testMatch: [
-        './{faultjs,misc,semantic-documents,patrick-shaw,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
+        './{faultjs,misc,semantic-documents,cinder,patrick-shaw,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
         '!./.yarn/**',
         '!./**/node_modules/**',
         '!./coverage',
-        '!./{faultjs,misc,semantic-documents,patrick-shaw,build-packages}/*/{dist,lib,esm}/**/*',
+        '!./{faultjs,misc,semantic-documents,cinder,patrick-shaw,build-packages}/*/{dist,lib,esm}/**/*',
         '!./faultjs/fault-benchmarker/{disabled-projects,projects}/**',
       ],
       addons: [

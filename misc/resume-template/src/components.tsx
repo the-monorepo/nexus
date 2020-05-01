@@ -2,7 +2,6 @@
 import './custom.d.ts';
 import classNames from 'classnames';
 import { format as formatDate } from 'date-fns/esm/index';
-import jss from 'jss';
 import envelope from './envelope.svg';
 import github from './github.svg';
 import linkedin from './linkedin.svg';
