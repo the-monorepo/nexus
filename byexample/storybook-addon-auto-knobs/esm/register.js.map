@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/register.ts"],"names":["addons","register"],"mappings":";;AAAA,OAAOA,MAAP,MAAmB,mBAAnB;AACAA,MAAM,CAACC,QAAP,CAAgB,YAAhB,EAA8B,MAAM,CAAE,CAAtC","sourcesContent":["import addons from '@storybook/addons';\naddons.register('auto-knobs', () => {});\n"],"file":"register.js"}

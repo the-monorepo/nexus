@@ -1,0 +1,24 @@
+{
+  "name": "@byexample/cli",
+  "description": "Use byexample packages using a CLI",
+  "version": "1.0.0-alpha.5",
+  "license": "MIT",
+  "bin": {
+    "byexample": "./bin/index.js"
+  },
+  "scripts": {
+    "cli": "node ./bin/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.js",
+  "types": "./src/index.ts",
+  "devPackage": true,
+  "dependencies": {
+    "@types/node": "^10.5.4",
+    "chalk": "^2.4.1",
+    "source-map-support": "^0.5.9"
+  },
+  "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da"
+}
