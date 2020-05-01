@@ -10,6 +10,10 @@ module.exports = {
         test: './semantic-documents/*',
       },
       {
+        category: 'By Example',
+        test: './byexample/*'
+      },
+      {
         category: 'Build tooling',
         test: './{build-packages,misc,faultjs}/{build-util,gulp-*}',
       },
@@ -30,7 +34,7 @@ module.exports = {
         test: './{build-packages,misc,faultjs}/eslint*',
       },
       {
-        category: 'Fault localization',
+        category: 'FaultJS',
         test: ['./{build-packages,misc,faultjs}/fault-*'],
       },
     ],
