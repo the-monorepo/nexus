@@ -218,17 +218,17 @@ gulp.task('watch', function watch() {
 gulp.task('default', build);
 
 function formatPrettier() {
-  return prettierPipes(codeStream()).pipe(gulp.dest('.'));
+  return prettierPipes(formatStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format:prettier', formatPrettier);
 
 function formatStagedPrettier() {
-  return prettierPipes(codeStream().pipe(staged())).pipe(gulp.dest('.'));
+  return prettierPipes(formatStream().pipe(staged())).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged:prettier', formatStagedPrettier);
 
 function formatStagedLint() {
-  return lintPipes(codeStream().pipe(staged()), { fix: true });
+  return lintPipes(formatStream().pipe(staged()), { fix: true });
 }
 formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
@@ -236,12 +236,12 @@ formatStagedLint.description =
 gulp.task('format-staged:lint', formatStagedLint);
 
 function format() {
-  return formatPipes(codeStream()).pipe(gulp.dest('.'));
+  return formatPipes(formatStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format', format);
 
 function formatStaged() {
-  return formatPipes(codeStream().pipe(staged())).pipe(gulp.dest('.'));
+  return formatPipes(formatStream().pipe(staged())).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged', formatStaged);
 
