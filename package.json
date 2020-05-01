@@ -2,12 +2,12 @@
   "name": "monorepo",
   "description": "An assortment of miscellaneous libraries - Saves me time on rewriting build tooling",
   "workspaces": [
+    "cinder/*",
     "misc/*",
     "faultjs/*",
     "build-packages/*",
     "semantic-documents/*",
-    "patrick-shaw/*",
-    "cinder/*"
+    "patrick-shaw/*"
   ],
   "private": true,
   "npmClient": "yarn",

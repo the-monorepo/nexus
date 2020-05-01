@@ -11,15 +11,12 @@ const changed = require('gulp-changed');
 
 const rename = require('gulp-rename');
 
-const PluginError = require('plugin-error');
+const PluginError = require('plugin-error'); 
 const through = require('through2');
 
 const staged = require('gulp-staged');
 
-const monorepo = require('./monorepo.config');
-
-const packagesDirNames = monorepo.projectsDirs;
-const buildPackagesDirNames = monorepo.buildProjects;
+const config = require('./monorepo.config');
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -35,96 +32,31 @@ function createSrcDirSwapper(dir) {
   return (srcPath) => swapSrcWith(srcPath, dir);
 }
 
-function packagesGlobFromPackagesDirName(dirName) {
-  return `./${dirName}/*`;
-}
-
-function packageSubDirGlob(dirName, folderName) {
-  return `./${dirName}/*/${folderName}/**/*`;
-}
-
-const transpiledExtensions = '{js,jsx,ts,tsx}';
-
-function srcTranspiledGlob(dirName, folderName) {
-  return `${packageSubDirGlob(dirName, folderName)}.${transpiledExtensions}`;
-}
-
-function mockGlob(dirName, folderName) {
-  return `${packageSubDirGlob(dirName, folderName)}/__mocks__/*`;
-}
-
-function globSrcMiscFromPackagesDirName(dirNames) {
-  return dirNames
-    .map((dirName) => [
-      packageSubDirGlob(dirName, 'src'),
-      `!${srcTranspiledGlob(dirName, 'src')}`,
-      `!${mockGlob(dirName, 'src')}`,
-    ])
-    .flat();
-}
-
-function globSrcCodeFromPackagesDirName(dirNames) {
-  return dirNames
-    .map((dirName) => [srcTranspiledGlob(dirName, 'src'), `!${mockGlob(dirName, 'src')}`])
-    .flat();
-}
-
-function globBuildOutputFromPackagesDirName(dirNames) {
-  return dirNames
-    .map((dirName) => [
-      packageSubDirGlob(dirName, 'lib'),
-      packageSubDirGlob(dirName, 'esm'),
-      packageSubDirGlob(dirName, 'dist'),
-    ])
-    .flat();
-}
-
-function sourceGlobFromPackagesDirName(dirName) {
-  return `${packagesGlobFromPackagesDirName(dirName)}/src/**`;
-}
 
 const pshawLogger = require('build-pshaw-logger');
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 function packagesSrcMiscStream(options) {
-  return gulp.src(globSrcMiscFromPackagesDirName(packagesDirNames), {
+  return gulp.src(config.buildableSourceAssetGlobs, {
     base: '.',
     ...options,
   });
 }
 
 function packagesSrcCodeStream(options) {
-  const globs = globSrcCodeFromPackagesDirName(packagesDirNames);
-  return gulp.src(globs, {
+  return gulp.src(config.buildableSourceCodeGlobs, {
     base: `.`,
     ...options,
   });
 }
 
-function packagesSrcCodeWithTsDefinitionsStream(options) {
-  const globs = globSrcCodeFromPackagesDirName(packagesDirNames).concat('**/*.d.ts');
-  return gulp.src(globs, {
-    base: `.`,
+const formatStream = (options) => gulp.src(
+  config.formatableGlobs,
+  {
+    base: '.',
     ...options,
-  });
-}
-
-function codeStream(options) {
-  return gulp.src(
-    [
-      '**/*.{js,jsx,ts,tsx}',
-      '!.yarn/**',
-      '!**/node_modules/**',
-      '!coverage/**',
-      '!{build-packages,misc,semantic-documents,cinder,patrick-shaw,faultjs}/*/{dist,lib,esm,coverage}/**',
-      '!faultjs/fault-benchmarker/{disabled-projects,projects}/**',
-    ],
-    {
-      base: '.',
-      ...options,
-    },
-  );
-}
+  },
+);
 
 function simplePipeLogger(l, verb) {
   return through.obj(function (file, enc, callback) {
@@ -135,14 +67,7 @@ function simplePipeLogger(l, verb) {
 
 async function clean() {
   const del = require('del');
-  await del([
-    ...globBuildOutputFromPackagesDirName(packagesDirNames),
-    ...globBuildOutputFromPackagesDirName(buildPackagesDirNames),
-    './README.md',
-    './{build-packages,faultjs,misc,semantic-documents,cinder,patrick-shaw}/*/README.md',
-    './faultjs/fault-benchmarker/{disabled-projects,projects}/*/{faults,coverage,fault-results.json}',
-    './faultjs/fault-benchmarker/benchmark-results.json',
-  ]);
+  await del(config.buildArtifactGlobs);
 }
 gulp.task('clean', clean);
 
@@ -284,7 +209,7 @@ gulp.task('build', build);
 
 gulp.task('watch', function watch() {
   gulp.watch(
-    packagesDirNames.map((dirName) => sourceGlobFromPackagesDirName(dirName)),
+    config.watchableGlobs,
     { ignoreInitial: false, events: 'all' },
     gulp.parallel(copy, transpile),
   );
@@ -352,14 +277,7 @@ async function testNoBuild() {
     const runner = require('@fault/runner');
     const passed = await runner.run({
       tester: '@fault/tester-mocha',
-      testMatch: [
-        './{faultjs,misc,semantic-documents,cinder,patrick-shaw,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
-        '!./.yarn/**',
-        '!./**/node_modules/**',
-        '!./coverage',
-        '!./{faultjs,misc,semantic-documents,cinder,patrick-shaw,build-packages}/*/{dist,lib,esm}/**/*',
-        '!./faultjs/fault-benchmarker/{disabled-projects,projects}/**',
-      ],
+      testMatch: config.testableGlobs,
       addons: [
         true
           ? require('@fault/addon-sbfl').default({
