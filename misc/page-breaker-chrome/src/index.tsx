@@ -1,5 +1,5 @@
 import './unstyled.scss';
-import * as mbx from 'name-tbd-dom';
+import * as mbx from 'cinder';
 
 import './globals.scss';
 import styles from './styles.scss';

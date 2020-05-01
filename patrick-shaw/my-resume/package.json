@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@pshaw/resume-template": "workspace:misc/resume-template",
+    "cinder": "workspace:misc/cinder",
     "express": "^4.17.1",
-    "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "puppeteer": "^2.1.1"
   }
 }

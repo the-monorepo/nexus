@@ -53,10 +53,10 @@
     "chalk": "^4.0.0",
     "chart.js": "^2.9.3",
     "chartjs-chart-box-and-violin-plot": "^2.3.0",
+    "cinder": "workspace:misc/cinder",
     "globby": "^11.0.0",
     "micromatch": "^4.0.2",
     "mocha": "^7.1.1",
-    "name-tbd-dom": "workspace:misc/name-tbd-dom",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
