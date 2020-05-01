@@ -27,6 +27,10 @@
     "sbfl"
   ],
   "dependencies": {
+    "@fault/localization-util": "workspace:faultjs/fault-localization-util",
+    "@fault/record-faults": "workspace:faultjs/fault-record-faults",
+    "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar",
+    "micromatch": "^4.0.2",
     "stacktrace-js": "^2.0.0"
   }
 }

@@ -17,7 +17,6 @@
   "module": "./src/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
-  "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
@@ -30,8 +29,7 @@
   "dependencies": {
     "fs-extra": "^7.0.1",
     "globby": "^9.0.0",
-    "hook-schema": "^2.2.3",
-    "mz": "^2.7.0"
+    "hook-schema": "^2.2.3"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
   "devDependencies": {

@@ -38,7 +38,7 @@ class Test extends MobxElement {
   render() {
     return (
       <>
-        <div className={this.props.obj.className && console.log('rendered')}>
+        <div class={this.props.obj.className && console.log('rendered')}>
           {this.props.obj.text}
         </div>
       </>
@@ -190,9 +190,9 @@ const Test = (
 );
 mbx.render(document.getElementById('root'), <Test bleh="rawr" arr={store.arr} />);
 setInterval(tick);*/
-/*const Rawr = <p className="rawr">
-  <div className="test"/>
-  <div className="test2"/>
+/*const Rawr = <p class="rawr">
+  <div class="test"/>
+  <div class="test2"/>
 </p>
 const Outer = <div><span>{<Rawr/>}</span></div>;
 mbx.render(document.getElementById('root'), <Outer/>, undefined, { root: true });
@@ -200,11 +200,11 @@ mbx.render(document.getElementById('root'), <Outer/>, undefined, { root: true })
 /*
 console.warn('Create outer');
 const Inner = <p>
-  <div className="tawr"/>
-  <div className="raweraewrr"/>
+  <div class="tawr"/>
+  <div class="raweraewrr"/>
 </p>
 const Outer = (
-  <div className='rawr'>
+  <div class='rawr'>
     <Inner />
   </div>
 );

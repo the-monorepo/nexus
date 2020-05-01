@@ -9,7 +9,6 @@
   "module": "./src/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
-  "private": false,
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -25,6 +24,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@pshaw/winston-formats": "workspace:build-packages/winston-formats",
     "mockdate": "^2.0.2",
     "winston": "^3.1.0"
   },

@@ -2,7 +2,7 @@
 import { pathExists } from 'fs-extra';
 import globby from 'globby';
 import { fromSchema, HookOptionsOf } from 'hook-schema';
-import { writeFile, readFile } from 'mz/fs';
+import { writeFile, readFile } from 'fs/promises';
 import { join, relative, resolve } from 'path';
 
 function section(title, content) {
@@ -166,7 +166,7 @@ function genReadme({
   md += section('Development', development);
   md += '---\n';
   md +=
-    'This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)\n';
+    'This documentation was generated using [writeme](https://www.npmjs.com/package/@writeme/core)\n';
   return md;
 }
 

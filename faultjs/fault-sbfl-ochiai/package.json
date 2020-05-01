@@ -25,5 +25,7 @@
     "sbfl",
     "ochiai"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }

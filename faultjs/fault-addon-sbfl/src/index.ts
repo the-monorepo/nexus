@@ -1,11 +1,15 @@
-import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
-import { ExpressionLocation } from '@fault/istanbul-util';
+import path from 'path';
+
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import { ExpressionLocation } from '@fault/istanbul-util';
+
+import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
+
+import * as micromatch from 'micromatch';
+
 import { passFailStatsFromTests } from '@fault/localization-util';
 import { recordFaults, reportFaults, Fault } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar';
-import path from 'path';
-import * as micromatch from 'micromatch';
 
 export type Stats = {
   passed: number;

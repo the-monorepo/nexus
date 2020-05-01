@@ -25,5 +25,7 @@
     "sbfl",
     "tarantula"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "@fault/types": "workspace:faultjs/fault-types"
+  }
 }

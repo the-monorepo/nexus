@@ -1,25 +1,26 @@
 import 'source-map-support/register';
-import { consoleTransport, logger } from '@pshaw/logger';
 
-import { writeFile } from 'mz/fs';
-import * as flRunner from '@fault/runner';
 import { resolve, normalize } from 'path';
 
-import * as micromatch from 'micromatch';
 import chalk from 'chalk';
 
+import * as micromatch from 'micromatch';
+import { writeFile, readFile } from 'fs/promises';
+
+import { createPlugin } from '@fault/addon-sbfl';
 import {
   readCoverageFile,
   getTotalExecutedStatements,
   ExpressionLocation,
 } from '@fault/istanbul-util';
-import { createPlugin } from '@fault/addon-sbfl';
 import { convertFileFaultDataToFaults, ScorelessFault } from '@fault/record-faults';
-import { dStar } from '@fault/sbfl-dstar';
-import { tarantula } from '@fault/sbfl-tarantula';
-import { ochiai } from '@fault/sbfl-ochiai';
+import * as flRunner from '@fault/runner';
 import { barinel } from '@fault/sbfl-barinel';
+import { dStar } from '@fault/sbfl-dstar';
+import { ochiai } from '@fault/sbfl-ochiai';
 import { op2 } from '@fault/sbfl-op2';
+import { tarantula } from '@fault/sbfl-tarantula';
+import { consoleTransport, logger } from '@pshaw/logger';
 
 import { BenchmarkConfig, ProjectConfig } from './config';
 import benchmarkConfig from './config';
@@ -319,13 +320,13 @@ export const run = async () => {
       });
     }
 
-    const expectedFaults = (convertFileFaultDataToFaults(
-      require(resolve(projectDir, 'expected-faults.json')),
-    ) as any) as ExpectedFault[];
+    const expectedFaults = convertFileFaultDataToFaults(
+      JSON.parse(await readFile(resolve(projectDir, 'expected-faults.json'), 'utf8'))
+    ) as ExpectedFault[];
 
-    for (const { name } of (sbflAlgorithms as any).concat(mutationPlugins)) {
+    for (const { name } of (sbflAlgorithms as any)) {
       const actualFaults = convertFileFaultDataToFaults(
-        require(faultFilePath(projectDir, name)),
+        JSON.parse(await readFile(resolve(faultFilePath(projectDir, name)), 'utf8'))
       );
 
       const totalExecutableStatements = getTotalExecutedStatements(coverage);

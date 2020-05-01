@@ -23,7 +23,7 @@ module.exports = (api) => {
           useInlineSourceMaps: true,
           exclude: [
             '**/*.test.{js,jsx,ts,tsx}',
-            './{faultjs,misc}/*/test/**',
+            './{faultjs,misc,patrick-shaw,semantic-documents}/*/test/**',
             './test/**',
             '**/{lib,esm,dist}/**',
           ],
@@ -50,27 +50,17 @@ module.exports = (api) => {
     overrides: [
       {
         test: [
-          './misc/my-resume',
+          './patrick-shaw/my-resume',
           './misc/resume-template',
-          './misc/mobx-dom',
+          './misc/name-tbd-dom',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
-          'babel-plugin-transform-mobx-jsx',
+          'babel-plugin-transform-name-tbd-jsx',
         ]),
         presets: [
-          [
-            '@babel/preset-env',
-            {
-              modules: esm ? false : undefined,
-              targets: {
-                esmodules: esm,
-                browsers: ['last 1 Chrome versions'],
-              },
-            },
-          ],
           [
             '@babel/preset-typescript',
             {

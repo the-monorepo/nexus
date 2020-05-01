@@ -13,4 +13,4 @@ yarn add --dev gulp-status-git-filter@1.0.0-alpha.5
 ```
 
 ---
-This documentation was generated using [writeme](https://www.npmjs.com/package/@pshaw/writeme)
+This documentation was generated using [writeme](https://www.npmjs.com/package/@writeme/core)

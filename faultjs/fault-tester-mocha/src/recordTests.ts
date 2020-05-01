@@ -1,7 +1,10 @@
-import { client } from './client';
-import { subtractCoverage, Coverage } from '@fault/istanbul-util';
-import Mocha from 'mocha';
 import { createHash } from 'crypto';
+
+import Mocha from 'mocha';
+
+import { subtractCoverage, Coverage } from '@fault/istanbul-util';
+
+import { client } from './client';
 
 const {
   EVENT_TEST_FAIL,

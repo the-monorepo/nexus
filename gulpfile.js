@@ -8,12 +8,13 @@ const chalk = require('chalk');
 
 const gulp = require('gulp');
 const changed = require('gulp-changed');
-const staged = require('gulp-staged');
+
 const rename = require('gulp-rename');
 
+const PluginError = require('plugin-error');
 const through = require('through2');
 
-const PluginError = require('plugin-error');
+const staged = require('gulp-staged');
 
 const monorepo = require('./monorepo.config');
 
@@ -112,6 +113,7 @@ function codeStream(options) {
   return gulp.src(
     [
       '**/*.{js,jsx,ts,tsx}',
+      '!.yarn/**',
       '!**/node_modules/**',
       '!coverage/**',
       '!{build-packages,misc,semantic-documents,patrick-shaw,faultjs}/*/{dist,lib,esm,coverage}/**',
@@ -352,6 +354,7 @@ async function testNoBuild() {
       tester: '@fault/tester-mocha',
       testMatch: [
         './{faultjs,misc,semantic-documents,patrick-shaw,build-packages,test}/**/*.test.{js,jsx,ts,tsx}',
+        '!./.yarn/**',
         '!./**/node_modules/**',
         '!./coverage',
         '!./{faultjs,misc,semantic-documents,patrick-shaw,build-packages}/*/{dist,lib,esm}/**/*',
@@ -438,7 +441,7 @@ const webpackCompilers = () => {
   const globby = require('globby');
   const { resolve } = require('path');
   const micromatch = require('micromatch');
-  const { access, readFile } = require('mz/fs');
+  const { readFile, access } = require('fs/promises');
 
   const args = minimist(process.argv.slice(2));
 
@@ -572,7 +575,7 @@ const rollupCompilers = () => {
   const globby = require('globby');
   const { resolve } = require('path');
   const micromatch = require('micromatch');
-  const { access, readFile } = require('mz/fs');
+  const { access, readFile } = require('fs/promises');
 
   const args = minimist(process.argv.slice(2));
 
@@ -626,7 +629,7 @@ const moreServes = async () => {
   });
 
   const babelPlugin = babel({
-    exclude: ['**/node_modules/**'],
+    exclude: ['.yarn/**', '**/node_modules/**'],
     extensions: tsxExtensions,
   });
 

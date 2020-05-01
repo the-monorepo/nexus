@@ -2,15 +2,17 @@
  * This is a little utility tool for finding relevant pull requests faster.
  */
 import 'source-map-support/register';
-import fetch from 'node-fetch';
-import logger from '@pshaw/logger';
-import { consoleTransport } from 'build-pshaw-logger';
-import { resolve } from 'path';
-import chalk from 'chalk';
-import * as git from 'isomorphic-git';
 import fs from 'fs';
+import { resolve } from 'path';
+
+import { consoleTransport } from '@pshaw/logger';
+import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import del from 'del';
+import * as git from 'isomorphic-git';
+import fetch from 'node-fetch';
+
+import logger from '@pshaw/logger';
 const { writeFile, appendFile, stat, readFile } = fs.promises;
 
 git.plugins.set('fs', fs);

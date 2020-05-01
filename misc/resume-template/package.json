@@ -27,7 +27,8 @@
     "date-fns": "^2.0.0-alpha.27",
     "jss": "^9.8.7",
     "jss-plugin-camel-case": "^10.0.0-alpha.7",
-    "mobx": "^5.9.0"
+    "mobx": "^5.9.0",
+    "name-tbd-dom": "workspace:misc/name-tbd-dom"
   },
   "devDependencies": {
     "jss": "^9.8.7",
