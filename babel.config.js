@@ -52,7 +52,6 @@ module.exports = (api) => {
         test: [
           './patrick-shaw/my-resume',
           './misc/resume-template',
-          './cinder/cinder',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmarker/src/frontend',
         ],
