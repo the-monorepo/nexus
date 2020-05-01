@@ -8,6 +8,7 @@ export const run = async () => {
       paths: [process.cwd()],
     });
     console.log('????', resolvedImportPath)
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const requiredModule = require(resolvedImportPath);
 
     if (requiredModule !== undefined) {
