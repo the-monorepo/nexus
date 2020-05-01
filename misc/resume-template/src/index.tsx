@@ -1,4 +1,4 @@
-import * as mbx from 'cinder';
+import * as cinder from 'cinder';
 
 import './jss-register';
 import { Resume } from './components';

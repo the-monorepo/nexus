@@ -1,18 +1,18 @@
 console.log('TODO');
 /*import { createResume } from '@pshaw/resume-template';
-import * as mbx from 'mobx-dom';
+import * as cinder from 'mobx-dom';
 import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
 mbx.render(rootElement, <Resume data={data} />);*/
 /*
-import * as mbx from 'mobx-dom';
+import * as cinder from 'mobx-dom';
 import map from 'mobx-map';
 import { MobxElement } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 import { render } from 'mobx-dom/src';
 No double assignment of props
-import * as mbx from 'mobx-dom';
+import * as cinder from 'mobx-dom';
 import { MobxElement, map } from 'mobx-dom';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 <div>
@@ -98,7 +98,7 @@ class Test extends React.Component {
 }
 ReactDOM.render(<Test/>, document.getElementById('root'));
 */
-/*import * as mbx from 'mobx-dom';
+/*import * as cinder from 'mobx-dom';
 import { MobxElement } from 'mobx-dom';
 import map from 'mobx-map';
 import { observable, action, autorun, isObservableArray } from 'mobx';

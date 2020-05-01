@@ -6,7 +6,7 @@ import jss from 'jss';
 import envelope from './envelope.svg';
 import github from './github.svg';
 import linkedin from './linkedin.svg';
-import * as mbx from 'cinder';
+import * as cinder from 'cinder';
 import { MobxElement } from 'cinder';
 
 const theme = {

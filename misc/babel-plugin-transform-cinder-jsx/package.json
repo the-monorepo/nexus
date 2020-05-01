@@ -1,7 +1,7 @@
 {
   "name": "babel-plugin-transform-cinder-jsx",
   "version": "1.0.0-alpha.0",
-  "description": "Convert JSX logic to name-tbd",
+  "description": "Convert JSX logic to cinder compatible JavaScript",
   "license": "MIT",
   "sideEffects": false,
   "repository": {
