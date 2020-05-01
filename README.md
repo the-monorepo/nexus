@@ -15,12 +15,12 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/semantic-documents-scss`](patrick-shaw/semantic-documents-scss/README.md) | SCSS files for @pshaw/semantic-documents-scss
 1.0.0-alpha.0 | [`@pshaw/semantic-documents-style-root`](patrick-shaw/semantic-documents-style-root/README.md) | Semantic document style root for @pshaw/semantic-documents-scss
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
-1.0.0-alpha.0 | [`babel-plugin-transform-cinder-jsx`](misc/babel-plugin-transform-cinder-jsx/README.md) | Convert JSX logic to name-tbd
+1.0.0-alpha.0 | [`babel-plugin-transform-cinder-jsx`](cinder/babel-plugin-transform-cinder-jsx/README.md) | Convert JSX logic to name-tbd
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
 2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
-1.0.0-alpha.0 | [`cinder`](misc/cinder/README.md) | Create interactive UIs with seamless state management using MobX
+1.0.0-alpha.0 | [`cinder`](cinder/cinder/README.md) | Create interactive UIs with seamless state management using MobX
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon

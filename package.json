@@ -6,7 +6,8 @@
     "faultjs/*",
     "build-packages/*",
     "semantic-documents/*",
-    "patrick-shaw/*"
+    "patrick-shaw/*",
+    "cinder/*"
   ],
   "private": true,
   "npmClient": "yarn",
@@ -65,7 +66,7 @@
     "@yarnpkg/pnpify": "^2.0.0-rc.22",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
-    "babel-plugin-transform-cinder-jsx": "workspace:misc/babel-plugin-transform-cinder-jsx",
+    "babel-plugin-transform-cinder-jsx": "workspace:cinder/babel-plugin-transform-cinder-jsx",
     "build-pshaw-logger": "npm:@pshaw/logger@2.0.1",
     "chalk": "^3.0.0",
     "codecov": "^3.6.1",
