@@ -1489,10 +1489,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:7.0.4"
       ],
       [
-        "@types/jss",
-        "npm:9.5.8"
-      ],
-      [
         "@types/keyv",
         "npm:3.1.1"
       ],
@@ -4101,10 +4097,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:4.2.5"
       ],
       [
-        "hyphenate-style-name",
-        "npm:1.0.3"
-      ],
-      [
         "iconv-lite",
         "npm:0.4.24"
       ],
@@ -4155,10 +4147,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "imurmurhash",
         "npm:0.1.4"
-      ],
-      [
-        "indefinite-observable",
-        "npm:1.0.2"
       ],
       [
         "indent-string",
@@ -4323,10 +4311,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "is-hexadecimal",
         "npm:1.0.4"
-      ],
-      [
-        "is-in-browser",
-        "npm:1.1.3"
       ],
       [
         "is-map",
@@ -4573,20 +4557,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:1.4.1"
       ],
       [
-        "jss",
-        "npm:9.8.7"
-      ],
-      [
         "jss-global",
         "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:3.0.0"
       ],
       [
         "jss-nested",
         "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:6.0.1"
-      ],
-      [
-        "jss-plugin-camel-case",
-        "npm:10.1.1"
       ],
       [
         "jsx-ast-utils",
@@ -6673,10 +6649,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:1.5.0"
       ],
       [
-        "symbol-observable",
-        "npm:1.2.0"
-      ],
-      [
         "symbol.prototype.description",
         "npm:1.0.2"
       ],
@@ -6779,10 +6751,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "tiny-emitter",
         "npm:2.1.0"
-      ],
-      [
-        "tiny-warning",
-        "npm:1.0.3"
       ],
       [
         "tmp",
@@ -7134,7 +7102,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "warning",
-        "npm:3.0.0"
+        "npm:4.0.3"
       ],
       [
         "watchpack",
@@ -11039,14 +11007,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pshaw/resume-template", "workspace:misc/resume-template"],
             ["@types/classnames", "npm:2.2.10"],
             ["@types/date-fns", "npm:2.6.0"],
-            ["@types/jss", "npm:9.5.8"],
             ["cinder", "workspace:misc/cinder"],
             ["classnames", "npm:2.2.6"],
             ["date-fns", "npm:2.12.0"],
-            ["jss", "npm:9.8.7"],
             ["jss-global", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:3.0.0"],
             ["jss-nested", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:6.0.1"],
-            ["jss-plugin-camel-case", "npm:10.1.1"],
             ["mobx", "npm:5.15.4"]
           ],
           "linkType": "SOFT",
@@ -12015,17 +11980,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-json-schema-npm-7.0.4-e9c65098ca-3.zip/node_modules/@types/json-schema/",
           "packageDependencies": [
             ["@types/json-schema", "npm:7.0.4"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["@types/jss", [
-        ["npm:9.5.8", {
-          "packageLocation": "./.yarn/cache/@types-jss-npm-9.5.8-594c82f118-3.zip/node_modules/@types/jss/",
-          "packageDependencies": [
-            ["@types/jss", "npm:9.5.8"],
-            ["csstype", "npm:2.6.10"],
-            ["indefinite-observable", "npm:1.0.2"]
           ],
           "linkType": "HARD",
         }]
@@ -20541,15 +20495,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["hyphenate-style-name", [
-        ["npm:1.0.3", {
-          "packageLocation": "./.yarn/cache/hyphenate-style-name-npm-1.0.3-d3c1c61aed-3.zip/node_modules/hyphenate-style-name/",
-          "packageDependencies": [
-            ["hyphenate-style-name", "npm:1.0.3"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["iconv-lite", [
         ["npm:0.4.24", {
           "packageLocation": "./.yarn/cache/iconv-lite-npm-0.4.24-c5c4ac6695-3.zip/node_modules/iconv-lite/",
@@ -20702,16 +20647,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/imurmurhash-npm-0.1.4-610c5068a0-3.zip/node_modules/imurmurhash/",
           "packageDependencies": [
             ["imurmurhash", "npm:0.1.4"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["indefinite-observable", [
-        ["npm:1.0.2", {
-          "packageLocation": "./.yarn/cache/indefinite-observable-npm-1.0.2-622daa7a56-3.zip/node_modules/indefinite-observable/",
-          "packageDependencies": [
-            ["indefinite-observable", "npm:1.0.2"],
-            ["symbol-observable", "npm:1.2.0"]
           ],
           "linkType": "HARD",
         }]
@@ -21279,15 +21214,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/is-hexadecimal-npm-1.0.4-b4091da09e-3.zip/node_modules/is-hexadecimal/",
           "packageDependencies": [
             ["is-hexadecimal", "npm:1.0.4"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["is-in-browser", [
-        ["npm:1.1.3", {
-          "packageLocation": "./.yarn/cache/is-in-browser-npm-1.1.3-31bae97541-3.zip/node_modules/is-in-browser/",
-          "packageDependencies": [
-            ["is-in-browser", "npm:1.1.3"]
           ],
           "linkType": "HARD",
         }]
@@ -22050,35 +21976,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["jss", [
-        ["npm:10.1.1", {
-          "packageLocation": "./.yarn/cache/jss-npm-10.1.1-d39b8e4383-3.zip/node_modules/jss/",
-          "packageDependencies": [
-            ["jss", "npm:10.1.1"],
-            ["@babel/runtime", "npm:7.9.6"],
-            ["csstype", "npm:2.6.10"],
-            ["is-in-browser", "npm:1.1.3"],
-            ["tiny-warning", "npm:1.0.3"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:9.8.7", {
-          "packageLocation": "./.yarn/unplugged/jss-npm-9.8.7-fc0262d80e/node_modules/jss/",
-          "packageDependencies": [
-            ["jss", "npm:9.8.7"],
-            ["is-in-browser", "npm:1.1.3"],
-            ["symbol-observable", "npm:1.2.0"],
-            ["warning", "npm:3.0.0"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["jss-global", [
         ["virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:3.0.0", {
           "packageLocation": "./.yarn/$$virtual/jss-global-virtual-19299962ba/0/cache/jss-global-npm-3.0.0-a5be7af161-3.zip/node_modules/jss-global/",
           "packageDependencies": [
             ["jss-global", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:3.0.0"],
-            ["jss", "npm:9.8.7"]
+            ["jss", null]
           ],
           "packagePeers": [
             "jss"
@@ -22091,23 +21994,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/$$virtual/jss-nested-virtual-314bfb831b/0/cache/jss-nested-npm-6.0.1-a697fc97ef-3.zip/node_modules/jss-nested/",
           "packageDependencies": [
             ["jss-nested", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:6.0.1"],
-            ["jss", "npm:9.8.7"],
+            ["jss", null],
             ["warning", "npm:3.0.0"]
           ],
           "packagePeers": [
             "jss"
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["jss-plugin-camel-case", [
-        ["npm:10.1.1", {
-          "packageLocation": "./.yarn/cache/jss-plugin-camel-case-npm-10.1.1-9abbdcf80c-3.zip/node_modules/jss-plugin-camel-case/",
-          "packageDependencies": [
-            ["jss-plugin-camel-case", "npm:10.1.1"],
-            ["@babel/runtime", "npm:7.9.6"],
-            ["hyphenate-style-name", "npm:1.0.3"],
-            ["jss", "npm:10.1.1"]
           ],
           "linkType": "HARD",
         }]
@@ -28887,15 +28778,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["symbol-observable", [
-        ["npm:1.2.0", {
-          "packageLocation": "./.yarn/cache/symbol-observable-npm-1.2.0-9e812a0a39-3.zip/node_modules/symbol-observable/",
-          "packageDependencies": [
-            ["symbol-observable", "npm:1.2.0"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["symbol.prototype.description", [
         ["npm:1.0.2", {
           "packageLocation": "./.yarn/cache/symbol.prototype.description-npm-1.0.2-76498eb2b7-3.zip/node_modules/symbol.prototype.description/",
@@ -29241,15 +29123,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/tiny-emitter-npm-2.1.0-2a4d94f487-3.zip/node_modules/tiny-emitter/",
           "packageDependencies": [
             ["tiny-emitter", "npm:2.1.0"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["tiny-warning", [
-        ["npm:1.0.3", {
-          "packageLocation": "./.yarn/cache/tiny-warning-npm-1.0.3-750b7a07c4-3.zip/node_modules/tiny-warning/",
-          "packageDependencies": [
-            ["tiny-warning", "npm:1.0.3"]
           ],
           "linkType": "HARD",
         }]
