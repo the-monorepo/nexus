@@ -1,4 +1,4 @@
-# Name Tbd Dom
+# Cinder
 
 Create interactive UIs with seamless state management using MobX
 

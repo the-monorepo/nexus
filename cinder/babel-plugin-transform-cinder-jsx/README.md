@@ -1,6 +1,6 @@
-# Babel Plugin Transform Name Tbd Jsx
+# Babel Plugin Transform Cinder Jsx
 
-Convert JSX logic to name-tbd
+Convert JSX logic to cinder compatible JavaScript
 
 ## Installation
 
