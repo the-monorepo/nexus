@@ -461,6 +461,9 @@ export default declare((api, options) => {
     outerPath,
   ): IterableIterator<Node> {
     const expressionPath = path.get('expression');
+    if (expressionPath.isJSXEmptyExpression()) {
+      return;
+    }
     // TODO: Function and array literals
     if (expressionPath.isJSXElement() || expressionPath.isJSXFragment()) {
       yield* yieldDomNodeFromNodeSimplified(
