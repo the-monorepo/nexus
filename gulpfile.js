@@ -35,9 +35,10 @@ function createSrcDirSwapper(dir) {
 
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
-function packagesSrcMiscStream(options) {
+function packagesSrcAssetStream(options) {
   return gulp.src(config.buildableSourceAssetGlobs, {
     base: '.',
+    nodir: true,
     ...options,
   });
 }
@@ -45,6 +46,7 @@ function packagesSrcMiscStream(options) {
 function packagesSrcCodeStream(options) {
   return gulp.src(config.buildableSourceCodeGlobs, {
     base: `.`,
+    nodir: true,
     ...options,
   });
 }
@@ -52,6 +54,7 @@ function packagesSrcCodeStream(options) {
 const formatStream = (options) =>
   gulp.src(config.formatableGlobs, {
     base: '.',
+    nodir: true,
     ...options,
   });
 
@@ -83,12 +86,12 @@ function copyPipes(stream, l, dir) {
 
 function copyScript() {
   const l = logger.child({ tags: [chalk.yellow('copy'), chalk.blueBright('lib')] });
-  return copyPipes(packagesSrcMiscStream(), l, 'lib');
+  return copyPipes(packagesSrcAssetStream(), l, 'lib');
 }
 
 function copyEsm() {
   const l = logger.child({ tags: [chalk.yellow('copy'), chalk.cyanBright('esm')] });
-  return copyPipes(packagesSrcMiscStream(), l, 'esm');
+  return copyPipes(packagesSrcAssetStream(), l, 'esm');
 }
 
 const copy = gulp.parallel(copyScript, copyEsm);
@@ -206,7 +209,7 @@ gulp.task('build', build);
 
 gulp.task('watch', function watch() {
   gulp.watch(
-    config.watchableGlobs,
+    config.buildableSourceFileGlobs,
     { ignoreInitial: false, events: 'all' },
     gulp.parallel(copy, transpile),
   );
