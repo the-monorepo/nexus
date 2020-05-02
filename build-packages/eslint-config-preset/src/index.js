@@ -19,7 +19,4 @@ module.exports = {
     'prettier/@typescript-eslint',
     'prettier/react',
   ],
-  rules: {
-    'no-console': 'warn',
-  },
 };
