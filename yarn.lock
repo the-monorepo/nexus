@@ -3550,6 +3550,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@pshaw/fs@workspace:misc/pshaw-fs":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/fs@workspace:misc/pshaw-fs"
+  dependencies:
+    "@types/node": ^13.13.4
+  languageName: unknown
+  linkType: soft
+
 "@pshaw/html-template@workspace:misc/html-template":
   version: 0.0.0-use.local
   resolution: "@pshaw/html-template@workspace:misc/html-template"

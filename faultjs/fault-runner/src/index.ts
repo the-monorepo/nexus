@@ -1,6 +1,5 @@
 import { fork, ChildProcess } from 'child_process';
 
-import { readFile, writeFile } from 'fs/promises';
 import { cpus } from 'os';
 import { join, resolve } from 'path';
 
@@ -23,6 +22,7 @@ import {
   RunTestData,
   FileFinishedData,
 } from '@fault/types';
+import { readJson, writeJson } from '@pshaw/fs';
 
 import * as defaultReporter from './default-reporter';
 
@@ -65,8 +65,7 @@ const isSmallestDuration = (worker: DurationData, workers: DurationData[]) => {
 const durationsPath = resolve(__dirname, '../durations-cache.json');
 const readDurationsFile = async () => {
   try {
-    const text = await readFile(durationsPath, 'utf8');
-    const durationsJson: { [s: string]: number } = JSON.parse(text);
+    const durationsJson: { [s: string]: number } = await readJson(durationsPath);
     return durationsJson;
   } catch (err) {
     return {};
@@ -412,7 +411,7 @@ const runAndRecycleProcesses = async (
                   const results: TesterResults = { testResults, duration: totalDuration };
 
                   const newFilesToAdd: Set<string> = new Set();
-                  await writeFile(durationsPath, JSON.stringify(testDurations));
+                  await writeJson(durationsPath, testDurations);
                   console.log('????');
                   for await (const filePathIterator of hooks.on.allFilesFinished(
                     results,
