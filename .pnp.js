@@ -207,6 +207,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:build-packages/gulp-status-git-filter"
       },
       {
+        "name": "@monorepo/config",
+        "reference": "workspace:build-packages/monorepo-config"
+      },
+      {
         "name": "@pshaw/tslint-preset-core",
         "reference": "workspace:build-packages/tslint-preset-core"
       },
@@ -1143,6 +1147,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@lerna/write-log-file",
         "npm:3.13.0"
+      ],
+      [
+        "@monorepo/config",
+        "workspace:build-packages/monorepo-config"
       ],
       [
         "@mrmlnc/readdir-enhanced",
@@ -13517,6 +13525,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["write-file-atomic", "npm:2.4.3"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["@monorepo/config", [
+        ["workspace:build-packages/monorepo-config", {
+          "packageLocation": "./build-packages/monorepo-config/",
+          "packageDependencies": [
+            ["@monorepo/config", "workspace:build-packages/monorepo-config"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["@mrmlnc/readdir-enhanced", [
