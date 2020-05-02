@@ -243,6 +243,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:semantic-documents/semantic-documents-matcher-info"
       },
       {
+        "name": "@semantic-documents/suffix-element",
+        "reference": "workspace:semantic-documents/semantic-documents-suffix-element"
+      },
+      {
         "name": "@pshaw/colors-scss",
         "reference": "workspace:patrick-shaw/colors-scss"
       },
@@ -1391,6 +1395,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@semantic-documents/matcher-info",
         "workspace:semantic-documents/semantic-documents-matcher-info"
+      ],
+      [
+        "@semantic-documents/suffix-element",
+        "workspace:semantic-documents/semantic-documents-suffix-element"
       ],
       [
         "@sgratzl/science",
@@ -14276,8 +14284,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./semantic-documents/semantic-documents-element/",
           "packageDependencies": [
             ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"],
-            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
-            ["dom-context", "workspace:misc/dom-context"]
+            ["@semantic-documents/suffix-element", "workspace:semantic-documents/semantic-documents-suffix-element"]
           ],
           "linkType": "SOFT",
         }]
@@ -14308,6 +14315,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./semantic-documents/semantic-documents-matcher-info/",
           "packageDependencies": [
             ["@semantic-documents/matcher-info", "workspace:semantic-documents/semantic-documents-matcher-info"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@semantic-documents/suffix-element", [
+        ["workspace:semantic-documents/semantic-documents-suffix-element", {
+          "packageLocation": "./semantic-documents/semantic-documents-suffix-element/",
+          "packageDependencies": [
+            ["@semantic-documents/suffix-element", "workspace:semantic-documents/semantic-documents-suffix-element"],
+            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
+            ["dom-context", "workspace:misc/dom-context"]
           ],
           "linkType": "SOFT",
         }]

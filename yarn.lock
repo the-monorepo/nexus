@@ -3715,8 +3715,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@semantic-documents/element@workspace:semantic-documents/semantic-documents-element"
   dependencies:
-    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker"
-    dom-context: "workspace:misc/dom-context"
+    "@semantic-documents/suffix-element": "workspace:semantic-documents/semantic-documents-suffix-element"
   languageName: unknown
   linkType: soft
 
@@ -3740,6 +3739,15 @@ __metadata:
 "@semantic-documents/matcher-info@workspace:semantic-documents/semantic-documents-matcher-info":
   version: 0.0.0-use.local
   resolution: "@semantic-documents/matcher-info@workspace:semantic-documents/semantic-documents-matcher-info"
+  languageName: unknown
+  linkType: soft
+
+"@semantic-documents/suffix-element@workspace:semantic-documents/semantic-documents-suffix-element":
+  version: 0.0.0-use.local
+  resolution: "@semantic-documents/suffix-element@workspace:semantic-documents/semantic-documents-suffix-element"
+  dependencies:
+    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker"
+    dom-context: "workspace:misc/dom-context"
   languageName: unknown
   linkType: soft
 
