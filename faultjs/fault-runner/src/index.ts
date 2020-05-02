@@ -283,7 +283,7 @@ const runAndRecycleProcesses = async (
 
   let firstResults: FinalTesterResults = null!;
 
-  while (true) {
+  while (testFileQueue.length > 0) {
     resortFileQueue();
     const testResults: Map<string, TestResult> = new Map();
 
@@ -465,9 +465,6 @@ const runAndRecycleProcesses = async (
     });
     if (firstResults === null) {
       firstResults = results;
-    }
-    if (testFileQueue.length <= 0) {
-      break;
     }
   }
   if (firstResults === null) {
