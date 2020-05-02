@@ -12,7 +12,6 @@ const changed = require('gulp-changed');
 
 const rename = require('gulp-rename');
 
-const PluginError = require('plugin-error');
 const through = require('through2');
 
 const config = require('@monorepo/config');
@@ -257,7 +256,7 @@ let withTypeCheckPipes = (stream) => {
 };
 
 function checkTypes() {
-  return withTypeCheckPipes(packagesSrcCodeWithTsDefinitionsStream());
+  return withTypeCheckPipes(config.buildableSourceCodeGlobs());
 }
 checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
@@ -272,66 +271,61 @@ gulp.task('check-types-staged', checkTypesStaged);
 const flIgnoreGlob =
   'faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
 async function testNoBuild() {
-  try {
-    const runner = require('@fault/runner');
-    const passed = await runner.run({
-      tester: '@fault/tester-mocha',
-      testMatch: config.testableGlobs,
-      addons: [
-        true
-          ? require('@fault/addon-sbfl').default({
-              scoringFn: require('@fault/sbfl-dstar').default,
-              console: true,
-            })
-          : require('@fault/addon-mutation-localization').default({
-              babelOptions: {
-                plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
-                sourceType: 'module',
-              },
-              ignoreGlob: flIgnoreGlob,
-              mapToIstanbul: true,
-              onMutation: (mutatedFilePaths) => {
-                return new Promise((resolve, reject) => {
-                  let scriptFinish = false;
-                  let esmFinish = false;
-                  const checkToFinish = () => {
-                    if (scriptFinish && esmFinish) {
-                      resolve();
-                    }
-                  };
-                  const rejectOnStreamError = (stream) => stream.on('error', reject);
-                  scriptTranspileStream(rejectOnStreamError).on('end', () => {
-                    scriptFinish = true;
-                    checkToFinish();
-                  });
-                  esmTranspileStream(rejectOnStreamError).on('end', () => {
-                    esmFinish = true;
-                    checkToFinish();
-                  });
+  const runner = require('@fault/runner');
+  const passed = await runner.run({
+    tester: '@fault/tester-mocha',
+    testMatch: config.testableGlobs,
+    addons: [
+      config.extra.flMode === 'sbfl'
+        ? require('@fault/addon-sbfl').default({
+            scoringFn: require('@fault/sbfl-dstar').default,
+            console: true,
+          })
+        : require('@fault/addon-mutation-localization').default({
+            babelOptions: {
+              plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
+              sourceType: 'module',
+            },
+            ignoreGlob: flIgnoreGlob,
+            mapToIstanbul: true,
+            onMutation: () => {
+              return new Promise((resolve, reject) => {
+                let scriptFinish = false;
+                let esmFinish = false;
+                const checkToFinish = () => {
+                  if (scriptFinish && esmFinish) {
+                    resolve();
+                  }
+                };
+                const rejectOnStreamError = (stream) => stream.on('error', reject);
+                scriptTranspileStream(rejectOnStreamError).on('end', () => {
+                  scriptFinish = true;
+                  checkToFinish();
                 });
-              },
-            }),
-      ],
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-      },
-      setupFiles: [
-        'source-map-support/register',
-        './test/require/babel',
-        './test/helpers/globals',
-      ],
-      testerOptions: {
-        sandbox: true,
-      },
-      timeout: 20000,
-    });
-    if (!passed) {
-      process.exit(1);
-    }
-  } catch (err) {
-    console.log(err);
-    throw err;
+                esmTranspileStream(rejectOnStreamError).on('end', () => {
+                  esmFinish = true;
+                  checkToFinish();
+                });
+              });
+            },
+          }),
+    ],
+    env: {
+      ...process.env,
+      NODE_ENV: 'test',
+    },
+    setupFiles: [
+      'source-map-support/register',
+      './test/require/babel',
+      './test/helpers/globals',
+    ],
+    testerOptions: {
+      sandbox: true,
+    },
+    timeout: 20000,
+  });
+  if (!passed) {
+    process.exit(1);
   }
 }
 
@@ -339,7 +333,7 @@ gulp.task('test', testNoBuild);
 
 const precommit = gulp.series(
   gulp.parallel(gulp.series(formatStaged, transpile), copy),
-  gulp.parallel(checkTypesStaged, testNoBuild, writeme),
+  writeme,
 );
 gulp.task('precommit', precommit);
 
@@ -355,10 +349,7 @@ gulp.task('ci-test', prepublish);
 const webpackCompilers = () => {
   const minimist = require('minimist');
   const webpack = require('webpack');
-  const globby = require('globby');
-  const { resolve } = require('path');
   const micromatch = require('micromatch');
-  const { readFile, access } = require('fs/promises');
 
   const args = minimist(process.argv.slice(2));
 

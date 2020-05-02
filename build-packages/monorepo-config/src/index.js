@@ -9,6 +9,7 @@ const getConfig = () => {
     extraBuildArtifactGlobs = [],
     extraTestIgnoreGlobs = [],
     serve = {},
+    extra = {},
   } = require(monorepoConfigPath);
 
   const defaultArtifactDirNames = ['esm', 'lib', 'dist'];
@@ -57,8 +58,6 @@ const getConfig = () => {
     ...buildIgnoreGlobs.map((glob) => `!${glob}`),
   ];
 
-  console.log(buildableSourceAssetGlobs);
-
   const formatIgnoreGlobs = [...buildArtifactGlobs, ...extraFormatIgnoreGlobs];
 
   const formatableGlobs = [
@@ -88,6 +87,7 @@ const getConfig = () => {
     buildIgnoreGlobs,
     buildArtifactGlobs,
     serve,
+    extra,
   };
 };
 

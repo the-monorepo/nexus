@@ -18,15 +18,15 @@ const theme = {
       main: '#FF0000',
     },
     // TODO
-    getContrastText: x => '#000000',
+    getContrastText: (x) => '#000000',
   },
 };
 
 const Typography = ({ children }: any) => <p>{children}</p>;
 
-const Link = props => <Typography {...props} />;
+const Link = (props) => <Typography {...props} />;
 
-class ResumeLinkText extends MobxElement {
+export class ResumeLinkText extends MobxElement {
   private href;
   render() {
     return (
@@ -509,15 +509,16 @@ type VolunteeringEntryProps = {
 const VolunteeringExperience = ({ organization, role, ...other }) => (
   <Entry leftHeading={organization} rightHeading={role} {...other} />
 );
-const listSentence = items =>
+const listSentence = (items) =>
   [items.slice(0, -1).join(', '), items.slice(-1)[0]].join(
     items.length < 2 ? '' : ' and ',
   );
-const itemsString = items => items.join(' • ');
+const itemsString = (items) => items.join(' • ');
 /*
  */
-const tecnologiesSentence = technologies => `Technologies: ${listSentence(technologies)}`;
-const skillsSentence = skills => itemsString(skills);
+const tecnologiesSentence = (technologies) =>
+  `Technologies: ${listSentence(technologies)}`;
+const skillsSentence = (skills) => itemsString(skills);
 
 type Project = {
   name: string;
@@ -582,7 +583,7 @@ type EntryMapperProps = {
 };
 class EntryMapper extends MobxElement {
   render() {
-    return this.props.data.map(item => <this.props.Component {...item} />);
+    return this.props.data.map((item) => <this.props.Component {...item} />);
   }
 }
 window.customElements.define('x-entry-mapper', EntryMapper);
@@ -658,4 +659,4 @@ class Resume extends MobxElement {
 }
 window.customElements.define('x-resume', Resume);
 
-export { Resume };
+export default Resume;
