@@ -80,7 +80,8 @@ const run = async () => {
   const repoName = process.argv[3];
 
   const retrievePrs = async (after?): Promise<QueryPayload> => {
-    while (true) {
+    let data: any = null;
+    do {
       const response = await fetch('https://api.github.com/graphql', {
         body: JSON.stringify({
           query: graphqlQuery,
@@ -96,7 +97,7 @@ const run = async () => {
         method: 'POST',
       });
 
-      const data = await response.json();
+      data = await response.json();
 
       if (data.data != null) {
         return data;
@@ -104,7 +105,7 @@ const run = async () => {
         log.warn(`Requesting PRs after ${after} responded with strange results...`);
         console.log(data);
       }
-    }
+    } while (data !== null && data.data != null);
   };
 
   // Much spice, such wow (it's just the list of PRs we might be interested in)

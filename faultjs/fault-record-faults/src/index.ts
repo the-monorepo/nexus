@@ -1,12 +1,11 @@
 import { mkdirSync } from 'fs';
-import { writeFile, readFile } from 'fs/promises';
-import { dirname } from 'path';
-
-import { relative } from 'path';
+import { readFile } from 'fs/promises';
+import { dirname, relative } from 'path';
 
 import chalk from 'chalk';
 
 import { ExpressionLocation } from '@fault/istanbul-util';
+import { readJson, writeJson } from '@pshaw/fs';
 
 export type ScorelessFault = {
   location: ExpressionLocation;
@@ -34,8 +33,7 @@ export type FaultData = {
 };
 
 export const readFaultFile = async (filePath: string): Promise<FaultData> => {
-  const jsonText = await readFile(filePath, 'utf8');
-  return JSON.parse(jsonText);
+  return await readJson(filePath);
 };
 
 const createComparisonError = (a: Fault, b: Fault) => {
@@ -142,8 +140,7 @@ export const recordFaults = (filePath: string, toRecord: Fault[]) => {
       faultsData[fault.sourcePath].push(recordedItem);
     }
   }
-  return writeFile(filePath, JSON.stringify(faultsData, undefined, 2), {
-    encoding: 'utf8',
+  return writeJson(filePath, faultsData, undefined, 2, {
     flag: 'w+',
   });
 };

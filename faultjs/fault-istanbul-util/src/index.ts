@@ -115,8 +115,7 @@ export const subtractCoverage = (from: Coverage = {}, amount: Coverage | undefin
 export const readCoverageFile = async (
   filePath = './coverage/coverage-final.json',
 ): Promise<Coverage> => {
-  const coverageText = await readFile(filePath, 'utf8');
-  const coverage = JSON.parse(coverageText);
+  const coverage = await readJson(filePath);
   return coverage;
 };
 

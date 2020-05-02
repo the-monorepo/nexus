@@ -1,6 +1,5 @@
 import 'source-map-support/register';
 
-import { writeFile, readFile } from 'fs/promises';
 import { resolve, normalize } from 'path';
 
 import chalk from 'chalk';
@@ -20,6 +19,7 @@ import { dStar } from '@fault/sbfl-dstar';
 import { ochiai } from '@fault/sbfl-ochiai';
 import { op2 } from '@fault/sbfl-op2';
 import { tarantula } from '@fault/sbfl-tarantula';
+import { writeJson, readJson } from '@pshaw/fs';
 import { consoleTransport, logger } from '@pshaw/logger';
 
 import { BenchmarkConfig, ProjectConfig } from './config';
@@ -321,12 +321,12 @@ export const run = async () => {
     }
 
     const expectedFaults = convertFileFaultDataToFaults(
-      JSON.parse(await readFile(resolve(projectDir, 'expected-faults.json'), 'utf8')),
+      await readJson(resolve(projectDir, 'expected-faults.json')),
     ) as ExpectedFault[];
 
     for (const { name } of sbflAlgorithms as any) {
       const actualFaults = convertFileFaultDataToFaults(
-        JSON.parse(await readFile(resolve(faultFilePath(projectDir, name)), 'utf8')),
+        await readJson(resolve(faultFilePath(projectDir, name))),
       );
 
       const totalExecutableStatements = getTotalExecutedStatements(coverage);
@@ -343,7 +343,7 @@ export const run = async () => {
     console.log(projectOutput);
 
     const faultResultsPath = resolve(projectDir, 'fault-results.json');
-    await writeFile(faultResultsPath, JSON.stringify(projectOutput, undefined, 2));
+    await writeJson(faultResultsPath, projectOutput, undefined, 2);
   };
 
   for (const projectDir of projectDirs) {

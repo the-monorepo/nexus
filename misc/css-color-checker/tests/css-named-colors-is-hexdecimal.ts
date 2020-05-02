@@ -1,4 +1,4 @@
-import cssColorNames from '../src/css-named-colors';
+import * as cssColorNames from 'named-css-colors';
 import { isHexColor } from '../src';
 describe('css-named-colors values are hexdecimal', () => {
   Object.keys(cssColorNames)

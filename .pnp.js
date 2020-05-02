@@ -83,6 +83,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/page-breaker-chrome"
       },
       {
+        "name": "@pshaw/fs",
+        "reference": "workspace:misc/pshaw-fs"
+      },
+      {
         "name": "replace-functions",
         "reference": "workspace:misc/replace-functions"
       },
@@ -1315,6 +1319,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@pshaw/eslint-config-preset",
         "workspace:build-packages/eslint-config-preset"
+      ],
+      [
+        "@pshaw/fs",
+        "workspace:misc/pshaw-fs"
       ],
       [
         "@pshaw/html-template",
@@ -14024,6 +14032,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-config-prettier", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:6.11.0"],
             ["eslint-plugin-import", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:2.20.2"],
             ["eslint-plugin-react", "virtual:36016d5d5b10c4f4ad99abe2e66cdc1848dfac82d6adfdaa9b72aabb8cdccc084492ce582b8f759c6686ff73271ae3b578cbba2b2055ee19f9ec59637476b500#npm:7.19.0"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pshaw/fs", [
+        ["workspace:misc/pshaw-fs", {
+          "packageLocation": "./misc/pshaw-fs/",
+          "packageDependencies": [
+            ["@pshaw/fs", "workspace:misc/pshaw-fs"],
+            ["@types/node", "npm:13.13.4"]
           ],
           "linkType": "SOFT",
         }]
