@@ -1,5 +1,6 @@
 const { resolve } = require('path');
 const getConfig = () => {
+  const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config');
   const {
     codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'],
     workspaces = [],
@@ -8,7 +9,7 @@ const getConfig = () => {
     extraBuildArtifactGlobs = [],
     extraTestIgnoreGlobs = [],
     serve = {},
-  } = require(resolve(process.cwd(), 'monorepo.config'));
+  } = require(monorepoConfigPath);
 
   const defaultArtifactDirNames = ['esm', 'lib', 'dist'];
 
