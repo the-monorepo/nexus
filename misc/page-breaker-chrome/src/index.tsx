@@ -157,7 +157,7 @@ const MiscSettings = () => (
       {fontState.size}
       <paper-single-range-slider
         min={9}
-        min={72}
+        max={72}
         $value={browserFontSize}
         pin={true}
         class={cx(styles.singleSliderHack, styles.sliderContainer)}
