@@ -1601,6 +1601,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:6.0.1"
       ],
       [
+        "@types/chrome",
+        "npm:0.0.106"
+      ],
+      [
         "@types/classnames",
         "npm:2.2.10"
       ],
@@ -1629,8 +1633,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:3.0.0"
       ],
       [
+        "@types/filesystem",
+        "npm:0.0.29"
+      ],
+      [
+        "@types/filewriter",
+        "npm:0.0.28"
+      ],
+      [
         "@types/glob",
         "npm:7.1.1"
+      ],
+      [
+        "@types/har-format",
+        "npm:1.2.4"
       ],
       [
         "@types/history",
@@ -14098,6 +14114,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/page-breaker-chrome/",
           "packageDependencies": [
             ["@pshaw/page-breaker-chrome", "workspace:misc/page-breaker-chrome"],
+            ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"],
+            ["@types/chrome", "npm:0.0.106"],
             ["cinder", "workspace:cinder/cinder"],
             ["classnames", "npm:2.2.6"],
             ["mobx", "npm:5.15.4"],
@@ -15998,6 +16016,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["@types/chrome", [
+        ["npm:0.0.106", {
+          "packageLocation": "./.yarn/cache/@types-chrome-npm-0.0.106-0cc26010cf-3.zip/node_modules/@types/chrome/",
+          "packageDependencies": [
+            ["@types/chrome", "npm:0.0.106"],
+            ["@types/filesystem", "npm:0.0.29"],
+            ["@types/har-format", "npm:1.2.4"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["@types/classnames", [
         ["npm:2.2.10", {
           "packageLocation": "./.yarn/cache/@types-classnames-npm-2.2.10-68f3e4aa2f-3.zip/node_modules/@types/classnames/",
@@ -16062,6 +16091,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["@types/filesystem", [
+        ["npm:0.0.29", {
+          "packageLocation": "./.yarn/cache/@types-filesystem-npm-0.0.29-1b3869a8f7-3.zip/node_modules/@types/filesystem/",
+          "packageDependencies": [
+            ["@types/filesystem", "npm:0.0.29"],
+            ["@types/filewriter", "npm:0.0.28"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@types/filewriter", [
+        ["npm:0.0.28", {
+          "packageLocation": "./.yarn/cache/@types-filewriter-npm-0.0.28-aaa1ace54a-3.zip/node_modules/@types/filewriter/",
+          "packageDependencies": [
+            ["@types/filewriter", "npm:0.0.28"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["@types/glob", [
         ["npm:7.1.1", {
           "packageLocation": "./.yarn/cache/@types-glob-npm-7.1.1-10bfc8b49b-3.zip/node_modules/@types/glob/",
@@ -16070,6 +16118,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/events", "npm:3.0.0"],
             ["@types/minimatch", "npm:3.0.3"],
             ["@types/node", "npm:13.13.4"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@types/har-format", [
+        ["npm:1.2.4", {
+          "packageLocation": "./.yarn/cache/@types-har-format-npm-1.2.4-b279a9d9d5-3.zip/node_modules/@types/har-format/",
+          "packageDependencies": [
+            ["@types/har-format", "npm:1.2.4"]
           ],
           "linkType": "HARD",
         }]

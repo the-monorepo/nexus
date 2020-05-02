@@ -1,14 +1,18 @@
+import './globals.d.ts';
 import './unstyled.scss';
+
 import * as cinder from 'cinder';
 
 import './globals.scss';
 import styles from './styles.scss';
-import text from './typography.scss';
 
 import cx from 'classnames';
 
 import { autorun, observable, action, computed } from 'mobx';
 
+import '@pshaw/semantic-documents/esm/register';
+
+import 'paper-range-slider';
 import 'xy-ui/components/xy-checkbox';
 import 'xy-ui/components/xy-input';
 import 'xy-ui/components/xy-button';
@@ -30,24 +34,13 @@ const Icon = ({ children }) => <span className="material-icons">{children}</span
 
 const SelectAndDragIcon = () => <Icon>photo_size_select_small</Icon>;
 
-const AppHeadingH1 = ({ children }) => <h1 className={text.h700}>{children}</h1>;
-
-const FunctionHeadingH1 = ({ children, class: className }) => (
-  <h1 className={cx(text.h600, className)}>{children}</h1>
-);
-
-const FunctionConfigSubheadngH1 = ({ children }) => (
-  <h1 className={cx(text.h500, text.margin)}>{children}</h1>
-);
-
 const FieldLabel = ({ children, ...other }) => (
-  <label
+  <pshaw-label
     htmlFor={name}
-    className={cx(text.h400, text.margin, styles.fieldLabel)}
     {...other}
   >
     {children}
-  </label>
+  </pshaw-label>
 );
 
 const Field = ({ name, children, labelContent, labelClass, contentClass }) => (
@@ -151,14 +144,14 @@ const buttonSetPrimaryLang = {
 };
 
 const Button = ({ children, class: className, ...other }) => (
-  <xy-button class={cx(text.h500, className)} {...other}>
+  <xy-button class={className} {...other}>
     {children}
   </xy-button>
 );
 
 const MiscSettings = () => (
   <section>
-    <FunctionHeadingH1>Misc</FunctionHeadingH1>
+    <pshaw-h1>Misc</pshaw-h1>
     <Field labelContent="Font size" contentClass={styles.flexAlign}>
       {fontState.size}
       <paper-single-range-slider
@@ -200,7 +193,8 @@ autorun(() => {
   if (selectState.selectMode) {
     document.body.style.cursor = 'auto';
   } else {
-    document.body.style.cursor = null;
+    // TODO: Check this is correct
+    document.body.style.cursor = null as any;
   }
 });
 
@@ -219,7 +213,7 @@ const ReplaceWordConfig = () => {
   const max = Math.max(replaceWordState.character.max, CHARACTER_SLIDER_MAX);
   return (
     <section>
-      <FunctionHeadingH1 class={cx(text.margin, styles.inline)}>
+      <pshaw-h1>
         Replace words
         <Button
           class={cx(styles.rightTextIcon, styles.selectableButton)}
@@ -230,7 +224,7 @@ const ReplaceWordConfig = () => {
           <SelectAndDragIcon />
           &nbsp; Select
         </Button>
-      </FunctionHeadingH1>
+      </pshaw-h1>
       <Field labelContent="Word length" contentClass={styles.flexAlign}>
         {replaceWordState.character.min}
         <paper-range-slider
@@ -249,12 +243,12 @@ const ReplaceWordConfig = () => {
 };
 
 const ReplaceWordExample = ({ children }) => {
-  return <p className={cx(text.h200, text.margin)}>{children}</p>;
+  return <pshaw-p>{children}</pshaw-p>;
 };
 
 const ReplaceWordPreview = () => (
   <section>
-    <FunctionConfigSubheadngH1>Preview</FunctionConfigSubheadngH1>
+    <pshaw-h1>Preview</pshaw-h1>
     {previewWords.get().map((word) => (
       <ReplaceWordExample>{word}</ReplaceWordExample>
     ))}
@@ -271,7 +265,7 @@ const ReplaceWidth = () => (
 const App = () => (
   <>
     <header className={cx(styles.appHeader, styles.theme, styles.dark)}>
-      <AppHeadingH1>Page breaker</AppHeadingH1>
+      <pshaw-h1>Page breaker</pshaw-h1>
     </header>
     <main className={cx(styles.appContent, styles.theme, styles.light)}>
       <MiscSettings />
@@ -280,6 +274,6 @@ const App = () => (
   </>
 );
 
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById('root')!;
 
 autorun(() => cinder.render(<App />, rootElement));

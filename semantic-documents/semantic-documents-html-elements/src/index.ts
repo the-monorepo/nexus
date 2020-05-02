@@ -56,6 +56,11 @@ export const createElements = (styleRoot: StyleRoot, styles: string) => ({
       super(styleRoot, styles, 'section', types.SECTION);
     }
   },
+  Label: class extends SemanticElement {
+    constructor() {
+      super(styleRoot, styles, 'label', types.LABEL);
+    }
+  }
 });
 
 export type HTMLSemanticDocumentElements = ReturnType<typeof createElements>;
