@@ -458,7 +458,6 @@ const bundleWebpack = async () => {
 gulp.task('webpack', bundleWebpack);
 
 const serveBundles = () => {
-  const monorepoConfig = require('monorepo.config');
   const WebpackDevServer = require('webpack-dev-server');
   const compilers = webpackCompilers();
   let port = 3000;
