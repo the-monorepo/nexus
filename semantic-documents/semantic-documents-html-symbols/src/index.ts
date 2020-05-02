@@ -4,6 +4,7 @@ export const SECTION = Symbol('section');
 export const HEADER = Symbol('header');
 export const FOOTER = Symbol('footer');
 export const PARAGRAPH = Symbol('paragraph');
+export const LABEL = Symbol('label');
 
 const HEADING_SYMBOLS = [
   Symbol('h1'),
@@ -40,3 +41,4 @@ export const h4: MatcherInfoFactory = simpleMatcherInfoFactory(HEADING_4);
 export const h5: MatcherInfoFactory = simpleMatcherInfoFactory(HEADING_5);
 export const h6: MatcherInfoFactory = simpleMatcherInfoFactory(HEADING_6);
 export const p: MatcherInfoFactory = simpleMatcherInfoFactory(PARAGRAPH);
+export const label: MatcherInfoFactory = simpleMatcherInfoFactory(LABEL);

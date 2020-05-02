@@ -3600,6 +3600,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/page-breaker-chrome@workspace:misc/page-breaker-chrome"
   dependencies:
+    "@semantic-documents/html-elements": "workspace:semantic-documents/semantic-documents-html-elements"
+    "@types/chrome": ^0.0.106
     cinder: "workspace:cinder/cinder"
     classnames: ^2.2.6
     mobx: ^5.15.4
@@ -4923,6 +4925,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/chrome@npm:^0.0.106":
+  version: 0.0.106
+  resolution: "@types/chrome@npm:0.0.106"
+  dependencies:
+    "@types/filesystem": "*"
+    "@types/har-format": "*"
+  checksum: 3/4b846bde68443e935d8e80cbff56da2e2f80988198ebd341cc3d5aa99fbf0e0fecb2a7dcf275d43c52a1b9a8c1f7fd818f3e9bcd85f84678564736ae8519c602
+  languageName: node
+  linkType: hard
+
 "@types/classnames@npm:^2.2.7":
   version: 2.2.10
   resolution: "@types/classnames@npm:2.2.10"
@@ -4974,6 +4986,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/filesystem@npm:*":
+  version: 0.0.29
+  resolution: "@types/filesystem@npm:0.0.29"
+  dependencies:
+    "@types/filewriter": "*"
+  checksum: 3/890a5fbf33194bcf5e1bbb9ce39a1c538e264d2b665e7adc6ea5040b90166377523e75f9ea46503c3c06206115cf6ec3241fd4a29caf76a1d882fdab1bb92adb
+  languageName: node
+  linkType: hard
+
+"@types/filewriter@npm:*":
+  version: 0.0.28
+  resolution: "@types/filewriter@npm:0.0.28"
+  checksum: 3/6346ce6ccb9755609dfa85ae706a7578fb516d7ca6895c3d8879a348464e87f849fa1edbf423b6ff2f205a0c29029aef7bd3cf8b27a9185395114d59050d83f9
+  languageName: node
+  linkType: hard
+
 "@types/glob@npm:^7.1.1":
   version: 7.1.1
   resolution: "@types/glob@npm:7.1.1"
@@ -4982,6 +5010,13 @@ __metadata:
     "@types/minimatch": "*"
     "@types/node": "*"
   checksum: 3/f74ae67cb205302da0d452e925529f817a253c4dce5d59ae6077d592238b921db750da143b8a5f8427a5011e202937d8a7b264f7d14b0ddc7f8137ca5e1af1b6
+  languageName: node
+  linkType: hard
+
+"@types/har-format@npm:*":
+  version: 1.2.4
+  resolution: "@types/har-format@npm:1.2.4"
+  checksum: 3/8d0c62f99ea579b6aa23219f9e97c8ef70dc0254a419b4c9a2c602860f7d3d6da7cb867da4b15087d7bf2588f8dd40b6f941350ba2c04168a67892b5f2661fad
   languageName: node
   linkType: hard
 

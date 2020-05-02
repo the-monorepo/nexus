@@ -40,6 +40,7 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@semantic-documents/html-elements`](semantic-documents/semantic-documents-html-elements/README.md) | Helper HTMLElement classes that implement elements that use the @semantic-documents/html-symbols
 1.0.0-alpha.0 | [`@semantic-documents/html-symbols`](semantic-documents/semantic-documents-html-symbols/README.md) | TODO
 1.0.0-alpha.0 | [`@semantic-documents/matcher-info`](semantic-documents/semantic-documents-matcher-info/README.md) | TODO
+1.0.0-alpha.0 | [`@semantic-documents/suffix-element`](semantic-documents/semantic-documents-suffix-element/README.md) | TODO
 
 ### By Example
 Version | Package | Description
