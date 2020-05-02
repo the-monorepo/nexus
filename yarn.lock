@@ -3133,6 +3133,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@monorepo/config@workspace:build-packages/monorepo-config":
+  version: 0.0.0-use.local
+  resolution: "@monorepo/config@workspace:build-packages/monorepo-config"
+  languageName: unknown
+  linkType: soft
+
 "@mrmlnc/readdir-enhanced@npm:^2.2.1":
   version: 2.2.1
   resolution: "@mrmlnc/readdir-enhanced@npm:2.2.1"
