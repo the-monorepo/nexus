@@ -6,7 +6,6 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`@monorepo/config`](build-packages/monorepo-config/README.md) | Retrieves a configuration for monorepo
 1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/html-template`](misc/html-template/README.md) | A HTML template generator
