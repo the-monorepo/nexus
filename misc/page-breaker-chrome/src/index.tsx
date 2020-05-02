@@ -1,14 +1,15 @@
 import './globals.d.ts';
 import './unstyled.scss';
 
+import cx from 'classnames';
+
+import { autorun, observable, action, computed } from 'mobx';
+
 import * as cinder from 'cinder';
 
 import './globals.scss';
 import styles from './styles.scss';
 
-import cx from 'classnames';
-
-import { autorun, observable, action, computed } from 'mobx';
 
 import '@pshaw/semantic-documents/esm/register';
 

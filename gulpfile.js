@@ -156,7 +156,7 @@ function lintPipes(stream, lintOptions) {
     stream
       .pipe(simplePipeLogger(l, 'Formatting'))
       .pipe(eslint(lintOptions))
-      .pipe(eslint.format())
+      .pipe(eslint.format('codeframe'))
       // TODO: Need to halt build process/throw error
       .pipe(eslint.failAfterError())
   );
