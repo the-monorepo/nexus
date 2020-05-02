@@ -22,20 +22,14 @@ export function testColorTypeFunction(
     describe('Invalid', () => {
       invalidTypes.forEach(([testName, value]) => {
         it(testName, () => {
-          try {
-            expect(colorTypeFunction(value)).toBe(undefined);
-          } catch (err) {}
+          expect(colorTypeFunction(value)).toBe(null);
         });
-        it('undefined', () => {
-          try {
-            expect(colorTypeFunction(value)).toBe(undefined);
-          } catch (err) {}
-        });
-        it('no parameters', () => {
-          try {
-            expect(colorTypeFunction(value)).toBe(undefined);
-          } catch (err) {}
-        });
+      });
+      it('undefined', () => {
+        expect(colorTypeFunction(undefined)).toBe(null);
+      });
+      it('no parameters', () => {
+        expect(colorTypeFunction()).toBe(null);
       });
     });
     for (const [description, inputs, expectedValue] of testInputMappings) {
