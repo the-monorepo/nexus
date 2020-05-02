@@ -1,7 +1,3 @@
-import * as cinder from 'cinder';
-
-import { Resume } from './components';
-
-export function createResume() {
-  return Resume;
-}
+export * from './components';
+import Resume from './components';
+export default Resume;

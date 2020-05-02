@@ -5,6 +5,10 @@ const faultJsBenchmarkerProjectGlobs = [
   'faultjs/fault-benchmarker/{disabled-projects,projects}/**',
 ];
 
+module.exports.extra = {
+  flMode: 'sbfl',
+};
+
 module.exports.codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
 
 module.exports.workspaces = require('./package.json').workspaces;
