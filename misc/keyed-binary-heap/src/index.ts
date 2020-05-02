@@ -172,7 +172,7 @@ export const defaultCompareFn = (a: any, b: any) => {
 
   return aStr.length - bStr.length;
 };
-export class Heap<T> implements Iterable<T> {
+class Heap<T> implements Iterable<T> {
   private readonly arr: T[] = [];
   private readonly locations: Map<T, number> = new Map();
   constructor(
