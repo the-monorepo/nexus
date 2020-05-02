@@ -332,6 +332,8 @@ class ViolinResultsChartElement extends HTMLElement {
 
 window.customElements.define('violin-chart', ViolinResultsChartElement);
 
+const rerender = () => cinder.render(<Main />, document.getElementById('root'));
+
 const Main = () => {
   const eInspectResults: ResultsTableProps[] = [];
   const examResults: ResultsTableProps[] = [];
@@ -405,5 +407,4 @@ const Main = () => {
   );
 };
 
-const rerender = () => cinder.render(<Main />, document.getElementById('root'));
 rerender();

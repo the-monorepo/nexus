@@ -37,6 +37,7 @@ export const initialize = async (options: Options) => {
   const mochaModulePath = require.resolve(mocha, {
     paths: [process.cwd()],
   });
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const Mocha = require(mochaModulePath);
 
   const originalCacheKeys = new Set(Object.keys(require.cache));
