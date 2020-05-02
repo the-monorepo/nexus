@@ -30,10 +30,10 @@ const getConfig = () => {
 
   const allCodeGlobs = codeExtensions.map((extension) => `**/*.${extension}`);
 
-  const nonIgnoredSourceGlobs = workspaces.map((packageGlobs) => `${packageGlobs}/src/**`);
+  const nonIgnoredSourceFileGlobs = workspaces.map((packageGlobs) => `${packageGlobs}/src/**/*`);
 
-  const nonIgnoredSourceCodeGlobs = nonIgnoredSourceGlobs
-    .map((glob) => codeExtensions.map((extension) => `${glob}/*.${extension}`))
+  const nonIgnoredSourceCodeGlobs = nonIgnoredSourceFileGlobs
+    .map((glob) => codeExtensions.map((extension) => `${glob}.${extension}`))
     .flat();
 
   const buildableSourceCodeGlobs = [
@@ -42,10 +42,17 @@ const getConfig = () => {
   ];
 
   const buildableSourceAssetGlobs = [
-    ...nonIgnoredSourceGlobs,
-    ...nonIgnoredSourceCodeGlobs.map((glob) => `!${glob}/*`),
+    ...nonIgnoredSourceFileGlobs.map(glob => `${glob}`),
+    ...nonIgnoredSourceCodeGlobs.map((glob) => `!${glob}`),
     ...buildIgnoreGlobs.map((glob) => `!${glob}`),
   ];
+
+  const buildableSourceFileGlobs = [
+    ...nonIgnoredSourceFileGlobs,
+    ...buildIgnoreGlobs.map((glob) => `!${glob}`),
+  ]
+
+  console.log(buildableSourceAssetGlobs);
 
   const formatIgnoreGlobs = [...buildArtifactGlobs, ...extraFormatIgnoreGlobs];
 
@@ -62,12 +69,11 @@ const getConfig = () => {
     ...testIgnoreGlobs.map((glob) => `!${glob}`),
   ];
 
-  const watchableGlobs = workspaces.map((project) => `${project}/**`);
   return {
     testableGlobs,
+    buildableSourceFileGlobs,
     buildableSourceCodeGlobs,
     buildableSourceAssetGlobs,
-    watchableGlobs,
     formatableGlobs,
     codeExtensions,
     workspaces,
