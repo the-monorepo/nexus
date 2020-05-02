@@ -131,7 +131,7 @@ export function isHwbColor(value?: unknown | null): boolean {
 }
 
 export type ColorType = 'hsla' | 'hsl' | 'rgb' | 'rgba' | 'hex' | 'named' | 'hwb' | null;
-export function cssColorFormat(value?: unknown | null): ColorType {
+function cssColorFormat(value?: unknown | null): ColorType {
   if (typeof value !== 'string') {
     return null;
   }
