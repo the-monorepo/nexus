@@ -15,9 +15,8 @@ const rename = require('gulp-rename');
 const PluginError = require('plugin-error');
 const through = require('through2');
 
-const staged = require('gulp-staged');
-
 const config = require('@monorepo/config');
+const staged = require('gulp-staged');
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>

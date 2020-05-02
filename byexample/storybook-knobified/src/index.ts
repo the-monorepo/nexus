@@ -2,7 +2,6 @@
 import { action } from '@storybook/addon-actions';
 import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
 
-import { isCssColor } from 'css-color-checker';
 import PropTypes from 'prop-types';
 
 import {
@@ -12,6 +11,7 @@ import {
   extractTypeInfo,
   defaultTypeTests,
 } from '@byexample/types';
+import { isCssColor } from 'css-color-checker';
 
 function propTypeMatches(testedPropType, expectedPropType) {
   if (testedPropType === expectedPropType) {

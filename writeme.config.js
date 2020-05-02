@@ -11,7 +11,7 @@ module.exports = {
       },
       {
         category: 'By Example',
-        test: './byexample/*'
+        test: './byexample/*',
       },
       {
         category: 'Build tooling',

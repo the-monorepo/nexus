@@ -20,7 +20,10 @@ module.exports.extraFormatIgnoreGlobs = [
 
 module.exports.extraBuildArtifactGlobs = ['coverage/**'];
 
-module.exports.extraTestIgnoreGlobs = [...dependencyGlobs, ...faultJsBenchmarkerProjectGlobs];
+module.exports.extraTestIgnoreGlobs = [
+  ...dependencyGlobs,
+  ...faultJsBenchmarkerProjectGlobs,
+];
 
 module.exports.serve = {
   servers: {
