@@ -6,6 +6,8 @@
   "search.exclude": {
     ".pnp.js": true,
     ".yarn/**": true,
-    "yarn-error.log": true,
-  }
+    "yarn-error.log": true
+  },
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "stylelint.stylelintPath": ".vscode/pnpify/stylelint/lib/index.js"
 }
