@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0-alpha.6",
+  "name": "git-staged-stream",
+  "description": "Get staged files from Git as a stream",
+  "keywords": [
+    "gulp",
+    "git",
+    "staged",
+    "plugin",
+    "util",
+    "build"
+  ],
+  "main": "./src/index.js",
+  "license": "MIT",
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "build-packages/git-staged-stream"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "git-status-filter-stream": "workspace:build-packages/git-status-filter-stream"
+  }
+}

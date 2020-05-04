@@ -203,6 +203,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:build-packages/eslint-config-preset"
       },
       {
+        "name": "git-staged-stream",
+        "reference": "workspace:build-packages/git-staged-stream"
+      },
+      {
+        "name": "git-status-filter-stream",
+        "reference": "workspace:build-packages/git-status-filter-stream"
+      },
+      {
+        "name": "glob-filter-stream",
+        "reference": "workspace:build-packages/glob-filter-stream"
+      },
+      {
         "name": "gulp-staged",
         "reference": "workspace:build-packages/gulp-staged"
       },
@@ -3110,7 +3122,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "clean-git-ref",
-        "npm:1.0.3"
+        "npm:2.0.1"
       ],
       [
         "clean-stack",
@@ -4401,6 +4413,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.0.3"
       ],
       [
+        "git-staged-stream",
+        "workspace:build-packages/git-staged-stream"
+      ],
+      [
+        "git-status-filter-stream",
+        "workspace:build-packages/git-status-filter-stream"
+      ],
+      [
         "git-up",
         "npm:4.0.1"
       ],
@@ -4419,6 +4439,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "glob-base",
         "npm:0.3.0"
+      ],
+      [
+        "glob-filter-stream",
+        "workspace:build-packages/glob-filter-stream"
       ],
       [
         "glob-parent",
@@ -8331,6 +8355,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/runner", "workspace:faultjs/fault-runner"],
             ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
             ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
+            ["@monorepo/config", "workspace:build-packages/monorepo-config"],
             ["@pshaw/eslint-config-core", "workspace:build-packages/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:build-packages/eslint-config-preset"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
@@ -8362,6 +8387,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["expect", "npm:25.5.0"],
             ["fibers", "npm:5.0.0"],
             ["file-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.0"],
+            ["git-staged-stream", "workspace:build-packages/git-staged-stream"],
+            ["git-status-filter-stream", "workspace:build-packages/git-status-filter-stream"],
             ["globby", "npm:11.0.0"],
             ["gulp", "npm:4.0.2"],
             ["gulp-babel", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.0.0"],
@@ -25271,6 +25298,26 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["git-staged-stream", [
+        ["workspace:build-packages/git-staged-stream", {
+          "packageLocation": "./build-packages/git-staged-stream/",
+          "packageDependencies": [
+            ["git-staged-stream", "workspace:build-packages/git-staged-stream"],
+            ["git-status-filter-stream", "workspace:build-packages/git-status-filter-stream"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["git-status-filter-stream", [
+        ["workspace:build-packages/git-status-filter-stream", {
+          "packageLocation": "./build-packages/git-status-filter-stream/",
+          "packageDependencies": [
+            ["git-status-filter-stream", "workspace:build-packages/git-status-filter-stream"],
+            ["isomorphic-git", "npm:1.4.0"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["git-up", [
         ["npm:4.0.1", {
           "packageLocation": "./.yarn/cache/git-up-npm-4.0.1-53f2054422-3.zip/node_modules/git-up/",
@@ -25339,6 +25386,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["is-glob", "npm:2.0.1"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["glob-filter-stream", [
+        ["workspace:build-packages/glob-filter-stream", {
+          "packageLocation": "./build-packages/glob-filter-stream/",
+          "packageDependencies": [
+            ["glob-filter-stream", "workspace:build-packages/glob-filter-stream"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["glob-parent", [
@@ -27852,6 +27908,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["simple-get", "npm:3.1.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:1.4.0", {
+          "packageLocation": "./.yarn/cache/isomorphic-git-npm-1.4.0-eaeb506bba-3.zip/node_modules/isomorphic-git/",
+          "packageDependencies": [
+            ["isomorphic-git", "npm:1.4.0"],
+            ["async-lock", "npm:1.2.2"],
+            ["clean-git-ref", "npm:2.0.1"],
+            ["crc-32", "npm:1.2.0"],
+            ["diff3", "npm:0.0.3"],
+            ["git-apply-delta", "npm:0.0.7"],
+            ["ignore", "npm:5.1.4"],
+            ["minimisted", "npm:2.0.0"],
+            ["pako", "npm:1.0.11"],
+            ["pify", "npm:4.0.1"],
+            ["readable-stream", "npm:3.6.0"],
+            ["sha.js", "npm:2.4.11"],
+            ["simple-get", "npm:3.1.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["isstream", [
@@ -30068,6 +30143,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/runner", "workspace:faultjs/fault-runner"],
             ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
             ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
+            ["@monorepo/config", "workspace:build-packages/monorepo-config"],
             ["@pshaw/eslint-config-core", "workspace:build-packages/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:build-packages/eslint-config-preset"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
@@ -30099,6 +30175,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["expect", "npm:25.5.0"],
             ["fibers", "npm:5.0.0"],
             ["file-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.0"],
+            ["git-staged-stream", "workspace:build-packages/git-staged-stream"],
+            ["git-status-filter-stream", "workspace:build-packages/git-status-filter-stream"],
             ["globby", "npm:11.0.0"],
             ["gulp", "npm:4.0.2"],
             ["gulp-babel", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.0.0"],
