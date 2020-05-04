@@ -13111,6 +13111,22 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"git-staged-stream@workspace:build-packages/git-staged-stream":
+  version: 0.0.0-use.local
+  resolution: "git-staged-stream@workspace:build-packages/git-staged-stream"
+  dependencies:
+    git-status-filter-stream: "workspace:build-packages/git-status-filter-stream"
+  languageName: unknown
+  linkType: soft
+
+"git-status-filter-stream@workspace:build-packages/git-status-filter-stream":
+  version: 0.0.0-use.local
+  resolution: "git-status-filter-stream@workspace:build-packages/git-status-filter-stream"
+  dependencies:
+    isomorphic-git: ^1.4.0
+  languageName: unknown
+  linkType: soft
+
 "git-up@npm:^4.0.0":
   version: 4.0.1
   resolution: "git-up@npm:4.0.1"
@@ -13148,6 +13164,12 @@ fsevents@~2.1.1:
   checksum: 3/9a464f8b5a97ee2a524f7534a2ef42b731a22b37849925d831052ed7afc5b50827e524da5cc1f1961e574bcf9ffcde99b9161fc75e44c7bf397aad1f93fe5d6c
   languageName: node
   linkType: hard
+
+"glob-filter-stream@workspace:build-packages/glob-filter-stream":
+  version: 0.0.0-use.local
+  resolution: "glob-filter-stream@workspace:build-packages/glob-filter-stream"
+  languageName: unknown
+  linkType: soft
 
 "glob-parent@npm:^2.0.0":
   version: 2.0.0
@@ -15456,6 +15478,28 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"isomorphic-git@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "isomorphic-git@npm:1.4.0"
+  dependencies:
+    async-lock: ^1.1.0
+    clean-git-ref: ^2.0.1
+    crc-32: ^1.2.0
+    diff3: 0.0.3
+    git-apply-delta: 0.0.7
+    ignore: ^5.1.4
+    minimisted: ^2.0.0
+    pako: ^1.0.10
+    pify: ^4.0.1
+    readable-stream: ^3.4.0
+    sha.js: ^2.4.9
+    simple-get: ^3.0.2
+  bin:
+    isogit: cli.js
+  checksum: 3/11e7dbb5759e4f44f4298ca34d9ae052771df4a2bd729662fd72dede1a9e72db05cea160ec6cac04e82cf9c879a1b3caa13edcdee4498b3c3f70b3d8d51c52b8
+  languageName: node
+  linkType: hard
+
 "isstream@npm:~0.1.2":
   version: 0.1.2
   resolution: "isstream@npm:0.1.2"
@@ -17476,6 +17520,7 @@ fsevents@~2.1.1:
     "@fault/runner": "workspace:faultjs/fault-runner"
     "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
     "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha"
+    "@monorepo/config": "workspace:build-packages/monorepo-config"
     "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core"
     "@pshaw/eslint-config-preset": "workspace:build-packages/eslint-config-preset"
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats"
@@ -17504,6 +17549,8 @@ fsevents@~2.1.1:
     expect: ^25.1.0
     fibers: ^5.0.0
     file-loader: ^6.0.0
+    git-staged-stream: "workspace:build-packages/git-staged-stream"
+    git-status-filter-stream: "workspace:build-packages/git-status-filter-stream"
     globby: ^11.0.0
     gulp: ^4.0.2
     gulp-babel: ^8.0.0

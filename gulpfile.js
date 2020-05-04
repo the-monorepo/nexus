@@ -15,7 +15,9 @@ const rename = require('gulp-rename');
 const through = require('through2');
 
 const config = require('@monorepo/config');
-const staged = require('gulp-staged');
+
+const staged = require('git-staged-stream');
+const filter = require('git-status-filter-stream');
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -55,6 +57,10 @@ const formatStream = (options) =>
     nodir: true,
     ...options,
   });
+
+const formatStagedStream = () => {
+  return staged().pipe(filter(config.formatableGlobs));
+};
 
 function simplePipeLogger(l, verb) {
   return through.obj(function (file, enc, callback) {
@@ -221,12 +227,12 @@ function formatPrettier() {
 gulp.task('format:prettier', formatPrettier);
 
 function formatStagedPrettier() {
-  return prettierPipes(formatStream().pipe(staged())).pipe(gulp.dest('.'));
+  return prettierPipes(formatStagedStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged:prettier', formatStagedPrettier);
 
 function formatStagedLint() {
-  return lintPipes(formatStream().pipe(staged()), { fix: true });
+  return lintPipes(formatStagedStream(), { fix: true });
 }
 formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
@@ -239,7 +245,7 @@ function format() {
 gulp.task('format', format);
 
 function formatStaged() {
-  return formatPipes(formatStream().pipe(staged())).pipe(gulp.dest('.'));
+  return formatPipes(formatStagedStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged', formatStaged);
 
