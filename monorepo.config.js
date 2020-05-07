@@ -2,7 +2,7 @@
 const dependencyGlobs = ['.yarn/**', '**/node_modules/**'];
 
 const faultJsBenchmarkerProjectGlobs = [
-  'faultjs/fault-benchmarker/{disabled-projects,projects}/**',
+  './faultjs/fault-benchmarker/{disabled-projects,projects}/**',
 ];
 
 module.exports.extra = {
@@ -13,16 +13,16 @@ module.exports.codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
 
 module.exports.workspaces = require('./package.json').workspaces;
 
-module.exports.extraBuildIgnoreGlobs = ['build-packages/**', ...dependencyGlobs];
+module.exports.extraBuildIgnoreGlobs = ['./build-packages/**', ...dependencyGlobs];
 
 module.exports.extraFormatIgnoreGlobs = [
   ...dependencyGlobs,
   ...faultJsBenchmarkerProjectGlobs,
-  'pnp.js',
-  'pnp.cjs',
+  './pnp.js',
+  './pnp.cjs',
 ];
 
-module.exports.extraBuildArtifactGlobs = ['coverage/**'];
+module.exports.extraBuildArtifactGlobs = ['./coverage/**'];
 
 module.exports.extraTestIgnoreGlobs = [
   ...dependencyGlobs,

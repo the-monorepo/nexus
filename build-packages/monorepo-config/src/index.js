@@ -58,11 +58,10 @@ const getConfig = () => {
     ...buildIgnoreGlobs.map((glob) => `!${glob}`),
   ];
 
-  const formatIgnoreGlobs = [...buildArtifactGlobs, ...extraFormatIgnoreGlobs];
+  const formatableIgnoreGlobs = [...buildArtifactGlobs, ...extraFormatIgnoreGlobs];
 
   const formatableGlobs = [
     ...allCodeGlobs,
-    ...formatIgnoreGlobs.map((glob) => `!${glob}`),
   ];
 
   const testIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
@@ -81,6 +80,7 @@ const getConfig = () => {
     buildableSourceFileGlobs,
     buildableSourceCodeGlobs,
     buildableSourceAssetGlobs,
+    formatableIgnoreGlobs,
     formatableGlobs,
     codeExtensions,
     workspaces,

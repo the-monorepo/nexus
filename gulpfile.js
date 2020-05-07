@@ -12,12 +12,12 @@ const changed = require('gulp-changed');
 
 const rename = require('gulp-rename');
 
+const getStagableFiles = require('lint-staged/lib/getStagedFiles');
 const through = require('through2');
 
 const config = require('@monorepo/config');
 
-const staged = require('git-staged-stream');
-const filter = require('git-status-filter-stream');
+const filter = require('stream-filter-glob');
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -51,15 +51,34 @@ function packagesSrcCodeStream(options) {
   });
 }
 
-const formatStream = (options) =>
-  gulp.src(config.formatableGlobs, {
-    base: '.',
-    nodir: true,
-    ...options,
-  });
+async function packagesSrcCodeStagedStream(options) {
+  return gulp
+    .src(await getStagableFiles(), {
+      base: `.`,
+      nodir: true,
+      ...options,
+    })
+    .pipe(filter(config.buildableSourceCodeGlobs));
+}
 
-const formatStagedStream = () => {
-  return staged().pipe(filter(config.formatableGlobs));
+const formatStream = (options) =>
+  gulp.src(
+    [
+      ...config.formatableGlobs,
+      ...config.formatableIgnoreGlobs.map((glob) => `!${glob}`),
+    ],
+    {
+      base: '.',
+      nodir: true,
+      ...options,
+    },
+  );
+
+const formatStagedStream = async () => {
+  const stagedPaths = await getStagableFiles();
+  return gulp
+    .src(stagedPaths)
+    .pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
 };
 
 function simplePipeLogger(l, verb) {
@@ -221,31 +240,31 @@ gulp.task('watch', function watch() {
 
 gulp.task('default', build);
 
-function formatPrettier() {
+async function formatPrettier() {
   return prettierPipes(formatStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format:prettier', formatPrettier);
 
-function formatStagedPrettier() {
-  return prettierPipes(formatStagedStream()).pipe(gulp.dest('.'));
+async function formatStagedPrettier() {
+  return prettierPipes(await formatStagedStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged:prettier', formatStagedPrettier);
 
-function formatStagedLint() {
-  return lintPipes(formatStagedStream(), { fix: true });
+async function formatStagedLint() {
+  return lintPipes(await formatStagedStream(), { fix: true });
 }
 formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
   'overwrite files without creating a backup.';
 gulp.task('format-staged:lint', formatStagedLint);
 
-function format() {
+async function format() {
   return formatPipes(formatStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format', format);
 
-function formatStaged() {
-  return formatPipes(formatStagedStream()).pipe(gulp.dest('.'));
+async function formatStaged() {
+  return formatPipes(await formatStagedStream()).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged', formatStaged);
 
@@ -269,8 +288,8 @@ checkTypes.description =
   'serious errors in the code, such as invalid syntax or the use of incorrect types.';
 gulp.task('check-types', checkTypes);
 
-function checkTypesStaged() {
-  return withTypeCheckPipes(packagesSrcCodeStream().pipe(staged()));
+async function checkTypesStaged() {
+  return withTypeCheckPipes(await packagesSrcCodeStagedStream());
 }
 gulp.task('check-types-staged', checkTypesStaged);
 
