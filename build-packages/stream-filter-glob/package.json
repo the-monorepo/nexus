@@ -1,14 +1,10 @@
 {
   "version": "1.0.0-alpha.6",
-  "name": "git-staged-stream",
-  "description": "Get staged files from Git as a stream",
+  "name": "stream-filter-glob",
+  "description": "Filters out paths based off a micromatch glob",
   "keywords": [
-    "gulp",
-    "git",
-    "staged",
-    "plugin",
-    "util",
-    "build"
+    "stream",
+    "glob"
   ],
   "main": "./src/index.js",
   "license": "MIT",
@@ -20,12 +16,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "build-packages/git-staged-stream"
+    "directory": "build-packages/stream-filter-glob"
   },
   "publishConfig": {
     "access": "public"
   },
+  "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
   "dependencies": {
-    "git-status-filter-stream": "workspace:build-packages/git-status-filter-stream"
+    "micromatch": "^4.0.2",
+    "streamfilter": "^3.0.0"
   }
 }

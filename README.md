@@ -25,6 +25,7 @@ Version | Package | Description
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
+1.0.0-alpha.6 | [`stream-filter-glob`](build-packages/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob
 1.0.0-alpha.0 | [`tree-suffix-mapper`](misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
 
 ### Cinder
