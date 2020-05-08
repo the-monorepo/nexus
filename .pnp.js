@@ -5282,7 +5282,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "jest-mock-functions",
-        "workspace:misc/jest-mock-functions"
+        "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/jest-mock-functions"
       ],
       [
         "jest-regex-util",
@@ -8674,6 +8674,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["html-webpack-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:4.3.0"],
             ["html-webpack-template", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.2.0"],
             ["husky", "npm:4.2.5"],
+            ["jest-mock-functions", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/jest-mock-functions"],
             ["json-loader", "npm:0.5.7"],
             ["lerna", "npm:3.20.2"],
             ["lint-staged", "npm:10.2.2"],
@@ -12055,6 +12056,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@byexample/cli", "workspace:byexample/cli"],
             ["@types/node", "npm:10.17.21"],
             ["chalk", "npm:2.4.2"],
+            ["commander", "npm:5.1.0"],
             ["source-map-support", "npm:0.5.19"]
           ],
           "linkType": "SOFT",
@@ -22432,7 +22434,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/css-color-checker/",
           "packageDependencies": [
             ["css-color-checker", "workspace:misc/css-color-checker"],
-            ["jest-mock", "npm:25.5.0"]
+            ["jest-mock", "npm:25.5.0"],
+            ["named-css-colors", "workspace:misc/named-css-colors"]
           ],
           "linkType": "SOFT",
         }]
@@ -28654,6 +28657,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["jest-mock-functions", [
+        ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/jest-mock-functions", {
+          "packageLocation": "./.yarn/$$virtual/jest-mock-functions-virtual-f9da8e4eca/1/misc/jest-mock-functions/",
+          "packageDependencies": [
+            ["jest-mock-functions", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/jest-mock-functions"],
+            ["@types/jest", "npm:24.9.1"],
+            ["jest", null],
+            ["jest-mock", "npm:25.5.0"],
+            ["replace-functions", "workspace:misc/replace-functions"]
+          ],
+          "packagePeers": [
+            "jest"
+          ],
+          "linkType": "SOFT",
+        }],
         ["workspace:misc/jest-mock-functions", {
           "packageLocation": "./misc/jest-mock-functions/",
           "packageDependencies": [
@@ -30918,6 +30935,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["html-webpack-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:4.3.0"],
             ["html-webpack-template", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.2.0"],
             ["husky", "npm:4.2.5"],
+            ["jest-mock-functions", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/jest-mock-functions"],
             ["json-loader", "npm:0.5.7"],
             ["lerna", "npm:3.20.2"],
             ["lint-staged", "npm:10.2.2"],

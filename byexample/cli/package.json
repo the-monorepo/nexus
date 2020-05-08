@@ -18,6 +18,7 @@
   "dependencies": {
     "@types/node": "^10.5.4",
     "chalk": "^2.4.1",
+    "commander": "^5.1.0",
     "source-map-support": "^0.5.9"
   },
   "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da"

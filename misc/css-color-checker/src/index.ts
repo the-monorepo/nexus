@@ -1,4 +1,5 @@
 import * as cssColors from 'named-css-colors';
+
 import {
   isValidAlphaValue,
   isValidPercentageString,

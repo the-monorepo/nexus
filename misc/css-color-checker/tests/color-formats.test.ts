@@ -7,8 +7,8 @@ import {
   isHslaColor,
   isHwbColor,
 } from '../src/index';
-import { inputs } from './inputs/suites';
 import { testFunction } from './helpers/test-function';
+import { inputs } from './inputs/suites';
 testFunction('Hex', isHexColor, inputs.hex);
 testFunction('rgb(...)', isRgbColor, inputs.rgb);
 testFunction('rgba(...)', isRgbaColor, inputs.rgba);

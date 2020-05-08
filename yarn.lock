@@ -1599,6 +1599,7 @@ __metadata:
   dependencies:
     "@types/node": ^10.5.4
     chalk: ^2.4.1
+    commander: ^5.1.0
     source-map-support: ^0.5.9
   bin:
     byexample: ./bin/index.js
@@ -9692,7 +9693,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^5.0.0":
+"commander@npm:^5.0.0, commander@npm:^5.1.0":
   version: 5.1.0
   resolution: "commander@npm:5.1.0"
   checksum: 3/d16141ea7f580945156fb8a06de2834c4647c7d9d3732ebd4534ab8e0b7c64747db301e18f2b840f28ea8fef51f7a8d6178e674b45a21931f0b65ff1c7f476b3
@@ -10312,6 +10313,7 @@ __metadata:
   resolution: "css-color-checker@workspace:misc/css-color-checker"
   dependencies:
     jest-mock: ^25.5.0
+    named-css-colors: "workspace:misc/named-css-colors"
   languageName: unknown
   linkType: soft
 
@@ -17974,6 +17976,7 @@ fsevents@~2.1.1:
     html-webpack-plugin: ^4.2.0
     html-webpack-template: ^6.2.0
     husky: ^4.2.3
+    jest-mock-functions: "workspace:misc/jest-mock-functions"
     json-loader: ^0.5.7
     lerna: ^3.18.3
     lint-staged: ^10.2.2
