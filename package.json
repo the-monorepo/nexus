@@ -18,21 +18,22 @@
     "url": "https://github.com/PatrickShaw/monorepo.git"
   },
   "scripts": {
-    "format": "gulp format",
-    "format-staged": "gulp format-staged",
-    "test": "gulp test",
-    "clean": "gulp clean",
-    "transpile": "gulp transpile",
-    "build": "gulp build",
-    "watch": "gulp watch",
-    "writeme": "gulp writeme",
-    "webpack": "gulp webpack",
-    "prepublishOnly": "gulp prepublish",
-    "serve": "gulp serve",
-    "serve:my-resume": "gulp serve --name='my-resume'",
-    "serve:fault-benchmark": "gulp serve --name='fault-benchmark'",
-    "serve:page-breaker": "gulp serve --name='page-breaker'",
-    "ci-test": "gulp ci-test"
+    "run:gulp": "gulp --require ./gulpBabelRegister.js --gulpfile ./gulpfile.ts",
+    "format": "yarn run:gulp format",
+    "format-staged": "yarn run:gulp format-staged",
+    "test": "yarn run:gulp test",
+    "clean": "yarn run:gulp clean",
+    "transpile": "yarn run:gulp transpile",
+    "build": "yarn run:gulp build",
+    "watch": "yarn run:gulp watch",
+    "writeme": "yarn run:gulp writeme",
+    "webpack": "yarn run:gulp webpack",
+    "prepublishOnly": "yarn run:gulp prepublish",
+    "serve": "yarn run:gulp serve",
+    "serve:my-resume": "yarn run:gulp serve --require gulpBabelRegister.js --name='my-resume'",
+    "serve:fault-benchmark": "yarn run:gulp serve --name='fault-benchmark'",
+    "serve:page-breaker": "yarn run:gulp serve --name='page-breaker'",
+    "ci-test": "yarn run:gulp ci-test"
   },
   "keywords": [
     "typescript"

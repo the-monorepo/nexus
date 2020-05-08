@@ -15,8 +15,8 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/addon-istanbul`](faultjs/fault-addon-istanbul/README.md) | Report istanbul coverage
 1.0.0-alpha.0 | [`@fault/addon-mutation-localization`](faultjs/fault-addon-mutation-localization/README.md) | Fault AST localization
 1.0.0-alpha.0 | [`@fault/addon-sbfl`](faultjs/fault-addon-sbfl/README.md) | A spectrum based localization addon
-1.0.0-alpha.0 | [`@fault/benchmark`](faultjs/fault-benchmarker/README.md) | Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
-1.0.0-alpha.0 | [`@fault/benchmark-viewer-components`](faultjs/fault-benchmarker-components/README.md) | Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
+1.0.0-alpha.0 | [`@fault/benchmark`](faultjs/fault-benchmark/README.md) | Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
+1.0.0-alpha.0 | [`@fault/benchmark-viewer-components`](faultjs/fault-benchmark-viewer-components/README.md) | Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
 1.0.0-alpha.0 | [`@fault/istanbul-util`](faultjs/fault-istanbul-util/README.md) | Helper functions for use with istanbul
 1.0.0-alpha.0 | [`@fault/localization-util`](faultjs/fault-localization-util/README.md) | Utility package containing common fault localization methods
 1.0.0-alpha.0 | [`@fault/messages`](faultjs/fault-messages/README.md) | Helper methods for easier communication between the main @fault/runner process and its workers

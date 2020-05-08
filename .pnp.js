@@ -136,7 +136,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       },
       {
         "name": "@fault/benchmark-viewer-components",
-        "reference": "workspace:faultjs/fault-benchmark-components"
+        "reference": "workspace:faultjs/fault-benchmark-viewer-components"
       },
       {
         "name": "@fault/istanbul-util",
@@ -862,7 +862,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@fault/benchmark-viewer-components",
-        "workspace:faultjs/fault-benchmark-components"
+        "workspace:faultjs/fault-benchmark-viewer-components"
       ],
       [
         "@fault/istanbul-util",
@@ -12778,10 +12778,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/benchmark-viewer-components", [
-        ["workspace:faultjs/fault-benchmark-components", {
-          "packageLocation": "./faultjs/fault-benchmark-components/",
+        ["workspace:faultjs/fault-benchmark-viewer-components", {
+          "packageLocation": "./faultjs/fault-benchmark-viewer-components/",
           "packageDependencies": [
-            ["@fault/benchmark-viewer-components", "workspace:faultjs/fault-benchmark-components"],
+            ["@fault/benchmark-viewer-components", "workspace:faultjs/fault-benchmark-viewer-components"],
             ["chart.js", "npm:2.9.3"],
             ["chartjs-chart-box-and-violin-plot", "npm:2.3.0"],
             ["cinder", "workspace:cinder/cinder"]

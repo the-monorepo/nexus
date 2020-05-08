@@ -2110,9 +2110,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-components":
+"@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-viewer-components":
   version: 0.0.0-use.local
-  resolution: "@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-components"
+  resolution: "@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-viewer-components"
   dependencies:
     chart.js: ^2.9.3
     chartjs-chart-box-and-violin-plot: ^2.3.0
