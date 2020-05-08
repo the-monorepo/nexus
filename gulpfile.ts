@@ -35,7 +35,7 @@ const createSrcDirSwapper = (dir) => {
 
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
-const packagesSrcAssetStream = (options) => {
+const packagesSrcAssetStream = (options?) => {
   return gulp.src(config.buildableSourceAssetGlobs, {
     base: '.',
     nodir: true,
@@ -43,7 +43,7 @@ const packagesSrcAssetStream = (options) => {
   });
 };
 
-const packagesSrcCodeStream = (options) => {
+const packagesSrcCodeStream = (options?) => {
   return gulp.src(config.buildableSourceCodeGlobs, {
     base: `.`,
     nodir: true,
@@ -51,7 +51,7 @@ const packagesSrcCodeStream = (options) => {
   });
 };
 
-const packagesSrcCodeStagedStream = async (options) => {
+const packagesSrcCodeStagedStream = async (options?) => {
   return gulp
     .src(await getStagableFiles(), {
       base: `.`,
@@ -61,7 +61,7 @@ const packagesSrcCodeStagedStream = async (options) => {
     .pipe(filter(config.buildableSourceCodeGlobs));
 };
 
-const formatStream = (options) =>
+const formatStream = (options?) =>
   gulp.src(
     [
       ...config.formatableGlobs,
@@ -142,7 +142,7 @@ const transpilePipes = async (stream, babelOptions, dir, chalkFn) => {
       }),
     )
     .pipe(sourcemaps.mapSources((filePath) => filePath.replace(/.*\/src\//g, '../src/')))
-    .pipe(sourcemaps.write('.'));
+    .pipe(sourcemaps.write('.', undefined));
 };
 
 const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
@@ -172,14 +172,14 @@ function transpileEsm() {
   return esmTranspileStream();
 }
 
-const prettierPipes = (stream) => {
-  const prettier = require('gulp-prettier');
+const prettierPipes = async (stream) => {
+  const { default: prettier } = await import('gulp-prettier');
   const l = logger.child({ tags: [chalk.magentaBright('prettier')] });
   return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
 };
 
-const lintPipes = (stream, lintOptions) => {
-  const eslint = require('gulp-eslint');
+const lintPipes = async (stream, lintOptions) => {
+  const { default: eslint } = await import('gulp-eslint');
 
   const l = logger.child({ tags: [chalk.magenta('eslint')] });
   return (
@@ -192,8 +192,8 @@ const lintPipes = (stream, lintOptions) => {
   );
 };
 
-const formatPipes = (stream) => {
-  return prettierPipes(lintPipes(stream, { fix: true }));
+const formatPipes = async (stream) => {
+  return await prettierPipes(await lintPipes(stream, { fix: true }));
 };
 
 const printFriendlyAbsoluteDir = (dir) => {
@@ -247,12 +247,12 @@ gulp.task('watch', function watch() {
 gulp.task('default', build);
 
 async function formatPrettier() {
-  return prettierPipes(formatStream()).pipe(gulp.dest('.'));
+  return (await prettierPipes(formatStream())).pipe(gulp.dest('.'));
 }
 gulp.task('format:prettier', formatPrettier);
 
 async function formatStagedPrettier() {
-  return prettierPipes(await formatStagedStream()).pipe(gulp.dest('.'));
+  return (await prettierPipes(await formatStagedStream())).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged:prettier', formatStagedPrettier);
 
@@ -265,12 +265,12 @@ formatStagedLint.description =
 gulp.task('format-staged:lint', formatStagedLint);
 
 async function format() {
-  return formatPipes(formatStream()).pipe(gulp.dest('.'));
+  return (await formatPipes(formatStream())).pipe(gulp.dest('.'));
 }
 gulp.task('format', format);
 
 async function formatStaged() {
-  return formatPipes(await formatStagedStream()).pipe(gulp.dest('.'));
+  return (await formatPipes(await formatStagedStream())).pipe(gulp.dest('.'));
 }
 gulp.task('format-staged', formatStaged);
 
@@ -287,7 +287,7 @@ let withTypeCheckPipes = (stream) => {
 };
 
 function checkTypes() {
-  return withTypeCheckPipes(config.buildableSourceCodeGlobs());
+  return withTypeCheckPipes(config.buildableSourceCodeGlobs);
 }
 checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
