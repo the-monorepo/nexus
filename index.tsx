@@ -1,18 +1,18 @@
 /*import { createResume } from '@pshaw/resume-template';
-import * as cinder from 'mobx-dom';
+import * as Cinder from 'cinder';
 import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
 cinder.render(rootElement, <Resume data={data} />);*/
 /*
-import * as cinder from 'mobx-dom';
+import * as Cinder from 'cinder';
 import map from 'mobx-map';
-import { MobxElement } from 'mobx-dom';
+import { MobxElement } from 'cinder';
 import { observable, action, autorun, isObservableArray } from 'mobx';
-import { render } from 'mobx-dom/src';
+import { render } from 'cinder/src';
 No double assignment of props
-import * as cinder from 'mobx-dom';
-import { MobxElement, map } from 'mobx-dom';
+import * as Cinder from 'cinder';
+import { MobxElement, map } from 'cinder';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 <div>
   <>Lol</>
@@ -97,8 +97,8 @@ class Test extends React.Component {
 }
 ReactDOM.render(<Test/>, document.getElementById('root'));
 */
-/*import * as cinder from 'mobx-dom';
-import { MobxElement } from 'mobx-dom';
+/*import * as Cinder from 'cinder';
+import { MobxElement } from 'cinder';
 import map from 'mobx-map';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 const store = observable({
