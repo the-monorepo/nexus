@@ -75,7 +75,7 @@ const formatStream = (options) =>
   );
 
 const formatStagedStream = async () => {
-  const { Readable } = require('stream');
+  const { Readable } = await import('stream');
   const stagedPaths = await getStagableFiles();
   const stagedStream =
     stagedPaths.length > 0
@@ -125,9 +125,9 @@ function copyEsm() {
 
 const copy = gulp.parallel(copyScript, copyEsm);
 
-const transpilePipes = (stream, babelOptions, dir, chalkFn) => {
-  const sourcemaps = require('gulp-sourcemaps');
-  const babel = require('gulp-babel');
+const transpilePipes = async (stream, babelOptions, dir, chalkFn) => {
+  const sourcemaps = await import('gulp-sourcemaps');
+  const { default: babel } = await import('gulp-babel');
   const l = logger.child({ tags: [chalk.blue('transpile'), chalkFn(dir)] });
 
   return stream
@@ -145,15 +145,15 @@ const transpilePipes = (stream, babelOptions, dir, chalkFn) => {
     .pipe(sourcemaps.write('.'));
 };
 
-const scriptTranspileStream = (wrapStreamFn = (stream) => stream) => {
+const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
-    transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright),
+    await transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright),
   ).pipe(gulp.dest('.'));
 };
 
-const esmTranspileStream = (wrapStreamFn = (stream) => stream) => {
+const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
-    transpilePipes(
+    await transpilePipes(
       packagesSrcCodeStream(),
       {
         envName: 'esm',
