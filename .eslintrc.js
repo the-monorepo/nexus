@@ -2,6 +2,7 @@ const commonRules = {
   'react/react-in-jsx-scope': 'off',
   "react/jsx-key": 'off'
 }
+
 module.exports = {
   "parser": "@typescript-eslint/parser",
   "extends": [
