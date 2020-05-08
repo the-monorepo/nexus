@@ -1,9 +1,13 @@
 import 'source-map-support/register';
-import fs from 'fs';
+
+import fs from 'fs/promises';
 import { resolve, basename } from 'path';
 
 import globby from 'globby';
-const { writeFile } = fs.promises;
+
+import { readJson } from '@pshaw/fs';
+
+const { writeFile } = fs;
 
 type ProjectResult = {
   name: string;
@@ -24,8 +28,8 @@ export const run = async () => {
   const projectResults: ProjectResult[] = [];
   for (const projectDir of projectDirs) {
     try {
-      const faultResults = require(resolve(projectDir, 'fault-results.json'));
-      const packageJson = require(resolve(projectDir, 'package.json'));
+      const faultResults = await readJson(resolve(projectDir, 'fault-results.json'));
+      const packageJson = await readJson(resolve(projectDir, 'package.json'));
       projectResults.push({
         name: basename(projectDir),
         results: faultResults,

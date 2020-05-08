@@ -77,7 +77,13 @@ const formatStream = (options) =>
 const formatStagedStream = async () => {
   const { Readable } = require('stream');
   const stagedPaths = await getStagableFiles();
-  const stagedStream = stagedPaths.length > 0 ? gulp.src(stagedPaths) : Readable.from([]);
+  const stagedStream =
+    stagedPaths.length > 0
+      ? gulp.src(stagedPaths, {
+          base: '.',
+          nodir: true,
+        })
+      : Readable.from([]);
   return stagedStream.pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
 };
 
