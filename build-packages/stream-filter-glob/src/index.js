@@ -13,12 +13,13 @@ class GlobFilterStream extends Duplex {
     this.options = options;
   }
 
-  _read() {
-    
-  }
+  _read() {}
 
   _write(chunk, encoding, callback) {
-    if (some(chunk.path, this.globs, this.options) && !some(chunk.path, this.ignoreGlobs, this.options)) {
+    if (
+      some(chunk.path, this.globs, this.options) &&
+      !some(chunk.path, this.ignoreGlobs, this.options)
+    ) {
       this.push(chunk);
       callback();
     } else {

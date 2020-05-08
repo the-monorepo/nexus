@@ -60,9 +60,7 @@ const getConfig = () => {
 
   const formatableIgnoreGlobs = [...buildArtifactGlobs, ...extraFormatIgnoreGlobs];
 
-  const formatableGlobs = [
-    ...allCodeGlobs,
-  ];
+  const formatableGlobs = [...allCodeGlobs];
 
   const testIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
 
