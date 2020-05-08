@@ -273,8 +273,7 @@ export const run = async () => {
         ...process.env,
         ...optionsEnv,
       },
-
-      workers: sandbox ? 1 : 1,
+      workers: 1,
       fileBufferCount: sandbox ? undefined : null,
       timeout: 60000,
     };

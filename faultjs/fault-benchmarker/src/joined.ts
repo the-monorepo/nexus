@@ -1,16 +1,12 @@
 import 'source-map-support/register';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 
-import {
-  locationToKeyIncludingEnd,
-  compareMutationEvaluations,
-  DELETE_STATEMENT,
-} from '@fault/addon-mutation-localization';
-
+import { locationToKeyIncludingEnd } from '@fault/addon-mutation-localization';
 import { recordFaults, convertFileFaultDataToFaults } from '@fault/record-faults';
 
 import { requestProjectDirs } from './requestProjectDirs';
+
 // TODO: This is just a temporary script to see if FaultJs does better with SBFL techniques
 const algos = ['dstar-2', 'op2'];
 const main = async () => {
@@ -19,9 +15,8 @@ const main = async () => {
   const projectDirs = await requestProjectDirs('*');
   for (const dir of projectDirs) {
     try {
-      const mbflResults = convertFileFaultDataToFaults(
-        require(resolve(dir, 'faults/mbfl/faults.json')),
-      );
+      const faultData = await readJson(resolve(dir, 'faults/mbfl/faults.json'));
+      const mbflResults = convertFileFaultDataToFaults(faultData);
       mutations.push(mbflResults.length);
       statements.push(
         await readFile(resolve(dir, 'faults/mbfl/mutations-attempted.txt'), 'utf8'),
@@ -37,9 +32,8 @@ const main = async () => {
           if (index === -1) {
             await recordFaults(filePath, mbflResults);
           } else {
-            const otherResults = convertFileFaultDataToFaults(
-              require(resolve(dir, `faults/${algo}/faults.json`)),
-            );
+            const faultData = await readJson(resolve(dir, `faults/${algo}/faults.json`));
+            const otherResults = convertFileFaultDataToFaults(faultData);
             const scores = new Map();
             for (const fault of otherResults) {
               scores.set(
