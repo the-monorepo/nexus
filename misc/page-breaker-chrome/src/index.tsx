@@ -5,7 +5,7 @@ import cx from 'classnames';
 
 import { autorun, observable, action, computed } from 'mobx';
 
-import * as cinder from 'cinder';
+import * as Cinder from 'cinder';
 
 import './globals.scss';
 import styles from './styles.scss';

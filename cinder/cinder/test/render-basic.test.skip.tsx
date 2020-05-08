@@ -1,4 +1,4 @@
-import * as cinder from '../src/index';
+import * as Cinder from '../src/index';
 import { render } from '../src/index';
 
 describe.skip('basic rendering', () => {
