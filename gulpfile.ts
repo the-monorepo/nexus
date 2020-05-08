@@ -274,12 +274,21 @@ async function formatStaged() {
 }
 gulp.task('format-staged', formatStaged);
 
-let withTypeCheckPipes = (stream) => {
-  const typescript = require('typescript');
-  const gulpTypescript = require('gulp-typescript');
-  const tsProject = gulpTypescript.createProject('tsconfig.json', { typescript });
+let withTypeCheckPipes = async (stream) => {
+  const gulpTypescriptPromise = import('gulp-typescript');
 
-  withTypeCheckPipes = (stream) => {
+  const tsProjectPromise = (async () => {
+    const typescript = await import('typescript');
+    const gulpTypescript = await gulpTypescriptPromise;
+    const tsProject = await gulpTypescript.createProject('tsconfig.json', { typescript });
+
+    return tsProject;
+  })();
+
+  withTypeCheckPipes = async (stream) => {
+    const gulpTypescript = await gulpTypescriptPromise;
+
+    const tsProject = await tsProjectPromise;
     return stream.pipe(tsProject(gulpTypescript.reporter.defaultReporter()));
   };
 
