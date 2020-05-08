@@ -19,7 +19,7 @@ import config from '@monorepo/config';
 
 import filter from 'stream-filter-glob';
 
-function swapSrcWith(srcPath, newDirName) {
+const swapSrcWith = (srcPath, newDirName) => {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
   srcPath = relative(__dirname, srcPath);
   const parts = srcPath.split(sep);
@@ -27,31 +27,31 @@ function swapSrcWith(srcPath, newDirName) {
   parts[2] = newDirName;
   const resultingPath = join(...parts);
   return resultingPath;
-}
+};
 
-function createSrcDirSwapper(dir) {
+const createSrcDirSwapper = (dir) => {
   return (srcPath) => swapSrcWith(srcPath, dir);
-}
+};
 
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
-function packagesSrcAssetStream(options) {
+const packagesSrcAssetStream = (options) => {
   return gulp.src(config.buildableSourceAssetGlobs, {
     base: '.',
     nodir: true,
     ...options,
   });
-}
+};
 
-function packagesSrcCodeStream(options) {
+const packagesSrcCodeStream = (options) => {
   return gulp.src(config.buildableSourceCodeGlobs, {
     base: `.`,
     nodir: true,
     ...options,
   });
-}
+};
 
-async function packagesSrcCodeStagedStream(options) {
+const packagesSrcCodeStagedStream = async (options) => {
   return gulp
     .src(await getStagableFiles(), {
       base: `.`,
@@ -59,7 +59,7 @@ async function packagesSrcCodeStagedStream(options) {
       ...options,
     })
     .pipe(filter(config.buildableSourceCodeGlobs));
-}
+};
 
 const formatStream = (options) =>
   gulp.src(
@@ -87,12 +87,12 @@ const formatStagedStream = async () => {
   return stagedStream.pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
 };
 
-function simplePipeLogger(l, verb) {
+const simplePipeLogger = (l, verb) => {
   return through.obj(function (file, enc, callback) {
     l.info(`${verb} '${chalk.cyan(file.relative)}'`);
     callback(null, file);
   });
-}
+};
 
 async function clean() {
   const { default: del } = await import('del');
@@ -100,7 +100,7 @@ async function clean() {
 }
 gulp.task('clean', clean);
 
-function copyPipes(stream, l, dir) {
+const copyPipes = (stream, l, dir) => {
   return stream
     .pipe(changed('.', { transformPath: createSrcDirSwapper(dir) }))
     .pipe(simplePipeLogger(l, 'Copying'))
@@ -111,7 +111,7 @@ function copyPipes(stream, l, dir) {
       }),
     )
     .pipe(gulp.dest('.'));
-}
+};
 
 function copyScript() {
   const l = logger.child({ tags: [chalk.yellow('copy'), chalk.blueBright('lib')] });
@@ -125,7 +125,7 @@ function copyEsm() {
 
 const copy = gulp.parallel(copyScript, copyEsm);
 
-function transpilePipes(stream, babelOptions, dir, chalkFn) {
+const transpilePipes = (stream, babelOptions, dir, chalkFn) => {
   const sourcemaps = require('gulp-sourcemaps');
   const babel = require('gulp-babel');
   const l = logger.child({ tags: [chalk.blue('transpile'), chalkFn(dir)] });
@@ -143,7 +143,7 @@ function transpilePipes(stream, babelOptions, dir, chalkFn) {
     )
     .pipe(sourcemaps.mapSources((filePath) => filePath.replace(/.*\/src\//g, '../src/')))
     .pipe(sourcemaps.write('.'));
-}
+};
 
 const scriptTranspileStream = (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
@@ -172,13 +172,13 @@ function transpileEsm() {
   return esmTranspileStream();
 }
 
-function prettierPipes(stream) {
+const prettierPipes = (stream) => {
   const prettier = require('gulp-prettier');
   const l = logger.child({ tags: [chalk.magentaBright('prettier')] });
   return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
-}
+};
 
-function lintPipes(stream, lintOptions) {
+const lintPipes = (stream, lintOptions) => {
   const eslint = require('gulp-eslint');
 
   const l = logger.child({ tags: [chalk.magenta('eslint')] });
@@ -190,18 +190,18 @@ function lintPipes(stream, lintOptions) {
       // TODO: Need to halt build process/throw error
       .pipe(eslint.failAfterError())
   );
-}
+};
 
-function formatPipes(stream) {
+const formatPipes = (stream) => {
   return prettierPipes(lintPipes(stream, { fix: true }));
-}
+};
 
-function printFriendlyAbsoluteDir(dir) {
+const printFriendlyAbsoluteDir = (dir) => {
   if (relative(dir, __dirname) === '') {
     return '.';
   }
   return relative(join(__dirname), dir);
-}
+};
 
 const transpile = gulp.parallel(transpileScript, transpileEsm);
 gulp.task('transpile', transpile);
