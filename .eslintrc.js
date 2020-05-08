@@ -48,7 +48,7 @@ module.exports = {
     ...commonRules,
   },
   "overrides": [{
-    "files": ["./faultjs/fault-benchmarker/**"],
+    "files": ["./faultjs/fault-benchmark/**"],
     "rules": {
       ...commonRules,
       "no-console": "off",

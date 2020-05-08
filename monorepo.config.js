@@ -2,7 +2,7 @@
 const dependencyGlobs = ['.yarn/**', '**/node_modules/**'];
 
 const faultJsBenchmarkerProjectGlobs = [
-  './faultjs/fault-benchmarker/{disabled-projects,projects}/**',
+  './faultjs/fault-benchmark/{disabled-projects,projects}/**',
 ];
 
 module.exports.extra = {
@@ -33,7 +33,7 @@ module.exports.serve = {
   servers: {
     servers: [
       {
-        input: './faultjs/fault-benchmarker/src/frontend/index.tsx',
+        input: './faultjs/fault-benchmark/src/frontend/index.tsx',
       },
       {
         input: './patrick-shaw/my-resume/src/index.tsx',
