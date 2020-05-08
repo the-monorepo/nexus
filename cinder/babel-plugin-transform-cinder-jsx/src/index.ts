@@ -7,8 +7,10 @@ import { JSXElement, JSXText } from '@babel/types';
 import * as t from '@babel/types';
 import { JSXExpressionContainer } from '@babel/types';
 
+import PRAGMA from './DefaultPragma';
+
 const cinderMemberExpression = (field: string) => {
-  return t.memberExpression(t.identifier('Cinder'), t.identifier(field));
+  return t.memberExpression(t.identifier(PRAGMA), t.identifier(field));
 };
 
 const cinderCallExpression = (
