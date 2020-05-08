@@ -75,10 +75,10 @@ const formatStream = (options) =>
   );
 
 const formatStagedStream = async () => {
+  const { Readable } = require('stream');
   const stagedPaths = await getStagableFiles();
-  return gulp
-    .src(stagedPaths)
-    .pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
+  const stagedStream = stagedPaths.length > 0 ? gulp.src(stagedPaths) : Readable.from([]);
+  return stagedStream.pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
 };
 
 function simplePipeLogger(l, verb) {
