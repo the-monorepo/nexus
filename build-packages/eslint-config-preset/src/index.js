@@ -13,50 +13,31 @@ const commonExtendsPart2 = [
   '@pshaw/eslint-config-plugin-import',
   'prettier',
   'prettier/@typescript-eslint',
-  'prettier/react',  
+  'prettier/react',
 ];
 
-const cinderExtends = [
-  '@pshaw/eslint-config-plugin-cinder',
-];
+const cinderExtends = ['@pshaw/eslint-config-plugin-cinder'];
 
-const reactExtends = [
-  '@pshaw/eslint-config-plugin-react',
-];
+const reactExtends = ['@pshaw/eslint-config-plugin-react'];
 
 const commonPlugins = [
   '@typescript-eslint/eslint-plugin',
   'eslint-plugin-import',
   'eslint-plugin-react',
-]
+];
 
 const cinderConfig = {
   files: ['*.{ts,tsx,js,jsx}'],
-  plugins: [
-    ...commonPlugins,
-  ],
-  extends: [
-    ...commonExtendsPart1,
-    ...cinderExtends,
-    ...commonExtendsPart2,
-  ]
+  plugins: [...commonPlugins],
+  extends: [...commonExtendsPart1, ...cinderExtends, ...commonExtendsPart2],
 };
 
 const reactConfig = {
   files: ['*.react.{ts,tsx,js,jsx}'],
-  plugins: [
-    ...commonPlugins,
-  ],
-  extends: [
-    ...commonExtendsPart1,
-    ...reactExtends,
-    ...commonExtendsPart2,
-  ],
+  plugins: [...commonPlugins],
+  extends: [...commonExtendsPart1, ...reactExtends, ...commonExtendsPart2],
 };
 
 module.exports = {
-  overrides: [
-    cinderConfig,
-    reactConfig,
-  ]
+  overrides: [cinderConfig, reactConfig],
 };
