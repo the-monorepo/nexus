@@ -95,7 +95,7 @@ function simplePipeLogger(l, verb) {
 }
 
 async function clean() {
-  const del = require('del');
+  const { default: del } = await import('del');
   await del(config.buildArtifactGlobs);
 }
 gulp.task('clean', clean);
