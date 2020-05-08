@@ -1,23 +1,23 @@
-require('source-map-support/register');
+import 'source-map-support/register';
 /**
  * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
  */
-const { join, sep, relative } = require('path');
+import { join, sep, relative } from 'path';
 
-const pshawLogger = require('build-pshaw-logger');
-const chalk = require('chalk');
+import * as pshawLogger from 'build-pshaw-logger';
+import chalk from 'chalk';
 
-const gulp = require('gulp');
-const changed = require('gulp-changed');
+import gulp from 'gulp';
+import changed from 'gulp-changed';
 
-const rename = require('gulp-rename');
+import rename from 'gulp-rename';
 
-const getStagableFiles = require('lint-staged/lib/getStagedFiles');
-const through = require('through2');
+import getStagableFiles from 'lint-staged/lib/getStagedFiles';
+import through from 'through2';
 
-const config = require('@monorepo/config');
+import config from '@monorepo/config';
 
-const filter = require('stream-filter-glob');
+import filter from 'stream-filter-glob';
 
 function swapSrcWith(srcPath, newDirName) {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
