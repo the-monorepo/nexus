@@ -3517,6 +3517,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@pshaw/eslint-config-plugin-cinder@workspace:build-packages/eslint-config-plugin-cinder":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/eslint-config-plugin-cinder@workspace:build-packages/eslint-config-plugin-cinder"
+  languageName: unknown
+  linkType: soft
+
 "@pshaw/eslint-config-plugin-import@workspace:build-packages/eslint-config-plugin-import":
   version: 0.0.0-use.local
   resolution: "@pshaw/eslint-config-plugin-import@workspace:build-packages/eslint-config-plugin-import"
@@ -3540,6 +3546,7 @@ __metadata:
   resolution: "@pshaw/eslint-config-preset@workspace:build-packages/eslint-config-preset"
   dependencies:
     "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core"
+    "@pshaw/eslint-config-plugin-cinder": "workspace:build-packages/eslint-config-plugin-cinder"
     "@pshaw/eslint-config-plugin-import": "workspace:build-packages/eslint-config-plugin-import"
     "@pshaw/eslint-config-plugin-react": "workspace:build-packages/eslint-config-plugin-react"
     "@pshaw/eslint-config-plugin-typescript": "workspace:build-packages/eslint-config-plugin-typescript"

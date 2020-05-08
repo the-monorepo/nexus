@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core",
+    "@pshaw/eslint-config-plugin-cinder": "workspace:build-packages/eslint-config-plugin-cinder",
     "@pshaw/eslint-config-plugin-import": "workspace:build-packages/eslint-config-plugin-import",
     "@pshaw/eslint-config-plugin-react": "workspace:build-packages/eslint-config-plugin-react",
     "@pshaw/eslint-config-plugin-typescript": "workspace:build-packages/eslint-config-plugin-typescript",
