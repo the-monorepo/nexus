@@ -29,5 +29,8 @@
   ],
   "devDependencies": {
     "jest-mock": "^25.5.0"
+  },
+  "dependencies": {
+    "named-css-colors": "workspace:misc/named-css-colors"
   }
 }

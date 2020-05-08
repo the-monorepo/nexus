@@ -8,7 +8,7 @@ import * as t from '@babel/types';
 import { JSXExpressionContainer } from '@babel/types';
 
 const cinderMemberExpression = (field: string) => {
-  return t.memberExpression(t.identifier('cinder'), t.identifier(field));
+  return t.memberExpression(t.identifier('Cinder'), t.identifier(field));
 };
 
 const cinderCallExpression = (

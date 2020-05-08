@@ -97,6 +97,7 @@
     "html-webpack-plugin": "^4.2.0",
     "html-webpack-template": "^6.2.0",
     "husky": "^4.2.3",
+    "jest-mock-functions": "workspace:misc/jest-mock-functions",
     "json-loader": "^0.5.7",
     "lerna": "^3.18.3",
     "lint-staged": "^10.2.2",
