@@ -311,7 +311,7 @@ gulp.task('check-types-staged', checkTypesStaged);
 const flIgnoreGlob =
   'faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
 async function testNoBuild() {
-  const runner = require('@fault/runner');
+  const runner = await import('@fault/runner');
   const passed = await runner.run({
     tester: '@fault/tester-mocha',
     testMatch: config.testableGlobs,
