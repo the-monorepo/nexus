@@ -2110,9 +2110,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/benchmarker@workspace:faultjs/fault-benchmarker":
+"@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmarker-components":
   version: 0.0.0-use.local
-  resolution: "@fault/benchmarker@workspace:faultjs/fault-benchmarker"
+  resolution: "@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmarker-components"
+  dependencies:
+    chart.js: ^2.9.3
+    chartjs-chart-box-and-violin-plot: ^2.3.0
+    cinder: "workspace:cinder/cinder"
+  languageName: unknown
+  linkType: soft
+
+"@fault/benchmark@workspace:faultjs/fault-benchmarker":
+  version: 0.0.0-use.local
+  resolution: "@fault/benchmark@workspace:faultjs/fault-benchmarker"
   dependencies:
     "@babel/core": ^7.9.0
     "@babel/parser": ^7.5.0
