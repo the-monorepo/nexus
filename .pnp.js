@@ -6478,7 +6478,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "path-to-regexp",
-        "npm:1.8.0"
+        "npm:0.1.7"
       ],
       [
         "path-type",
@@ -8632,6 +8632,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@monorepo/config", "workspace:build-packages/monorepo-config"],
             ["@pshaw/eslint-config-core", "workspace:build-packages/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:build-packages/eslint-config-preset"],
+            ["@pshaw/markdown-util", "workspace:misc/markdown-util"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
             ["@storybook/addon-actions", "npm:5.3.18"],
             ["@storybook/addon-knobs", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.18"],
@@ -8656,6 +8657,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["css-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.5.3"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:6.8.0"],
+            ["eslint-import-resolver-node", "npm:0.3.3"],
             ["eslint-plugin-import", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.20.2"],
             ["expect", "npm:25.5.0"],
             ["fibers", "npm:5.0.0"],
@@ -30874,6 +30876,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@monorepo/config", "workspace:build-packages/monorepo-config"],
             ["@pshaw/eslint-config-core", "workspace:build-packages/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:build-packages/eslint-config-preset"],
+            ["@pshaw/markdown-util", "workspace:misc/markdown-util"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
             ["@storybook/addon-actions", "npm:5.3.18"],
             ["@storybook/addon-knobs", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.3.18"],
@@ -30898,6 +30901,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["css-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.5.3"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:6.8.0"],
+            ["eslint-import-resolver-node", "npm:0.3.3"],
             ["eslint-plugin-import", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.20.2"],
             ["expect", "npm:25.5.0"],
             ["fibers", "npm:5.0.0"],

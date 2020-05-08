@@ -11747,7 +11747,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-import-resolver-node@npm:^0.3.2":
+"eslint-import-resolver-node@npm:^0.3.2, eslint-import-resolver-node@npm:^0.3.3":
   version: 0.3.3
   resolution: "eslint-import-resolver-node@npm:0.3.3"
   dependencies:
@@ -17935,6 +17935,7 @@ fsevents@~2.1.1:
     "@monorepo/config": "workspace:build-packages/monorepo-config"
     "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core"
     "@pshaw/eslint-config-preset": "workspace:build-packages/eslint-config-preset"
+    "@pshaw/markdown-util": "workspace:misc/markdown-util"
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats"
     "@storybook/addon-actions": ^5.3.18
     "@storybook/addon-knobs": ^5.3.18
@@ -17956,6 +17957,7 @@ fsevents@~2.1.1:
     css-loader: ^3.5.2
     del: ^5.1.0
     eslint: ^6.8.0
+    eslint-import-resolver-node: ^0.3.3
     eslint-plugin-import: ^2.20.2
     expect: ^25.1.0
     fibers: ^5.0.0
