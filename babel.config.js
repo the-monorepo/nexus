@@ -53,7 +53,8 @@ module.exports = (api) => {
           './patrick-shaw/my-resume',
           './misc/resume-template',
           './misc/page-breaker-chrome',
-          './faultjs/fault-benchmarker/src/frontend',
+          './faultjs/fault-benchmark/src/frontend',
+          './faultjs/fault-benchmark-components/src/frontend',
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',

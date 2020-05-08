@@ -44,7 +44,7 @@ const tsxExtensions = ['.tsx', '.ts', '.jsx', '.js'];
 
 const miscDir = resolve(__dirname, './misc');
 const faultjsDir = resolve(__dirname, 'faultjs');
-const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmarker');
+const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmark');
 const patrickShawDir = resolve(__dirname, 'patrick-shaw');
 
 const resumeDir = resolve(patrickShawDir, 'my-resume');
@@ -146,7 +146,7 @@ const resumeConfig = {
 };
 
 const faultjsBenchmarkConfig = {
-  name: 'fault-benchmarker',
+  name: 'fault-benchmark',
   target: 'web',
   resolve: {
     extensions: tsxExtensions,

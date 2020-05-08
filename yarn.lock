@@ -2110,9 +2110,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmarker-components":
+"@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-components":
   version: 0.0.0-use.local
-  resolution: "@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmarker-components"
+  resolution: "@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-components"
   dependencies:
     chart.js: ^2.9.3
     chartjs-chart-box-and-violin-plot: ^2.3.0
@@ -2120,9 +2120,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/benchmark@workspace:faultjs/fault-benchmarker":
+"@fault/benchmark@workspace:faultjs/fault-benchmark":
   version: 0.0.0-use.local
-  resolution: "@fault/benchmark@workspace:faultjs/fault-benchmarker"
+  resolution: "@fault/benchmark@workspace:faultjs/fault-benchmark"
   dependencies:
     "@babel/core": ^7.9.0
     "@babel/parser": ^7.5.0

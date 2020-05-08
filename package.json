@@ -30,7 +30,7 @@
     "prepublishOnly": "gulp prepublish",
     "serve": "gulp serve",
     "serve:my-resume": "gulp serve --name='my-resume'",
-    "serve:fault-benchmarker": "gulp serve --name='fault-benchmarker'",
+    "serve:fault-benchmark": "gulp serve --name='fault-benchmark'",
     "serve:page-breaker": "gulp serve --name='page-breaker'",
     "ci-test": "gulp ci-test"
   },
