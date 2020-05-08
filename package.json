@@ -38,7 +38,6 @@
     "typescript"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.6.4",
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-proposal-decorators": "^7.7.4",
@@ -46,7 +45,6 @@
     "@babel/plugin-syntax-jsx": "^7.8.3",
     "@babel/plugin-transform-strict-mode": "^7.7.4",
     "@babel/preset-env": "^7.9.0",
-    "@babel/preset-react": "^7.9.1",
     "@babel/preset-typescript": "^7.9.0",
     "@babel/register": "^7.9.0",
     "@byexample/openapi": "workspace:byexample/openapi",
@@ -82,7 +80,6 @@
     "del": "^5.1.0",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-react": "^7.19.0",
     "expect": "^25.1.0",
     "fibers": "^5.0.0",
     "file-loader": "^6.0.0",
@@ -114,7 +111,6 @@
     "source-map-loader": "^0.2.4",
     "source-map-support": "^0.5.13",
     "stream-filter-glob": "workspace:build-packages/stream-filter-glob",
-    "stream-git-staged": "workspace:build-packages/stream-git-staged",
     "style-loader": "^1.1.3",
     "stylelint": "^13.3.3",
     "through2": "^3.0.0",
