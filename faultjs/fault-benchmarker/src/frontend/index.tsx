@@ -225,7 +225,6 @@ const projectResultsToRankings = (
       results: algoRankings,
     });
   }
-  console.log(totalRanks);
   return {
     projectResults: props,
     invertColors: true,
@@ -264,10 +263,8 @@ class ViolinResultsChartElement extends HTMLElement {
       return;
     }
 
-    console.log('data', value);
     const context = this.canvasElement.getContext('2d');
     const algoCount = algorithmNames.length;
-    console.log('alag', algoCount, algorithmNames);
 
     const createDataPlot = (results: ResultsTableProps) => {
       const data: number[][] = [];
@@ -324,7 +321,6 @@ class ViolinResultsChartElement extends HTMLElement {
         },
       },
     };
-    console.log(boxPlotData);
 
     new Chart(context, boxPlotData);
   }
@@ -337,7 +333,6 @@ const rerender = () => cinder.render(<Main />, document.getElementById('root'));
 const Main = () => {
   const eInspectResults: ResultsTableProps[] = [];
   const examResults: ResultsTableProps[] = [];
-  console.log(projectResults);
   if (state.separateArtificial) {
     examResults.push(
       projectResultsToExamResults(

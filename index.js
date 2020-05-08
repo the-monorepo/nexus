@@ -1,35 +1,43 @@
-const { Duplex } = require('stream');
+const commonExtendsPart1 = [
+  'eslint:recommended',
+  'plugin:import/errors',
+  'plugin:import/typescript',
+  'plugin:react/recommended',
+  'plugin:@typescript-eslint/eslint-recommended',
+  'plugin:@typescript-eslint/recommended',
+  '@pshaw/eslint-config-core',
+];
 
-const { some } = require('micromatch');
+const commonExtendsPart2 = [
+  '@pshaw/eslint-config-plugin-typescript',
+  '@pshaw/eslint-config-plugin-import',
+  'prettier',
+  'prettier/@typescript-eslint',
+  'prettier/react',
+];
 
-class GlobFilterStream extends Duplex {
-  constructor(globs, ignoreGlobs, options) {
-    super({
-      decodeStrings: false,
-      objectMode: true,
-    });
-    this.globs = globs;
-    this.ignoreGlobs = ignoreGlobs;
-    this.options = options;
-  }
+const cinderExtends = ['@pshaw/eslint-config-plugin-cinder'];
 
-  _read() {}
+const reactExtends = ['@pshaw/eslint-config-plugin-react'];
 
-  _write(chunk, encoding, callback) {
-    if (
-      some(chunk.path, this.globs, this.options) &&
-      !some(chunk.path, this.ignoreGlobs, this.options)
-    ) {
-      this.push(chunk);
-      callback();
-    } else {
-      callback();
-    }
-  }
-}
+const commonPlugins = [
+  '@typescript-eslint/eslint-plugin',
+  'eslint-plugin-import',
+  'eslint-plugin-react',
+];
 
-const createGlobFilterStream = (glob, ignoreGlobs, options) => {
-  return new GlobFilterStream(glob, ignoreGlobs, options);
+const cinderConfig = {
+  files: ['*.{ts,tsx,js,jsx}'],
+  plugins: [...commonPlugins],
+  extends: [...commonExtendsPart1, ...cinderExtends, ...commonExtendsPart2],
 };
 
-module.exports = createGlobFilterStream;
+const reactConfig = {
+  files: ['*.react.{ts,tsx,js,jsx}'],
+  plugins: [...commonPlugins],
+  extends: [...commonExtendsPart1, ...reactExtends, ...commonExtendsPart2],
+};
+
+module.exports = {
+  overrides: [cinderConfig, reactConfig],
+};

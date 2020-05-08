@@ -120,7 +120,6 @@ const addLangPreference = {
       } else {
         languageState.langs.unshift(languageState.langs.splice(index, 1)[0]);
       }
-      console.log(...languageState.langs);
       e.target.reset();
     } catch (err) {
       console.error(err);

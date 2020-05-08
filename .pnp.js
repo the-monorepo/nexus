@@ -187,6 +187,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:build-packages/eslint-config-core"
       },
       {
+        "name": "@pshaw/eslint-config-plugin-cinder",
+        "reference": "workspace:build-packages/eslint-config-plugin-cinder"
+      },
+      {
         "name": "@pshaw/eslint-config-plugin-import",
         "reference": "workspace:build-packages/eslint-config-plugin-import"
       },
@@ -1307,6 +1311,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@pshaw/eslint-config-core",
         "workspace:build-packages/eslint-config-core"
+      ],
+      [
+        "@pshaw/eslint-config-plugin-cinder",
+        "workspace:build-packages/eslint-config-plugin-cinder"
       ],
       [
         "@pshaw/eslint-config-plugin-import",
@@ -14284,6 +14292,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
+      ["@pshaw/eslint-config-plugin-cinder", [
+        ["workspace:build-packages/eslint-config-plugin-cinder", {
+          "packageLocation": "./build-packages/eslint-config-plugin-cinder/",
+          "packageDependencies": [
+            ["@pshaw/eslint-config-plugin-cinder", "workspace:build-packages/eslint-config-plugin-cinder"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["@pshaw/eslint-config-plugin-import", [
         ["workspace:build-packages/eslint-config-plugin-import", {
           "packageLocation": "./build-packages/eslint-config-plugin-import/",
@@ -14317,6 +14334,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@pshaw/eslint-config-preset", "workspace:build-packages/eslint-config-preset"],
             ["@pshaw/eslint-config-core", "workspace:build-packages/eslint-config-core"],
+            ["@pshaw/eslint-config-plugin-cinder", "workspace:build-packages/eslint-config-plugin-cinder"],
             ["@pshaw/eslint-config-plugin-import", "workspace:build-packages/eslint-config-plugin-import"],
             ["@pshaw/eslint-config-plugin-react", "workspace:build-packages/eslint-config-plugin-react"],
             ["@pshaw/eslint-config-plugin-typescript", "workspace:build-packages/eslint-config-plugin-typescript"],
