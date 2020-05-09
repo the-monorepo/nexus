@@ -43,7 +43,7 @@ export function isRgbColor(value?: unknown | null): boolean {
     /^rgb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
   if (rgbMatches && rgbMatches.length >= 4) {
-    const [rgb, r, g, b] = rgbMatches;
+    const [, r, g, b] = rgbMatches;
     if (isValidRgbValues(r, g, b)) {
       return true;
     }
@@ -59,7 +59,7 @@ export function isRgbaColor(value?: unknown | null): boolean {
     /^rgba\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
   if (rgbaMatches && rgbaMatches.length >= 5) {
-    const [rgb, r, g, b, a] = rgbaMatches;
+    const [, r, g, b, a] = rgbaMatches;
     if (isValidRgbValues(r, g, b) && isValidAlphaValue(a)) {
       return true;
     }
@@ -75,7 +75,7 @@ export function isHslColor(value?: unknown | null): boolean {
     /^hsl\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
   if (hslMatches && hslMatches.length >= 4) {
-    const [hsl, h, s, l] = hslMatches;
+    const [, h, s, l] = hslMatches;
     if (isValidHue(h) && isValidPercentageString(s) && isValidPercentageString(l)) {
       return true;
     }
@@ -91,7 +91,7 @@ export function isHslaColor(value?: unknown | null): boolean {
     /^hsla\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)\s*\)$/,
   );
   if (hslaMatches && hslaMatches.length >= 5) {
-    const [hsl, h, s, l, a] = hslaMatches;
+    const [, h, s, l, a] = hslaMatches;
     if (
       isValidHue(h) &&
       isValidPercentageString(s) &&
@@ -112,7 +112,7 @@ export function isHwbColor(value?: unknown | null): boolean {
     /^hwb\s*\(\s*(\d+|\d*\.\d+)\s*,\s*(\d+|\d*\.\d+)%\s*,\s*(\d+|\d*\.\d+)%\s*\)$/,
   );
   if (hwbMatches && hwbMatches.length >= 4) {
-    const [hwb, h, w, b] = hwbMatches;
+    const [, h, w, b] = hwbMatches;
     try {
       const whiteness: number = Number.parseFloat(w);
       const blackness: number = Number.parseFloat(b);

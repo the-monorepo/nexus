@@ -8,6 +8,34 @@ export const swap = <T>(arr: T[], i1: number, i2: number) => {
   arr[i2] = temp;
 };
 
+/**
+ * @returns true if swapped, false if not
+ */
+export const checkSwapWithParent = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  index: number,
+): boolean => {
+  if (index <= 0) {
+    locations.set(arr[index], index);
+    return false;
+  }
+
+  const parentI = parentIndex(index);
+  const parentComparison = compareFn(arr[index], arr[parentI]);
+  if (parentComparison > 0) {
+    locations.set(arr[parentI], index);
+    swap(arr, index, parentI);
+    checkSwapWithParent(arr, locations, compareFn, parentI);
+    return true;
+  } else {
+    locations.set(arr[index], index);
+  }
+
+  return false;
+};
+
 export const push = <T>(
   arr: T[],
   locations: Map<T, number>,
@@ -15,10 +43,40 @@ export const push = <T>(
   ...items: T[]
 ) => {
   for (const item of items) {
-    const updateIndex = arr.length;
-    arr[updateIndex] = item;
-    locations.set(item, updateIndex);
-    checkSwapWithParent(arr, locations, compareFn, updateIndex);
+    const updatedIndex = arr.length;
+    arr[updatedIndex] = item;
+    locations.set(item, updatedIndex);
+    checkSwapWithParent(arr, locations, compareFn, updatedIndex);
+  }
+};
+
+export const checkSwapWithChildren = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  index: number,
+) => {
+  const rightI = rightIndex(index);
+  const leftI = leftIndex(index);
+
+  const rightIsCandidate = rightI < arr.length && compareFn(arr[index], arr[rightI]) < 0;
+  const leftIsCandidate = leftI < arr.length && compareFn(arr[index], arr[leftI]) < 0;
+
+  if (leftIsCandidate && rightIsCandidate) {
+    const swappedIndex = compareFn(arr[leftI], arr[rightI]) >= 0 ? leftI : rightI;
+    locations.set(arr[swappedIndex], index);
+    swap(arr, index, swappedIndex);
+    checkSwapWithChildren(arr, locations, compareFn, swappedIndex);
+  } else if (leftIsCandidate) {
+    locations.set(arr[leftI], index);
+    swap(arr, index, leftI);
+    checkSwapWithChildren(arr, locations, compareFn, leftI);
+  } else if (rightIsCandidate) {
+    locations.set(arr[rightI], index);
+    swap(arr, index, rightI);
+    checkSwapWithChildren(arr, locations, compareFn, rightI);
+  } else {
+    locations.set(arr[index], index);
   }
 };
 
@@ -32,6 +90,19 @@ export const pop = <T>(arr: T[], locations: Map<T, number>, compareFn: CompareFn
   locations.delete(poppedItem);
   checkSwapWithChildren(arr, locations, compareFn, index);
   return poppedItem;
+};
+
+const updateIndex = <T>(
+  arr: T[],
+  locations: Map<T, number>,
+  compareFn: CompareFn<T>,
+  index: number,
+) => {
+  const swappedWithParent = checkSwapWithParent(arr, locations, compareFn, index);
+  if (swappedWithParent) {
+    return;
+  }
+  checkSwapWithChildren(arr, locations, compareFn, index);
 };
 
 export const deleteIndex = <T>(
@@ -65,77 +136,6 @@ export const deleteItem = <T>(
     throw new Error(`Heap did not have item "${item}"`);
   }
   deleteIndex(arr, locations, compareFn, locations.get(item)!);
-};
-
-/**
- * @returns true if swapped, false if not
- */
-export const checkSwapWithParent = <T>(
-  arr: T[],
-  locations: Map<T, number>,
-  compareFn: CompareFn<T>,
-  index: number,
-): boolean => {
-  if (index <= 0) {
-    locations.set(arr[index], index);
-    return false;
-  }
-
-  const parentI = parentIndex(index);
-  const parentComparison = compareFn(arr[index], arr[parentI]);
-  if (parentComparison > 0) {
-    locations.set(arr[parentI], index);
-    swap(arr, index, parentI);
-    checkSwapWithParent(arr, locations, compareFn, parentI);
-    return true;
-  } else {
-    locations.set(arr[index], index);
-  }
-
-  return false;
-};
-
-export const checkSwapWithChildren = <T>(
-  arr: T[],
-  locations: Map<T, number>,
-  compareFn: CompareFn<T>,
-  index: number,
-) => {
-  const rightI = rightIndex(index);
-  const leftI = leftIndex(index);
-
-  const rightIsCandidate = rightI < arr.length && compareFn(arr[index], arr[rightI]) < 0;
-  const leftIsCandidate = leftI < arr.length && compareFn(arr[index], arr[leftI]) < 0;
-
-  if (leftIsCandidate && rightIsCandidate) {
-    const swappedIndex = compareFn(arr[leftI], arr[rightI]) >= 0 ? leftI : rightI;
-    locations.set(arr[swappedIndex], index);
-    swap(arr, index, swappedIndex);
-    checkSwapWithChildren(arr, locations, compareFn, swappedIndex);
-  } else if (leftIsCandidate) {
-    locations.set(arr[leftI], index);
-    swap(arr, index, leftI);
-    checkSwapWithChildren(arr, locations, compareFn, leftI);
-  } else if (rightIsCandidate) {
-    locations.set(arr[rightI], index);
-    swap(arr, index, rightI);
-    checkSwapWithChildren(arr, locations, compareFn, rightI);
-  } else {
-    locations.set(arr[index], index);
-  }
-};
-
-const updateIndex = <T>(
-  arr: T[],
-  locations: Map<T, number>,
-  compareFn: CompareFn<T>,
-  index: number,
-) => {
-  const swappedWithParent = checkSwapWithParent(arr, locations, compareFn, index);
-  if (swappedWithParent) {
-    return;
-  }
-  checkSwapWithChildren(arr, locations, compareFn, index);
 };
 
 export const update = <T>(

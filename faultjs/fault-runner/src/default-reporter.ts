@@ -4,7 +4,7 @@ import chalk from 'chalk';
 
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { report } from '@fault/addon-istanbul';
-import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
+import { TestResult, FinalTesterResults } from '@fault/types';
 
 const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFilePath);
 
@@ -67,7 +67,7 @@ export const createPlugin = (contextOptions?) => {
     console.log();
     const suiteCount = suiteResults.size;
     const suitePassedCount = Array.from(suiteResults.entries()).filter(
-      ([filePath, results]) => !results.some((result) => !result.data.passed),
+      ([, results]) => !results.some((result) => !result.data.passed),
     ).length;
     const suiteFailedCount = suiteCount - suitePassedCount;
     reportPassFailCounts('Files:  ', suiteFailedCount, suitePassedCount, suiteCount);
