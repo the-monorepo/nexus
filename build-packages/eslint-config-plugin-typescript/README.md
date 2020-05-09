@@ -5,11 +5,11 @@ A pratical Typescript style preset for ESLint
 ## Installation
 
 ```bash
-npm install --save @pshaw/eslint-config-plugin-typescript
+npm install --save-dev @pshaw/eslint-config-plugin-typescript
 ```
 or
 ```bash
-yarn add @pshaw/eslint-config-plugin-typescript
+yarn add --dev @pshaw/eslint-config-plugin-typescript
 ```
 
 ---
