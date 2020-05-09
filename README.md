@@ -39,7 +39,6 @@ Version | Package | Description
 1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](build-packages/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
 1.4.2 | [`@pshaw/eslint-config-preset`](build-packages/eslint-config-preset/README.md) | A pratical style preset for ESLint
 1.0.0-alpha.0 | [`@pshaw/fs`](misc/pshaw-fs/README.md) | fs utilities
-1.0.0-alpha.0 | [`@pshaw/html-template`](misc/html-template/README.md) | A HTML template generator
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 2.0.4 | [`@pshaw/logger`](misc/logger/README.md) | A preformatted, opinionated logger
 1.4.3 | [`@pshaw/markdown-util`](misc/markdown-util/README.md) | A helper package for writing markdown files
@@ -68,7 +67,6 @@ Version | Package | Description
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.6.1 | [`named-css-colors`](misc/named-css-colors/README.md) | Package of named CSS colors and their values
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
-1.0.0-alpha.0 | [`scheduler`](misc/scheduler/README.md) | TODO
 4.0.0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 1.0.0-alpha.6 | [`stream-filter-glob`](build-packages/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob
 1.0.0-alpha.0 | [`tree-suffix-mapper`](misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
