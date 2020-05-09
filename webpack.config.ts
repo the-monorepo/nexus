@@ -1,8 +1,10 @@
-const { resolve } = require('path');
+import { resolve } from 'path';
 
-const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+import CopyPlugin from 'copy-webpack-plugin';
+import fibers from 'fibers';
+import HtmlWebpackPlugin, { createHtmlTagObject } from 'html-webpack-plugin';
+import sass from 'sass';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
 const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
@@ -66,17 +68,13 @@ const defaultHtmlWebpackPlugin = (options) => {
     title: options.title,
     tags: {
       headTags: options.links.map((linkHref) =>
-        HtmlWebpackPlugin.createHtmlTagObject(
-          'link',
-          { href: linkHref, rel: 'stylesheet' },
-          undefined,
-        ),
+        createHtmlTagObject('link', { href: linkHref, rel: 'stylesheet' }, undefined),
       ),
     },
   });
 };
 
-const defaultBundleAnalyzerPlugin = (packageDir, options) => {
+const defaultBundleAnalyzerPlugin = (packageDir, options?) => {
   return new BundleAnalyzerPlugin({
     openAnalyzer: false,
     analyzerMode: 'static',
@@ -99,9 +97,9 @@ const sassLoader = {
   loader: 'sass-loader',
   options: {
     sourceMap: true,
-    implementation: require('sass'),
+    implementation: sass,
     sassOptions: {
-      fiber: require('fibers'),
+      fiber: fibers,
     },
   },
 };
