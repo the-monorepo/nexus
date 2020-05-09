@@ -310,46 +310,59 @@ gulp.task('check-types-staged', checkTypesStaged);
 
 const flIgnoreGlob =
   'faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+
+const getFaultLocalizationAddon = async () => {
+  switch (config.extra.flMode) {
+    default:
+    case 'sbfl': {
+      const { default: createAddon } = await import('@fault/addon-sbfl');
+      const { default: dstar } = await import('@fault/sbfl-dstar');
+      return createAddon({
+        scoringFn: dstar,
+        console: true,
+      });
+    }
+    case 'mbfl': {
+      const { default: createAddon } = await import('@fault/addon-mutation-localization');
+      return createAddon({
+        babelOptions: {
+          plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
+          sourceType: 'module',
+        },
+        ignoreGlob: flIgnoreGlob,
+        mapToIstanbul: true,
+        onMutation: () => {
+          return new Promise((resolve, reject) => {
+            let scriptFinish = false;
+            let esmFinish = false;
+            const checkToFinish = () => {
+              if (scriptFinish && esmFinish) {
+                resolve();
+              }
+            };
+            const rejectOnStreamError = (stream) => stream.on('error', reject);
+            scriptTranspileStream(rejectOnStreamError).on('end', () => {
+              scriptFinish = true;
+              checkToFinish();
+            });
+            esmTranspileStream(rejectOnStreamError).on('end', () => {
+              esmFinish = true;
+              checkToFinish();
+            });
+          });
+        },
+      });
+    }
+  }
+};
+
 async function testNoBuild() {
   const runner = await import('@fault/runner');
+  const flAddon = await getFaultLocalizationAddon();
   const passed = await runner.run({
     tester: '@fault/tester-mocha',
     testMatch: config.testableGlobs,
-    addons: [
-      config.extra.flMode === 'sbfl'
-        ? require('@fault/addon-sbfl').default({
-            scoringFn: require('@fault/sbfl-dstar').default,
-            console: true,
-          })
-        : require('@fault/addon-mutation-localization').default({
-            babelOptions: {
-              plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
-              sourceType: 'module',
-            },
-            ignoreGlob: flIgnoreGlob,
-            mapToIstanbul: true,
-            onMutation: () => {
-              return new Promise((resolve, reject) => {
-                let scriptFinish = false;
-                let esmFinish = false;
-                const checkToFinish = () => {
-                  if (scriptFinish && esmFinish) {
-                    resolve();
-                  }
-                };
-                const rejectOnStreamError = (stream) => stream.on('error', reject);
-                scriptTranspileStream(rejectOnStreamError).on('end', () => {
-                  scriptFinish = true;
-                  checkToFinish();
-                });
-                esmTranspileStream(rejectOnStreamError).on('end', () => {
-                  esmFinish = true;
-                  checkToFinish();
-                });
-              });
-            },
-          }),
-    ],
+    addons: [flAddon],
     env: {
       ...process.env,
       NODE_ENV: 'test',
