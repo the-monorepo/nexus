@@ -36,19 +36,31 @@ const createSrcDirSwapper = (dir) => {
 const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
 
 const packagesSrcAssetStream = (options?) => {
-  return gulp.src(config.buildableSourceAssetGlobs, {
-    base: '.',
-    nodir: true,
-    ...options,
-  });
+  return gulp.src(
+    [
+      ...config.buildableSourceAssetGlobs,
+      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
+    ],
+    {
+      base: '.',
+      nodir: true,
+      ...options,
+    },
+  );
 };
 
 const packagesSrcCodeStream = (options?) => {
-  return gulp.src(config.buildableSourceCodeGlobs, {
-    base: `.`,
-    nodir: true,
-    ...options,
-  });
+  return gulp.src(
+    [
+      ...config.buildableSourceAssetGlobs,
+      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
+    ],
+    {
+      base: `.`,
+      nodir: true,
+      ...options,
+    },
+  );
 };
 
 const packagesSrcCodeStagedStream = async (options?) => {
@@ -58,7 +70,7 @@ const packagesSrcCodeStagedStream = async (options?) => {
       nodir: true,
       ...options,
     })
-    .pipe(filter(config.buildableSourceCodeGlobs));
+    .pipe(filter(config.buildableSourceCodeGlobs, config.buildableIgnoreGlobs));
 };
 
 const formatStream = (options?) =>
@@ -238,7 +250,10 @@ gulp.task('build', build);
 
 const watch = () => {
   gulp.watch(
-    config.buildableSourceFileGlobs,
+    [
+      ...config.buildableSourceFileGlobs,
+      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
+    ],
     { ignoreInitial: false, events: 'all' },
     gulp.parallel(copy, transpile),
   );
@@ -297,7 +312,10 @@ let withTypeCheckPipes = async (stream) => {
 };
 
 const checkTypes = () => {
-  return withTypeCheckPipes(config.buildableSourceCodeGlobs);
+  return withTypeCheckPipes([
+    ...config.buildableSourceCodeGlobs,
+    ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
+  ]);
 };
 checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
@@ -362,7 +380,10 @@ const testNoBuild = async () => {
   const flAddon = await getFaultLocalizationAddon();
   const passed = await runner.run({
     tester: '@fault/tester-mocha',
-    testMatch: config.testableGlobs,
+    testMatch: [
+      ...config.testableGlobs,
+      ...config.testableIgnoreGlobs.map((glob) => `!${glob}`),
+    ],
     addons: [flAddon],
     env: {
       ...process.env,

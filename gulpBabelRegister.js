@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-/*const micromatch = require('micromatch');
+const micromatch = require('micromatch');
 
 const config = require('@monorepo/config');
 
-const matcher = micromatch.matcher('build-packages/*');*/
+const transpilationGlobs = [
+  'gulpfile.ts',
+  'webpack.config.ts',
+  ...config.buildableSourceCodeGlobs,
+];
 
 require('@babel/register')({
-  only: ['gulpfile.ts', 'webpack.config.ts'],
+  only: ['gulpfile.js'],
 });
