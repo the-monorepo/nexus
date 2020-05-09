@@ -9,6 +9,7 @@ const transpilationGlobs = [
 ];
 
 require('@babel/register')({
+  extensions: config.extensions,
   only: transpilationGlobs,
   ignore: [...config.buildableIgnoreGlobs],
 });

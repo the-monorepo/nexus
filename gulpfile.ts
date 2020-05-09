@@ -424,7 +424,7 @@ gulp.task('ci-test', prepublish);
 const webpackCompilers = async () => {
   const { default: minimist } = await import('minimist');
   const { default: webpack } = await import('webpack');
-  const micromatch = await import('micromatch');
+  const { isMatch } = await import('micromatch');
   const { default: webpackConfigs } = await import('./webpack.config');
 
   const args = minimist(process.argv.slice(2));
@@ -441,7 +441,7 @@ const webpackCompilers = async () => {
   const names = Array.isArray(name) ? name : [name];
 
   return webpackConfigs
-    .filter((config) => micromatch.isMatch(config.name, names))
+    .filter((config) => isMatch(config.name, names))
     .map((config) => {
       const mergedConfig = {
         mode: mode === 'prod' ? 'production' : 'development',
@@ -455,11 +455,11 @@ const webpackCompilers = async () => {
 };
 
 // From: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
-const humanReadableFileSize = (size) => {
+const humanReadableFileSize = (size: number) => {
   const i = Math.floor(Math.log(size) / Math.log(1024));
-  return `${(size / Math.pow(1024, i)).toFixed(2) * 1} ${
-    ['B', 'kB', 'MB', 'GB', 'TB'][i]
-  }`;
+  const humanReadableValue = size / Math.pow(1024, i);
+  const roundedHumanReadableString = humanReadableValue.toFixed(2);
+  return `${roundedHumanReadableString} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
 };
 
 const bundleWebpack = async () => {
