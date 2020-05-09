@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const micromatch = require('micromatch');
-
 const config = require('@monorepo/config');
 
 const transpilationGlobs = [
@@ -11,5 +9,6 @@ const transpilationGlobs = [
 ];
 
 require('@babel/register')({
-  only: ['gulpfile.js'],
+  only: transpilationGlobs,
+  ignore: [...config.buildableIgnoreGlobs],
 });
