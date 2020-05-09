@@ -1,7 +1,7 @@
 module.exports = {
   settings: {
     react: {
-      pragma: 'Cinder',
+      pragma: 'cinder',
     },
   },
   rules: {

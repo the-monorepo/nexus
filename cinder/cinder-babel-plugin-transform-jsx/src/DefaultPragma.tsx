@@ -1,2 +1,2 @@
-const PRAGMA = 'Cinder';
+const PRAGMA = 'cinder';
 export default PRAGMA;

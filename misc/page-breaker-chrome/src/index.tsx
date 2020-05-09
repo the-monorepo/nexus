@@ -5,11 +5,10 @@ import cx from 'classnames';
 
 import { autorun, observable, action, computed } from 'mobx';
 
-import * as Cinder from 'cinder';
+import * as cinder from 'cinder';
 
 import './globals.scss';
 import styles from './styles.scss';
-
 
 import '@pshaw/semantic-documents/esm/register';
 
@@ -36,10 +35,7 @@ const Icon = ({ children }) => <span className="material-icons">{children}</span
 const SelectAndDragIcon = () => <Icon>photo_size_select_small</Icon>;
 
 const FieldLabel = ({ children, ...other }) => (
-  <pshaw-label
-    htmlFor={name}
-    {...other}
-  >
+  <pshaw-label htmlFor={name} {...other}>
     {children}
   </pshaw-label>
 );

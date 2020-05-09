@@ -5,7 +5,7 @@ import { format as formatDate } from 'date-fns/esm/index';
 import envelope from './envelope.svg';
 import github from './github.svg';
 import linkedin from './linkedin.svg';
-import * as Cinder from 'cinder';
+import * as cinder from 'cinder';
 import { MobxElement } from 'cinder';
 
 const theme = {

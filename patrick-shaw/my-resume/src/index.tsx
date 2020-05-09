@@ -1,17 +1,17 @@
 /*import { createResume } from '@pshaw/resume-template';
-import * as Cinder from 'cinder';
+import * as cinder from 'cinder';
 import * as data from './data';
 const Resume = createResume();
 const rootElement = document.getElementById('root');
 cinder.render(rootElement, <Resume data={data} />);*/
 /*
-import * as Cinder from 'cinder';
+import * as cinder from 'cinder';
 import map from 'mobx-map';
 import { MobxElement } from 'cinder';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 import { render } from 'cinder/src';
 No double assignment of props
-import * as Cinder from 'cinder';
+import * as cinder from 'cinder';
 import { MobxElement, map } from 'cinder';
 import { observable, action, autorun, isObservableArray } from 'mobx';
 <div>
@@ -97,7 +97,7 @@ class Test extends React.Component {
 }
 ReactDOM.render(<Test/>, document.getElementById('root'));
 */
-/*import * as Cinder from 'cinder';
+/*import * as cinder from 'cinder';
 import { MobxElement } from 'cinder';
 import map from 'mobx-map';
 import { observable, action, autorun, isObservableArray } from 'mobx';
