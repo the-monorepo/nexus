@@ -1,12 +1,11 @@
-let nextid = 0;
-const generateBlueprintUid = () => nextid++;
+export type ID = number | any;
+const generateBlueprintUid = (): ID => Symbol();
 
 export type MountFn<V, R extends StatelessCloneInfo<any> | RenderData<any, any>> = (
   v: V,
   container: Node,
   before: Node | null,
 ) => R;
-export type Id = number | any;
 export type StatelessCloneInfo<N extends Node> = {
   first: N;
   state: undefined;
@@ -20,7 +19,7 @@ export type StatelessComponentBlueprint<
   N extends Node,
   D = Unmount<any> | undefined
 > = {
-  id: Id;
+  id: ID;
   mount: MountFn<V, StatelessCloneInfo<N>>;
   update: undefined;
   unmount: D;
@@ -31,7 +30,7 @@ export type StatefulComponentBlueprint<
   N extends Node,
   D = Unmount<any> | undefined
 > = {
-  id: Id;
+  id: ID;
   mount: MountFn<V, RenderData<C, N>>;
   update: SetFn<C, V>;
   unmount: D;
@@ -596,7 +595,7 @@ export type RenderData<C, N extends Node = Node> = {
   state: C;
 };
 export type RenderResult<C, N extends Node = Node> = {
-  id: Id;
+  id: ID;
   unmount?: Unmount<C>;
   data: RenderData<C, N>;
 };
