@@ -1,26 +1,29 @@
 {
-  "name": "@pshaw/eslint-config-plugin-typescript",
-  "description": "A pratical Typescript style preset for ESLint",
+  "name": "@pshaw/eslint-config-core",
+  "description": "A pratical style preset for ESLint",
   "keywords": [
     "config",
     "eslint",
     "javasript",
-    "typescript",
     "style",
     "lint",
     "preset"
   ],
-  "version": "1.4.3",
-  "main": "./src/index.js",
-  "files": [
-    "./src/index.js"
-  ],
+  "version": "1.4.2",
   "license": "MIT",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "build-packages/eslint-config-plugin-typescript"
+    "directory": "patrick-shaw/eslint-config-core"
   },
   "publishConfig": {
     "access": "public"

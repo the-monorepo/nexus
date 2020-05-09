@@ -32,12 +32,12 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/types`](faultjs/fault-types/README.md) | Package containing all type values for Fault.js
 1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
-1.4.2 | [`@pshaw/eslint-config-core`](build-packages/eslint-config-core/README.md) | A pratical style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](build-packages/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
-1.4.3 | [`@pshaw/eslint-config-plugin-import`](build-packages/eslint-config-plugin-import/README.md) | eslint-plugin-import configuration
-1.4.2 | [`@pshaw/eslint-config-plugin-react`](build-packages/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
-1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](build-packages/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-preset`](build-packages/eslint-config-preset/README.md) | A pratical style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-core`](patrick-shaw/eslint-config-core/README.md) | A pratical style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](patrick-shaw/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
+1.4.3 | [`@pshaw/eslint-config-plugin-import`](patrick-shaw/eslint-config-plugin-import/README.md) | eslint-plugin-import configuration
+1.4.2 | [`@pshaw/eslint-config-plugin-react`](patrick-shaw/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
+1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](patrick-shaw/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-preset`](patrick-shaw/eslint-config-preset/README.md) | A pratical style preset for ESLint
 1.0.0-alpha.0 | [`@pshaw/fs`](misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 2.0.4 | [`@pshaw/logger`](misc/logger/README.md) | A preformatted, opinionated logger
