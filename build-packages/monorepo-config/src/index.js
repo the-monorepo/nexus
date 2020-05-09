@@ -1,7 +1,5 @@
 const { resolve } = require('path');
 
-const mergeGlobs = (globs) => `{${globs.join(',')}}}`;
-
 const getConfig = () => {
   const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config');
   const {

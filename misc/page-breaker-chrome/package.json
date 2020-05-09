@@ -9,6 +9,7 @@
     "directory": "misc/page-breaker-chrome"
   },
   "dependencies": {
+    "@pshaw/semantic-documents": "workspace:patrick-shaw/semantic-documents",
     "@semantic-documents/html-elements": "workspace:semantic-documents/semantic-documents-html-elements",
     "@types/chrome": "^0.0.106",
     "cinder": "workspace:cinder/cinder",
