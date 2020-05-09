@@ -1664,6 +1664,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@cinder/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx":
+  version: 0.0.0-use.local
+  resolution: "@cinder/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx"
+  dependencies:
+    "@babel/cli": ^7.4.3
+    "@babel/core": ^7.8.4
+    "@babel/helper-builder-react-jsx": ^7.8.3
+    "@babel/helper-plugin-utils": ^7.8.3
+    "@babel/plugin-syntax-jsx": ^7.8.3
+    "@babel/traverse": ^7.8.4
+    "@babel/types": ^7.8.3
+  languageName: unknown
+  linkType: soft
+
 "@emotion/cache@npm:^0.8.8":
   version: 0.8.8
   resolution: "@emotion/cache@npm:0.8.8"
@@ -7550,20 +7564,6 @@ __metadata:
   checksum: 3/87f944a8148fde53997a029dc8898993db43fa2cd0a10a4968ff83ccf5e939e480a2431b9d339a986c26d26fdf566df76aef01a04d7a358e249a6d48f9e8d847
   languageName: node
   linkType: hard
-
-"babel-plugin-transform-cinder-jsx@workspace:cinder/babel-plugin-transform-cinder-jsx":
-  version: 0.0.0-use.local
-  resolution: "babel-plugin-transform-cinder-jsx@workspace:cinder/babel-plugin-transform-cinder-jsx"
-  dependencies:
-    "@babel/cli": ^7.4.3
-    "@babel/core": ^7.8.4
-    "@babel/helper-builder-react-jsx": ^7.8.3
-    "@babel/helper-plugin-utils": ^7.8.3
-    "@babel/plugin-syntax-jsx": ^7.8.3
-    "@babel/traverse": ^7.8.4
-    "@babel/types": ^7.8.3
-  languageName: unknown
-  linkType: soft
 
 "babel-plugin-transform-class-constructor-call@npm:^6.24.1":
   version: 6.24.1
@@ -17939,6 +17939,7 @@ fsevents@~2.1.1:
     "@byexample/openapi": "workspace:byexample/openapi"
     "@byexample/storybook-knobified": "workspace:byexample/storybook-knobified"
     "@byexample/types": "workspace:byexample/types"
+    "@cinder/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx"
     "@fault/addon-mutation-localization": "workspace:faultjs/fault-addon-mutation-localization"
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
     "@fault/runner": "workspace:faultjs/fault-runner"
@@ -17961,7 +17962,6 @@ fsevents@~2.1.1:
     "@yarnpkg/pnpify": ^2.0.0-rc.22
     babel-loader: ^8.1.0
     babel-plugin-istanbul: ^6.0.0
-    babel-plugin-transform-cinder-jsx: "workspace:cinder/babel-plugin-transform-cinder-jsx"
     build-pshaw-logger: "npm:@pshaw/logger@2.0.1"
     chalk: ^3.0.0
     codecov: ^3.6.1

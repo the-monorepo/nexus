@@ -58,7 +58,7 @@ module.exports = (api) => {
         ],
         plugins: plugins.concat([
           '@babel/plugin-syntax-jsx',
-          'babel-plugin-transform-cinder-jsx',
+          '@cinder/babel-plugin-transform-jsx',
         ]),
         presets: [
           [
