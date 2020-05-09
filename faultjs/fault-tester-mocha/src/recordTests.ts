@@ -9,7 +9,6 @@ import { client } from './client';
 const {
   EVENT_TEST_FAIL,
   EVENT_TEST_PASS,
-  EVENT_TEST_BEGIN,
 } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 

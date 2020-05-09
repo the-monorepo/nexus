@@ -16,6 +16,10 @@ export function isValidAlphaValue(magnitudeString: string): boolean {
   }
 }
 
+export function isValidPercentage(magnitude: number): boolean {
+  return magnitude >= 0 && magnitude <= 100;
+}
+
 export function isValidPercentageString(magnitudeString: string): boolean {
   try {
     const magnitude: number = Number.parseFloat(magnitudeString);
@@ -23,9 +27,6 @@ export function isValidPercentageString(magnitudeString: string): boolean {
   } catch (err) {
     return false;
   }
-}
-export function isValidPercentage(magnitude: number): boolean {
-  return magnitude >= 0 && magnitude <= 100;
 }
 
 export function isValidHue(valueString: string): boolean {

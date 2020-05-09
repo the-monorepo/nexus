@@ -29,7 +29,6 @@ export const tarantula = (
   }
   const result =
     failingPerTotalFailing / (failingPerTotalFailing + passingPerTotalPassing);
-  console.log(result, codeElementTestStateCounts, totalTestStateCounts);
   return result;
 };
 export default tarantula;

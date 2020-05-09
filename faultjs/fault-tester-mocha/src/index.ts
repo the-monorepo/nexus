@@ -1,5 +1,4 @@
 import { cloneCoverage } from '@fault/istanbul-util';
-import { IPCSerializer } from '@fault/messages';
 
 import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
 

@@ -198,7 +198,7 @@ const lintPipes = async (stream, lintOptions) => {
     stream
       .pipe(simplePipeLogger(l, 'Formatting'))
       .pipe(eslint(lintOptions))
-      .pipe(eslint.format('codeframe'))
+      .pipe(eslint.format('unix'))
       // TODO: Need to halt build process/throw error
       .pipe(eslint.failAfterError())
   );
