@@ -353,10 +353,10 @@ export type WriteReadmeFromPackageDirHooks = HookOptionsOf<
   typeof writeReadmeFromPackageDirUtil
 >;
 
-export async function writeReadmeFromPackageDir(
+const writeReadmeFromPackageDir = async (
   packageDir: string,
   hooks: WriteReadmeFromPackageDirHooks,
-) {
+) => {
   const h = writeReadmeFromPackageDirUtil.withNoops(hooks);
   await genReadmeFromPackageDir(
     packageDir,
@@ -375,5 +375,5 @@ export async function writeReadmeFromPackageDir(
       h,
     ]),
   );
-}
+};
 export default writeReadmeFromPackageDir;
