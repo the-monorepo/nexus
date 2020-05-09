@@ -2,7 +2,7 @@ import { resolve } from 'path';
 
 import CopyPlugin from 'copy-webpack-plugin';
 import fibers from 'fibers';
-import HtmlWebpackPlugin, { createHtmlTagObject } from 'html-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 import sass from 'sass';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
@@ -15,7 +15,7 @@ const svgRule = {
   test: /\.svg$/,
   use: [
     {
-      loader: 'file-loader',
+      loader: require.resolve('file-loader'),
     },
   ],
 };
@@ -25,7 +25,7 @@ const sourceMapRule = {
   enforce: 'pre',
   use: [
     {
-      loader: 'source-map-loader',
+      loader: require.resolve('source-map-loader'),
     },
   ],
 };
@@ -34,7 +34,7 @@ const babelRule = {
   test: /\.[jt]sx?$/,
   use: [
     {
-      loader: 'babel-loader',
+      loader: require.resolve('babel-loader'),
       options: {
         cwd: resolve('.'),
       },
@@ -68,7 +68,11 @@ const defaultHtmlWebpackPlugin = (options) => {
     title: options.title,
     tags: {
       headTags: options.links.map((linkHref) =>
-        createHtmlTagObject('link', { href: linkHref, rel: 'stylesheet' }, undefined),
+        HtmlWebpackPlugin.createHtmlTagObject(
+          'link',
+          { href: linkHref, rel: 'stylesheet' },
+          undefined,
+        ),
       ),
     },
   });
@@ -84,7 +88,7 @@ const defaultBundleAnalyzerPlugin = (packageDir, options?) => {
 };
 
 const cssModuleLoader = {
-  loader: 'css-loader',
+  loader: require.resolve('css-loader'),
   options: {
     esModule: true,
     modules: {
@@ -94,7 +98,7 @@ const cssModuleLoader = {
 };
 
 const sassLoader = {
-  loader: 'sass-loader',
+  loader: require.resolve('sass-loader'),
   options: {
     sourceMap: true,
     implementation: sass,
@@ -106,12 +110,12 @@ const sassLoader = {
 
 const cssRule = {
   test: /\.css$/,
-  use: ['style-loader', cssModuleLoader],
+  use: [require.resolve('style-loader'), cssModuleLoader],
 };
 
 const sassModulesRule = {
   test: /\.(sass|scss)$/,
-  use: ['style-loader', cssModuleLoader, sassLoader],
+  use: [require.resolve('style-loader'), cssModuleLoader, sassLoader],
 };
 
 const webcomponentsSassModulesRule = {
@@ -202,4 +206,4 @@ const pageBreakerFrontendConfig = {
   },
 };
 
-module.exports = [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig];
+export default [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig];

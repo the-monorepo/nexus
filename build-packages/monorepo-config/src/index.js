@@ -1,4 +1,7 @@
 const { resolve } = require('path');
+
+const mergeGlobs = (globs) => `{${globs.join(',')}}}`;
+
 const getConfig = () => {
   const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config');
   const {
@@ -14,7 +17,7 @@ const getConfig = () => {
 
   const defaultArtifactDirNames = ['esm', 'lib', 'dist'];
 
-  const buildIgnoreGlobs = extraBuildIgnoreGlobs;
+  const buildableIgnoreGlobs = extraBuildIgnoreGlobs;
 
   const defaultProjectArtifactsGlobs = [
     ...workspaces
@@ -42,27 +45,20 @@ const getConfig = () => {
     .map((glob) => codeExtensions.map((extension) => `${glob}.${extension}`))
     .flat();
 
-  const buildableSourceCodeGlobs = [
-    ...nonIgnoredSourceCodeGlobs,
-    ...buildIgnoreGlobs.map((glob) => `!${glob}`),
-  ];
+  const buildableSourceCodeGlobs = [...nonIgnoredSourceCodeGlobs];
 
   const buildableSourceAssetGlobs = [
     ...nonIgnoredSourceFileGlobs.map((glob) => `${glob}`),
     ...nonIgnoredSourceCodeGlobs.map((glob) => `!${glob}`),
-    ...buildIgnoreGlobs.map((glob) => `!${glob}`),
   ];
 
-  const buildableSourceFileGlobs = [
-    ...nonIgnoredSourceFileGlobs,
-    ...buildIgnoreGlobs.map((glob) => `!${glob}`),
-  ];
+  const buildableSourceFileGlobs = [...nonIgnoredSourceFileGlobs];
 
   const formatableIgnoreGlobs = [...buildArtifactGlobs, ...extraFormatIgnoreGlobs];
 
   const formatableGlobs = [...allCodeGlobs];
 
-  const testIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
+  const testableIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
 
   const testableGlobs = [
     ...workspaces
@@ -70,20 +66,20 @@ const getConfig = () => {
         codeExtensions.map((extension) => `${project}/**/*.test.${extension}`),
       )
       .flat(),
-    ...testIgnoreGlobs.map((glob) => `!${glob}`),
   ];
 
   return {
     testableGlobs,
+    testableIgnoreGlobs,
     buildableSourceFileGlobs,
     buildableSourceCodeGlobs,
     buildableSourceAssetGlobs,
+    buildableIgnoreGlobs,
     formatableIgnoreGlobs,
     formatableGlobs,
+    buildArtifactGlobs,
     codeExtensions,
     workspaces,
-    buildIgnoreGlobs,
-    buildArtifactGlobs,
     serve,
     extra,
   };

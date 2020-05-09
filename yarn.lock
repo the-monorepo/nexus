@@ -6122,7 +6122,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^7.0.0, acorn@npm:^7.1.1":
+"acorn@npm:^7.1.1":
   version: 7.1.1
   resolution: "acorn@npm:7.1.1"
   bin:
@@ -11507,16 +11507,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:5.0.0-beta.4":
-  version: 5.0.0-beta.4
-  resolution: "enhanced-resolve@npm:5.0.0-beta.4"
-  dependencies:
-    graceful-fs: ^4.2.0
-    tapable: ^2.0.0-beta.8
-  checksum: 3/1d81e38533169e7143a36b428350aa0e6355a582249cdf470d19a819341e151c65edb8ea77d658a6eaf3b8340ba107fbe8c9615987a2f6606a2e5cec36350886
-  languageName: node
-  linkType: hard
-
 "enquirer@npm:^2.3.4":
   version: 2.3.5
   resolution: "enquirer@npm:2.3.5"
@@ -13419,13 +13409,6 @@ fsevents@~2.1.1:
   version: 0.3.0
   resolution: "glob-to-regexp@npm:0.3.0"
   checksum: 3/9e6e3f1170a223617ec5f26a59781acbf7ce2ebd998845517f10f8b405a0f35a073b88e3bd96e464ecd054e2b31262e4f0c8916a2f6fd9b3c5bb1404f955294e
-  languageName: node
-  linkType: hard
-
-"glob-to-regexp@npm:^0.4.1":
-  version: 0.4.1
-  resolution: "glob-to-regexp@npm:0.4.1"
-  checksum: 3/6093c15d9f92d010998dd7cc7a5ba4e74eea83878d3f8c2616c6935dab9a79bf31ca7ddc214604b84a87c65b9e51481221e325be68f5fe6db8ed27dc76a5230f
   languageName: node
   linkType: hard
 
@@ -16743,13 +16726,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"loader-runner@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "loader-runner@npm:3.1.0"
-  checksum: 3/5686ef8c174c0e7cf6da09c357e0da5653984e0e23dc375968a17f3b1a873f1d62eae8c016f29c8905d802e6bc7313ef22a74c8bb6a61edd75f65af15d05e38e
-  languageName: node
-  linkType: hard
-
 "loader-utils@npm:1.1.0":
   version: 1.1.0
   resolution: "loader-utils@npm:1.1.0"
@@ -17602,7 +17578,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.12, mime-types@npm:^2.1.25, mime-types@npm:^2.1.26, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
+"mime-types@npm:^2.1.12, mime-types@npm:^2.1.25, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
   version: 2.1.27
   resolution: "mime-types@npm:2.1.27"
   dependencies:
@@ -18007,7 +17983,7 @@ fsevents@~2.1.1:
     stylelint: ^13.3.3
     through2: ^3.0.0
     typescript: ^3.8.3
-    webpack: 5.0.0-beta.14
+    webpack: ^4.43.0
     webpack-bundle-analyzer: ^3.6.1
     webpack-dev-server: ^3.10.3
     winston: ^3.2.1
@@ -22978,7 +22954,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"source-list-map@npm:^2.0.0, source-list-map@npm:^2.0.1":
+"source-list-map@npm:^2.0.0":
   version: 2.0.1
   resolution: "source-list-map@npm:2.0.1"
   checksum: 3/d8d45f29987d00d995ccda308dcc78b710031a9958fdb5d26674d32220c952eb7a8562062638d91896628ae4eef30e1cd112a6a547563dfda0b013024c2a9bf7
@@ -24020,13 +23996,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"tapable@npm:2.0.0-beta.9, tapable@npm:^2.0.0-beta.8":
-  version: 2.0.0-beta.9
-  resolution: "tapable@npm:2.0.0-beta.9"
-  checksum: 3/6c2854afe2dc751ff4689cce34d2eadaed533e74f9be9da731aa7b942e856fb379e3ee5396287e9709fe2c862dccc4c9127134280543a69fe7f17bac37e88a29
-  languageName: node
-  linkType: hard
-
 "tapable@npm:^1.0.0, tapable@npm:^1.1.3":
   version: 1.1.3
   resolution: "tapable@npm:1.1.3"
@@ -24143,7 +24112,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"terser-webpack-plugin@npm:^2.1.2, terser-webpack-plugin@npm:^2.3.1":
+"terser-webpack-plugin@npm:^2.1.2":
   version: 2.3.6
   resolution: "terser-webpack-plugin@npm:2.3.6"
   dependencies:
@@ -25483,16 +25452,6 @@ typescript@^3.8.3:
   languageName: node
   linkType: hard
 
-"watchpack@npm:2.0.0-beta.13":
-  version: 2.0.0-beta.13
-  resolution: "watchpack@npm:2.0.0-beta.13"
-  dependencies:
-    glob-to-regexp: ^0.4.1
-    graceful-fs: ^4.1.2
-  checksum: 3/404d5c3c08a35c32a7a6374477848b9ab8721d3e76a180f4a9075138c2c8b1c09ef0e7b7e6e0276bcb0848e1fc33f04e6ee787129d39cd5e86262a38acc5bfc2
-  languageName: node
-  linkType: hard
-
 "watchpack@npm:^1.6.1":
   version: 1.6.1
   resolution: "watchpack@npm:1.6.1"
@@ -25661,16 +25620,6 @@ typescript@^3.8.3:
   languageName: node
   linkType: hard
 
-"webpack-sources@npm:2.0.0-beta.8":
-  version: 2.0.0-beta.8
-  resolution: "webpack-sources@npm:2.0.0-beta.8"
-  dependencies:
-    source-list-map: ^2.0.1
-    source-map: ~0.6.1
-  checksum: 3/acf94efb2efab065a63ff1384b749d83736ca38a748a2e7eab98a4b63b80c5cfa5c1f8bdb162934dd3e408e1957693045b3f35d631d4302a3f6723c922ff2f23
-  languageName: node
-  linkType: hard
-
 "webpack-sources@npm:^1.1.0, webpack-sources@npm:^1.4.0, webpack-sources@npm:^1.4.1, webpack-sources@npm:^1.4.3":
   version: 1.4.3
   resolution: "webpack-sources@npm:1.4.3"
@@ -25690,7 +25639,7 @@ typescript@^3.8.3:
   languageName: node
   linkType: hard
 
-"webpack@npm:4.43.0, webpack@npm:^4.23.1, webpack@npm:^4.33.0, webpack@npm:^4.38.0":
+"webpack@npm:4.43.0, webpack@npm:^4.23.1, webpack@npm:^4.33.0, webpack@npm:^4.38.0, webpack@npm:^4.43.0":
   version: 4.43.0
   resolution: "webpack@npm:4.43.0"
   dependencies:
@@ -25720,38 +25669,6 @@ typescript@^3.8.3:
   bin:
     webpack: bin/webpack.js
   checksum: 3/9f1e6375ba28368b4a0d02a0807aa4e148b101244d7ab698c99ac478e3043cdacf7d7c89aa7d4af9549509be7d23878ef863bd6a9540e89a18dd2c04e82e2b4f
-  languageName: node
-  linkType: hard
-
-"webpack@npm:5.0.0-beta.14":
-  version: 5.0.0-beta.14
-  resolution: "webpack@npm:5.0.0-beta.14"
-  dependencies:
-    "@webassemblyjs/ast": 1.9.0
-    "@webassemblyjs/helper-module-context": 1.9.0
-    "@webassemblyjs/wasm-edit": 1.9.0
-    "@webassemblyjs/wasm-parser": 1.9.0
-    acorn: ^7.0.0
-    chrome-trace-event: ^1.0.2
-    enhanced-resolve: 5.0.0-beta.4
-    eslint-scope: ^5.0.0
-    events: ^3.0.0
-    glob-to-regexp: ^0.4.1
-    graceful-fs: ^4.1.15
-    json-parse-better-errors: ^1.0.2
-    loader-runner: ^3.1.0
-    loader-utils: ^1.2.3
-    mime-types: ^2.1.26
-    neo-async: ^2.6.1
-    pkg-dir: ^4.2.0
-    schema-utils: ^2.5.0
-    tapable: 2.0.0-beta.9
-    terser-webpack-plugin: ^2.3.1
-    watchpack: 2.0.0-beta.13
-    webpack-sources: 2.0.0-beta.8
-  bin:
-    webpack: bin/webpack.js
-  checksum: 3/7520d08f274f01d524de963f0a9fbed2fb8f9dc7c7c1f96b9e62a75beb9266600acb97a9aeb1a93cdf4cc5a09e991ee3d776b74d70ee54c2d6ddb04ce5176cc2
   languageName: node
   linkType: hard
 
