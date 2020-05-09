@@ -52,7 +52,7 @@ const packagesSrcAssetStream = (options?) => {
 const packagesSrcCodeStream = (options?) => {
   return gulp.src(
     [
-      ...config.buildableSourceAssetGlobs,
+      ...config.buildableSourceCodeGlobs,
       ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
     ],
     {
