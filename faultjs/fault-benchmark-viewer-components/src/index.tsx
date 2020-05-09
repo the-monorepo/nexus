@@ -1,7 +1,7 @@
 import Chart from 'chart.js';
 import 'chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.js';
 
-import * as Cinder from 'cinder';
+import * as cinder from 'cinder';
 
 import './styles.css';
 

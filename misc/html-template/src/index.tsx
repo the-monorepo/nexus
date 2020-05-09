@@ -1,4 +1,4 @@
-import * as Cinder from 'cinder';
+import * as cinder from 'cinder';
 
 export const Template = () => (
   <>
