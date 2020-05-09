@@ -7,5 +7,5 @@ const config = require('@monorepo/config');
 const matcher = micromatch.matcher('build-packages/*');*/
 
 require('@babel/register')({
-  only: ['gulpfile.js'],
+  only: ['gulpfile.ts', 'webpack.config.ts'],
 });
