@@ -3,9 +3,8 @@ import helper from '@babel/helper-builder-react-jsx';
 import { declare } from '@babel/helper-plugin-utils';
 import jsx from '@babel/plugin-syntax-jsx';
 import * as tr from '@babel/traverse';
-import { JSXElement, JSXText } from '@babel/types';
+import type { JSXElement, JSXText, JSXExpressionContainer } from '@babel/types';
 import * as t from '@babel/types';
-import { JSXExpressionContainer } from '@babel/types';
 
 import PRAGMA from './DefaultPragma';
 
