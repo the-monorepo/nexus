@@ -15,6 +15,7 @@
     "watch": "webpack-dev-server --watch --mode development"
   },
   "dependencies": {
+    "@pshaw/logger": "workspace:misc/logger",
     "@pshaw/resume-template": "workspace:misc/resume-template",
     "cinder": "workspace:cinder/cinder",
     "express": "^4.17.1",

@@ -1627,7 +1627,7 @@ __metadata:
     "@byexample/storybook-knobified": "workspace:byexample/storybook-knobified"
     "@storybook/addon-actions": ^4.0.4
     "@storybook/addon-knobs": ^4.0.4
-    "@storybook/addons": ^4.0.4
+    "@storybook/addons": ^5.3.18
     "@storybook/cli": ^4.0.4
     "@storybook/core": ^4.0.4
     "@storybook/react": ^4.0.4
@@ -1661,6 +1661,8 @@ __metadata:
 "@byexample/types@workspace:byexample/types":
   version: 0.0.0-use.local
   resolution: "@byexample/types@workspace:byexample/types"
+  dependencies:
+    jest-mock: ^26.0.1
   languageName: unknown
   linkType: soft
 
@@ -2116,6 +2118,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fault/addon-sbfl@workspace:faultjs/fault-addon-sbfl"
   dependencies:
+    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
     "@fault/localization-util": "workspace:faultjs/fault-localization-util"
     "@fault/record-faults": "workspace:faultjs/fault-record-faults"
     "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
@@ -2142,6 +2146,7 @@ __metadata:
     "@babel/parser": ^7.5.0
     "@babel/register": ^7.9.0
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
+    "@fault/benchmark-viewer-components": "workspace:faultjs/fault-benchmark-viewer-components"
     "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
     "@fault/record-faults": "workspace:faultjs/fault-record-faults"
     "@fault/runner": "workspace:faultjs/fault-runner"
@@ -2151,6 +2156,7 @@ __metadata:
     "@fault/sbfl-op2": "workspace:faultjs/fault-sbfl-op2"
     "@fault/sbfl-tarantula": "workspace:faultjs/fault-sbfl-tarantula"
     "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha"
+    "@pshaw/fs": "workspace:misc/pshaw-fs"
     "@pshaw/logger": "workspace:misc/logger"
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats"
     chai: ^4.2.0
@@ -2352,6 +2358,18 @@ __metadata:
     "@types/yargs": ^15.0.0
     chalk: ^3.0.0
   checksum: 3/33ad68320efb297c4bd98975105130e1b4096d631decfc5a093691e24f27fce0410b4a7c5a87b736873271ebc003e48e853529587e584b3152efca572139a4a3
+  languageName: node
+  linkType: hard
+
+"@jest/types@npm:^26.0.1":
+  version: 26.0.1
+  resolution: "@jest/types@npm:26.0.1"
+  dependencies:
+    "@types/istanbul-lib-coverage": ^2.0.0
+    "@types/istanbul-reports": ^1.1.1
+    "@types/yargs": ^15.0.0
+    chalk: ^4.0.0
+  checksum: 3/50f40cece96f298ec0da9d94d9099e3c837403b63b3132f085eee47d0f627c07d4418ee60828a3ef3a5fd15b741dd390078d089f5a65161c0378d4876ce27935
   languageName: node
   linkType: hard
 
@@ -3590,12 +3608,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/html-template@workspace:misc/html-template":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/html-template@workspace:misc/html-template"
-  languageName: unknown
-  linkType: soft
-
 "@pshaw/keyed-binary-heap@workspace:misc/keyed-binary-heap":
   version: 0.0.0-use.local
   resolution: "@pshaw/keyed-binary-heap@workspace:misc/keyed-binary-heap"
@@ -3629,6 +3641,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/my-resume@workspace:patrick-shaw/my-resume"
   dependencies:
+    "@pshaw/logger": "workspace:misc/logger"
     "@pshaw/resume-template": "workspace:misc/resume-template"
     cinder: "workspace:cinder/cinder"
     express: ^4.17.1
@@ -3640,6 +3653,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/page-breaker-chrome@workspace:misc/page-breaker-chrome"
   dependencies:
+    "@pshaw/semantic-documents": "workspace:patrick-shaw/semantic-documents"
     "@semantic-documents/html-elements": "workspace:semantic-documents/semantic-documents-html-elements"
     "@types/chrome": ^0.0.106
     cinder: "workspace:cinder/cinder"
@@ -3960,7 +3974,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addons@npm:4.1.18, @storybook/addons@npm:^4.0.4":
+"@storybook/addons@npm:4.1.18":
   version: 4.1.18
   resolution: "@storybook/addons@npm:4.1.18"
   dependencies:
@@ -3987,7 +4001,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addons@npm:5.3.18":
+"@storybook/addons@npm:5.3.18, @storybook/addons@npm:^5.3.18":
   version: 5.3.18
   resolution: "@storybook/addons@npm:5.3.18"
   dependencies:
@@ -16024,6 +16038,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"jest-mock@npm:^26.0.1":
+  version: 26.0.1
+  resolution: "jest-mock@npm:26.0.1"
+  dependencies:
+    "@jest/types": ^26.0.1
+  checksum: 3/2dd23d2573cc65202dd103e32b5c7b2613b9530bc316afea0c48a3e43f28a42b8814b23cdae0d59dcde61655e1395e5c12ec02d32f1a41cc71e209fa1d17feaf
+  languageName: node
+  linkType: hard
+
 "jest-regex-util@npm:^25.2.6":
   version: 25.2.6
   resolution: "jest-regex-util@npm:25.2.6"
@@ -22457,12 +22480,6 @@ fsevents@~2.1.1:
   checksum: 3/804f990b9f370cca6d42b65f3cba2cc2bfed4973ee5623bed1ea36a6627842db8c891e2e5ac003f06f9ee892d1d3396921e27fa077346caf0213af05776e8dee
   languageName: node
   linkType: hard
-
-"scheduler@workspace:misc/scheduler":
-  version: 0.0.0-use.local
-  resolution: "scheduler@workspace:misc/scheduler"
-  languageName: unknown
-  linkType: soft
 
 "schema-utils@npm:^1.0.0":
   version: 1.0.0

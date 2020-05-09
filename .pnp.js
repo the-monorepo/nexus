@@ -55,10 +55,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/hook-schema"
       },
       {
-        "name": "@pshaw/html-template",
-        "reference": "workspace:misc/html-template"
-      },
-      {
         "name": "jest-mock-functions",
         "reference": "workspace:misc/jest-mock-functions"
       },
@@ -93,10 +89,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@pshaw/resume-template",
         "reference": "workspace:misc/resume-template"
-      },
-      {
-        "name": "scheduler",
-        "reference": "workspace:misc/scheduler"
       },
       {
         "name": "sinon-stub-functions",
@@ -1349,10 +1341,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "workspace:misc/pshaw-fs"
       ],
       [
-        "@pshaw/html-template",
-        "workspace:misc/html-template"
-      ],
-      [
         "@pshaw/keyed-binary-heap",
         "workspace:misc/keyed-binary-heap"
       ],
@@ -1474,7 +1462,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@storybook/addons",
-        "npm:4.1.18"
+        "npm:5.3.18"
       ],
       [
         "@storybook/api",
@@ -1946,7 +1934,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@types/yargs",
-        "npm:13.0.8"
+        "npm:15.0.4"
       ],
       [
         "@types/yargs-parser",
@@ -7386,7 +7374,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "scheduler",
-        "workspace:misc/scheduler"
+        "npm:0.19.1"
       ],
       [
         "schema-utils",
@@ -12155,7 +12143,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@byexample/storybook-knobified", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#workspace:byexample/storybook-knobified"],
             ["@storybook/addon-actions", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:4.1.18"],
             ["@storybook/addon-knobs", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:4.1.18"],
-            ["@storybook/addons", "npm:4.1.18"],
+            ["@storybook/addons", "npm:5.3.18"],
             ["@storybook/cli", "npm:4.1.18"],
             ["@storybook/core", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:4.1.18"],
             ["@storybook/react", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:4.1.18"],
@@ -12223,7 +12211,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:byexample/types", {
           "packageLocation": "./byexample/types/",
           "packageDependencies": [
-            ["@byexample/types", "workspace:byexample/types"]
+            ["@byexample/types", "workspace:byexample/types"],
+            ["jest-mock", "npm:26.0.1"]
           ],
           "linkType": "SOFT",
         }]
@@ -12806,6 +12795,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./faultjs/fault-addon-sbfl/",
           "packageDependencies": [
             ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
+            ["@fault/addon-hook-schema", "workspace:faultjs/fault-addon-hook-schema"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/localization-util", "workspace:faultjs/fault-localization-util"],
             ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
             ["@fault/sbfl-dstar", "workspace:faultjs/fault-sbfl-dstar"],
@@ -12824,6 +12815,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/parser", "npm:7.9.6"],
             ["@babel/register", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.0"],
             ["@fault/addon-sbfl", "workspace:faultjs/fault-addon-sbfl"],
+            ["@fault/benchmark-viewer-components", "workspace:faultjs/fault-benchmark-viewer-components"],
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/record-faults", "workspace:faultjs/fault-record-faults"],
             ["@fault/runner", "workspace:faultjs/fault-runner"],
@@ -12833,6 +12825,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/sbfl-op2", "workspace:faultjs/fault-sbfl-op2"],
             ["@fault/sbfl-tarantula", "workspace:faultjs/fault-sbfl-tarantula"],
             ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
+            ["@pshaw/fs", "workspace:misc/pshaw-fs"],
             ["@pshaw/logger", "virtual:1320fc5e5e1b2d6b83c27ff6845e229dbb990a463a698ba34facbc60aa5091b6a5ebf76c05cf7d4083de677e170f96f5753783a493c01b69977ba3d196eb54e8#workspace:misc/logger"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
             ["chai", "npm:4.2.0"],
@@ -13092,6 +13085,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/istanbul-reports", "npm:1.1.1"],
             ["@types/yargs", "npm:15.0.4"],
             ["chalk", "npm:3.0.0"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:26.0.1", {
+          "packageLocation": "./.yarn/cache/@jest-types-npm-26.0.1-3ea6251164-3.zip/node_modules/@jest/types/",
+          "packageDependencies": [
+            ["@jest/types", "npm:26.0.1"],
+            ["@types/istanbul-lib-coverage", "npm:2.0.1"],
+            ["@types/istanbul-reports", "npm:1.1.1"],
+            ["@types/yargs", "npm:15.0.4"],
+            ["chalk", "npm:4.0.0"]
           ],
           "linkType": "HARD",
         }]
@@ -14457,15 +14461,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
-      ["@pshaw/html-template", [
-        ["workspace:misc/html-template", {
-          "packageLocation": "./misc/html-template/",
-          "packageDependencies": [
-            ["@pshaw/html-template", "workspace:misc/html-template"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
       ["@pshaw/keyed-binary-heap", [
         ["workspace:misc/keyed-binary-heap", {
           "packageLocation": "./misc/keyed-binary-heap/",
@@ -14502,6 +14497,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "HARD",
         }],
+        ["virtual:15a34f19457faba8ee2b82679d21d5dd29ccc2446d3ed72c64e62dd58e0d92ae19fe3aeb98333bdd8d1fd1dd7f0c0f936a82990ba547046c215cc5f7ab54763e#workspace:misc/logger", {
+          "packageLocation": "./.yarn/$$virtual/@pshaw-logger-virtual-0660758fed/1/misc/logger/",
+          "packageDependencies": [
+            ["@pshaw/logger", "virtual:15a34f19457faba8ee2b82679d21d5dd29ccc2446d3ed72c64e62dd58e0d92ae19fe3aeb98333bdd8d1fd1dd7f0c0f936a82990ba547046c215cc5f7ab54763e#workspace:misc/logger"],
+            ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:build-packages/winston-formats"],
+            ["mockdate", "npm:2.0.5"],
+            ["winston", "npm:3.2.1"]
+          ],
+          "linkType": "SOFT",
+        }],
         ["workspace:misc/logger", {
           "packageLocation": "./misc/logger/",
           "packageDependencies": [
@@ -14530,6 +14535,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./patrick-shaw/my-resume/",
           "packageDependencies": [
             ["@pshaw/my-resume", "workspace:patrick-shaw/my-resume"],
+            ["@pshaw/logger", "virtual:15a34f19457faba8ee2b82679d21d5dd29ccc2446d3ed72c64e62dd58e0d92ae19fe3aeb98333bdd8d1fd1dd7f0c0f936a82990ba547046c215cc5f7ab54763e#workspace:misc/logger"],
             ["@pshaw/resume-template", "workspace:misc/resume-template"],
             ["cinder", "workspace:cinder/cinder"],
             ["express", "npm:4.17.1"],
@@ -14543,6 +14549,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/page-breaker-chrome/",
           "packageDependencies": [
             ["@pshaw/page-breaker-chrome", "workspace:misc/page-breaker-chrome"],
+            ["@pshaw/semantic-documents", "workspace:patrick-shaw/semantic-documents"],
             ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"],
             ["@types/chrome", "npm:0.0.106"],
             ["cinder", "workspace:cinder/cinder"],
@@ -28806,6 +28813,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@jest/types", "npm:25.5.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:26.0.1", {
+          "packageLocation": "./.yarn/cache/jest-mock-npm-26.0.1-c8a2651077-3.zip/node_modules/jest-mock/",
+          "packageDependencies": [
+            ["jest-mock", "npm:26.0.1"],
+            ["@jest/types", "npm:26.0.1"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["jest-mock-functions", [
@@ -36132,13 +36147,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["object-assign", "npm:4.1.1"]
           ],
           "linkType": "HARD",
-        }],
-        ["workspace:misc/scheduler", {
-          "packageLocation": "./misc/scheduler/",
-          "packageDependencies": [
-            ["scheduler", "workspace:misc/scheduler"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["schema-utils", [

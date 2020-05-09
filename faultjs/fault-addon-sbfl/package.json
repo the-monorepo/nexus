@@ -27,6 +27,8 @@
     "sbfl"
   ],
   "dependencies": {
+    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema",
+    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util",
     "@fault/localization-util": "workspace:faultjs/fault-localization-util",
     "@fault/record-faults": "workspace:faultjs/fault-record-faults",
     "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar",
