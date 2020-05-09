@@ -1,0 +1,42 @@
+{
+  "name": "@pshaw/eslint-config-preset",
+  "description": "A pratical style preset for ESLint",
+  "keywords": [
+    "config",
+    "eslint",
+    "javasript",
+    "style",
+    "lint",
+    "preset"
+  ],
+  "version": "1.4.2",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "patrick-shaw/eslint-config"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core",
+    "@pshaw/eslint-config-plugin-cinder": "workspace:patrick-shaw/eslint-config-plugin-cinder",
+    "@pshaw/eslint-config-plugin-import": "workspace:patrick-shaw/eslint-config-plugin-import",
+    "@pshaw/eslint-config-plugin-react": "workspace:patrick-shaw/eslint-config-plugin-react",
+    "@pshaw/eslint-config-plugin-typescript": "workspace:patrick-shaw/eslint-config-plugin-typescript",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-react": "^7.19.0"
+  }
+}

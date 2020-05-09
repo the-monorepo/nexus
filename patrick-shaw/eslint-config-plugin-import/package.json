@@ -1,6 +1,6 @@
 {
-  "name": "@pshaw/eslint-config-core",
-  "description": "A pratical style preset for ESLint",
+  "name": "@pshaw/eslint-config-plugin-import",
+  "description": "eslint-plugin-import configuration",
   "keywords": [
     "config",
     "eslint",
@@ -9,17 +9,21 @@
     "lint",
     "preset"
   ],
-  "version": "1.4.2",
-  "main": "./src/index.js",
+  "version": "1.4.3",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
   "files": [
-    "./src/index.js"
+    "lib",
+    "src",
+    "esm"
   ],
   "license": "MIT",
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "build-packages/eslint-config-core"
+    "directory": "patrick-shaw/eslint-config-plugin-import"
   },
   "publishConfig": {
     "access": "public"

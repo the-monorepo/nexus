@@ -3553,45 +3553,45 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-core@workspace:build-packages/eslint-config-core":
+"@pshaw/eslint-config-core@workspace:patrick-shaw/eslint-config-core":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-core@workspace:build-packages/eslint-config-core"
+  resolution: "@pshaw/eslint-config-core@workspace:patrick-shaw/eslint-config-core"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-cinder@workspace:build-packages/eslint-config-plugin-cinder":
+"@pshaw/eslint-config-plugin-cinder@workspace:patrick-shaw/eslint-config-plugin-cinder":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-cinder@workspace:build-packages/eslint-config-plugin-cinder"
+  resolution: "@pshaw/eslint-config-plugin-cinder@workspace:patrick-shaw/eslint-config-plugin-cinder"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-import@workspace:build-packages/eslint-config-plugin-import":
+"@pshaw/eslint-config-plugin-import@workspace:patrick-shaw/eslint-config-plugin-import":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-import@workspace:build-packages/eslint-config-plugin-import"
+  resolution: "@pshaw/eslint-config-plugin-import@workspace:patrick-shaw/eslint-config-plugin-import"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-react@workspace:build-packages/eslint-config-plugin-react":
+"@pshaw/eslint-config-plugin-react@workspace:patrick-shaw/eslint-config-plugin-react":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-react@workspace:build-packages/eslint-config-plugin-react"
+  resolution: "@pshaw/eslint-config-plugin-react@workspace:patrick-shaw/eslint-config-plugin-react"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-typescript@workspace:build-packages/eslint-config-plugin-typescript":
+"@pshaw/eslint-config-plugin-typescript@workspace:patrick-shaw/eslint-config-plugin-typescript":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-typescript@workspace:build-packages/eslint-config-plugin-typescript"
+  resolution: "@pshaw/eslint-config-plugin-typescript@workspace:patrick-shaw/eslint-config-plugin-typescript"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-preset@workspace:build-packages/eslint-config-preset":
+"@pshaw/eslint-config-preset@workspace:patrick-shaw/eslint-config-preset":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-preset@workspace:build-packages/eslint-config-preset"
+  resolution: "@pshaw/eslint-config-preset@workspace:patrick-shaw/eslint-config-preset"
   dependencies:
-    "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core"
-    "@pshaw/eslint-config-plugin-cinder": "workspace:build-packages/eslint-config-plugin-cinder"
-    "@pshaw/eslint-config-plugin-import": "workspace:build-packages/eslint-config-plugin-import"
-    "@pshaw/eslint-config-plugin-react": "workspace:build-packages/eslint-config-plugin-react"
-    "@pshaw/eslint-config-plugin-typescript": "workspace:build-packages/eslint-config-plugin-typescript"
+    "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core"
+    "@pshaw/eslint-config-plugin-cinder": "workspace:patrick-shaw/eslint-config-plugin-cinder"
+    "@pshaw/eslint-config-plugin-import": "workspace:patrick-shaw/eslint-config-plugin-import"
+    "@pshaw/eslint-config-plugin-react": "workspace:patrick-shaw/eslint-config-plugin-react"
+    "@pshaw/eslint-config-plugin-typescript": "workspace:patrick-shaw/eslint-config-plugin-typescript"
     "@typescript-eslint/eslint-plugin": ^2.27.0
     eslint-config-prettier: ^6.10.1
     eslint-plugin-import: ^2.20.2
@@ -18060,8 +18060,8 @@ fsevents@~2.1.1:
     "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
     "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha"
     "@monorepo/config": "workspace:build-packages/monorepo-config"
-    "@pshaw/eslint-config-core": "workspace:build-packages/eslint-config-core"
-    "@pshaw/eslint-config-preset": "workspace:build-packages/eslint-config-preset"
+    "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core"
+    "@pshaw/eslint-config-preset": "workspace:patrick-shaw/eslint-config-preset"
     "@pshaw/markdown-util": "workspace:misc/markdown-util"
     "@pshaw/winston-formats": "workspace:build-packages/winston-formats"
     "@storybook/addon-actions": ^5.3.18

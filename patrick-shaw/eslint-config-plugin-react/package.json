@@ -11,16 +11,20 @@
     "preset"
   ],
   "version": "1.4.2",
-  "main": "./src/index.js",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
   "files": [
-    "./src/index.js"
+    "lib",
+    "src",
+    "esm"
   ],
   "license": "MIT",
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "build-packages/eslint-config-plugin-react"
+    "directory": "patrick-shaw/eslint-config-plugin-react"
   },
   "publishConfig": {
     "access": "public"

@@ -1,26 +1,30 @@
 {
-  "name": "@pshaw/eslint-config-plugin-cinder",
-  "description": "A pratical Cinder style preset for ESLint",
+  "name": "@pshaw/eslint-config-plugin-typescript",
+  "description": "A pratical Typescript style preset for ESLint",
   "keywords": [
     "config",
     "eslint",
     "javasript",
-    "cinder",
+    "typescript",
     "style",
     "lint",
     "preset"
   ],
-  "version": "1.4.2",
-  "main": "./src/index.js",
+  "version": "1.4.3",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
   "files": [
-    "./src/index.js"
+    "lib",
+    "src",
+    "esm"
   ],
   "license": "MIT",
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "build-packages/eslint-config-plugin-cinder"
+    "directory": "patrick-shaw/eslint-config-plugin-typescript"
   },
   "publishConfig": {
     "access": "public"
