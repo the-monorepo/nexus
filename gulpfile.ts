@@ -360,14 +360,18 @@ const getFaultLocalizationAddon = async () => {
               }
             };
             const rejectOnStreamError = (stream) => stream.on('error', reject);
-            scriptTranspileStream(rejectOnStreamError).on('end', () => {
-              scriptFinish = true;
-              checkToFinish();
-            });
-            esmTranspileStream(rejectOnStreamError).on('end', () => {
-              esmFinish = true;
-              checkToFinish();
-            });
+            scriptTranspileStream(rejectOnStreamError).then((stream) =>
+              stream.on('end', () => {
+                scriptFinish = true;
+                checkToFinish();
+              }),
+            );
+            esmTranspileStream(rejectOnStreamError).then((stream) =>
+              stream.on('end', () => {
+                esmFinish = true;
+                checkToFinish();
+              }),
+            );
           });
         },
       });
