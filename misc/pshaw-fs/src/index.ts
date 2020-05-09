@@ -12,7 +12,7 @@ export const readJson = async (
 ) => {
   const text = await readFile(filePath, {
     ...options,
-    encoding: 'utf8'
+    encoding: 'utf8',
   });
 
   const json = JSON.parse(text, reviver);

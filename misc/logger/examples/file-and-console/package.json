@@ -2,6 +2,7 @@
    "name": "file-and-console",
    "version": "1.0.0",
    "dependencies": {
-      "@pshaw/logger": "^1.1.0"
+      "@pshaw/logger": "*",
+      "hook-schema": "*"
    }
 }
