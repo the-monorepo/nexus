@@ -15,9 +15,8 @@ yarn add @pshaw/logger @pshaw/winston-formats winston
 ## Examples
 
 ```javascript
+const { readFile } = require('fs/promises');
 const { join } = require('path');
-
-const { readFile } = require('mz/fs');
 
 const fromSchema = require('hook-schema');
 
