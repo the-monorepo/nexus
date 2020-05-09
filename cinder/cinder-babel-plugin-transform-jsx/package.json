@@ -1,5 +1,5 @@
 {
-  "name": "babel-plugin-transform-cinder-jsx",
+  "name": "@cinder/babel-plugin-transform-jsx",
   "version": "1.0.0-alpha.0",
   "description": "Convert JSX logic to cinder compatible JavaScript",
   "license": "MIT",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "cinder/babel-plugin-transform-cinder-jsx"
+    "directory": "cinder/cinder-babel-plugin-transform-jsx"
   },
   "files": [
     "lib",

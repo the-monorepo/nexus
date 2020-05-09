@@ -11,6 +11,7 @@ Version | Package | Description
 1.0.0-alpha.5 | [`@byexample/storybook-addon-auto-knobs`](byexample/storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
 1.0.0-alpha.5 | [`@byexample/storybook-knobified`](byexample/storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
 1.0.0-alpha.5 | [`@byexample/types`](byexample/types/README.md) | Extract type information from examples
+1.0.0-alpha.0 | [`@cinder/babel-plugin-transform-jsx`](cinder/cinder-babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
 1.0.0-alpha.0 | [`@fault/addon-hook-schema`](faultjs/fault-addon-hook-schema/README.md) | Hook schema for Fault.js addons
 1.0.0-alpha.0 | [`@fault/addon-istanbul`](faultjs/fault-addon-istanbul/README.md) | Report istanbul coverage
 1.0.0-alpha.0 | [`@fault/addon-mutation-localization`](faultjs/fault-addon-mutation-localization/README.md) | Fault AST localization
@@ -57,7 +58,6 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@semantic-documents/matcher-info`](semantic-documents/semantic-documents-matcher-info/README.md) | TODO
 1.0.0-alpha.0 | [`@semantic-documents/suffix-element`](semantic-documents/semantic-documents-suffix-element/README.md) | TODO
 3.1.3 | [`@writeme/core`](misc/writeme-core/README.md) | A readme generator
-1.0.0-alpha.0 | [`babel-plugin-transform-cinder-jsx`](cinder/babel-plugin-transform-cinder-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
 1.0.0-alpha.0 | [`cinder`](cinder/cinder/README.md) | Create interactive UIs with seamless state management using MobX
 1.6.1 | [`css-color-checker`](misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO

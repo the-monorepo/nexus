@@ -1,15 +1,15 @@
-# Babel Plugin Transform Cinder Jsx
+# Babel Plugin Transform Jsx
 
 Convert JSX logic to cinder compatible JavaScript
 
 ## Installation
 
 ```bash
-npm install --save babel-plugin-transform-cinder-jsx@1.0.0-alpha.0
+npm install --save @cinder/babel-plugin-transform-jsx@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add babel-plugin-transform-cinder-jsx@1.0.0-alpha.0
+yarn add @cinder/babel-plugin-transform-jsx@1.0.0-alpha.0
 ```
 
 ---
