@@ -410,8 +410,8 @@ const webpackCompilers = async () => {
 
   const {
     name = ['*'],
-    mode = process.NODE_ENV
-      ? process.NODE_ENV === 'production'
+    mode = process.env.NODE_ENV
+      ? process.env.NODE_ENV === 'production'
         ? 'prod'
         : 'dev'
       : 'dev',
