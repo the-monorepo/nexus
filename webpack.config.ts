@@ -4,7 +4,13 @@ import CopyPlugin from 'copy-webpack-plugin';
 import fibers from 'fibers';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import sass from 'sass';
+import type { Configuration as WebpackConfiguration } from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
+
+type Configuration = WebpackConfiguration & {
+  devServer: WebpackDevServerConfiguration;
+};
 
 const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
 const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
@@ -123,7 +129,7 @@ const webcomponentsSassModulesRule = {
   use: [cssModuleLoader, sassLoader],
 };
 
-const resumeConfig = {
+const resumeConfig: Configuration = {
   name: 'my-resume',
   target: 'web',
   resolve: {
@@ -147,7 +153,7 @@ const resumeConfig = {
   },
 };
 
-const faultjsBenchmarkConfig = {
+const faultjsBenchmarkConfig: Configuration = {
   name: 'fault-benchmark',
   target: 'web',
   resolve: {
@@ -172,7 +178,7 @@ const faultjsBenchmarkConfig = {
 };
 
 const pageBreakerDir = resolve(miscDir, 'page-breaker-chrome');
-const pageBreakerFrontendConfig = {
+const pageBreakerFrontendConfig: Configuration = {
   name: 'page-breaker',
   target: 'web',
   resolve: {
@@ -206,4 +212,10 @@ const pageBreakerFrontendConfig = {
   },
 };
 
-export default [resumeConfig, faultjsBenchmarkConfig, pageBreakerFrontendConfig];
+const configs: Configuration[] = [
+  resumeConfig,
+  faultjsBenchmarkConfig,
+  pageBreakerFrontendConfig,
+];
+
+export default configs;
