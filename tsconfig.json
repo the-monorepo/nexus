@@ -14,7 +14,8 @@
     "jsx": "preserve",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+    "isolatedModules": true
   },
   "exclude": [
     "**/.yarn/**",
