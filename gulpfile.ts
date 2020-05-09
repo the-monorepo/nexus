@@ -88,16 +88,16 @@ const formatStagedStream = async () => {
 };
 
 const simplePipeLogger = (l, verb) => {
-  return through.obj(function (file, enc, callback) {
+  return through.obj((file, enc, callback) => {
     l.info(`${verb} '${chalk.cyan(file.relative)}'`);
     callback(null, file);
   });
 };
 
-async function clean() {
+const clean = async () => {
   const { default: del } = await import('del');
   await del(config.buildArtifactGlobs);
-}
+};
 gulp.task('clean', clean);
 
 const copyPipes = (stream, l, dir) => {
@@ -113,15 +113,15 @@ const copyPipes = (stream, l, dir) => {
     .pipe(gulp.dest('.'));
 };
 
-function copyScript() {
+const copyScript = () => {
   const l = logger.child({ tags: [chalk.yellow('copy'), chalk.blueBright('lib')] });
   return copyPipes(packagesSrcAssetStream(), l, 'lib');
-}
+};
 
-function copyEsm() {
+const copyEsm = () => {
   const l = logger.child({ tags: [chalk.yellow('copy'), chalk.cyanBright('esm')] });
   return copyPipes(packagesSrcAssetStream(), l, 'esm');
-}
+};
 
 const copy = gulp.parallel(copyScript, copyEsm);
 
@@ -164,13 +164,13 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
   ).pipe(gulp.dest('.'));
 };
 
-function transpileScript() {
+const transpileScript = () => {
   return scriptTranspileStream();
-}
+};
 
-function transpileEsm() {
+const transpileEsm = () => {
   return esmTranspileStream();
-}
+};
 
 const prettierPipes = async (stream) => {
   const { default: prettier } = await import('gulp-prettier');
@@ -206,7 +206,7 @@ const printFriendlyAbsoluteDir = (dir) => {
 const transpile = gulp.parallel(transpileScript, transpileEsm);
 gulp.task('transpile', transpile);
 
-async function writeme() {
+const writeme = async () => {
   const { writeReadmeFromPackageDir } = require('@writeme/core');
   const l = logger.child({ tags: [chalk.green('writeme')] });
   await writeReadmeFromPackageDir(__dirname, {
@@ -230,48 +230,49 @@ async function writeme() {
       },
     },
   });
-}
+};
 gulp.task('writeme', writeme);
 
 const build = gulp.series(gulp.parallel(copy, transpile), writeme);
 gulp.task('build', build);
 
-gulp.task('watch', function watch() {
+const watch = () => {
   gulp.watch(
     config.buildableSourceFileGlobs,
     { ignoreInitial: false, events: 'all' },
     gulp.parallel(copy, transpile),
   );
-});
+};
+gulp.task('watch', watch);
 
 gulp.task('default', build);
 
-async function formatPrettier() {
+const formatPrettier = async () => {
   return (await prettierPipes(formatStream())).pipe(gulp.dest('.'));
-}
+};
 gulp.task('format:prettier', formatPrettier);
 
-async function formatStagedPrettier() {
+const formatStagedPrettier = async () => {
   return (await prettierPipes(await formatStagedStream())).pipe(gulp.dest('.'));
-}
+};
 gulp.task('format-staged:prettier', formatStagedPrettier);
 
-async function formatStagedLint() {
+const formatStagedLint = async () => {
   return lintPipes(await formatStagedStream(), { fix: true });
-}
+};
 formatStagedLint.description =
   'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
   'overwrite files without creating a backup.';
 gulp.task('format-staged:lint', formatStagedLint);
 
-async function format() {
+const format = async () => {
   return (await formatPipes(formatStream())).pipe(gulp.dest('.'));
-}
+};
 gulp.task('format', format);
 
-async function formatStaged() {
+const formatStaged = async () => {
   return (await formatPipes(await formatStagedStream())).pipe(gulp.dest('.'));
-}
+};
 gulp.task('format-staged', formatStaged);
 
 let withTypeCheckPipes = async (stream) => {
@@ -295,17 +296,17 @@ let withTypeCheckPipes = async (stream) => {
   return withTypeCheckPipes(stream);
 };
 
-function checkTypes() {
+const checkTypes = () => {
   return withTypeCheckPipes(config.buildableSourceCodeGlobs);
-}
+};
 checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
   'serious errors in the code, such as invalid syntax or the use of incorrect types.';
 gulp.task('check-types', checkTypes);
 
-async function checkTypesStaged() {
+const checkTypesStaged = async () => {
   return withTypeCheckPipes(await packagesSrcCodeStagedStream());
-}
+};
 gulp.task('check-types-staged', checkTypesStaged);
 
 const flIgnoreGlob =
@@ -356,7 +357,7 @@ const getFaultLocalizationAddon = async () => {
   }
 };
 
-async function testNoBuild() {
+const testNoBuild = async () => {
   const runner = await import('@fault/runner');
   const flAddon = await getFaultLocalizationAddon();
   const passed = await runner.run({
@@ -380,7 +381,7 @@ async function testNoBuild() {
   if (!passed) {
     process.exit(1);
   }
-}
+};
 
 gulp.task('test', testNoBuild);
 
