@@ -399,10 +399,11 @@ gulp.task('prepublish', prepublish);
 
 gulp.task('ci-test', prepublish);
 
-const webpackCompilers = () => {
-  const minimist = require('minimist');
-  const webpack = require('webpack');
-  const micromatch = require('micromatch');
+const webpackCompilers = async () => {
+  const { default: minimist } = await import('minimist');
+  const { default: webpack } = await import('webpack');
+  const micromatch = await import('micromatch');
+  const { default: webpackConfigs } = await import('./webpack.config');
 
   const args = minimist(process.argv.slice(2));
 
@@ -416,8 +417,6 @@ const webpackCompilers = () => {
   } = args;
 
   const names = Array.isArray(name) ? name : [name];
-
-  const webpackConfigs = require('./webpack.config');
 
   return webpackConfigs
     .filter((config) => micromatch.isMatch(config.name, names))
@@ -442,7 +441,7 @@ const humanReadableFileSize = (size) => {
 };
 
 const bundleWebpack = async () => {
-  const compilers = webpackCompilers();
+  const compilers = await webpackCompilers();
 
   const compilersStatsPromises = compilers.map((info) => {
     return new Promise((resolve, reject) => {
@@ -503,9 +502,9 @@ const bundleWebpack = async () => {
 
 gulp.task('webpack', bundleWebpack);
 
-const serveBundles = () => {
-  const WebpackDevServer = require('webpack-dev-server');
-  const compilers = webpackCompilers();
+const serveBundles = async () => {
+  const { default: WebpackDevServer } = await import('webpack-dev-server');
+  const compilers = await webpackCompilers();
   let port = 3000;
   const l = logger.child({ tags: [chalk.magenta('webpack')] });
   for (const { compiler, config } of compilers) {
