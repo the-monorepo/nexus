@@ -306,7 +306,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "fallbackPool": [
       [
         "@babel/cli",
-        "virtual:fdcefe424610115a3cbabb7e291421e8e39715f6a05d37a216f3e2c16819b58d1c050d3cc32f68f21d4462ed06f361cd91f697a2f4eeb867216b2f80f928b1de#npm:7.8.4"
+        "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:7.8.4"
       ],
       [
         "@babel/code-frame",
@@ -4382,7 +4382,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "form-data",
-        "npm:3.0.0"
+        "npm:2.3.3"
       ],
       [
         "format",
@@ -7518,7 +7518,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "slash",
-        "npm:3.0.0"
+        "npm:2.0.0"
       ],
       [
         "slice-ansi",
@@ -8030,7 +8030,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "to-regex-range",
-        "npm:5.0.1"
+        "npm:2.1.1"
       ],
       [
         "to-through",
@@ -8761,10 +8761,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@babel/cli", [
-        ["virtual:fdcefe424610115a3cbabb7e291421e8e39715f6a05d37a216f3e2c16819b58d1c050d3cc32f68f21d4462ed06f361cd91f697a2f4eeb867216b2f80f928b1de#npm:7.8.4", {
-          "packageLocation": "./.yarn/$$virtual/@babel-cli-virtual-797cb5ee11/0/cache/@babel-cli-npm-7.8.4-c620cdce18-3.zip/node_modules/@babel/cli/",
+        ["virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:7.8.4", {
+          "packageLocation": "./.yarn/$$virtual/@babel-cli-virtual-7d09fd9bae/0/cache/@babel-cli-npm-7.8.4-c620cdce18-3.zip/node_modules/@babel/cli/",
           "packageDependencies": [
-            ["@babel/cli", "virtual:fdcefe424610115a3cbabb7e291421e8e39715f6a05d37a216f3e2c16819b58d1c050d3cc32f68f21d4462ed06f361cd91f697a2f4eeb867216b2f80f928b1de#npm:7.8.4"],
+            ["@babel/cli", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:7.8.4"],
             ["@babel/core", "npm:7.9.6"],
             ["chokidar", "npm:2.1.8"],
             ["commander", "npm:4.1.1"],
@@ -12135,7 +12135,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./byexample/storybook-addon-auto-knobs/",
           "packageDependencies": [
             ["@byexample/storybook-addon-auto-knobs", "workspace:byexample/storybook-addon-auto-knobs"],
-            ["@babel/cli", "virtual:fdcefe424610115a3cbabb7e291421e8e39715f6a05d37a216f3e2c16819b58d1c050d3cc32f68f21d4462ed06f361cd91f697a2f4eeb867216b2f80f928b1de#npm:7.8.4"],
+            ["@babel/cli", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:7.8.4"],
             ["@babel/core", "npm:7.9.6"],
             ["@babel/preset-env", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.9.6"],
             ["@babel/preset-react", "virtual:6f777f754da37b30393aba7f4c861210738fdcf871e5db6d9e50204f8b9ad775d6de9707f8718847f7066077e83615fba9ed16abb8c32a234586f78799cdeac3#npm:7.9.4"],
@@ -12222,7 +12222,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./cinder/cinder-babel-plugin-transform-jsx/",
           "packageDependencies": [
             ["@cinder/babel-plugin-transform-jsx", "workspace:cinder/cinder-babel-plugin-transform-jsx"],
-            ["@babel/cli", "virtual:fdcefe424610115a3cbabb7e291421e8e39715f6a05d37a216f3e2c16819b58d1c050d3cc32f68f21d4462ed06f361cd91f697a2f4eeb867216b2f80f928b1de#npm:7.8.4"],
             ["@babel/core", "npm:7.9.6"],
             ["@babel/helper-builder-react-jsx", "npm:7.9.0"],
             ["@babel/helper-plugin-utils", "npm:7.8.3"],
