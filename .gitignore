@@ -31,6 +31,14 @@ jspm_packages/
 .env
 
 .cache
+pipelines/*/lib/
+pipelines/*/esm/
+pipelines/*/dist/
+pipelines/*/stats.html
+buildplan/*/lib/
+buildplan/*/esm/
+buildplan/*/dist/
+buildplan/*/stats.html
 byexample/*/lib/
 byexample/*/esm/
 byexample/*/dist/

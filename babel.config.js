@@ -1,8 +1,8 @@
 module.exports = (api) => {
   const env = api.env();
   const esm = env === 'esm';
+  const production = env === 'production' || env === 'esm';
   const test = env === 'test';
-  const development = env === 'development';
 
   const classPropertyPlugin = [
     '@babel/plugin-proposal-class-properties',
@@ -36,9 +36,9 @@ module.exports = (api) => {
     [
       '@babel/preset-env',
       {
-        modules: esm ? false : undefined,
+        modules: esm ? false : 'commonjs',
         targets: {
-          node: development || test ? 'current' : '10',
+          node: production ? '10' : 'current',
           esmodules: esm,
         },
       },

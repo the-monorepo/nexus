@@ -50,7 +50,7 @@
     "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha",
     "@pshaw/fs": "workspace:misc/pshaw-fs",
     "@pshaw/logger": "workspace:misc/logger",
-    "@pshaw/winston-formats": "workspace:build-packages/winston-formats",
+    "@pshaw/winston-formats": "workspace:patrick-shaw/winston-formats",
     "chai": "^4.2.0",
     "chalk": "^4.0.0",
     "chart.js": "^2.9.3",

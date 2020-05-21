@@ -2,13 +2,15 @@
   "name": "monorepo",
   "description": "An assortment of miscellaneous libraries - Saves me time on rewriting build tooling",
   "workspaces": [
-    "./cinder/*",
-    "./misc/*",
-    "./faultjs/*",
-    "./build-packages/*",
-    "./semantic-documents/*",
-    "./patrick-shaw/*",
-    "./byexample/*"
+    "cinder/*",
+    "misc/*",
+    "faultjs/*",
+    "build-packages/*",
+    "semantic-documents/*",
+    "patrick-shaw/*",
+    "byexample/*",
+    "buildplan/*",
+    "pipelines/*"
   ],
   "private": true,
   "npmClient": "yarn",
@@ -18,22 +20,23 @@
     "url": "https://github.com/PatrickShaw/monorepo.git"
   },
   "scripts": {
-    "run:gulp": "gulp --require ./gulpBabelRegister.js --gulpfile ./gulpfile.ts",
-    "format": "yarn run:gulp format",
-    "format-staged": "yarn run:gulp format-staged",
-    "test": "yarn run:gulp test",
-    "clean": "yarn run:gulp clean",
-    "transpile": "yarn run:gulp transpile",
-    "build": "yarn run:gulp build",
-    "watch": "yarn run:gulp watch",
-    "writeme": "yarn run:gulp writeme",
-    "webpack": "yarn run:gulp webpack",
-    "prepublishOnly": "yarn run:gulp prepublish",
-    "serve": "yarn run:gulp serve",
-    "serve:my-resume": "yarn run:gulp serve --require gulpBabelRegister.js --name='my-resume'",
-    "serve:fault-benchmark": "yarn run:gulp serve --name='fault-benchmark'",
-    "serve:page-breaker": "yarn run:gulp serve --name='page-breaker'",
-    "ci-test": "yarn run:gulp ci-test"
+    "run:buildplan": "yarn node --require=\"./buildBabelRegister.js\" --require=\"./original-code-require-override.js\" buildplan.ts",
+    "format": "yarn run:buildplan format",
+    "format-staged": "yarn run:buildplan format-staged",
+    "test": "yarn run:buildplan test",
+    "clean": "yarn run:buildplan clean",
+    "transpile": "yarn run:buildplan transpile",
+    "build": "yarn run:buildplan build",
+    "watch": "yarn run:buildplan watch",
+    "writeme": "yarn run:buildplan writeme",
+    "webpack": "yarn run:buildplan webpack",
+    "prepublishOnly": "yarn run:buildplan prepublish",
+    "serve": "yarn run:buildplan serve",
+    "serve:my-resume": "yarn run:buildplan serve --name='my-resume'",
+    "serve:fault-benchmark": "yarn run:buildplan serve --name='fault-benchmark'",
+    "serve:page-breaker": "yarn run:buildplan serve --name='page-breaker'",
+    "ci-test": "yarn run:buildplan ci-test",
+    "precommit": "yarn run:buildplan precommit"
   },
   "keywords": [
     "typescript"
@@ -48,6 +51,7 @@
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-typescript": "^7.9.0",
     "@babel/register": "^7.9.0",
+    "@buildplan/core": "workspace:buildplan/core",
     "@byexample/openapi": "workspace:byexample/openapi",
     "@byexample/storybook-knobified": "workspace:byexample/storybook-knobified",
     "@byexample/types": "workspace:byexample/types",
@@ -61,7 +65,7 @@
     "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core",
     "@pshaw/eslint-config-preset": "workspace:patrick-shaw/eslint-config-preset",
     "@pshaw/markdown-util": "workspace:misc/markdown-util",
-    "@pshaw/winston-formats": "workspace:build-packages/winston-formats",
+    "@pshaw/winston-formats": "workspace:patrick-shaw/winston-formats",
     "@storybook/addon-actions": "^5.3.18",
     "@storybook/addon-knobs": "^5.3.18",
     "@storybook/core": "5.3.17",
@@ -72,7 +76,6 @@
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "@writeme/core": "workspace:misc/writeme-core",
-    "@yarnpkg/pnpify": "^2.0.0-rc.22",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
     "build-pshaw-logger": "npm:@pshaw/logger@2.0.1",
@@ -81,7 +84,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.5.2",
     "del": "^5.1.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.0.0",
     "eslint-import-resolver-node": "^0.3.3",
     "eslint-plugin-import": "^2.20.2",
     "expect": "^25.1.0",
@@ -115,11 +118,12 @@
     "sass-loader": "^8.0.2",
     "source-map-loader": "^0.2.4",
     "source-map-support": "^0.5.13",
-    "stream-filter-glob": "workspace:build-packages/stream-filter-glob",
+    "stream-filter-glob": "workspace:misc/stream-filter-glob",
+    "stream-to-promise": "^2.2.0",
     "style-loader": "^1.1.3",
     "stylelint": "^13.3.3",
     "through2": "^3.0.0",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.3",
     "webpack": "^4.43.0",
     "webpack-bundle-analyzer": "^3.6.1",
     "webpack-dev-server": "^3.11.0",
@@ -127,7 +131,10 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "gulp precommit && git add ."
+      "pre-commit": "yarn precommit && git add ."
     }
+  },
+  "dependencies": {
+    "@pipelines/core": "workspace:pipelines/pipelines-core"
   }
 }
