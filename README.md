@@ -6,18 +6,12 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/fs`](misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.3 | [`@pshaw/resume-template`](misc/resume-template/README.md) | A template you can use to generate resumes
-1.0.0-alpha.0 | [`@pshaw/contextual-documents`](patrick-shaw/contextual-documents/README.md) | A nice, sensible, web component based Contextual Document API
-1.0.0-alpha.0 | [`@pshaw/contextual-documents-scss`](patrick-shaw/contextual-documents-scss/README.md) | SCSS files for @pshaw/contextual-documents-scss
-1.0.0-alpha.0 | [`@pshaw/contextual-documents-style-root`](patrick-shaw/contextual-documents-style-root/README.md) | Contextual document style root for @pshaw/contextual-documents-scss
 1.4.2 | [`@pshaw/tslint-preset-core`](build-packages/tslint-preset-core/README.md) | A pratical style preset for TSLint
 1.4.2 | [`@pshaw/tslint-preset-react`](build-packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
-1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
-1.5.3 | [`@pshaw/winston-formats`](patrick-shaw/winston-formats/README.md) | A set of Winston formats
 1.6.1 | [`css-color-checker`](misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
@@ -106,6 +100,22 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@fault/sbfl-tarantula`](faultjs/fault-sbfl-tarantula/README.md) | Tarantula algorithm for use with @fault/addon-sbfl
 1.0.0-alpha.0 | [`@fault/tester-mocha`](faultjs/fault-tester-mocha/README.md) | Use Mocha tests in the fl test runner
 1.0.0-alpha.0 | [`@fault/types`](faultjs/fault-types/README.md) | Package containing all type values for Fault.js
+
+### Personal (Patrick Shaw)
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
+1.0.0-alpha.0 | [`@pshaw/contextual-documents`](patrick-shaw/contextual-documents/README.md) | A nice, sensible, web component based Contextual Document API
+1.0.0-alpha.0 | [`@pshaw/contextual-documents-scss`](patrick-shaw/contextual-documents-scss/README.md) | SCSS files for @pshaw/contextual-documents-scss
+1.0.0-alpha.0 | [`@pshaw/contextual-documents-style-root`](patrick-shaw/contextual-documents-style-root/README.md) | Contextual document style root for @pshaw/contextual-documents-scss
+1.4.2 | [`@pshaw/eslint-config-core`](patrick-shaw/eslint-config-core/README.md) | A pratical style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](patrick-shaw/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
+1.4.3 | [`@pshaw/eslint-config-plugin-import`](patrick-shaw/eslint-config-plugin-import/README.md) | eslint-plugin-import configuration
+1.4.2 | [`@pshaw/eslint-config-plugin-react`](patrick-shaw/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
+1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](patrick-shaw/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-preset`](patrick-shaw/eslint-config-preset/README.md) | A pratical style preset for ESLint
+1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
+1.5.3 | [`@pshaw/winston-formats`](patrick-shaw/winston-formats/README.md) | A set of Winston formats
 
 
 ---
