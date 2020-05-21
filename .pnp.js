@@ -83,10 +83,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/pshaw-fs"
       },
       {
-        "name": "pumpify-to-promise",
-        "reference": "workspace:misc/pumpify-to-promise"
-      },
-      {
         "name": "replace-functions",
         "reference": "workspace:misc/replace-functions"
       },
@@ -311,7 +307,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:buildplan/core"
       },
       {
-        "name": "pipelines-babel-parse-a3dc48",
+        "name": "@pipelines/babel-parse",
         "reference": "workspace:pipelines/pipelines-babel-parse"
       },
       {
@@ -1253,6 +1249,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.16.2"
       ],
       [
+        "@pipelines/babel-parse",
+        "workspace:pipelines/pipelines-babel-parse"
+      ],
+      [
         "@pipelines/core",
         "workspace:pipelines/pipelines-core"
       ],
@@ -1374,7 +1374,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@pshaw/logger",
-        "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.1"
+        "virtual:1320fc5e5e1b2d6b83c27ff6845e229dbb990a463a698ba34facbc60aa5091b6a5ebf76c05cf7d4083de677e170f96f5753783a493c01b69977ba3d196eb54e8#workspace:misc/logger"
       ],
       [
         "@pshaw/markdown-util",
@@ -6473,10 +6473,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.0.1"
       ],
       [
-        "pipelines-babel-parse-a3dc48",
-        "workspace:pipelines/pipelines-babel-parse"
-      ],
-      [
         "pirates",
         "npm:4.0.1"
       ],
@@ -6783,10 +6779,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "pumpify",
         "npm:1.5.1"
-      ],
-      [
-        "pumpify-to-promise",
-        "workspace:misc/pumpify-to-promise"
       ],
       [
         "punycode",
@@ -8534,7 +8526,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "yargs",
-        "npm:15.3.1"
+        "npm:13.3.2"
       ],
       [
         "yargs-parser",
@@ -8583,6 +8575,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pipelines/core", "workspace:pipelines/pipelines-core"],
             ["@pshaw/eslint-config-core", "workspace:patrick-shaw/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:patrick-shaw/eslint-config-preset"],
+            ["@pshaw/logger", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/logger"],
             ["@pshaw/markdown-util", "workspace:misc/markdown-util"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:patrick-shaw/winston-formats"],
             ["@storybook/addon-actions", "npm:5.3.18"],
@@ -8597,10 +8590,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@writeme/core", "workspace:misc/writeme-core"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
-            ["build-pshaw-logger", [
-              "@pshaw/logger",
-              "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.1"
-            ]],
             ["chalk", "npm:3.0.0"],
             ["codecov", "npm:3.6.5"],
             ["copy-webpack-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.1.1"],
@@ -14062,6 +14051,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["@pipelines/babel-parse", [
+        ["workspace:pipelines/pipelines-babel-parse", {
+          "packageLocation": "./pipelines/pipelines-babel-parse/",
+          "packageDependencies": [
+            ["@pipelines/babel-parse", "workspace:pipelines/pipelines-babel-parse"],
+            ["@babel/parser", "npm:7.9.6"],
+            ["@babel/types", "npm:7.9.6"],
+            ["@pipelines/core", "workspace:pipelines/pipelines-core"],
+            ["@types/node", "npm:14.0.4"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["@pipelines/core", [
         ["workspace:pipelines/pipelines-core", {
           "packageLocation": "./pipelines/pipelines-core/",
@@ -14400,18 +14402,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "SOFT",
         }],
-        ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.1", {
-          "packageLocation": "./.yarn/$$virtual/@pshaw-logger-virtual-31b30e4a35/0/cache/@pshaw-logger-npm-2.0.1-2fbf8f806b-3.zip/node_modules/@pshaw/logger/",
+        ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/logger", {
+          "packageLocation": "./.yarn/$$virtual/@pshaw-logger-virtual-25beb06ead/1/misc/logger/",
           "packageDependencies": [
-            ["@pshaw/logger", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.1"],
+            ["@pshaw/logger", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/logger"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:patrick-shaw/winston-formats"],
+            ["mockdate", "npm:2.0.5"],
             ["winston", "npm:3.2.1"]
           ],
           "packagePeers": [
             "winston",
             "@pshaw/winston-formats"
           ],
-          "linkType": "HARD",
+          "linkType": "SOFT",
         }],
         ["virtual:15a34f19457faba8ee2b82679d21d5dd29ccc2446d3ed72c64e62dd58e0d92ae19fe3aeb98333bdd8d1fd1dd7f0c0f936a82990ba547046c215cc5f7ab54763e#workspace:misc/logger", {
           "packageLocation": "./.yarn/$$virtual/@pshaw-logger-virtual-0660758fed/1/misc/logger/",
@@ -30751,6 +30754,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pipelines/core", "workspace:pipelines/pipelines-core"],
             ["@pshaw/eslint-config-core", "workspace:patrick-shaw/eslint-config-core"],
             ["@pshaw/eslint-config-preset", "workspace:patrick-shaw/eslint-config-preset"],
+            ["@pshaw/logger", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/logger"],
             ["@pshaw/markdown-util", "workspace:misc/markdown-util"],
             ["@pshaw/winston-formats", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:patrick-shaw/winston-formats"],
             ["@storybook/addon-actions", "npm:5.3.18"],
@@ -30765,10 +30769,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@writeme/core", "workspace:misc/writeme-core"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
-            ["build-pshaw-logger", [
-              "@pshaw/logger",
-              "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.0.1"
-            ]],
             ["chalk", "npm:3.0.0"],
             ["codecov", "npm:3.6.5"],
             ["copy-webpack-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:5.1.1"],
@@ -32634,19 +32634,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["pipelines-babel-parse-a3dc48", [
-        ["workspace:pipelines/pipelines-babel-parse", {
-          "packageLocation": "./pipelines/pipelines-babel-parse/",
-          "packageDependencies": [
-            ["pipelines-babel-parse-a3dc48", "workspace:pipelines/pipelines-babel-parse"],
-            ["@babel/parser", "npm:7.9.6"],
-            ["@babel/types", "npm:7.9.6"],
-            ["@pipelines/core", "workspace:pipelines/pipelines-core"],
-            ["@types/node", "npm:14.0.4"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
       ["pirates", [
         ["npm:4.0.1", {
           "packageLocation": "./.yarn/cache/pirates-npm-4.0.1-377058e8fc-3.zip/node_modules/pirates/",
@@ -33641,18 +33628,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["pump", "npm:2.0.1"]
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["pumpify-to-promise", [
-        ["workspace:misc/pumpify-to-promise", {
-          "packageLocation": "./misc/pumpify-to-promise/",
-          "packageDependencies": [
-            ["pumpify-to-promise", "workspace:misc/pumpify-to-promise"],
-            ["@types/yargs", "npm:15.0.5"],
-            ["jest-mock", "npm:25.5.0"],
-            ["yargs", "npm:15.3.1"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["punycode", [
