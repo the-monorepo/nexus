@@ -6,16 +6,16 @@ module.exports = {
         test: './cinder/*/',
       },
       {
+        category: 'Build tooling',
+        test: ['./{pipelines,buildplan}/*', './misc/{stream}'],
+      },
+      {
         category: 'Semantic documents',
         test: './semantic-documents/*',
       },
       {
         category: 'By Example',
         test: './byexample/*',
-      },
-      {
-        category: 'Build tooling',
-        test: './{build-packages,misc,faultjs}/{build-util,gulp-*}',
       },
       {
         category: 'Documentation',
@@ -27,15 +27,15 @@ module.exports = {
       },
       {
         category: 'ESLint',
-        test: './{build-packages,misc,faultjs}/tslint*',
+        test: './patrick-shaw/eslint-*',
       },
       {
         category: 'TSLint',
-        test: './{build-packages,misc,faultjs}/eslint*',
+        test: './patrick-shaw/tslint-*',
       },
       {
         category: 'FaultJS',
-        test: ['./{build-packages,misc,faultjs}/fault-*'],
+        test: ['./faultjs/fault-*'],
       },
     ],
   },
