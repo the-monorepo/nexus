@@ -37,6 +37,10 @@ module.exports = {
         category: 'FaultJS',
         test: ['./faultjs/fault-*'],
       },
+      {
+        category: 'Personal (Patrick Shaw)',
+        test: ['./patrick-shaw/*'],
+      },
     ],
   },
   isDevPackage: true,
