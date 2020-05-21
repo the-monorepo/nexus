@@ -1689,6 +1689,55 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@contextual-documents/classname-picker@workspace:contextual-documents/contextual-documents-classname-picker":
+  version: 0.0.0-use.local
+  resolution: "@contextual-documents/classname-picker@workspace:contextual-documents/contextual-documents-classname-picker"
+  dependencies:
+    "@contextual-documents/matcher-info": "workspace:contextual-documents/contextual-documents-matcher-info"
+    tree-suffix-mapper: "workspace:misc/tree-suffix-mapper"
+  languageName: unknown
+  linkType: soft
+
+"@contextual-documents/element@workspace:contextual-documents/contextual-documents-element":
+  version: 0.0.0-use.local
+  resolution: "@contextual-documents/element@workspace:contextual-documents/contextual-documents-element"
+  dependencies:
+    "@contextual-documents/suffix-element": "workspace:contextual-documents/contextual-documents-suffix-element"
+  languageName: unknown
+  linkType: soft
+
+"@contextual-documents/html-elements@workspace:contextual-documents/contextual-documents-html-elements":
+  version: 0.0.0-use.local
+  resolution: "@contextual-documents/html-elements@workspace:contextual-documents/contextual-documents-html-elements"
+  dependencies:
+    "@contextual-documents/element": "workspace:contextual-documents/contextual-documents-element"
+    "@contextual-documents/html-symbols": "workspace:contextual-documents/contextual-documents-html-symbols"
+  languageName: unknown
+  linkType: soft
+
+"@contextual-documents/html-symbols@workspace:contextual-documents/contextual-documents-html-symbols":
+  version: 0.0.0-use.local
+  resolution: "@contextual-documents/html-symbols@workspace:contextual-documents/contextual-documents-html-symbols"
+  dependencies:
+    "@contextual-documents/matcher-info": "workspace:contextual-documents/contextual-documents-matcher-info"
+  languageName: unknown
+  linkType: soft
+
+"@contextual-documents/matcher-info@workspace:contextual-documents/contextual-documents-matcher-info":
+  version: 0.0.0-use.local
+  resolution: "@contextual-documents/matcher-info@workspace:contextual-documents/contextual-documents-matcher-info"
+  languageName: unknown
+  linkType: soft
+
+"@contextual-documents/suffix-element@workspace:contextual-documents/contextual-documents-suffix-element":
+  version: 0.0.0-use.local
+  resolution: "@contextual-documents/suffix-element@workspace:contextual-documents/contextual-documents-suffix-element"
+  dependencies:
+    "@contextual-documents/classname-picker": "workspace:contextual-documents/contextual-documents-classname-picker"
+    dom-context: "workspace:misc/dom-context"
+  languageName: unknown
+  linkType: soft
+
 "@emotion/cache@npm:^0.8.8":
   version: 0.8.8
   resolution: "@emotion/cache@npm:0.8.8"
@@ -3573,6 +3622,34 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@pshaw/contextual-documents-scss@workspace:patrick-shaw/contextual-documents-scss":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/contextual-documents-scss@workspace:patrick-shaw/contextual-documents-scss"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/contextual-documents-style-root@workspace:patrick-shaw/contextual-documents-style-root":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/contextual-documents-style-root@workspace:patrick-shaw/contextual-documents-style-root"
+  dependencies:
+    "@contextual-documents/classname-picker": "workspace:contextual-documents/contextual-documents-classname-picker"
+    "@contextual-documents/html-symbols": "workspace:contextual-documents/contextual-documents-html-symbols"
+    "@pshaw/contextual-documents-scss": "workspace:patrick-shaw/contextual-documents-scss"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/contextual-documents@workspace:patrick-shaw/contextual-documents":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/contextual-documents@workspace:patrick-shaw/contextual-documents"
+  dependencies:
+    "@contextual-documents/classname-picker": "workspace:contextual-documents/contextual-documents-classname-picker"
+    "@contextual-documents/element": "workspace:contextual-documents/contextual-documents-element"
+    "@contextual-documents/html-elements": "workspace:contextual-documents/contextual-documents-html-elements"
+    "@contextual-documents/html-symbols": "workspace:contextual-documents/contextual-documents-html-symbols"
+    "@pshaw/contextual-documents-scss": "workspace:patrick-shaw/contextual-documents-scss"
+  languageName: unknown
+  linkType: soft
+
 "@pshaw/convict-util@workspace:misc/convict-util":
   version: 0.0.0-use.local
   resolution: "@pshaw/convict-util@workspace:misc/convict-util"
@@ -3686,8 +3763,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/page-breaker-chrome@workspace:misc/page-breaker-chrome"
   dependencies:
-    "@pshaw/semantic-documents": "workspace:patrick-shaw/semantic-documents"
-    "@semantic-documents/html-elements": "workspace:semantic-documents/semantic-documents-html-elements"
+    "@contextual-documents/html-elements": "workspace:contextual-documents/contextual-documents-html-elements"
+    "@pshaw/contextual-documents": "workspace:patrick-shaw/contextual-documents"
     "@types/chrome": ^0.0.106
     cinder: "workspace:cinder/cinder"
     classnames: ^2.2.6
@@ -3709,34 +3786,6 @@ __metadata:
     jss-global: ^3.0.0
     jss-nested: ^6.0.1
     mobx: ^5.9.0
-  languageName: unknown
-  linkType: soft
-
-"@pshaw/semantic-documents-scss@workspace:patrick-shaw/semantic-documents-scss":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/semantic-documents-scss@workspace:patrick-shaw/semantic-documents-scss"
-  languageName: unknown
-  linkType: soft
-
-"@pshaw/semantic-documents-style-root@workspace:patrick-shaw/semantic-documents-style-root":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/semantic-documents-style-root@workspace:patrick-shaw/semantic-documents-style-root"
-  dependencies:
-    "@pshaw/semantic-documents-scss": "workspace:patrick-shaw/semantic-documents-scss"
-    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker"
-    "@semantic-documents/html-symbols": "workspace:semantic-documents/semantic-documents-html-symbols"
-  languageName: unknown
-  linkType: soft
-
-"@pshaw/semantic-documents@workspace:patrick-shaw/semantic-documents":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/semantic-documents@workspace:patrick-shaw/semantic-documents"
-  dependencies:
-    "@pshaw/semantic-documents-scss": "workspace:patrick-shaw/semantic-documents-scss"
-    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker"
-    "@semantic-documents/element": "workspace:semantic-documents/semantic-documents-element"
-    "@semantic-documents/html-elements": "workspace:semantic-documents/semantic-documents-html-elements"
-    "@semantic-documents/html-symbols": "workspace:semantic-documents/semantic-documents-html-symbols"
   languageName: unknown
   linkType: soft
 
@@ -3799,55 +3848,6 @@ __metadata:
   checksum: 3/70b3766c46278d2b0070ecef27f127680ae2b4bd8769757fef34b74a8db18603b597f19c29020d91e839d41817772a1ed4d6df4f7dc277650813ab47857e8cc2
   languageName: node
   linkType: hard
-
-"@semantic-documents/classname-picker@workspace:semantic-documents/semantic-documents-classname-picker":
-  version: 0.0.0-use.local
-  resolution: "@semantic-documents/classname-picker@workspace:semantic-documents/semantic-documents-classname-picker"
-  dependencies:
-    "@semantic-documents/matcher-info": "workspace:semantic-documents/semantic-documents-matcher-info"
-    tree-suffix-mapper: "workspace:misc/tree-suffix-mapper"
-  languageName: unknown
-  linkType: soft
-
-"@semantic-documents/element@workspace:semantic-documents/semantic-documents-element":
-  version: 0.0.0-use.local
-  resolution: "@semantic-documents/element@workspace:semantic-documents/semantic-documents-element"
-  dependencies:
-    "@semantic-documents/suffix-element": "workspace:semantic-documents/semantic-documents-suffix-element"
-  languageName: unknown
-  linkType: soft
-
-"@semantic-documents/html-elements@workspace:semantic-documents/semantic-documents-html-elements":
-  version: 0.0.0-use.local
-  resolution: "@semantic-documents/html-elements@workspace:semantic-documents/semantic-documents-html-elements"
-  dependencies:
-    "@semantic-documents/element": "workspace:semantic-documents/semantic-documents-element"
-    "@semantic-documents/html-symbols": "workspace:semantic-documents/semantic-documents-html-symbols"
-  languageName: unknown
-  linkType: soft
-
-"@semantic-documents/html-symbols@workspace:semantic-documents/semantic-documents-html-symbols":
-  version: 0.0.0-use.local
-  resolution: "@semantic-documents/html-symbols@workspace:semantic-documents/semantic-documents-html-symbols"
-  dependencies:
-    "@semantic-documents/matcher-info": "workspace:semantic-documents/semantic-documents-matcher-info"
-  languageName: unknown
-  linkType: soft
-
-"@semantic-documents/matcher-info@workspace:semantic-documents/semantic-documents-matcher-info":
-  version: 0.0.0-use.local
-  resolution: "@semantic-documents/matcher-info@workspace:semantic-documents/semantic-documents-matcher-info"
-  languageName: unknown
-  linkType: soft
-
-"@semantic-documents/suffix-element@workspace:semantic-documents/semantic-documents-suffix-element":
-  version: 0.0.0-use.local
-  resolution: "@semantic-documents/suffix-element@workspace:semantic-documents/semantic-documents-suffix-element"
-  dependencies:
-    "@semantic-documents/classname-picker": "workspace:semantic-documents/semantic-documents-classname-picker"
-    dom-context: "workspace:misc/dom-context"
-  languageName: unknown
-  linkType: soft
 
 "@sgratzl/science@npm:^2.0.0":
   version: 2.0.0

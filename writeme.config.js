@@ -10,8 +10,8 @@ module.exports = {
         test: ['./{pipelines,buildplan}/*', './misc/{stream}'],
       },
       {
-        category: 'Semantic documents',
-        test: './semantic-documents/*',
+        category: 'Contextual documents',
+        test: './contextual-documents/*',
       },
       {
         category: 'By Example',

@@ -207,32 +207,44 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:build-packages/tslint-preset-react"
       },
       {
-        "name": "@semantic-documents/classname-picker",
-        "reference": "workspace:semantic-documents/semantic-documents-classname-picker"
+        "name": "@contextual-documents/classname-picker",
+        "reference": "workspace:contextual-documents/contextual-documents-classname-picker"
       },
       {
-        "name": "@semantic-documents/element",
-        "reference": "workspace:semantic-documents/semantic-documents-element"
+        "name": "@contextual-documents/element",
+        "reference": "workspace:contextual-documents/contextual-documents-element"
       },
       {
-        "name": "@semantic-documents/html-elements",
-        "reference": "workspace:semantic-documents/semantic-documents-html-elements"
+        "name": "@contextual-documents/html-elements",
+        "reference": "workspace:contextual-documents/contextual-documents-html-elements"
       },
       {
-        "name": "@semantic-documents/html-symbols",
-        "reference": "workspace:semantic-documents/semantic-documents-html-symbols"
+        "name": "@contextual-documents/html-symbols",
+        "reference": "workspace:contextual-documents/contextual-documents-html-symbols"
       },
       {
-        "name": "@semantic-documents/matcher-info",
-        "reference": "workspace:semantic-documents/semantic-documents-matcher-info"
+        "name": "@contextual-documents/matcher-info",
+        "reference": "workspace:contextual-documents/contextual-documents-matcher-info"
       },
       {
-        "name": "@semantic-documents/suffix-element",
-        "reference": "workspace:semantic-documents/semantic-documents-suffix-element"
+        "name": "@contextual-documents/suffix-element",
+        "reference": "workspace:contextual-documents/contextual-documents-suffix-element"
       },
       {
         "name": "@pshaw/colors-scss",
         "reference": "workspace:patrick-shaw/colors-scss"
+      },
+      {
+        "name": "@pshaw/contextual-documents",
+        "reference": "workspace:patrick-shaw/contextual-documents"
+      },
+      {
+        "name": "@pshaw/contextual-documents-scss",
+        "reference": "workspace:patrick-shaw/contextual-documents-scss"
+      },
+      {
+        "name": "@pshaw/contextual-documents-style-root",
+        "reference": "workspace:patrick-shaw/contextual-documents-style-root"
       },
       {
         "name": "@pshaw/eslint-config-core",
@@ -261,18 +273,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@pshaw/my-resume",
         "reference": "workspace:patrick-shaw/my-resume"
-      },
-      {
-        "name": "@pshaw/semantic-documents",
-        "reference": "workspace:patrick-shaw/semantic-documents"
-      },
-      {
-        "name": "@pshaw/semantic-documents-scss",
-        "reference": "workspace:patrick-shaw/semantic-documents-scss"
-      },
-      {
-        "name": "@pshaw/semantic-documents-style-root",
-        "reference": "workspace:patrick-shaw/semantic-documents-style-root"
       },
       {
         "name": "@pshaw/typography-scss",
@@ -775,6 +775,30 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@cinder/babel-plugin-transform-jsx",
         "workspace:cinder/cinder-babel-plugin-transform-jsx"
+      ],
+      [
+        "@contextual-documents/classname-picker",
+        "workspace:contextual-documents/contextual-documents-classname-picker"
+      ],
+      [
+        "@contextual-documents/element",
+        "workspace:contextual-documents/contextual-documents-element"
+      ],
+      [
+        "@contextual-documents/html-elements",
+        "workspace:contextual-documents/contextual-documents-html-elements"
+      ],
+      [
+        "@contextual-documents/html-symbols",
+        "workspace:contextual-documents/contextual-documents-html-symbols"
+      ],
+      [
+        "@contextual-documents/matcher-info",
+        "workspace:contextual-documents/contextual-documents-matcher-info"
+      ],
+      [
+        "@contextual-documents/suffix-element",
+        "workspace:contextual-documents/contextual-documents-suffix-element"
       ],
       [
         "@emotion/cache",
@@ -1333,6 +1357,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "workspace:patrick-shaw/colors-scss"
       ],
       [
+        "@pshaw/contextual-documents",
+        "workspace:patrick-shaw/contextual-documents"
+      ],
+      [
+        "@pshaw/contextual-documents-scss",
+        "workspace:patrick-shaw/contextual-documents-scss"
+      ],
+      [
+        "@pshaw/contextual-documents-style-root",
+        "workspace:patrick-shaw/contextual-documents-style-root"
+      ],
+      [
         "@pshaw/convict-util",
         "workspace:misc/convict-util"
       ],
@@ -1393,18 +1429,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "workspace:misc/resume-template"
       ],
       [
-        "@pshaw/semantic-documents",
-        "workspace:patrick-shaw/semantic-documents"
-      ],
-      [
-        "@pshaw/semantic-documents-scss",
-        "workspace:patrick-shaw/semantic-documents-scss"
-      ],
-      [
-        "@pshaw/semantic-documents-style-root",
-        "workspace:patrick-shaw/semantic-documents-style-root"
-      ],
-      [
         "@pshaw/tslint-preset-core",
         "workspace:build-packages/tslint-preset-core"
       ],
@@ -1427,30 +1451,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@samverschueren/stream-to-observable",
         "virtual:9f590306717b43f721dfcd9780acec61ae5d8e5058ee9e23fee3f4bfb0aff7e35255af32827acc1ec7329dedf87dee7c6017ae718773570e4513dab86f48280c#npm:0.3.0"
-      ],
-      [
-        "@semantic-documents/classname-picker",
-        "workspace:semantic-documents/semantic-documents-classname-picker"
-      ],
-      [
-        "@semantic-documents/element",
-        "workspace:semantic-documents/semantic-documents-element"
-      ],
-      [
-        "@semantic-documents/html-elements",
-        "workspace:semantic-documents/semantic-documents-html-elements"
-      ],
-      [
-        "@semantic-documents/html-symbols",
-        "workspace:semantic-documents/semantic-documents-html-symbols"
-      ],
-      [
-        "@semantic-documents/matcher-info",
-        "workspace:semantic-documents/semantic-documents-matcher-info"
-      ],
-      [
-        "@semantic-documents/suffix-element",
-        "workspace:semantic-documents/semantic-documents-suffix-element"
       ],
       [
         "@sgratzl/science",
@@ -12115,6 +12115,68 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
+      ["@contextual-documents/classname-picker", [
+        ["workspace:contextual-documents/contextual-documents-classname-picker", {
+          "packageLocation": "./contextual-documents/contextual-documents-classname-picker/",
+          "packageDependencies": [
+            ["@contextual-documents/classname-picker", "workspace:contextual-documents/contextual-documents-classname-picker"],
+            ["@contextual-documents/matcher-info", "workspace:contextual-documents/contextual-documents-matcher-info"],
+            ["tree-suffix-mapper", "workspace:misc/tree-suffix-mapper"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@contextual-documents/element", [
+        ["workspace:contextual-documents/contextual-documents-element", {
+          "packageLocation": "./contextual-documents/contextual-documents-element/",
+          "packageDependencies": [
+            ["@contextual-documents/element", "workspace:contextual-documents/contextual-documents-element"],
+            ["@contextual-documents/suffix-element", "workspace:contextual-documents/contextual-documents-suffix-element"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@contextual-documents/html-elements", [
+        ["workspace:contextual-documents/contextual-documents-html-elements", {
+          "packageLocation": "./contextual-documents/contextual-documents-html-elements/",
+          "packageDependencies": [
+            ["@contextual-documents/html-elements", "workspace:contextual-documents/contextual-documents-html-elements"],
+            ["@contextual-documents/element", "workspace:contextual-documents/contextual-documents-element"],
+            ["@contextual-documents/html-symbols", "workspace:contextual-documents/contextual-documents-html-symbols"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@contextual-documents/html-symbols", [
+        ["workspace:contextual-documents/contextual-documents-html-symbols", {
+          "packageLocation": "./contextual-documents/contextual-documents-html-symbols/",
+          "packageDependencies": [
+            ["@contextual-documents/html-symbols", "workspace:contextual-documents/contextual-documents-html-symbols"],
+            ["@contextual-documents/matcher-info", "workspace:contextual-documents/contextual-documents-matcher-info"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@contextual-documents/matcher-info", [
+        ["workspace:contextual-documents/contextual-documents-matcher-info", {
+          "packageLocation": "./contextual-documents/contextual-documents-matcher-info/",
+          "packageDependencies": [
+            ["@contextual-documents/matcher-info", "workspace:contextual-documents/contextual-documents-matcher-info"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@contextual-documents/suffix-element", [
+        ["workspace:contextual-documents/contextual-documents-suffix-element", {
+          "packageLocation": "./contextual-documents/contextual-documents-suffix-element/",
+          "packageDependencies": [
+            ["@contextual-documents/suffix-element", "workspace:contextual-documents/contextual-documents-suffix-element"],
+            ["@contextual-documents/classname-picker", "workspace:contextual-documents/contextual-documents-classname-picker"],
+            ["dom-context", "workspace:misc/dom-context"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["@emotion/cache", [
         ["npm:0.8.8", {
           "packageLocation": "./.yarn/cache/@emotion-cache-npm-0.8.8-1081c8cd2e-3.zip/node_modules/@emotion/cache/",
@@ -14275,6 +14337,41 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
+      ["@pshaw/contextual-documents", [
+        ["workspace:patrick-shaw/contextual-documents", {
+          "packageLocation": "./patrick-shaw/contextual-documents/",
+          "packageDependencies": [
+            ["@pshaw/contextual-documents", "workspace:patrick-shaw/contextual-documents"],
+            ["@contextual-documents/classname-picker", "workspace:contextual-documents/contextual-documents-classname-picker"],
+            ["@contextual-documents/element", "workspace:contextual-documents/contextual-documents-element"],
+            ["@contextual-documents/html-elements", "workspace:contextual-documents/contextual-documents-html-elements"],
+            ["@contextual-documents/html-symbols", "workspace:contextual-documents/contextual-documents-html-symbols"],
+            ["@pshaw/contextual-documents-scss", "workspace:patrick-shaw/contextual-documents-scss"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pshaw/contextual-documents-scss", [
+        ["workspace:patrick-shaw/contextual-documents-scss", {
+          "packageLocation": "./patrick-shaw/contextual-documents-scss/",
+          "packageDependencies": [
+            ["@pshaw/contextual-documents-scss", "workspace:patrick-shaw/contextual-documents-scss"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pshaw/contextual-documents-style-root", [
+        ["workspace:patrick-shaw/contextual-documents-style-root", {
+          "packageLocation": "./patrick-shaw/contextual-documents-style-root/",
+          "packageDependencies": [
+            ["@pshaw/contextual-documents-style-root", "workspace:patrick-shaw/contextual-documents-style-root"],
+            ["@contextual-documents/classname-picker", "workspace:contextual-documents/contextual-documents-classname-picker"],
+            ["@contextual-documents/html-symbols", "workspace:contextual-documents/contextual-documents-html-symbols"],
+            ["@pshaw/contextual-documents-scss", "workspace:patrick-shaw/contextual-documents-scss"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["@pshaw/convict-util", [
         ["workspace:misc/convict-util", {
           "packageLocation": "./misc/convict-util/",
@@ -14456,8 +14553,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/page-breaker-chrome/",
           "packageDependencies": [
             ["@pshaw/page-breaker-chrome", "workspace:misc/page-breaker-chrome"],
-            ["@pshaw/semantic-documents", "workspace:patrick-shaw/semantic-documents"],
-            ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"],
+            ["@contextual-documents/html-elements", "workspace:contextual-documents/contextual-documents-html-elements"],
+            ["@pshaw/contextual-documents", "workspace:patrick-shaw/contextual-documents"],
             ["@types/chrome", "npm:0.0.106"],
             ["cinder", "workspace:cinder/cinder"],
             ["classnames", "npm:2.2.6"],
@@ -14481,41 +14578,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jss-global", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:3.0.0"],
             ["jss-nested", "virtual:6e72c90c3d4876b8fdd27240538425dfff40d46a2b35e1f1960d1ceb7bc68d492eadd82ff97bbbdfbf8913887cda3b4c50d634e236a46aa2f9bb215bbfcd7913#npm:6.0.1"],
             ["mobx", "npm:5.15.4"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@pshaw/semantic-documents", [
-        ["workspace:patrick-shaw/semantic-documents", {
-          "packageLocation": "./patrick-shaw/semantic-documents/",
-          "packageDependencies": [
-            ["@pshaw/semantic-documents", "workspace:patrick-shaw/semantic-documents"],
-            ["@pshaw/semantic-documents-scss", "workspace:patrick-shaw/semantic-documents-scss"],
-            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
-            ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"],
-            ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"],
-            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@pshaw/semantic-documents-scss", [
-        ["workspace:patrick-shaw/semantic-documents-scss", {
-          "packageLocation": "./patrick-shaw/semantic-documents-scss/",
-          "packageDependencies": [
-            ["@pshaw/semantic-documents-scss", "workspace:patrick-shaw/semantic-documents-scss"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@pshaw/semantic-documents-style-root", [
-        ["workspace:patrick-shaw/semantic-documents-style-root", {
-          "packageLocation": "./patrick-shaw/semantic-documents-style-root/",
-          "packageDependencies": [
-            ["@pshaw/semantic-documents-style-root", "workspace:patrick-shaw/semantic-documents-style-root"],
-            ["@pshaw/semantic-documents-scss", "workspace:patrick-shaw/semantic-documents-scss"],
-            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
-            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"]
           ],
           "linkType": "SOFT",
         }]
@@ -14643,68 +14705,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "zenObservable"
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["@semantic-documents/classname-picker", [
-        ["workspace:semantic-documents/semantic-documents-classname-picker", {
-          "packageLocation": "./semantic-documents/semantic-documents-classname-picker/",
-          "packageDependencies": [
-            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
-            ["@semantic-documents/matcher-info", "workspace:semantic-documents/semantic-documents-matcher-info"],
-            ["tree-suffix-mapper", "workspace:misc/tree-suffix-mapper"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@semantic-documents/element", [
-        ["workspace:semantic-documents/semantic-documents-element", {
-          "packageLocation": "./semantic-documents/semantic-documents-element/",
-          "packageDependencies": [
-            ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"],
-            ["@semantic-documents/suffix-element", "workspace:semantic-documents/semantic-documents-suffix-element"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@semantic-documents/html-elements", [
-        ["workspace:semantic-documents/semantic-documents-html-elements", {
-          "packageLocation": "./semantic-documents/semantic-documents-html-elements/",
-          "packageDependencies": [
-            ["@semantic-documents/html-elements", "workspace:semantic-documents/semantic-documents-html-elements"],
-            ["@semantic-documents/element", "workspace:semantic-documents/semantic-documents-element"],
-            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@semantic-documents/html-symbols", [
-        ["workspace:semantic-documents/semantic-documents-html-symbols", {
-          "packageLocation": "./semantic-documents/semantic-documents-html-symbols/",
-          "packageDependencies": [
-            ["@semantic-documents/html-symbols", "workspace:semantic-documents/semantic-documents-html-symbols"],
-            ["@semantic-documents/matcher-info", "workspace:semantic-documents/semantic-documents-matcher-info"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@semantic-documents/matcher-info", [
-        ["workspace:semantic-documents/semantic-documents-matcher-info", {
-          "packageLocation": "./semantic-documents/semantic-documents-matcher-info/",
-          "packageDependencies": [
-            ["@semantic-documents/matcher-info", "workspace:semantic-documents/semantic-documents-matcher-info"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@semantic-documents/suffix-element", [
-        ["workspace:semantic-documents/semantic-documents-suffix-element", {
-          "packageLocation": "./semantic-documents/semantic-documents-suffix-element/",
-          "packageDependencies": [
-            ["@semantic-documents/suffix-element", "workspace:semantic-documents/semantic-documents-suffix-element"],
-            ["@semantic-documents/classname-picker", "workspace:semantic-documents/semantic-documents-classname-picker"],
-            ["dom-context", "workspace:misc/dom-context"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["@sgratzl/science", [
