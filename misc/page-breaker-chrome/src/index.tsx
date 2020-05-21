@@ -10,7 +10,7 @@ import * as cinder from 'cinder';
 import './globals.scss';
 import styles from './styles.scss';
 
-import '@pshaw/semantic-documents/esm/register';
+import '@pshaw/contextual-documents/esm/register';
 
 import 'paper-range-slider';
 import 'xy-ui/components/xy-checkbox';

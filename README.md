@@ -11,9 +11,9 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/fs`](misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.3 | [`@pshaw/resume-template`](misc/resume-template/README.md) | A template you can use to generate resumes
-1.0.0-alpha.0 | [`@pshaw/semantic-documents`](patrick-shaw/semantic-documents/README.md) | A nice, sensible, web component based Semantic Document API
-1.0.0-alpha.0 | [`@pshaw/semantic-documents-scss`](patrick-shaw/semantic-documents-scss/README.md) | SCSS files for @pshaw/semantic-documents-scss
-1.0.0-alpha.0 | [`@pshaw/semantic-documents-style-root`](patrick-shaw/semantic-documents-style-root/README.md) | Semantic document style root for @pshaw/semantic-documents-scss
+1.0.0-alpha.0 | [`@pshaw/contextual-documents`](patrick-shaw/contextual-documents/README.md) | A nice, sensible, web component based Contextual Document API
+1.0.0-alpha.0 | [`@pshaw/contextual-documents-scss`](patrick-shaw/contextual-documents-scss/README.md) | SCSS files for @pshaw/contextual-documents-scss
+1.0.0-alpha.0 | [`@pshaw/contextual-documents-style-root`](patrick-shaw/contextual-documents-style-root/README.md) | Contextual document style root for @pshaw/contextual-documents-scss
 1.4.2 | [`@pshaw/tslint-preset-core`](build-packages/tslint-preset-core/README.md) | A pratical style preset for TSLint
 1.4.2 | [`@pshaw/tslint-preset-react`](build-packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
@@ -45,15 +45,15 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pipelines/babel-parse`](pipelines/pipelines-babel-parse/README.md) | Pipelines Babel integration
 1.0.0-alpha.0 | [`@pipelines/core`](pipelines/pipelines-core/README.md) | Programatic API for Buildplan
 
-### Semantic documents
+### Contextual documents
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`@semantic-documents/classname-picker`](semantic-documents/semantic-documents-classname-picker/README.md) | TODO
-1.0.0-alpha.0 | [`@semantic-documents/element`](semantic-documents/semantic-documents-element/README.md) | TODO
-1.0.0-alpha.0 | [`@semantic-documents/html-elements`](semantic-documents/semantic-documents-html-elements/README.md) | Helper HTMLElement classes that implement elements that use the @semantic-documents/html-symbols
-1.0.0-alpha.0 | [`@semantic-documents/html-symbols`](semantic-documents/semantic-documents-html-symbols/README.md) | TODO
-1.0.0-alpha.0 | [`@semantic-documents/matcher-info`](semantic-documents/semantic-documents-matcher-info/README.md) | TODO
-1.0.0-alpha.0 | [`@semantic-documents/suffix-element`](semantic-documents/semantic-documents-suffix-element/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/classname-picker`](contextual-documents/contextual-documents-classname-picker/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/element`](contextual-documents/contextual-documents-element/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/html-elements`](contextual-documents/contextual-documents-html-elements/README.md) | Helper HTMLElement classes that implement elements that use the @contextual-documents/html-symbols
+1.0.0-alpha.0 | [`@contextual-documents/html-symbols`](contextual-documents/contextual-documents-html-symbols/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/matcher-info`](contextual-documents/contextual-documents-matcher-info/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/suffix-element`](contextual-documents/contextual-documents-suffix-element/README.md) | TODO
 
 ### By Example
 Version | Package | Description

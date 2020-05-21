@@ -55,10 +55,10 @@ misc/*/lib/
 misc/*/esm/
 misc/*/dist/
 misc/*/stats.html
-semantic-documents/*/lib/
-semantic-documents/*/esm/
-semantic-documents/*/dist/
-semantic-documents/*/stats.html
+contextual-documents/*/lib/
+contextual-documents/*/esm/
+contextual-documents/*/dist/
+contextual-documents/*/stats.html
 patrick-shaw/*/lib/
 patrick-shaw/*/esm/
 patrick-shaw/*/dist/

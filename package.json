@@ -6,7 +6,7 @@
     "misc/*",
     "faultjs/*",
     "build-packages/*",
-    "semantic-documents/*",
+    "contextual-documents/*",
     "patrick-shaw/*",
     "byexample/*",
     "buildplan/*",

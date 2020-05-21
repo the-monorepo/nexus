@@ -9,8 +9,8 @@
     "directory": "misc/page-breaker-chrome"
   },
   "dependencies": {
-    "@pshaw/semantic-documents": "workspace:patrick-shaw/semantic-documents",
-    "@semantic-documents/html-elements": "workspace:semantic-documents/semantic-documents-html-elements",
+    "@contextual-documents/html-elements": "workspace:contextual-documents/contextual-documents-html-elements",
+    "@pshaw/contextual-documents": "workspace:patrick-shaw/contextual-documents",
     "@types/chrome": "^0.0.106",
     "cinder": "workspace:cinder/cinder",
     "classnames": "^2.2.6",
