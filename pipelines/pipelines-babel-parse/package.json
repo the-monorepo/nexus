@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@babel/parser": "^7.9.6",
+    "@babel/types": "^7.9.6",
+    "@pipelines/core": "workspace:pipelines/pipelines-core",
+    "@types/node": "^14.0.4"
+  },
+  "peerDependencies": {
+    "@babel/parser": "^7.9.6",
+    "@babel/types": "^7.9.6",
+    "@pipelines/core": "*"
+  }
+}
