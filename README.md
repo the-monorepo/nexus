@@ -10,13 +10,9 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/fs`](misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.3 | [`@pshaw/resume-template`](misc/resume-template/README.md) | A template you can use to generate resumes
-1.4.2 | [`@pshaw/tslint-preset-core`](build-packages/tslint-preset-core/README.md) | A pratical style preset for TSLint
-1.4.2 | [`@pshaw/tslint-preset-react`](build-packages/tslint-preset-react/README.md) | A pratical React style preset for TSLint
 1.6.1 | [`css-color-checker`](misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
-1.0.0-alpha.6 | [`gulp-staged`](build-packages/gulp-staged/README.md) | A gulp plugin that filters out unstaged files from streams
-1.0.0-alpha.5 | [`gulp-status-git-filter`](build-packages/gulp-status-git-filter/README.md) | A gulp plugin that filters out files based off their git status
 2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.6.1 | [`named-css-colors`](misc/named-css-colors/README.md) | Package of named CSS colors and their values
