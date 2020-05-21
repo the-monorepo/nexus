@@ -1,4 +1,38 @@
 {
+  "name": "@pipelines/babel-parse",
+  "version": "1.0.0-alpha.0",
+  "description": "Pipelines Babel integration",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "exports": {
+    "monorepo-original": "./src/index.ts",
+    "import": "./esm/index.js",
+    "require": "./lib/index.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "directory": "pipelines/core"
+  },
+  "keywords": [
+    "css",
+    "color",
+    "type",
+    "check",
+    "util",
+    "helper",
+    "string",
+    "pattern",
+    "typescript",
+    "regex"
+  ],
   "devDependencies": {
     "@babel/parser": "^7.9.6",
     "@babel/types": "^7.9.6",

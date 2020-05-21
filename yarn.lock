@@ -3359,6 +3359,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pipelines/babel-parse@workspace:pipelines/pipelines-babel-parse":
+  version: 0.0.0-use.local
+  resolution: "@pipelines/babel-parse@workspace:pipelines/pipelines-babel-parse"
+  dependencies:
+    "@babel/parser": ^7.9.6
+    "@babel/types": ^7.9.6
+    "@pipelines/core": "workspace:pipelines/pipelines-core"
+    "@types/node": ^14.0.4
+  peerDependencies:
+    "@babel/parser": ^7.9.6
+    "@babel/types": ^7.9.6
+    "@pipelines/core": "*"
+  languageName: unknown
+  linkType: soft
+
 "@pipelines/core@workspace:pipelines/pipelines-core":
   version: 0.0.0-use.local
   resolution: "@pipelines/core@workspace:pipelines/pipelines-core"
@@ -8695,16 +8710,6 @@ __metadata:
     base64-js: ^1.0.2
     ieee754: ^1.1.4
   checksum: 3/e18fdf099c25cae354d673c7deee0391978bde5a47b785cf81e118c75853f0f36838b0a5ea5ee7adf8c02eedb9664292608efdcac9945f4f4f514d14054656f7
-  languageName: node
-  linkType: hard
-
-"build-pshaw-logger@npm:@pshaw/logger@2.0.1":
-  version: 2.0.1
-  resolution: "@pshaw/logger@npm:2.0.1"
-  peerDependencies:
-    "@pshaw/winston-formats": ^1.0.3
-    winston: ^3.1.0
-  checksum: 3/0fb315bd4cbb37bb2c1ec293f17c162cbacd093d4e0448d7505df74ca651a72a7077bb0431f78e2dabddf8b3ff49445b124574b0a60cb19a25dda071a85e4f3c
   languageName: node
   linkType: hard
 
@@ -17905,6 +17910,7 @@ fsevents@^1.2.7:
     "@pipelines/core": "workspace:pipelines/pipelines-core"
     "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core"
     "@pshaw/eslint-config-preset": "workspace:patrick-shaw/eslint-config-preset"
+    "@pshaw/logger": "workspace:misc/logger"
     "@pshaw/markdown-util": "workspace:misc/markdown-util"
     "@pshaw/winston-formats": "workspace:patrick-shaw/winston-formats"
     "@storybook/addon-actions": ^5.3.18
@@ -17919,7 +17925,6 @@ fsevents@^1.2.7:
     "@writeme/core": "workspace:misc/writeme-core"
     babel-loader: ^8.1.0
     babel-plugin-istanbul: ^6.0.0
-    build-pshaw-logger: "npm:@pshaw/logger@2.0.1"
     chalk: ^3.0.0
     codecov: ^3.6.1
     copy-webpack-plugin: ^5.1.1
@@ -19616,21 +19621,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pipelines-babel-parse-a3dc48@workspace:pipelines/pipelines-babel-parse":
-  version: 0.0.0-use.local
-  resolution: "pipelines-babel-parse-a3dc48@workspace:pipelines/pipelines-babel-parse"
-  dependencies:
-    "@babel/parser": ^7.9.6
-    "@babel/types": ^7.9.6
-    "@pipelines/core": "workspace:pipelines/pipelines-core"
-    "@types/node": ^14.0.4
-  peerDependencies:
-    "@babel/parser": ^7.9.6
-    "@babel/types": ^7.9.6
-    "@pipelines/core": "*"
-  languageName: unknown
-  linkType: soft
-
 "pirates@npm:^4.0.0":
   version: 4.0.1
   resolution: "pirates@npm:4.0.1"
@@ -20514,16 +20504,6 @@ fsevents@^1.2.7:
   checksum: 3/5464d5cf6c6f083cc60cb45b074fb9a4a92ba4d3e0d89e9b2fa1906d8151fd3766784a426725ccf1af50d1c29963ac20b13829933549830e08a6704e3f95e08c
   languageName: node
   linkType: hard
-
-"pumpify-to-promise@workspace:misc/pumpify-to-promise":
-  version: 0.0.0-use.local
-  resolution: "pumpify-to-promise@workspace:misc/pumpify-to-promise"
-  dependencies:
-    "@types/yargs": ^15.0.4
-    jest-mock: ^25.5.0
-    yargs: ^15.3.1
-  languageName: unknown
-  linkType: soft
 
 "pumpify@npm:^1.3.3, pumpify@npm:^1.3.5":
   version: 1.5.1

@@ -4,8 +4,6 @@ import 'source-map-support/register';
  */
 import { join, sep, relative } from 'path';
 
-import * as pshawLogger from 'build-pshaw-logger';
-
 import chalk from 'chalk';
 
 import gulp from 'gulp';
@@ -25,6 +23,7 @@ import {
 } from '@buildplan/core';
 
 import config from '@monorepo/config';
+import * as pshawLogger from '@pshaw/logger';
 
 import filter from 'stream-filter-glob';
 

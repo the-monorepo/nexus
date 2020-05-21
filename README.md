@@ -7,6 +7,7 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 Version | Package | Description
 --- | --- | ---
 1.0.0-alpha.0 | [`@buildplan/core`](buildplan/core/README.md) | Programatic API for Buildplan
+1.0.0-alpha.0 | [`@pipelines/babel-parse`](pipelines/pipelines-babel-parse/README.md) | Pipelines Babel integration
 1.0.0-alpha.0 | [`@pipelines/core`](pipelines/pipelines-core/README.md) | Programatic API for Buildplan
 1.0.0-alpha.0 | [`@pshaw/colors-scss`](patrick-shaw/colors-scss/README.md) | Nice colors SCSS package
 1.4.3 | [`@pshaw/convict-util`](misc/convict-util/README.md) | A helper package for reading configs in using convict
