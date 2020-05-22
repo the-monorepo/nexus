@@ -3789,22 +3789,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/tslint-preset-core@workspace:build-packages/tslint-preset-core":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/tslint-preset-core@workspace:build-packages/tslint-preset-core"
-  peerDependencies:
-    tslint: ^5.12.0
-  languageName: unknown
-  linkType: soft
-
-"@pshaw/tslint-preset-react@workspace:build-packages/tslint-preset-react":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/tslint-preset-react@workspace:build-packages/tslint-preset-react"
-  peerDependencies:
-    tslint: ^5.12.0
-  languageName: unknown
-  linkType: soft
-
 "@pshaw/typography-scss@workspace:patrick-shaw/typography-scss":
   version: 0.0.0-use.local
   resolution: "@pshaw/typography-scss@workspace:patrick-shaw/typography-scss"
@@ -9305,13 +9289,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clean-git-ref@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "clean-git-ref@npm:2.0.1"
-  checksum: 3/12ab3c05f9194e3656d31dca8884b9383b360dbf1de8aae15476665c8165a475a1072c1e783bd0acb46c71d94ada068d83945da322816562b8d23c645aa74474
-  languageName: node
-  linkType: hard
-
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -10967,13 +10944,6 @@ __metadata:
   version: 25.2.6
   resolution: "diff-sequences@npm:25.2.6"
   checksum: 3/332484fc00f6beca726d8dbc13095f6006527002bef936a07b4e6bbec681fbaac484e1a7ea4e9ab0d53e375d1cde9e642c8cce31dfe6329cfdf8f01f26b17505
-  languageName: node
-  linkType: hard
-
-"diff3@npm:0.0.3":
-  version: 0.0.3
-  resolution: "diff3@npm:0.0.3"
-  checksum: 3/9a86c0e3ca3cd92e939e3aa6a92b1efa0e1e2b5992fe360e0b8405f717d9fd9e69f43a507b5094ebcce17949ecb90c32586d0cd8b15e6ca6801fe913a1764cf5
   languageName: node
   linkType: hard
 
@@ -13605,7 +13575,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"globalyzer@npm:^0.1.0, globalyzer@npm:^0.1.4":
+"globalyzer@npm:^0.1.0":
   version: 0.1.4
   resolution: "globalyzer@npm:0.1.4"
   checksum: 3/31b1ffae741a3dbe3b1dc8dc7fd637b852583af4842839ba101d72f1beab9c0499c102643274fc202eac609711e64dfa32354fc976e239ff7a38a0dbc35e47f1
@@ -13905,23 +13875,6 @@ fsevents@^1.2.7:
   checksum: 3/467191db6a2f87202f0d6277b81af6479e95eeb9b2a8bf12e27d02b10c8be46441185354fa4d13180c67859a4cdefe5b21e8c9b4768168392425f5193e367e3d
   languageName: node
   linkType: hard
-
-"gulp-staged@workspace:build-packages/gulp-staged":
-  version: 0.0.0-use.local
-  resolution: "gulp-staged@workspace:build-packages/gulp-staged"
-  dependencies:
-    gulp-status-git-filter: ^1.0.0-alpha.5
-  languageName: unknown
-  linkType: soft
-
-"gulp-status-git-filter@^1.0.0-alpha.5, gulp-status-git-filter@workspace:build-packages/gulp-status-git-filter":
-  version: 0.0.0-use.local
-  resolution: "gulp-status-git-filter@workspace:build-packages/gulp-status-git-filter"
-  dependencies:
-    isomorphic-git: ^0.78.5
-    streamfilter: 2
-  languageName: unknown
-  linkType: soft
 
 "gulp-typescript@npm:^6.0.0-alpha.1":
   version: 6.0.0-alpha.1
@@ -15748,31 +15701,6 @@ fsevents@^1.2.7:
   bin:
     isogit: ./cli.js
   checksum: 3/24a3cd701afae05c28673ec5c20f197a8032173c324d34a960617b08c97e655ebe9f81a21a8697d8fe503d11439e7e5780a79ea151a1f4f889488de623787b74
-  languageName: node
-  linkType: hard
-
-"isomorphic-git@npm:^0.78.5":
-  version: 0.78.5
-  resolution: "isomorphic-git@npm:0.78.5"
-  dependencies:
-    async-lock: ^1.1.0
-    clean-git-ref: ^2.0.1
-    crc-32: ^1.2.0
-    diff3: 0.0.3
-    git-apply-delta: 0.0.7
-    globalyzer: ^0.1.4
-    globrex: ^0.1.2
-    ignore: ^5.1.4
-    marky: ^1.2.1
-    minimisted: ^2.0.0
-    pako: ^1.0.10
-    pify: ^4.0.1
-    readable-stream: ^3.4.0
-    sha.js: ^2.4.9
-    simple-get: ^3.0.2
-  bin:
-    isogit: ./cli.js
-  checksum: 3/a250410f103b1b0bc1a7349d1edb2c12fa841ecf1bab1e5f11f6965dcb178f346037a79c6d418a9ba7d1ac3da810cafc36fb597d6b005dcfe30147938c089276
   languageName: node
   linkType: hard
 
@@ -23322,15 +23250,6 @@ fsevents@^1.2.7:
     end-of-stream: ~1.1.0
     stream-to-array: ~2.3.0
   checksum: 3/1f26f85d571d94a308f9332c79f2652697f9893733e3a2aebca1aaaf4d2a0d0655150b8b0a88105256a50510d9e9b8a0b1e5d9139b464ee1f9285be3647c3b83
-  languageName: node
-  linkType: hard
-
-"streamfilter@npm:2":
-  version: 2.0.0
-  resolution: "streamfilter@npm:2.0.0"
-  dependencies:
-    readable-stream: ^2.3.3
-  checksum: 3/f837729cc218ed31b45cdd9d59225afcff415eb023d384e5abac6eac35c14576f3be440c371276d386f7de74920280ed6fc265a33cee1b44bb0d2b04b9bdc0ac
   languageName: node
   linkType: hard
 
