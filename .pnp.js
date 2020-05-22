@@ -187,24 +187,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:faultjs/fault-types"
       },
       {
-        "name": "gulp-staged",
-        "reference": "workspace:build-packages/gulp-staged"
-      },
-      {
-        "name": "gulp-status-git-filter",
-        "reference": "workspace:build-packages/gulp-status-git-filter"
-      },
-      {
         "name": "@monorepo/config",
         "reference": "workspace:build-packages/monorepo-config"
-      },
-      {
-        "name": "@pshaw/tslint-preset-core",
-        "reference": "workspace:build-packages/tslint-preset-core"
-      },
-      {
-        "name": "@pshaw/tslint-preset-react",
-        "reference": "workspace:build-packages/tslint-preset-react"
       },
       {
         "name": "@contextual-documents/classname-picker",
@@ -1427,14 +1411,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@pshaw/resume-template",
         "workspace:misc/resume-template"
-      ],
-      [
-        "@pshaw/tslint-preset-core",
-        "workspace:build-packages/tslint-preset-core"
-      ],
-      [
-        "@pshaw/tslint-preset-react",
-        "workspace:build-packages/tslint-preset-react"
       ],
       [
         "@pshaw/typography-scss",
@@ -3166,7 +3142,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "clean-git-ref",
-        "npm:2.0.1"
+        "npm:1.0.3"
       ],
       [
         "clean-stack",
@@ -3735,10 +3711,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "diff-sequences",
         "npm:24.9.0"
-      ],
-      [
-        "diff3",
-        "npm:0.0.3"
       ],
       [
         "diffie-hellman",
@@ -4605,14 +4577,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.6.5"
       ],
       [
-        "gulp-staged",
-        "workspace:build-packages/gulp-staged"
-      ],
-      [
-        "gulp-status-git-filter",
-        "workspace:build-packages/gulp-status-git-filter"
-      ],
-      [
         "gulp-typescript",
         "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.0-alpha.1"
       ],
@@ -5210,7 +5174,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "isomorphic-git",
-        "npm:0.78.5"
+        "npm:0.58.2"
       ],
       [
         "isstream",
@@ -14582,24 +14546,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
-      ["@pshaw/tslint-preset-core", [
-        ["workspace:build-packages/tslint-preset-core", {
-          "packageLocation": "./build-packages/tslint-preset-core/",
-          "packageDependencies": [
-            ["@pshaw/tslint-preset-core", "workspace:build-packages/tslint-preset-core"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@pshaw/tslint-preset-react", [
-        ["workspace:build-packages/tslint-preset-react", {
-          "packageLocation": "./build-packages/tslint-preset-react/",
-          "packageDependencies": [
-            ["@pshaw/tslint-preset-react", "workspace:build-packages/tslint-preset-react"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
       ["@pshaw/typography-scss", [
         ["workspace:patrick-shaw/typography-scss", {
           "packageLocation": "./patrick-shaw/typography-scss/",
@@ -21239,13 +21185,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["clean-git-ref", "npm:1.0.3"]
           ],
           "linkType": "HARD",
-        }],
-        ["npm:2.0.1", {
-          "packageLocation": "./.yarn/cache/clean-git-ref-npm-2.0.1-5994838863-3.zip/node_modules/clean-git-ref/",
-          "packageDependencies": [
-            ["clean-git-ref", "npm:2.0.1"]
-          ],
-          "linkType": "HARD",
         }]
       ]],
       ["clean-stack", [
@@ -23165,15 +23104,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/diff-sequences-npm-25.2.6-d72e0e66bc-3.zip/node_modules/diff-sequences/",
           "packageDependencies": [
             ["diff-sequences", "npm:25.2.6"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["diff3", [
-        ["npm:0.0.3", {
-          "packageLocation": "./.yarn/cache/diff3-npm-0.0.3-63099a9be4-3.zip/node_modules/diff3/",
-          "packageDependencies": [
-            ["diff3", "npm:0.0.3"]
           ],
           "linkType": "HARD",
         }]
@@ -26369,27 +26299,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["gulp-staged", [
-        ["workspace:build-packages/gulp-staged", {
-          "packageLocation": "./build-packages/gulp-staged/",
-          "packageDependencies": [
-            ["gulp-staged", "workspace:build-packages/gulp-staged"],
-            ["gulp-status-git-filter", "workspace:build-packages/gulp-status-git-filter"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["gulp-status-git-filter", [
-        ["workspace:build-packages/gulp-status-git-filter", {
-          "packageLocation": "./build-packages/gulp-status-git-filter/",
-          "packageDependencies": [
-            ["gulp-status-git-filter", "workspace:build-packages/gulp-status-git-filter"],
-            ["isomorphic-git", "npm:0.78.5"],
-            ["streamfilter", "npm:2.0.0"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
       ["gulp-typescript", [
         ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.0-alpha.1", {
           "packageLocation": "./.yarn/$$virtual/gulp-typescript-virtual-4d4570da0a/0/cache/gulp-typescript-npm-6.0.0-alpha.1-98557634b8-3.zip/node_modules/gulp-typescript/",
@@ -28404,28 +28313,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["clean-git-ref", "npm:1.0.3"],
             ["crc-32", "npm:1.2.0"],
             ["diff-lines", "npm:1.1.1"],
-            ["git-apply-delta", "npm:0.0.7"],
-            ["globalyzer", "npm:0.1.4"],
-            ["globrex", "npm:0.1.2"],
-            ["ignore", "npm:5.1.4"],
-            ["marky", "npm:1.2.1"],
-            ["minimisted", "npm:2.0.0"],
-            ["pako", "npm:1.0.11"],
-            ["pify", "npm:4.0.1"],
-            ["readable-stream", "npm:3.6.0"],
-            ["sha.js", "npm:2.4.11"],
-            ["simple-get", "npm:3.1.0"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:0.78.5", {
-          "packageLocation": "./.yarn/cache/isomorphic-git-npm-0.78.5-1cd8475cda-3.zip/node_modules/isomorphic-git/",
-          "packageDependencies": [
-            ["isomorphic-git", "npm:0.78.5"],
-            ["async-lock", "npm:1.2.4"],
-            ["clean-git-ref", "npm:2.0.1"],
-            ["crc-32", "npm:1.2.0"],
-            ["diff3", "npm:0.0.3"],
             ["git-apply-delta", "npm:0.0.7"],
             ["globalyzer", "npm:0.1.4"],
             ["globrex", "npm:0.1.2"],
@@ -36983,14 +36870,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["streamfilter", [
-        ["npm:2.0.0", {
-          "packageLocation": "./.yarn/cache/streamfilter-npm-2.0.0-c3e83cc921-3.zip/node_modules/streamfilter/",
-          "packageDependencies": [
-            ["streamfilter", "npm:2.0.0"],
-            ["readable-stream", "npm:2.3.7"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:3.0.0", {
           "packageLocation": "./.yarn/cache/streamfilter-npm-3.0.0-0163aca8ee-3.zip/node_modules/streamfilter/",
           "packageDependencies": [
