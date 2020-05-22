@@ -104,7 +104,6 @@
     "husky": "^4.2.3",
     "jest-mock-functions": "workspace:misc/jest-mock-functions",
     "json-loader": "^0.5.7",
-    "lerna": "^3.18.3",
     "lint-staged": "^10.2.2",
     "micromatch": "^4.0.2",
     "minimist": "^1.2.5",
