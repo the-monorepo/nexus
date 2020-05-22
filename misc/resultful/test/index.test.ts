@@ -10,6 +10,7 @@ import {
   isException,
   isFailure,
   isSuccess,
+  handle,
 } from '../src/index';
 
 const testInfoSet = {
@@ -53,11 +54,26 @@ describe('resultful', () => {
 
       const payload = (testInfo.create as any)(testInfo.value);
       expect(payload.type).toBe(testInfo.type);
+      for (const otherKey of otherKeys) {
+        expect(payload[otherKey]).toBeUndefined();
+      }
       expect(payload[testInfo.key]).toBe(testInfo.value);
       expect(isError(payload)).toBe(testInfo.isError);
       expect(isException(payload)).toBe(testInfo.isException);
       expect(isSuccess(payload)).toBe(testInfo.isSuccess);
       expect(isFailure(payload)).toBe(testInfo.isFailure);
+
+      const handlers = {
+        payload: jest.fn(),
+        error: jest.fn(),
+        exception: jest.fn(),
+      };
+      handle(payload, handlers);
+
+      expect(handlers[testInfo.key]).toHaveBeenCalledTimes(1);
+      for (const otherKey of otherKeys) {
+        expect(handlers[otherKey]).not.toHaveBeenCalled();
+      }
     });
   }
 });
