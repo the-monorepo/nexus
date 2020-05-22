@@ -18,6 +18,7 @@ const testInfoSet = {
     type: types.SUCCESS,
     key: keys.SUCCESS as typeof keys.SUCCESS,
     value: Symbol('success'),
+    handleValue: Symbol('handled-success'),
     create: success,
     isSuccess: true,
     isError: false,
@@ -28,6 +29,7 @@ const testInfoSet = {
     type: types.ERROR,
     key: keys.ERROR as typeof keys.ERROR,
     value: Symbol('error'),
+    handleValue: Symbol('handled-error'),
     create: error,
     isSuccess: false,
     isError: true,
@@ -38,6 +40,7 @@ const testInfoSet = {
     type: types.EXCEPTION,
     key: keys.EXCEPTION as typeof keys.EXCEPTION,
     value: Symbol('exception'),
+    handleValue: Symbol('handled-exception'),
     create: exception,
     isSuccess: false,
     isError: false,
@@ -64,11 +67,13 @@ describe('resultful', () => {
       expect(isFailure(payload)).toBe(testInfo.isFailure);
 
       const handlers = {
-        payload: jest.fn(),
-        error: jest.fn(),
-        exception: jest.fn(),
+        payload: jest.fn().mockReturnValue(testInfoSet.success.handleValue),
+        error: jest.fn().mockReturnValue(testInfoSet.error.handleValue),
+        exception: jest.fn().mockReturnValue(testInfoSet.exception.handleValue),
       };
-      handle(payload, handlers);
+
+      const value = handle(payload, handlers);
+      expect(value).toBe(testInfo.handleValue);
 
       expect(handlers[testInfo.key]).toHaveBeenCalledTimes(1);
       for (const otherKey of otherKeys) {

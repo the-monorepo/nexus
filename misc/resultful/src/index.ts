@@ -74,7 +74,7 @@ export const success = <T>(payload: T): SuccessResult<T> => ({
  * Creates an "exception" result - Return this result if some unexpected,
  * thought-to-be-impossible/didn't-think-about-it type erroneous behaviour has ocurred
  */
-export const exception = <EX extends Error>(exception: EX): ExceptionResult<EX> => {
+export const exception = <EX>(exception: EX): ExceptionResult<EX> => {
   return {
     type: types.EXCEPTION,
     payload: undefined,
