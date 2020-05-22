@@ -1,3 +1,5 @@
+const config = require('@monorepo/config');
+
 const commonRules = {
   'react/react-in-jsx-scope': 'off',
   "react/jsx-key": 'off'
@@ -27,20 +29,10 @@ module.exports = {
     }
   },
   "settings": {
-    "import/extensions": [
-      ".js",
-      ".jsx",
-      ".ts",
-      ".tsx"
-    ],
+    "import/extensions": config.codeExtensions.map(extension => `.${extension}`),
     "import/resolver": {
       "node": {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx"
-        ]
+        "extensions": config.codeExtensions.map(extension => `.${extension}`),
       }
     }
   },
@@ -61,7 +53,7 @@ module.exports = {
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
-    "files": ["**/test/**", "build-packages/**", "**/*.config.js", "**/gulpfile.js"],
+    "files": ["**/test/**", "build-packages/**", "**/*.config.js", '.eslintrc.js'],
     "rules": {
       ...commonRules,
       "@typescript-eslint/no-var-requires": "off"
