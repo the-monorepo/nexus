@@ -1,15 +1,15 @@
-# Symbols
+# Types
 
-Symbols for the different result types returned by resultful
+String constants for the different result types returned by resultful
 
 ## Installation
 
 ```bash
-npm install --save @resultful/symbols
+npm install --save @resultful/types
 ```
 or
 ```bash
-yarn add @resultful/symbols
+yarn add @resultful/types
 ```
 
 ---
