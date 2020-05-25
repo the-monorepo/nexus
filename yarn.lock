@@ -3827,9 +3827,6 @@ __metadata:
 "@resultful/symbols@workspace:misc/resultful-symbols":
   version: 0.0.0-use.local
   resolution: "@resultful/symbols@workspace:misc/resultful-symbols"
-  dependencies:
-    micromatch: ^4.0.2
-    streamfilter: ^3.0.0
   languageName: unknown
   linkType: soft
 
@@ -21993,8 +21990,6 @@ fsevents@^1.2.7:
   resolution: "resultful@workspace:misc/resultful"
   dependencies:
     "@resultful/symbols": "workspace:misc/resultful-symbols"
-    micromatch: ^4.0.2
-    streamfilter: ^3.0.0
   languageName: unknown
   linkType: soft
 

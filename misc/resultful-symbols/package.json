@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0",
+  "version": "0.0.1",
   "name": "@resultful/symbols",
   "description": "Symbols for the different result types returned by resultful",
   "keywords": [],
@@ -24,10 +24,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
-  "dependencies": {
-    "micromatch": "^4.0.2",
-    "streamfilter": "^3.0.0"
   }
 }
