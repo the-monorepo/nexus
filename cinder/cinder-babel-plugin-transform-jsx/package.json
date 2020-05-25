@@ -6,7 +6,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "cinder/cinder-babel-plugin-transform-jsx"
   },
   "files": [

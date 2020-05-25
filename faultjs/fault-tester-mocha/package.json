@@ -14,7 +14,7 @@
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "faultjs/fault-tester-mocha"
   },
   "keywords": [

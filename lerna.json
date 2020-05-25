@@ -2,7 +2,7 @@
   "lerna": "3.2.1",
   "version": "independent",
   "changelog": {
-    "repo": "PatrickShaw/monorepo",
+    "repo": "the-monorepo/monorepo",
     "cacheDir": ".changelog"
   },
   "packages": [
