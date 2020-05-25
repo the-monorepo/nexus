@@ -20,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "monorepo"
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34"

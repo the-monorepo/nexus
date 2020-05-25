@@ -22,7 +22,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/PatrickShaw/monorepo.git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "patrick-shaw/eslint-config"
   },
   "publishConfig": {

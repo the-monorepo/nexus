@@ -17,7 +17,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PatrickShaw/monorepo.git"
+    "url": "https://github.com/the-monorepo/monorepo.git"
   },
   "scripts": {
     "run:buildplan": "yarn node --require=\"./buildBabelRegister.js\" --require=\"./original-code-require-override.js\" buildplan.ts",
