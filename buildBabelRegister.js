@@ -7,11 +7,8 @@ const { some } = require('micromatch');
 const config = require('@monorepo/config');
 
 const transpilationGlobs = [
-  'gulpfile.ts',
   'webpack.config.ts',
   'buildplan.ts',
-  'build-cli.ts',
-  'test.js',
   ...config.buildableSourceCodeGlobs,
 ];
 
@@ -21,7 +18,7 @@ register({
   extensions: config.codeExtensions.map((extension) => `.${extension}`),
   only: [
     (testPath) => {
-      const relativePath = relative(process.cwd(), testPath);
+      const relativePath = relative(process.cwd(), testPath).replace(/^\.yarn\/\$\$virtual\/[^\/]+\/\d+\//i, '');
 
       return some(relativePath, transpilationGlobs, { ignore: transpilationIgnoreGlobs });
     },

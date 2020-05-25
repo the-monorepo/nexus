@@ -8,6 +8,11 @@
   "main": "./lib/index.js",
   "module": "./src/index.js",
   "types": "./src/index.ts",
+  "exports": {
+    "monorepo-original": "./src/index.ts",
+    "import": "./esm/index.js",
+    "require": "./lib/index.js"
+  },
   "license": "MIT",
   "sideEffects": false,
   "repository": {
