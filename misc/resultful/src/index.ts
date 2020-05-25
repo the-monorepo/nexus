@@ -1,4 +1,4 @@
-import * as types from '@resultful/symbols';
+import * as types from '@resultful/types';
 export { types };
 
 export type AbstractResult<SymbolType, PayloadType, ErrorType, ExceptionType> = {
@@ -89,7 +89,6 @@ export const exception = <EX>(exception: EX): ExceptionResult<EX> => {
   };
 };
 
-/*
 export type SimpleHandleCallback<T, V, R> = (value: V, result: T) => R;
 
 export type SuccessCallback<T, R> = SimpleHandleCallback<SuccessResult<T>, T, R>;
@@ -102,37 +101,34 @@ export type ExceptionCallback<EX, R> = SimpleHandleCallback<ExceptionResult<EX>,
 
 type HandleSuccessOptions<P, PR> = {
   payload: SuccessCallback<P, PR>;
-}
+};
 
 type HandleErrorOptions<E, ER> = {
   error: ErrorCallback<E, ER>;
-}
+};
 
 type HandleExceptionOptions<EX, EXR> = {
   exception: ExceptionCallback<EX, EXR>;
-}
+};
 
-type HandleFailureOptions<E, EX, FR> ={
+type HandleFailureOptions<E, EX, FR> = {
   failure: FailureCallback<E, EX, FR>;
-}
+};
 
-export type SuccessErrorExceptionHandleOptions<P, PR, E, ER, EX, EXR> = 
-  Partial<
-    HandleSuccessOptions<P ,PR> &
+export type SuccessErrorExceptionHandleOptions<P, PR, E, ER, EX, EXR> = Partial<
+  HandleSuccessOptions<P, PR> &
     HandleErrorOptions<E, ER> &
     HandleExceptionOptions<EX, EXR>
-  > & {
-    failure?: never,
-  };
+> & {
+  failure?: never;
+};
 
-export type SuccessFailureHandleOptions<P, PR, E, EX, FR> = 
-  Partial<
-    HandleSuccessOptions<P ,PR> &
-    HandleFailureOptions<E, EX, FR>
-  > & {
-    error?: never;
-    exception?: never;
-  };
+export type SuccessFailureHandleOptions<P, PR, E, EX, FR> = Partial<
+  HandleSuccessOptions<P, PR> & HandleFailureOptions<E, EX, FR>
+> & {
+  error?: never;
+  exception?: never;
+};
 
 export type HandleOptions<P, PR, E, ER, EX, EXR, FR> =
   | SuccessErrorExceptionHandleOptions<P, PR, E, ER, EX, EXR>
@@ -146,52 +142,97 @@ type NonUndefined<T> = Exclude<T, undefined>;
 type ResultKeys = 'payload' | 'error' | 'exception';
 type OptionKeys = ResultKeys | 'failure';
 
-type HandledResultType<ResultSymbol extends types.Symbols, ResultKey extends ResultKeys, OptionKey extends OptionKeys, Options extends AnyHandleOptions, OriginalResult extends AnyResult> =
-  ResultSymbol extends OriginalResult['type'] ? (Options[OptionKey] extends undefined ? OriginalResult[ResultKey] : ReturnType<NonUndefined<Options[OptionKey]>>) : never;
+type HandledResultType<
+  RType extends types.ResultType,
+  OMatcher extends AnyHandleOptions,
+  OKey extends OptionKeys,
+  PThrough,
+  R extends AnyResult,
+  O extends AnyHandleOptions
+> = R['type'] extends RType
+  ? O extends OMatcher
+    ? ReturnType<NonUndefined<O[OKey]>>
+    : PThrough
+  : never;
 
-type Test<T> = T extends undefined ? 'yep' : 'nope';
-type Test2= Test<'???'>;
-type Test3= Test<undefined>;
-type Test4= Test<undefined | 'rawr'>;
+export type HandledResult<R extends AnyResult, O extends AnyHandleOptions> =
+  | HandledResultType<
+      typeof types.SUCCESS,
+      HandleSuccessOptions<any, any>,
+      'payload',
+      R,
+      R,
+      O
+    >
+  | HandledResultType<typeof types.ERROR, HandleErrorOptions<any, any>, 'error', R, R, O>
+  | HandledResultType<
+      typeof types.ERROR,
+      HandleFailureOptions<any, any, any>,
+      'failure',
+      | HandledResultType<
+          typeof types.EXCEPTION,
+          HandleExceptionOptions<any, any>,
+          'exception',
+          R,
+          R,
+          O
+        >
+      | HandledResultType<
+          typeof types.EXCEPTION,
+          HandleFailureOptions<any, any, any>,
+          'failure',
+          R,
+          R,
+          O
+        >,
+      R,
+      O
+    >;
 
-export type HandledResult<OriginalResult extends AnyResult, Options extends AnyHandleOptions> = 
-typeof types.SUCCESS extends OriginalResult['type'] ? (Options['payload'] extends undefined ? OriginalResult['payload'] : ReturnType<NonUndefined<Options['payload']>>) : never;
-
-type PassThroughResult = {
-  payload: <T>(a: T) => T,
-  error: <T>(a: T) => T,
-  exception: <T>(a: T) => T
+type HandleResultFn = {
+  <R extends AnyResult>(result: R): R;
+  <R extends AnyResult, O extends AnyHandleOptions>(result: R, options: O): HandledResult<
+    R,
+    O
+  >;
 };
 
-type Handle = {
-  <
-    R extends Result<infer P, infer E, infer EX>,
-    O extends HandleOptions<infer P, infer PR, infer E, infer ER, infer EX, infer EXR, infer FR>
-  >(
-    result: R,
-    options: O
-  ): R['type'] extends typeof types.SUCCESS ? O['payload'] extends undefined ? PR : ReturnType<O['payload']> : never;
-}
-
-export const handle: Handle = (
-  result: SuccessResult<P>,
-  // TODO: Remove type assertion
-  options: O = ({} as any),
-): => {
+const internalHandle = <P, PR, E, ER, EX, EXR, FR>(
+  result: Result<P, E, EX>,
+  options: HandleOptions<P, PR, E, ER, EX, EXR, FR>,
+): Result<P, E, EX> | PR | ER | EXR | FR => {
   switch (result.type) {
     case types.SUCCESS: {
       const { payload } = result;
-      if (options.payload === undefined) {
-        return result.payload;
-      } else {
+      if (options.payload !== undefined) {
         return options.payload(payload, result);
       }
+      break;
+    }
+
+    case types.ERROR: {
+      const { error } = result;
+      if (options.error !== undefined) {
+        return options.error(error, result);
+      } else if (options.failure !== undefined) {
+        return options.failure(error, undefined, result);
+      }
+      break;
+    }
+
+    case types.EXCEPTION: {
+      const { exception } = result;
+      if (options.exception !== undefined) {
+        return options.exception(exception, result);
+      } else if (options.failure !== undefined) {
+        return options.failure(undefined, exception, result);
+      }
+      break;
     }
   }
-  throw new Error();
+
+  return result;
 };
 
-const a = handle(error('a' as 'a'), {
-  payload: () => {}
-});
-*/
+// TODO: Would be nice if we didn't have to cast this to HandleResultFn
+export const handle: HandleResultFn = internalHandle as any;
