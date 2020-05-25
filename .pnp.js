@@ -91,6 +91,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/resultful"
       },
       {
+        "name": "@resultful/symbols",
+        "reference": "workspace:misc/resultful-symbols"
+      },
+      {
         "name": "@pshaw/resume-template",
         "reference": "workspace:misc/resume-template"
       },
@@ -1131,6 +1135,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@reach/router",
         "virtual:2ceaeb1fd573d966c6a11c8e8d6f3bde7bc0ffa03f4f0fcac3a436c05225c3b9ab9331bc1d58c2b31b8073d39ed3834291465b06b6b3472f078b6d4019a3ee65#npm:1.3.3"
+      ],
+      [
+        "@resultful/symbols",
+        "workspace:misc/resultful-symbols"
       ],
       [
         "@samverschueren/stream-to-observable",
@@ -12797,6 +12805,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "react-dom"
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["@resultful/symbols", [
+        ["workspace:misc/resultful-symbols", {
+          "packageLocation": "./misc/resultful-symbols/",
+          "packageDependencies": [
+            ["@resultful/symbols", "workspace:misc/resultful-symbols"],
+            ["micromatch", "npm:4.0.2"],
+            ["streamfilter", "npm:3.0.0"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["@samverschueren/stream-to-observable", [
@@ -32340,6 +32359,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/resultful/",
           "packageDependencies": [
             ["resultful", "workspace:misc/resultful"],
+            ["@resultful/symbols", "workspace:misc/resultful-symbols"],
             ["micromatch", "npm:4.0.2"],
             ["streamfilter", "npm:3.0.0"]
           ],
