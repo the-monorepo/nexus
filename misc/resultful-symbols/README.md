@@ -1,15 +1,15 @@
-# Resultful
+# Symbols
 
-Return exceptions, errors and successful results
+Symbols for the different result types returned by resultful
 
 ## Installation
 
 ```bash
-npm install --save resultful
+npm install --save @resultful/symbols
 ```
 or
 ```bash
-yarn add resultful
+yarn add @resultful/symbols
 ```
 
 ---
