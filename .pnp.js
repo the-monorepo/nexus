@@ -14649,9 +14649,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:misc/resultful-symbols", {
           "packageLocation": "./misc/resultful-symbols/",
           "packageDependencies": [
-            ["@resultful/symbols", "workspace:misc/resultful-symbols"],
-            ["micromatch", "npm:4.0.2"],
-            ["streamfilter", "npm:3.0.0"]
+            ["@resultful/symbols", "workspace:misc/resultful-symbols"]
           ],
           "linkType": "SOFT",
         }]
@@ -35485,9 +35483,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/resultful/",
           "packageDependencies": [
             ["resultful", "workspace:misc/resultful"],
-            ["@resultful/symbols", "workspace:misc/resultful-symbols"],
-            ["micromatch", "npm:4.0.2"],
-            ["streamfilter", "npm:3.0.0"]
+            ["@resultful/symbols", "workspace:misc/resultful-symbols"]
           ],
           "linkType": "SOFT",
         }]
