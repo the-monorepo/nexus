@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "0.0.0",
   "name": "@resultful/symbols",
   "description": "Symbols for the different result types returned by resultful",
   "keywords": [],
