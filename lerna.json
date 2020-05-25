@@ -1,0 +1,32 @@
+{
+  "lerna": "3.2.1",
+  "version": "independent",
+  "changelog": {
+    "repo": "PatrickShaw/monorepo",
+    "cacheDir": ".changelog"
+  },
+  "packages": [
+    "cinder/*",
+    "misc/*",
+    "faultjs/*",
+    "build-packages/*",
+    "contextual-documents/*",
+    "patrick-shaw/*",
+    "byexample/*",
+    "buildplan/*",
+    "pipelines/*"
+  ],
+  "npmClient": "yarn",
+  "npmClientArgs": [
+    "--immutable"
+  ],
+  "command": {
+    "publish": {
+      "ignoreChanges": [
+        "*.md",
+        "test/**",
+        "examples/**"
+      ]
+    }
+  }
+}
