@@ -3824,9 +3824,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@resultful/symbols@workspace:misc/resultful-symbols":
+"@resultful/types@workspace:misc/resultful-types":
   version: 0.0.0-use.local
-  resolution: "@resultful/symbols@workspace:misc/resultful-symbols"
+  resolution: "@resultful/types@workspace:misc/resultful-types"
   languageName: unknown
   linkType: soft
 
@@ -21989,7 +21989,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "resultful@workspace:misc/resultful"
   dependencies:
-    "@resultful/symbols": "workspace:misc/resultful-symbols"
+    "@resultful/types": "workspace:misc/resultful-types"
   languageName: unknown
   linkType: soft
 

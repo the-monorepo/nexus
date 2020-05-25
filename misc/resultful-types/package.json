@@ -1,7 +1,7 @@
 {
   "version": "0.0.1",
-  "name": "@resultful/symbols",
-  "description": "Symbols for the different result types returned by resultful",
+  "name": "@resultful/types",
+  "description": "String constants for the different result types returned by resultful",
   "keywords": [],
   "license": "MIT",
   "types": "./src/index.ts",
@@ -20,7 +20,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/PatrickShaw/monorepo.git",
-    "directory": "misc/resultful-symbols"
+    "directory": "misc/resultful-types"
   },
   "publishConfig": {
     "access": "public"
