@@ -2815,6 +2815,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@resultful/symbols@workspace:misc/resultful-symbols":
+  version: 0.0.0-use.local
+  resolution: "@resultful/symbols@workspace:misc/resultful-symbols"
+  dependencies:
+    micromatch: ^4.0.2
+    streamfilter: ^3.0.0
+  languageName: unknown
+  linkType: soft
+
 "@samverschueren/stream-to-observable@npm:^0.3.0":
   version: 0.3.0
   resolution: "@samverschueren/stream-to-observable@npm:0.3.0"
@@ -19762,6 +19771,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "resultful@workspace:misc/resultful"
   dependencies:
+    "@resultful/symbols": "workspace:misc/resultful-symbols"
     micromatch: ^4.0.2
     streamfilter: ^3.0.0
   languageName: unknown

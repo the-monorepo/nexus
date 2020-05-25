@@ -2,7 +2,6 @@ import jest from 'jest-mock';
 
 import {
   types,
-  keys,
   error,
   success,
   exception,
@@ -10,13 +9,13 @@ import {
   isException,
   isFailure,
   isSuccess,
-  handle,
+  //handle,
 } from '../src/index';
 
 const testInfoSet = {
   success: {
     type: types.SUCCESS,
-    key: keys.SUCCESS as typeof keys.SUCCESS,
+    key: 'payload' as 'payload',
     value: Symbol('success'),
     handleValue: Symbol('handled-success'),
     create: success,
@@ -27,7 +26,7 @@ const testInfoSet = {
   },
   error: {
     type: types.ERROR,
-    key: keys.ERROR as typeof keys.ERROR,
+    key: 'error' as 'error',
     value: Symbol('error'),
     handleValue: Symbol('handled-error'),
     create: error,
@@ -38,7 +37,7 @@ const testInfoSet = {
   },
   exception: {
     type: types.EXCEPTION,
-    key: keys.EXCEPTION as typeof keys.EXCEPTION,
+    key: 'exception' as 'exception',
     value: Symbol('exception'),
     handleValue: Symbol('handled-exception'),
     create: exception,
@@ -52,7 +51,7 @@ const testInfoSet = {
 describe('resultful', () => {
   for (const [payloadType, testInfo] of Object.entries(testInfoSet)) {
     it(`${payloadType} works`, () => {
-      const otherKeys = new Set(Object.values(keys));
+      const otherKeys = new Set(['payload', 'exception', 'error']);
       otherKeys.delete(testInfo.key);
 
       const payload = (testInfo.create as any)(testInfo.value);
@@ -71,14 +70,18 @@ describe('resultful', () => {
         error: jest.fn().mockReturnValue(testInfoSet.error.handleValue),
         exception: jest.fn().mockReturnValue(testInfoSet.exception.handleValue),
       };
-
+      /*
       const value = handle(payload, handlers);
       expect(value).toBe(testInfo.handleValue);
 
       expect(handlers[testInfo.key]).toHaveBeenCalledTimes(1);
       for (const otherKey of otherKeys) {
         expect(handlers[otherKey]).not.toHaveBeenCalled();
-      }
+      }*/
     });
   }
+  /*
+  it ('handles with no option available', () => {
+    expect(handle(success('test'))).toBe(undefined);
+  });*/
 });

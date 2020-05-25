@@ -5,3 +5,5 @@
 export const SUCCESS = Symbol('success');
 export const ERROR = Symbol('error');
 export const EXCEPTION = Symbol('exception');
+
+export type Symbols = typeof SUCCESS | typeof ERROR | typeof EXCEPTION;
