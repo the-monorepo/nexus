@@ -30,7 +30,6 @@
     "watch": "yarn run:buildplan watch",
     "writeme": "yarn run:buildplan writeme",
     "webpack": "yarn run:buildplan webpack",
-    "prepublishOnly": "yarn run:buildplan prepublish",
     "serve": "yarn run:buildplan serve",
     "serve:my-resume": "yarn run:buildplan serve --name='my-resume'",
     "serve:fault-benchmark": "yarn run:buildplan serve --name='fault-benchmark'",
