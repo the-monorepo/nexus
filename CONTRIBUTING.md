@@ -2,8 +2,9 @@
 
 ## Quick start
 To build everything:
-1. `yarn install`
-2. `yarn build`
+1. `nvm use`
+2. `yarn install`
+3. `yarn build`
 
 To clean artifacts: `yarn clean`
 
@@ -16,6 +17,7 @@ For anything else:
 1. Run `yarn help`.
 
 ## Prerequisites
+- You'll need [nvm](https://github.com/nvm-sh/nvm);
 - You'll need to install [yarn](https://yarnpkg.com/getting-started/install).
 - You'll need [git](https://git-scm.com/)
 - Officially supported editor is [VSCode](https://code.visualstudio.com/);
