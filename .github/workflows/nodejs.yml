@@ -10,11 +10,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js 12.x
+    - name: Use Node.js 14.x
       uses: actions/setup-node@v1
       with:
-        node-version: 12.x
-    - run: yarn install --frozen-lockfile
+        node-version: 14.x
+    - run: yarn install --immutable
     - run: yarn build
  
   test:
@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [10.x, 12.x]
+        node-version: [12.x, 14.x]
     needs: build
     steps:
     - run: yarn test
