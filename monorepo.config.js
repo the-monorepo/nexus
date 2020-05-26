@@ -1,5 +1,10 @@
 // CONFIG HERE
-const dependencyGlobs = ['.yarn/**', '**/node_modules/**'];
+const dependencyGlobs = [
+  '.yarn/cache/**',
+  '.pnp.js',
+  '.yarn/unplugged',
+  '**/node_modules/**',
+];
 
 const faultJsBenchmarkerProjectGlobs = [
   './faultjs/fault-benchmark/{disabled-projects,projects}/**',
