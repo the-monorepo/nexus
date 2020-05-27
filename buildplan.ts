@@ -443,15 +443,6 @@ task('test', testNoBuild);
 const precommit = series(parallel(series(formatStaged, transpile), copy), writeme);
 task('precommit', precommit);
 
-const prepublish = series(
-  parallel(clean, format),
-  parallel(transpile, copy, testNoBuild),
-  parallel(checkTypes, writeme),
-);
-task('prepublish', prepublish);
-
-task('ci-test', prepublish);
-
 const webpackCompilers = async () => {
   const { default: minimist } = await import('minimist');
   const { default: webpack } = await import('webpack');
@@ -554,6 +545,16 @@ const bundleWebpack = async () => {
 };
 
 task('webpack', bundleWebpack);
+
+task('build-all', series(parallel(copy, transpile), bundleWebpack, writeme));
+
+const prepublish = series(
+  parallel(clean, format),
+  parallel(transpile, copy, testNoBuild),
+  parallel(bundleWebpack, checkTypes, writeme),
+);
+
+task('prepublish', prepublish);
 
 const serveBundles = async () => {
   const { default: WebpackDevServer } = await import('webpack-dev-server');
