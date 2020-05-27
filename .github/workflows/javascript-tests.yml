@@ -1,6 +1,6 @@
 name: JavaScript tests
 
-on: [push]
+on: [push, pull_request]
 
 env:
   NODE_ENV: production
