@@ -17,6 +17,7 @@ jobs:
         node-version: 14
     - run: yarn install --immutable
     - run: yarn run:buildplan prepublish
-    - run: yarn npm publish
+    - run: yarn version check
+    - run: yarn version apply
       env:
         NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
