@@ -1,7 +1,8 @@
 name: Node.js CI
 
 on: [push]
-
+env:
+  NODE_ENV: production
 jobs:
   test:
     runs-on: ${{ matrix.os }}
