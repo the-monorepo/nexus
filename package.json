@@ -27,6 +27,7 @@
     "clean": "yarn run:buildplan clean",
     "transpile": "yarn run:buildplan transpile",
     "build": "yarn run:buildplan build",
+    "build-all": "yarn run:buildplan build-all",
     "watch": "yarn run:buildplan watch",
     "writeme": "yarn run:buildplan writeme",
     "webpack": "yarn run:buildplan webpack",
@@ -34,7 +35,6 @@
     "serve:my-resume": "yarn run:buildplan serve --name='my-resume'",
     "serve:fault-benchmark": "yarn run:buildplan serve --name='fault-benchmark'",
     "serve:page-breaker": "yarn run:buildplan serve --name='page-breaker'",
-    "ci-test": "yarn run:buildplan ci-test",
     "precommit": "yarn run:buildplan precommit"
   },
   "keywords": [
