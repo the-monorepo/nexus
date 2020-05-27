@@ -17,10 +17,10 @@ For anything else:
 1. Run `yarn help`.
 
 ## Prerequisites
-- You'll need [nvm](https://github.com/nvm-sh/nvm);
-- You'll need to install [yarn](https://yarnpkg.com/getting-started/install).
-- You'll need [git](https://git-scm.com/)
-- Officially supported editor is [VSCode](https://code.visualstudio.com/);
+- [nvm](https://github.com/nvm-sh/nvm);
+- [yarn](https://yarnpkg.com/getting-started/install).
+- [git](https://git-scm.com/)
+- The officially supported editor for this repository is [VSCode](https://code.visualstudio.com/)
 That's pretty much it.
 
 ## Questions/Things you may want to do
@@ -40,3 +40,5 @@ You can try commit files with `--no-verify`. However, this will skip the build s
 - Makes searching through code for multiple packages easier.
 - The versions of external dependencies can be synced between different packages which results in smaller `node_modules` and smaller bundle sizes (if you're using multiple packages from the monorepo).
 
+**Most people use editor XXX but it's not supported very well in this repo**
+Feel free to raise an issue and submit a PR that improves the editor experience for your editor of choice.
