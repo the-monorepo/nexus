@@ -23,7 +23,7 @@ For anything else:
 - The officially supported editor for this repository is [VSCode](https://code.visualstudio.com/)
 That's pretty much it.
 
-## Questions/Things you may want to do
+## Questions/Troubleshooting/Things you may want to do
 **I want to be able to approve a package that I am a main contributor for**
 Submit an issue with the `pr-approval-permission` label asking for permission to do so.
 
@@ -42,3 +42,6 @@ You can try commit files with `--no-verify`. However, this will skip the build s
 
 **Most people use editor XXX but it's not supported very well in this repo**
 Feel free to raise an issue and submit a PR that improves the editor experience for your editor of choice.
+
+**The master branch seems to have broken tests/builds/etc - It's stopping me from contributing**
+Try the `stable` branch. It's a less frequently updated snapshot of the `master` branch and so it's more likely to build. Also consider submitting an issue so people know `master` (or `stable` for that matter) is broken.
