@@ -321,19 +321,16 @@ const formatStaged = async () => {
 task('format-staged', formatStaged);
 
 let withTypeCheckPipes = async (stream) => {
-  const gulpTypescriptPromise = import('gulp-typescript');
+  const gulpTypescript = await import('gulp-typescript');
 
   const tsProjectPromise = (async () => {
     const typescript = await import('typescript');
-    const gulpTypescript = await gulpTypescriptPromise;
     const tsProject = await gulpTypescript.createProject('tsconfig.json', { typescript });
 
     return tsProject;
   })();
 
   withTypeCheckPipes = async (stream) => {
-    const gulpTypescript = await gulpTypescriptPromise;
-
     const tsProject = await tsProjectPromise;
     return stream.pipe(tsProject(gulpTypescript.reporter.defaultReporter()));
   };
@@ -341,11 +338,11 @@ let withTypeCheckPipes = async (stream) => {
   return withTypeCheckPipes(stream);
 };
 
-const checkTypes = () => {
-  return withTypeCheckPipes([
+const checkTypes = async() => {
+  return withTypeCheckPipes(packagesSrcCodeStream([
     ...config.buildableSourceCodeGlobs,
     ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-  ]);
+  ]));
 };
 checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
