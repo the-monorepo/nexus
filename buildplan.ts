@@ -32,7 +32,6 @@ const oldStreamToPromise = async (something) => {
   if (
     value !== undefined &&
     value !== null &&
-    value !== undefined &&
     value.constructor !== undefined &&
     value.constructor.name === 'Pumpify'
   ) {
@@ -44,8 +43,10 @@ const oldStreamToPromise = async (something) => {
 
 const task = (name: string, callback) =>
   buildplanTask(name, () => oldStreamToPromise(callback()));
+
 const series = (...tasks) =>
   buildplanSeries(...tasks.map((aTask) => () => oldStreamToPromise(aTask())));
+
 const parallel = (...tasks) =>
   buildplanParallel(...tasks.map((aTask) => () => oldStreamToPromise(aTask())));
 
