@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { relative, join } = require('path');
+const { relative } = require('path');
 
 const register = require('@babel/register');
 const { some } = require('micromatch');
@@ -10,6 +10,7 @@ const transpilationGlobs = [
   'webpack.config.ts',
   'buildplan.ts',
   '.yarn/$$virtual/**/*',
+  'original-code-require-override.ts',
   ...config.buildableSourceCodeGlobs,
 ];
 

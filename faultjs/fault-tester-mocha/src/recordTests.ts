@@ -6,10 +6,7 @@ import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 
 import { client } from './client';
 
-const {
-  EVENT_TEST_FAIL,
-  EVENT_TEST_PASS,
-} = (Mocha.Runner as any).constants;
+const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {

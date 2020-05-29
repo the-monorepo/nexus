@@ -1,9 +1,10 @@
-import { TestInputs } from './test-inputs';
+import * as cssColors from 'named-css-colors';
+
 import {
   generateCssColorFunctionInputs,
   ParameterFormat,
 } from './css-color-function-inputs';
-import * as cssColors from 'named-css-colors';
+import { TestInputs } from './test-inputs';
 function testInputs(valid: any[], invalid: any[]): TestInputs {
   return {
     valid: new Set(valid),

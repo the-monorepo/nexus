@@ -1,15 +1,15 @@
 import { TestInputs } from './test-inputs';
-export interface Bound {
+export type Bound = {
   value: number;
   inclusive: boolean;
-}
+};
 
-export interface ParameterFormat {
+export type ParameterFormat = {
   percentages: boolean;
   min: Bound;
   max: Bound;
   noLetters: boolean;
-}
+};
 
 export function generateCssColorFunctionInputs(
   functionName,
@@ -22,7 +22,7 @@ export function generateCssColorFunctionInputs(
     hasName: boolean,
     hasLeftBracket: boolean,
     hasRightBracket: boolean,
-    spaceIndex: number = -1,
+    spaceIndex = -1,
     parameterStrings: string[],
   ): string {
     const spaceGap = '  ';
@@ -31,7 +31,7 @@ export function generateCssColorFunctionInputs(
     input += hasLeftBracket ? '(' : '';
     const formatedParameterStrings: string[] = [];
     for (let parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
-      let formatedParameterString: string = '';
+      let formatedParameterString = '';
       formatedParameterString += spaceIndex === 1 + parameterIndex * 2 ? spaceGap : '';
       formatedParameterString += parameterStrings[parameterIndex];
       formatedParameterString += spaceIndex === 2 + parameterIndex * 2 ? spaceGap : '';
@@ -74,11 +74,11 @@ export function generateCssColorFunctionInputs(
   }
 
   function validMinValues() {
-    return parameters.map(p => validValue(p, true));
+    return parameters.map((p) => validValue(p, true));
   }
 
   function validMaxValues() {
-    return parameters.map(p => validValue(p, false));
+    return parameters.map((p) => validValue(p, false));
   }
 
   valid.add(generateInput(true, true, true, undefined, validMinValues()));
@@ -89,7 +89,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, 0.001, true, 'short', p.noLetters)),
+      parameters.map((p) => parameterValue(p, true, 0.001, true, 'short', p.noLetters)),
     ),
   );
   valid.add(
@@ -98,7 +98,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, 0.001, true, 'leading', p.noLetters)),
+      parameters.map((p) => parameterValue(p, true, 0.001, true, 'leading', p.noLetters)),
     ),
   );
   valid.add(
@@ -107,7 +107,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, false, 0.001, true, 'short', p.noLetters)),
+      parameters.map((p) => parameterValue(p, false, 0.001, true, 'short', p.noLetters)),
     ),
   );
   valid.add(
@@ -116,7 +116,9 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, false, 0.001, true, 'leading', p.noLetters)),
+      parameters.map((p) =>
+        parameterValue(p, false, 0.001, true, 'leading', p.noLetters),
+      ),
     ),
   );
   valid.add(
@@ -125,7 +127,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, 1, true, 'leading', p.noLetters)),
+      parameters.map((p) => parameterValue(p, true, 1, true, 'leading', p.noLetters)),
     ),
   );
 
@@ -135,7 +137,9 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, -0.001, true, 'leading', p.noLetters)),
+      parameters.map((p) =>
+        parameterValue(p, true, -0.001, true, 'leading', p.noLetters),
+      ),
     ),
   );
   invalid.add(
@@ -144,10 +148,12 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, false, -0.001, true, 'leading', p.noLetters)),
+      parameters.map((p) =>
+        parameterValue(p, false, -0.001, true, 'leading', p.noLetters),
+      ),
     ),
   );
-  if (parameters.filter(p => p.min.value < 0).length > 0) {
+  if (parameters.filter((p) => p.min.value < 0).length > 0) {
     invalid.add(
       generateInput(
         true,
@@ -155,7 +161,7 @@ export function generateCssColorFunctionInputs(
         true,
         undefined,
         parameters.map(
-          p =>
+          (p) =>
             `${p.min.value > 0 ? '-' : ''}${parameterValue(
               p,
               true,
@@ -174,7 +180,7 @@ export function generateCssColorFunctionInputs(
       true,
       true,
       undefined,
-      parameters.map(p => parameterValue(p, true, 1, true, 'leading', false)),
+      parameters.map((p) => parameterValue(p, true, 1, true, 'leading', false)),
     ),
   );
   invalid.add(generateInput(true, false, false, undefined, validMinValues()));
@@ -188,8 +194,8 @@ export function generateCssColorFunctionInputs(
   invalid.add(generateInput(false, true, true, undefined, validMinValues()));
   invalid.add(generateInput(true, false, true, undefined, validMaxValues()));
   invalid.add(generateInput(true, true, false, undefined, validMinValues()));
-  invalid.add(' ' + generateInput(true, true, true, undefined, validMaxValues()));
-  invalid.add(generateInput(true, true, true, undefined, validMinValues()) + ' ');
+  invalid.add(` ${generateInput(true, true, true, undefined, validMaxValues())}`);
+  invalid.add(`${generateInput(true, true, true, undefined, validMinValues())} `);
   invalid.add(generateInput(true, true, true, undefined, validMinValues()).toUpperCase());
   return {
     valid,

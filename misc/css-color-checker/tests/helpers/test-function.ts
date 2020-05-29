@@ -4,7 +4,7 @@ export const invalidTypes: [string, any][] = [
   ['Function', () => undefined],
   ['Integer', 1],
   ['Floating point', 0.1],
-  ['Class object', new class {}()],
+  ['Class object', new (class {})()],
   ['Object', {}],
   ['Array', []],
   ['null', null],

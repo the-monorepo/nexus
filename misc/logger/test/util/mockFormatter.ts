@@ -4,5 +4,5 @@ const { format } = require('winston');
  * formatter that doesn't do anything in terms of formatting
  */
 export function mockFormatter() {
-  return format(info => info);
+  return format((info) => info);
 }
