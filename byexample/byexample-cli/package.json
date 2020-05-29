@@ -4,10 +4,7 @@
   "version": "1.0.0-alpha.5",
   "license": "MIT",
   "bin": {
-    "byexample": "./bin/index.js"
-  },
-  "scripts": {
-    "cli": "node ./bin/index.js"
+    "byexample": "./lib/bin.js"
   },
   "publishConfig": {
     "access": "public"

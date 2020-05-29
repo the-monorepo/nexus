@@ -15,7 +15,7 @@
     "prop-types": "^15.6.2"
   },
   "dependencies": {
-    "@byexample/types": "workspace:byexample/types",
+    "@byexample/types": "workspace:byexample/byexample-types",
     "css-color-checker": "workspace:misc/css-color-checker"
   },
   "devDependencies": {
