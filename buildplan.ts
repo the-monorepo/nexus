@@ -425,8 +425,8 @@ const testNoBuild = async () => {
     },
     setupFiles: [
       'source-map-support/register',
-      './test/require/babel',
       './test/helpers/globals',
+      './buildBabelRegister'
     ],
     testerOptions: {
       sandbox: true,
