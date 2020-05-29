@@ -1,3 +1,5 @@
+const config = require('@monorepo/config');
+
 module.exports = (api) => {
   const env = api.env();
   const esm = env === 'esm';
@@ -21,12 +23,7 @@ module.exports = (api) => {
         'babel-plugin-istanbul',
         {
           useInlineSourceMaps: true,
-          exclude: [
-            '**/*.test.{js,jsx,ts,tsx}',
-            './{faultjs,misc,patrick-shaw,contextual-documents,cinder}/*/test/**',
-            './test/**',
-            '**/{lib,esm,dist}/**',
-          ],
+          include: config.buildableSourceFileGlobs,
         },
       ],
       'rewiremock/babel',
