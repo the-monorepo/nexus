@@ -1,4 +1,4 @@
-import { DefaultTypeName, NumberFormat } from '../../packages/types';
+import { DefaultTypeName, NumberFormat } from '@byexample/types';
 import { examples } from '../util/from-examples';
 describe('mixed root types', () => {
   describe('every default type', () => {

@@ -49,11 +49,11 @@ Version | Package | Description
 ### By Example
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.5 | [`@byexample/cli`](byexample/cli/README.md) | Use byexample packages using a CLI
-1.0.0-alpha.5 | [`@byexample/openapi`](byexample/openapi/README.md) | Generate OpenAPI schemas from examples
-1.0.0-alpha.5 | [`@byexample/storybook-addon-auto-knobs`](byexample/storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
-1.0.0-alpha.5 | [`@byexample/storybook-knobified`](byexample/storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
-1.0.0-alpha.5 | [`@byexample/types`](byexample/types/README.md) | Extract type information from examples
+1.0.0-alpha.5 | [`@byexample/cli`](byexample/byexample-cli/README.md) | Use byexample packages using a CLI
+1.0.0-alpha.5 | [`@byexample/openapi`](byexample/byexample-openapi/README.md) | Generate OpenAPI schemas from examples
+1.0.0-alpha.5 | [`@byexample/storybook-addon-auto-knobs`](byexample/byexample-storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
+1.0.0-alpha.5 | [`@byexample/storybook-knobified`](byexample/byexample-storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
+1.0.0-alpha.5 | [`@byexample/types`](byexample/byexample-types/README.md) | Extract type information from examples
 
 ### Documentation
 Version | Package | Description
