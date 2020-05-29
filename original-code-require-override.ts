@@ -1,11 +1,12 @@
-const { readFileSync, accessSync, constants } = require('fs');
-const Module = require('module');
+import { readFileSync, accessSync, constants } from 'fs';
 
-const { join } = require('path');
+import Module from 'module';
 
-const globby = require('globby');
+import { join } from 'path';
 
-const config = require('@monorepo/config');
+import globby from 'globby';
+
+import config from '@monorepo/config';
 
 const packageDirs = globby.sync(config.workspaces, {
   onlyDirectories: true,
