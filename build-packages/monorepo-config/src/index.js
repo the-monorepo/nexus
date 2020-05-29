@@ -59,6 +59,7 @@ const getConfig = () => {
   const testableIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
 
   const testableGlobs = [
+    ...codeExtensions.map((extension) =>`test/**/*.test.${extension}`),
     ...workspaces
       .map((project) =>
         codeExtensions.map((extension) => `${project}/**/*.test.${extension}`),
