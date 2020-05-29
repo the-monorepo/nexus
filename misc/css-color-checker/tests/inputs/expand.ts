@@ -12,9 +12,9 @@ export function union<T>(...sets: Set<T>[]) {
 }
 
 export function expandInputs(...validTestInputs: TestInputs[]) {
-  const validInputs: Set<any> = union(...validTestInputs.map(i => i.valid));
-  const invalidInputs: Set<any> = union(...validTestInputs.map(i => i.invalid));
-  Object.keys(inputs).forEach(key => {
+  const validInputs: Set<any> = union(...validTestInputs.map((i) => i.valid));
+  const invalidInputs: Set<any> = union(...validTestInputs.map((i) => i.invalid));
+  Object.keys(inputs).forEach((key) => {
     const { valid, invalid } = inputs[key];
     for (const invalidValue of invalid) {
       if (validInputs.has(invalidValue)) {

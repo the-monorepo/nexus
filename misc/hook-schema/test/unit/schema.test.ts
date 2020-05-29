@@ -5,7 +5,7 @@ describe('schema', () => {
     b: null,
     nested1: {
       c: null,
-      d: () => async context => context.a + 1,
+      d: () => async (context) => context.a + 1,
     },
     nested2: {
       e: null,

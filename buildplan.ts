@@ -339,11 +339,13 @@ let withTypeCheckPipes = async (stream) => {
   return withTypeCheckPipes(stream);
 };
 
-const checkTypes = async() => {
-  return withTypeCheckPipes(packagesSrcCodeStream([
-    ...config.buildableSourceCodeGlobs,
-    ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-  ]));
+const checkTypes = async () => {
+  return withTypeCheckPipes(
+    packagesSrcCodeStream([
+      ...config.buildableSourceCodeGlobs,
+      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
+    ]),
+  );
 };
 checkTypes.description =
   'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +

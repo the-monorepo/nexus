@@ -1,4 +1,5 @@
 import jest from 'jest-mock';
+
 import schema, { mergeHookOptions } from '../../src';
 describe('mergeHookOptions', () => {
   it('calls all associated hooks', async () => {
