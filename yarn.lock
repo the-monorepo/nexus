@@ -1603,38 +1603,38 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/cli@workspace:byexample/cli":
+"@byexample/cli@workspace:byexample/byexample-cli":
   version: 0.0.0-use.local
-  resolution: "@byexample/cli@workspace:byexample/cli"
+  resolution: "@byexample/cli@workspace:byexample/byexample-cli"
   dependencies:
     "@types/node": ^10.5.4
     chalk: ^2.4.1
     commander: ^5.1.0
     source-map-support: ^0.5.9
   bin:
-    byexample: ./bin/index.js
+    byexample: ./lib/bin.js
   languageName: unknown
   linkType: soft
 
-"@byexample/openapi@workspace:byexample/openapi":
+"@byexample/openapi@workspace:byexample/byexample-openapi":
   version: 0.0.0-use.local
-  resolution: "@byexample/openapi@workspace:byexample/openapi"
+  resolution: "@byexample/openapi@workspace:byexample/byexample-openapi"
   dependencies:
-    "@byexample/types": "workspace:byexample/types"
+    "@byexample/types": "workspace:byexample/byexample-types"
     swagger-parser: ^5.0.2
   languageName: unknown
   linkType: soft
 
-"@byexample/storybook-addon-auto-knobs@workspace:byexample/storybook-addon-auto-knobs":
+"@byexample/storybook-addon-auto-knobs@workspace:byexample/byexample-storybook-addon-auto-knobs":
   version: 0.0.0-use.local
-  resolution: "@byexample/storybook-addon-auto-knobs@workspace:byexample/storybook-addon-auto-knobs"
+  resolution: "@byexample/storybook-addon-auto-knobs@workspace:byexample/byexample-storybook-addon-auto-knobs"
   dependencies:
     "@babel/cli": ^7.1.5
     "@babel/core": ^7.1.5
     "@babel/preset-env": ^7.1.5
     "@babel/preset-react": ^7.0.0
     "@babel/preset-typescript": ^7.1.0
-    "@byexample/storybook-knobified": "workspace:byexample/storybook-knobified"
+    "@byexample/storybook-knobified": "workspace:byexample/byexample-storybook-knobified"
     "@storybook/addon-actions": ^4.0.4
     "@storybook/addon-knobs": ^4.0.4
     "@storybook/addons": ^5.3.18
@@ -1650,11 +1650,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/storybook-knobified@workspace:byexample/storybook-knobified":
+"@byexample/storybook-knobified@workspace:byexample/byexample-storybook-knobified":
   version: 0.0.0-use.local
-  resolution: "@byexample/storybook-knobified@workspace:byexample/storybook-knobified"
+  resolution: "@byexample/storybook-knobified@workspace:byexample/byexample-storybook-knobified"
   dependencies:
-    "@byexample/types": "workspace:byexample/types"
+    "@byexample/types": "workspace:byexample/byexample-types"
     "@storybook/addon-actions": ^5.3.18
     "@storybook/addon-knobs": ^5.3.18
     css-color-checker: "workspace:misc/css-color-checker"
@@ -1668,9 +1668,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/types@workspace:byexample/types":
+"@byexample/types@workspace:byexample/byexample-types":
   version: 0.0.0-use.local
-  resolution: "@byexample/types@workspace:byexample/types"
+  resolution: "@byexample/types@workspace:byexample/byexample-types"
   dependencies:
     jest-mock: ^26.0.1
   languageName: unknown
@@ -17855,9 +17855,9 @@ fsevents@^1.2.7:
     "@babel/preset-typescript": ^7.9.0
     "@babel/register": ^7.9.0
     "@buildplan/core": "workspace:buildplan/core"
-    "@byexample/openapi": "workspace:byexample/openapi"
-    "@byexample/storybook-knobified": "workspace:byexample/storybook-knobified"
-    "@byexample/types": "workspace:byexample/types"
+    "@byexample/openapi": "workspace:byexample/byexample-openapi"
+    "@byexample/storybook-knobified": "workspace:byexample/byexample-storybook-knobified"
+    "@byexample/types": "workspace:byexample/byexample-types"
     "@cinder/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx"
     "@fault/addon-mutation-localization": "workspace:faultjs/fault-addon-mutation-localization"
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
