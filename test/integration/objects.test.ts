@@ -1,7 +1,7 @@
 import { action } from '@storybook/addon-actions';
-import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
+import { text, boolean, number, object, array } from '@storybook/addon-knobs';
 
-import { DefaultTypeName, NumberFormat } from '../../packages/types';
+import { DefaultTypeName, NumberFormat } from '@byexample/types';
 import { examples } from '../util/from-examples';
 describe('objects', () => {
   describe('2 objects with all fields', () => {
