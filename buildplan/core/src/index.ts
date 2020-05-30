@@ -1,4 +1,5 @@
 import yargs from 'yargs';
+import * as resultful from 'resultful';
 
 type SynchronousTaskResult = undefined | any;
 type IteratorTaskResult = Iterable<TaskResult>;
@@ -19,6 +20,22 @@ export type TaskFn = {
   (name: string | string[], description: string, callback: TaskCallback): any;
   (name: string | string[], callback: TaskCallback): any;
 };
+
+export type TaskExceptionInfo = {
+  exception: any;
+  taskName: string;
+}
+
+export type TaskExceptionHandler = (taskException: TaskExceptionInfo) => any;
+
+const defaultExceptionHandler = ({ exception, taskName }: TaskExceptionInfo) => {
+  console.error(`An expected error was received by ${taskName}`, exception);
+}
+
+let currentExceptionHandler = defaultExceptionHandler;
+export const setExceptionHandler = (exceptionHandler: TaskExceptionHandler) => {
+  currentExceptionHandler = exceptionHandler;
+}
 
 const waitForTaskReturnValue = async (taskValue: TaskResult): Promise<any> => {
   const resolvedValue = await taskValue;
@@ -53,8 +70,14 @@ const createTask = (
     descriptionValue as any, // TODO: Not sure how to get this Type to work
     () => {},
     async () => {
-      const value = callback();
-      await waitForTaskReturnValue(value);
+      try {
+        const value = callback();
+        await waitForTaskReturnValue(value);  
+      } catch(err) {
+        // eslint-disable-next-line no-console
+        currentExceptionHandler({ exception: err, taskName: name });
+        process.exitCode = 1;
+      }
     },
   );
 };
