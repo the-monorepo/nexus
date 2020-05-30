@@ -151,7 +151,7 @@ export type Field = {
   init: (fieldValues: readonly any[], v: number) => number;
   update: (fieldValues: readonly any[], v: number) => number;
 };
-export type TextBlueprintInput = string | boolean | number;
+export type TextBlueprintInput = string;
 const textBlueprint = createBlueprint(
   (value: TextBlueprintInput, container, before) => {
     const node = document.createTextNode(value);
