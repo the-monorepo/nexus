@@ -154,13 +154,13 @@ export type Field = {
 export type TextBlueprintInput = string | boolean | number;
 const textBlueprint = createBlueprint(
   (value: TextBlueprintInput, container, before) => {
-    const node = document.createTextNode(value.toString());
+    const node = document.createTextNode(value);
     container.insertBefore(node, before);
     return renderData(node, node);
   },
   (state, value) => {
     if (state.state.data !== value) {
-      state.state.data = value.toString();
+      state.state.data = value;
     }
   },
 );
