@@ -246,7 +246,7 @@ const projectResultsToRankings = (
     const rankingMax = Math.max(...algoRankings);
 
     props.push({
-      name: ranking.toString(),
+      name: String(ranking),
       min: rankingMin,
       max: rankingMax,
       results: algoRankings,

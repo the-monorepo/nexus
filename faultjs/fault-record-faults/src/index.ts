@@ -165,7 +165,7 @@ export const reportFaults = async (faults: Fault[]) => {
         fault.location.start.column
       }, ${chalk.cyan(
         fault.score !== null && fault.score !== undefined
-          ? fault.score!.toString()
+          ? String(fault.score)
           : 'undefined',
       )}`,
     );
