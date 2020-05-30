@@ -11,6 +11,7 @@ const transpilationGlobs = [
   'buildplan.ts',
   '.yarn/$$virtual/**/*',
   'original-code-require-override.ts',
+  ...config.testDirGlobs.map(dir => `${dir}/**/*`),
   ...config.buildableSourceCodeGlobs,
 ];
 
