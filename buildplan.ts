@@ -434,7 +434,7 @@ const testNoBuild = async () => {
     timeout: 20000,
   });
   if (!passed) {
-    process.exit(1);
+    process.exitCode = 1;
   }
 };
 
