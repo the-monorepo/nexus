@@ -65,26 +65,6 @@ export function logger() {
 export default logger;
 
 /**
- * Replaces the console.log type methods with our own logger methods.
- * It's not recommended to use console methods to print. Use the logger variable itself to log messages.
- * However, this method is useful when external packages have console.log(...) calls inside of them.
- */
-export function overrideConsoleLogger(aLogger) {
-  // Since we're using splat we have to create placeholders for the arguments to go into
-  /*
-    TODO: Note that string interpolation with console.log won't work
-    (E.g. console.log("%s", "test") will print "%stest")
-  */
-  const createPlaceholders = (args) => new Array(args.length).fill('%s').join(' ');
-  Object.keys(aLogger.levels).forEach((level) => {
-    // eslint-disable-next-line no-console
-    console[level] = (...args) => aLogger[level](createPlaceholders(args), ...args);
-  });
-  // eslint-disable-next-line no-console
-  console.log = (...args) => aLogger.verbose(createPlaceholders(args), ...args);
-}
-
-/**
  * Restyles the util.inspect() method output.
  */
 export function overrideUtilInspectStyle() {
