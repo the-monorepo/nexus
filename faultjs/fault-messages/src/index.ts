@@ -12,6 +12,7 @@ import {
   StoppedWorkerData,
   StopWorkerData,
   StopWorkerResult,
+  NoMoreTestsForWorkerData,
   RunTestsData,
 } from '@fault/types';
 import Heap from '@pshaw/keyed-binary-heap';
@@ -81,6 +82,10 @@ export class ChildProcessWorkerClient {
 
   stopWorker(data: StopWorkerData) {
     return this.send(IPC.STOP_WORKER, data);
+  }
+
+  notifyWorkerThatTheresNoMoreTestsForIt(data: NoMoreTestsForWorkerData) {
+    return this.send(IPC.NO_MORE_TESTS_FOR_WORKER, data);
   }
 }
 
