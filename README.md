@@ -112,7 +112,6 @@ Version | Package | Description
 1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](patrick-shaw/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
 1.4.2 | [`@pshaw/eslint-config-preset`](patrick-shaw/eslint-config-preset/README.md) | A pratical style preset for ESLint
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
-1.5.3 | [`@pshaw/winston-formats`](patrick-shaw/winston-formats/README.md) | A set of Winston formats
 
 
 ---

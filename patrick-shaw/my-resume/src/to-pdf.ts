@@ -1,8 +1,8 @@
 import express from 'express';
 import puppeteer from 'puppeteer';
 
-import { logger, consoleTransport } from '@pshaw/logger';
-const l = logger().add(consoleTransport());
+import createLogger from '@pshaw/logger';
+const l = createLogger();
 l.info('Serving bundle...');
 const app = express();
 app.use('/', express.static('dist'));
