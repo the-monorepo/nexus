@@ -72,9 +72,7 @@ Object.keys(loggers).forEach(loggerName => {
             stdout: stubbedStdout, 
             stderr: stubbedStdout,
             colorMode: false,
-          }, {
-            ...customOptions,
-          });
+          }, customOptions);
         
           (log[levelName] as any)(...testCase.input);
           expect(stubbedStdout.mockedWrite).toHaveBeenCalledTimes(1);
