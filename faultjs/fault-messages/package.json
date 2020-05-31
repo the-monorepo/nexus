@@ -23,6 +23,6 @@
   ],
   "dependencies": {
     "@fault/types": "workspace:faultjs/fault-types",
-    "@pshaw/keyed-binary-heap": "workspace:misc/keyed-binary-heap"
+    "ipc-fifo-processor": "workspace:misc/ipc-fifo-processor"
   }
 }

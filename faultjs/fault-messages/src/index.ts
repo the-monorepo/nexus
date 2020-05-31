@@ -13,43 +13,16 @@ import {
   StopWorkerData,
   StopWorkerResult,
   NoMoreTestsForWorkerData,
+  TestTakingTooLongData,
+  WorkingOnTestData,
   RunTestsData,
 } from '@fault/types';
-import Heap from '@pshaw/keyed-binary-heap';
 
-export class IPCSerializer {
-  private waitingForId = 0;
-  private payloadQueue: Heap<any> = new Heap((a, b) => b.id - a.id);
-  private running = false;
-
-  on(data, on) {
-    this.payloadQueue.push(data);
-    if (this.running) {
-      return;
-    }
-    this.running = true;
-
-    return this.runPayloads(on);
-  }
-
-  private async runPayloads(on) {
-    while (
-      this.payloadQueue.length > 0 &&
-      this.payloadQueue.peek().id === this.waitingForId
-    ) {
-      const payload = this.payloadQueue.pop();
-
-      await on(payload);
-      this.waitingForId++;
-    }
-
-    this.running = false;
-  }
-}
+import IPCFIFOProcessor from 'ipc-fifo-processor';
 
 export class ChildProcessWorkerClient {
   private currentOrderId = 0;
-  private serializer = new IPCSerializer();
+  private serializer = new IPCFIFOProcessor();
   constructor(private readonly childProcess: ChildProcess) {}
 
   on(data, on) {
@@ -87,11 +60,15 @@ export class ChildProcessWorkerClient {
   notifyWorkerThatTheresNoMoreTestsForIt(data: NoMoreTestsForWorkerData) {
     return this.send(IPC.NO_MORE_TESTS_FOR_WORKER, data);
   }
+
+  testTakingTooLong(data: TestTakingTooLongData) {
+    return this.send(IPC.TEST_TAKING_TOO_LONG, data);
+  }
 }
 
 export class ManagerClient {
   private currentOrderId = 0;
-  private serializer = new IPCSerializer();
+  private serializer = new IPCFIFOProcessor();
   private readonly promiseSend: (...args: any) => Promise<any>;
 
   constructor() {
@@ -121,5 +98,9 @@ export class ManagerClient {
 
   stoppedWorker(data: StoppedWorkerData) {
     return this.send(IPC.STOPPED_WORKER, data);
+  }
+
+  notifyWorkingOnTest(data: WorkingOnTestData) {
+    return this.send(IPC.WORKING_ON_TEST, data);
   }
 }

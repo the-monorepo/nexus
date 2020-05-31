@@ -2,6 +2,7 @@ import { fork, ChildProcess } from 'child_process';
 
 import { cpus } from 'os';
 import { join, resolve } from 'path';
+import { inspect } from 'util';
 
 import globby from 'globby';
 import { createCoverageMap } from 'istanbul-lib-coverage';
@@ -34,9 +35,10 @@ type DurationData = {
 };
 
 type WorkerInfo = {
-  expirationTimer: NodeJS.Timeout | null;
+  expirationTimer: NodeJS.Timeout | undefined;
   client: ChildProcessWorkerClient;
   process: ChildProcess;
+  workingOn: undefined | any;
 } & DurationData;
 
 type InternalTestData = {
@@ -239,11 +241,12 @@ const createWorkers = (
   for (let w = 0; w < workerCount; w++) {
     const childProcess = forkForTest(tester, testerOptions, setupFiles, env, cwd);
     const worker: WorkerInfo = {
-      expirationTimer: null,
+      expirationTimer: undefined,
       process: childProcess,
       client: new ChildProcessWorkerClient(childProcess),
       totalPendingDuration: 0,
       pendingUnknownTestCount: 0,
+      workingOn: undefined,
     };
     workers[w] = worker;
   }
@@ -358,10 +361,9 @@ const runAndRecycleProcesses = async (
           // TODO: Didn't actually check if clearTimeout(null) does anything weird
           clearTimeout(worker.expirationTimer!);
           worker.expirationTimer = setTimeout(() => {
-            console.log('timeout', id);
             killWorkers(
               [...runningWorkers],
-              new Error(`Worker ${id} took longer than ${timeout}ms.`),
+              new Error(`Worker ${id} took longer than ${timeout}ms. ${inspect(worker.workingOn, undefined, undefined, true)}`),
             );
           }, timeout);
         };
@@ -375,6 +377,9 @@ const runAndRecycleProcesses = async (
                 await hooks.on.testResult(message);
                 break;
               }
+              case IPC.WORKING_ON_TEST:
+                worker.workingOn = message.data;
+                break;
               case IPC.STOPPED_WORKER: {
                 console.log('stopped worker', id);
                 clearTimeout(worker.expirationTimer!);
@@ -452,7 +457,7 @@ const runAndRecycleProcesses = async (
             killWorkers(
               otherWorkers,
               new Error(
-                `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal.`,
+                `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal. ${inspect(worker.workingOn, undefined, undefined, true)}`,
               ),
             );
           }
