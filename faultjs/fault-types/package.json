@@ -1,6 +1,6 @@
 {
   "name": "@fault/types",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Package containing all type values for Fault.js",
   "types": "./src/index.ts",
   "module": "./esm/index.js",

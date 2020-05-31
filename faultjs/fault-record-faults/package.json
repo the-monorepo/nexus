@@ -1,6 +1,6 @@
 {
   "name": "@fault/record-faults",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Record faults",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
