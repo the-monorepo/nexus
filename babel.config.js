@@ -24,6 +24,7 @@ module.exports = (api) => {
         {
           useInlineSourceMaps: true,
           include: config.buildableSourceFileGlobs,
+          exclude: '.yarn/**',
         },
       ],
       'rewiremock/babel',

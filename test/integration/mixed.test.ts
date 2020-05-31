@@ -1,5 +1,7 @@
 import { DefaultTypeName, NumberFormat } from '@byexample/types';
+
 import { examples } from '../util/from-examples';
+
 describe('mixed root types', () => {
   describe('every default type', () => {
     examples([[], {}, 1, '', true, () => {}])

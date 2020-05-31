@@ -255,24 +255,22 @@ const createWorkers = (
 
 const ERROR_SIGNAL = 'SIGKILL';
 
-const runAndRecycleProcesses = async (
-  {
-    tester,
-    testFiles,
-    workerCount,
-    setupFiles,
-    hooks,
-    cwd,
-    env,
-    testerOptions,
-    bufferCount,
-    timeout
-  }: InternalRunOptions,
-): Promise<FinalTesterResults> => {
+const runAndRecycleProcesses = async ({
+  tester,
+  testFiles,
+  workerCount,
+  setupFiles,
+  hooks,
+  cwd,
+  env,
+  testerOptions,
+  bufferCount,
+  timeout,
+}: InternalRunOptions): Promise<FinalTesterResults> => {
   const startTime = Date.now();
 
   const originalTestFiles: string[] = [];
-  for await(const testFile of testFiles) {
+  for await (const testFile of testFiles) {
     originalTestFiles.push(testFile);
   }
   const testFileQueue: string[] = [...originalTestFiles];
@@ -363,21 +361,27 @@ const runAndRecycleProcesses = async (
           worker.expirationTimer = setTimeout(() => {
             killWorkers(
               [...runningWorkers],
-              new Error(`Worker ${id} took longer than ${timeout}ms. ${inspect(worker.workingOn, undefined, undefined, true)}`),
+              new Error(
+                `Worker ${id} took longer than ${timeout}ms. ${inspect(
+                  worker.workingOn,
+                  undefined,
+                  undefined,
+                  true,
+                )}`,
+              ),
             );
           }, timeout);
         };
-        replaceExpirationTimer(worker);
         worker.process.on('message', async (candidateMessage: ChildResult) => {
           await worker.client.on(candidateMessage, async (message: ChildResult) => {
             switch (message.type) {
               case IPC.TEST: {
-                replaceExpirationTimer(worker);
                 testResults.set(message.data.key, message);
                 await hooks.on.testResult(message);
                 break;
               }
               case IPC.WORKING_ON_TEST:
+                replaceExpirationTimer(worker);
                 worker.workingOn = message.data;
                 break;
               case IPC.STOPPED_WORKER: {
@@ -420,11 +424,9 @@ const runAndRecycleProcesses = async (
 
                   const newFilesToAdd: Set<string> = new Set();
                   await writeJson(durationsPath, testDurations);
-                  console.log('????');
                   for await (const filePathIterator of hooks.on.allFilesFinished(
                     results,
                   )) {
-                    console.log('XXXXXX');
                     if (filePathIterator === undefined || filePathIterator === null) {
                       continue;
                     }
@@ -446,7 +448,7 @@ const runAndRecycleProcesses = async (
         // TODO: Almost certain that, at the moment, there's a chance allFilesFinished and exit hooks both fire in the same round of testing
         worker.process.on('exit', (code, signal) => {
           console.log('worker exit', id, code, signal);
-          clearTimeout(worker.expirationTimer);
+          clearTimeout(worker.expirationTimer!);
           if (signal === 'SIGTERM' && !runningWorkers.has(worker)) {
             return;
           }
@@ -457,7 +459,12 @@ const runAndRecycleProcesses = async (
             killWorkers(
               otherWorkers,
               new Error(
-                `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal. ${inspect(worker.workingOn, undefined, undefined, true)}`,
+                `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal. ${inspect(
+                  worker.workingOn,
+                  undefined,
+                  undefined,
+                  true,
+                )}`,
               ),
             );
           }
@@ -470,10 +477,12 @@ const runAndRecycleProcesses = async (
 
       pendingFileClient.addInitialTests();
     });
+
     if (firstResults === null) {
       firstResults = results;
     }
   }
+
   if (firstResults === null) {
     throw new Error('Something went wrong while running tests');
   }

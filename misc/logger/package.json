@@ -32,5 +32,8 @@
     "jest-mock": "^26.0.1",
     "mockdate": "^2.0.2"
   },
-  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "dependencies": {
+    "date-fns": "^2.14.0"
+  }
 }

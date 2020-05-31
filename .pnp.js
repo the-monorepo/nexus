@@ -6530,7 +6530,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "rewiremock",
-        "npm:3.14.1"
+        "npm:3.14.2"
       ],
       [
         "rimraf",
@@ -7843,7 +7843,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.5"],
             ["raw-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:4.0.1"],
-            ["rewiremock", "npm:3.14.1"],
+            ["rewiremock", "npm:3.14.2"],
             ["sass", "npm:1.26.5"],
             ["sass-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.0.2"],
             ["source-map-loader", "npm:0.2.4"],
@@ -14487,6 +14487,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/logger/",
           "packageDependencies": [
             ["@pshaw/logger", "workspace:misc/logger"],
+            ["date-fns", "npm:2.14.0"],
             ["jest-mock", "npm:26.0.1"],
             ["mockdate", "npm:2.0.5"]
           ],
@@ -22439,6 +22440,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["date-fns", "npm:2.13.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:2.14.0", {
+          "packageLocation": "./.yarn/cache/date-fns-npm-2.14.0-dd7ec830f5-3.zip/node_modules/date-fns/",
+          "packageDependencies": [
+            ["date-fns", "npm:2.14.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["debug", [
@@ -30087,7 +30095,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.5"],
             ["raw-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:4.0.1"],
-            ["rewiremock", "npm:3.14.1"],
+            ["rewiremock", "npm:3.14.2"],
             ["sass", "npm:1.26.5"],
             ["sass-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.0.2"],
             ["source-map-loader", "npm:0.2.4"],
@@ -34455,6 +34463,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/rewiremock-npm-3.14.1-e0d0f0100c-3.zip/node_modules/rewiremock/",
           "packageDependencies": [
             ["rewiremock", "npm:3.14.1"],
+            ["babel-runtime", "npm:6.26.0"],
+            ["compare-module-exports", "npm:2.1.0"],
+            ["lodash.some", "npm:4.6.0"],
+            ["lodash.template", "npm:4.5.0"],
+            ["node-libs-browser", "npm:2.2.1"],
+            ["path-parse", "npm:1.0.6"],
+            ["wipe-node-cache", "npm:2.1.2"],
+            ["wipe-webpack-cache", "npm:2.1.0"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:3.14.2", {
+          "packageLocation": "./.yarn/cache/rewiremock-npm-3.14.2-0cc81ca90d-3.zip/node_modules/rewiremock/",
+          "packageDependencies": [
+            ["rewiremock", "npm:3.14.2"],
             ["babel-runtime", "npm:6.26.0"],
             ["compare-module-exports", "npm:2.1.0"],
             ["lodash.some", "npm:4.6.0"],

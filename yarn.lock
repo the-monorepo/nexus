@@ -3785,6 +3785,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/logger@workspace:misc/logger"
   dependencies:
+    date-fns: ^2.14.0
     jest-mock: ^26.0.1
     mockdate: ^2.0.2
   languageName: unknown
@@ -10463,6 +10464,13 @@ __metadata:
   version: 2.13.0
   resolution: "date-fns@npm:2.13.0"
   checksum: 3/5b2799f5927d3254308086775e13e72c5b7eb46b860225a5a7c507921ab376b3249d9b7e14cdaa19fefd5b5e61443df2f6f46c0b5e83e28bb117777705b8646f
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.14.0":
+  version: 2.14.0
+  resolution: "date-fns@npm:2.14.0"
+  checksum: 3/93fcb999dcad1dced7c7e658f6769032783760b3989f0035186d7134858a21faeb242c31c250db66037de312007c3a562b501b9880fc707421149070a4785bcd
   languageName: node
   linkType: hard
 
@@ -17362,7 +17370,7 @@ fsevents@^1.2.7:
     plugin-error: ^1.0.1
     prettier: ^2.0.1
     raw-loader: ^4.0.0
-    rewiremock: ^3.13.9
+    rewiremock: ^3.14.2
     sass: ^1.26.3
     sass-loader: ^8.0.2
     source-map-loader: ^0.2.4
@@ -21110,6 +21118,22 @@ fsevents@^1.2.7:
     wipe-node-cache: ^2.1.2
     wipe-webpack-cache: ^2.1.0
   checksum: 3/f26507ff26fa62c3b4938e0e5850bf2ab8fd6e4ebd40bd012fba8c2b32c1b89a3d050e0b58056cb3f0301df7eb552249618858ef6554b3206840ad3da212aaa7
+  languageName: node
+  linkType: hard
+
+"rewiremock@npm:^3.14.2":
+  version: 3.14.2
+  resolution: "rewiremock@npm:3.14.2"
+  dependencies:
+    babel-runtime: ^6.26.0
+    compare-module-exports: ^2.1.0
+    lodash.some: ^4.6.0
+    lodash.template: ^4.4.0
+    node-libs-browser: ^2.1.0
+    path-parse: ^1.0.5
+    wipe-node-cache: ^2.1.2
+    wipe-webpack-cache: ^2.1.0
+  checksum: 3/2ac194ad780a45062b4fa8441dfe48998f7e10ab7c914d8dfe2aacf7b7092c20d055c4af7e1f16ea04cf5f013b44656486b0d4d3a7343fac58a2760dce5716f7
   languageName: node
   linkType: hard
 

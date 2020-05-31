@@ -1,3 +1,3 @@
-export function action(fn) {
-  return fn;
-}
+import jest from 'jest-mock';
+
+export const action = jest.fn();

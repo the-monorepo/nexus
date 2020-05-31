@@ -2,7 +2,7 @@ import { stub } from 'sinon';
 
 import { replaceFunctions, RecursionOptions } from 'replace-functions';
 
-export const stubFunctions = <T>(
+const stubFunctions = <T>(
   value: T,
   recursive: RecursionOptions = false,
   onStubFunction: (stubedFn, originalFn) => any = () => {},

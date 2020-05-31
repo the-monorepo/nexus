@@ -201,7 +201,6 @@ export const createPlugin = ({
               return faultFilePath;
             }
           })();
-          console.log(resolvedFilePath);
           await recordFaults(resolvedFilePath, faults);
         }
       },

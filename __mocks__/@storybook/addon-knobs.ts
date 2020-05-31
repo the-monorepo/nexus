@@ -1,6 +1,15 @@
-import { mockFunctions } from 'jest-mock-functions';
-const actualModule = require.requireActual('@storybook/addon-knobs');
-const mockedModule = mockFunctions(actualModule, {
-  onMockedFunction: (jestFn) => jestFn.mockImplementation((val) => val),
-});
-module.exports = mockedModule;
+import jest from 'jest-mock';
+
+export const number = jest.fn();
+
+export const int = jest.fn();
+
+export const text = jest.fn();
+
+export const boolean = jest.fn();
+
+export const object = jest.fn();
+
+export const array = jest.fn();
+
+export const color = jest.fn();
