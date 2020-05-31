@@ -250,11 +250,9 @@ const createWorkers = (
 const ERROR_SIGNAL = 'SIGKILL';
 
 const runAndRecycleProcesses = async (
-  options: InternalRunOptions,
-): Promise<FinalTesterResults> => {
-  const {
+  {
     tester,
-    testMatch,
+    testFiles,
     workerCount,
     setupFiles,
     hooks,
@@ -262,13 +260,16 @@ const runAndRecycleProcesses = async (
     env,
     testerOptions,
     bufferCount,
-    timeout,
-  } = options;
+    timeout
+  }: InternalRunOptions,
+): Promise<FinalTesterResults> => {
   console.log();
   const startTime = Date.now();
 
-  const originalTestFiles: string[] = await globby(testMatch, { onlyFiles: true });
-  originalTestFiles.sort();
+  const originalTestFiles: string[] = [];
+  for await(const testFile of testFiles) {
+    originalTestFiles.push(testFile);
+  }
   const testFileQueue: string[] = [...originalTestFiles];
 
   const workerFileQueueSize = bufferCount + 1;
@@ -488,7 +489,7 @@ export type RunOptions = {
 
 type InternalRunOptions = {
   tester: string;
-  testMatch: string[];
+  testFiles: Iterable<string> | AsyncIterable<string>;
   workerCount: number;
   setupFiles: string[];
   hooks: TestHookOptions;
@@ -519,11 +520,14 @@ export const run = async ({
 
   await hooks.on.start();
 
+  const testFiles = await globby(testMatch, { onlyFiles: true });
+  testFiles.sort();
+
   const internalOptions: InternalRunOptions = {
     tester: require.resolve(tester, {
       paths: [process.cwd()],
     }),
-    testMatch: Array.isArray(testMatch) ? testMatch : [testMatch],
+    testFiles,
     workerCount: processCount,
     setupFiles,
     hooks,
