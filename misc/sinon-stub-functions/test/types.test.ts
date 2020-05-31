@@ -1,4 +1,4 @@
-import { stubFunctions } from '../src/index';
+import stubFunctions from '../src/index';
 
 const aObjectFunctionReturnValue = new Object();
 

@@ -15,7 +15,7 @@ export const testCases = [
   testCase('multiple parameters', ['this', 'is', 'a', 'test'], 'this is a test'),
   testCase('json', [{ also: 'a', test: ':D' }], "{ also: 'a', test: ':D' }"),
   testCase('number', [0], '0'),
-  testCase('function', [() => {}], /\[Function\]/),
+  testCase('function', [() => {}], /\[Function/),
   testCase('regex', [/reaewr/g], '/reaewr/g'),
   testCase('error', [new Error('Test error logging')], /Error: Test error logging/),
 ];

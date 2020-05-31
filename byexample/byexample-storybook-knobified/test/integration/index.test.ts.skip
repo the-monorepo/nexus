@@ -1,7 +1,12 @@
-import { fromExamples } from '../../src/index';
+import rewiremock from 'rewiremock';
+
 import { text, color, number } from '@storybook/addon-knobs';
-jest.mock('@storybook/addon-actions');
-jest.mock('@storybook/addon-knobs');
+
+import { fromExamples } from '../../src/index';
+
+rewiremock('@storybook/addon-knobs').enable();
+rewiremock('@storybook/addon-actions').enable();
+rewiremock.enable();
 
 describe('correctly knobifies object', () => {
   it('with colors', () => {
@@ -20,8 +25,8 @@ describe('correctly knobifies object', () => {
       },
     ]).knobified(theObject);
     expect(knobbedObject).toEqual({
-      aString: text(theObject.aString),
-      aColor: color(theObject.aColor),
+      aString: text('aString', theObject.aString),
+      aColor: color('aColor', theObject.aColor),
     });
   });
   it('with single example', () => {
@@ -32,7 +37,7 @@ describe('correctly knobifies object', () => {
       number: 1,
     }).knobified(theObject);
     expect(knobbedObject).toEqual({
-      number: number(theObject.number),
+      number: number('number', theObject.number),
     });
   });
 });

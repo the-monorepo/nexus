@@ -14,14 +14,14 @@ class MockedWriteable extends Writable {
 }
 
 // Set timezone to const value then adjust for timezone
-MockDate.set('2018-05-03T12:34:56z');
+MockDate.set('2018-05-03T13:34:56z');
 const tempdate = new Date();
 const adjustedTime = tempdate.getTime() + tempdate.getTimezoneOffset() * 60 * 1000;
 MockDate.set(adjustedTime);
 
 const levelName = 'info';
 function formatTester({ timestamp = '' }: any = {}) {
-  return expectedString => {
+  return (expectedString) => {
     const padding: string = ' '.repeat(9 - levelName.length);
     const output = `${timestamp}${levelName}${padding} ${expectedString}\n`;
     return output;
@@ -30,7 +30,7 @@ function formatTester({ timestamp = '' }: any = {}) {
 
 const loggers = {
   'console-default': {
-    formatExpected: formatTester({ timestamp: '12:34:56 ' }),
+    formatExpected: formatTester({ timestamp: '13:34:56 ' }),
   },
   'console-no-color-no-timestamp': {
     options: {
@@ -39,27 +39,25 @@ const loggers = {
     customOptions: {
       level: 'debug',
       timestampFormat: null,
-    }
+    },
   },
   'console-with-full-timestamp': {
     customOptions: {
-      timestampFormat: 'YYYY-MM-dd hh:mm:ss'
+      timestampFormat: 'yyyy-MM-dd HH:mm:ss',
     },
-    formatExpected: formatTester({ timestamp: '2018-05-03 12:34:56 ' }),
+    formatExpected: formatTester({ timestamp: '2018-05-03 13:34:56 ' }),
   },
   'console-default/double-tagged': {
     customOptions: {
-      tags: ['hello', 'world']
+      tags: ['hello', 'world'],
     },
-    formatExpected: string =>
-      formatTester({ timestamp: '12:34:56 ' })(`[hello][world] ${string}`),
+    formatExpected: (string) =>
+      formatTester({ timestamp: '13:34:56 ' })(`[hello][world] ${string}`),
   },
 };
 
-Object.keys(loggers).forEach(loggerName => {
-  const { formatExpected = formatTester(), options, customOptions } = loggers[
-    loggerName
-  ];
+Object.keys(loggers).forEach((loggerName) => {
+  const { formatExpected = formatTester(), options, customOptions } = loggers[loggerName];
 
   describe(loggerName, () => {
     describe(`${levelName} logger tests`, () => {
@@ -67,17 +65,22 @@ Object.keys(loggers).forEach(loggerName => {
         it(testCase.name, () => {
           const stubbedStdout = new MockedWriteable();
 
-          const log = createLogger({
-            ...options,
-            stdout: stubbedStdout, 
-            stderr: stubbedStdout,
-            colorMode: false,
-          }, customOptions);
-        
+          const log = createLogger(
+            {
+              ...options,
+              stdout: stubbedStdout,
+              stderr: stubbedStdout,
+              colorMode: false,
+            },
+            customOptions,
+          );
+
           (log[levelName] as any)(...testCase.input);
           expect(stubbedStdout.mockedWrite).toHaveBeenCalledTimes(1);
           // Trimming to ignore inconsistencies with \rs
-          const printedMessage = (stubbedStdout.mockedWrite.mock.calls[0][0] as any).toString('utf8').replace('\r', '');
+          const printedMessage = (stubbedStdout.mockedWrite.mock.calls[0][0] as any)
+            .toString('utf8')
+            .replace('\r', '');
           if (typeof testCase.output === 'string') {
             expect(printedMessage).toBe(
               formatExpected(testCase.output).replace('\r', ''),
@@ -85,7 +88,7 @@ Object.keys(loggers).forEach(loggerName => {
           } else {
             expect(printedMessage).toMatch(testCase.output);
           }
-        }); 
+        });
       }
     });
   });
