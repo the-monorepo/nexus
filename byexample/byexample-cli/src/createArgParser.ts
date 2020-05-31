@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 
-import packageJson from '../package';
+import packageJson from '../package.json';
 import { defaultModuleAction } from './actions/defaultModuleAction';
 
 export function createArgParser() {

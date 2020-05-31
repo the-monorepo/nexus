@@ -1,2 +1,2 @@
 import expect from 'expect';
-global.expect = expect;
+globalThis.expect = expect;

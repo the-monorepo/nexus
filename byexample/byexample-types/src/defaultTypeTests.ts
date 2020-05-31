@@ -1,5 +1,5 @@
 import { DefaultTypeName } from './DefaultTypeName';
-import { typeTest, TypeTest } from './TypeTest';
+import { typeTest } from './TypeTest';
 import { extractTypeInfo } from './extractTypeInfo';
 import {
   isBoolean,
@@ -10,7 +10,6 @@ import {
   isNumber,
 } from './type-checks';
 import {
-  DefaultType,
   BooleanType,
   StringType,
   FunctionType,
@@ -70,7 +69,7 @@ export function defaultTypeTests(extractTypeInfoFunction = extractTypeInfo) {
       // Gather the values for each key
       for (const key of keyToValuesMap.keys()) {
         objectValues.forEach((objectValue) => {
-          keyToValuesMap.get(key).push(objectValue[key]);
+          keyToValuesMap.get(key)!.push(objectValue[key]);
         });
       }
       // Extract the type info of each field

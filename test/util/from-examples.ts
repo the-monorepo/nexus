@@ -8,37 +8,44 @@ export type Tester<T> = ExpectOutputFunction<T> & {
 
 type Testers<T> = { [K in keyof T]: Tester<Testers<T>> };
 
-function mapToTestersObject<T>(conversionFunctionsObject: T): Testers<T> {
-  const testers = {};
-  function tester(name: string, conversionFunction: (options: any) => any) {
+function mapToTestersObject<T>(conversionFnsObject: T): Testers<T> {
+  let testers: any = {};
+  const tester = (name: string, conversionFn: (options: any) => any) => {
     const aTester: any = (expectedOutput, options) => {
       it(name, () => {
-        const output = conversionFunction(options);
+        const output = conversionFn(options);
         expect(output).toEqual(expectedOutput);
       });
+
       return testers;
     };
+
     aTester.toThrowError = (error, options) => {
       it(name, () => {
-        expect(() => conversionFunction(options)).toThrowError(error);
+        expect(() => conversionFn(options)).toThrowError(error);
       });
+
       return testers;
     };
+
     return aTester;
   }
-  return Object.keys(conversionFunctionsObject).reduce((prev, cur) => {
-    prev[cur] = tester(cur, conversionFunctionsObject[cur]);
-    return prev;
-  }, testers) as Testers<T>;
+
+  for(const [key, conversionFn] of Object.entries(conversionFnsObject)) {
+    testers[key] = tester(key, conversionFn);    
+  }
+
+  return testers;
 }
 
-export function examples(examples: any[]) {
+export const examples = (examples: any[]) => {
   const typeInfo = extractTypeInfo(examples);
   return {
     typeInfo: (expectedTypeInfo) => {
       it('typeInfo', () => {
         expect(typeInfo).toEqual(expectedTypeInfo);
       });
+
       const testers = mapToTestersObject({
         openapi: (options) => createSchema(expectedTypeInfo, options),
         storybook: (options) => {
@@ -47,6 +54,7 @@ export function examples(examples: any[]) {
           return shallowCopy;
         },
       });
+
       return testers;
     },
   };

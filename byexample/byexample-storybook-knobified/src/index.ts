@@ -41,7 +41,7 @@ function knobBasedOffExamples(value, typeInfo: TypeInfo, key) {
       case DefaultTypeName.array:
         return array(key, value ? value : []);
       case DefaultTypeName.function:
-        return action(key, value);
+        return action(key);
       case DefaultTypeName.object:
       default:
         return object(key, value);
@@ -130,15 +130,15 @@ function propKeys(examples, Component = {}) {
   const { propTypes = {}, defaultProps = {} } = Component as any;
 
   return new Set(
-    [].concat(
-      Object.keys(propTypes ? propTypes : {}),
-      Object.keys(defaultProps ? defaultProps : {}),
-      ...examples.map((example) => Object.keys(example)),
-    ),
+    [
+      ...Object.keys(propTypes ? propTypes : {}),
+      ...Object.keys(defaultProps ? defaultProps : {}),
+      ...examples.map((example) => Object.keys(example)).flat()
+    ],
   );
 }
 
-function extractKnobInfo(examples, Component = {}, options) {
+function extractKnobInfo(examples, Component = {}) {
   const { propTypes = {}, defaultProps = {} } = Component as any;
   const keys = propKeys(examples, Component);
   // Wasteful copying of proptype and default prop data
@@ -154,32 +154,6 @@ function extractKnobInfo(examples, Component = {}, options) {
     return datum;
   }, {});
   return typeInfo;
-}
-
-export function fromExamples(
-  examples: any | any[],
-  Component?: React.Component,
-  options = {},
-) {
-  if (!Array.isArray(examples)) {
-    examples = [examples];
-  }
-  const objectFields = extractKnobInfo(examples, Component, options);
-  const typeInfo = {
-    types: [
-      {
-        name: DefaultTypeName.object,
-        fields: objectFields,
-      },
-    ],
-    nullCount: 0,
-    undefinedCount: 0,
-  };
-  return {
-    knobified: (example) => {
-      return knobified(example, typeInfo, options);
-    },
-  };
 }
 
 export function knobified(example, typeInfo, options: any = {}) {
@@ -206,4 +180,29 @@ export function knobified(example, typeInfo, options: any = {}) {
     knobified[fieldKey] = knobOfField(example[fieldKey], rootType.fields, fieldKey);
     return knobified;
   }, {});
+}
+
+export function fromExamples(
+  examples: any | any[],
+  Component?: React.Component,
+) {
+  if (!Array.isArray(examples)) {
+    examples = [examples];
+  }
+  const objectFields = extractKnobInfo(examples, Component);
+  const typeInfo = {
+    types: [
+      {
+        name: DefaultTypeName.object,
+        fields: objectFields,
+      },
+    ],
+    nullCount: 0,
+    undefinedCount: 0,
+  };
+  return {
+    knobified: (example) => {
+      return knobified(example, typeInfo);
+    },
+  };
 }

@@ -19,6 +19,7 @@ const readablePackageJsonFilePaths = packageJsonFilePaths.filter((filePath) => {
     accessSync(filePath, constants.R_OK);
     return true;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(err);
     return false;
   }

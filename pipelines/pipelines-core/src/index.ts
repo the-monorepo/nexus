@@ -65,7 +65,6 @@ export class ReadFileObject extends FileObject<string> {
 }
 
 export async function* readFrom(baseDir: '.', globs: string[] | string) {
-  console.log('12#!@?#!@#@!#');
   // TODO: Directories as well
   const files = await globby(globs, { onlyFiles: true });
   yield* files.map((file) => new ReadFileObject(url.pathToFileURL(file)));
@@ -75,5 +74,4 @@ export async function* writeTo(
   iterable: PipelinesIterable<ReadFileObject<string>>,
   baseDir: '.',
 ) {
-  console.log(...iterable, baseDir);
 }

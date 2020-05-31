@@ -4,7 +4,7 @@ import { typeTest } from '../../src/TypeTest';
 import { runTypeTests } from '../../src/runTypeTests';
 function testResult(values, checks, expectedResult) {
   it('correct result', () => {
-    const expectedValues = [];
+    const expectedValues: any[] = [];
     checks
       .filter((check) => expectedResult.checks.includes(check))
       .forEach((check, i) => {

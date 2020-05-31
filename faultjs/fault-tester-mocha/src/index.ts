@@ -71,7 +71,7 @@ export const initialize = async (options: Options) => {
             let endTime: number;
 
             clearCache();
-            global.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
+            globalThis.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
             try {
               await runMochaInstance(mochaInstance, async () => {
                 endTime = Date.now();

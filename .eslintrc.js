@@ -11,14 +11,15 @@ module.exports = {
     "@pshaw/eslint-config-preset"
   ],  
   "globals": {
-    "expect": "writable"
+    "expect": "writable",
+    "globalThis": "writeable",
   },
   "env": {
       "browser": true,
       "commonjs": true,
       "node": true,
       "es6": true,
-      "mocha": true
+      "mocha": true,
   },
   "parserOptions": {
     "ecmaVersion": 9,
