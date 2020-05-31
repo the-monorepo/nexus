@@ -55,6 +55,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/hook-schema"
       },
       {
+        "name": "ipc-fifo-processor",
+        "reference": "workspace:misc/ipc-fifo-processor"
+      },
+      {
         "name": "jest-mock-functions",
         "reference": "workspace:misc/jest-mock-functions"
       },
@@ -4439,6 +4443,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "ipaddr.js",
         "npm:1.9.1"
+      ],
+      [
+        "ipc-fifo-processor",
+        "workspace:misc/ipc-fifo-processor"
       ],
       [
         "is-absolute",
@@ -13831,7 +13839,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
-            ["@pshaw/keyed-binary-heap", "workspace:misc/keyed-binary-heap"]
+            ["ipc-fifo-processor", "workspace:misc/ipc-fifo-processor"]
           ],
           "linkType": "SOFT",
         }]
@@ -27020,6 +27028,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["ipaddr.js", "npm:1.9.1"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["ipc-fifo-processor", [
+        ["workspace:misc/ipc-fifo-processor", {
+          "packageLocation": "./misc/ipc-fifo-processor/",
+          "packageDependencies": [
+            ["ipc-fifo-processor", "workspace:misc/ipc-fifo-processor"],
+            ["@pshaw/keyed-binary-heap", "workspace:misc/keyed-binary-heap"],
+            ["@types/node", "npm:13.13.6"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["is-absolute", [

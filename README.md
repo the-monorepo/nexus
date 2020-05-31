@@ -15,6 +15,7 @@ Version | Package | Description
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
 2.2.3 | [`hook-schema`](misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
+1.0.0-alpha.0 | [`ipc-fifo-processor`](misc/ipc-fifo-processor/README.md) | Makes IPC connections appear FIFO
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.6.1 | [`named-css-colors`](misc/named-css-colors/README.md) | Package of named CSS colors and their values
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal

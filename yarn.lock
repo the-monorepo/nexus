@@ -3242,7 +3242,7 @@ __metadata:
   resolution: "@fault/messages@workspace:faultjs/fault-messages"
   dependencies:
     "@fault/types": "workspace:faultjs/fault-types"
-    "@pshaw/keyed-binary-heap": "workspace:misc/keyed-binary-heap"
+    ipc-fifo-processor: "workspace:misc/ipc-fifo-processor"
   languageName: unknown
   linkType: soft
 
@@ -14601,6 +14601,15 @@ fsevents@^1.2.7:
   checksum: 3/de15bc7e63973d960abc43c9fbbf19589c726774f59d157d1b29382a1e86ae87c68cbd8b5c78a1712a87fc4fcd91e10762c7671950c66a1a19040ff4fd2f9c9b
   languageName: node
   linkType: hard
+
+"ipc-fifo-processor@workspace:misc/ipc-fifo-processor":
+  version: 0.0.0-use.local
+  resolution: "ipc-fifo-processor@workspace:misc/ipc-fifo-processor"
+  dependencies:
+    "@pshaw/keyed-binary-heap": "workspace:misc/keyed-binary-heap"
+    "@types/node": ^13.13.4
+  languageName: unknown
+  linkType: soft
 
 "is-absolute-url@npm:^3.0.3":
   version: 3.0.3

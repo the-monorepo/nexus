@@ -6,7 +6,7 @@ import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 
 import { client } from './client';
 
-const { EVENT_TEST_FAIL, EVENT_TEST_PASS } = (Mocha.Runner as any).constants;
+const { EVENT_TEST_FAIL, EVENT_TEST_PASS, EVENT_TEST_BEGIN } = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {
@@ -34,6 +34,15 @@ const commonTestHandle = (submitHandle: SubmitHandle) => {
 export class IPCReporter {
   public constructor(runner) {
     runner
+      .on(
+        EVENT_TEST_BEGIN,
+        (testData: Mocha.Test) => {
+          client.notifyWorkingOnTest({
+            titlePath: testData.titlePath(),
+            file: testData.file!,
+          });
+        }
+      )
       .on(
         EVENT_TEST_PASS,
         commonTestHandle((testData) => {

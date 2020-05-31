@@ -23,3 +23,7 @@ export const TEST_FILE = 'test-file';
 export const STOPPED_WORKER = 'stopped';
 
 export const NO_MORE_TESTS_FOR_WORKER = 'no-more-tests';
+
+export const TEST_TAKING_TOO_LONG = 'test-taking-too-long';
+
+export const WORKING_ON_TEST = 'working-on-test';
