@@ -6267,7 +6267,7 @@ __metadata:
     "@types/node": ^11.9.4
     fs-extra: ^7.0.1
     globby: ^9.0.0
-    hook-schema: ^2.2.3
+    hook-schema: ^2.2.4-0
   languageName: unknown
   linkType: soft
 
@@ -13934,7 +13934,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"hook-schema@^2.2.3, hook-schema@workspace:misc/hook-schema":
+"hook-schema@^2.2.4-0, hook-schema@workspace:misc/hook-schema":
   version: 0.0.0-use.local
   resolution: "hook-schema@workspace:misc/hook-schema"
   dependencies:

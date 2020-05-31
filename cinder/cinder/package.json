@@ -1,6 +1,6 @@
 {
   "name": "cinder",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Create interactive UIs with seamless state management using MobX",
   "license": "MIT",
   "sideEffects": false,

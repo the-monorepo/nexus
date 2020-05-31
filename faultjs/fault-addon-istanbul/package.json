@@ -1,6 +1,6 @@
 {
   "name": "@fault/addon-istanbul",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Report istanbul coverage",
   "types": "./src/index.ts",
   "module": "./esm/index.js",

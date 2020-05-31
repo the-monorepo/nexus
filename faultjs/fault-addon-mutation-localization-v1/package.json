@@ -1,7 +1,7 @@
 {
   "name": "@fault/addon-mutation-localization-v1",
   "private": true,
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Fault AST localization",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
