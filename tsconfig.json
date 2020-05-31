@@ -15,14 +15,18 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "lib": ["esnext", "dom"],
-    "isolatedModules": true
+    "isolatedModules": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
   },
   "exclude": [
     "**/.yarn/**",
     "**/node_modules",
     "**/build",
     "**/lib",
-    "**/esm", 
+    "**/esm",
     "**/dist"
   ]
 }
