@@ -32,16 +32,19 @@ type DurationData = {
   totalPendingDuration: number;
   pendingUnknownTestCount: number;
 };
+
 type WorkerInfo = {
   expirationTimer: NodeJS.Timeout | null;
   client: ChildProcessWorkerClient;
   process: ChildProcess;
 } & DurationData;
+
 type InternalTestData = {
   worker: WorkerInfo;
   testPath: string;
   estimatedDuration?: number;
 };
+
 type TestDurations = {
   [s: string]: number;
 };
@@ -263,7 +266,6 @@ const runAndRecycleProcesses = async (
     timeout
   }: InternalRunOptions,
 ): Promise<FinalTesterResults> => {
-  console.log();
   const startTime = Date.now();
 
   const originalTestFiles: string[] = [];

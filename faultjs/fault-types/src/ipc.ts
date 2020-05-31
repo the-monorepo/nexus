@@ -21,3 +21,5 @@ export const TEST_FILE = 'test-file';
  * Sent once the worker has finally stopped running/exitted
  */
 export const STOPPED_WORKER = 'stopped';
+
+export const NO_MORE_TESTS_FOR_WORKER = 'no-more-tests';

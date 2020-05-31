@@ -56,6 +56,9 @@ export type RunTestsPayload = Payload<typeof IPC.TEST_FILE, RunTestsData>;
 export type StopWorkerData = {};
 export type StopWorkerResult = Payload<typeof IPC.STOP_WORKER, StopWorkerData>;
 
+export type NoMoreTestsForWorkerData = {};
+export type NoMoreTestsForWorkerResult = Payload<typeof IPC.NO_MORE_TESTS_FOR_WORKER, NoMoreTestsForWorkerData>;
+
 export type StoppedWorkerData = {
   coverage: Coverage;
 };
