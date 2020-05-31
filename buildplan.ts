@@ -23,7 +23,7 @@ import {
 } from '@buildplan/core';
 
 import config from '@monorepo/config';
-import * as pshawLogger from '@pshaw/logger';
+import createLogger from '@pshaw/logger';
 
 import filter from 'stream-filter-glob';
 
@@ -64,7 +64,7 @@ const createSrcDirSwapper = (dir) => {
   return (srcPath) => swapSrcWith(srcPath, dir);
 };
 
-const logger = pshawLogger.logger().add(pshawLogger.consoleTransport());
+const logger = createLogger();
 
 const packagesSrcAssetStream = (options?) => {
   return gulp.src(
@@ -157,12 +157,12 @@ const copyPipes = (stream, l, dir) => {
 };
 
 const copyScript = () => {
-  const l = logger.child({ tags: [chalk.yellow('copy'), chalk.blueBright('lib')] });
+  const l = logger.child(chalk.yellow('copy'), chalk.blueBright('lib'));
   return copyPipes(packagesSrcAssetStream(), l, 'lib');
 };
 
 const copyEsm = () => {
-  const l = logger.child({ tags: [chalk.yellow('copy'), chalk.cyanBright('esm')] });
+  const l = logger.child(chalk.yellow('copy'), chalk.cyanBright('esm'));
   return copyPipes(packagesSrcAssetStream(), l, 'esm');
 };
 
@@ -171,7 +171,7 @@ const copy = parallel(copyScript, copyEsm);
 const transpilePipes = async (stream, babelOptions, dir, chalkFn) => {
   const sourcemaps = await import('gulp-sourcemaps');
   const { default: babel } = await import('gulp-babel');
-  const l = logger.child({ tags: [chalk.blue('transpile'), chalkFn(dir)] });
+  const l = logger.child(chalk.blue('transpile'), chalkFn(dir));
 
   return stream
     .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
@@ -217,14 +217,14 @@ const transpileEsm = () => {
 
 const prettierPipes = async (stream) => {
   const { default: prettier } = await import('gulp-prettier');
-  const l = logger.child({ tags: [chalk.magentaBright('prettier')] });
+  const l = logger.child(chalk.magentaBright('prettier'));
   return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
 };
 
 const lintPipes = async (stream, lintOptions) => {
   const { default: eslint } = await import('gulp-eslint');
 
-  const l = logger.child({ tags: [chalk.magenta('eslint')] });
+  const l = logger.child(chalk.magenta('eslint'));
   return (
     stream
       .pipe(simplePipeLogger(l, 'Formatting'))
@@ -251,7 +251,7 @@ task('transpile', transpile);
 
 const writeme = async () => {
   const { default: writeReadmeFromPackageDir } = await import('@writeme/core');
-  const l = logger.child({ tags: [chalk.green('writeme')] });
+  const l = logger.child(chalk.green('writeme'));
   await writeReadmeFromPackageDir(__dirname, {
     before: {
       genReadme: async ({ packageDir }) => {
@@ -499,7 +499,7 @@ const bundleWebpack = async () => {
     });
   });
 
-  const l = logger.child({ tags: [chalk.magenta('webpack')] });
+  const l = logger.child(chalk.magenta('webpack'));
   for await (const stats of compilersStatsPromises) {
     const compilation = stats.compilation;
     const timeTaken = (stats.endTime - stats.startTime) / 1000;
@@ -560,7 +560,7 @@ const serveBundles = async () => {
   const { default: WebpackDevServer } = await import('webpack-dev-server');
   const compilers = await webpackCompilers();
   let port = 3000;
-  const l = logger.child({ tags: [chalk.magenta('webpack')] });
+  const l = logger.child(chalk.magenta('webpack'));
   for (const { compiler, config } of compilers) {
     const mergedDevServerConfig = config.devServer;
     const server = new WebpackDevServer(compiler, mergedDevServerConfig);

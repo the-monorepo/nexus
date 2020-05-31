@@ -1,5 +1,9 @@
+import chalk from 'chalk';
 import yargs from 'yargs';
-import * as resultful from 'resultful';
+
+import createLogger from '@pshaw/logger';
+
+const log = createLogger({ colorMode: 'auto' });
 
 type SynchronousTaskResult = undefined | any;
 type IteratorTaskResult = Iterable<TaskResult>;
@@ -29,7 +33,7 @@ export type TaskExceptionInfo = {
 export type TaskExceptionHandler = (taskException: TaskExceptionInfo) => any;
 
 const defaultExceptionHandler = ({ exception, taskName }: TaskExceptionInfo) => {
-  console.error(`An expected error was received by ${taskName}`, exception);
+  log.exception(`An expected error occurred in the "${chalk.cyan(taskName)}" task`, exception);
 }
 
 let currentExceptionHandler = defaultExceptionHandler;
@@ -59,7 +63,7 @@ const waitForTaskReturnValue = async (taskValue: TaskResult): Promise<any> => {
 };
 
 const createTask = (
-  name: string[] | string,
+  name: string,
   description: string | undefined,
   callback: TaskCallback,
 ) => {

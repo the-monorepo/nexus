@@ -11,14 +11,13 @@ import del from 'del';
 import * as git from 'isomorphic-git';
 import fetch from 'node-fetch';
 
-import { consoleTransport } from '@pshaw/logger';
+import createLogger from '@pshaw/logger';
 
-import logger from '@pshaw/logger';
 const { writeFile, appendFile, stat, readFile } = fs.promises;
 
 git.plugins.set('fs', fs);
 
-const log = logger().add(consoleTransport());
+const log = createLogger();
 
 type FileNode = {
   path: string;

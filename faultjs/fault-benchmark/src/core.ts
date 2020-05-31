@@ -20,7 +20,7 @@ import { ochiai } from '@fault/sbfl-ochiai';
 import { op2 } from '@fault/sbfl-op2';
 import { tarantula } from '@fault/sbfl-tarantula';
 import { writeJson, readJson } from '@pshaw/fs';
-import { consoleTransport, logger } from '@pshaw/logger';
+import createLogger from '@pshaw/logger';
 
 import { BenchmarkConfig, ProjectConfig } from './config';
 import benchmarkConfig from './config';
@@ -175,11 +175,7 @@ const sbflAlgorithms = [
   { name: 'op2', scoringFn: op2 },
 ];
 
-const log = logger().add(
-  consoleTransport({
-    level: 'verbose',
-  }),
-);
+const log = createLogger({ level: 'verbose' });
 
 const faultFileDir = (projectDir: string, sbflModuleFolderName: string) => {
   const faultPath = resolve(projectDir, 'faults', sbflModuleFolderName);

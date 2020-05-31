@@ -5,11 +5,11 @@ A preformatted, opinionated logger
 ## Installation
 
 ```bash
-npm install --save @pshaw/logger @pshaw/winston-formats winston
+npm install --save @pshaw/logger
 ```
 or
 ```bash
-yarn add @pshaw/logger @pshaw/winston-formats winston
+yarn add @pshaw/logger
 ```
 
 ## Examples
