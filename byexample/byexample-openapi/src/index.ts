@@ -19,13 +19,38 @@ function addTypeInfoToOpenSchema(openApiType, typeInfo, options) {
   }
 }
 
+
+export function createSchema(typeInfo: TypeInfo, options = {}) {
+  const optionsWithDefaults = {
+    assumeRequired: true,
+    assumeNonNull: true,
+    ...options,
+  };
+
+  const swaggerTypes = typeInfo.types.map((type) =>
+    mapType(type, typeInfo, optionsWithDefaults),
+  );
+
+  // TODO Fix any cast
+  let schema: any = undefined;
+  if (swaggerTypes.length > 1) {
+    schema = { oneOf: swaggerTypes };
+  } else if (swaggerTypes.length === 1) {
+    schema = swaggerTypes[0];
+  } else {
+    schema = {};
+    addTypeInfoToOpenSchema(schema, typeInfo, options);
+  }
+  return schema;
+}
+
 function mapType(type: Type, typeInfo: TypeInfo, options) {
   const byExampleToSwaggerTypeMap: {
     [key: string]: (type: Type) => any;
   } = {
     object: (objectType: ObjectType) => {
       const properties = {};
-      const required = [];
+      const required: string[] = [];
       if (options.assumeRequired) {
         Object.keys(objectType.fields).forEach((key) => {
           const fieldTypeInfo = objectType.fields[key];
@@ -47,6 +72,7 @@ function mapType(type: Type, typeInfo: TypeInfo, options) {
       }
       return schema;
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     string: (type: StringType) => {
       return { type: 'string' };
     },
@@ -63,6 +89,7 @@ function mapType(type: Type, typeInfo: TypeInfo, options) {
         return { type: 'number' };
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     boolean: (type: BooleanType) => {
       return { type: 'boolean' };
     },
@@ -70,28 +97,6 @@ function mapType(type: Type, typeInfo: TypeInfo, options) {
   const mapped = byExampleToSwaggerTypeMap[type.name](type);
   addTypeInfoToOpenSchema(mapped, typeInfo, options);
   return mapped;
-}
-
-export function createSchema(typeInfo: TypeInfo, options = {}) {
-  const optionsWithDefaults = {
-    assumeRequired: true,
-    assumeNonNull: true,
-    ...options,
-  };
-
-  const swaggerTypes = typeInfo.types.map((type) =>
-    mapType(type, typeInfo, optionsWithDefaults),
-  );
-  let schema = undefined;
-  if (swaggerTypes.length > 1) {
-    schema = { oneOf: swaggerTypes };
-  } else if (swaggerTypes.length === 1) {
-    schema = swaggerTypes[0];
-  } else {
-    schema = {};
-    addTypeInfoToOpenSchema(schema, typeInfo, options);
-  }
-  return schema;
 }
 
 export function fromTypes(typeInfo) {

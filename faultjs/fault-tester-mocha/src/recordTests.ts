@@ -20,7 +20,7 @@ type PartialTestData = {
 type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => {};
 const commonTestHandle = (submitHandle: SubmitHandle) => {
   return (test: Mocha.Test, err) => {
-    const coverage = subtractCoverage(global[COVERAGE_KEY], global.beforeTestCoverage);
+    const coverage = subtractCoverage(globalThis[COVERAGE_KEY], globalThis.beforeTestCoverage);
     const hash =
       test!.titlePath().join('_') +
       createHash('sha1').update(test!.body).digest('base64');

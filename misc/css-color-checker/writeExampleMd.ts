@@ -1,5 +1,9 @@
+import fs from 'fs';
+import { basename } from 'path';
+
 import { TestInputs } from './tests/inputs/test-inputs';
 import {
+  default as cssColorFormat,
   isHexColor,
   isRgbColor,
   isRgbaColor,
@@ -7,18 +11,13 @@ import {
   isHslaColor,
   isColorName,
   isHwbColor,
-  cssColorFormat,
   isCssColor,
 } from './src/index';
 import { inputs } from './tests/inputs/suites';
 
-import fs from 'fs';
-import { basename } from 'path';
-
 function example(isColorFunction, input: string) {
   return `${isColorFunction.name}("${input}");`;
 }
-import { format } from 'util';
 
 function examples(isColorFunction, inputs: Set<string>, isValidSet: boolean) {
   let md = '';

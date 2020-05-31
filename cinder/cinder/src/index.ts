@@ -105,6 +105,14 @@ abstract class CachedField implements Field {
   }
 }
 
+const setAttribute = (el: Element, key: string, value: any) => {
+  if (value != null) {
+    el.setAttribute(key, value);
+  } else {
+    el.removeAttribute(key);
+  }
+};
+
 class AttributeField extends CachedField {
   constructor(private readonly el: Element, private readonly key: string) {
     super();
@@ -133,6 +141,28 @@ export const property = <E extends Element = any>(
   setter: PropertySetter,
 ): PropertyField => {
   return new PropertyField(el, setter);
+};
+
+
+const removeEvent = (el: Element, key: string, eventObject) => {
+  if (eventObject != null) {
+    if (typeof eventObject === 'function') {
+      el.removeEventListener(key, eventObject);
+    } else {
+      el.removeEventListener(key, eventObject.handle, eventObject.options);
+    }
+  }
+};
+
+const setEvent = (el: Element, key: string, state, newValue) => {
+  removeEvent(el, key, state);
+  if (newValue !== null && newValue !== undefined) {
+    if (typeof newValue === 'function') {
+      el.addEventListener(key, newValue);
+    } else {
+      el.addEventListener(key, newValue.handle, newValue.options);
+    }
+  }
 };
 
 class EventField extends CachedField {
@@ -178,6 +208,18 @@ export const renderResult = <C, N extends Node>(
   data,
   unmount,
 });
+
+export const removeUntilBefore = (
+  container: Node,
+  startElement: Node | null,
+  stopElement: Node | null,
+) => {
+  while (startElement !== stopElement) {
+    const nextSibling = startElement!.nextSibling;
+    container.removeChild(startElement!);
+    startElement = nextSibling;
+  }
+};
 
 export const renderComponentResultNoSet = <C, V, N extends Node>(
   renderInfo: ComponentResult<C, V, N>,
@@ -600,18 +642,6 @@ export type RenderResult<C, N extends Node = Node> = {
   data: RenderData<C, N>;
 };
 
-export const removeUntilBefore = (
-  container: Node,
-  startElement: Node | null,
-  stopElement: Node | null,
-) => {
-  while (startElement !== stopElement) {
-    const nextSibling = startElement!.nextSibling;
-    container.removeChild(startElement!);
-    startElement = nextSibling;
-  }
-};
-
 export const moveUntilBefore = (
   newContainer: Node,
   startElement: Node | null,
@@ -622,35 +652,6 @@ export const moveUntilBefore = (
     const nextSibling = startElement!.nextSibling!;
     newContainer.insertBefore(startElement!, before);
     startElement = nextSibling;
-  }
-};
-
-const setAttribute = (el: Element, key: string, value: any) => {
-  if (value != null) {
-    el.setAttribute(key, value);
-  } else {
-    el.removeAttribute(key);
-  }
-};
-
-const removeEvent = (el: Element, key: string, eventObject) => {
-  if (eventObject != null) {
-    if (typeof eventObject === 'function') {
-      el.removeEventListener(key, eventObject);
-    } else {
-      el.removeEventListener(key, eventObject.handle, eventObject.options);
-    }
-  }
-};
-
-const setEvent = (el: Element, key: string, state, newValue) => {
-  removeEvent(el, key, state);
-  if (newValue !== null && newValue !== undefined) {
-    if (typeof newValue === 'function') {
-      el.addEventListener(key, newValue);
-    } else {
-      el.addEventListener(key, newValue.handle, newValue.options);
-    }
   }
 };
 
@@ -1068,7 +1069,7 @@ export type SFC<P, R> = (props: P) => R;
 export type FC<P, R> = (props: P) => R;
 
 export const rerender = (target) => {
-  const symbol = Symbol(`${target.key.toString()}-value`);
+  const symbol = Symbol(`${String(target.key)}-value`);
   if (target.kind === 'field') {
     return {
       ...target,

@@ -124,10 +124,10 @@ const sassModulesRule = {
   use: [require.resolve('style-loader'), cssModuleLoader, sassLoader],
 };
 
-const webcomponentsSassModulesRule = {
+/*const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
   use: [cssModuleLoader, sassLoader],
-};
+};*/
 
 const resumeConfig: Configuration = {
   name: 'my-resume',

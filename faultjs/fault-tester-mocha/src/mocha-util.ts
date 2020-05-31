@@ -1,4 +1,5 @@
 import { IPCReporter } from './recordTests';
+
 export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   const mochaInstance = new Mocha({
     color: true,
@@ -6,10 +7,13 @@ export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
     fullStackTrace: true,
     ...options,
   } as any);
+
   for (const requireFile of requireFiles) {
     mochaInstance.addFile(requireFile);
   }
+
   mochaInstance.addFile(require.resolve('./recordTests'));
+
   return mochaInstance;
 };
 
