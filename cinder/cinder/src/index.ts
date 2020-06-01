@@ -143,7 +143,6 @@ export const property = <E extends Element = any>(
   return new PropertyField(el, setter);
 };
 
-
 const removeEvent = (el: Element, key: string, eventObject) => {
   if (eventObject != null) {
     if (typeof eventObject === 'function') {
@@ -186,11 +185,12 @@ const textBlueprint = createBlueprint(
   (value: TextBlueprintInput, container, before) => {
     const node = document.createTextNode(value);
     container.insertBefore(node, before);
-    return renderData(node, node);
+    return renderData(node, { node, value });
   },
   (state, value) => {
-    if (state.state.data !== value) {
-      state.state.data = value;
+    if (state.value !== value) {
+      state.value = value;
+      state.state.node.data = value;
     }
   },
 );
