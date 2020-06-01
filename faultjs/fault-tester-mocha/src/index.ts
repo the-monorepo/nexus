@@ -6,6 +6,8 @@ import { client } from './client';
 
 import { createMochaInstance, runMochaInstance } from './mocha-util';
 
+import * as resultful from 'resultful';
+
 const COVERAGE_KEY = '__coverage__';
 
 type Options = {
@@ -67,23 +69,24 @@ export const initialize = async (options: Options) => {
             const mochaInstance = createMochaInstance(Mocha, mochaOptions, requireFiles);
             mochaInstance.addFile(testPath);
 
-            const startTime = Date.now();
-            let endTime: number;
-
             clearCache();
             globalThis.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
-            try {
-              await runMochaInstance(mochaInstance, async () => {
-                endTime = Date.now();
-              });
-            } catch (err) {
-              console.error(err);
-              process.exitCode = 1;
-            }
+
+            const startTime = Date.now();
+            const result = await runMochaInstance(mochaInstance);
+            const endTime = Date.now();
+
+            const duration = endTime - startTime;
+
             clearCache();
 
-            const duration = endTime! - startTime;
-            await client.submitFileResult({ duration, key, testPath });
+            if (resultful.isException(result)) {
+              console.error(result.exception);
+              process.exitCode = 1;
+            } else {
+              await client.submitFileResult({ duration, key, testPath });
+            }
+            console.log(duration, endTime, startTime)
           }
         } else {
           // Sort tests alphabetically
@@ -94,21 +97,23 @@ export const initialize = async (options: Options) => {
           for (const { testPath } of data.testsToRun) {
             mochaInstance.addFile(testPath);
           }
-          try {
-            await runMochaInstance(mochaInstance, async () => {
-              for (const { testPath, key } of data.testsToRun) {
-                await client.submitFileResult({
-                  testPath,
-                  key,
-                  duration: 0,
-                });
-              }
-              clearCache();
-            });
-          } catch (err) {
-            console.error(err);
-            process.exit(1);
+
+          const result = await runMochaInstance(mochaInstance);
+          
+          if (resultful.isException(result)) {
+            console.error(result.exception);
+            process.exitCode = 1;
+          } else {
+            for (const { testPath, key } of data.testsToRun) {
+              await client.submitFileResult({
+                testPath,
+                key,
+                duration: 0,
+              });
+            }  
           }
+
+          clearCache();
         }
       }
       running = false;
