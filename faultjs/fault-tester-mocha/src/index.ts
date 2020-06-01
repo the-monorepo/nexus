@@ -70,15 +70,15 @@ export const initialize = async (options: Options) => {
             mochaInstance.addFile(testPath);
 
             clearCache();
+
             globalThis.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
-
             const startTime = Date.now();
-            const result = await runMochaInstance(mochaInstance);
-            const endTime = Date.now();
 
-            const duration = endTime - startTime;
+            const result = await runMochaInstance(mochaInstance);
 
             clearCache();
+            const endTime = Date.now();
+            const duration = endTime - startTime;
 
             if (resultful.isException(result)) {
               console.error(result.exception);
@@ -137,4 +137,5 @@ export const initialize = async (options: Options) => {
     });
   });
 };
+
 export default initialize;
