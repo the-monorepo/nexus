@@ -9,7 +9,7 @@ import {
   isException,
   isFailure,
   isSuccess,
-  //handle,
+  handle,
 } from '../src/index';
 
 const testInfoSet = {
@@ -70,14 +70,14 @@ describe('resultful', () => {
         error: jest.fn().mockReturnValue(testInfoSet.error.handleValue),
         exception: jest.fn().mockReturnValue(testInfoSet.exception.handleValue),
       };
-      /*
+      
       const value = handle(payload, handlers);
       expect(value).toBe(testInfo.handleValue);
 
       expect(handlers[testInfo.key]).toHaveBeenCalledTimes(1);
       for (const otherKey of otherKeys) {
         expect(handlers[otherKey]).not.toHaveBeenCalled();
-      }*/
+      }
     });
   }
   /*
