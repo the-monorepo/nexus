@@ -5342,7 +5342,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "mocha",
-        "npm:7.1.2"
+        "npm:7.2.0"
       ],
       [
         "mockdate",
@@ -7838,7 +7838,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lint-staged", "npm:10.2.2"],
             ["micromatch", "npm:4.0.2"],
             ["minimist", "npm:1.2.5"],
-            ["mocha", "npm:7.1.2"],
+            ["mocha", "npm:7.2.0"],
             ["node-fetch", "npm:2.6.0"],
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.5"],
@@ -13777,7 +13777,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/sbfl-ochiai", "workspace:faultjs/fault-sbfl-ochiai"],
             ["@fault/sbfl-op2", "workspace:faultjs/fault-sbfl-op2"],
             ["@fault/sbfl-tarantula", "workspace:faultjs/fault-sbfl-tarantula"],
-            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha"],
+            ["@fault/tester-mocha", "virtual:1320fc5e5e1b2d6b83c27ff6845e229dbb990a463a698ba34facbc60aa5091b6a5ebf76c05cf7d4083de677e170f96f5753783a493c01b69977ba3d196eb54e8#workspace:faultjs/fault-tester-mocha"],
             ["@pshaw/fs", "workspace:misc/pshaw-fs"],
             ["@pshaw/logger", "workspace:misc/logger"],
             ["chai", "npm:4.2.0"],
@@ -13924,6 +13924,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/tester-mocha", [
+        ["virtual:1320fc5e5e1b2d6b83c27ff6845e229dbb990a463a698ba34facbc60aa5091b6a5ebf76c05cf7d4083de677e170f96f5753783a493c01b69977ba3d196eb54e8#workspace:faultjs/fault-tester-mocha", {
+          "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-d089b2e4e1/1/faultjs/fault-tester-mocha/",
+          "packageDependencies": [
+            ["@fault/tester-mocha", "virtual:1320fc5e5e1b2d6b83c27ff6845e229dbb990a463a698ba34facbc60aa5091b6a5ebf76c05cf7d4083de677e170f96f5753783a493c01b69977ba3d196eb54e8#workspace:faultjs/fault-tester-mocha"],
+            ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
+            ["@fault/messages", "workspace:faultjs/fault-messages"],
+            ["@fault/types", "workspace:faultjs/fault-types"],
+            ["mocha", "npm:7.1.2"]
+          ],
+          "packagePeers": [
+            "mocha"
+          ],
+          "linkType": "SOFT",
+        }],
         ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:faultjs/fault-tester-mocha", {
           "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-cf6048cf94/1/faultjs/fault-tester-mocha/",
           "packageDependencies": [
@@ -13931,7 +13945,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
-            ["mocha", "npm:7.1.2"]
+            ["mocha", "npm:7.2.0"]
           ],
           "packagePeers": [
             "mocha"
@@ -22462,24 +22476,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "HARD",
         }],
-        ["virtual:197c37edea49df1a43ca33fcb1cd73cd93b2509eb68d4f7ca4ac19e2d225e3fbea8f47b128e601490787c3eb17eba20877e648415e5e97d582da7aac659462c2#npm:3.2.6", {
-          "packageLocation": "./.yarn/$$virtual/debug-virtual-e5c9d97f89/0/cache/debug-npm-3.2.6-6214e40f12-3.zip/node_modules/debug/",
-          "packageDependencies": [
-            ["debug", "virtual:197c37edea49df1a43ca33fcb1cd73cd93b2509eb68d4f7ca4ac19e2d225e3fbea8f47b128e601490787c3eb17eba20877e648415e5e97d582da7aac659462c2#npm:3.2.6"],
-            ["ms", "npm:2.1.1"],
-            ["supports-color", "npm:6.0.0"]
-          ],
-          "packagePeers": [
-            "supports-color"
-          ],
-          "linkType": "HARD",
-        }],
         ["virtual:2bcc47d217f870e3d52f0e55493dc34fd3da852877f7db32fa2940cc320151746026495daf6a34a974488cf5a949d93be1e2dc1ffba036faf081a9b15fcd2252#npm:2.6.9", {
           "packageLocation": "./.yarn/$$virtual/debug-virtual-6cfa7ae8cd/0/cache/debug-npm-2.6.9-7d4cb597dc-3.zip/node_modules/debug/",
           "packageDependencies": [
             ["debug", "virtual:2bcc47d217f870e3d52f0e55493dc34fd3da852877f7db32fa2940cc320151746026495daf6a34a974488cf5a949d93be1e2dc1ffba036faf081a9b15fcd2252#npm:2.6.9"],
             ["ms", "npm:2.0.0"],
             ["supports-color", null]
+          ],
+          "packagePeers": [
+            "supports-color"
+          ],
+          "linkType": "HARD",
+        }],
+        ["virtual:612e500d6d9d9c332d8475cbf619d8fa9fe7de63ec445b4de39cc68ccfbc77429a4327f46d9b5572a19ca0de9f285af134301bc8843c271b7712b6d1256451cc#npm:3.2.6", {
+          "packageLocation": "./.yarn/$$virtual/debug-virtual-d84ce13359/0/cache/debug-npm-3.2.6-6214e40f12-3.zip/node_modules/debug/",
+          "packageDependencies": [
+            ["debug", "virtual:612e500d6d9d9c332d8475cbf619d8fa9fe7de63ec445b4de39cc68ccfbc77429a4327f46d9b5572a19ca0de9f285af134301bc8843c271b7712b6d1256451cc#npm:3.2.6"],
+            ["ms", "npm:2.1.1"],
+            ["supports-color", "npm:6.0.0"]
           ],
           "packagePeers": [
             "supports-color"
@@ -29976,7 +29990,38 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["ansi-colors", "npm:3.2.3"],
             ["browser-stdout", "npm:1.3.1"],
             ["chokidar", "npm:3.3.0"],
-            ["debug", "virtual:197c37edea49df1a43ca33fcb1cd73cd93b2509eb68d4f7ca4ac19e2d225e3fbea8f47b128e601490787c3eb17eba20877e648415e5e97d582da7aac659462c2#npm:3.2.6"],
+            ["debug", "virtual:612e500d6d9d9c332d8475cbf619d8fa9fe7de63ec445b4de39cc68ccfbc77429a4327f46d9b5572a19ca0de9f285af134301bc8843c271b7712b6d1256451cc#npm:3.2.6"],
+            ["diff", "npm:3.5.0"],
+            ["escape-string-regexp", "npm:1.0.5"],
+            ["find-up", "npm:3.0.0"],
+            ["glob", "npm:7.1.3"],
+            ["growl", "npm:1.10.5"],
+            ["he", "npm:1.2.0"],
+            ["js-yaml", "npm:3.13.1"],
+            ["log-symbols", "npm:3.0.0"],
+            ["minimatch", "npm:3.0.4"],
+            ["mkdirp", "npm:0.5.5"],
+            ["ms", "npm:2.1.1"],
+            ["node-environment-flags", "npm:1.0.6"],
+            ["object.assign", "npm:4.1.0"],
+            ["strip-json-comments", "npm:2.0.1"],
+            ["supports-color", "npm:6.0.0"],
+            ["which", "npm:1.3.1"],
+            ["wide-align", "npm:1.1.3"],
+            ["yargs", "npm:13.3.2"],
+            ["yargs-parser", "npm:13.1.2"],
+            ["yargs-unparser", "npm:1.6.0"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:7.2.0", {
+          "packageLocation": "./.yarn/cache/mocha-npm-7.2.0-612e500d6d-3.zip/node_modules/mocha/",
+          "packageDependencies": [
+            ["mocha", "npm:7.2.0"],
+            ["ansi-colors", "npm:3.2.3"],
+            ["browser-stdout", "npm:1.3.1"],
+            ["chokidar", "npm:3.3.0"],
+            ["debug", "virtual:612e500d6d9d9c332d8475cbf619d8fa9fe7de63ec445b4de39cc68ccfbc77429a4327f46d9b5572a19ca0de9f285af134301bc8843c271b7712b6d1256451cc#npm:3.2.6"],
             ["diff", "npm:3.5.0"],
             ["escape-string-regexp", "npm:1.0.5"],
             ["find-up", "npm:3.0.0"],
@@ -30090,7 +30135,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lint-staged", "npm:10.2.2"],
             ["micromatch", "npm:4.0.2"],
             ["minimist", "npm:1.2.5"],
-            ["mocha", "npm:7.1.2"],
+            ["mocha", "npm:7.2.0"],
             ["node-fetch", "npm:2.6.0"],
             ["plugin-error", "npm:1.0.1"],
             ["prettier", "npm:2.0.5"],
