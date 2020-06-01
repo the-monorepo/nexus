@@ -1,3 +1,5 @@
+import * as resultful from 'resultful';
+
 import { IPCReporter } from './recordTests';
 
 export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
@@ -17,19 +19,18 @@ export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   return mochaInstance;
 };
 
-export const runMochaInstance = async (mochaInstance, runHandle) => {
-  return new Promise((resolve, reject) => {
+export const runMochaInstance = (mochaInstance, runHandle) => {
+  return new Promise((resolve) => {
     try {
-      mochaInstance.run(async (failures) => {
-        try {
-          await runHandle(failures);
-          resolve(failures);
-        } catch (err) {
-          reject(err);
+      mochaInstance.run((failures) => {
+        if (failures) {
+          resolve(resultful.error(failures));
+        } else {
+          resolve(resultful.success(undefined));
         }
       });
     } catch (err) {
-      reject(err);
+      resolve(resultful.exception(err));
     }
   });
 };

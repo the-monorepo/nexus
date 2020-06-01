@@ -7,6 +7,7 @@ import { FinalTesterResults } from '@fault/types';
 
 export const report = ({ coverage }: FinalTesterResults, contextOptions) => {
   const coverageMap = createCoverageMap(coverage);
+
   const context = createContext({
     ...contextOptions,
     coverageMap,
