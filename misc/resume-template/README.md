@@ -5,11 +5,11 @@ A template you can use to generate resumes
 ## Installation
 
 ```bash
-npm install --save @pshaw/resume-template
+npm install --save @pshaw/resume-template@1.1.4-0
 ```
 or
 ```bash
-yarn add @pshaw/resume-template
+yarn add @pshaw/resume-template@1.1.4-0
 ```
 
 ---

@@ -2743,9 +2743,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cinder/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx":
+"@cinderjs/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx":
   version: 0.0.0-use.local
-  resolution: "@cinder/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx"
+  resolution: "@cinderjs/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx"
   dependencies:
     "@babel/core": ^7.9.6
     "@babel/helper-builder-react-jsx": ^7.9.0
@@ -2753,6 +2753,17 @@ __metadata:
     "@babel/plugin-syntax-jsx": ^7.8.3
     "@babel/traverse": ^7.9.6
     "@babel/types": ^7.9.6
+  languageName: unknown
+  linkType: soft
+
+"@cinderjs/core@workspace:cinder/cinder-core":
+  version: 0.0.0-use.local
+  resolution: "@cinderjs/core@workspace:cinder/cinder-core"
+  dependencies:
+    "@babel/core": ^7.4.0
+    "@babel/helper-builder-react-jsx": ^7.3.0
+    "@babel/helper-plugin-utils": ^7.0.0
+    "@babel/plugin-syntax-jsx": ^7.2.0
   languageName: unknown
   linkType: soft
 
@@ -9356,10 +9367,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "cinder@workspace:cinder/cinder"
   dependencies:
-    "@babel/core": ^7.4.0
-    "@babel/helper-builder-react-jsx": ^7.3.0
-    "@babel/helper-plugin-utils": ^7.0.0
-    "@babel/plugin-syntax-jsx": ^7.2.0
+    "@cinderjs/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx"
+    "@cinderjs/core": "workspace:cinder/cinder-core"
   languageName: unknown
   linkType: soft
 
@@ -17241,7 +17250,7 @@ fsevents@^1.2.7:
     "@byexample/openapi": "workspace:byexample/byexample-openapi"
     "@byexample/storybook-knobified": "workspace:byexample/byexample-storybook-knobified"
     "@byexample/types": "workspace:byexample/byexample-types"
-    "@cinder/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx"
+    "@cinderjs/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx"
     "@fault/addon-mutation-localization": "workspace:faultjs/fault-addon-mutation-localization"
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
     "@fault/runner": "workspace:faultjs/fault-runner"

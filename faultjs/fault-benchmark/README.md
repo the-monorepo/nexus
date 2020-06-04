@@ -5,11 +5,11 @@ Also known as DefectsJS. A benchmarking library for measuring various fault loca
 ## Installation
 
 ```bash
-npm install --save @fault/benchmark@1.0.0-alpha.0
+npm install --save @fault/benchmark@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @fault/benchmark@1.0.0-alpha.0
+yarn add @fault/benchmark@1.0.0-alpha.1
 ```
 
 ---

@@ -55,7 +55,7 @@
     "@byexample/openapi": "workspace:byexample/byexample-openapi",
     "@byexample/storybook-knobified": "workspace:byexample/byexample-storybook-knobified",
     "@byexample/types": "workspace:byexample/byexample-types",
-    "@cinder/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx",
+    "@cinderjs/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx",
     "@fault/addon-mutation-localization": "workspace:faultjs/fault-addon-mutation-localization",
     "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl",
     "@fault/runner": "workspace:faultjs/fault-runner",

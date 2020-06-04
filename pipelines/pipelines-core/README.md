@@ -5,11 +5,11 @@ Programatic API for Buildplan
 ## Installation
 
 ```bash
-npm install --save @pipelines/core@1.0.0-alpha.0
+npm install --save @pipelines/core@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @pipelines/core@1.0.0-alpha.0
+yarn add @pipelines/core@1.0.0-alpha.1
 ```
 
 ---

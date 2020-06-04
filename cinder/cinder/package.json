@@ -19,11 +19,19 @@
   },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
+  "exports": {
+    "require": {
+      ".": "./lib/index.js",
+      "./babel": "./lib/babel.js"
+    },
+    "import": {
+      ".": "./esm/index.js",
+      "./babel": "./esm/babel.js"
+    }
+  },
   "dependencies": {
-    "@babel/core": "^7.4.0",
-    "@babel/helper-builder-react-jsx": "^7.3.0",
-    "@babel/helper-plugin-utils": "^7.0.0",
-    "@babel/plugin-syntax-jsx": "^7.2.0"
+    "@cinderjs/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx",
+    "@cinderjs/core": "workspace:cinder/cinder-core"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }

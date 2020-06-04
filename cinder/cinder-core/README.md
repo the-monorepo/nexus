@@ -1,15 +1,15 @@
-# Cli
+# Core
 
-Use byexample packages using a CLI
+Cinder runtime
 
 ## Installation
 
 ```bash
-npm install --save @byexample/cli@1.0.0-alpha.6
+npm install --save @cinderjs/core@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @byexample/cli@1.0.0-alpha.6
+yarn add @cinderjs/core@1.0.0-alpha.1
 ```
 
 ---

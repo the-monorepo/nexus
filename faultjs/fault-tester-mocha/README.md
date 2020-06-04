@@ -5,11 +5,11 @@ Use Mocha tests in the fl test runner
 ## Installation
 
 ```bash
-npm install --save @fault/tester-mocha@1.0.0-alpha.0 mocha
+npm install --save @fault/tester-mocha@1.0.0-alpha.1 mocha
 ```
 or
 ```bash
-yarn add @fault/tester-mocha@1.0.0-alpha.0 mocha
+yarn add @fault/tester-mocha@1.0.0-alpha.1 mocha
 ```
 
 ---

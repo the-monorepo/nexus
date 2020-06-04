@@ -1,5 +1,5 @@
 {
-  "name": "@cinder/babel-plugin-transform-jsx",
+  "name": "@cinderjs/babel-plugin-transform-jsx",
   "version": "1.0.0-alpha.0",
   "description": "Convert JSX logic to cinder compatible JavaScript",
   "license": "MIT",

@@ -5,11 +5,11 @@ Makes IPC connections appear FIFO
 ## Installation
 
 ```bash
-npm install --save ipc-fifo-processor@1.0.0-alpha.0
+npm install --save ipc-fifo-processor@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add ipc-fifo-processor@1.0.0-alpha.0
+yarn add ipc-fifo-processor@1.0.0-alpha.1
 ```
 
 ---

@@ -5,11 +5,11 @@ Helper methods for easier communication between the main @fault/runner process a
 ## Installation
 
 ```bash
-npm install --save @fault/messages@1.0.0-alpha.0
+npm install --save @fault/messages@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @fault/messages@1.0.0-alpha.0
+yarn add @fault/messages@1.0.0-alpha.1
 ```
 
 ---

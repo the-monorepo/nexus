@@ -5,11 +5,11 @@ eslint-plugin-import configuration
 ## Installation
 
 ```bash
-npm install --save-dev @pshaw/eslint-config-plugin-import
+npm install --save-dev @pshaw/eslint-config-plugin-import@1.4.4-0
 ```
 or
 ```bash
-yarn add --dev @pshaw/eslint-config-plugin-import
+yarn add --dev @pshaw/eslint-config-plugin-import@1.4.4-0
 ```
 
 ---

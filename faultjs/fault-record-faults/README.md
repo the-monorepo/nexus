@@ -5,11 +5,11 @@ Record faults
 ## Installation
 
 ```bash
-npm install --save @fault/record-faults@1.0.0-alpha.0
+npm install --save @fault/record-faults@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @fault/record-faults@1.0.0-alpha.0
+yarn add @fault/record-faults@1.0.0-alpha.1
 ```
 
 ---

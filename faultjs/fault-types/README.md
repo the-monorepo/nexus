@@ -5,11 +5,11 @@ Package containing all type values for Fault.js
 ## Installation
 
 ```bash
-npm install --save @fault/types@1.0.0-alpha.0
+npm install --save @fault/types@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @fault/types@1.0.0-alpha.0
+yarn add @fault/types@1.0.0-alpha.1
 ```
 
 ---

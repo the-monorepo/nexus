@@ -5,11 +5,11 @@ A preformatted, opinionated logger
 ## Installation
 
 ```bash
-npm install --save @pshaw/logger
+npm install --save @pshaw/logger@2.0.5-0
 ```
 or
 ```bash
-yarn add @pshaw/logger
+yarn add @pshaw/logger@2.0.5-0
 ```
 
 ## Examples
