@@ -19,8 +19,8 @@ export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   return mochaInstance;
 };
 
-export const runMochaInstance = (mochaInstance, runHandle) => {
-  return new Promise((resolve) => {
+export const runMochaInstance = (mochaInstance, runHandle) => new Promise(
+  (resolve) => {
     try {
       mochaInstance.run((failures) => {
         if (failures) {
@@ -32,5 +32,5 @@ export const runMochaInstance = (mochaInstance, runHandle) => {
     } catch (err) {
       resolve(resultful.exception(err));
     }
-  });
-};
+  }
+);
