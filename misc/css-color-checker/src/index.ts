@@ -113,19 +113,15 @@ export function isHwbColor(value?: unknown | null): boolean {
   );
   if (hwbMatches && hwbMatches.length >= 4) {
     const [, h, w, b] = hwbMatches;
-    try {
-      const whiteness: number = Number.parseFloat(w);
-      const blackness: number = Number.parseFloat(b);
-      if (
-        isValidHue(h) &&
-        isValidPercentage(whiteness + blackness) &&
-        isValidPercentage(whiteness) &&
-        isValidPercentage(blackness)
-      ) {
-        return true;
-      }
-    } catch (err) {
-      return false;
+    const whiteness: number = Number.parseFloat(w);
+    const blackness: number = Number.parseFloat(b);
+    if (
+      isValidHue(h) &&
+      isValidPercentage(whiteness + blackness) &&
+      isValidPercentage(whiteness) &&
+      isValidPercentage(blackness)
+    ) {
+      return true;
     }
   }
   return false;
