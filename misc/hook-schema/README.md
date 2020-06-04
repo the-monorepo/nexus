@@ -5,11 +5,11 @@ A package for adding no operation (noop) hooks to incomplete hook objects
 ## Installation
 
 ```bash
-npm install --save hook-schema
+npm install --save hook-schema@2.2.4-0
 ```
 or
 ```bash
-yarn add hook-schema
+yarn add hook-schema@2.2.4-0
 ```
 
 ## Examples

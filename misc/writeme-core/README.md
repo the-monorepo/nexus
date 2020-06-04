@@ -5,11 +5,11 @@ A readme generator
 ## Installation
 
 ```bash
-npm install --save-dev @writeme/core
+npm install --save-dev @writeme/core@3.1.4-0
 ```
 or
 ```bash
-yarn add --dev @writeme/core
+yarn add --dev @writeme/core@3.1.4-0
 ```
 
 ## Examples

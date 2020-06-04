@@ -5,11 +5,11 @@ Convert JSX logic to cinder compatible JavaScript
 ## Installation
 
 ```bash
-npm install --save @cinder/babel-plugin-transform-jsx@1.0.0-alpha.0
+npm install --save @cinderjs/babel-plugin-transform-jsx@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add @cinder/babel-plugin-transform-jsx@1.0.0-alpha.0
+yarn add @cinderjs/babel-plugin-transform-jsx@1.0.0-alpha.0
 ```
 
 ---

@@ -5,11 +5,11 @@ Automatically created knobbed versions of your stories based on value and prop t
 ## Installation
 
 ```bash
-npm install --save @byexample/storybook-knobified@1.0.0-alpha.5 @storybook/addon-actions @storybook/addon-knobs prop-types
+npm install --save @byexample/storybook-knobified@1.0.0-alpha.6 @storybook/addon-actions @storybook/addon-knobs prop-types
 ```
 or
 ```bash
-yarn add @byexample/storybook-knobified@1.0.0-alpha.5 @storybook/addon-actions @storybook/addon-knobs prop-types
+yarn add @byexample/storybook-knobified@1.0.0-alpha.6 @storybook/addon-actions @storybook/addon-knobs prop-types
 ```
 
 ---

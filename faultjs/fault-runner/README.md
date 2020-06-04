@@ -5,11 +5,11 @@ The official Fault.js test runner
 ## Installation
 
 ```bash
-npm install --save @fault/runner@1.0.0-alpha.0
+npm install --save @fault/runner@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @fault/runner@1.0.0-alpha.0
+yarn add @fault/runner@1.0.0-alpha.1
 ```
 
 ---
