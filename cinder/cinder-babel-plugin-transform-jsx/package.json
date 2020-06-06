@@ -19,6 +19,7 @@
   },
   "main": "./lib/index.js",
   "module": "./esm/index.js",
+  "types": "./src/index.ts",
   "dependencies": {
     "@babel/core": "^7.9.6",
     "@babel/helper-builder-react-jsx": "^7.9.0",
