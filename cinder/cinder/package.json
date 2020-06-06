@@ -1,7 +1,7 @@
 {
   "name": "cinder",
   "version": "1.0.0-alpha.2",
-  "description": "Create interactive UIs with seamless state management using MobX",
+  "description": "A compile/runtime hybrid DOM rendering framework",
   "license": "MIT",
   "sideEffects": false,
   "repository": {
