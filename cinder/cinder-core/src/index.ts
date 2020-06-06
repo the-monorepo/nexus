@@ -156,7 +156,7 @@ const removeEvent = (el: Element, key: string, eventObject) => {
 
 const setEvent = (el: Element, key: string, state, newValue) => {
   removeEvent(el, key, state);
-  if (newValue !== null && newValue !== undefined) {
+  if (newValue != null) {
     if (typeof newValue === 'function') {
       el.addEventListener(key, newValue);
     } else {
@@ -1068,105 +1068,6 @@ export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
 export type SFC<P, R> = (props: P) => R;
 
 export type FC<P, R> = (props: P) => R;
-
-export const rerender = (target) => {
-  const symbol = Symbol(`${String(target.key)}-value`);
-  if (target.kind === 'field') {
-    return {
-      ...target,
-      key: symbol,
-      extras: [
-        {
-          kind: 'method',
-          key: target.key,
-          placement: 'prototype',
-          descriptor: {
-            get: function () {
-              return this[symbol];
-            },
-            set: function (value) {
-              this[symbol] = value;
-              this[UPDATE]();
-            },
-          },
-        },
-      ],
-    };
-  } else {
-    const descriptor = (() => {
-      const oldDescriptor = target.descriptor;
-      if (oldDescriptor.value !== undefined) {
-        return {
-          ...oldDescriptor,
-          value: function (...args) {
-            this[symbol](...args);
-            this[UPDATE]();
-          },
-        };
-      } else if (oldDescriptor.set !== undefined) {
-        return {
-          ...oldDescriptor,
-          set: function (value) {
-            this[symbol] = value;
-            this[UPDATE]();
-          },
-        };
-      } else {
-        throw new Error(`Expected either a field, method or setter`);
-      }
-    })();
-    return {
-      ...target,
-      key: symbol,
-      extras: [
-        {
-          ...target,
-          descriptor,
-        },
-      ],
-    };
-  }
-};
-
-export const UPDATE = Symbol('update');
-
-export abstract class RootlessDomElement<C, V> extends HTMLElement {
-  protected renderRoot: Node;
-
-  constructor() {
-    super();
-    this.renderRoot = this.mountRenderRoot();
-  }
-
-  abstract mountRenderRoot(): Node;
-
-  connectedCallback() {
-    this[UPDATE]();
-  }
-
-  disconnectedCallback() {
-    render(null, this.renderRoot);
-  }
-
-  [UPDATE]() {
-    const result = this.render();
-    render(result, this.renderRoot);
-  }
-
-  abstract render(): ComponentResult<C, V, Node>;
-}
-
-export abstract class LightDomElement<C, V> extends RootlessDomElement<C, V> {
-  mountRenderRoot() {
-    return this;
-  }
-}
-
-export abstract class DomElement<C, V> extends RootlessDomElement<C, V> {
-  mountRenderRoot() {
-    return this.attachShadow({ mode: 'open' });
-  }
-}
 
 /*
 export type StateSetter<S> = (state: S) => void;

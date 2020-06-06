@@ -109,7 +109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:>=7.9.0, @babel/core@npm:^7.1.5, @babel/core@npm:^7.2.0, @babel/core@npm:^7.4.0, @babel/core@npm:^7.4.5, @babel/core@npm:^7.7.5, @babel/core@npm:^7.9.0, @babel/core@npm:^7.9.6":
+"@babel/core@npm:>=7.9.0, @babel/core@npm:^7.1.5, @babel/core@npm:^7.2.0, @babel/core@npm:^7.4.5, @babel/core@npm:^7.7.5, @babel/core@npm:^7.9.0, @babel/core@npm:^7.9.6":
   version: 7.9.6
   resolution: "@babel/core@npm:7.9.6"
   dependencies:
@@ -230,7 +230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-builder-react-jsx@npm:^7.3.0, @babel/helper-builder-react-jsx@npm:^7.9.0":
+"@babel/helper-builder-react-jsx@npm:^7.9.0":
   version: 7.9.0
   resolution: "@babel/helper-builder-react-jsx@npm:7.9.0"
   dependencies:
@@ -1165,7 +1165,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-syntax-jsx@npm:^7.2.0, @babel/plugin-syntax-jsx@npm:^7.8.3":
+"@babel/plugin-syntax-jsx@npm:^7.8.3":
   version: 7.8.3
   resolution: "@babel/plugin-syntax-jsx@npm:7.8.3"
   dependencies:
@@ -2759,11 +2759,14 @@ __metadata:
 "@cinderjs/core@workspace:cinder/cinder-core":
   version: 0.0.0-use.local
   resolution: "@cinderjs/core@workspace:cinder/cinder-core"
-  dependencies:
-    "@babel/core": ^7.4.0
-    "@babel/helper-builder-react-jsx": ^7.3.0
-    "@babel/helper-plugin-utils": ^7.0.0
-    "@babel/plugin-syntax-jsx": ^7.2.0
+  languageName: unknown
+  linkType: soft
+
+"@cinderjs/element@workspace:cinder/cinder-element":
+  version: 0.0.0-use.local
+  resolution: "@cinderjs/element@workspace:cinder/cinder-element"
+  peerDependencies:
+    "@cinderjs/core": "*"
   languageName: unknown
   linkType: soft
 
@@ -9369,6 +9372,7 @@ __metadata:
   dependencies:
     "@cinderjs/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx"
     "@cinderjs/core": "workspace:cinder/cinder-core"
+    "@cinderjs/element": "workspace:cinder/cinder-element"
   languageName: unknown
   linkType: soft
 

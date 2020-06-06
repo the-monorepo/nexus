@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "@cinderjs/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx",
-    "@cinderjs/core": "workspace:cinder/cinder-core"
+    "@cinderjs/core": "workspace:cinder/cinder-core",
+    "@cinderjs/element": "workspace:cinder/cinder-element"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }

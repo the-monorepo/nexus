@@ -35,6 +35,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:cinder/cinder-core"
       },
       {
+        "name": "@cinderjs/element",
+        "reference": "workspace:cinder/cinder-element"
+      },
+      {
         "name": "@pshaw/convict-util",
         "reference": "workspace:misc/convict-util"
       },
@@ -787,6 +791,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@cinderjs/core",
         "workspace:cinder/cinder-core"
+      ],
+      [
+        "@cinderjs/element",
+        "virtual:3dffb2d98d8149a2ec5ac93e8bb72e19dd26dbf853ff2fdcccd358ff56c1059d14e4cd2023706622e7190329998fbceebd7b9f4615124dda63febeb0163db7cb#workspace:cinder/cinder-element"
       ],
       [
         "@contextual-documents/classname-picker",
@@ -13153,11 +13161,27 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         ["workspace:cinder/cinder-core", {
           "packageLocation": "./cinder/cinder-core/",
           "packageDependencies": [
-            ["@cinderjs/core", "workspace:cinder/cinder-core"],
-            ["@babel/core", "npm:7.9.6"],
-            ["@babel/helper-builder-react-jsx", "npm:7.9.0"],
-            ["@babel/helper-plugin-utils", "npm:7.8.3"],
-            ["@babel/plugin-syntax-jsx", "virtual:27ef25027fe2ba31400ca6ebd58a5d3ffd20c7b66204cd8edb922f85a05d19ef98c6a607038636a033eb56e91e539baf42daad62e53139fee7557aec27aaf2b1#npm:7.8.3"]
+            ["@cinderjs/core", "workspace:cinder/cinder-core"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@cinderjs/element", [
+        ["virtual:3dffb2d98d8149a2ec5ac93e8bb72e19dd26dbf853ff2fdcccd358ff56c1059d14e4cd2023706622e7190329998fbceebd7b9f4615124dda63febeb0163db7cb#workspace:cinder/cinder-element", {
+          "packageLocation": "./.yarn/$$virtual/@cinderjs-element-virtual-6bca9d694e/1/cinder/cinder-element/",
+          "packageDependencies": [
+            ["@cinderjs/element", "virtual:3dffb2d98d8149a2ec5ac93e8bb72e19dd26dbf853ff2fdcccd358ff56c1059d14e4cd2023706622e7190329998fbceebd7b9f4615124dda63febeb0163db7cb#workspace:cinder/cinder-element"],
+            ["@cinderjs/core", "workspace:cinder/cinder-core"]
+          ],
+          "packagePeers": [
+            "@cinderjs/core"
+          ],
+          "linkType": "SOFT",
+        }],
+        ["workspace:cinder/cinder-element", {
+          "packageLocation": "./cinder/cinder-element/",
+          "packageDependencies": [
+            ["@cinderjs/element", "workspace:cinder/cinder-element"]
           ],
           "linkType": "SOFT",
         }]
@@ -21134,7 +21158,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["cinder", "workspace:cinder/cinder"],
             ["@cinderjs/babel-plugin-transform-jsx", "workspace:cinder/cinder-babel-plugin-transform-jsx"],
-            ["@cinderjs/core", "workspace:cinder/cinder-core"]
+            ["@cinderjs/core", "workspace:cinder/cinder-core"],
+            ["@cinderjs/element", "virtual:3dffb2d98d8149a2ec5ac93e8bb72e19dd26dbf853ff2fdcccd358ff56c1059d14e4cd2023706622e7190329998fbceebd7b9f4615124dda63febeb0163db7cb#workspace:cinder/cinder-element"]
           ],
           "linkType": "SOFT",
         }]
