@@ -132,6 +132,7 @@ class PropertyField extends CachedField {
   constructor(private readonly el: Element, private readonly setter: PropertySetter) {
     super();
   }
+
   set(value) {
     this.setter(this.el, value);
   }
@@ -188,8 +189,8 @@ const textBlueprint = createBlueprint(
     return renderData(node, { node, value });
   },
   (state, value) => {
-    if (state.value !== value) {
-      state.value = value;
+    if (state.state.value !== value) {
+      state.state.value = value;
       state.state.node.data = value;
     }
   },
