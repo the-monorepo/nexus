@@ -349,15 +349,15 @@ const writeReadmeFromPackageDirUtil = fromSchema(
   writeReadmeFromPackageDirHookSchema,
   errorSchema,
 );
-export type WriteReadmeFromPackageDirHooks = HookOptionsOf<
+export type WriteReadmeFromPackageDirPlugin = HookOptionsOf<
   typeof writeReadmeFromPackageDirUtil
 >;
 
 const writeReadmeFromPackageDir = async (
   packageDir: string,
-  hooks: WriteReadmeFromPackageDirHooks,
+  plugins: WriteReadmeFromPackageDirPlugin[],
 ) => {
-  const h = writeReadmeFromPackageDirUtil.withNoops(hooks);
+  const h = writeReadmeFromPackageDirUtil.merge(plugins);
   await genReadmeFromPackageDir(
     packageDir,
     writeReadmeFromPackageDirUtil.merge([
