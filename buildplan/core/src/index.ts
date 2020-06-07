@@ -21,8 +21,8 @@ type TaskResult =
 export type TaskCallback = () => TaskResult;
 
 export type TaskFn = {
-  (name: string | string[], description: string, callback: TaskCallback): any;
-  (name: string | string[], callback: TaskCallback): any;
+  (name: string, description: string, callback: TaskCallback): any;
+  (name: string, callback: TaskCallback): any;
 };
 
 export type TaskExceptionInfo = {
@@ -87,7 +87,7 @@ const createTask = (
 };
 
 export const task: TaskFn = (
-  name: string | string[],
+  name: string,
   descriptionOrCallback: string | TaskCallback,
   callbackOrUndefined?: TaskCallback,
 ) => {
