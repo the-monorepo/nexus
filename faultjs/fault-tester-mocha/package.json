@@ -28,7 +28,8 @@
   "dependencies": {
     "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util",
     "@fault/messages": "workspace:faultjs/fault-messages",
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/types": "workspace:faultjs/fault-types",
+    "resultful": "workspace:misc/resultful"
   },
   "peerDependencies": {
     "mocha": "*"

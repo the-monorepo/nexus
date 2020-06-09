@@ -1,15 +1,15 @@
 # Cinder
 
-Create interactive UIs with seamless state management using MobX
+A compile/runtime hybrid DOM rendering framework
 
 ## Installation
 
 ```bash
-npm install --save cinder@1.0.0-alpha.1
+npm install --save cinder@1.0.0-alpha.2
 ```
 or
 ```bash
-yarn add cinder@1.0.0-alpha.1
+yarn add cinder@1.0.0-alpha.2
 ```
 
 ---

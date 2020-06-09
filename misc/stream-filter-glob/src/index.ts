@@ -1,16 +1,17 @@
-const { Duplex } = require('stream');
+import { Duplex } from 'stream';
 
-const { some } = require('micromatch');
+import { some } from 'micromatch';
 
 class GlobFilterStream extends Duplex {
-  constructor(globs, ignoreGlobs, options) {
+  constructor(
+    public readonly globs,
+    public readonly ignoreGlobs,
+    public readonly options
+  ) {
     super({
       decodeStrings: false,
       objectMode: true,
     });
-    this.globs = globs;
-    this.ignoreGlobs = ignoreGlobs;
-    this.options = options;
   }
 
   _read() {}
@@ -32,4 +33,4 @@ const createGlobFilterStream = (glob, ignoreGlobs, options) => {
   return new GlobFilterStream(glob, ignoreGlobs, options);
 };
 
-module.exports = createGlobFilterStream;
+export default createGlobFilterStream;

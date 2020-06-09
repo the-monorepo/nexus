@@ -163,7 +163,7 @@ export const reportFaults = async (faults: Fault[]) => {
     console.log(
       `${simplifyPath(fault.sourcePath)}:${fault.location.start.line}:${
         fault.location.start.column
-      }, ${chalk.cyan(
+      }, ${chalk.cyanBright(
         fault.score !== null && fault.score !== undefined
           ? String(fault.score)
           : 'undefined',
@@ -173,14 +173,14 @@ export const reportFaults = async (faults: Fault[]) => {
     let lineCount = 0;
     const maxLineCount = 3;
     while (l < fault.location.end.line - 1 && lineCount < maxLineCount) {
-      console.log(chalk.grey(lines[l++]));
+      console.log(chalk.gray(lines[l++]));
       lineCount++;
     }
     const lastLine = lines[l++];
-    console.log(chalk.grey(lastLine));
+    console.log(chalk.gray(lastLine));
     if (lineCount >= maxLineCount) {
       const spaces = lastLine.match(/^ */)![0];
-      console.log(chalk.grey(`${new Array(spaces.length + 1).join(' ')}...`));
+      console.log(chalk.gray(`${new Array(spaces.length + 1).join(' ')}...`));
     }
     console.log();
   }

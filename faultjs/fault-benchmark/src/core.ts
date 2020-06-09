@@ -216,7 +216,7 @@ export const run = async () => {
 
     const selectedConfig = findConfig(benchmarkConfig, projectDir);
     if (selectedConfig === null) {
-      log.warn(`Could not find an explicit config for '${chalk.cyan(projectDir)}'`);
+      log.warn(`Could not find an explicit config for '${chalk.cyanBright(projectDir)}'`);
     }
     const projectConfig = selectedConfig === null ? {} : selectedConfig;
     const {
