@@ -10,8 +10,10 @@ const absPnpApiPath = resolve(__dirname, relPnpApiPath);
 const absRequire = (createRequire || createRequireFromPath)(absPnpApiPath);
 
 if (existsSync(absPnpApiPath)) {
-  // Setup the environment to be able to require stylelint/lib/index.js
-  require(absPnpApiPath).setup();
+  if (!process.versions.pnp) {
+    // Setup the environment to be able to require stylelint/lib/index.js
+    require(absPnpApiPath).setup();
+  }
 }
 
 // Defer to the real stylelint/lib/index.js your application uses

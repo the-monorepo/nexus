@@ -10,8 +10,10 @@ const absPnpApiPath = resolve(__dirname, relPnpApiPath);
 const absRequire = (createRequire || createRequireFromPath)(absPnpApiPath);
 
 if (existsSync(absPnpApiPath)) {
-  // Setup the environment to be able to require stylelint/bin/stylelint.js
-  require(absPnpApiPath).setup();
+  if (!process.versions.pnp) {
+    // Setup the environment to be able to require stylelint/bin/stylelint.js
+    require(absPnpApiPath).setup();
+  }
 }
 
 // Defer to the real stylelint/bin/stylelint.js your application uses
