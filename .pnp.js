@@ -13907,7 +13907,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
-            ["mocha", "npm:7.1.2"]
+            ["mocha", "npm:7.1.2"],
+            ["resultful", "workspace:misc/resultful"]
           ],
           "packagePeers": [
             "mocha"
@@ -13921,7 +13922,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
-            ["mocha", "npm:7.2.0"]
+            ["mocha", "npm:7.2.0"],
+            ["resultful", "workspace:misc/resultful"]
           ],
           "packagePeers": [
             "mocha"
@@ -13934,7 +13936,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/tester-mocha", "workspace:faultjs/fault-tester-mocha"],
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/messages", "workspace:faultjs/fault-messages"],
-            ["@fault/types", "workspace:faultjs/fault-types"]
+            ["@fault/types", "workspace:faultjs/fault-types"],
+            ["resultful", "workspace:misc/resultful"]
           ],
           "linkType": "SOFT",
         }]

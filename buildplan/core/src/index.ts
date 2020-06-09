@@ -3,7 +3,10 @@ import yargs from 'yargs';
 
 import createLogger from '@pshaw/logger';
 
-const log = createLogger({ colorMode: 'auto' });
+import * as TaskTypes from './TaskTypes';
+export { TaskTypes };
+
+const log: Console = createLogger({ colorMode: 'auto' });
 
 type SynchronousTaskResult = undefined | any;
 type IteratorTaskResult = Iterable<TaskResult>;
@@ -17,6 +20,10 @@ type TaskResult =
   | StreamTaskResult
   | AsyncIterableTaskResult
   | PromiseTaskResult;
+
+export type TaskInfo = {
+  isRootTask: boolean;
+};
 
 export type TaskCallback = () => TaskResult;
 
@@ -33,12 +40,7 @@ export type TaskExceptionInfo = {
 export type TaskExceptionHandler = (taskException: TaskExceptionInfo) => any;
 
 const defaultExceptionHandler = ({ exception, taskName }: TaskExceptionInfo) => {
-  log.exception(`An expected error occurred in the "${chalk.cyan(taskName)}" task`, exception);
-}
-
-let currentExceptionHandler = defaultExceptionHandler;
-export const setExceptionHandler = (exceptionHandler: TaskExceptionHandler) => {
-  currentExceptionHandler = exceptionHandler;
+  log.exception(`An expected error occurred in the '${chalk.cyanBright(taskName)}' task`, exception);
 }
 
 const waitForTaskReturnValue = async (taskValue: TaskResult): Promise<any> => {
@@ -62,6 +64,46 @@ const waitForTaskReturnValue = async (taskValue: TaskResult): Promise<any> => {
   }
 };
 
+
+export const TASK_INFO = Symbol('task-info');
+
+type ParallelTaskInfo = {
+  type: typeof TaskTypes.PARALLEL;
+  value: TaskCallback[];
+};
+
+type SerialTaskInfo = {
+  type: typeof TaskTypes.SERIES;
+  value: TaskCallback[];
+};
+
+type InternalTaskInfo = ParallelTaskInfo | SerialTaskInfo;
+
+const callbackToStringCode = (taskCallback: TaskCallback): string => {
+  const taskInfo: InternalTaskInfo | undefined = taskCallback[TASK_INFO];
+  if (taskInfo !== undefined) {
+    const flatteningType = taskInfo.type;
+    const flattened = [...taskInfo.value];
+    let i = 0;
+    while(i < flattened.length) {
+      const child = flattened[i];
+      const childTaskInfo = child[TASK_INFO];
+      if (childTaskInfo !== undefined && (childTaskInfo.value.length <= 1 || childTaskInfo.type === flatteningType)) {
+        flattened.splice(i, 1, ...childTaskInfo.value);
+      } else {
+        i++;
+      }
+    }
+    if (taskInfo.type === TaskTypes.PARALLEL) {
+      return `[${flattened.map(callbackToStringCode).join(', ')}]`;
+    } else if (taskInfo.type === TaskTypes.SERIES) {
+      return flattened.map(callbackToStringCode).join(' -> ');
+    }
+  }
+
+  return chalk.cyanBright(taskCallback.name !== '' ? taskCallback.name : 'anonymous');
+};
+
 const createTask = (
   name: string,
   description: string | undefined,
@@ -76,10 +118,10 @@ const createTask = (
     async () => {
       try {
         const value = callback();
+        log.info(`Running ${callbackToStringCode(callback)}`);
         await waitForTaskReturnValue(value);  
       } catch(err) {
-        // eslint-disable-next-line no-console
-        currentExceptionHandler({ exception: err, taskName: name });
+        defaultExceptionHandler({ exception: err, taskName: name });
         process.exitCode = 1;
       }
     },
@@ -91,30 +133,34 @@ export const task: TaskFn = (
   descriptionOrCallback: string | TaskCallback,
   callbackOrUndefined?: TaskCallback,
 ) => {
-  if (callbackOrUndefined === undefined) {
-    return createTask(name, undefined, descriptionOrCallback as TaskCallback);
-  } else {
-    return createTask(
-      name,
-      descriptionOrCallback as string,
-      callbackOrUndefined as TaskCallback,
-    );
-  }
+  const callback = callbackOrUndefined === undefined ? descriptionOrCallback as TaskCallback : callbackOrUndefined;
+
+  return createTask(name, callbackOrUndefined === undefined ? undefined : descriptionOrCallback as string, callback);
 };
 
 export const parallel = (...taskCallbacks: TaskCallback[]) => {
-  const runInParallel = async () => {
+  const runInParallel: TaskCallback = async () => {
     await Promise.all(taskCallbacks.map((task) => task()).map(waitForTaskReturnValue));
   };
+
+  runInParallel[TASK_INFO] = {
+    type: TaskTypes.PARALLEL,
+    value: taskCallbacks,
+  }
 
   return runInParallel;
 };
 
 export const series = (...taskCallbacks: TaskCallback[]) => {
-  const runInSeries = async () => {
+  const runInSeries: TaskCallback = async () => {
     for (const task of taskCallbacks) {
       await waitForTaskReturnValue(task());
     }
+  };
+
+  runInSeries[TASK_INFO] = {
+    type: TaskTypes.SERIES,
+    value: taskCallbacks,
   };
 
   return runInSeries;

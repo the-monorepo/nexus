@@ -119,7 +119,7 @@ const run = async () => {
     for (const pullRequest of data.data.repository.pullRequests.edges) {
       prCount++;
       const logSkipMessage = (reason: string) => {
-        log.info(`Skipping ${chalk.cyan(pullRequest.node.title)}. ${reason}`);
+        log.info(`Skipping ${chalk.cyanBright(pullRequest.node.title)}. ${reason}`);
       };
       if (!pullRequest.node.title.match(/fix|bug/i)) {
         logSkipMessage("Title does not infer it's a bug fixing PR.");
@@ -205,7 +205,7 @@ const run = async () => {
       outputFilePath,
       `${pullRequestData.title}\n${pullRequestData.url}\n\n`,
     );
-    console.log(chalk.cyan(pullRequestData.title));
+    console.log(chalk.cyanBright(pullRequestData.title));
     console.log(chalk.greenBright(pullRequestData.url));
     console.log();
   }

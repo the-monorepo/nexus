@@ -1,7 +1,5 @@
 import 'source-map-support/register';
-/**
- * Inspiration for this file taken from https://github.com/babel/babel/blob/master/Gulpfile.js
- */
+
 import { join, sep, relative } from 'path';
 
 import chalk from 'chalk';
@@ -20,6 +18,7 @@ import {
   run,
   series as buildplanSeries,
   parallel as buildplanParallel,
+  TASK_INFO
 } from '@buildplan/core';
 
 import config from '@monorepo/config';
@@ -41,14 +40,31 @@ const oldStreamToPromise = async (something) => {
   return value;
 };
 
-const task = (name: string, callback) =>
-  buildplanTask(name, () => oldStreamToPromise(callback()));
+const task = (name: string, callback) => {
+  const wrapped = { [name]: () => oldStreamToPromise(callback()) }[name];
+  if (callback[TASK_INFO] !== undefined) {
+    wrapped[TASK_INFO] = callback[TASK_INFO];
+  }
+  return buildplanTask(name, wrapped);
+}
 
 const series = (...tasks) =>
-  buildplanSeries(...tasks.map((aTask) => () => oldStreamToPromise(aTask())));
+  buildplanSeries(...tasks.map((aTask) => {
+    const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
+    if (aTask[TASK_INFO] !== undefined) {
+      wrapped[TASK_INFO] = aTask[TASK_INFO];
+    }
+    return wrapped;
+  }));
 
 const parallel = (...tasks) =>
-  buildplanParallel(...tasks.map((aTask) => () => oldStreamToPromise(aTask())));
+  buildplanParallel(...tasks.map((aTask) => {
+    const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
+    if (aTask[TASK_INFO] !== undefined) {
+      wrapped[TASK_INFO] = aTask[TASK_INFO];
+    }
+    return wrapped;
+  }));
 
 const swapSrcWith = (srcPath, newDirName) => {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -57,6 +73,7 @@ const swapSrcWith = (srcPath, newDirName) => {
   // Swap out src for the new dir name
   parts[2] = newDirName;
   const resultingPath = join(...parts);
+
   return resultingPath;
 };
 
@@ -130,9 +147,9 @@ const formatStagedStream = async () => {
   return stagedStream.pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
 };
 
-const simplePipeLogger = (l, verb) => {
+const simplePipeLogger = (l) => {
   return through.obj((file, enc, callback) => {
-    l.info(`${verb} '${chalk.cyan(file.relative)}'`);
+    l.info(`'${chalk.cyanBright(file.relative)}'`);
     callback(null, file);
   });
 };
@@ -146,7 +163,7 @@ task('clean', clean);
 const copyPipes = (stream, l, dir) => {
   return stream
     .pipe(changed('.', { transformPath: createSrcDirSwapper(dir) }))
-    .pipe(simplePipeLogger(l, 'Copying'))
+    .pipe(simplePipeLogger(l))
     .pipe(
       rename((filePath) => {
         filePath.dirname = swapSrcWith(filePath.dirname, dir);
@@ -157,12 +174,12 @@ const copyPipes = (stream, l, dir) => {
 };
 
 const copyScript = () => {
-  const l = logger.child(chalk.yellow('copy'), chalk.blueBright('lib'));
+  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(200, 255, 100)('lib'));
   return copyPipes(packagesSrcAssetStream(), l, 'lib');
 };
 
 const copyEsm = () => {
-  const l = logger.child(chalk.yellow('copy'), chalk.cyanBright('esm'));
+  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(255, 200 , 100)('esm'));
   return copyPipes(packagesSrcAssetStream(), l, 'esm');
 };
 
@@ -171,11 +188,11 @@ const copy = parallel(copyScript, copyEsm);
 const transpilePipes = async (stream, babelOptions, dir, chalkFn) => {
   const sourcemaps = await import('gulp-sourcemaps');
   const { default: babel } = await import('gulp-babel');
-  const l = logger.child(chalk.blue('transpile'), chalkFn(dir));
+  const l = logger.child(chalk.blueBright('transpile'), chalkFn(dir));
 
   return stream
     .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
-    .pipe(simplePipeLogger(l, 'Transpiling'))
+    .pipe(simplePipeLogger(l))
     .pipe(sourcemaps.init())
     .pipe(babel(babelOptions))
     .pipe(
@@ -190,7 +207,7 @@ const transpilePipes = async (stream, babelOptions, dir, chalkFn) => {
 
 const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
-    await transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.blueBright),
+    await transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.rgb(200, 255, 100)),
   ).pipe(gulp.dest('.'));
 };
 
@@ -202,7 +219,7 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
         envName: 'esm',
       },
       'esm',
-      chalk.cyanBright,
+      chalk.rgb(255, 200, 100),
     ),
   ).pipe(gulp.dest('.'));
 };
@@ -218,16 +235,16 @@ const transpileEsm = () => {
 const prettierPipes = async (stream) => {
   const { default: prettier } = await import('gulp-prettier');
   const l = logger.child(chalk.magentaBright('prettier'));
-  return stream.pipe(simplePipeLogger(l, 'Formatting')).pipe(prettier());
+  return stream.pipe(simplePipeLogger(l)).pipe(prettier());
 };
 
 const lintPipes = async (stream, lintOptions) => {
   const { default: eslint } = await import('gulp-eslint');
 
-  const l = logger.child(chalk.magenta('eslint'));
+  const l = logger.child(chalk.magentaBright('eslint'));
   return (
     stream
-      .pipe(simplePipeLogger(l, 'Formatting'))
+      .pipe(simplePipeLogger(l))
       .pipe(eslint(lintOptions))
       .pipe(eslint.format('unix'))
       // TODO: Need to halt build process/throw error
@@ -251,19 +268,19 @@ task('transpile', transpile);
 
 const writeme = async () => {
   const { default: writeReadmeFromPackageDir } = await import('@writeme/core');
-  const l = logger.child(chalk.green('writeme'));
+  const l = logger.child(chalk.greenBright('writeme'));
   await writeReadmeFromPackageDir(__dirname, {
     before: {
       genReadme: async ({ packageDir }) => {
         l.info(
-          `Generating readme for '${chalk.cyan(printFriendlyAbsoluteDir(packageDir))}'`,
+          `Generating '${chalk.cyanBright(printFriendlyAbsoluteDir(packageDir))}'`,
         );
       },
     },
     after: {
       readConfig: async ({ config, configPath }) => {
         if (!config) {
-          l.warn(`Missing '${chalk.cyan(printFriendlyAbsoluteDir(configPath))}'`);
+          l.warn(`Missing '${chalk.cyanBright(printFriendlyAbsoluteDir(configPath))}'`);
         }
       },
     },
@@ -499,24 +516,24 @@ const bundleWebpack = async () => {
     });
   });
 
-  const l = logger.child(chalk.magenta('webpack'));
+  const l = logger.child(chalk.magentaBright('webpack'));
   for await (const stats of compilersStatsPromises) {
     const compilation = stats.compilation;
     const timeTaken = (stats.endTime - stats.startTime) / 1000;
 
-    const messages = [];
+    const messages: string[] = [];
 
     const filesMessage = Object.values(compilation.assets)
       .map(
         (asset) =>
-          ` - ${chalk.cyan(asset.existsAt)} ${chalk.magenta(
+          ` - ${chalk.cyanBright(asset.existsAt)} ${chalk.magentaBright(
             humanReadableFileSize(asset.size()),
           )}`,
       )
       .join('\n');
-    const bundleMessage = `Bundled: '${chalk.cyan(
+    const bundleMessage = `Bundled: '${chalk.cyanBright(
       `${compilation.name}`,
-    )}' ${chalk.magenta(`${timeTaken} s`)}`;
+    )}' ${chalk.magentaBright(`${timeTaken} s`)}`;
     messages.push(bundleMessage, filesMessage);
 
     if (stats.hasWarnings()) {
@@ -524,7 +541,7 @@ const bundleWebpack = async () => {
         `${compilation.warnings.length} warnings:`,
         compilation.warnings
           .map((warning) => warning.stack)
-          .map(chalk.yellow)
+          .map(chalk.yellowBright)
           .join('\n\n'),
       );
     }
@@ -560,14 +577,14 @@ const serveBundles = async () => {
   const { default: WebpackDevServer } = await import('webpack-dev-server');
   const compilers = await webpackCompilers();
   let port = 3000;
-  const l = logger.child(chalk.magenta('webpack'));
+  const l = logger.child(chalk.magentaBright('webpack'));
   for (const { compiler, config } of compilers) {
     const mergedDevServerConfig = config.devServer;
     const server = new WebpackDevServer(compiler, mergedDevServerConfig);
     const serverPort = config.devServer.port !== undefined ? config.devServer.port : port;
     server.listen(serverPort, 'localhost', () => {
       l.info(
-        `Serving '${chalk.cyan(config.name)}' on port ${chalk.cyan(
+        `Serving '${chalk.cyanBright(config.name)}' on port ${chalk.cyanBright(
           serverPort.toString(),
         )}...`,
       );

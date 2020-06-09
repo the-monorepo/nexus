@@ -355,9 +355,10 @@ export type WriteReadmeFromPackageDirPlugin = HookOptionsOf<
 
 const writeReadmeFromPackageDir = async (
   packageDir: string,
-  plugins: WriteReadmeFromPackageDirPlugin[],
+  plugins: WriteReadmeFromPackageDirPlugin[] | WriteReadmeFromPackageDirPlugin,
 ) => {
-  const h = writeReadmeFromPackageDirUtil.merge(plugins);
+  const pluginList = Array.isArray(plugins) ? plugins : [plugins];
+  const h = writeReadmeFromPackageDirUtil.merge(pluginList);
   await genReadmeFromPackageDir(
     packageDir,
     writeReadmeFromPackageDirUtil.merge([
@@ -372,7 +373,7 @@ const writeReadmeFromPackageDir = async (
           },
         },
       },
-      h,
+      h
     ]),
   );
 };

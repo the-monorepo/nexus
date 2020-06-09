@@ -16,7 +16,6 @@
     "resolveJsonModule": true,
     "lib": ["esnext", "dom"],
     "isolatedModules": true,
-    "composite": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true

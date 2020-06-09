@@ -2,7 +2,7 @@
 const dependencyGlobs = [
   '.yarn/cache/**',
   '.pnp.js',
-  '.yarn/unplugged',
+  '.yarn/unplugged/**',
   '**/node_modules/**',
 ];
 

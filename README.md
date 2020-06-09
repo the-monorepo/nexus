@@ -27,9 +27,10 @@ Version | Package | Description
 ### Cinder
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`@cinderjs/babel-plugin-transform-jsx`](cinder/cinder-babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
-1.0.0-alpha.1 | [`@cinderjs/core`](cinder/cinder-core/README.md) | Cinder runtime
-1.0.0-alpha.1 | [`cinder`](cinder/cinder/README.md) | Create interactive UIs with seamless state management using MobX
+1.0.0-alpha.2 | [`@cinderjs/babel-plugin-transform-jsx`](cinder/cinder-babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
+1.0.0-alpha.2 | [`@cinderjs/core`](cinder/cinder-core/README.md) | Cinder runtime
+1.0.0-alpha.2 | [`@cinderjs/element`](cinder/cinder-element/README.md) | Cinder element
+1.0.0-alpha.2 | [`cinder`](cinder/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 
 ### Build tooling
 Version | Package | Description

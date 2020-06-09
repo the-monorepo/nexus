@@ -43,7 +43,7 @@ const { require: oldRequire } = Module.prototype;
 Module.prototype.require = function require(filePath, ...other) {
   const patchedFilePath = (() => {
     if (workspacedPackageNames.has(filePath)) {
-      return workspacedPackageNames.get(filePath);
+      return workspacedPackageNames.get(filePath)!;
     } else {
       return filePath;
     }

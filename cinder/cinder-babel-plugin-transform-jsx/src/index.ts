@@ -19,6 +19,8 @@ const cinderCallExpression = (
   return t.callExpression(cinderMemberExpression(functionName), args);
 };
 
+console.log('A?WEA?RWAE?R?AWERW');
+
 const attributeLiteralToHTMLAttributeString = (field: LiteralAttributeField) => {
   const { key: name, expression: literalPath } = field;
   // TODO: Refactor

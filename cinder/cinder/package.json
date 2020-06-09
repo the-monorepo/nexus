@@ -22,11 +22,11 @@
   "exports": {
     "require": {
       ".": "./lib/index.js",
-      "./babel": "./lib/babel.js"
+      "./babel": "@cinderjs/babel-plugin-transform-jsx"
     },
     "import": {
       ".": "./esm/index.js",
-      "./babel": "./esm/babel.js"
+      "./babel": "@cinderjs/babel-plugin-transform-jsx"
     }
   },
   "dependencies": {

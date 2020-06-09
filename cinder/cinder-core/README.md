@@ -5,11 +5,11 @@ Cinder runtime
 ## Installation
 
 ```bash
-npm install --save @cinderjs/core@1.0.0-alpha.1
+npm install --save @cinderjs/core@1.0.0-alpha.2
 ```
 or
 ```bash
-yarn add @cinderjs/core@1.0.0-alpha.1
+yarn add @cinderjs/core@1.0.0-alpha.2
 ```
 
 ---

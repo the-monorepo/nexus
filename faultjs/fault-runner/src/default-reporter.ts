@@ -10,14 +10,14 @@ const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFileP
 
 const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
   console.log(
-    `${chalk.bold(`${prefix}`)}${chalk.redBright(
+    `${chalk.boldBright(`${prefix}`)}${chalk.redBright(
       `${failedCount} failed`,
     )}, ${chalk.greenBright(`${passedCount} passed`)}, ${totalCount} total`,
   );
 };
 
 const titleFromPath = (path: string[]) => {
-  return path.join(chalk.dim(' \u203A '));
+  return path.join(chalk.dimBright(' \u203A '));
 };
 
 export const groupTestsByFilePath = (testResults: Iterable<TestResult>) => {
@@ -44,8 +44,8 @@ export const createPlugin = (contextOptions?) => {
       if (testResult.data.passed) {
         continue;
       }
-      console.log(chalk.bold(titleFromPath(testResult.data.titlePath)));
-      console.log(chalk.red(testResult.data.stack));
+      console.log(chalk.boldBright(titleFromPath(testResult.data.titlePath)));
+      console.log(chalk.redBright(testResult.data.stack));
     }
 
     for (const [absoluteFilePath, suiteResult] of suiteResults.entries()) {
@@ -53,7 +53,7 @@ export const createPlugin = (contextOptions?) => {
 
       const fileName = basename(filePath);
       const fileDir = dirname(filePath);
-      const formattedFilePath = join(fileDir, chalk.bold(fileName));
+      const formattedFilePath = join(fileDir, chalk.boldBright(fileName));
       const passed = !suiteResult.some((result) => !result.data.passed);
       if (passed) {
         console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}`);
@@ -77,7 +77,7 @@ export const createPlugin = (contextOptions?) => {
     const failedCount = totalCount - passedCount;
     reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
     console.log(
-      chalk.bold('Time:   ') +
+      chalk.boldBright('Time:   ') +
         chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`),
     );
     //console.log(faults);
