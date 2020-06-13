@@ -20,7 +20,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
-    "directory": "misc/writeme-core"
+    "directory": "writeme/writeme-core"
   },
   "publishConfig": {
     "access": "public"

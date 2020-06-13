@@ -6276,9 +6276,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@writeme/core@workspace:misc/writeme-core":
+"@writeme/core@workspace:writeme/writeme-core":
   version: 0.0.0-use.local
-  resolution: "@writeme/core@workspace:misc/writeme-core"
+  resolution: "@writeme/core@workspace:writeme/writeme-core"
   dependencies:
     "@types/node": ^11.9.4
     fs-extra: ^7.0.1
@@ -17276,7 +17276,7 @@ fsevents@^1.2.7:
     "@types/webpack-dev-server": ^3.10.1
     "@typescript-eslint/eslint-plugin": ^2.27.0
     "@typescript-eslint/parser": ^2.27.0
-    "@writeme/core": "workspace:misc/writeme-core"
+    "@writeme/core": "workspace:writeme/writeme-core"
     babel-loader: ^8.1.0
     babel-plugin-istanbul: ^6.0.0
     chalk: ^3.0.0
