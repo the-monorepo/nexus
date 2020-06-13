@@ -123,10 +123,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/tree-suffix-mapper"
       },
       {
-        "name": "@writeme/core",
-        "reference": "workspace:misc/writeme-core"
-      },
-      {
         "name": "@fault/addon-hook-schema",
         "reference": "workspace:faultjs/fault-addon-hook-schema"
       },
@@ -309,6 +305,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@pipelines/core",
         "reference": "workspace:pipelines/pipelines-core"
+      },
+      {
+        "name": "@writeme/core",
+        "reference": "workspace:writeme/writeme-core"
       }
     ],
     "enableTopLevelFallback": true,
@@ -1754,7 +1754,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "@writeme/core",
-        "workspace:misc/writeme-core"
+        "workspace:writeme/writeme-core"
       ],
       [
         "@xtuc/ieee754",
@@ -7754,7 +7754,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/webpack-dev-server", "npm:3.10.1"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.33.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.33.0"],
-            ["@writeme/core", "workspace:misc/writeme-core"],
+            ["@writeme/core", "workspace:writeme/writeme-core"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
             ["chalk", "npm:3.0.0"],
@@ -17701,10 +17701,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@writeme/core", [
-        ["workspace:misc/writeme-core", {
-          "packageLocation": "./misc/writeme-core/",
+        ["workspace:writeme/writeme-core", {
+          "packageLocation": "./writeme/writeme-core/",
           "packageDependencies": [
-            ["@writeme/core", "workspace:misc/writeme-core"],
+            ["@writeme/core", "workspace:writeme/writeme-core"],
             ["@types/node", "npm:11.15.12"],
             ["fs-extra", "npm:7.0.1"],
             ["globby", "npm:9.2.0"],
@@ -29959,7 +29959,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/webpack-dev-server", "npm:3.10.1"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.33.0"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.33.0"],
-            ["@writeme/core", "workspace:misc/writeme-core"],
+            ["@writeme/core", "workspace:writeme/writeme-core"],
             ["babel-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:8.1.0"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
             ["chalk", "npm:3.0.0"],

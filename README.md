@@ -62,7 +62,7 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.4.3 | [`@pshaw/markdown-util`](misc/markdown-util/README.md) | A helper package for writing markdown files
-3.1.4-0 | [`@writeme/core`](misc/writeme-core/README.md) | A readme generator
+3.1.4-0 | [`@writeme/core`](writeme/writeme-core/README.md) | A readme generator
 
 ### Logging
 Version | Package | Description

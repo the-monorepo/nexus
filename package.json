@@ -10,7 +10,8 @@
     "patrick-shaw/*",
     "byexample/*",
     "buildplan/*",
-    "pipelines/*"
+    "pipelines/*",
+    "writeme/*"
   ],
   "private": true,
   "npmClient": "yarn",
@@ -74,7 +75,7 @@
     "@types/webpack-dev-server": "^3.10.1",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
-    "@writeme/core": "workspace:misc/writeme-core",
+    "@writeme/core": "workspace:writeme/writeme-core",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
     "chalk": "^3.0.0",
