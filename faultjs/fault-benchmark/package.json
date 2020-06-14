@@ -66,6 +66,6 @@
     "isomorphic-git": "^0.58.1",
     "node-fetch": "^2.6.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^3.11.0"
   }
 }
