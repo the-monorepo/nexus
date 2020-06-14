@@ -11,6 +11,7 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.4-0 | [`@pshaw/resume-template`](misc/resume-template/README.md) | A template you can use to generate resumes
 0.0.2 | [`@resultful/types`](misc/resultful-types/README.md) | String constants for the different result types returned by resultful
+3.1.4-0 | [`@writeme/core`](writeme/writeme-core/README.md) | A readme generator
 1.6.2-0 | [`css-color-checker`](misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](misc/dom-context/README.md) | A React Context API-like context API for web components
@@ -62,7 +63,6 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.4.3 | [`@pshaw/markdown-util`](misc/markdown-util/README.md) | A helper package for writing markdown files
-3.1.4-0 | [`@writeme/core`](writeme/writeme-core/README.md) | A readme generator
 
 ### Logging
 Version | Package | Description
