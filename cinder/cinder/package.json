@@ -12,7 +12,8 @@
   "files": [
     "lib",
     "src",
-    "esm"
+    "esm",
+    "babel.js"
   ],
   "publishConfig": {
     "access": "public"
