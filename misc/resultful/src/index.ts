@@ -1,37 +1,38 @@
 import * as types from '@resultful/types';
 export { types };
 
-export type AbstractResult<
-  SymbolType extends types.ResultType,
-  PayloadType,
-  ErrorType,
-  ExceptionType
-> = {
-  // A value unique to the type of result in question
-  type: SymbolType;
-  // This value is populated for success results
-  payload: PayloadType;
-  // This value is populated for error results
-  error: ErrorType;
-  // This value is popualted for exception results
-  exception: ExceptionType;
-};
-
 /**
  * Signifies that something 'worked'. Also known as a "happy path" result.
  */
-export type SuccessResult<P> = AbstractResult<
-  typeof types.SUCCESS,
-  P,
-  undefined,
-  undefined
->;
+export type SuccessResult<P> = {
+  type: typeof types.SUCCESS,
+  payload: P,
+  /**
+   * Only defined for {@link ErrorResult}
+   */
+  error: undefined,
+  /**
+   * Only defined for {@link ExceptionResult}
+   */
+  exception: undefined,
+};
 
 /**
  * Signifies that some erroneuous (but known/anticipated) behaviour has ocurred.
  * The difference between this and {@exception} is that this form of error is known to be possible of occuring.
  */
-export type ErrorResult<E> = AbstractResult<typeof types.ERROR, undefined, E, undefined>;
+export type ErrorResult<E> = {
+  type: typeof types.ERROR,
+  /**
+   * Only defined for {@link SuccessResult}
+   */
+  payload: undefined,
+  error: E,
+  /**
+   * Only defined for {@link ExceptionResult}
+   */
+  exception: undefined
+};
 
 /**
  * Signifies that some UNEXPECTED erroneuous behaviour has occurred.
@@ -40,7 +41,13 @@ export type ErrorResult<E> = AbstractResult<typeof types.ERROR, undefined, E, un
  */
 export type ExceptionResult<T> = {
   type: typeof types.EXCEPTION;
+  /**
+   * Only defined for {@link SuccessResult}
+   */
   payload: undefined;
+  /**
+   * Only defined for {@link ErrorResult}
+   */
   error: undefined;
   exception: T;
 };

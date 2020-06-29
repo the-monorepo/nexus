@@ -303,7 +303,10 @@ const watch = () => {
       ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
     ],
     { ignoreInitial: false, events: 'all' },
-    parallel(copy, transpile),
+    () => {
+      logger.info(`Rerunning ${chalk.cyan('watch')}`);
+      return parallel(copy, transpile)
+    },
   );
 };
 task('watch', watch);
