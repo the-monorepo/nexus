@@ -3171,6 +3171,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jest/types@npm:^26.1.0":
+  version: 26.1.0
+  resolution: "@jest/types@npm:26.1.0"
+  dependencies:
+    "@types/istanbul-lib-coverage": ^2.0.0
+    "@types/istanbul-reports": ^1.1.1
+    "@types/yargs": ^15.0.0
+    chalk: ^4.0.0
+  checksum: 8676c8bb0e789577a57b7f83bf573e045385fe761f5060a21c50b8e8532e20d5183ae37aa2ae5713ab34b469b36655306c16a6a6f00a5befe960a1fa859679d8
+  languageName: node
+  linkType: hard
+
 "@monorepo/config@workspace:build-packages/monorepo-config":
   version: 0.0.0-use.local
   resolution: "@monorepo/config@workspace:build-packages/monorepo-config"
@@ -14331,6 +14343,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"jest-mock@npm:^26.1.0":
+  version: 26.1.0
+  resolution: "jest-mock@npm:26.1.0"
+  dependencies:
+    "@jest/types": ^26.1.0
+  checksum: cc1627cb723bea790d61ef9722ce57c1a667070e3263dbfd3efb91186d8d24c3c198edc7a6e2c1698640a66245e216114ba9b10e1f4ff65cdca9eb051d0b3a8d
+  languageName: node
+  linkType: hard
+
 "jest-regex-util@npm:^25.2.6":
   version: 25.2.6
   resolution: "jest-regex-util@npm:25.2.6"
@@ -16150,7 +16171,7 @@ fsevents@^1.2.7:
     style-loader: ^1.1.3
     stylelint: ^13.3.3
     through2: ^3.0.0
-    typescript: ^3.9.3
+    typescript: ^3.9.5
     webpack: ^5.0.0-beta.16
     webpack-bundle-analyzer: ^3.6.1
     webpack-dev-server: ^3.11.0
@@ -19627,6 +19648,7 @@ fsevents@^1.2.7:
   resolution: "resultful@workspace:misc/resultful"
   dependencies:
     "@resultful/types": "workspace:misc/resultful-types"
+    jest-mock: ^26.1.0
   languageName: unknown
   linkType: soft
 
@@ -21946,23 +21968,23 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-typescript@^3.9.3:
-  version: 3.9.3
-  resolution: "typescript@npm:3.9.3"
+typescript@^3.9.5:
+  version: 3.9.5
+  resolution: "typescript@npm:3.9.5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: f05e6f1c50c635bd7afc95fbc9eb704042b5bec9a77b9c86ddc0c56650c928617d608b9ec9aa468d7b4cf14ac1ea5f540c540c725005a179b54a86665abd9a55
+  checksum: 15618435493667083eb43dc7b36c4d3dd47fd9e9c8a14f0ac4019bbf6124b6cc518b6ed506400913db1bf50831207ee8201b5d827680076930b562923f4f18a0
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^3.9.3#builtin<compat/typescript>":
-  version: 3.9.3
-  resolution: "typescript@patch:typescript@npm%3A3.9.3#builtin<compat/typescript>::version=3.9.3&hash=64df9d"
+"typescript@patch:typescript@^3.9.5#builtin<compat/typescript>":
+  version: 3.9.5
+  resolution: "typescript@patch:typescript@npm%3A3.9.5#builtin<compat/typescript>::version=3.9.5&hash=64df9d"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 9fefeb14e5facf55be95b5256ddb36810e41f4e3c5ec93268e8228bcc463caa50e8f94902f3caa168f818c83a3142cc25ab70eeab58bdfdc2b2fb29c03e2c517
+  checksum: 5849aa7c2d887b4d0b289530b45690fc26e606ea3719cf958dbb7f531ca1b968895bbef89b21ecb3903d5039fb047ebf6a0047ba147123060cbe1940ce5c91be
   languageName: node
   linkType: hard
 
