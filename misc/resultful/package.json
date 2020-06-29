@@ -2,7 +2,7 @@
   "version": "0.0.7",
   "name": "resultful",
   "description": "Return exceptions, errors and successful results",
-  "keywords": [],
+  "keywords": ["util", "typescript", "reliability", "throw", "try", "catch", "error", "handling"],
   "license": "MIT",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
