@@ -62,6 +62,7 @@
     "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar",
     "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha",
     "@monorepo/config": "workspace:build-packages/monorepo-config",
+    "@pipelines/core": "workspace:pipelines/pipelines-core",
     "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core",
     "@pshaw/eslint-config-preset": "workspace:patrick-shaw/eslint-config-preset",
     "@pshaw/logger": "workspace:misc/logger",
