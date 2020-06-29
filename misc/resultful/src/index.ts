@@ -110,7 +110,7 @@ export type CreateSuccessFn = {
  * Use this to create a {@link SuccessResult} which signifies that something successful
  * has happened and your API has run as expected and has been consumed correctly (AKA the "happy path").
  */
-export const success = <T>(payload: T): SuccessResult<T> => ({
+export const success: CreateSuccessFn = <T>(payload: T): SuccessResult<T> => ({
   type: types.SUCCESS,
   payload,
   error: undefined,
