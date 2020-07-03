@@ -11,7 +11,8 @@
     "byexample/*",
     "buildplan/*",
     "pipelines/*",
-    "writeme/*"
+    "writeme/*",
+    "resultful/*"
   ],
   "private": true,
   "npmClient": "yarn",

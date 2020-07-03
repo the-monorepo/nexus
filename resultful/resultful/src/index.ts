@@ -267,18 +267,12 @@ export type HandledResult<R extends AnyResult, O extends AnyHandleOptions> =
   | HandledSuccessResult<R, O>
   | HandledFailureResultOrErrorExceptionResult<R, O>;
 
-export type HandleFn = {
+
+export type CatchlessHandle = {
   <P, E, EX, R extends Result<P, E, EX>>(result: R, options?: undefined): typeof result;
   <
-    P,
-    E,
-    EX,
-    PR,
-    ER,
-    EXR,
-    FR,
-    R extends Result<P, E, EX>,
-    O extends HandleOptions<P, E, EX, PR, ER, EXR, FR>
+    R extends AnyResult,
+    O extends HandleOptions<R['payload'], R['error'], R['exception'], any, any, any, any>
   >(
     result: R,
     options: O,
@@ -288,12 +282,12 @@ export type HandleFn = {
     options: HandleOptions<P, E, EX, PR, ER, EXR, FR>,
   ): typeof result | PR | ER | EXR | FR;
 };
-
+  
 /**
  * This is exactly the same as {@link handle} except there is no try { ... } catch { ... } wrapper around the handlers.
  * This may improve performance but removes the guarentee that nothing will ever be thrown by the handle function.
  */
-export const catchlessHandle: HandleFn = <P, E, EX, PR, ER, EXR, FR>(
+export const catchlessHandle: CatchlessHandle = <P, E, EX, PR, ER, EXR, FR>(
   result: Result<P, E, EX>,
   handlers: HandleOptions<P, E, EX, PR, ER, EXR, FR> = {},
 ) => {
@@ -330,6 +324,21 @@ export const catchlessHandle: HandleFn = <P, E, EX, PR, ER, EXR, FR>(
   return result;
 };
 
+export type HandleFn = {
+  <P, E, EX, R extends Result<P, E, EX>>(result: R, options?: undefined): typeof result | ExceptionResult<any>;
+  <
+    R extends AnyResult,
+    O extends HandleOptions<R['payload'], R['error'], R['exception'], any, any, any, any>
+  >(
+    result: R,
+    options: O,
+  ): HandledResult<typeof result, typeof options> | ExceptionResult<any>;
+  <P, E, EX, PR, ER, EXR, FR>(
+    result: Result<P, E, EX>,
+    options: HandleOptions<P, E, EX, PR, ER, EXR, FR>,
+  ): typeof result | PR | ER | EXR | FR | ExceptionResult<any>;
+};
+
 /**
  * A helper function which executes a relevant handler based on the type of result that is passed into the function.
  * @param result The result that will be handled by one of the applicable handlers
@@ -341,7 +350,7 @@ export const handle: HandleFn = <P, E, EX, PR, ER, EXR, FR>(
   handlers: HandleOptions<P, E, EX, PR, ER, EXR, FR> = {},
 ) => {
   try {
-    return catchlessHandle(result, handlers);
+    return when(result, handlers);
   } catch (err) {
     return exception(err);
   }

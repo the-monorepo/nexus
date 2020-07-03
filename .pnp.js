@@ -95,16 +95,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/pshaw-fs"
       },
       {
+        "name": "react-async-state-hook",
+        "reference": "workspace:misc/react-async-state-hook"
+      },
+      {
         "name": "replace-functions",
         "reference": "workspace:misc/replace-functions"
-      },
-      {
-        "name": "resultful",
-        "reference": "workspace:misc/resultful"
-      },
-      {
-        "name": "@resultful/types",
-        "reference": "workspace:misc/resultful-types"
       },
       {
         "name": "@pshaw/resume-template",
@@ -309,6 +305,22 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@writeme/core",
         "reference": "workspace:writeme/writeme-core"
+      },
+      {
+        "name": "resultful",
+        "reference": "workspace:resultful/resultful"
+      },
+      {
+        "name": "@resultful/react-async",
+        "reference": "workspace:resultful/resultful-react-async"
+      },
+      {
+        "name": "@resultful/react-async-payload-types",
+        "reference": "workspace:resultful/resultful-react-async-payload-types"
+      },
+      {
+        "name": "@resultful/types",
+        "reference": "workspace:resultful/resultful-types"
       }
     ],
     "enableTopLevelFallback": true,
@@ -1161,8 +1173,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "virtual:8304a20517a4974f62ef220e28602909e85d5996d7da6a25f25ada5681133aa13b72f6db83c370cefeebcee9a7a325b869c6b88792b5f1ea85045ed4b383f554#npm:1.3.3"
       ],
       [
+        "@resultful/react-async",
+        "workspace:resultful/resultful-react-async"
+      ],
+      [
+        "@resultful/react-async-payload-types",
+        "workspace:resultful/resultful-react-async-payload-types"
+      ],
+      [
         "@resultful/types",
-        "workspace:misc/resultful-types"
+        "workspace:resultful/resultful-types"
       ],
       [
         "@sgratzl/science",
@@ -6173,6 +6193,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:16.13.1"
       ],
       [
+        "react-async-state-hook",
+        "workspace:misc/react-async-state-hook"
+      ],
+      [
         "react-clientside-effect",
         "virtual:d033c686da34171436ac49fd87d245dd02b215b4433f30052dac52e1ea96c034e69f9cf9e7a1f2c6dd226ecea61f72a332f06ca08fd16d6ac32b9a599a8125bc#npm:1.2.2"
       ],
@@ -6482,7 +6506,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "resultful",
-        "workspace:misc/resultful"
+        "workspace:resultful/resultful"
       ],
       [
         "ret",
@@ -12149,7 +12173,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
             ["mocha", "npm:7.1.2"],
-            ["resultful", "workspace:misc/resultful"]
+            ["resultful", "workspace:resultful/resultful"]
           ],
           "packagePeers": [
             "mocha"
@@ -12164,7 +12188,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
             ["mocha", "npm:7.2.0"],
-            ["resultful", "workspace:misc/resultful"]
+            ["resultful", "workspace:resultful/resultful"]
           ],
           "packagePeers": [
             "mocha"
@@ -12178,7 +12202,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/istanbul-util", "workspace:faultjs/fault-istanbul-util"],
             ["@fault/messages", "workspace:faultjs/fault-messages"],
             ["@fault/types", "workspace:faultjs/fault-types"],
-            ["resultful", "workspace:misc/resultful"]
+            ["resultful", "workspace:resultful/resultful"]
           ],
           "linkType": "SOFT",
         }]
@@ -12861,11 +12885,29 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["@resultful/types", [
-        ["workspace:misc/resultful-types", {
-          "packageLocation": "./misc/resultful-types/",
+      ["@resultful/react-async", [
+        ["workspace:resultful/resultful-react-async", {
+          "packageLocation": "./resultful/resultful-react-async/",
           "packageDependencies": [
-            ["@resultful/types", "workspace:misc/resultful-types"]
+            ["@resultful/react-async", "workspace:resultful/resultful-react-async"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@resultful/react-async-payload-types", [
+        ["workspace:resultful/resultful-react-async-payload-types", {
+          "packageLocation": "./resultful/resultful-react-async-payload-types/",
+          "packageDependencies": [
+            ["@resultful/react-async-payload-types", "workspace:resultful/resultful-react-async-payload-types"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@resultful/types", [
+        ["workspace:resultful/resultful-types", {
+          "packageLocation": "./resultful/resultful-types/",
+          "packageDependencies": [
+            ["@resultful/types", "workspace:resultful/resultful-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -30466,6 +30508,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["react-async-state-hook", [
+        ["workspace:misc/react-async-state-hook", {
+          "packageLocation": "./misc/react-async-state-hook/",
+          "packageDependencies": [
+            ["react-async-state-hook", "workspace:misc/react-async-state-hook"],
+            ["@resultful/types", "workspace:resultful/resultful-types"],
+            ["jest-mock", "npm:26.1.0"],
+            ["resultful", "workspace:resultful/resultful"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["react-clientside-effect", [
         ["virtual:415e81d2092070cd47331d6e042ea4f82bf714bc391cc880a17e10ed5edf118f34b5c23516d2ee499bafff0a0b9ae65d7fd47d5a3274c070510a7df332fb0069#npm:1.2.2", {
           "packageLocation": "./.yarn/$$virtual/react-clientside-effect-virtual-42790c9ede/0/cache/react-clientside-effect-npm-1.2.2-6101f971a0-364329073a.zip/node_modules/react-clientside-effect/",
@@ -31887,11 +31941,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["resultful", [
-        ["workspace:misc/resultful", {
-          "packageLocation": "./misc/resultful/",
+        ["workspace:resultful/resultful", {
+          "packageLocation": "./resultful/resultful/",
           "packageDependencies": [
-            ["resultful", "workspace:misc/resultful"],
-            ["@resultful/types", "workspace:misc/resultful-types"],
+            ["resultful", "workspace:resultful/resultful"],
+            ["@resultful/types", "workspace:resultful/resultful-types"],
             ["jest-mock", "npm:26.1.0"]
           ],
           "linkType": "SOFT",
