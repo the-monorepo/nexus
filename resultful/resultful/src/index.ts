@@ -1,11 +1,11 @@
-import * as types from '@resultful/types';
-export { types };
+import * as ResultTypes from '@resultful/types';
+export { ResultTypes };
 
 /**
  * Signifies that something 'worked'. Also known as a "happy path" result.
  */
 export type SuccessResult<P> = {
-  type: typeof types.SUCCESS,
+  type: typeof ResultTypes.SUCCESS,
   payload: P,
   /**
    * Only defined for {@link ErrorResult}
@@ -22,7 +22,7 @@ export type SuccessResult<P> = {
  * The difference between this and {@exception} is that this form of error is known to be possible of occuring.
  */
 export type ErrorResult<E> = {
-  type: typeof types.ERROR,
+  type: typeof ResultTypes.ERROR,
   /**
    * Only defined for {@link SuccessResult}
    */
@@ -36,11 +36,11 @@ export type ErrorResult<E> = {
 
 /**
  * Signifies that some UNEXPECTED erroneuous behaviour has occurred.
- * This result occurrs when there is a bug in the API being consumed or the consumer is consuming the API incorrectly
+ * This result occurs when there is a bug in the API being consumed or the consumer is consuming the API incorrectly
  * and API has not accounted for such misuse.
  */
 export type ExceptionResult<T> = {
-  type: typeof types.EXCEPTION;
+  type: typeof ResultTypes.EXCEPTION;
   /**
    * Only defined for {@link SuccessResult}
    */
@@ -66,35 +66,37 @@ export type Result<P, E, EX = any> =
  */
 export const isException = <EX = any>(
   result: Result<unknown, unknown, EX>,
-): result is ExceptionResult<EX> => result.type === types.EXCEPTION;
+): result is ExceptionResult<EX> => result.type === ResultTypes.EXCEPTION;
 
 /**
  * Check if a result is an {@link ErrorResult}.
  * @param result being checked
  * @return Returning true signifies expected (i.e. API creator is aware of the error) erroneuous behaviour has occurred.
  */
-export const isError = <E>(result: Result<unknown, E>): result is ErrorResult<E> =>
-  result.type === types.ERROR;
+export const isError = <R extends ResultSchema>(result: R): result is Include<R, TypeHolder<typeof ResultTypes.ERROR>> =>
+  result.type === ResultTypes.ERROR;
+
+type Include<Type, Included> = Exclude<Type, Exclude<Type, Included>>;
 
 /**
  * Check if a result is a {@link SuccessResult}.
  * @param result being checked
  * @return Returning true signifies successful/"happy path" behaviour has occurred.
  */
-export const isSuccess = <P>(result: Result<P, unknown>): result is SuccessResult<P> =>
-  result.type === types.SUCCESS;
+export const isSuccess = <R extends ResultSchema>(result: R): result is Include<R, TypeHolder<typeof ResultTypes.SUCCESS>> =>
+  result.type === ResultTypes.SUCCESS;
 
 /**
  * Checks if a result is a {@link FailureResult}.
  * @param result being checked
  * @returns Returning true signifies that erroneous behaviour has occurred (i.e. An {@link exception} or an {@link error}).
  */
-export const isFailure = <E, EX = any>(
-  result: Result<unknown, E, EX>,
-): result is FailureResult<E, EX> => {
+export const isFailure = <R extends ResultSchema>(
+  result: R,
+): result is Include<R, TypeHolder<typeof ResultTypes.ERROR | typeof ResultTypes.EXCEPTION>> => {
   switch (result.type) {
-    case types.ERROR:
-    case types.EXCEPTION: {
+    case ResultTypes.ERROR:
+    case ResultTypes.EXCEPTION: {
       return true;
     }
     default:
@@ -110,8 +112,8 @@ export type CreateSuccessFn = {
  * Use this to create a {@link SuccessResult} which signifies that something successful
  * has happened and your API has run as expected and has been consumed correctly (AKA the "happy path").
  */
-export const success: CreateSuccessFn = <T>(payload: T): SuccessResult<T> => ({
-  type: types.SUCCESS,
+export const success: CreateSuccessFn = <P>(payload: P): SuccessResult<P> => ({
+  type: ResultTypes.SUCCESS,
   payload,
   error: undefined,
   exception: undefined,
@@ -126,7 +128,7 @@ export type CreateErrorFn = {
  * you're aware that the error can occur.
  */
 export const error: CreateErrorFn = <E>(error: E): ErrorResult<E> => ({
-  type: types.ERROR,
+  type: ResultTypes.ERROR,
   payload: undefined,
   error: error,
   exception: undefined,
@@ -142,7 +144,7 @@ export type CreateExceptionFn = {
  */
 export const exception: CreateExceptionFn = <EX>(exception: EX): ExceptionResult<EX> => {
   return {
-    type: types.EXCEPTION,
+    type: ResultTypes.EXCEPTION,
     payload: undefined,
     error: undefined,
     exception,
@@ -152,10 +154,6 @@ export const exception: CreateExceptionFn = <EX>(exception: EX): ExceptionResult
 export type SimpleHandleCallback<T, V, R> = (value: V, result: T) => R;
 
 export type SuccessCallback<T, R> = SimpleHandleCallback<SuccessResult<T>, T, R>;
-export type FailureCallback<E, EX, R> = {
-  (error: undefined, exception: EX, result: ExceptionResult<EX>): R;
-  (error: E, exception: undefined, result: ErrorResult<E>): R;
-};
 export type ErrorCallback<E, R> = SimpleHandleCallback<ErrorResult<E>, E, R>;
 export type ExceptionCallback<EX, R> = SimpleHandleCallback<ExceptionResult<EX>, EX, R>;
 
@@ -171,128 +169,91 @@ type HandleExceptionOptions<EX, EXR> = {
   exception: ExceptionCallback<EX, EXR>;
 };
 
-type HandleFailureOptions<E, EX, FR> = {
-  failure: FailureCallback<E, EX, FR>;
-};
+export type FullHandleOptions<P, E, EX, PR, ER, EXR> = HandleSuccessOptions<P, PR> &
+HandleErrorOptions<E, ER> &
+HandleExceptionOptions<EX, EXR>;
 
-export type SuccessErrorExceptionHandleOptions<P, E, EX, PR, ER, EXR> = Partial<
-  HandleSuccessOptions<P, PR> &
-    HandleErrorOptions<E, ER> &
-    HandleExceptionOptions<EX, EXR>
-> & {
-  failure?: never;
-};
+export type HandleOptions<P, E, EX, PR, ER, EXR> = Partial<FullHandleOptions<P, E, EX, PR, ER, EXR>>;
 
-export type SuccessFailureHandleOptions<P, E, EX, PR, FR> = Partial<
-  HandleSuccessOptions<P, PR> & HandleFailureOptions<E, EX, FR>
-> & {
-  error?: never;
-  exception?: never;
-};
-
-export type HandleOptions<P, E, EX, PR, ER, EXR, FR> =
-  | SuccessErrorExceptionHandleOptions<P, E, EX, PR, ER, EXR>
-  | SuccessFailureHandleOptions<P, E, EX, PR, FR>;
-
-type AnyHandleOptions = HandleOptions<any, any, any, any, any, any, any>;
-type AnyResult = Result<any, any, any>;
+export type AnyHandleOptions = HandleOptions<any, any, any, any, any, any>;
+export type AnyResult = Result<any, any, any>;
 
 type NonUndefined<T> = Exclude<T, undefined>;
 
-type ResultKeys = 'payload' | 'error' | 'exception';
-type OptionKeys = ResultKeys | 'failure';
+export type OptionSchema = { [s: string]: ((...args: any[]) => any) | undefined };
+export type TypeHolder<T> = { type: T };
+export type ResultSchema = TypeHolder<string>;
 
-type HandledResultType<
-  RType extends types.ResultType,
-  OMatcher extends AnyHandleOptions,
-  OKey extends OptionKeys,
-  PThrough,
-  R extends AnyResult,
-  O extends AnyHandleOptions
-> = R['type'] extends RType
-  ? O extends OMatcher
-    ? ReturnType<NonUndefined<O[OKey]>>
-    : PThrough
-  : never;
+export type HandledResultType<
+  ResultObjectType extends ResultSchema,
+  OptionsObjectType extends OptionSchema,
+  OptionsKey extends keyof OptionsObjectType,
+  ResultType extends ResultObjectType['type']
+> = ResultObjectType['type'] extends ResultType
+? OptionsKey extends never ? ResultObjectType : ReturnType<NonUndefined<OptionsObjectType[OptionsKey]>>
+: ResultObjectType;
 
-type HandledSuccessResult<
-  R extends AnyResult,
-  O extends AnyHandleOptions
+export type HandledSuccessResult<
+  R extends ResultSchema,
+  O extends OptionSchema,
 > = HandledResultType<
-  typeof types.SUCCESS,
-  HandleSuccessOptions<any, any>,
+  R,
+  O,
   'payload',
-  R,
-  R,
-  O
+  typeof ResultTypes.SUCCESS
 >;
 
-type HandledExceptionResult<
-  R extends AnyResult,
-  O extends AnyHandleOptions
+export type HandledExceptionResult<
+  R extends ResultSchema,
+  O extends OptionSchema
 > = HandledResultType<
-  typeof types.EXCEPTION,
-  HandleExceptionOptions<any, any>,
+  R,
+  O,
   'exception',
-  R,
-  R,
-  O
+  typeof ResultTypes.EXCEPTION
 >;
 
-type HandledErrorResult<
-  R extends AnyResult,
-  O extends AnyHandleOptions
+export type HandledErrorResult<
+  R extends ResultSchema,
+  O extends OptionSchema
 > = HandledResultType<
-  typeof types.ERROR,
-  HandleFailureOptions<any, any, any>,
+  R,
+  O,
   'error',
-  R,
-  R,
-  O
+  typeof ResultTypes.ERROR
 >;
 
-type HandledFailureResultOrErrorExceptionResult<
-  R extends AnyResult,
-  O extends AnyHandleOptions
-> = HandledResultType<
-  typeof types.ERROR | typeof types.EXCEPTION,
-  HandleFailureOptions<any, any, any>,
-  'failure',
-  HandledExceptionResult<R, O> | HandledErrorResult<R, O>,
-  R,
-  O
->;
-
-export type HandledResult<R extends AnyResult, O extends AnyHandleOptions> =
+export type HandledResult<R extends ResultSchema, O extends OptionSchema> =
   | HandledSuccessResult<R, O>
-  | HandledFailureResultOrErrorExceptionResult<R, O>;
+  | HandledErrorResult<R, O>
+  | HandledExceptionResult<R, O>;
 
 
 export type CatchlessHandle = {
   <P, E, EX, R extends Result<P, E, EX>>(result: R, options?: undefined): typeof result;
   <
     R extends AnyResult,
-    O extends HandleOptions<R['payload'], R['error'], R['exception'], any, any, any, any>
+    O extends HandleOptions<R['payload'], R['error'], R['exception'], any, any, any>
   >(
     result: R,
     options: O,
   ): HandledResult<typeof result, typeof options>;
-  <P, E, EX, PR, ER, EXR, FR>(
+  <P, E, EX, PR, ER, EXR>(
     result: Result<P, E, EX>,
-    options: HandleOptions<P, E, EX, PR, ER, EXR, FR>,
-  ): typeof result | PR | ER | EXR | FR;
+    options: HandleOptions<P, E, EX, PR, ER, EXR>,
+  ): typeof result | PR | ER | EXR;
 };
   
 /**
  * This is exactly the same as {@link handle} except there is no try { ... } catch { ... } wrapper around the handlers.
  * This may improve performance but removes the guarentee that nothing will ever be thrown by the handle function.
  */
-export const catchlessHandle: CatchlessHandle = <P, E, EX, PR, ER, EXR, FR>(
+export const catchlessHandle: CatchlessHandle = <P, E, EX, PR, ER, EXR>(
   result: Result<P, E, EX>,
-  handlers: HandleOptions<P, E, EX, PR, ER, EXR, FR> = {},
+  handlers: HandleOptions<P, E, EX, PR, ER, EXR> = {},
 ) => {
   switch (result.type) {
-    case types.SUCCESS: {
+    case ResultTypes.SUCCESS: {
       const { payload } = result;
       if (handlers.payload !== undefined) {
         return handlers.payload(payload, result);
@@ -300,22 +261,18 @@ export const catchlessHandle: CatchlessHandle = <P, E, EX, PR, ER, EXR, FR>(
       break;
     }
 
-    case types.ERROR: {
+    case ResultTypes.ERROR: {
       const { error } = result;
       if (handlers.error !== undefined) {
         return handlers.error(error, result);
-      } else if (handlers.failure !== undefined) {
-        return handlers.failure(error, undefined, result);
       }
       break;
     }
 
-    case types.EXCEPTION: {
+    case ResultTypes.EXCEPTION: {
       const { exception } = result;
       if (handlers.exception !== undefined) {
         return handlers.exception(exception, result);
-      } else if (handlers.failure !== undefined) {
-        return handlers.failure(undefined, exception, result);
       }
       break;
     }
@@ -328,15 +285,15 @@ export type HandleFn = {
   <P, E, EX, R extends Result<P, E, EX>>(result: R, options?: undefined): typeof result | ExceptionResult<any>;
   <
     R extends AnyResult,
-    O extends HandleOptions<R['payload'], R['error'], R['exception'], any, any, any, any>
+    O extends HandleOptions<R['payload'], R['error'], R['exception'], any, any, any>
   >(
     result: R,
     options: O,
   ): HandledResult<typeof result, typeof options> | ExceptionResult<any>;
-  <P, E, EX, PR, ER, EXR, FR>(
+  <P, E, EX, PR, ER, EXR>(
     result: Result<P, E, EX>,
-    options: HandleOptions<P, E, EX, PR, ER, EXR, FR>,
-  ): typeof result | PR | ER | EXR | FR | ExceptionResult<any>;
+    options: HandleOptions<P, E, EX, PR, ER, EXR>,
+  ): typeof result | PR | ER | EXR | ExceptionResult<any>;
 };
 
 /**
@@ -347,10 +304,10 @@ export type HandleFn = {
  */
 export const handle: HandleFn = <P, E, EX, PR, ER, EXR, FR>(
   result: Result<P, E, EX>,
-  handlers: HandleOptions<P, E, EX, PR, ER, EXR, FR> = {},
+  handlers: HandleOptions<P, E, EX, PR, ER, EXR> = {},
 ) => {
   try {
-    return when(result, handlers);
+    return catchlessHandle(result, handlers);
   } catch (err) {
     return exception(err);
   }

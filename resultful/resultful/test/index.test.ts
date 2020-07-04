@@ -1,7 +1,7 @@
 import jest from 'jest-mock';
 
 import {
-  types,
+  ResultTypes,
   error,
   success,
   exception,
@@ -14,7 +14,7 @@ import {
 
 const testInfoSet = {
   success: {
-    type: types.SUCCESS,
+    type: ResultTypes.SUCCESS,
     key: 'payload' as 'payload',
     value: Symbol('success'),
     handleValue: Symbol('handled-success'),
@@ -25,7 +25,7 @@ const testInfoSet = {
     isFailure: false,
   },
   error: {
-    type: types.ERROR,
+    type: ResultTypes.ERROR,
     key: 'error' as 'error',
     value: Symbol('error'),
     handleValue: Symbol('handled-error'),
@@ -36,7 +36,7 @@ const testInfoSet = {
     isFailure: true,
   },
   exception: {
-    type: types.EXCEPTION,
+    type: ResultTypes.EXCEPTION,
     key: 'exception' as 'exception',
     value: Symbol('exception'),
     handleValue: Symbol('handled-exception'),
