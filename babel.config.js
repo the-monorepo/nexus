@@ -34,6 +34,8 @@ module.exports = (api) => {
     [
       '@babel/preset-env',
       {
+        // TODO: Remove this in once Babel 8 is implemented
+        bugfixes: true,
         modules: esm ? false : 'commonjs',
         targets: {
           node: production ? '10' : 'current',

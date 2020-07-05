@@ -1,0 +1,20 @@
+[production]
+last 2 Chrome versions
+last 2 Edge versions
+last 2 Firefox versions
+last 1 Safari versions
+last 1 iOS versions
+last 1 ChromeAndroid versions
+
+[esm]
+last 2 Chrome versions
+last 2 Edge versions
+last 2 Firefox versions
+last 1 Safari versions
+last 1 iOS versions
+last 1 ChromeAndroid versions
+
+[development]
+last 2 Chrome versions
+
+[test]
