@@ -1,7 +1,7 @@
 {
   "version": "0.0.8",
   "name": "resultful",
-  "description": "Return exceptions, errors and successful results",
+  "description": "A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.",
   "keywords": [
     "util",
     "typescript",
