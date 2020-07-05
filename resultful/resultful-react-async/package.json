@@ -1,0 +1,28 @@
+{
+  "version": "0.0.3",
+  "name": "@resultful/react-async",
+  "description": "React utilities for handling asynchronous state",
+  "keywords": [],
+  "license": "MIT",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "exports": {
+    "monorepo-original": "./src/index.ts",
+    "import": "./esm/index.js",
+    "require": "./lib/index.js"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/resultful-react-async"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
