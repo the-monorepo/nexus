@@ -86,7 +86,7 @@ export const initialize = async (options: Options) => {
             } else {
               await client.submitFileResult({ duration, key, testPath });
             }
-            console.log(duration, endTime, startTime)
+            console.log(duration, endTime, startTime);
           }
         } else {
           // Sort tests alphabetically
@@ -99,7 +99,7 @@ export const initialize = async (options: Options) => {
           }
 
           const result = await runMochaInstance(mochaInstance);
-          
+
           if (resultful.isException(result)) {
             console.error(result.exception);
             process.exitCode = 1;
@@ -110,7 +110,7 @@ export const initialize = async (options: Options) => {
                 key,
                 duration: 0,
               });
-            }  
+            }
           }
 
           clearCache();

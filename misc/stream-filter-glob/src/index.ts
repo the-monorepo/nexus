@@ -6,7 +6,7 @@ class GlobFilterStream extends Duplex {
   constructor(
     public readonly globs,
     public readonly ignoreGlobs,
-    public readonly options
+    public readonly options,
   ) {
     super({
       decodeStrings: false,

@@ -6,7 +6,11 @@ import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 
 import { client } from './client';
 
-const { EVENT_TEST_FAIL, EVENT_TEST_PASS, EVENT_TEST_BEGIN } = (Mocha.Runner as any).constants;
+const {
+  EVENT_TEST_FAIL,
+  EVENT_TEST_PASS,
+  EVENT_TEST_BEGIN,
+} = (Mocha.Runner as any).constants;
 const COVERAGE_KEY = '__coverage__';
 
 type PartialTestData = {
@@ -20,7 +24,10 @@ type PartialTestData = {
 type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => {};
 const commonTestHandle = (submitHandle: SubmitHandle) => {
   return (test: Mocha.Test, err) => {
-    const coverage = subtractCoverage(globalThis[COVERAGE_KEY], globalThis.beforeTestCoverage);
+    const coverage = subtractCoverage(
+      globalThis[COVERAGE_KEY],
+      globalThis.beforeTestCoverage,
+    );
     const hash =
       test!.titlePath().join('_') +
       createHash('sha1').update(test!.body).digest('base64');
@@ -34,15 +41,12 @@ const commonTestHandle = (submitHandle: SubmitHandle) => {
 export class IPCReporter {
   public constructor(runner) {
     runner
-      .on(
-        EVENT_TEST_BEGIN,
-        (testData: Mocha.Test) => {
-          client.notifyWorkingOnTest({
-            titlePath: testData.titlePath(),
-            file: testData.file!,
-          });
-        }
-      )
+      .on(EVENT_TEST_BEGIN, (testData: Mocha.Test) => {
+        client.notifyWorkingOnTest({
+          titlePath: testData.titlePath(),
+          file: testData.file!,
+        });
+      })
       .on(
         EVENT_TEST_PASS,
         commonTestHandle((testData) => {

@@ -58,15 +58,10 @@ const getConfig = () => {
 
   const testableIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
 
-  const testDirGlobs = [
-    'test',
-    ...workspaces.map((project) => [
-      `${project}/test`
-    ])
-  ];
+  const testDirGlobs = ['test', ...workspaces.map((project) => [`${project}/test`])];
 
   const testableGlobs = [
-    ...codeExtensions.map((extension) =>`test/**/*.test.${extension}`),
+    ...codeExtensions.map((extension) => `test/**/*.test.${extension}`),
     ...workspaces
       .map((project) =>
         codeExtensions.map((extension) => `${project}/**/*.test.${extension}`),

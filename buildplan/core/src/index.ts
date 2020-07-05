@@ -35,13 +35,16 @@ export type TaskFn = {
 export type TaskExceptionInfo = {
   exception: any;
   taskName: string;
-}
+};
 
 export type TaskExceptionHandler = (taskException: TaskExceptionInfo) => any;
 
 const defaultExceptionHandler = ({ exception, taskName }: TaskExceptionInfo) => {
-  log.exception(`An expected error occurred in the '${chalk.cyanBright(taskName)}' task`, exception);
-}
+  log.exception(
+    `An expected error occurred in the '${chalk.cyanBright(taskName)}' task`,
+    exception,
+  );
+};
 
 const waitForTaskReturnValue = async (taskValue: TaskResult): Promise<any> => {
   const resolvedValue = await taskValue;
@@ -64,7 +67,6 @@ const waitForTaskReturnValue = async (taskValue: TaskResult): Promise<any> => {
   }
 };
 
-
 export const TASK_INFO = Symbol('task-info');
 
 type ParallelTaskInfo = {
@@ -85,10 +87,13 @@ const callbackToStringCode = (taskCallback: TaskCallback): string => {
     const flatteningType = taskInfo.type;
     const flattened = [...taskInfo.value];
     let i = 0;
-    while(i < flattened.length) {
+    while (i < flattened.length) {
       const child = flattened[i];
       const childTaskInfo = child[TASK_INFO];
-      if (childTaskInfo !== undefined && (childTaskInfo.value.length <= 1 || childTaskInfo.type === flatteningType)) {
+      if (
+        childTaskInfo !== undefined &&
+        (childTaskInfo.value.length <= 1 || childTaskInfo.type === flatteningType)
+      ) {
         flattened.splice(i, 1, ...childTaskInfo.value);
       } else {
         i++;
@@ -119,8 +124,8 @@ const createTask = (
       try {
         const value = callback();
         log.info(`Running ${callbackToStringCode(callback)}`);
-        await waitForTaskReturnValue(value);  
-      } catch(err) {
+        await waitForTaskReturnValue(value);
+      } catch (err) {
         defaultExceptionHandler({ exception: err, taskName: name });
         process.exitCode = 1;
       }
@@ -133,9 +138,16 @@ export const task: TaskFn = (
   descriptionOrCallback: string | TaskCallback,
   callbackOrUndefined?: TaskCallback,
 ) => {
-  const callback = callbackOrUndefined === undefined ? descriptionOrCallback as TaskCallback : callbackOrUndefined;
+  const callback =
+    callbackOrUndefined === undefined
+      ? (descriptionOrCallback as TaskCallback)
+      : callbackOrUndefined;
 
-  return createTask(name, callbackOrUndefined === undefined ? undefined : descriptionOrCallback as string, callback);
+  return createTask(
+    name,
+    callbackOrUndefined === undefined ? undefined : (descriptionOrCallback as string),
+    callback,
+  );
 };
 
 export const parallel = (...taskCallbacks: TaskCallback[]) => {
@@ -146,7 +158,7 @@ export const parallel = (...taskCallbacks: TaskCallback[]) => {
   runInParallel[TASK_INFO] = {
     type: TaskTypes.PARALLEL,
     value: taskCallbacks,
-  }
+  };
 
   return runInParallel;
 };

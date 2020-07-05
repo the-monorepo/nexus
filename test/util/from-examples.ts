@@ -9,7 +9,7 @@ export type Tester<T> = ExpectOutputFunction<T> & {
 type Testers<T> = { [K in keyof T]: Tester<Testers<T>> };
 
 function mapToTestersObject<T>(conversionFnsObject: T): Testers<T> {
-  let testers: any = {};
+  const testers: any = {};
   const tester = (name: string, conversionFn: (options: any) => any) => {
     const aTester: any = (expectedOutput, options) => {
       it(name, () => {
@@ -29,10 +29,10 @@ function mapToTestersObject<T>(conversionFnsObject: T): Testers<T> {
     };
 
     return aTester;
-  }
+  };
 
-  for(const [key, conversionFn] of Object.entries(conversionFnsObject)) {
-    testers[key] = tester(key, conversionFn);    
+  for (const [key, conversionFn] of Object.entries(conversionFnsObject)) {
+    testers[key] = tester(key, conversionFn);
   }
 
   return testers;
@@ -58,4 +58,4 @@ export const examples = (examples: any[]) => {
       return testers;
     },
   };
-}
+};

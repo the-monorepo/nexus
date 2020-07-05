@@ -19,7 +19,6 @@ function addTypeInfoToOpenSchema(openApiType, typeInfo, options) {
   }
 }
 
-
 export function createSchema(typeInfo: TypeInfo, options = {}) {
   const optionsWithDefaults = {
     assumeRequired: true,
