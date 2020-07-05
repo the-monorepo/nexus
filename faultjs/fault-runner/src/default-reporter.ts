@@ -10,7 +10,7 @@ const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFileP
 
 const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
   console.log(
-    `${chalk.boldBright(`${prefix}`)}${chalk.redBright(
+    `${chalk.whiteBright.bold(`${prefix}`)}${chalk.redBright(
       `${failedCount} failed`,
     )}, ${chalk.greenBright(`${passedCount} passed`)}, ${totalCount} total`,
   );
@@ -44,7 +44,7 @@ export const createPlugin = (contextOptions?) => {
       if (testResult.data.passed) {
         continue;
       }
-      console.log(chalk.boldBright(titleFromPath(testResult.data.titlePath)));
+      console.log(chalk.whiteBright.bold(titleFromPath(testResult.data.titlePath)));
       console.log(chalk.redBright(testResult.data.stack));
     }
 
@@ -53,7 +53,7 @@ export const createPlugin = (contextOptions?) => {
 
       const fileName = basename(filePath);
       const fileDir = dirname(filePath);
-      const formattedFilePath = join(fileDir, chalk.boldBright(fileName));
+      const formattedFilePath = join(fileDir, chalk.whiteBright.bold(fileName));
       const passed = !suiteResult.some((result) => !result.data.passed);
       if (passed) {
         console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}`);
@@ -77,7 +77,7 @@ export const createPlugin = (contextOptions?) => {
     const failedCount = totalCount - passedCount;
     reportPassFailCounts('Tests:  ', failedCount, passedCount, totalCount);
     console.log(
-      chalk.boldBright('Time:   ') +
+      chalk.whiteBright.bold('Time:   ') +
         chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`),
     );
     //console.log(faults);
