@@ -47,7 +47,7 @@ module.exports = {
       "no-console": "off",
     }
   }, {
-    "files": [ "**/examples/**" ],
+    "files": [ "**/{file-examples,examples,standalone-examples}/**" ],
     "rules": {
       ...commonRules,
       "no-console": "off",

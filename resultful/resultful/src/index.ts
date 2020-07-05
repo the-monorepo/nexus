@@ -4,7 +4,7 @@ export { ResultTypes };
 /**
  * Signifies that something 'worked'. Also known as a "happy path" result.
  */
-export type SuccessResult<P> = {
+export type PayloadResult<P> = {
   type: typeof ResultTypes.SUCCESS;
   payload: P;
   /**
@@ -17,6 +17,9 @@ export type SuccessResult<P> = {
   exception: undefined;
 };
 
+export type SuccessResult<P> = PayloadResult<P>;
+export type NormalResult<P> = PayloadResult<P>;
+
 /**
  * Signifies that some erroneuous (but known/anticipated) behaviour has ocurred.
  * The difference between this and {@exception} is that this form of error is known to be possible of occuring.
@@ -24,7 +27,7 @@ export type SuccessResult<P> = {
 export type ErrorResult<E> = {
   type: typeof ResultTypes.ERROR;
   /**
-   * Only defined for {@link SuccessResult}
+   * Only defined for {@link PayloadResult}
    */
   payload: undefined;
   error: E;
@@ -42,7 +45,7 @@ export type ErrorResult<E> = {
 export type ExceptionResult<T> = {
   type: typeof ResultTypes.EXCEPTION;
   /**
-   * Only defined for {@link SuccessResult}
+   * Only defined for {@link PayloadResult}
    */
   payload: undefined;
   /**
@@ -55,7 +58,7 @@ export type ExceptionResult<T> = {
 export type FailureResult<E, EX = any> = ErrorResult<E> | ExceptionResult<EX>;
 
 export type Result<P, E, EX = any> =
-  | SuccessResult<P>
+  | PayloadResult<P>
   | ErrorResult<E>
   | ExceptionResult<EX>;
 
@@ -81,14 +84,24 @@ export const isError = <R extends TypedObjectSchema>(
 export type Include<Type, Included> = Exclude<Type, Exclude<Type, Included>>;
 
 /**
- * Check if a result is a {@link SuccessResult}.
+ * Check if a result is a {@link PayloadResult}.
  * @param result being checked
  * @return Returning true signifies successful/"happy path" behaviour has occurred.
  */
-export const isSuccess = <R extends TypedObjectSchema>(
+export const isPayload = <R extends TypedObjectSchema>(
   result: R,
 ): result is Include<R, TypeHolder<typeof ResultTypes.SUCCESS>> =>
   result.type === ResultTypes.SUCCESS;
+
+/**
+ * Alias for {@link isPayload}
+ */
+export const isNormal = isPayload;
+
+/**
+ * Alias for {@link isPayload}
+ */
+export const isSuccess = isPayload;
 
 /**
  * Checks if a result is a {@link FailureResult}.
@@ -111,20 +124,30 @@ export const isFailure = <R extends TypedObjectSchema>(
   }
 };
 
-export type CreateSuccessFn = {
-  <P>(payload: P): SuccessResult<P>;
-  (payload?: undefined): SuccessResult<undefined>;
+export type CreatePayloadFn = {
+  <P>(payload: P): PayloadResult<P>;
+  (payload?: undefined): PayloadResult<undefined>;
 };
 /**
- * Use this to create a {@link SuccessResult} which signifies that something successful
+ * Use this to create a {@link PayloadResult} which signifies that something successful
  * has happened and your API has run as expected and has been consumed correctly (AKA the "happy path").
  */
-export const success: CreateSuccessFn = <P>(payload: P): SuccessResult<P> => ({
+export const payload: CreatePayloadFn = <P>(payload: P): PayloadResult<P> => ({
   type: ResultTypes.SUCCESS,
   payload,
   error: undefined,
   exception: undefined,
 });
+
+/**
+ * Alias for {@link payload}
+ */
+export const success = payload;
+
+/**
+ * Alias for {@link payload}
+ */
+export const normal = payload;
 
 export type CreateErrorFn = {
   <E>(error: E): ErrorResult<E>;
@@ -159,18 +182,17 @@ export const exception: CreateExceptionFn = <EX>(exception: EX): ExceptionResult
 };
 
 export type ResultHandler<T, V, R> = (value: V, result: T) => R;
-export type ResultHandlerOption<Key extends string | number | symbol, T, V, R> = Record<Key, ResultHandler<T, V, R>>;
-
-export type SuccessHandler<T, R> = ResultHandler<SuccessResult<T>, T, R>;
-export type ErrorHandler<E, R> = ResultHandler<ErrorResult<E>, E, R>;
-export type ExceptionHandler<EX, R> = ResultHandler<
-  ExceptionResult<EX>,
-  EX,
-  R
+export type ResultHandlerOption<Key extends string | number | symbol, T, V, R> = Record<
+  Key,
+  ResultHandler<T, V, R>
 >;
 
-export type HandleSuccessOptions<P, PR> = {
-  payload: SuccessHandler<P, PR>;
+export type PayloadHandler<T, R> = ResultHandler<PayloadResult<T>, T, R>;
+export type ErrorHandler<E, R> = ResultHandler<ErrorResult<E>, E, R>;
+export type ExceptionHandler<EX, R> = ResultHandler<ExceptionResult<EX>, EX, R>;
+
+export type HandlePayloadOptions<P, PR> = {
+  payload: PayloadHandler<P, PR>;
 };
 
 export type HandleErrorOptions<E, ER> = {
@@ -181,7 +203,7 @@ export type HandleExceptionOptions<EX, EXR> = {
   exception: ExceptionHandler<EX, EXR>;
 };
 
-export type FullHandleOptions<P, E, EX, PR, ER, EXR> = HandleSuccessOptions<P, PR> &
+export type FullHandleOptions<P, E, EX, PR, ER, EXR> = HandlePayloadOptions<P, PR> &
   HandleErrorOptions<E, ER> &
   HandleExceptionOptions<EX, EXR>;
 
@@ -193,18 +215,33 @@ export type OptionIfTypeElseEmpty<
   R extends TypedResultfulSchema,
   ResultType,
   ResultKey extends keyof R,
-  HandlerReturnType,
-> = ResultType extends R['type'] ? ResultHandlerOption<ResultKey, Include<R, TypeHolder<ResultType>>, Include<R, TypeHolder<ResultType>>[ResultKey], HandlerReturnType> : {};
-export type FullOptionsBasedOnResult<R extends TypedResultfulSchema, PR, ER, EXR> =
-  & OptionIfTypeElseEmpty<R, typeof ResultTypes.SUCCESS, 'payload', PR>
-  & OptionIfTypeElseEmpty<R, typeof ResultTypes.ERROR, 'error', ER>
-  & OptionIfTypeElseEmpty<R, typeof ResultTypes.EXCEPTION, 'exception', EXR>;
+  HandlerReturnType
+> = ResultType extends R['type']
+  ? ResultHandlerOption<
+      ResultKey,
+      Include<R, TypeHolder<ResultType>>,
+      Include<R, TypeHolder<ResultType>>[ResultKey],
+      HandlerReturnType
+    >
+  : {};
+export type FullOptionsBasedOnResult<
+  R extends TypedResultfulSchema,
+  PR,
+  ER,
+  EXR
+> = OptionIfTypeElseEmpty<R, typeof ResultTypes.SUCCESS, 'payload', PR> &
+  OptionIfTypeElseEmpty<R, typeof ResultTypes.ERROR, 'error', ER> &
+  OptionIfTypeElseEmpty<R, typeof ResultTypes.EXCEPTION, 'exception', EXR>;
 
-export type OptionsBasedOnResult<R extends TypedResultfulSchema, PR, ER, EXR> = Partial<FullOptionsBasedOnResult<R, PR, ER, EXR>>
+export type OptionsBasedOnResult<R extends TypedResultfulSchema, PR, ER, EXR> = Partial<
+  FullOptionsBasedOnResult<R, PR, ER, EXR>
+>;
 
 type NonUndefined<T> = Exclude<T, undefined>;
 
-export type OptionsSchema = Partial<Record<string | number | symbol, ((...args: any[]) => any)>>;
+export type OptionsSchema = Partial<
+  Record<string | number | symbol, (...args: any[]) => any>
+>;
 export type TypeHolder<T> = { type: T };
 export type TypedObjectSchema = TypeHolder<string>;
 export type TypedResultfulSchema = TypedObjectSchema & { [s: string]: any };
@@ -220,7 +257,7 @@ export type HandledTypedObject<
     : Include<ResultObjectType, TypeHolder<ResultType>>
   : Include<ResultObjectType, TypeHolder<ResultType>>;
 
-export type HandledSuccessResult<
+export type HandledPayloadResult<
   R extends TypedObjectSchema,
   O extends OptionsSchema
 > = HandledTypedObject<R, O, 'payload', typeof ResultTypes.SUCCESS>;
@@ -236,13 +273,17 @@ export type HandledExceptionResult<
 > = HandledTypedObject<R, O, 'exception', typeof ResultTypes.EXCEPTION>;
 
 export type HandledResult<R extends TypedObjectSchema, O extends OptionsSchema> =
-  | HandledSuccessResult<R, O>
+  | HandledPayloadResult<R, O>
   | HandledErrorResult<R, O>
   | HandledExceptionResult<R, O>;
 
 export type CatchlessHandleFn = {
   <R extends TypedResultfulSchema>(result: R, options?: undefined): typeof result;
-  <R extends TypedResultfulSchema, O extends OptionsBasedOnResult<R, any, any, any> & Record<string | number | symbol, unknown>>(
+  <
+    R extends TypedResultfulSchema,
+    O extends OptionsBasedOnResult<R, any, any, any> &
+      Record<string | number | symbol, unknown>
+  >(
     result: R,
     options: O,
   ): HandledResult<typeof result, typeof options>;
@@ -287,7 +328,11 @@ export const catchlessHandle: CatchlessHandleFn = <P, E, EX, PR, ER, EXR>(
 
 export type HandleFn = {
   <R extends TypedResultfulSchema>(result: R, options?: undefined): typeof result;
-  <R extends TypedResultfulSchema, O extends OptionsBasedOnResult<R, any, any, any> & Record<string | number | symbol, unknown>>(
+  <
+    R extends TypedResultfulSchema,
+    O extends OptionsBasedOnResult<R, any, any, any> &
+      Record<string | number | symbol, unknown>
+  >(
     result: R,
     options: O,
   ): HandledResult<typeof result, typeof options>;

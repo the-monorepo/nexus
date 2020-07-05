@@ -70,7 +70,7 @@ describe('resultful', () => {
         error: jest.fn().mockReturnValue(testInfoSet.error.handleValue),
         exception: jest.fn().mockReturnValue(testInfoSet.exception.handleValue),
       };
-      
+
       const value = handle(payload, handlers);
       expect(value).toBe(testInfo.handleValue);
 
