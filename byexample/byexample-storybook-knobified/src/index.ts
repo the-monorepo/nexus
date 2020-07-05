@@ -129,13 +129,11 @@ function knobTypeTests(extractTypeInfoFn) {
 function propKeys(examples, Component = {}) {
   const { propTypes = {}, defaultProps = {} } = Component as any;
 
-  return new Set(
-    [
-      ...Object.keys(propTypes ? propTypes : {}),
-      ...Object.keys(defaultProps ? defaultProps : {}),
-      ...examples.map((example) => Object.keys(example)).flat()
-    ],
-  );
+  return new Set([
+    ...Object.keys(propTypes ? propTypes : {}),
+    ...Object.keys(defaultProps ? defaultProps : {}),
+    ...examples.map((example) => Object.keys(example)).flat(),
+  ]);
 }
 
 function extractKnobInfo(examples, Component = {}) {
@@ -182,10 +180,7 @@ export function knobified(example, typeInfo, options: any = {}) {
   }, {});
 }
 
-export function fromExamples(
-  examples: any | any[],
-  Component?: React.Component,
-) {
+export function fromExamples(examples: any | any[], Component?: React.Component) {
   if (!Array.isArray(examples)) {
     examples = [examples];
   }

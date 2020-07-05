@@ -57,7 +57,10 @@ export type StopWorkerData = {};
 export type StopWorkerResult = Payload<typeof IPC.STOP_WORKER, StopWorkerData>;
 
 export type NoMoreTestsForWorkerData = {};
-export type NoMoreTestsForWorkerResult = Payload<typeof IPC.NO_MORE_TESTS_FOR_WORKER, NoMoreTestsForWorkerData>;
+export type NoMoreTestsForWorkerResult = Payload<
+  typeof IPC.NO_MORE_TESTS_FOR_WORKER,
+  NoMoreTestsForWorkerData
+>;
 
 export type StoppedWorkerData = {
   coverage: Coverage;
@@ -65,13 +68,21 @@ export type StoppedWorkerData = {
 export type StoppedWorkerResult = Payload<typeof IPC.STOPPED_WORKER, StoppedWorkerData>;
 
 export type TestTakingTooLongData = {};
-export type TestTakingTooLongResult = Payload<typeof IPC.TEST_TAKING_TOO_LONG, TestTakingTooLongData>;
+export type TestTakingTooLongResult = Payload<
+  typeof IPC.TEST_TAKING_TOO_LONG,
+  TestTakingTooLongData
+>;
 
 export type WorkingOnTestData = {
   titlePath: string[];
-  file: string;  
+  file: string;
 };
 export type WorkingOnTestResult = Payload<typeof IPC.WORKING_ON_TEST, WorkingOnTestData>;
 
-export type ChildResult = TestResult | FileFinishedResult | StoppedWorkerResult | WorkingOnTestResult | TestTakingTooLongResult;
+export type ChildResult =
+  | TestResult
+  | FileFinishedResult
+  | StoppedWorkerResult
+  | WorkingOnTestResult
+  | TestTakingTooLongResult;
 export type ParentResult = StopWorkerResult | RunTestsPayload;

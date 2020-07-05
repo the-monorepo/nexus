@@ -56,10 +56,7 @@ module.exports = (api) => {
           './faultjs/fault-benchmark/src/frontend',
           './faultjs/fault-benchmark-viewer-components/src',
         ],
-        plugins: plugins.concat([
-          '@babel/plugin-syntax-jsx',
-          'cinder/babel',
-        ]),
+        plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
           [
             '@babel/preset-typescript',

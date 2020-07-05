@@ -18,7 +18,7 @@ import {
   run,
   series as buildplanSeries,
   parallel as buildplanParallel,
-  TASK_INFO
+  TASK_INFO,
 } from '@buildplan/core';
 
 import config from '@monorepo/config';
@@ -46,25 +46,29 @@ const task = (name: string, callback) => {
     wrapped[TASK_INFO] = callback[TASK_INFO];
   }
   return buildplanTask(name, wrapped);
-}
+};
 
 const series = (...tasks) =>
-  buildplanSeries(...tasks.map((aTask) => {
-    const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
-    if (aTask[TASK_INFO] !== undefined) {
-      wrapped[TASK_INFO] = aTask[TASK_INFO];
-    }
-    return wrapped;
-  }));
+  buildplanSeries(
+    ...tasks.map((aTask) => {
+      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
+      if (aTask[TASK_INFO] !== undefined) {
+        wrapped[TASK_INFO] = aTask[TASK_INFO];
+      }
+      return wrapped;
+    }),
+  );
 
 const parallel = (...tasks) =>
-  buildplanParallel(...tasks.map((aTask) => {
-    const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
-    if (aTask[TASK_INFO] !== undefined) {
-      wrapped[TASK_INFO] = aTask[TASK_INFO];
-    }
-    return wrapped;
-  }));
+  buildplanParallel(
+    ...tasks.map((aTask) => {
+      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
+      if (aTask[TASK_INFO] !== undefined) {
+        wrapped[TASK_INFO] = aTask[TASK_INFO];
+      }
+      return wrapped;
+    }),
+  );
 
 const swapSrcWith = (srcPath, newDirName) => {
   // Should look like /packages/<package-name>/src/<rest-of-the-path>
@@ -179,7 +183,7 @@ const copyScript = () => {
 };
 
 const copyEsm = () => {
-  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(255, 200 , 100)('esm'));
+  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(255, 200, 100)('esm'));
   return copyPipes(packagesSrcAssetStream(), l, 'esm');
 };
 
@@ -207,7 +211,12 @@ const transpilePipes = async (stream, babelOptions, dir, chalkFn) => {
 
 const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
-    await transpilePipes(packagesSrcCodeStream(), undefined, 'lib', chalk.rgb(200, 255, 100)),
+    await transpilePipes(
+      packagesSrcCodeStream(),
+      undefined,
+      'lib',
+      chalk.rgb(200, 255, 100),
+    ),
   ).pipe(gulp.dest('.'));
 };
 
@@ -272,9 +281,7 @@ const writeme = async () => {
   await writeReadmeFromPackageDir(__dirname, {
     before: {
       genReadme: async ({ packageDir }) => {
-        l.info(
-          `Generating '${chalk.cyanBright(printFriendlyAbsoluteDir(packageDir))}'`,
-        );
+        l.info(`Generating '${chalk.cyanBright(printFriendlyAbsoluteDir(packageDir))}'`);
       },
     },
     after: {
@@ -305,7 +312,7 @@ const watch = () => {
     { ignoreInitial: false, events: 'all' },
     () => {
       logger.info(`Rerunning ${chalk.cyan('watch')}`);
-      return parallel(copy, transpile)
+      return parallel(copy, transpile);
     },
   );
 };
@@ -446,7 +453,7 @@ const testNoBuild = async () => {
     setupFiles: [
       'source-map-support/register',
       './test/helpers/globals',
-      './buildBabelRegister'
+      './buildBabelRegister',
     ],
     testerOptions: {
       sandbox: true,

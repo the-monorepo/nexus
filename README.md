@@ -23,7 +23,7 @@ Version | Package | Description
 1.6.1 | [`named-css-colors`](misc/named-css-colors/README.md) | Package of named CSS colors and their values
 0.0.8 | [`react-async-state-hook`](misc/react-async-state-hook/README.md) | A React hook for handling async state
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
-0.0.8 | [`resultful`](resultful/resultful/README.md) | Return exceptions, errors and successful results
+0.0.8 | [`resultful`](resultful/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 4.0.1-0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 1.0.0-alpha.6 | [`stream-filter-glob`](misc/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob
 1.0.0-alpha.0 | [`tree-suffix-mapper`](misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
