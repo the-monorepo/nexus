@@ -17,7 +17,7 @@ const reportPassFailCounts = (prefix, failedCount, passedCount, totalCount) => {
 };
 
 const titleFromPath = (path: string[]) => {
-  return path.join(chalk.dimBright(' \u203A '));
+  return path.join(chalk.dim(' \u203A '));
 };
 
 export const groupTestsByFilePath = (testResults: Iterable<TestResult>) => {
