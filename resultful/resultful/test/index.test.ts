@@ -9,20 +9,36 @@ import {
   isException,
   isFailure,
   isSuccess,
+  isPayload,
+  isNormal,
   handle,
+  payload,
+  normal
 } from '../src/index';
 
+const successPayload = {
+  type: ResultTypes.SUCCESS,
+  key: 'payload' as 'payload',
+  value: Symbol('success'),
+  handleValue: Symbol('handled-success'),
+  create: success,
+  isSuccess: true,
+  isError: false,
+  isException: false,
+  isFailure: false,
+};
+
 const testInfoSet = {
-  success: {
-    type: ResultTypes.SUCCESS,
-    key: 'payload' as 'payload',
-    value: Symbol('success'),
-    handleValue: Symbol('handled-success'),
-    create: success,
-    isSuccess: true,
-    isError: false,
-    isException: false,
-    isFailure: false,
+  success: successPayload,
+  payload: {
+    ...successPayload,
+    type: ResultTypes.PAYLOAD,
+    create: payload,
+  },
+  normal: {
+    ...successPayload,
+    type: ResultTypes.NORMAL,
+    create: payload,
   },
   error: {
     type: ResultTypes.ERROR,
@@ -49,6 +65,15 @@ const testInfoSet = {
 };
 
 describe('resultful', () => {
+  it('payload, normal, success are just aliases of one another', () => {
+    expect(success).toBe(payload);
+    expect(success).toBe(normal);
+    expect(ResultTypes.SUCCESS).toBe(ResultTypes.PAYLOAD);
+    expect(ResultTypes.SUCCESS).toBe(ResultTypes.NORMAL);
+    expect(isSuccess).toBe(isPayload);
+    expect(isSuccess).toBe(isNormal);
+  });
+
   for (const [payloadType, testInfo] of Object.entries(testInfoSet)) {
     it(`${payloadType} works`, () => {
       const otherKeys = new Set(['payload', 'exception', 'error']);
