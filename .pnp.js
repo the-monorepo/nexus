@@ -59,6 +59,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/dom-context"
       },
       {
+        "name": "genetic-sequencing-analysis-app",
+        "reference": "workspace:misc/genetic-sequencing-analysis-app"
+      },
+      {
         "name": "hook-schema",
         "reference": "workspace:misc/hook-schema"
       },
@@ -93,10 +97,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@pshaw/fs",
         "reference": "workspace:misc/pshaw-fs"
-      },
-      {
-        "name": "react-async-state-hook",
-        "reference": "workspace:misc/react-async-state-hook"
       },
       {
         "name": "replace-functions",
@@ -3957,6 +3957,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.7.4"
       ],
       [
+        "genetic-sequencing-analysis-app",
+        "workspace:misc/genetic-sequencing-analysis-app"
+      ],
+      [
         "gensync",
         "npm:1.0.0-beta.1"
       ],
@@ -6193,10 +6197,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:16.13.1"
       ],
       [
-        "react-async-state-hook",
-        "workspace:misc/react-async-state-hook"
-      ],
-      [
         "react-clientside-effect",
         "virtual:d033c686da34171436ac49fd87d245dd02b215b4433f30052dac52e1ea96c034e69f9cf9e7a1f2c6dd226ecea61f72a332f06ca08fd16d6ac32b9a599a8125bc#npm:1.2.2"
       ],
@@ -7790,7 +7790,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jest-mock-functions", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/jest-mock-functions"],
             ["json-loader", "npm:0.5.7"],
             ["lint-staged", "npm:10.2.10"],
-            ["micromatch", "npm:4.0.2"],
             ["minimist", "npm:1.2.5"],
             ["mocha", "npm:7.2.0"],
             ["node-fetch", "npm:2.6.0"],
@@ -22989,6 +22988,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["genetic-sequencing-analysis-app", [
+        ["workspace:misc/genetic-sequencing-analysis-app", {
+          "packageLocation": "./misc/genetic-sequencing-analysis-app/",
+          "packageDependencies": [
+            ["genetic-sequencing-analysis-app", "workspace:misc/genetic-sequencing-analysis-app"],
+            ["@types/jest", "npm:24.9.1"],
+            ["jest-mock", "npm:25.5.0"],
+            ["replace-functions", "workspace:misc/replace-functions"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["gensync", [
         ["npm:1.0.0-beta.1", {
           "packageLocation": "./.yarn/cache/gensync-npm-1.0.0-beta.1-0bc9838d39-3d14f7c34f.zip/node_modules/gensync/",
@@ -27763,7 +27774,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jest-mock-functions", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:misc/jest-mock-functions"],
             ["json-loader", "npm:0.5.7"],
             ["lint-staged", "npm:10.2.10"],
-            ["micromatch", "npm:4.0.2"],
             ["minimist", "npm:1.2.5"],
             ["mocha", "npm:7.2.0"],
             ["node-fetch", "npm:2.6.0"],
@@ -30525,18 +30535,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["prop-types", "npm:15.7.2"]
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["react-async-state-hook", [
-        ["workspace:misc/react-async-state-hook", {
-          "packageLocation": "./misc/react-async-state-hook/",
-          "packageDependencies": [
-            ["react-async-state-hook", "workspace:misc/react-async-state-hook"],
-            ["@resultful/types", "workspace:resultful/resultful-types"],
-            ["jest-mock", "npm:26.1.0"],
-            ["resultful", "workspace:resultful/resultful"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["react-clientside-effect", [

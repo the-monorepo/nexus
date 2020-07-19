@@ -12244,6 +12244,18 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"genetic-sequencing-analysis-app@workspace:misc/genetic-sequencing-analysis-app":
+  version: 0.0.0-use.local
+  resolution: "genetic-sequencing-analysis-app@workspace:misc/genetic-sequencing-analysis-app"
+  dependencies:
+    "@types/jest": ^24.0.15
+    jest-mock: ^25.3.0
+    replace-functions: ^4.0.0
+  peerDependencies:
+    jest: ^23.6.0
+  languageName: unknown
+  linkType: soft
+
 "gensync@npm:^1.0.0-beta.1":
   version: 1.0.0-beta.1
   resolution: "gensync@npm:1.0.0-beta.1"
@@ -16560,7 +16572,6 @@ fsevents@^1.2.7:
     jest-mock-functions: "workspace:misc/jest-mock-functions"
     json-loader: ^0.5.7
     lint-staged: ^10.2.10
-    micromatch: ^4.0.2
     minimist: ^1.2.5
     mocha: ^7.2.0
     node-fetch: ^2.6.0
@@ -19034,18 +19045,6 @@ fsevents@^1.2.7:
   checksum: ea2b7f7cee201a67923a2240de594a5d9b59bd312b814b06536d3d609a416dfd6fb9b85ea2abfd3b8a4eb5ed33eaff946ee75a8f2b7fb10941073c5cfee6b7a5
   languageName: node
   linkType: hard
-
-"react-async-state-hook@workspace:misc/react-async-state-hook":
-  version: 0.0.0-use.local
-  resolution: "react-async-state-hook@workspace:misc/react-async-state-hook"
-  dependencies:
-    "@resultful/types": "workspace:resultful/resultful-types"
-    jest-mock: ^26.1.0
-    resultful: "workspace:resultful/resultful"
-  peerDependencies:
-    react: "*"
-  languageName: unknown
-  linkType: soft
 
 "react-clientside-effect@npm:^1.2.2":
   version: 1.2.2

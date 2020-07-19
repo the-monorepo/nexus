@@ -1,5 +1,5 @@
 {
-  "version": "0.0.8",
+  "version": "0.0.11",
   "name": "resultful",
   "description": "A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.",
   "keywords": [
