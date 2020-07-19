@@ -9,7 +9,7 @@ export type { StyleRoot } from '@contextual-documents/suffix-element';
 export { SuffixElement };
 
 abstract class ContextualElement extends SuffixElement {
-  constructor(...args) {
+  constructor(...args: any) {
     super(...args);
   }
 }

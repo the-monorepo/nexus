@@ -3390,7 +3390,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymer/paper-behaviors@npm:^3.0.1":
+"@polymer/paper-behaviors@npm:^3.0.0-pre.27, @polymer/paper-behaviors@npm:^3.0.1":
   version: 3.0.1
   resolution: "@polymer/paper-behaviors@npm:3.0.1"
   dependencies:
@@ -3426,6 +3426,19 @@ __metadata:
     "@polymer/paper-styles": ^3.0.0-pre.26
     "@polymer/polymer": ^3.0.0
   checksum: ddc9737d8a5d2e0440c1dc4f6157bdae9857d8e96c17e9dd6ddaef034b05fc501b2e53956f4e901a942b3dea1e09e6d88513afe9bb480c106fc6c669b5d748ac
+  languageName: node
+  linkType: hard
+
+"@polymer/paper-radio-button@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@polymer/paper-radio-button@npm:3.0.1"
+  dependencies:
+    "@polymer/iron-checked-element-behavior": ^3.0.0-pre.26
+    "@polymer/iron-flex-layout": ^3.0.0-pre.26
+    "@polymer/paper-behaviors": ^3.0.0-pre.27
+    "@polymer/paper-styles": ^3.0.0-pre.26
+    "@polymer/polymer": ^3.0.0
+  checksum: 663f7a9b9ae5275f828bc8154c472aab01225d6d8a292d4e9fcb3cea7bff496b785d17b4a5386c09c8c5af3a89312f99ec63ba377ae9e919baa1d37e30a7133e
   languageName: node
   linkType: hard
 
@@ -12244,10 +12257,11 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"genetic-sequencing-analysis-app@workspace:misc/genetic-sequencing-analysis-app":
+"genetic-sequencing-analysis-app@workspace:misc/genetic-sequence-analysis-app":
   version: 0.0.0-use.local
-  resolution: "genetic-sequencing-analysis-app@workspace:misc/genetic-sequencing-analysis-app"
+  resolution: "genetic-sequencing-analysis-app@workspace:misc/genetic-sequence-analysis-app"
   dependencies:
+    "@polymer/paper-radio-button": ^3.0.1
     "@types/jest": ^24.0.15
     jest-mock: ^25.3.0
     replace-functions: ^4.0.0
@@ -16572,6 +16586,7 @@ fsevents@^1.2.7:
     jest-mock-functions: "workspace:misc/jest-mock-functions"
     json-loader: ^0.5.7
     lint-staged: ^10.2.10
+    micromatch: ^4.0.2
     minimist: ^1.2.5
     mocha: ^7.2.0
     node-fetch: ^2.6.0

@@ -1,7 +1,7 @@
 import { OverrideHierachyElement } from '@contextual-documents/element';
-import { defineCustomElements } from '@contextual-documents/html-elements';
+import * as ElementClassRecord from './elements';
 
-import * as elements from './elements';
-
-defineCustomElements('pshaw', elements);
+for (const [key, ElementClass] of Object.entries(ElementClassRecord)) {
+  customElements.define(`pshaw-${key.toString()}`, ElementClass);  
+}
 window.customElements.define('pshaw-override-hierachy', OverrideHierachyElement);

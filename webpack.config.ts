@@ -212,10 +212,46 @@ const pageBreakerFrontendConfig: Configuration = {
   },
 };
 
+const geneticSequenceAnalysisAppDir = resolve(miscDir, 'genetic-sequence-analysis-app');
+const geneticSequenceAnalysisApp: Configuration = {
+  name: 'genetic-sequence-analysis-app',
+  target: 'web',
+  resolve: {
+    extensions: tsxExtensions,
+  },
+  devtool: 'source-map',
+  module: {
+    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+  },
+  entry: resolve(geneticSequenceAnalysisAppDir, 'src/index.tsx'),
+  output: createDistOutput(pageBreakerDir),
+  plugins: [
+    defaultHtmlWebpackPlugin({
+      title: `Genetic Sequence Analysis`,
+      links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
+    }),
+    new CopyPlugin([
+      {
+        from: resolve(geneticSequenceAnalysisAppDir, 'src/manifest.json'),
+        to: resolve(geneticSequenceAnalysisAppDir, 'dist/manifest.json'),
+      },
+      {
+        from: resolve(geneticSequenceAnalysisAppDir, 'src/icon.png'),
+        to: resolve(geneticSequenceAnalysisAppDir, 'dist/icon.png'),
+      },
+    ]),
+  ],
+  devServer: {
+    port: 3003,
+    compress: true,
+  },
+};
+
 const configs: Configuration[] = [
   resumeConfig,
   faultjsBenchmarkConfig,
   pageBreakerFrontendConfig,
+  geneticSequenceAnalysisApp,
 ];
 
 export default configs;
