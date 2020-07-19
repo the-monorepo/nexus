@@ -1,5 +1,6 @@
 import 'source-map-support/register';
 import { readFile } from 'fs/promises';
+import { readJson } from '@pshaw/fs';
 import { resolve } from 'path';
 
 import { locationToKeyIncludingEnd } from '@fault/addon-mutation-localization';
