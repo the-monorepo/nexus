@@ -1,75 +1,89 @@
-import ContextualElement from '@contextual-documents/element';
-import type { StyleRoot } from '@contextual-documents/element';
+import {
+  HEADER,
+  HEADING_1,
+  HEADING_2,
+  HEADING_3,
+  HEADING_4,
+  HEADING_5,
+  HEADING_6,
+  PARAGRAPH,
+  FOOTER,
+  LABEL,
+  SECTION,
+} from '@contextual-documents/html-symbols';
 
-import * as types from '@contextual-documents/html-symbols';
+import ContextualElement from '@contextual-documents/element';
+
+import type { StyleRoot } from '@contextual-documents/element';
 
 export type { StyleRoot };
 
-export const createElements = (styleRoot: StyleRoot, styles: string) => ({
-  H1: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'h1', types.HEADING_1);
-    }
-  },
-  H2: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'h2', types.HEADING_2);
-    }
-  },
-  H3: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'h3', types.HEADING_3);
-    }
-  },
-  H4: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'h4', types.HEADING_4);
-    }
-  },
-  H5: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'h5', types.HEADING_5);
-    }
-  },
-  H6: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'h6', types.HEADING_6);
-    }
-  },
-  P: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'p', types.PARAGRAPH);
-    }
-  },
-  Header: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'header', types.HEADER);
-    }
-  },
-  Footer: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'footer', types.FOOTER);
-    }
-  },
-  Section: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'section', types.SECTION);
-    }
-  },
-  Label: class extends ContextualElement {
-    constructor() {
-      super(styleRoot, styles, 'label', types.LABEL);
-    }
-  },
-});
+export type HTMLContextualTaggedElement = {
+  constructor(styleRoot: StyleRoot, styles: string);
+} & ContextualElement;
 
-export type HTMLContextualDocumentElements = ReturnType<typeof createElements>;
-
-export const defineCustomElements = (
-  prefix: string,
-  elements: HTMLContextualDocumentElements,
-) => {
-  for (const key of Object.keys(elements)) {
-    window.customElements.define(`${prefix}-${key.toLowerCase()}`, elements[key]);
+export class H1Element extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'h1', HEADING_1);
   }
-};
+}
+
+export class H2Element extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'h2', HEADING_2);
+  }
+}
+
+export class H3Element extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'h3', HEADING_3);
+  }
+}
+
+export class H4Element extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'h4', HEADING_4);
+  }
+}
+
+export class H5Element extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'h5', HEADING_5);
+  }
+}
+
+export class H6Element extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'h6', HEADING_6);
+  }
+}
+
+export class PElement extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'p', PARAGRAPH);
+  }
+}
+
+export class HeaderElement extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'header', HEADER);
+  }
+}
+
+export class FooterElement extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'footer', FOOTER);
+  }
+}
+
+export class SectionElement extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'section', SECTION);
+  }
+}
+
+export class LabelElement extends ContextualElement {
+  constructor(styleRoot: StyleRoot, styles: string) {
+    super(styleRoot, styles, 'label', LABEL);
+  }
+}

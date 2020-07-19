@@ -37,6 +37,7 @@
     "serve:my-resume": "yarn run:buildplan serve --name='my-resume'",
     "serve:fault-benchmark": "yarn run:buildplan serve --name='fault-benchmark'",
     "serve:page-breaker": "yarn run:buildplan serve --name='page-breaker'",
+    "serve:genetic-sequence-analysis-app": "yarn run:buildplan serve --name='genetic-sequence-analysis-app'",
     "precommit": "yarn run:buildplan precommit"
   },
   "keywords": [

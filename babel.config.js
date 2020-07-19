@@ -54,7 +54,8 @@ module.exports = (api) => {
           './misc/resume-template',
           './misc/page-breaker-chrome',
           './faultjs/fault-benchmark/src/frontend',
-          './faultjs/fault-benchmark-viewer-components/src',
+          './faultjs/fault-benchmark-viewer-components',
+          './misc/genetic-sequence-analysis-app',
         ],
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
