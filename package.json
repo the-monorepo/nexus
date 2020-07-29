@@ -38,7 +38,9 @@
     "serve:fault-benchmark": "yarn run:buildplan serve --name='fault-benchmark'",
     "serve:page-breaker": "yarn run:buildplan serve --name='page-breaker'",
     "serve:genetic-sequence-analysis-app": "yarn run:buildplan serve --name='genetic-sequence-analysis-app'",
-    "precommit": "yarn run:buildplan precommit"
+    "precommit": "yarn run:buildplan precommit",
+    "update-yarn": "yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn install && yarn update-pnpify",
+    "update-pnpify": "yarn pnpify --sdk"
   },
   "keywords": [
     "typescript"
@@ -78,7 +80,7 @@
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "@writeme/core": "workspace:writeme/writeme-core",
-    "@yarnpkg/pnpify": "^2.0.0-rc.25",
+    "@yarnpkg/pnpify": "^2.1.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
     "chalk": "^3.0.0",
