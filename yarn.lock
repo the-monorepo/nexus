@@ -11623,6 +11623,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fasta-format-parser@workspace:misc/fasta-format-parser":
+  version: 0.0.0-use.local
+  resolution: "fasta-format-parser@workspace:misc/fasta-format-parser"
+  dependencies:
+    "@polymer/paper-radio-button": ^3.0.1
+    "@types/jest": ^24.0.15
+    jest-mock: ^25.3.0
+    replace-functions: ^4.0.0
+    resultful: "workspace:resultful/resultful"
+  peerDependencies:
+    jest: ^23.6.0
+  languageName: unknown
+  linkType: soft
+
 "fastq@npm:^1.6.0":
   version: 1.8.0
   resolution: "fastq@npm:1.8.0"
@@ -12330,6 +12344,7 @@ fsevents@^1.2.7:
   dependencies:
     "@polymer/paper-radio-button": ^3.0.1
     "@types/jest": ^24.0.15
+    fasta-format-parser: "workspace:misc/fasta-format-parser"
     jest-mock: ^25.3.0
     replace-functions: ^4.0.0
   peerDependencies:
@@ -17174,6 +17189,19 @@ fsevents@^1.2.7:
   checksum: 88a58b8b6289344749102019422705e8e6fa870d55e4bd4c71f860105ea5b8145ae71657f6edd6df953964081f52d65936a3eec4af1d9ee42122e42d293b2abe
   languageName: node
   linkType: hard
+
+"nucleotide-bases@workspace:misc/nucleotide-bases":
+  version: 0.0.0-use.local
+  resolution: "nucleotide-bases@workspace:misc/nucleotide-bases"
+  dependencies:
+    "@polymer/paper-radio-button": ^3.0.1
+    "@types/jest": ^24.0.15
+    jest-mock: ^25.3.0
+    replace-functions: ^4.0.0
+  peerDependencies:
+    jest: ^23.6.0
+  languageName: unknown
+  linkType: soft
 
 "num2fraction@npm:^1.2.2":
   version: 1.2.2

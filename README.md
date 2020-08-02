@@ -21,6 +21,7 @@ Version | Package | Description
 1.0.0-alpha.1 | [`ipc-fifo-processor`](misc/ipc-fifo-processor/README.md) | Makes IPC connections appear FIFO
 4.0.0 | [`jest-mock-functions`](misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.6.1 | [`named-css-colors`](misc/named-css-colors/README.md) | Package of named CSS colors and their values
+1.0.0 | [`nucleotide-bases`](misc/nucleotide-bases/README.md) | A helper package for nucleotide bases
 4.0.0 | [`replace-functions`](misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 0.0.11 | [`resultful`](resultful/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 4.0.1-0 | [`sinon-stub-functions`](misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon

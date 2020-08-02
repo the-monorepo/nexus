@@ -277,7 +277,7 @@ export type HandledResult<R extends TypedObjectSchema, O extends OptionsSchema> 
   | HandledErrorResult<R, O>
   | HandledExceptionResult<R, O>;
 
-export type CatchlessHandleFn = {
+export type TransformFn = {
   <R extends TypedResultfulSchema>(result: R, options?: undefined): typeof result;
   <
     R extends TypedResultfulSchema,
@@ -293,7 +293,7 @@ export type CatchlessHandleFn = {
  * This is exactly the same as {@link handle} except there is no try { ... } catch { ... } wrapper around the handlers.
  * This may improve performance but removes the guarentee that nothing will ever be thrown by the handle function.
  */
-export const catchlessHandle: CatchlessHandleFn = <P, E, EX, PR, ER, EXR>(
+export const transform: TransformFn = <P, E, EX, PR, ER, EXR>(
   result: Result<P, E, EX>,
   handlers: HandleOptions<P, E, EX, PR, ER, EXR> = {},
 ) => {
@@ -335,7 +335,7 @@ export type HandleFn = {
   >(
     result: R,
     options: O,
-  ): HandledResult<typeof result, typeof options>;
+  ): HandledResult<typeof result, typeof options> | ExceptionResult<unknown>;
 };
 
 /**
@@ -344,13 +344,23 @@ export type HandleFn = {
  * @param handlers Callbacks that are used
  * @return Returns whatever is returned by the applicable handler. If no handler for the result exists, the orignal result is returned. Note that if something is thrown by one of the handlers, it is caught by this function and the value of what is caught is returned as via {@link exception}.
  */
-export const handle: HandleFn = <P, E, EX, PR, ER, EXR>(
+export const handle: HandleFn = <P = never, E = never, EX = never, PR = never, ER = never, EXR = never>(
   result: Result<P, E, EX>,
   handlers: HandleOptions<P, E, EX, PR, ER, EXR> = {},
 ) => {
   try {
-    return catchlessHandle(result, handlers);
+    return transform(result, handlers);
   } catch (err) {
     return exception(err);
   }
+};
+
+export type ValueOf<R extends TypedResultfulSchema> = R extends SuccessResult<infer P> ? P : R extends ErrorResult<infer E> ? E : R extends ExceptionResult<infer EX> ? EX : never;
+export type ValueOfFn = <R extends Result<any, any, any>>(result: R) => ValueOf<R>;
+export const valueOf: ValueOfFn = <P, E, EX>(result: Result<P, E, EX>): P | E | EX => {
+  return transform(result, {
+    payload: (payload) => payload,
+    error: (error) => error,
+    exception: (exception) => exception, 
+  });
 };

@@ -59,6 +59,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:misc/dom-context"
       },
       {
+        "name": "fasta-format-parser",
+        "reference": "workspace:misc/fasta-format-parser"
+      },
+      {
         "name": "genetic-sequencing-analysis-app",
         "reference": "workspace:misc/genetic-sequence-analysis-app"
       },
@@ -89,6 +93,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "named-css-colors",
         "reference": "workspace:misc/named-css-colors"
+      },
+      {
+        "name": "nucleotide-bases",
+        "reference": "workspace:misc/nucleotide-bases"
       },
       {
         "name": "@pshaw/page-breaker-chrome",
@@ -3757,6 +3765,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.0.6"
       ],
       [
+        "fasta-format-parser",
+        "virtual:71145a9a465ba27bbb9b1f81c4e6ee2c55a4975273384d1a20b0c3ff369f5889c28bc66b8b6a906cd56d42bc82a3004532d4538c227aa6e49c1811f3743fdddf#workspace:misc/fasta-format-parser"
+      ],
+      [
         "fastq",
         "npm:1.8.0"
       ],
@@ -5511,6 +5523,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "nth-check",
         "npm:1.0.2"
+      ],
+      [
+        "nucleotide-bases",
+        "workspace:misc/nucleotide-bases"
       ],
       [
         "num2fraction",
@@ -22259,6 +22275,36 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["fasta-format-parser", [
+        ["virtual:71145a9a465ba27bbb9b1f81c4e6ee2c55a4975273384d1a20b0c3ff369f5889c28bc66b8b6a906cd56d42bc82a3004532d4538c227aa6e49c1811f3743fdddf#workspace:misc/fasta-format-parser", {
+          "packageLocation": "./.yarn/$$virtual/fasta-format-parser-virtual-9744d5b3ec/1/misc/fasta-format-parser/",
+          "packageDependencies": [
+            ["fasta-format-parser", "virtual:71145a9a465ba27bbb9b1f81c4e6ee2c55a4975273384d1a20b0c3ff369f5889c28bc66b8b6a906cd56d42bc82a3004532d4538c227aa6e49c1811f3743fdddf#workspace:misc/fasta-format-parser"],
+            ["@polymer/paper-radio-button", "npm:3.0.1"],
+            ["@types/jest", "npm:24.9.1"],
+            ["jest", null],
+            ["jest-mock", "npm:25.5.0"],
+            ["replace-functions", "workspace:misc/replace-functions"],
+            ["resultful", "workspace:resultful/resultful"]
+          ],
+          "packagePeers": [
+            "jest"
+          ],
+          "linkType": "SOFT",
+        }],
+        ["workspace:misc/fasta-format-parser", {
+          "packageLocation": "./misc/fasta-format-parser/",
+          "packageDependencies": [
+            ["fasta-format-parser", "workspace:misc/fasta-format-parser"],
+            ["@polymer/paper-radio-button", "npm:3.0.1"],
+            ["@types/jest", "npm:24.9.1"],
+            ["jest-mock", "npm:25.5.0"],
+            ["replace-functions", "workspace:misc/replace-functions"],
+            ["resultful", "workspace:resultful/resultful"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["fastq", [
         ["npm:1.8.0", {
           "packageLocation": "./.yarn/cache/fastq-npm-1.8.0-4c0923de4a-77d71545ba.zip/node_modules/fastq/",
@@ -23008,6 +23054,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["genetic-sequencing-analysis-app", "workspace:misc/genetic-sequence-analysis-app"],
             ["@polymer/paper-radio-button", "npm:3.0.1"],
             ["@types/jest", "npm:24.9.1"],
+            ["fasta-format-parser", "virtual:71145a9a465ba27bbb9b1f81c4e6ee2c55a4975273384d1a20b0c3ff369f5889c28bc66b8b6a906cd56d42bc82a3004532d4538c227aa6e49c1811f3743fdddf#workspace:misc/fasta-format-parser"],
             ["jest-mock", "npm:25.5.0"],
             ["replace-functions", "workspace:misc/replace-functions"]
           ],
@@ -28354,6 +28401,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["boolbase", "npm:1.0.0"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["nucleotide-bases", [
+        ["workspace:misc/nucleotide-bases", {
+          "packageLocation": "./misc/nucleotide-bases/",
+          "packageDependencies": [
+            ["nucleotide-bases", "workspace:misc/nucleotide-bases"],
+            ["@polymer/paper-radio-button", "npm:3.0.1"],
+            ["@types/jest", "npm:24.9.1"],
+            ["jest-mock", "npm:25.5.0"],
+            ["replace-functions", "workspace:misc/replace-functions"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["num2fraction", [

@@ -1,8 +1,8 @@
 {
-  "name": "genetic-sequencing-analysis-app",
+  "name": "fasta-format-parser",
   "private": true,
-  "description": "A few tools that might help with analysis for (very specific) genetic sequences in apps",
-  "version": "1.0.0",
+  "description": "A FASTA format parser",
+  "version": "1.0.0-alpha",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./lib/index.js",
@@ -16,13 +16,12 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
-    "directory": "misc/genetic-sequencing-analysis-app"
+    "directory": "misc/fasta-format-parser"
   },
   "keywords": [
     "FASTA",
     "genetics",
-    "typescript",
-    "app"
+    "typescript"
   ],
   "peerDependencies": {
     "jest": "^23.6.0"
@@ -30,8 +29,8 @@
   "dependencies": {
     "@polymer/paper-radio-button": "^3.0.1",
     "@types/jest": "^24.0.15",
-    "fasta-format-parser": "workspace:misc/fasta-format-parser",
-    "replace-functions": "^4.0.0"
+    "replace-functions": "^4.0.0",
+    "resultful": "workspace:resultful/resultful"
   },
   "devDependencies": {
     "@types/jest": "^24.0.15",
