@@ -6,21 +6,19 @@ mock.enable();
 mock('fs/promises').with({
   readFile: async () => 'test',
 });
-mock('js-yaml').with({
-  safeLoad: stub().returns({
-    TypeScript: {
-      type: 'programming',
-      color: '#2b7489',
-      aliases: ['ts'],
-      interpreters: ['node'],
-      extensions: ['.ts', '.tsx'],
-      tm_scope: 'source.ts',
-      ace_mode: 'typescript',
-      codemirror_mode: 'javascript',
-      codemirror_mime_type: 'application/typescript',
-      language_id: 378,
-    },
-  }),
+mock('./languages').with({
+  TypeScript: {
+    type: 'programming',
+    color: '#2b7489',
+    aliases: ['ts'],
+    interpreters: ['node'],
+    extensions: ['.ts', '.tsx'],
+    tm_scope: 'source.ts',
+    ace_mode: 'typescript',
+    codemirror_mode: 'javascript',
+    codemirror_mime_type: 'application/typescript',
+    language_id: 378,
+  },
 });
 const { readCodeBlock } = require('../../src');
 mock.disable();

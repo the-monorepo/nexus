@@ -13044,7 +13044,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/logger/",
           "packageDependencies": [
             ["@pshaw/logger", "workspace:misc/logger"],
-            ["date-fns", "npm:2.14.0"],
             ["jest-mock", "npm:26.0.1"],
             ["mockdate", "npm:2.0.5"]
           ],
@@ -13056,7 +13055,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./misc/markdown-util/",
           "packageDependencies": [
             ["@pshaw/markdown-util", "workspace:misc/markdown-util"],
-            ["js-yaml", "npm:3.13.1"],
             ["rewiremock", "npm:3.14.1"],
             ["sinon", "npm:9.0.2"]
           ],
@@ -20530,13 +20528,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/date-fns-npm-2.13.0-b1b77913e4-5b2799f592.zip/node_modules/date-fns/",
           "packageDependencies": [
             ["date-fns", "npm:2.13.0"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:2.14.0", {
-          "packageLocation": "./.yarn/cache/date-fns-npm-2.14.0-dd7ec830f5-93fcb999dc.zip/node_modules/date-fns/",
-          "packageDependencies": [
-            ["date-fns", "npm:2.14.0"]
           ],
           "linkType": "HARD",
         }]

@@ -13,12 +13,6 @@ class MockedWriteable extends Writable {
   }
 }
 
-// Set timezone to const value then adjust for timezone
-MockDate.set('2018-05-03T13:34:56z');
-const tempdate = new Date();
-const adjustedTime = tempdate.getTime() + tempdate.getTimezoneOffset() * 60 * 1000;
-MockDate.set(adjustedTime);
-
 const levelName = 'info';
 function formatTester({ timestamp = '' }: any = {}) {
   return (expectedString) => {
@@ -74,8 +68,14 @@ Object.keys(loggers).forEach((loggerName) => {
             },
             customOptions,
           );
-
+          // Set timezone to const value then adjust for timezone
+          MockDate.set('2018-05-03T13:34:56z');
+          const tempdate = new Date();
+          const adjustedTime = tempdate.getTime() + tempdate.getTimezoneOffset() * 60 * 1000;
+          MockDate.set(adjustedTime);
           (log[levelName] as any)(...testCase.input);
+          // TODO: Need to provide better isolation in FaultJS to avoid doing this
+          MockDate.reset();
           expect(stubbedStdout.mockedWrite).toHaveBeenCalledTimes(1);
           // Trimming to ignore inconsistencies with \rs
           const printedMessage = (stubbedStdout.mockedWrite.mock.calls[0][0] as any)
