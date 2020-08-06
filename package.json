@@ -134,8 +134,5 @@
     "hooks": {
       "pre-commit": "yarn precommit && git add ."
     }
-  },
-  "dependencies": {
-    "@pipelines/core": "workspace:pipelines/pipelines-core"
   }
 }
