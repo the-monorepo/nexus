@@ -1,5 +1,7 @@
 const { resolve } = require('path');
 
+const arrayToBracedString = (array) => `{${array.join(',')}}`;
+
 const getConfig = () => {
   const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config');
   const {
@@ -12,22 +14,18 @@ const getConfig = () => {
     serve = {},
     extra = {},
   } = require(monorepoConfigPath);
+  const concatenatedWorkspaces = arrayToBracedString(workspaces);
 
-  const compiledCodeExtensionsGlob = `{${codeExtensions.join(',')}}`;
+  const concatenatedCodeExtensionsGlob = arrayToBracedString(codeExtensions);
 
   const defaultArtifactDirNames = ['esm', 'lib', 'dist'];
+  const concatenatedDefaultArtifactDirNames = arrayToBracedString(defaultArtifactDirNames);
 
   const buildableIgnoreGlobs = extraBuildIgnoreGlobs;
 
   const defaultProjectArtifactsGlobs = [
-    ...workspaces
-      .map((packageGlob) =>
-        defaultArtifactDirNames.map(
-          (artifactDirName) => `${packageGlob}/${artifactDirName}/**`,
-        ),
-      )
-      .flat(),
-    ...workspaces.map((packageGlob) => `${packageGlob}/README.md`),
+    `${concatenatedWorkspaces}/${concatenatedDefaultArtifactDirNames}/**`,
+    `${concatenatedWorkspaces}/README.md`,
   ];
 
   const buildArtifactGlobs = [
@@ -35,14 +33,12 @@ const getConfig = () => {
     ...defaultProjectArtifactsGlobs,
   ];
 
-  const allCodeGlobs = `**/*.${compiledCodeExtensionsGlob}`;
+  const allCodeGlobs = `**/*.${concatenatedCodeExtensionsGlob}`;
 
-  const nonIgnoredSourceFileGlobs = workspaces.map(
-    (packageGlobs) => `${packageGlobs}/src/**/*`,
-  );
+  const nonIgnoredSourceFileGlobs = [`${concatenatedWorkspaces}/src/**/*`];
 
   const nonIgnoredSourceCodeGlobs = nonIgnoredSourceFileGlobs
-    .map((glob) => `${glob}.${compiledCodeExtensionsGlob}`)
+    .map((glob) => `${glob}.${concatenatedCodeExtensionsGlob}`)
     .flat();
 
   const buildableSourceCodeGlobs = [...nonIgnoredSourceCodeGlobs];
@@ -60,13 +56,11 @@ const getConfig = () => {
 
   const testableIgnoreGlobs = [...buildArtifactGlobs, ...extraTestIgnoreGlobs];
 
-  const testDirGlobs = ['test', ...workspaces.map((project) => [`${project}/test`])];
+  const testDirGlobs = ['test', `${concatenatedWorkspaces}/test`];
 
   const testableGlobs = [
-    `test/**/*.test.${compiledCodeExtensionsGlob}`,
-    ...workspaces
-      .map((project) => `${project}/**/*.test.${compiledCodeExtensionsGlob}`)
-      .flat(),
+    `test/**/*.test.${concatenatedCodeExtensionsGlob}`,
+    `${concatenatedWorkspaces}/**/*.test.${concatenatedCodeExtensionsGlob}`
   ];
 
   return {
