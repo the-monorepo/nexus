@@ -5,7 +5,7 @@ import chalk from 'chalk';
 
 type DateFormatter = (date: Date) => string;
 export type CustomOptions = {
-  formatTime: DateFormatter | null;
+  formatTimestamp: DateFormatter | null;
   tags: string[];
   level: string;
   defaultLevel: string;
@@ -19,7 +19,7 @@ export const overrideUtilInspectStyle = () => {
   (util.inspect.styles as any).name = 'yellow';
 };
 
-export const defaultTimeFormatter = (date: Date) => {
+export const defaultFormatTimestamp = (date: Date) => {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
 };
 
@@ -49,8 +49,8 @@ const createConsoleArgs = (
   const useColors = options.colorMode !== false;
 
   const extraArgs: any[] = [];
-  if (customOptions.formatTime !== null) {
-    const timestamp = customOptions.formatTime(new Date);
+  if (customOptions.formatTimestamp !== null) {
+    const timestamp = customOptions.formatTimestamp(new Date);
     extraArgs.push(useColors ? chalk.grey(timestamp) : timestamp);
   }
 
@@ -98,7 +98,7 @@ class CustomConsole extends Console {
       ...other
     } = {},
     {
-      formatTime = defaultTimeFormatter,
+      formatTimestamp = defaultFormatTimestamp,
       tags = [],
       level = 'info',
       defaultLevel = 'info',
@@ -117,7 +117,7 @@ class CustomConsole extends Console {
       ...other,
     };
     this.options = options;
-    this.customOptions = { formatTime, tags, level, defaultLevel };
+    this.customOptions = { formatTimestamp, tags, level, defaultLevel };
   }
 
   child(...subTags: string[]) {
