@@ -13,6 +13,8 @@ const getConfig = () => {
     extra = {},
   } = require(monorepoConfigPath);
 
+  const compiledCodeExtensionsGlob = `{${codeExtensions.join(',')}}`;
+
   const defaultArtifactDirNames = ['esm', 'lib', 'dist'];
 
   const buildableIgnoreGlobs = extraBuildIgnoreGlobs;
@@ -33,14 +35,14 @@ const getConfig = () => {
     ...defaultProjectArtifactsGlobs,
   ];
 
-  const allCodeGlobs = codeExtensions.map((extension) => `**/*.${extension}`);
+  const allCodeGlobs = `**/*.${compiledCodeExtensionsGlob}`;
 
   const nonIgnoredSourceFileGlobs = workspaces.map(
     (packageGlobs) => `${packageGlobs}/src/**/*`,
   );
 
   const nonIgnoredSourceCodeGlobs = nonIgnoredSourceFileGlobs
-    .map((glob) => codeExtensions.map((extension) => `${glob}.${extension}`))
+    .map((glob) => `${glob}.${compiledCodeExtensionsGlob}`)
     .flat();
 
   const buildableSourceCodeGlobs = [...nonIgnoredSourceCodeGlobs];
@@ -61,11 +63,9 @@ const getConfig = () => {
   const testDirGlobs = ['test', ...workspaces.map((project) => [`${project}/test`])];
 
   const testableGlobs = [
-    ...codeExtensions.map((extension) => `test/**/*.test.${extension}`),
+    `test/**/*.test.${compiledCodeExtensionsGlob}`,
     ...workspaces
-      .map((project) =>
-        codeExtensions.map((extension) => `${project}/**/*.test.${extension}`),
-      )
+      .map((project) => `${project}/**/*.test.${compiledCodeExtensionsGlob}`)
       .flat(),
   ];
 
