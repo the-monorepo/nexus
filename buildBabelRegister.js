@@ -9,7 +9,7 @@ const config = require('@monorepo/config');
 const transpilationGlobs = [
   'webpack.config.ts',
   'buildplan.ts',
-  '.yarn/$$virtual/**/*',
+  '.yarn/$$virtual/*/src/**/*',
   'original-code-require-override.ts',
   ...config.testDirGlobs.map((dir) => `${dir}/**/*`),
   ...config.buildableSourceCodeGlobs,
