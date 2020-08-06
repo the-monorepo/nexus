@@ -1,35 +1,23 @@
 import { readFile } from 'fs/promises';
-import { extname, join } from 'path';
+import { extname } from 'path';
 
-import { safeLoad } from 'js-yaml';
+import languagesObject from './languages';
 /**
  * Map from extensions to language info
  */
-let extMap = () => {
-  const readLanguages = async () => {
-    const languagesContents = await readFile(join(__dirname, 'languages.yml'));
-    const languagesObject = safeLoad(languagesContents);
-    // Create a map from an extension to an ace_mode
-    return Object.keys(languagesObject).reduce((map, key) => {
-      const language = languagesObject[key];
-      if (language.extensions) {
-        for (const ext of language.extensions) {
-          if (!map.has(ext)) {
-            map.set(ext, language);
-          }
-        }
+const extMap = new Map();
+for(const language of Object.values(languagesObject)) {
+  if (language.extensions !== undefined) {
+    for (const ext of language.extensions) {
+      if (!extMap.has(ext)) {
+        extMap.set(ext, language);
       }
-      return map;
-    }, new Map());
-  };
-  const languagesPromise = readLanguages();
-  extMap = () => languagesPromise;
-  return languagesPromise;
-};
+    }
+  }
+}
 
 async function extToCodeBlockTag(ext: string) {
-  const map = await extMap();
-  const languageInfo = map.get(ext);
+  const languageInfo = extMap.get(ext);
   const tag = languageInfo ? languageInfo.ace_mode : null;
   return tag ? tag : '';
 }
