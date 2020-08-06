@@ -32,14 +32,14 @@ const loggers = {
     },
     customOptions: {
       level: 'debug',
-      timestampFormat: null,
+      formatTimestamp: null,
     },
   },
   'console-with-full-timestamp': {
     customOptions: {
-      timestampFormat: 'yyyy-MM-dd HH:mm:ss',
+      formatTimestamp: () => 'test',
     },
-    formatExpected: formatTester({ timestamp: '2018-05-03 13:34:56 ' }),
+    formatExpected: formatTester({ timestamp: 'test ' }),
   },
   'console-default/double-tagged': {
     customOptions: {
