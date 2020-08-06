@@ -2,10 +2,10 @@ import { Console } from 'console';
 import util from 'util';
 
 import chalk from 'chalk';
-import * as dateFns from 'date-fns';
 
+type DateFormatter = (date: Date) => string;
 export type CustomOptions = {
-  timestampFormat: string | null;
+  formatTime: DateFormatter | null;
   tags: string[];
   level: string;
   defaultLevel: string;
@@ -19,13 +19,13 @@ export const overrideUtilInspectStyle = () => {
   (util.inspect.styles as any).name = 'yellow';
 };
 
+export const defaultTimeFormatter = (date: Date) => {
+  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+};
+
 const createLevelAlignmentPadding = (levelTag: string) => {
   const messageIndentation = 9;
   return ' '.repeat(messageIndentation - levelTag.length);
-};
-
-const createTimestamp = (timestampFormat) => {
-  return dateFns.format(new Date(), timestampFormat);
 };
 
 const preformatArgs = (args: any, useColors: boolean) =>
@@ -49,9 +49,9 @@ const createConsoleArgs = (
   const useColors = options.colorMode !== false;
 
   const extraArgs: any[] = [];
-  if (customOptions.timestampFormat !== null) {
-    const timestamp = createTimestamp(customOptions.timestampFormat);
-    extraArgs.push(useColors ? chalk.gray(timestamp) : timestamp);
+  if (customOptions.formatTime !== null) {
+    const timestamp = customOptions.formatTime(new Date);
+    extraArgs.push(useColors ? chalk.grey(timestamp) : timestamp);
   }
 
   const padding = createLevelAlignmentPadding(level);
@@ -98,7 +98,7 @@ class CustomConsole extends Console {
       ...other
     } = {},
     {
-      timestampFormat = 'HH:mm:ss',
+      formatTime = defaultTimeFormatter,
       tags = [],
       level = 'info',
       defaultLevel = 'info',
@@ -117,7 +117,7 @@ class CustomConsole extends Console {
       ...other,
     };
     this.options = options;
-    this.customOptions = { timestampFormat, tags, level, defaultLevel };
+    this.customOptions = { formatTime, tags, level, defaultLevel };
   }
 
   child(...subTags: string[]) {

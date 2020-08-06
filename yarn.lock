@@ -3771,7 +3771,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/logger@workspace:misc/logger"
   dependencies:
-    date-fns: ^2.14.0
     jest-mock: ^26.0.1
     mockdate: ^2.0.2
   languageName: unknown
@@ -3781,7 +3780,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pshaw/markdown-util@workspace:misc/markdown-util"
   dependencies:
-    js-yaml: ^3.12.1
     rewiremock: ^3.13.9
     sinon: ^9.0.2
   languageName: unknown
@@ -10066,13 +10064,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^2.14.0":
-  version: 2.14.0
-  resolution: "date-fns@npm:2.14.0"
-  checksum: 93fcb999dcad1dced7c7e658f6769032783760b3989f0035186d7134858a21faeb242c31c250db66037de312007c3a562b501b9880fc707421149070a4785bcd
-  languageName: node
-  linkType: hard
-
 "debug-fabulous@npm:1.X":
   version: 1.1.0
   resolution: "debug-fabulous@npm:1.1.0"
@@ -15024,7 +15015,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.13.1, js-yaml@npm:^3.10.0, js-yaml@npm:^3.12.0, js-yaml@npm:^3.12.1, js-yaml@npm:^3.13.1":
+"js-yaml@npm:3.13.1, js-yaml@npm:^3.10.0, js-yaml@npm:^3.12.0, js-yaml@npm:^3.13.1":
   version: 3.13.1
   resolution: "js-yaml@npm:3.13.1"
   dependencies:
