@@ -12,7 +12,7 @@ const arrayToBracedString = (array) => {
 };
 
 const getConfig = () => {
-  const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config');
+  const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config.cjs');
   const {
     codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'],
     workspaces = [],
@@ -42,7 +42,7 @@ const getConfig = () => {
     ...defaultProjectArtifactsGlobs,
   ];
 
-  const allCodeGlobs = `**/*.${concatenatedCodeExtensions}`;
+  const allCodeGlobs = [`**/*.${concatenatedCodeExtensions}`];
 
   const nonIgnoredSourceFileGlobs = [`${concatenatedWorkspaces}/src/**/*`];
 
