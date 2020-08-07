@@ -1,9 +1,9 @@
 const config = require('@monorepo/config');
 
 module.exports = (api) => {
-  const usingCommonjs = api.env(['production', 'test', 'development']);
-  const production = api.env(['production', 'production-esm']);
-  const test = api.env(['test', 'test-esm']);
+  const usingCommonjs = api.env(['production-commonjs', 'test-commonjs', 'development-commonjs']);
+  const production = api.env(['production', 'production-commonjs']);
+  const test = api.env(['test', 'test-commonjs']);
 
   const classPropertyPlugin = [
     '@babel/plugin-proposal-class-properties',
