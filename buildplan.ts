@@ -215,7 +215,9 @@ const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
     await transpilePipes(
       packagesSrcCodeStream(),
-      undefined,
+      {
+        envName: `${process.env.NODE_ENV}-commonjs` ?? 'development-commonjs',
+      },
       'lib',
       chalk.rgb(200, 255, 100),
     ),
@@ -227,7 +229,7 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
     await transpilePipes(
       packagesSrcCodeStream(),
       {
-        envName: `${process.env.NODE_ENV ?? 'development'}-esm`,
+        envName: process.env.NODE_ENV ?? 'development',
       },
       'esm',
       chalk.rgb(255, 200, 100),
