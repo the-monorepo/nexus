@@ -10,31 +10,31 @@ const faultJsBenchmarkerProjectGlobs = [
   './faultjs/fault-benchmark/{disabled-projects,projects}/**',
 ];
 
-module.exports.extra = {
+export const extra = {
   flMode: 'sbfl',
 };
 
-module.exports.codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
+export const codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
 
-module.exports.workspaces = require('./package.json').workspaces;
+export const workspaces = require('./package.json').workspaces;
 
-module.exports.extraBuildIgnoreGlobs = ['./build-packages/**', ...dependencyGlobs];
+export const extraBuildIgnoreGlobs = ['./build-packages/**', ...dependencyGlobs];
 
-module.exports.extraFormatIgnoreGlobs = [
+export const extraFormatIgnoreGlobs = [
   ...dependencyGlobs,
   ...faultJsBenchmarkerProjectGlobs,
   './pnp.js',
   './pnp.cjs',
 ];
 
-module.exports.extraBuildArtifactGlobs = ['./coverage/**'];
+export const extraBuildArtifactGlobs = ['./coverage/**'];
 
-module.exports.extraTestIgnoreGlobs = [
+export const extraTestIgnoreGlobs = [
   ...dependencyGlobs,
   ...faultJsBenchmarkerProjectGlobs,
 ];
 
-module.exports.serve = {
+export const serve = {
   servers: {
     servers: [
       {
