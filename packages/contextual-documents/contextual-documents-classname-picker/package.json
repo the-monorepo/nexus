@@ -1,0 +1,27 @@
+{
+  "name": "@contextual-documents/classname-picker",
+  "version": "1.0.0-alpha.0",
+  "description": "TODO",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "contextual-documents/contextual-documents-classname-picker"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.js",
+  "module": "./esm/index.js",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@contextual-documents/matcher-info": "workspace:packages/contextual-documents/contextual-documents-matcher-info",
+    "tree-suffix-mapper": "workspace:packages/misc/tree-suffix-mapper"
+  }
+}
