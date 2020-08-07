@@ -1,10 +1,9 @@
 const config = require('@monorepo/config');
 
 module.exports = (api) => {
-  const env = api.env();
-  const esm = env === 'esm';
-  const production = env === 'production' || env === 'esm';
-  const test = env === 'test';
+  const esm = api.env('esm');
+  const production = api.env(['production', 'esm']);
+  const test = api.env('test');
 
   const classPropertyPlugin = [
     '@babel/plugin-proposal-class-properties',
