@@ -12,7 +12,7 @@ const arrayToBracedString = (array) => {
 };
 
 const getConfig = () => {
-  const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config.cjs');
+  const monorepoConfigPath = resolve(process.cwd(), 'monorepo.config');
   const {
     codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'],
     workspaces = [],
