@@ -2,17 +2,19 @@
 const { relative } = require('path');
 
 const register = require('@babel/register');
-const { some } = require('micromatch');
+const { matcher } = require('micromatch');
 
 const config = require('@monorepo/config');
 
 const transpilationGlobs = [
   ...config.buildableSourceCodeGlobs,
   '.yarn/$$virtual/*/src/**/*',
-  ...config.testDirGlobs.map((dir) => `${dir}/**/*`),
+  ...config.testCodeGlobs,
 ];
 
 const transpilationIgnoreGlobs = config.buildableIgnoreGlobs;
+
+const matchers = [...transpilationIgnoreGlobs, ...transpilationGlobs].map(matcher);
 
 register({
   extensions: config.codeExtensions.map((extension) => `.${extension}`),
@@ -25,7 +27,7 @@ register({
         case 'buildplan.ts':
           return true;
         default: {
-          return some(relativePath, transpilationGlobs, { ignore: transpilationIgnoreGlobs });    
+          return matchers.some(isMatch => isMatch(relativePath));
         }
       }
     },
