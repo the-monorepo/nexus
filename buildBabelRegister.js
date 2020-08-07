@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { relative } = require('path');
+import { relative } from 'path';
 
-const register = require('@babel/register');
-const { matcher } = require('micromatch');
+import register from '@babel/register';
+import { matcher } from 'micromatch';
 
-const config = require('@monorepo/config');
+import config from '@monorepo/config';
 
 const transpilationGlobs = [
   ...config.buildableSourceCodeGlobs,
