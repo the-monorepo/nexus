@@ -3,43 +3,43 @@ module.exports = {
     overrides: [
       {
         category: 'Cinder',
-        test: './cinder/*/',
+        test: './packages/cinder/*/',
       },
       {
         category: 'Build tooling',
-        test: ['./{pipelines,buildplan}/*', './misc/{stream}'],
+        test: ['./packages/{pipelines,buildplan}/*', './misc/stream-*/*'],
       },
       {
         category: 'Contextual documents',
-        test: './contextual-documents/*',
+        test: './packages/contextual-documents/*',
       },
       {
         category: 'By Example',
-        test: './byexample/*',
+        test: './packages/byexample/*',
       },
       {
         category: 'Documentation',
-        test: './{build-packages,misc,faultjs}/{writeme-*,markdown-util}',
+        test: './packages/{build-packages,misc,writeme}/{writeme-*,markdown-util}',
       },
       {
         category: 'Logging',
-        test: './{build-packages,misc,faultjs}/{winston-formats,logger}',
+        test: './packages/{build-packages,misc}/{winston-formats,logger}',
       },
       {
         category: 'ESLint',
-        test: './patrick-shaw/eslint-*',
+        test: './packages/patrick-shaw/eslint-*',
       },
       {
         category: 'TSLint',
-        test: './patrick-shaw/tslint-*',
+        test: './packages/patrick-shaw/tslint-*',
       },
       {
         category: 'FaultJS',
-        test: ['./faultjs/fault-*'],
+        test: './packages/faultjs/*',
       },
       {
         category: 'Personal (Patrick Shaw)',
-        test: ['./patrick-shaw/*'],
+        test: './packages/patrick-shaw/*',
       },
     ],
   },

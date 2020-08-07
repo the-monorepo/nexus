@@ -1,0 +1,24 @@
+{
+  "name": "@pshaw/my-resume",
+  "version": "1.1.4-0",
+  "description": "My resume",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/my-resume"
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "start": "yarn watch",
+    "pdf": "babel-node ./lib/to-pdf.js",
+    "watch": "webpack-dev-server --watch --mode development"
+  },
+  "dependencies": {
+    "@pshaw/logger": "workspace:packages/misc/logger",
+    "@pshaw/resume-template": "workspace:packages/misc/resume-template",
+    "cinder": "workspace:packages/cinder/cinder",
+    "express": "^4.17.1",
+    "puppeteer": "^2.1.1"
+  }
+}

@@ -2595,11 +2595,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildplan/core@workspace:buildplan/core":
+"@buildplan/core@workspace:packages/buildplan/core":
   version: 0.0.0-use.local
-  resolution: "@buildplan/core@workspace:buildplan/core"
+  resolution: "@buildplan/core@workspace:packages/buildplan/core"
   dependencies:
-    "@pshaw/logger": "workspace:misc/logger"
+    "@pshaw/logger": "workspace:packages/misc/logger"
     "@types/yargs": ^15.0.4
     chalk: ^4.0.0
     jest-mock: ^25.5.0
@@ -2607,9 +2607,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/cli@workspace:byexample/byexample-cli":
+"@byexample/cli@workspace:packages/byexample/byexample-cli":
   version: 0.0.0-use.local
-  resolution: "@byexample/cli@workspace:byexample/byexample-cli"
+  resolution: "@byexample/cli@workspace:packages/byexample/byexample-cli"
   dependencies:
     "@types/node": ^10.5.4
     chalk: ^2.4.1
@@ -2620,25 +2620,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/openapi@workspace:byexample/byexample-openapi":
+"@byexample/openapi@workspace:packages/byexample/byexample-openapi":
   version: 0.0.0-use.local
-  resolution: "@byexample/openapi@workspace:byexample/byexample-openapi"
+  resolution: "@byexample/openapi@workspace:packages/byexample/byexample-openapi"
   dependencies:
-    "@byexample/types": "workspace:byexample/byexample-types"
+    "@byexample/types": "workspace:packages/byexample/byexample-types"
     swagger-parser: ^5.0.2
   languageName: unknown
   linkType: soft
 
-"@byexample/storybook-addon-auto-knobs@workspace:byexample/byexample-storybook-addon-auto-knobs":
+"@byexample/storybook-addon-auto-knobs@workspace:packages/byexample/byexample-storybook-addon-auto-knobs":
   version: 0.0.0-use.local
-  resolution: "@byexample/storybook-addon-auto-knobs@workspace:byexample/byexample-storybook-addon-auto-knobs"
+  resolution: "@byexample/storybook-addon-auto-knobs@workspace:packages/byexample/byexample-storybook-addon-auto-knobs"
   dependencies:
     "@babel/cli": ^7.1.5
     "@babel/core": ^7.1.5
     "@babel/preset-env": ^7.1.5
     "@babel/preset-react": ^7.0.0
     "@babel/preset-typescript": ^7.1.0
-    "@byexample/storybook-knobified": "workspace:byexample/byexample-storybook-knobified"
+    "@byexample/storybook-knobified": "workspace:packages/byexample/byexample-storybook-knobified"
     "@storybook/addon-actions": ^4.0.4
     "@storybook/addon-knobs": ^4.0.4
     "@storybook/addons": ^5.3.18
@@ -2654,14 +2654,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/storybook-knobified@workspace:byexample/byexample-storybook-knobified":
+"@byexample/storybook-knobified@workspace:packages/byexample/byexample-storybook-knobified":
   version: 0.0.0-use.local
-  resolution: "@byexample/storybook-knobified@workspace:byexample/byexample-storybook-knobified"
+  resolution: "@byexample/storybook-knobified@workspace:packages/byexample/byexample-storybook-knobified"
   dependencies:
-    "@byexample/types": "workspace:byexample/byexample-types"
+    "@byexample/types": "workspace:packages/byexample/byexample-types"
     "@storybook/addon-actions": ^5.3.18
     "@storybook/addon-knobs": ^5.3.18
-    css-color-checker: "workspace:misc/css-color-checker"
+    css-color-checker: "workspace:packages/misc/css-color-checker"
     prop-types: ^15.7.2
     react: ^16.6.1
     react-dom: ^16.4.2
@@ -2672,17 +2672,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/types@workspace:byexample/byexample-types":
+"@byexample/types@workspace:packages/byexample/byexample-types":
   version: 0.0.0-use.local
-  resolution: "@byexample/types@workspace:byexample/byexample-types"
+  resolution: "@byexample/types@workspace:packages/byexample/byexample-types"
   dependencies:
     jest-mock: ^26.0.1
   languageName: unknown
   linkType: soft
 
-"@cinderjs/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx":
+"@cinderjs/babel-plugin-transform-jsx@workspace:packages/cinder/cinder-babel-plugin-transform-jsx":
   version: 0.0.0-use.local
-  resolution: "@cinderjs/babel-plugin-transform-jsx@workspace:cinder/cinder-babel-plugin-transform-jsx"
+  resolution: "@cinderjs/babel-plugin-transform-jsx@workspace:packages/cinder/cinder-babel-plugin-transform-jsx"
   dependencies:
     "@babel/core": ^7.9.6
     "@babel/helper-builder-react-jsx": ^7.9.0
@@ -2693,66 +2693,66 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cinderjs/core@workspace:cinder/cinder-core":
+"@cinderjs/core@workspace:packages/cinder/cinder-core":
   version: 0.0.0-use.local
-  resolution: "@cinderjs/core@workspace:cinder/cinder-core"
+  resolution: "@cinderjs/core@workspace:packages/cinder/cinder-core"
   languageName: unknown
   linkType: soft
 
-"@cinderjs/element@workspace:cinder/cinder-element":
+"@cinderjs/element@workspace:packages/cinder/cinder-element":
   version: 0.0.0-use.local
-  resolution: "@cinderjs/element@workspace:cinder/cinder-element"
+  resolution: "@cinderjs/element@workspace:packages/cinder/cinder-element"
   peerDependencies:
     "@cinderjs/core": "*"
   languageName: unknown
   linkType: soft
 
-"@contextual-documents/classname-picker@workspace:contextual-documents/contextual-documents-classname-picker":
+"@contextual-documents/classname-picker@workspace:packages/contextual-documents/contextual-documents-classname-picker":
   version: 0.0.0-use.local
-  resolution: "@contextual-documents/classname-picker@workspace:contextual-documents/contextual-documents-classname-picker"
+  resolution: "@contextual-documents/classname-picker@workspace:packages/contextual-documents/contextual-documents-classname-picker"
   dependencies:
-    "@contextual-documents/matcher-info": "workspace:contextual-documents/contextual-documents-matcher-info"
-    tree-suffix-mapper: "workspace:misc/tree-suffix-mapper"
+    "@contextual-documents/matcher-info": "workspace:packages/contextual-documents/contextual-documents-matcher-info"
+    tree-suffix-mapper: "workspace:packages/misc/tree-suffix-mapper"
   languageName: unknown
   linkType: soft
 
-"@contextual-documents/element@workspace:contextual-documents/contextual-documents-element":
+"@contextual-documents/element@workspace:packages/contextual-documents/contextual-documents-element":
   version: 0.0.0-use.local
-  resolution: "@contextual-documents/element@workspace:contextual-documents/contextual-documents-element"
+  resolution: "@contextual-documents/element@workspace:packages/contextual-documents/contextual-documents-element"
   dependencies:
-    "@contextual-documents/suffix-element": "workspace:contextual-documents/contextual-documents-suffix-element"
+    "@contextual-documents/suffix-element": "workspace:packages/contextual-documents/contextual-documents-suffix-element"
   languageName: unknown
   linkType: soft
 
-"@contextual-documents/html-elements@workspace:contextual-documents/contextual-documents-html-elements":
+"@contextual-documents/html-elements@workspace:packages/contextual-documents/contextual-documents-html-elements":
   version: 0.0.0-use.local
-  resolution: "@contextual-documents/html-elements@workspace:contextual-documents/contextual-documents-html-elements"
+  resolution: "@contextual-documents/html-elements@workspace:packages/contextual-documents/contextual-documents-html-elements"
   dependencies:
-    "@contextual-documents/element": "workspace:contextual-documents/contextual-documents-element"
-    "@contextual-documents/html-symbols": "workspace:contextual-documents/contextual-documents-html-symbols"
+    "@contextual-documents/element": "workspace:packages/contextual-documents/contextual-documents-element"
+    "@contextual-documents/html-symbols": "workspace:packages/contextual-documents/contextual-documents-html-symbols"
   languageName: unknown
   linkType: soft
 
-"@contextual-documents/html-symbols@workspace:contextual-documents/contextual-documents-html-symbols":
+"@contextual-documents/html-symbols@workspace:packages/contextual-documents/contextual-documents-html-symbols":
   version: 0.0.0-use.local
-  resolution: "@contextual-documents/html-symbols@workspace:contextual-documents/contextual-documents-html-symbols"
+  resolution: "@contextual-documents/html-symbols@workspace:packages/contextual-documents/contextual-documents-html-symbols"
   dependencies:
-    "@contextual-documents/matcher-info": "workspace:contextual-documents/contextual-documents-matcher-info"
+    "@contextual-documents/matcher-info": "workspace:packages/contextual-documents/contextual-documents-matcher-info"
   languageName: unknown
   linkType: soft
 
-"@contextual-documents/matcher-info@workspace:contextual-documents/contextual-documents-matcher-info":
+"@contextual-documents/matcher-info@workspace:packages/contextual-documents/contextual-documents-matcher-info":
   version: 0.0.0-use.local
-  resolution: "@contextual-documents/matcher-info@workspace:contextual-documents/contextual-documents-matcher-info"
+  resolution: "@contextual-documents/matcher-info@workspace:packages/contextual-documents/contextual-documents-matcher-info"
   languageName: unknown
   linkType: soft
 
-"@contextual-documents/suffix-element@workspace:contextual-documents/contextual-documents-suffix-element":
+"@contextual-documents/suffix-element@workspace:packages/contextual-documents/contextual-documents-suffix-element":
   version: 0.0.0-use.local
-  resolution: "@contextual-documents/suffix-element@workspace:contextual-documents/contextual-documents-suffix-element"
+  resolution: "@contextual-documents/suffix-element@workspace:packages/contextual-documents/contextual-documents-suffix-element"
   dependencies:
-    "@contextual-documents/classname-picker": "workspace:contextual-documents/contextual-documents-classname-picker"
-    dom-context: "workspace:misc/dom-context"
+    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/contextual-documents-classname-picker"
+    dom-context: "workspace:packages/misc/dom-context"
   languageName: unknown
   linkType: soft
 
@@ -3036,39 +3036,39 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fault/addon-hook-schema@workspace:faultjs/fault-addon-hook-schema":
+"@fault/addon-hook-schema@workspace:packages/faultjs/fault-addon-hook-schema":
   version: 0.0.0-use.local
-  resolution: "@fault/addon-hook-schema@workspace:faultjs/fault-addon-hook-schema"
+  resolution: "@fault/addon-hook-schema@workspace:packages/faultjs/fault-addon-hook-schema"
   dependencies:
-    hook-schema: "workspace:misc/hook-schema"
+    hook-schema: "workspace:packages/misc/hook-schema"
     stacktrace-js: ^2.0.0
   languageName: unknown
   linkType: soft
 
-"@fault/addon-istanbul@workspace:faultjs/fault-addon-istanbul":
+"@fault/addon-istanbul@workspace:packages/faultjs/fault-addon-istanbul":
   version: 0.0.0-use.local
-  resolution: "@fault/addon-istanbul@workspace:faultjs/fault-addon-istanbul"
+  resolution: "@fault/addon-istanbul@workspace:packages/faultjs/fault-addon-istanbul"
   dependencies:
-    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/addon-hook-schema": "workspace:packages/faultjs/fault-addon-hook-schema"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
     istanbul-lib-coverage: ^3.0.0
     istanbul-lib-report: ^3.0.0
     istanbul-reports: ^3.0.2
   languageName: unknown
   linkType: soft
 
-"@fault/addon-mutation-localization-v1@workspace:faultjs/fault-addon-mutation-localization-v1":
+"@fault/addon-mutation-localization-v1@workspace:packages/faultjs/fault-addon-mutation-localization-v1":
   version: 0.0.0-use.local
-  resolution: "@fault/addon-mutation-localization-v1@workspace:faultjs/fault-addon-mutation-localization-v1"
+  resolution: "@fault/addon-mutation-localization-v1@workspace:packages/faultjs/fault-addon-mutation-localization-v1"
   dependencies:
     "@babel/generator": ^7.9.5
     "@babel/parser": ^7.5.0
     "@babel/traverse": ^7.9.5
     "@babel/types": ^7.9.5
-    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
-    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
-    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/addon-hook-schema": "workspace:packages/faultjs/fault-addon-hook-schema"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
+    "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
     "@types/pouchdb": ^6.4.0
     chalk: ^4.0.0
     del: ^5.1.0
@@ -3081,21 +3081,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/addon-mutation-localization@workspace:faultjs/fault-addon-mutation-localization":
+"@fault/addon-mutation-localization@workspace:packages/faultjs/fault-addon-mutation-localization":
   version: 0.0.0-use.local
-  resolution: "@fault/addon-mutation-localization@workspace:faultjs/fault-addon-mutation-localization"
+  resolution: "@fault/addon-mutation-localization@workspace:packages/faultjs/fault-addon-mutation-localization"
   dependencies:
     "@babel/generator": ^7.9.5
     "@babel/parser": ^7.9.4
     "@babel/traverse": ^7.9.5
     "@babel/types": ^7.9.5
-    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
-    "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
-    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
-    "@fault/localization-util": "workspace:faultjs/fault-localization-util"
-    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
-    "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/addon-hook-schema": "workspace:packages/faultjs/fault-addon-hook-schema"
+    "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
+    "@fault/localization-util": "workspace:packages/faultjs/fault-localization-util"
+    "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults"
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
     "@types/pouchdb": ^6.4.0
     chalk: ^4.0.0
     del: ^5.1.0
@@ -3108,55 +3108,55 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/addon-sbfl@workspace:faultjs/fault-addon-sbfl":
+"@fault/addon-sbfl@workspace:packages/faultjs/fault-addon-sbfl":
   version: 0.0.0-use.local
-  resolution: "@fault/addon-sbfl@workspace:faultjs/fault-addon-sbfl"
+  resolution: "@fault/addon-sbfl@workspace:packages/faultjs/fault-addon-sbfl"
   dependencies:
-    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
-    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
-    "@fault/localization-util": "workspace:faultjs/fault-localization-util"
-    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
-    "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
+    "@fault/addon-hook-schema": "workspace:packages/faultjs/fault-addon-hook-schema"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
+    "@fault/localization-util": "workspace:packages/faultjs/fault-localization-util"
+    "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults"
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar"
     micromatch: ^4.0.2
     stacktrace-js: ^2.0.0
   languageName: unknown
   linkType: soft
 
-"@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-viewer-components":
+"@fault/benchmark-viewer-components@workspace:packages/faultjs/fault-benchmark-viewer-components":
   version: 0.0.0-use.local
-  resolution: "@fault/benchmark-viewer-components@workspace:faultjs/fault-benchmark-viewer-components"
+  resolution: "@fault/benchmark-viewer-components@workspace:packages/faultjs/fault-benchmark-viewer-components"
   dependencies:
     chart.js: ^2.9.3
     chartjs-chart-box-and-violin-plot: ^2.3.0
-    cinder: "workspace:cinder/cinder"
+    cinder: "workspace:packages/cinder/cinder"
   languageName: unknown
   linkType: soft
 
-"@fault/benchmark@workspace:faultjs/fault-benchmark":
+"@fault/benchmark@workspace:packages/faultjs/fault-benchmark":
   version: 0.0.0-use.local
-  resolution: "@fault/benchmark@workspace:faultjs/fault-benchmark"
+  resolution: "@fault/benchmark@workspace:packages/faultjs/fault-benchmark"
   dependencies:
     "@babel/core": ^7.9.0
     "@babel/parser": ^7.5.0
     "@babel/register": ^7.9.0
-    "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
-    "@fault/benchmark-viewer-components": "workspace:faultjs/fault-benchmark-viewer-components"
-    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
-    "@fault/record-faults": "workspace:faultjs/fault-record-faults"
-    "@fault/runner": "workspace:faultjs/fault-runner"
-    "@fault/sbfl-barinel": "workspace:faultjs/fault-sbfl-barinel"
-    "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
-    "@fault/sbfl-ochiai": "workspace:faultjs/fault-sbfl-ochiai"
-    "@fault/sbfl-op2": "workspace:faultjs/fault-sbfl-op2"
-    "@fault/sbfl-tarantula": "workspace:faultjs/fault-sbfl-tarantula"
-    "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha"
-    "@pshaw/fs": "workspace:misc/pshaw-fs"
-    "@pshaw/logger": "workspace:misc/logger"
+    "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl"
+    "@fault/benchmark-viewer-components": "workspace:packages/faultjs/fault-benchmark-viewer-components"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
+    "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults"
+    "@fault/runner": "workspace:packages/faultjs/fault-runner"
+    "@fault/sbfl-barinel": "workspace:packages/faultjs/fault-sbfl-barinel"
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar"
+    "@fault/sbfl-ochiai": "workspace:packages/faultjs/fault-sbfl-ochiai"
+    "@fault/sbfl-op2": "workspace:packages/faultjs/fault-sbfl-op2"
+    "@fault/sbfl-tarantula": "workspace:packages/faultjs/fault-sbfl-tarantula"
+    "@fault/tester-mocha": "workspace:packages/faultjs/fault-tester-mocha"
+    "@pshaw/fs": "workspace:packages/misc/pshaw-fs"
+    "@pshaw/logger": "workspace:packages/misc/logger"
     chai: ^4.2.0
     chalk: ^4.0.0
     chart.js: ^2.9.3
     chartjs-chart-box-and-violin-plot: ^2.3.0
-    cinder: "workspace:cinder/cinder"
+    cinder: "workspace:packages/cinder/cinder"
     cross-spawn: ^6.0.5
     del: ^5.1.0
     globby: ^11.0.0
@@ -3170,9 +3170,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/istanbul-util@workspace:faultjs/fault-istanbul-util":
+"@fault/istanbul-util@workspace:packages/faultjs/fault-istanbul-util":
   version: 0.0.0-use.local
-  resolution: "@fault/istanbul-util@workspace:faultjs/fault-istanbul-util"
+  resolution: "@fault/istanbul-util@workspace:packages/faultjs/fault-istanbul-util"
   dependencies:
     istanbul-lib-coverage: ^3.0.0
     istanbul-lib-report: ^3.0.0
@@ -3180,41 +3180,41 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/localization-util@workspace:faultjs/fault-localization-util":
+"@fault/localization-util@workspace:packages/faultjs/fault-localization-util":
   version: 0.0.0-use.local
-  resolution: "@fault/localization-util@workspace:faultjs/fault-localization-util"
+  resolution: "@fault/localization-util@workspace:packages/faultjs/fault-localization-util"
   dependencies:
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
-"@fault/messages@workspace:faultjs/fault-messages":
+"@fault/messages@workspace:packages/faultjs/fault-messages":
   version: 0.0.0-use.local
-  resolution: "@fault/messages@workspace:faultjs/fault-messages"
+  resolution: "@fault/messages@workspace:packages/faultjs/fault-messages"
   dependencies:
-    "@fault/types": "workspace:faultjs/fault-types"
-    ipc-fifo-processor: "workspace:misc/ipc-fifo-processor"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
+    ipc-fifo-processor: "workspace:packages/misc/ipc-fifo-processor"
   languageName: unknown
   linkType: soft
 
-"@fault/record-faults@workspace:faultjs/fault-record-faults":
+"@fault/record-faults@workspace:packages/faultjs/fault-record-faults":
   version: 0.0.0-use.local
-  resolution: "@fault/record-faults@workspace:faultjs/fault-record-faults"
+  resolution: "@fault/record-faults@workspace:packages/faultjs/fault-record-faults"
   dependencies:
-    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
     chalk: ^4.0.0
   languageName: unknown
   linkType: soft
 
-"@fault/runner@workspace:faultjs/fault-runner":
+"@fault/runner@workspace:packages/faultjs/fault-runner":
   version: 0.0.0-use.local
-  resolution: "@fault/runner@workspace:faultjs/fault-runner"
+  resolution: "@fault/runner@workspace:packages/faultjs/fault-runner"
   dependencies:
-    "@fault/addon-hook-schema": "workspace:faultjs/fault-addon-hook-schema"
-    "@fault/addon-istanbul": "workspace:faultjs/fault-addon-istanbul"
-    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
-    "@fault/messages": "workspace:faultjs/fault-messages"
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/addon-hook-schema": "workspace:packages/faultjs/fault-addon-hook-schema"
+    "@fault/addon-istanbul": "workspace:packages/faultjs/fault-addon-istanbul"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
+    "@fault/messages": "workspace:packages/faultjs/fault-messages"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
     "@types/node": ^13.13.4
     chalk: ^4.0.0
     globby: ^11.0.0
@@ -3222,62 +3222,62 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-barinel@workspace:faultjs/fault-sbfl-barinel":
+"@fault/sbfl-barinel@workspace:packages/faultjs/fault-sbfl-barinel":
   version: 0.0.0-use.local
-  resolution: "@fault/sbfl-barinel@workspace:faultjs/fault-sbfl-barinel"
+  resolution: "@fault/sbfl-barinel@workspace:packages/faultjs/fault-sbfl-barinel"
   dependencies:
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-dstar@workspace:faultjs/fault-sbfl-dstar":
+"@fault/sbfl-dstar@workspace:packages/faultjs/fault-sbfl-dstar":
   version: 0.0.0-use.local
-  resolution: "@fault/sbfl-dstar@workspace:faultjs/fault-sbfl-dstar"
+  resolution: "@fault/sbfl-dstar@workspace:packages/faultjs/fault-sbfl-dstar"
   dependencies:
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-ochiai@workspace:faultjs/fault-sbfl-ochiai":
+"@fault/sbfl-ochiai@workspace:packages/faultjs/fault-sbfl-ochiai":
   version: 0.0.0-use.local
-  resolution: "@fault/sbfl-ochiai@workspace:faultjs/fault-sbfl-ochiai"
+  resolution: "@fault/sbfl-ochiai@workspace:packages/faultjs/fault-sbfl-ochiai"
   dependencies:
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-op2@workspace:faultjs/fault-sbfl-op2":
+"@fault/sbfl-op2@workspace:packages/faultjs/fault-sbfl-op2":
   version: 0.0.0-use.local
-  resolution: "@fault/sbfl-op2@workspace:faultjs/fault-sbfl-op2"
+  resolution: "@fault/sbfl-op2@workspace:packages/faultjs/fault-sbfl-op2"
   dependencies:
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
-"@fault/sbfl-tarantula@workspace:faultjs/fault-sbfl-tarantula":
+"@fault/sbfl-tarantula@workspace:packages/faultjs/fault-sbfl-tarantula":
   version: 0.0.0-use.local
-  resolution: "@fault/sbfl-tarantula@workspace:faultjs/fault-sbfl-tarantula"
+  resolution: "@fault/sbfl-tarantula@workspace:packages/faultjs/fault-sbfl-tarantula"
   dependencies:
-    "@fault/types": "workspace:faultjs/fault-types"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
-"@fault/tester-mocha@workspace:faultjs/fault-tester-mocha":
+"@fault/tester-mocha@workspace:packages/faultjs/fault-tester-mocha":
   version: 0.0.0-use.local
-  resolution: "@fault/tester-mocha@workspace:faultjs/fault-tester-mocha"
+  resolution: "@fault/tester-mocha@workspace:packages/faultjs/fault-tester-mocha"
   dependencies:
-    "@fault/istanbul-util": "workspace:faultjs/fault-istanbul-util"
-    "@fault/messages": "workspace:faultjs/fault-messages"
-    "@fault/types": "workspace:faultjs/fault-types"
-    resultful: "workspace:resultful/resultful"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
+    "@fault/messages": "workspace:packages/faultjs/fault-messages"
+    "@fault/types": "workspace:packages/faultjs/fault-types"
+    resultful: "workspace:packages/resultful/resultful"
   peerDependencies:
     mocha: "*"
   languageName: unknown
   linkType: soft
 
-"@fault/types@workspace:faultjs/fault-types":
+"@fault/types@workspace:packages/faultjs/fault-types":
   version: 0.0.0-use.local
-  resolution: "@fault/types@workspace:faultjs/fault-types"
+  resolution: "@fault/types@workspace:packages/faultjs/fault-types"
   languageName: unknown
   linkType: soft
 
@@ -3379,9 +3379,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@monorepo/config@workspace:build-packages/monorepo-config":
+"@monorepo/config@workspace:packages/build-packages/monorepo-config":
   version: 0.0.0-use.local
-  resolution: "@monorepo/config@workspace:build-packages/monorepo-config"
+  resolution: "@monorepo/config@workspace:packages/build-packages/monorepo-config"
   languageName: unknown
   linkType: soft
 
@@ -3438,13 +3438,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pipelines/babel-parse@workspace:pipelines/pipelines-babel-parse":
+"@pipelines/babel-parse@workspace:packages/pipelines/pipelines-babel-parse":
   version: 0.0.0-use.local
-  resolution: "@pipelines/babel-parse@workspace:pipelines/pipelines-babel-parse"
+  resolution: "@pipelines/babel-parse@workspace:packages/pipelines/pipelines-babel-parse"
   dependencies:
     "@babel/parser": ^7.9.6
     "@babel/types": ^7.9.6
-    "@pipelines/core": "workspace:pipelines/pipelines-core"
+    "@pipelines/core": "workspace:packages/pipelines/pipelines-core"
     "@types/node": ^14.0.4
   peerDependencies:
     "@babel/parser": ^7.9.6
@@ -3453,9 +3453,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pipelines/core@workspace:pipelines/pipelines-core":
+"@pipelines/core@workspace:packages/pipelines/pipelines-core":
   version: 0.0.0-use.local
-  resolution: "@pipelines/core@workspace:pipelines/pipelines-core"
+  resolution: "@pipelines/core@workspace:packages/pipelines/pipelines-core"
   dependencies:
     "@types/node": ^14.0.4
     web-streams-polyfill: ^2.1.1
@@ -3659,93 +3659,93 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pshaw/colors-scss@workspace:patrick-shaw/colors-scss":
+"@pshaw/colors-scss@workspace:packages/patrick-shaw/colors-scss":
   version: 0.0.0-use.local
-  resolution: "@pshaw/colors-scss@workspace:patrick-shaw/colors-scss"
+  resolution: "@pshaw/colors-scss@workspace:packages/patrick-shaw/colors-scss"
   languageName: unknown
   linkType: soft
 
-"@pshaw/contextual-documents-scss@workspace:patrick-shaw/contextual-documents-scss":
+"@pshaw/contextual-documents-scss@workspace:packages/patrick-shaw/contextual-documents-scss":
   version: 0.0.0-use.local
-  resolution: "@pshaw/contextual-documents-scss@workspace:patrick-shaw/contextual-documents-scss"
+  resolution: "@pshaw/contextual-documents-scss@workspace:packages/patrick-shaw/contextual-documents-scss"
   languageName: unknown
   linkType: soft
 
-"@pshaw/contextual-documents-style-root@workspace:patrick-shaw/contextual-documents-style-root":
+"@pshaw/contextual-documents-style-root@workspace:packages/patrick-shaw/contextual-documents-style-root":
   version: 0.0.0-use.local
-  resolution: "@pshaw/contextual-documents-style-root@workspace:patrick-shaw/contextual-documents-style-root"
+  resolution: "@pshaw/contextual-documents-style-root@workspace:packages/patrick-shaw/contextual-documents-style-root"
   dependencies:
-    "@contextual-documents/classname-picker": "workspace:contextual-documents/contextual-documents-classname-picker"
-    "@contextual-documents/html-symbols": "workspace:contextual-documents/contextual-documents-html-symbols"
-    "@pshaw/contextual-documents-scss": "workspace:patrick-shaw/contextual-documents-scss"
+    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/contextual-documents-classname-picker"
+    "@contextual-documents/html-symbols": "workspace:packages/contextual-documents/contextual-documents-html-symbols"
+    "@pshaw/contextual-documents-scss": "workspace:packages/patrick-shaw/contextual-documents-scss"
   languageName: unknown
   linkType: soft
 
-"@pshaw/contextual-documents@workspace:patrick-shaw/contextual-documents":
+"@pshaw/contextual-documents@workspace:packages/patrick-shaw/contextual-documents":
   version: 0.0.0-use.local
-  resolution: "@pshaw/contextual-documents@workspace:patrick-shaw/contextual-documents"
+  resolution: "@pshaw/contextual-documents@workspace:packages/patrick-shaw/contextual-documents"
   dependencies:
-    "@contextual-documents/classname-picker": "workspace:contextual-documents/contextual-documents-classname-picker"
-    "@contextual-documents/element": "workspace:contextual-documents/contextual-documents-element"
-    "@contextual-documents/html-elements": "workspace:contextual-documents/contextual-documents-html-elements"
-    "@contextual-documents/html-symbols": "workspace:contextual-documents/contextual-documents-html-symbols"
-    "@pshaw/contextual-documents-scss": "workspace:patrick-shaw/contextual-documents-scss"
+    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/contextual-documents-classname-picker"
+    "@contextual-documents/element": "workspace:packages/contextual-documents/contextual-documents-element"
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements"
+    "@contextual-documents/html-symbols": "workspace:packages/contextual-documents/contextual-documents-html-symbols"
+    "@pshaw/contextual-documents-scss": "workspace:packages/patrick-shaw/contextual-documents-scss"
   languageName: unknown
   linkType: soft
 
-"@pshaw/convict-util@workspace:misc/convict-util":
+"@pshaw/convict-util@workspace:packages/misc/convict-util":
   version: 0.0.0-use.local
-  resolution: "@pshaw/convict-util@workspace:misc/convict-util"
+  resolution: "@pshaw/convict-util@workspace:packages/misc/convict-util"
   dependencies:
     fs-extra: ^7.0.1
   languageName: unknown
   linkType: soft
 
-"@pshaw/deque@workspace:misc/deque":
+"@pshaw/deque@workspace:packages/misc/deque":
   version: 0.0.0-use.local
-  resolution: "@pshaw/deque@workspace:misc/deque"
+  resolution: "@pshaw/deque@workspace:packages/misc/deque"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-core@workspace:patrick-shaw/eslint-config-core":
+"@pshaw/eslint-config-core@workspace:packages/patrick-shaw/eslint-config-core":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-core@workspace:patrick-shaw/eslint-config-core"
+  resolution: "@pshaw/eslint-config-core@workspace:packages/patrick-shaw/eslint-config-core"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-cinder@workspace:patrick-shaw/eslint-config-plugin-cinder":
+"@pshaw/eslint-config-plugin-cinder@workspace:packages/patrick-shaw/eslint-config-plugin-cinder":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-cinder@workspace:patrick-shaw/eslint-config-plugin-cinder"
+  resolution: "@pshaw/eslint-config-plugin-cinder@workspace:packages/patrick-shaw/eslint-config-plugin-cinder"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-import@workspace:patrick-shaw/eslint-config-plugin-import":
+"@pshaw/eslint-config-plugin-import@workspace:packages/patrick-shaw/eslint-config-plugin-import":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-import@workspace:patrick-shaw/eslint-config-plugin-import"
+  resolution: "@pshaw/eslint-config-plugin-import@workspace:packages/patrick-shaw/eslint-config-plugin-import"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-react@workspace:patrick-shaw/eslint-config-plugin-react":
+"@pshaw/eslint-config-plugin-react@workspace:packages/patrick-shaw/eslint-config-plugin-react":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-react@workspace:patrick-shaw/eslint-config-plugin-react"
+  resolution: "@pshaw/eslint-config-plugin-react@workspace:packages/patrick-shaw/eslint-config-plugin-react"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-plugin-typescript@workspace:patrick-shaw/eslint-config-plugin-typescript":
+"@pshaw/eslint-config-plugin-typescript@workspace:packages/patrick-shaw/eslint-config-plugin-typescript":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-plugin-typescript@workspace:patrick-shaw/eslint-config-plugin-typescript"
+  resolution: "@pshaw/eslint-config-plugin-typescript@workspace:packages/patrick-shaw/eslint-config-plugin-typescript"
   languageName: unknown
   linkType: soft
 
-"@pshaw/eslint-config-preset@workspace:patrick-shaw/eslint-config-preset":
+"@pshaw/eslint-config-preset@workspace:packages/patrick-shaw/eslint-config-preset":
   version: 0.0.0-use.local
-  resolution: "@pshaw/eslint-config-preset@workspace:patrick-shaw/eslint-config-preset"
+  resolution: "@pshaw/eslint-config-preset@workspace:packages/patrick-shaw/eslint-config-preset"
   dependencies:
-    "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core"
-    "@pshaw/eslint-config-plugin-cinder": "workspace:patrick-shaw/eslint-config-plugin-cinder"
-    "@pshaw/eslint-config-plugin-import": "workspace:patrick-shaw/eslint-config-plugin-import"
-    "@pshaw/eslint-config-plugin-react": "workspace:patrick-shaw/eslint-config-plugin-react"
-    "@pshaw/eslint-config-plugin-typescript": "workspace:patrick-shaw/eslint-config-plugin-typescript"
+    "@pshaw/eslint-config-core": "workspace:packages/patrick-shaw/eslint-config-core"
+    "@pshaw/eslint-config-plugin-cinder": "workspace:packages/patrick-shaw/eslint-config-plugin-cinder"
+    "@pshaw/eslint-config-plugin-import": "workspace:packages/patrick-shaw/eslint-config-plugin-import"
+    "@pshaw/eslint-config-plugin-react": "workspace:packages/patrick-shaw/eslint-config-plugin-react"
+    "@pshaw/eslint-config-plugin-typescript": "workspace:packages/patrick-shaw/eslint-config-plugin-typescript"
     "@typescript-eslint/eslint-plugin": ^2.27.0
     eslint-config-prettier: ^6.10.1
     eslint-plugin-import: ^2.20.2
@@ -3753,58 +3753,58 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/fs@workspace:misc/pshaw-fs":
+"@pshaw/fs@workspace:packages/misc/pshaw-fs":
   version: 0.0.0-use.local
-  resolution: "@pshaw/fs@workspace:misc/pshaw-fs"
+  resolution: "@pshaw/fs@workspace:packages/misc/pshaw-fs"
   dependencies:
     "@types/node": ^13.13.4
   languageName: unknown
   linkType: soft
 
-"@pshaw/keyed-binary-heap@workspace:misc/keyed-binary-heap":
+"@pshaw/keyed-binary-heap@workspace:packages/misc/keyed-binary-heap":
   version: 0.0.0-use.local
-  resolution: "@pshaw/keyed-binary-heap@workspace:misc/keyed-binary-heap"
+  resolution: "@pshaw/keyed-binary-heap@workspace:packages/misc/keyed-binary-heap"
   languageName: unknown
   linkType: soft
 
-"@pshaw/logger@workspace:misc/logger":
+"@pshaw/logger@workspace:packages/misc/logger":
   version: 0.0.0-use.local
-  resolution: "@pshaw/logger@workspace:misc/logger"
+  resolution: "@pshaw/logger@workspace:packages/misc/logger"
   dependencies:
     jest-mock: ^26.0.1
     mockdate: ^2.0.2
   languageName: unknown
   linkType: soft
 
-"@pshaw/markdown-util@workspace:misc/markdown-util":
+"@pshaw/markdown-util@workspace:packages/misc/markdown-util":
   version: 0.0.0-use.local
-  resolution: "@pshaw/markdown-util@workspace:misc/markdown-util"
+  resolution: "@pshaw/markdown-util@workspace:packages/misc/markdown-util"
   dependencies:
     rewiremock: ^3.13.9
     sinon: ^9.0.2
   languageName: unknown
   linkType: soft
 
-"@pshaw/my-resume@workspace:patrick-shaw/my-resume":
+"@pshaw/my-resume@workspace:packages/patrick-shaw/my-resume":
   version: 0.0.0-use.local
-  resolution: "@pshaw/my-resume@workspace:patrick-shaw/my-resume"
+  resolution: "@pshaw/my-resume@workspace:packages/patrick-shaw/my-resume"
   dependencies:
-    "@pshaw/logger": "workspace:misc/logger"
-    "@pshaw/resume-template": "workspace:misc/resume-template"
-    cinder: "workspace:cinder/cinder"
+    "@pshaw/logger": "workspace:packages/misc/logger"
+    "@pshaw/resume-template": "workspace:packages/misc/resume-template"
+    cinder: "workspace:packages/cinder/cinder"
     express: ^4.17.1
     puppeteer: ^2.1.1
   languageName: unknown
   linkType: soft
 
-"@pshaw/page-breaker-chrome@workspace:misc/page-breaker-chrome":
+"@pshaw/page-breaker-chrome@workspace:packages/misc/page-breaker-chrome":
   version: 0.0.0-use.local
-  resolution: "@pshaw/page-breaker-chrome@workspace:misc/page-breaker-chrome"
+  resolution: "@pshaw/page-breaker-chrome@workspace:packages/misc/page-breaker-chrome"
   dependencies:
-    "@contextual-documents/html-elements": "workspace:contextual-documents/contextual-documents-html-elements"
-    "@pshaw/contextual-documents": "workspace:patrick-shaw/contextual-documents"
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements"
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents"
     "@types/chrome": ^0.0.106
-    cinder: "workspace:cinder/cinder"
+    cinder: "workspace:packages/cinder/cinder"
     classnames: ^2.2.6
     mobx: ^5.15.4
     paper-range-slider: ^3.0.0
@@ -3812,13 +3812,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/resume-template@workspace:misc/resume-template":
+"@pshaw/resume-template@workspace:packages/misc/resume-template":
   version: 0.0.0-use.local
-  resolution: "@pshaw/resume-template@workspace:misc/resume-template"
+  resolution: "@pshaw/resume-template@workspace:packages/misc/resume-template"
   dependencies:
     "@types/classnames": ^2.2.7
     "@types/date-fns": ^2.6.0
-    cinder: "workspace:cinder/cinder"
+    cinder: "workspace:packages/cinder/cinder"
     classnames: ^2.2.6
     date-fns: ^2.12.0
     jss-global: ^3.0.0
@@ -3827,9 +3827,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/typography-scss@workspace:patrick-shaw/typography-scss":
+"@pshaw/typography-scss@workspace:packages/patrick-shaw/typography-scss":
   version: 0.0.0-use.local
-  resolution: "@pshaw/typography-scss@workspace:patrick-shaw/typography-scss"
+  resolution: "@pshaw/typography-scss@workspace:packages/patrick-shaw/typography-scss"
   languageName: unknown
   linkType: soft
 
@@ -3848,21 +3848,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@resultful/react-async-payload-types@workspace:resultful/resultful-react-async-payload-types":
+"@resultful/react-async-payload-types@workspace:packages/resultful/resultful-react-async-payload-types":
   version: 0.0.0-use.local
-  resolution: "@resultful/react-async-payload-types@workspace:resultful/resultful-react-async-payload-types"
+  resolution: "@resultful/react-async-payload-types@workspace:packages/resultful/resultful-react-async-payload-types"
   languageName: unknown
   linkType: soft
 
-"@resultful/react-async@workspace:resultful/resultful-react-async":
+"@resultful/react-async@workspace:packages/resultful/resultful-react-async":
   version: 0.0.0-use.local
-  resolution: "@resultful/react-async@workspace:resultful/resultful-react-async"
+  resolution: "@resultful/react-async@workspace:packages/resultful/resultful-react-async"
   languageName: unknown
   linkType: soft
 
-"@resultful/types@workspace:resultful/resultful-types":
+"@resultful/types@workspace:packages/resultful/resultful-types":
   version: 0.0.0-use.local
-  resolution: "@resultful/types@workspace:resultful/resultful-types"
+  resolution: "@resultful/types@workspace:packages/resultful/resultful-types"
   languageName: unknown
   linkType: soft
 
@@ -5906,9 +5906,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@writeme/core@workspace:writeme/writeme-core":
+"@writeme/core@workspace:packages/writeme/writeme-core":
   version: 0.0.0-use.local
-  resolution: "@writeme/core@workspace:writeme/writeme-core"
+  resolution: "@writeme/core@workspace:packages/writeme/writeme-core"
   dependencies:
     "@types/node": ^11.9.4
     fs-extra: ^7.0.1
@@ -9030,13 +9030,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cinder@workspace:cinder/cinder":
+"cinder@workspace:packages/cinder/cinder":
   version: 0.0.0-use.local
-  resolution: "cinder@workspace:cinder/cinder"
+  resolution: "cinder@workspace:packages/cinder/cinder"
   dependencies:
-    "@cinderjs/babel-plugin-transform-jsx": "workspace:cinder/cinder-babel-plugin-transform-jsx"
-    "@cinderjs/core": "workspace:cinder/cinder-core"
-    "@cinderjs/element": "workspace:cinder/cinder-element"
+    "@cinderjs/babel-plugin-transform-jsx": "workspace:packages/cinder/cinder-babel-plugin-transform-jsx"
+    "@cinderjs/core": "workspace:packages/cinder/cinder-core"
+    "@cinderjs/element": "workspace:packages/cinder/cinder-element"
   languageName: unknown
   linkType: soft
 
@@ -9891,12 +9891,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-color-checker@workspace:misc/css-color-checker":
+"css-color-checker@workspace:packages/misc/css-color-checker":
   version: 0.0.0-use.local
-  resolution: "css-color-checker@workspace:misc/css-color-checker"
+  resolution: "css-color-checker@workspace:packages/misc/css-color-checker"
   dependencies:
     jest-mock: ^25.5.0
-    named-css-colors: "workspace:misc/named-css-colors"
+    named-css-colors: "workspace:packages/misc/named-css-colors"
   languageName: unknown
   linkType: soft
 
@@ -10025,9 +10025,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"custom-element@workspace:misc/custom-element":
+"custom-element@workspace:packages/misc/custom-element":
   version: 0.0.0-use.local
-  resolution: "custom-element@workspace:misc/custom-element"
+  resolution: "custom-element@workspace:packages/misc/custom-element"
   languageName: unknown
   linkType: soft
 
@@ -10556,9 +10556,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dom-context@workspace:misc/dom-context":
+"dom-context@workspace:packages/misc/dom-context":
   version: 0.0.0-use.local
-  resolution: "dom-context@workspace:misc/dom-context"
+  resolution: "dom-context@workspace:packages/misc/dom-context"
   languageName: unknown
   linkType: soft
 
@@ -11783,15 +11783,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fasta-format-parser@workspace:misc/fasta-format-parser":
+"fasta-format-parser@workspace:packages/misc/fasta-format-parser":
   version: 0.0.0-use.local
-  resolution: "fasta-format-parser@workspace:misc/fasta-format-parser"
+  resolution: "fasta-format-parser@workspace:packages/misc/fasta-format-parser"
   dependencies:
     "@polymer/paper-radio-button": ^3.0.1
     "@types/jest": ^24.0.15
     jest-mock: ^25.3.0
     replace-functions: ^4.0.0
-    resultful: "workspace:resultful/resultful"
+    resultful: "workspace:packages/resultful/resultful"
   peerDependencies:
     jest: ^23.6.0
   languageName: unknown
@@ -12510,13 +12510,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"genetic-sequencing-analysis-app@workspace:misc/genetic-sequence-analysis-app":
+"genetic-sequencing-analysis-app@workspace:packages/misc/genetic-sequence-analysis-app":
   version: 0.0.0-use.local
-  resolution: "genetic-sequencing-analysis-app@workspace:misc/genetic-sequence-analysis-app"
+  resolution: "genetic-sequencing-analysis-app@workspace:packages/misc/genetic-sequence-analysis-app"
   dependencies:
     "@polymer/paper-radio-button": ^3.0.1
     "@types/jest": ^24.0.15
-    fasta-format-parser: "workspace:misc/fasta-format-parser"
+    fasta-format-parser: "workspace:packages/misc/fasta-format-parser"
     jest-mock: ^25.3.0
     replace-functions: ^4.0.0
   peerDependencies:
@@ -13418,9 +13418,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"hook-schema@^2.2.4-0, hook-schema@workspace:misc/hook-schema":
+"hook-schema@^2.2.4-0, hook-schema@workspace:packages/misc/hook-schema":
   version: 0.0.0-use.local
-  resolution: "hook-schema@workspace:misc/hook-schema"
+  resolution: "hook-schema@workspace:packages/misc/hook-schema"
   dependencies:
     jest-mock: ^25.3.0
   languageName: unknown
@@ -14060,11 +14060,11 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"ipc-fifo-processor@workspace:misc/ipc-fifo-processor":
+"ipc-fifo-processor@workspace:packages/misc/ipc-fifo-processor":
   version: 0.0.0-use.local
-  resolution: "ipc-fifo-processor@workspace:misc/ipc-fifo-processor"
+  resolution: "ipc-fifo-processor@workspace:packages/misc/ipc-fifo-processor"
   dependencies:
-    "@pshaw/keyed-binary-heap": "workspace:misc/keyed-binary-heap"
+    "@pshaw/keyed-binary-heap": "workspace:packages/misc/keyed-binary-heap"
     "@types/node": ^13.13.4
   languageName: unknown
   linkType: soft
@@ -14935,9 +14935,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jest-mock-functions@workspace:misc/jest-mock-functions":
+"jest-mock-functions@workspace:packages/misc/jest-mock-functions":
   version: 0.0.0-use.local
-  resolution: "jest-mock-functions@workspace:misc/jest-mock-functions"
+  resolution: "jest-mock-functions@workspace:packages/misc/jest-mock-functions"
   dependencies:
     "@types/jest": ^24.0.15
     jest-mock: ^25.3.0
@@ -16829,21 +16829,21 @@ fsevents@^1.2.7:
     "@babel/preset-env": ^7.11.0
     "@babel/preset-typescript": ^7.10.4
     "@babel/register": ^7.10.5
-    "@buildplan/core": "workspace:buildplan/core"
-    "@byexample/openapi": "workspace:byexample/byexample-openapi"
-    "@byexample/storybook-knobified": "workspace:byexample/byexample-storybook-knobified"
-    "@byexample/types": "workspace:byexample/byexample-types"
-    "@fault/addon-mutation-localization": "workspace:faultjs/fault-addon-mutation-localization"
-    "@fault/addon-sbfl": "workspace:faultjs/fault-addon-sbfl"
-    "@fault/runner": "workspace:faultjs/fault-runner"
-    "@fault/sbfl-dstar": "workspace:faultjs/fault-sbfl-dstar"
-    "@fault/tester-mocha": "workspace:faultjs/fault-tester-mocha"
-    "@monorepo/config": "workspace:build-packages/monorepo-config"
-    "@pipelines/core": "workspace:pipelines/pipelines-core"
-    "@pshaw/eslint-config-core": "workspace:patrick-shaw/eslint-config-core"
-    "@pshaw/eslint-config-preset": "workspace:patrick-shaw/eslint-config-preset"
-    "@pshaw/logger": "workspace:misc/logger"
-    "@pshaw/markdown-util": "workspace:misc/markdown-util"
+    "@buildplan/core": "workspace:packages/buildplan/core"
+    "@byexample/openapi": "workspace:packages/byexample/byexample-openapi"
+    "@byexample/storybook-knobified": "workspace:packages/byexample/byexample-storybook-knobified"
+    "@byexample/types": "workspace:packages/byexample/byexample-types"
+    "@fault/addon-mutation-localization": "workspace:packages/faultjs/fault-addon-mutation-localization"
+    "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl"
+    "@fault/runner": "workspace:packages/faultjs/fault-runner"
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar"
+    "@fault/tester-mocha": "workspace:packages/faultjs/fault-tester-mocha"
+    "@monorepo/config": "workspace:packages/build-packages/monorepo-config"
+    "@pipelines/core": "workspace:packages/pipelines/pipelines-core"
+    "@pshaw/eslint-config-core": "workspace:packages/patrick-shaw/eslint-config-core"
+    "@pshaw/eslint-config-preset": "workspace:packages/patrick-shaw/eslint-config-preset"
+    "@pshaw/logger": "workspace:packages/misc/logger"
+    "@pshaw/markdown-util": "workspace:packages/misc/markdown-util"
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-knobs": ^5.3.19
     "@storybook/core": ^5.3.19
@@ -16852,12 +16852,12 @@ fsevents@^1.2.7:
     "@types/webpack-dev-server": ^3.10.1
     "@typescript-eslint/eslint-plugin": ^2.27.0
     "@typescript-eslint/parser": ^2.27.0
-    "@writeme/core": "workspace:writeme/writeme-core"
+    "@writeme/core": "workspace:packages/writeme/writeme-core"
     "@yarnpkg/pnpify": ^2.1.0
     babel-loader: ^8.1.0
     babel-plugin-istanbul: ^6.0.0
     chalk: ^3.0.0
-    cinder: "workspace:cinder/cinder"
+    cinder: "workspace:packages/cinder/cinder"
     codecov: ^3.6.1
     copy-webpack-plugin: ^5.1.1
     css-loader: ^3.5.2
@@ -16879,7 +16879,7 @@ fsevents@^1.2.7:
     html-webpack-plugin: ^4.2.0
     html-webpack-template: ^6.2.0
     husky: ^4.2.3
-    jest-mock-functions: "workspace:misc/jest-mock-functions"
+    jest-mock-functions: "workspace:packages/misc/jest-mock-functions"
     json-loader: ^0.5.7
     lint-staged: ^10.2.10
     micromatch: ^4.0.2
@@ -16894,7 +16894,7 @@ fsevents@^1.2.7:
     sass-loader: ^8.0.2
     source-map-loader: ^0.2.4
     source-map-support: ^0.5.13
-    stream-filter-glob: "workspace:misc/stream-filter-glob"
+    stream-filter-glob: "workspace:packages/misc/stream-filter-glob"
     stream-to-promise: ^2.2.0
     style-loader: ^1.1.3
     stylelint: ^13.3.3
@@ -16981,9 +16981,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"named-css-colors@workspace:misc/named-css-colors":
+"named-css-colors@workspace:packages/misc/named-css-colors":
   version: 0.0.0-use.local
-  resolution: "named-css-colors@workspace:misc/named-css-colors"
+  resolution: "named-css-colors@workspace:packages/misc/named-css-colors"
   languageName: unknown
   linkType: soft
 
@@ -17370,9 +17370,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nucleotide-bases@workspace:misc/nucleotide-bases":
+"nucleotide-bases@workspace:packages/misc/nucleotide-bases":
   version: 0.0.0-use.local
-  resolution: "nucleotide-bases@workspace:misc/nucleotide-bases"
+  resolution: "nucleotide-bases@workspace:packages/misc/nucleotide-bases"
   dependencies:
     "@polymer/paper-radio-button": ^3.0.1
     "@types/jest": ^24.0.15
@@ -20282,9 +20282,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"replace-functions@^4.0.0, replace-functions@workspace:misc/replace-functions":
+"replace-functions@^4.0.0, replace-functions@workspace:packages/misc/replace-functions":
   version: 0.0.0-use.local
-  resolution: "replace-functions@workspace:misc/replace-functions"
+  resolution: "replace-functions@workspace:packages/misc/replace-functions"
   languageName: unknown
   linkType: soft
 
@@ -20482,11 +20482,11 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"resultful@workspace:resultful/resultful":
+"resultful@workspace:packages/resultful/resultful":
   version: 0.0.0-use.local
-  resolution: "resultful@workspace:resultful/resultful"
+  resolution: "resultful@workspace:packages/resultful/resultful"
   dependencies:
-    "@resultful/types": "workspace:resultful/resultful-types"
+    "@resultful/types": "workspace:packages/resultful/resultful-types"
     jest-mock: ^26.1.0
   languageName: unknown
   linkType: soft
@@ -21122,9 +21122,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"sinon-stub-functions@workspace:misc/sinon-stub-functions":
+"sinon-stub-functions@workspace:packages/misc/sinon-stub-functions":
   version: 0.0.0-use.local
-  resolution: "sinon-stub-functions@workspace:misc/sinon-stub-functions"
+  resolution: "sinon-stub-functions@workspace:packages/misc/sinon-stub-functions"
   dependencies:
     replace-functions: ^4.0.0
     rewiremock: ^3.13.9
@@ -21652,9 +21652,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"stream-filter-glob@workspace:misc/stream-filter-glob":
+"stream-filter-glob@workspace:packages/misc/stream-filter-glob":
   version: 0.0.0-use.local
-  resolution: "stream-filter-glob@workspace:misc/stream-filter-glob"
+  resolution: "stream-filter-glob@workspace:packages/misc/stream-filter-glob"
   dependencies:
     micromatch: ^4.0.2
     streamfilter: ^3.0.0
@@ -22670,9 +22670,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"tree-suffix-mapper@workspace:misc/tree-suffix-mapper":
+"tree-suffix-mapper@workspace:packages/misc/tree-suffix-mapper":
   version: 0.0.0-use.local
-  resolution: "tree-suffix-mapper@workspace:misc/tree-suffix-mapper"
+  resolution: "tree-suffix-mapper@workspace:packages/misc/tree-suffix-mapper"
   languageName: unknown
   linkType: soft
 

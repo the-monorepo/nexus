@@ -1,0 +1,71 @@
+{
+  "name": "@fault/benchmark",
+  "version": "1.0.0-alpha.1",
+  "description": "Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js",
+  "types": "./src/index.ts",
+  "module": "./esm/index.js",
+  "main": "./lib/index.js",
+  "scripts": {
+    "start": "yarn node --max-old-space-size=4096 ./lib/index.js",
+    "results": "yarn node ./lib/results.js",
+    "build": "yarn start && yarn results",
+    "report": "webpack-dev-server --watch --mode development",
+    "scrape-repo": "yarn node ./lib/scrape-repo.js"
+  },
+  "files": [
+    "lib",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/benchmark"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "benchmark"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/parser": "^7.5.0",
+    "@babel/register": "^7.9.0",
+    "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl",
+    "@fault/benchmark-viewer-components": "workspace:packages/faultjs/fault-benchmark-viewer-components",
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util",
+    "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults",
+    "@fault/runner": "workspace:packages/faultjs/fault-runner",
+    "@fault/sbfl-barinel": "workspace:packages/faultjs/fault-sbfl-barinel",
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar",
+    "@fault/sbfl-ochiai": "workspace:packages/faultjs/fault-sbfl-ochiai",
+    "@fault/sbfl-op2": "workspace:packages/faultjs/fault-sbfl-op2",
+    "@fault/sbfl-tarantula": "workspace:packages/faultjs/fault-sbfl-tarantula",
+    "@fault/tester-mocha": "workspace:packages/faultjs/fault-tester-mocha",
+    "@pshaw/fs": "workspace:packages/misc/pshaw-fs",
+    "@pshaw/logger": "workspace:packages/misc/logger",
+    "chai": "^4.2.0",
+    "chalk": "^4.0.0",
+    "chart.js": "^2.9.3",
+    "chartjs-chart-box-and-violin-plot": "^2.3.0",
+    "cinder": "workspace:packages/cinder/cinder",
+    "globby": "^11.0.0",
+    "micromatch": "^4.0.2",
+    "mocha": "^7.1.1",
+    "source-map-support": "^0.5.16"
+  },
+  "devDependencies": {
+    "cross-spawn": "^6.0.5",
+    "del": "^5.1.0",
+    "isomorphic-git": "^0.58.1",
+    "node-fetch": "^2.6.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  }
+}

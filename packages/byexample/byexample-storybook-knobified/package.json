@@ -1,0 +1,29 @@
+{
+  "name": "@byexample/storybook-knobified",
+  "description": "Automatically created knobbed versions of your stories based on value and prop types",
+  "version": "1.0.0-alpha.6",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./src/index.ts",
+  "devPackage": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@storybook/addon-actions": "^4.0.4",
+    "@storybook/addon-knobs": "^4.0.4",
+    "prop-types": "^15.6.2"
+  },
+  "dependencies": {
+    "@byexample/types": "workspace:packages/byexample/byexample-types",
+    "css-color-checker": "workspace:packages/misc/css-color-checker"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^5.3.18",
+    "@storybook/addon-knobs": "^5.3.18",
+    "prop-types": "^15.7.2",
+    "react": "^16.6.1",
+    "react-dom": "^16.4.2"
+  },
+  "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da"
+}

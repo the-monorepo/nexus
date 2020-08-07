@@ -14,6 +14,7 @@ const transpilationGlobs = [
   ...config.testDirGlobs.map((dir) => `${dir}/**/*`),
   ...config.buildableSourceCodeGlobs,
 ];
+console.log(transpilationGlobs);
 
 const transpilationIgnoreGlobs = config.buildableIgnoreGlobs;
 
