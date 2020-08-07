@@ -227,7 +227,7 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
     await transpilePipes(
       packagesSrcCodeStream(),
       {
-        envName: 'esm',
+        envName: `${process.env.NODE_ENV}-esm`,
       },
       'esm',
       chalk.rgb(255, 200, 100),
