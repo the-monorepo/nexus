@@ -67,6 +67,8 @@ const getConfig = () => {
 
   const testDirGlobs = ['test', `${concatenatedWorkspaces}/test`];
 
+  const testCodeGlobs = testDirGlobs.map(glob => `${glob}/**/*.${concatenatedCodeExtensions}`);
+
   const testableGlobs = [
     `test/**/*.test.${concatenatedCodeExtensions}`,
     `${concatenatedWorkspaces}/**/*.test.${concatenatedCodeExtensions}`
@@ -74,6 +76,7 @@ const getConfig = () => {
 
   return {
     testDirGlobs,
+    testCodeGlobs,
     testableGlobs,
     testableIgnoreGlobs,
     buildableSourceFileGlobs,
