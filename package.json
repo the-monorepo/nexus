@@ -12,7 +12,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git"
   },
   "scripts": {
-    "run:buildplan": "yarn node --require=\"./buildBabelRegister.js\" --require=\"./original-code-require-override.ts\" buildplan.ts",
+    "run:buildplan": "yarn node --require=\"./buildBabelRegister.cjs\" buildplan.ts",
     "format": "yarn run:buildplan format",
     "format-staged": "yarn run:buildplan format-staged",
     "test": "yarn run:buildplan test",
@@ -80,6 +80,7 @@
     "css-loader": "^3.5.2",
     "del": "^5.1.0",
     "eslint": "^7.0.0",
+    "esm": "^3.2.25",
     "expect": "^25.1.0",
     "fibers": "^5.0.0",
     "file-loader": "^6.0.0",

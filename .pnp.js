@@ -3649,6 +3649,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:1.1.0"
       ],
       [
+        "esm",
+        "npm:3.2.25"
+      ],
+      [
         "espree",
         "npm:7.0.0"
       ],
@@ -7832,6 +7836,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["css-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.5.3"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:7.0.0"],
+            ["esm", "npm:3.2.25"],
             ["expect", "npm:25.5.0"],
             ["fibers", "npm:5.0.0"],
             ["file-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.0"],
@@ -21976,6 +21981,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["esm", [
+        ["npm:3.2.25", {
+          "packageLocation": "./.yarn/cache/esm-npm-3.2.25-762b3ebd40-12a0272aaa.zip/node_modules/esm/",
+          "packageDependencies": [
+            ["esm", "npm:3.2.25"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["espree", [
         ["npm:6.2.1", {
           "packageLocation": "./.yarn/cache/espree-npm-6.2.1-c3370c8022-8651a6c162.zip/node_modules/espree/",
@@ -28059,6 +28073,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["css-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.5.3"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:7.0.0"],
+            ["esm", "npm:3.2.25"],
             ["expect", "npm:25.5.0"],
             ["fibers", "npm:5.0.0"],
             ["file-loader", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.0"],
