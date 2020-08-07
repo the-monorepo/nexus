@@ -1,5 +1,7 @@
 import 'source-map-support/register';
 
+import './original-code-require-override';
+
 import { join, sep, relative } from 'path';
 
 import chalk from 'chalk';
