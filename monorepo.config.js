@@ -38,13 +38,13 @@ module.exports.serve = {
   servers: {
     servers: [
       {
-        input: './faultjs/fault-benchmark/src/frontend/index.tsx',
+        input: './packages/faultjs/fault-benchmark/src/frontend/index.tsx',
       },
       {
-        input: './patrick-shaw/my-resume/src/index.tsx',
+        input: './packages/patrick-shaw/my-resume/src/index.tsx',
       },
       {
-        input: './misc/page-breaker-chrome/src/index.tsx',
+        input: './packages/misc/page-breaker-chrome/src/index.tsx',
       },
     ],
   },
