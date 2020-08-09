@@ -10,7 +10,7 @@
     "directory": "contextual-documents/contextual-documents-classname-picker"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

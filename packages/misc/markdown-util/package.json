@@ -17,7 +17,7 @@
     "directory": "misc/markdown-util"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

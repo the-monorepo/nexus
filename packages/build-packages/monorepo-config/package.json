@@ -14,7 +14,7 @@
   "main": "./src/index.js",
   "license": "MIT",
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

@@ -10,7 +10,7 @@
     "directory": "misc/custom-element"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

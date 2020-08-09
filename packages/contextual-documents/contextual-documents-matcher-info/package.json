@@ -10,7 +10,7 @@
     "directory": "contextual-documents/contextual-documents-matcher-info"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

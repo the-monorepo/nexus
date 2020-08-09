@@ -24,7 +24,7 @@
     "**/.yarn/**",
     "**/node_modules",
     "**/build",
-    "**/lib",
+    "**/commonjs",
     "**/esm",
     "**/dist"
   ]

@@ -10,7 +10,7 @@
     "directory": "contextual-documents/contextual-documents-element"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

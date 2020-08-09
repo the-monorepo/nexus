@@ -10,7 +10,7 @@
     "directory": "cinder/cinder-element"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

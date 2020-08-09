@@ -15,7 +15,7 @@
   "module": "./esm/index.js",
   "main": "./commonjs/index.js",
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

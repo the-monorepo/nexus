@@ -10,7 +10,7 @@
     "directory": "contextual-documents/contextual-documents-html-symbols"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

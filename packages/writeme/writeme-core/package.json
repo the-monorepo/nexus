@@ -8,7 +8,7 @@
     "util"
   ],
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],
