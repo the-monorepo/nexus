@@ -12,7 +12,7 @@
   "version": "1.4.3-0",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
-  "main": "./lib/index.js",
+  "main": "./commonjs/index.js",
   "files": [
     "lib",
     "src",

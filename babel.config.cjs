@@ -1,9 +1,9 @@
 const config = require('@monorepo/config');
 
 module.exports = (api) => {
-  const usingCommonjs = api.env(['production-commonjs', 'test-commonjs', 'development-commonjs']);
-  const production = api.env(['production', 'production-commonjs']);
-  const test = api.env(['test', 'test-commonjs']);
+  const usingEsm = api.env(['production-esm', 'test-esm', 'development-esm']);
+  const production = api.env(['production', 'production-esm']);
+  const test = api.env(['test', 'test-esm']);
 
   const classPropertyPlugin = [
     '@babel/plugin-proposal-class-properties',
@@ -35,10 +35,10 @@ module.exports = (api) => {
       {
         // TODO: Remove this in once Babel 8 is implemented
         bugfixes: true,
-        modules: usingCommonjs ? 'commonjs' : false,
+        modules: usingEsm ? false : 'commonjs',
         targets: {
           node: production ? '10' : 'current',
-          esmodules: !usingCommonjs,
+          esmodules: usingEsm,
         },
       },
     ],

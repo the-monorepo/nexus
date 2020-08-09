@@ -31,7 +31,7 @@ jspm_packages/
 .env
 
 .cache
-packages/*/*/lib/
+packages/*/*/commonjs/
 packages/*/*/esm/
 packages/*/*/dist/
 packages/*/*/stats.html

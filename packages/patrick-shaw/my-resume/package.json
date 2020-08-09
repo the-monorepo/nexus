@@ -11,7 +11,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "start": "yarn watch",
-    "pdf": "babel-node ./lib/to-pdf.js",
+    "pdf": "babel-node ./commonjs/index.js",
     "watch": "webpack-dev-server --watch --mode development"
   },
   "dependencies": {

@@ -27,7 +27,7 @@ const getConfig = () => {
 
   const concatenatedCodeExtensions = arrayToBracedString(codeExtensions);
 
-  const defaultArtifactDirNames = ['esm', 'lib', 'dist'];
+  const defaultArtifactDirNames = ['esm', 'commonjs', 'dist'];
   const concatenatedDefaultArtifactDirNames = arrayToBracedString(defaultArtifactDirNames);
 
   const buildableIgnoreGlobs = extraBuildIgnoreGlobs;

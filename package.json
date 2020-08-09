@@ -12,7 +12,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git"
   },
   "scripts": {
-    "run:buildplan": "yarn node --require=\"esm\" --require=\"./transpile-at-runtime.js\" buildplan.ts",
+    "run:buildplan": "yarn node --require=./transpile-at-runtime --require=./original-code-require-override buildplan.ts",
     "format": "yarn run:buildplan format",
     "format-staged": "yarn run:buildplan format-staged",
     "test": "yarn run:buildplan test",

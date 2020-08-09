@@ -9,7 +9,7 @@
     "data-structure"
   ],
   "version": "1.0.0-alpha.0",
-  "main": "./lib/index.js",
+  "main": "./commonjs/index.js",
   "module": "./src/index.js",
   "types": "./src/index.ts",
   "license": "MIT",

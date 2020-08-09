@@ -1,33 +1,35 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-import { relative } from 'path';
+/* eslint-disable @typescript-eslint/no-var-require(s */
+const { relative } = require("path");
 
-import register from '@babel/register';
-import { matcher } from 'micromatch';
+const register = require("@babel/register");
+const { matcher } = require("micromatch");
 
-import config from '@monorepo/config';
+const config = require("@monorepo/config");
 
 const transpilationGlobs = [
   ...config.buildableSourceCodeGlobs,
-  '.yarn/$$virtual/*/src/**/*',
+  ".yarn/$$virtual/*/src/**/*",
   ...config.testCodeGlobs,
 ];
 
 const transpilationIgnoreGlobs = config.buildableIgnoreGlobs;
 
-const matchers = [...transpilationIgnoreGlobs, ...transpilationGlobs].map(matcher);
+const matchers = [...transpilationIgnoreGlobs, ...transpilationGlobs].map(
+  matcher
+);
 
 register({
   extensions: config.codeExtensions.map((extension) => `.${extension}`),
   only: [
     (testPath) => {
       const relativePath = relative(__dirname, testPath);
-      switch(relativePath) {
-        case 'webpack.config.ts':
-        case 'original-code-require-override.ts':
-        case 'buildplan.ts':
+      switch (relativePath) {
+        case "webpack.config.ts":
+        case "original-code-require-override.ts":
+        case "buildplan.ts":
           return true;
         default: {
-          return matchers.some(isMatch => isMatch(relativePath));
+          return matchers.some((isMatch) => isMatch(relativePath));
         }
       }
     },
