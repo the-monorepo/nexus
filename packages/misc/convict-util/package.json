@@ -7,7 +7,7 @@
     "util"
   ],
   "version": "1.4.3",
-  "main": "./lib/index.js",
+  "main": "./commonjs/index.js",
   "module": "./src/index.js",
   "types": "./src/index.ts",
   "license": "MIT",

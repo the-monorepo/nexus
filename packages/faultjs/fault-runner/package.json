@@ -4,7 +4,7 @@
   "description": "The official Fault.js test runner",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
-  "main": "./lib/index.js",
+  "main": "./commonjs/index.js",
   "files": [
     "lib",
     "src",

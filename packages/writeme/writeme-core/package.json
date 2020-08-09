@@ -13,8 +13,8 @@
     "esm"
   ],
   "version": "3.1.4-0",
-  "main": "./lib/index.js",
-  "module": "./src/index.js",
+  "main": "./commonjs/index.js",
+  "module": "./esm/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
   "repository": {

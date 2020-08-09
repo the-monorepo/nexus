@@ -17,7 +17,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./lib/index.js",
+  "main": "./commonjs/index.js",
   "module": "./esm/index.js",
   "dependencies": {
     "@types/classnames": "^2.2.7",

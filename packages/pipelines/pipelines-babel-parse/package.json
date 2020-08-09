@@ -4,11 +4,11 @@
   "description": "Pipelines Babel integration",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
-  "main": "./lib/index.js",
+  "main": "./commonjs/index.js",
   "exports": {
     "monorepo-original": "./src/index.ts",
     "import": "./esm/index.js",
-    "require": "./lib/index.js"
+    "require": "./commonjs/index.js"
   },
   "files": [
     "bin",

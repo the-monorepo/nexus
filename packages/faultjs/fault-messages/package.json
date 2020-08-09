@@ -4,7 +4,7 @@
   "description": "Helper methods for easier communication between the main @fault/runner process and its workers",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
-  "main": "./lib/index.js",
+  "main": "./commonjs/index.js",
   "files": [
     "lib",
     "src",

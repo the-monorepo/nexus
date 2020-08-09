@@ -1,7 +1,5 @@
 import 'source-map-support/register';
 
-import './original-code-require-override';
-
 import { join, sep, relative } from 'path';
 
 import chalk from 'chalk';
@@ -181,7 +179,7 @@ const copyPipes = (stream, l, dir) => {
 
 const copyScript = () => {
   const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(200, 255, 100)('lib'));
-  return copyPipes(packagesSrcAssetStream(), l, 'lib');
+  return copyPipes(packagesSrcAssetStream(), l, 'commonjs');
 };
 
 const copyEsm = () => {
@@ -191,10 +189,10 @@ const copyEsm = () => {
 
 const copy = parallel(copyScript, copyEsm);
 
-const transpilePipes = async (stream, babelOptions, dir, chalkFn) => {
+const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn) => {
   const sourcemaps = await import('gulp-sourcemaps');
   const { default: babel } = await import('gulp-babel');
-  const l = logger.child(chalk.blueBright('transpile'), chalkFn(dir));
+  const l = logger.child(chalk.blueBright('transpile'), chalkFn(logName));
 
   return stream
     .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
@@ -216,9 +214,10 @@ const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
     await transpilePipes(
       packagesSrcCodeStream(),
       {
-        envName: `${process.env.NODE_ENV}-commonjs` ?? 'development-commonjs',
+        envName: process.env.NODE_ENV ?? 'development',
       },
-      'lib',
+      'commonjs',
+      'cjs',
       chalk.rgb(200, 255, 100),
     ),
   ).pipe(gulp.dest('.'));
@@ -229,9 +228,10 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
     await transpilePipes(
       packagesSrcCodeStream(),
       {
-        envName: process.env.NODE_ENV ?? 'development',
+        envName: `${process.env.NODE_ENV}-esm` ?? 'development-esm',
       },
       'esm',
+      undefined,
       chalk.rgb(255, 200, 100),
     ),
   ).pipe(gulp.dest('.'));
