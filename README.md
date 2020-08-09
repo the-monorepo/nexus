@@ -119,7 +119,7 @@ Version | Package | Description
 1.4.3-0 | [`@pshaw/eslint-config-preset`](packages/patrick-shaw/eslint-config-preset/README.md) | A pratical style preset for ESLint
 1.4.2 | [`@pshaw/monorepo-config`](packages/patrick-shaw/monorepo-config/README.md) | My @monorepo/config preset settings
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](packages/patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
-1.4.2 | [`@pshaw/webpack-config-utils`](packages/patrick-shaw/webpack-config-utils/README.md) | Some utilities for building webpack configs
+1.4.2 | [`@pshaw/webpack`](packages/patrick-shaw/webpack/README.md) | Some utilities for building webpack configs
 
 
 ---

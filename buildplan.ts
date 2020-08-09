@@ -5,6 +5,8 @@ import { join, sep, relative } from "path";
 import chalk from "chalk";
 
 import gulp from "gulp";
+
+import gulpPlumber from 'gulp-plumber';
 import changed from "gulp-changed";
 
 import rename from "gulp-rename";
@@ -81,7 +83,6 @@ const swapSrcWith = (srcPath, newDirName) => {
   // Swap out src for the new dir name
   parts[3] = newDirName;
   const resultingPath = join(...parts);
-
   return resultingPath;
 };
 
@@ -171,12 +172,13 @@ const clean = async () => {
 task("clean", clean);
 
 const copyPipes = (stream, l, dir) => {
+  const renamePath = createSrcDirSwapper(dir);
   return stream
-    .pipe(changed(".", { transformPath: createSrcDirSwapper(dir) }))
+    .pipe(changed(".", { transformPath: renamePath }))
     .pipe(simplePipeLogger(l))
     .pipe(
       rename((filePath) => {
-        filePath.dirname = swapSrcWith(filePath.dirname, dir);
+        filePath.dirname = renamePath(filePath.dirname, dir);
         return filePath;
       })
     )
@@ -211,12 +213,14 @@ const transpilePipes = async (
   const sourcemaps = await import("gulp-sourcemaps");
   const { default: babel } = await import("gulp-babel");
   const l = logger.child(chalk.blueBright("transpile"), chalkFn(logName));
+  const renamePath = createSrcDirSwapper(dir);
 
   return stream
+    .pipe(gulpPlumber({ errorHandler: (err) => l.exception(err) }))
     .pipe(
       changed(".", {
         extension: ".js",
-        transformPath: createSrcDirSwapper(dir),
+        transformPath: renamePath,
       })
     )
     .pipe(simplePipeLogger(l))
@@ -224,7 +228,7 @@ const transpilePipes = async (
     .pipe(babel(babelOptions))
     .pipe(
       rename((filePath) => {
-        filePath.dirname = swapSrcWith(filePath.dirname, dir);
+        filePath.dirname = renamePath(filePath.dirname, dir);
         return filePath;
       })
     )
@@ -527,7 +531,7 @@ task("precommit", precommit);
 
 const webpackCompilers = async () => {
   const { default: minimist } = await import("minimist");
-  const { default: webpack } = await import("webpack");
+  const { webpack } = await import("@pshaw/webpack");
   const { isMatch } = await import("micromatch");
   const { default: webpackConfigs } = await import("./webpack.config");
 
@@ -639,7 +643,7 @@ const prepublish = series(
 task("prepublish", prepublish);
 
 const serveBundles = async () => {
-  const { default: WebpackDevServer } = await import("webpack-dev-server");
+  const { WebpackDevServer } = await import("@pshaw/webpack");
   const compilers = await webpackCompilers();
   let port = 3000;
   const l = logger.child(chalk.magentaBright("webpack"));

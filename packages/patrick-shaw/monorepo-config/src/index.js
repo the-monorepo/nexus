@@ -2,8 +2,6 @@ const { resolve } = require('path');
 
 const codeExtensions = ["js", "jsx", "ts", "tsx", "mjs", "cjs"];
 
-module.exports.codeExtensions = codeExtensions;
-
 const createConfigPresets = (rootProjectDir, workspaces = resolve(rootProjectDir, './packages/*/*')) => {
   const dependencyGlobs = [
     ".yarn/cache/**",
@@ -32,7 +30,6 @@ const createConfigPresets = (rootProjectDir, workspaces = resolve(rootProjectDir
   ]
 
   return {
-    codeExtensions,
     dependencyGlobs,
     extraBuildIgnoreGlobs,
     extraFormatIgnoreGlobs,
@@ -42,4 +39,5 @@ const createConfigPresets = (rootProjectDir, workspaces = resolve(rootProjectDir
   };
 };
 
-module.exports = createConfigPresets;
+module.exports.codeExtensions = codeExtensions;
+module.exports.default = createConfigPresets;
