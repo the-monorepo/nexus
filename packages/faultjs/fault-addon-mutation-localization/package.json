@@ -42,7 +42,7 @@
     "chalk": "^4.0.0",
     "del": "^5.1.0",
     "error-stack-parser": "^2.0.6",
-    "istanbul-commonjs-coverage": "^3.0.0",
+    "istanbul-lib-coverage": "^3.0.0",
     "micromatch": "^4.0.2",
     "pouchdb": "^7.1.1",
     "pouchdb-adapter-memory": "^7.1.1",

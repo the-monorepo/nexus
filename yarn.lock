@@ -2616,7 +2616,7 @@ __metadata:
     commander: ^5.1.0
     source-map-support: ^0.5.9
   bin:
-    byexample: ./lib/bin.js
+    byexample: ./commonjs/index.js
   languageName: unknown
   linkType: soft
 
