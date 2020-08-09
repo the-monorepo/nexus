@@ -457,7 +457,7 @@ const testNoBuild = async () => {
     setupFiles: [
       'source-map-support/register',
       './test/helpers/globals',
-      './buildBabelRegister',
+      './transpile-at-runtime',
     ],
     testerOptions: {
       sandbox: true,
