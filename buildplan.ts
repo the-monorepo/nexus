@@ -345,26 +345,23 @@ const build = series(buildSource, writeme);
 task("build", build);
 
 const watch = async () => {
-  const { watch: chokidarWatch } = await import("chokidar");
   // TODO: Never resolves :3 (on purpose but should find a better way)
-  return new Promise((_, reject) => {
-    gulp.watch(
-      config.buildableSourceFileGlobs,
-      {
-        ignoreInitial: false,
-        ignored: config.buildableIgnoreGlobs,
-        events: "all",
-      },
-      () => {
-        try {
-          logger.info(`Rerunning ${chalk.cyan("watch")}`);
-          return parallel(copy, transpile)();
-        } catch (err) {
-          reject(err);
-        }
+  return gulp.watch(
+    config.buildableSourceFileGlobs,
+    {
+      ignoreInitial: false,
+      ignored: config.buildableIgnoreGlobs,
+      events: "all",
+    },
+    () => {
+      try {
+        logger.info(`Rerunning ${chalk.cyan("watch")}`);
+        return parallel(copy, transpile)();
+      } catch (err) {
+        reject(err);
       }
-    );
-  });
+    }
+  );
 };
 task("watch", watch);
 
