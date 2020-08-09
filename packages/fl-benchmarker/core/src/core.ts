@@ -241,7 +241,7 @@ export const run = async () => {
     log.verbose(`Running SBFL algorithms on ${projectDir}`);
 
     const ignoreGlob =
-      '../{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+      '!../{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-addon-mutation-localization-v1,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
     const sbflAddons = sbflAlgorithms.map(({ scoringFn, name, console = false }) => {
       const sbflAddon = createPlugin({
         scoringFn: scoringFn,
