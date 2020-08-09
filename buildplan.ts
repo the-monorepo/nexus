@@ -304,7 +304,9 @@ const writeme = async () => {
 };
 task('writeme', writeme);
 
-const build = series(parallel(copy, transpile), writeme);
+const buildSource = parallel(copy, transpile);
+
+const build = series(buildSource, writeme);
 task('build', build);
 
 const watch = () => {
@@ -455,9 +457,7 @@ const testNoBuild = async () => {
       NODE_ENV: 'test',
     },
     setupFiles: [
-      'source-map-support/register',
       './test/helpers/globals',
-      './transpile-at-runtime',
     ],
     testerOptions: {
       sandbox: true,
@@ -577,7 +577,7 @@ const bundleWebpack = async () => {
 
 task('webpack', bundleWebpack);
 
-task('build-all', series(parallel(copy, transpile), bundleWebpack, writeme));
+task('build-all', series(buildSource, bundleWebpack, writeme));
 
 const prepublish = series(
   parallel(clean, format),

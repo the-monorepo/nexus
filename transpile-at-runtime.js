@@ -8,7 +8,6 @@ const config = require("@monorepo/config");
 
 const transpilationGlobs = [
   ...config.buildableSourceCodeGlobs,
-  ".yarn/$$virtual/*/src/**/*",
   ...config.testCodeGlobs,
 ];
 
