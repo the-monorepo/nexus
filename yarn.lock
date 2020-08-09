@@ -3122,54 +3122,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fault/benchmark-viewer-components@workspace:packages/faultjs/fault-benchmark-viewer-components":
-  version: 0.0.0-use.local
-  resolution: "@fault/benchmark-viewer-components@workspace:packages/faultjs/fault-benchmark-viewer-components"
-  dependencies:
-    chart.js: ^2.9.3
-    chartjs-chart-box-and-violin-plot: ^2.3.0
-    cinder: "workspace:packages/cinder/cinder"
-  languageName: unknown
-  linkType: soft
-
-"@fault/benchmark@workspace:packages/faultjs/fault-benchmark":
-  version: 0.0.0-use.local
-  resolution: "@fault/benchmark@workspace:packages/faultjs/fault-benchmark"
-  dependencies:
-    "@babel/core": ^7.9.0
-    "@babel/parser": ^7.5.0
-    "@babel/register": ^7.9.0
-    "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl"
-    "@fault/benchmark-viewer-components": "workspace:packages/faultjs/fault-benchmark-viewer-components"
-    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
-    "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults"
-    "@fault/runner": "workspace:packages/faultjs/fault-runner"
-    "@fault/sbfl-barinel": "workspace:packages/faultjs/fault-sbfl-barinel"
-    "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar"
-    "@fault/sbfl-ochiai": "workspace:packages/faultjs/fault-sbfl-ochiai"
-    "@fault/sbfl-op2": "workspace:packages/faultjs/fault-sbfl-op2"
-    "@fault/sbfl-tarantula": "workspace:packages/faultjs/fault-sbfl-tarantula"
-    "@fault/tester-mocha": "workspace:packages/faultjs/fault-tester-mocha"
-    "@pshaw/fs": "workspace:packages/misc/pshaw-fs"
-    "@pshaw/logger": "workspace:packages/misc/logger"
-    chai: ^4.2.0
-    chalk: ^4.0.0
-    chart.js: ^2.9.3
-    chartjs-chart-box-and-violin-plot: ^2.3.0
-    cinder: "workspace:packages/cinder/cinder"
-    cross-spawn: ^6.0.5
-    del: ^5.1.0
-    globby: ^11.0.0
-    isomorphic-git: ^0.58.1
-    micromatch: ^4.0.2
-    mocha: ^7.1.1
-    node-fetch: ^2.6.0
-    source-map-support: ^0.5.16
-    webpack-cli: ^3.3.11
-    webpack-dev-server: ^3.11.0
-  languageName: unknown
-  linkType: soft
-
 "@fault/istanbul-util@workspace:packages/faultjs/fault-istanbul-util":
   version: 0.0.0-use.local
   resolution: "@fault/istanbul-util@workspace:packages/faultjs/fault-istanbul-util"
@@ -3278,6 +3230,55 @@ __metadata:
 "@fault/types@workspace:packages/faultjs/fault-types":
   version: 0.0.0-use.local
   resolution: "@fault/types@workspace:packages/faultjs/fault-types"
+  languageName: unknown
+  linkType: soft
+
+"@fl-benchmarker/benchmarker-cli@workspace:packages/fl-benchmarker/benchmarker-cli":
+  version: 0.0.0-use.local
+  resolution: "@fl-benchmarker/benchmarker-cli@workspace:packages/fl-benchmarker/benchmarker-cli"
+  dependencies:
+    "@babel/core": ^7.9.0
+    "@babel/parser": ^7.5.0
+    "@babel/register": ^7.9.0
+    "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl"
+    "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util"
+    "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults"
+    "@fault/runner": "workspace:packages/faultjs/fault-runner"
+    "@fault/sbfl-barinel": "workspace:packages/faultjs/fault-sbfl-barinel"
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar"
+    "@fault/sbfl-ochiai": "workspace:packages/faultjs/fault-sbfl-ochiai"
+    "@fault/sbfl-op2": "workspace:packages/faultjs/fault-sbfl-op2"
+    "@fault/sbfl-tarantula": "workspace:packages/faultjs/fault-sbfl-tarantula"
+    "@fault/tester-mocha": "workspace:packages/faultjs/fault-tester-mocha"
+    "@fl-benchmarker/viewer-cli": "workspace:packages/fl-benchmarker/viewer-cli"
+    "@pshaw/fs": "workspace:packages/misc/pshaw-fs"
+    "@pshaw/logger": "workspace:packages/misc/logger"
+    chai: ^4.2.0
+    chalk: ^4.0.0
+    chart.js: ^2.9.3
+    chartjs-chart-box-and-violin-plot: ^2.3.0
+    cinder: "workspace:packages/cinder/cinder"
+    cross-spawn: ^6.0.5
+    del: ^5.1.0
+    globby: ^11.0.0
+    isomorphic-git: ^0.58.1
+    micromatch: ^4.0.2
+    mocha: ^7.1.1
+    node-fetch: ^2.6.0
+    source-map-support: ^0.5.16
+  languageName: unknown
+  linkType: soft
+
+"@fl-benchmarker/viewer-cli@workspace:packages/fl-benchmarker/viewer-cli":
+  version: 0.0.0-use.local
+  resolution: "@fl-benchmarker/viewer-cli@workspace:packages/fl-benchmarker/viewer-cli"
+  dependencies:
+    chart.js: ^2.9.3
+    chartjs-chart-box-and-violin-plot: ^2.3.0
+    cinder: "workspace:packages/cinder/cinder"
+    webpack-dev-server: ^3.11.0
+  bin:
+    fl-benchmarker-viewer: ./commonjs/bin.js
   languageName: unknown
   linkType: soft
 
@@ -3785,6 +3786,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@pshaw/monorepo-config@workspace:packages/patrick-shaw/monorepo-config":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/monorepo-config@workspace:packages/patrick-shaw/monorepo-config"
+  languageName: unknown
+  linkType: soft
+
 "@pshaw/my-resume@workspace:packages/patrick-shaw/my-resume":
   version: 0.0.0-use.local
   resolution: "@pshaw/my-resume@workspace:packages/patrick-shaw/my-resume"
@@ -3830,6 +3837,12 @@ __metadata:
 "@pshaw/typography-scss@workspace:packages/patrick-shaw/typography-scss":
   version: 0.0.0-use.local
   resolution: "@pshaw/typography-scss@workspace:packages/patrick-shaw/typography-scss"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/webpack-config-utils@workspace:packages/patrick-shaw/webpack-config-utils":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/webpack-config-utils@workspace:packages/patrick-shaw/webpack-config-utils"
   languageName: unknown
   linkType: soft
 
@@ -10894,17 +10907,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:4.1.0":
-  version: 4.1.0
-  resolution: "enhanced-resolve@npm:4.1.0"
-  dependencies:
-    graceful-fs: ^4.1.2
-    memory-fs: ^0.4.0
-    tapable: ^1.0.0
-  checksum: a2c570450cb552aff2edb5e115ba950e7895941be4f6625b320804502ae4d8ee46a6fb040ff9454335bd933b36d1db457da5869852bb7f5041209979a747dafc
-  languageName: node
-  linkType: hard
-
 "enhanced-resolve@npm:5.0.0-beta.8":
   version: 5.0.0-beta.8
   resolution: "enhanced-resolve@npm:5.0.0-beta.8"
@@ -12093,18 +12095,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"findup-sync@npm:3.0.0, findup-sync@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "findup-sync@npm:3.0.0"
-  dependencies:
-    detect-file: ^1.0.0
-    is-glob: ^4.0.0
-    micromatch: ^3.0.4
-    resolve-dir: ^1.0.1
-  checksum: be03bd98fc3f6666933b958e690b3913ac932496d55db13379de93657d86073c18ec53e7438ffe3adf98b606830c3d4645fae985e857645dd8a56983188abade
-  languageName: node
-  linkType: hard
-
 "findup-sync@npm:^2.0.0":
   version: 2.0.0
   resolution: "findup-sync@npm:2.0.0"
@@ -12114,6 +12104,18 @@ __metadata:
     micromatch: ^3.0.4
     resolve-dir: ^1.0.1
   checksum: 34497dd1f567e47124ddf5f7eba98f8cfaa5dd34f7253cb1d972d2205926dd8cbf385b57957acd72e61c2760dbd2e69a330a454449a85dfc5d1d0d7ebfbce9af
+  languageName: node
+  linkType: hard
+
+"findup-sync@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "findup-sync@npm:3.0.0"
+  dependencies:
+    detect-file: ^1.0.0
+    is-glob: ^4.0.0
+    micromatch: ^3.0.4
+    resolve-dir: ^1.0.1
+  checksum: be03bd98fc3f6666933b958e690b3913ac932496d55db13379de93657d86073c18ec53e7438ffe3adf98b606830c3d4645fae985e857645dd8a56983188abade
   languageName: node
   linkType: hard
 
@@ -13826,7 +13828,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"import-local@npm:2.0.0, import-local@npm:^2.0.0":
+"import-local@npm:^2.0.0":
   version: 2.0.0
   resolution: "import-local@npm:2.0.0"
   dependencies:
@@ -14009,7 +14011,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"interpret@npm:1.2.0, interpret@npm:^1.0.0, interpret@npm:^1.1.0":
+"interpret@npm:^1.0.0, interpret@npm:^1.1.0":
   version: 1.2.0
   resolution: "interpret@npm:1.2.0"
   checksum: 06d0dd4af01f9d0a99af8fb20c888db99e7c1bd28835951646a7e426dd99ccfffb9d06ad2e8f7cb60dd2ecc3e5bc61fe83e04c2cc47d92c7b144ff935673463c
@@ -14036,13 +14038,6 @@ fsevents@^1.2.7:
   version: 1.0.0
   resolution: "invert-kv@npm:1.0.0"
   checksum: fccd6ea4ee18d30b00fc21d6679191690f8447f248cbcdf6f74fe81a4048d51a3858d7af17a0318bd7c6fe6c46abee5a10756109787a3ec0e0a02a2c1b4a635d
-  languageName: node
-  linkType: hard
-
-"invert-kv@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "invert-kv@npm:2.0.0"
-  checksum: 10b0fa3fd436b0340149fdb3c66cc2d1c0746e612fe1b5d356d9f520fd7f5c5f9c39bd9dddf184612ff421738005ad9c3e72386b97fb055c00c983e4ea1bc30d
   languageName: node
   linkType: hard
 
@@ -15439,15 +15434,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lcid@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "lcid@npm:2.0.0"
-  dependencies:
-    invert-kv: ^2.0.0
-  checksum: 147695e053a0193d82eb75d199089e0563fa27773d1d3c8cbec6c7bc16edcb8bc01949a3f2e687b853999711107e9adba2f4dc266bb65f536b8ac50a5eeceaab
-  languageName: node
-  linkType: hard
-
 "lead@npm:^1.0.0":
   version: 1.0.0
   resolution: "lead@npm:1.0.0"
@@ -16073,15 +16059,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"map-age-cleaner@npm:^0.1.1":
-  version: 0.1.3
-  resolution: "map-age-cleaner@npm:0.1.3"
-  dependencies:
-    p-defer: ^1.0.0
-  checksum: 0f0b8114925d9f9d528c5d5c9cbde83fea203b8edb1cfdb10d31aa2ce1ddccfcefe0bd6924b0d2e3928ff9d895496bf817a22b259fe05f3c4865702e65b71fd3
-  languageName: node
-  linkType: hard
-
 "map-cache@npm:^0.2.0, map-cache@npm:^0.2.2":
   version: 0.2.2
   resolution: "map-cache@npm:0.2.2"
@@ -16240,17 +16217,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mem@npm:^4.0.0":
-  version: 4.3.0
-  resolution: "mem@npm:4.3.0"
-  dependencies:
-    map-age-cleaner: ^0.1.1
-    mimic-fn: ^2.0.0
-    p-is-promise: ^2.0.0
-  checksum: 3af1ac31ef775c5b23bbc0e078d22324c083822fb6ee1a183595359fc23ef638cf90e8c1e044e5f17c871c6e50dc11db11f1aee112d85dc936e3aa2093acd038
-  languageName: node
-  linkType: hard
-
 "memdown@npm:1.2.4":
   version: 1.2.4
   resolution: "memdown@npm:1.2.4"
@@ -16296,7 +16262,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"memory-fs@npm:^0.4.0, memory-fs@npm:^0.4.1":
+"memory-fs@npm:^0.4.1":
   version: 0.4.1
   resolution: "memory-fs@npm:0.4.1"
   dependencies:
@@ -16500,7 +16466,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mimic-fn@npm:^2.0.0, mimic-fn@npm:^2.1.0":
+"mimic-fn@npm:^2.1.0":
   version: 2.1.0
   resolution: "mimic-fn@npm:2.1.0"
   checksum: f7d2d7febe3d7dd71da0700b1d455ec6c951a96b463ffcc303c93771b9fe4e45318152ea677c241505b19b39e41d906e5052cfb382d59a44bdb6d3d57f8b467b
@@ -17773,17 +17739,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"os-locale@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "os-locale@npm:3.1.0"
-  dependencies:
-    execa: ^1.0.0
-    lcid: ^2.0.0
-    mem: ^4.0.0
-  checksum: 50611551f032c5e7d938425263f1379093d6acae3c18448599801ee296fbb63a90460ec68ba26a721240322d6032b592c3a837212af2ca81f0a3104956925f68
-  languageName: node
-  linkType: hard
-
 "os-tmpdir@npm:^1.0.0, os-tmpdir@npm:^1.0.1, os-tmpdir@npm:~1.0.2":
   version: 1.0.2
   resolution: "os-tmpdir@npm:1.0.2"
@@ -17808,24 +17763,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"p-defer@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "p-defer@npm:1.0.0"
-  checksum: ffaabb161334dd9b471f7136038c9322f5288fdd86e070d75a6c65f1b28893d5ef084d9b94401e285117da65906c2952a96404a45a57ecd010393445ac2b6159
-  languageName: node
-  linkType: hard
-
 "p-finally@npm:^1.0.0":
   version: 1.0.0
   resolution: "p-finally@npm:1.0.0"
   checksum: 01f49b2d9c67573b3a1cb253cd9e1ecf5c912b6ba5de8824118bbc8d647bfa6296820b5a536e91ec68a54395d4e1c58de9a381ded3b688074fb446a8fe351931
-  languageName: node
-  linkType: hard
-
-"p-is-promise@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "p-is-promise@npm:2.1.0"
-  checksum: 4a15137df9aebb9f91ea9a5d517bbfbbdcadfb56787f0f17cbc8802fc37a2e84239a7e52d6b27fdc212acd2fd428cc8506bd88f1d7d56720c591d43eed8c1d6e
   languageName: node
   linkType: hard
 
@@ -22119,15 +22060,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"supports-color@npm:6.1.0, supports-color@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "supports-color@npm:6.1.0"
-  dependencies:
-    has-flag: ^3.0.0
-  checksum: 86821571295ad9f808d5e0149f13c2b0ca6faaf1325c427b369e6f4b2b1e4759046b7a4ea0e3c3c7f2546035fa2fb0d6a90f31c6c4f751eaedbcdc1b983a08cc
-  languageName: node
-  linkType: hard
-
 "supports-color@npm:^2.0.0":
   version: 2.0.0
   resolution: "supports-color@npm:2.0.0"
@@ -22141,6 +22073,15 @@ fsevents@^1.2.7:
   dependencies:
     has-flag: ^3.0.0
   checksum: edacee6425498440744c418be94b0660181aad2a1828bcf2be85c42bd385da2fd8b2b358d9b62b0c5b03ff5cd3e992458d7b8f879d9fb42f2201fe05a4848a29
+  languageName: node
+  linkType: hard
+
+"supports-color@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "supports-color@npm:6.1.0"
+  dependencies:
+    has-flag: ^3.0.0
+  checksum: 86821571295ad9f808d5e0149f13c2b0ca6faaf1325c427b369e6f4b2b1e4759046b7a4ea0e3c3c7f2546035fa2fb0d6a90f31c6c4f751eaedbcdc1b983a08cc
   languageName: node
   linkType: hard
 
@@ -23371,13 +23312,6 @@ typescript@^4.0.0-beta:
   languageName: node
   linkType: hard
 
-"v8-compile-cache@npm:2.0.3":
-  version: 2.0.3
-  resolution: "v8-compile-cache@npm:2.0.3"
-  checksum: 8898e61408fc76e4812197fc2569df6f382a2845b843f7838d16d71e3e1b3b8b02261bce8666f77c6f8d16b503b32be246c835da2d952517af3724025cfdb970
-  languageName: node
-  linkType: hard
-
 "v8-compile-cache@npm:^2.0.3, v8-compile-cache@npm:^2.1.0":
   version: 2.1.0
   resolution: "v8-compile-cache@npm:2.1.0"
@@ -23640,29 +23574,6 @@ typescript@^4.0.0-beta:
   bin:
     webpack-bundle-analyzer: lib/bin/analyzer.js
   checksum: 9ebe98aa5e4b81fb38e079c93c4fd3ae0117872c146cb4b8fba173d51df77d01e11f630197e249bcd58fc4d2cec0579b0366e9782facb612686861c9f2103a9e
-  languageName: node
-  linkType: hard
-
-"webpack-cli@npm:^3.3.11":
-  version: 3.3.11
-  resolution: "webpack-cli@npm:3.3.11"
-  dependencies:
-    chalk: 2.4.2
-    cross-spawn: 6.0.5
-    enhanced-resolve: 4.1.0
-    findup-sync: 3.0.0
-    global-modules: 2.0.0
-    import-local: 2.0.0
-    interpret: 1.2.0
-    loader-utils: 1.2.3
-    supports-color: 6.1.0
-    v8-compile-cache: 2.0.3
-    yargs: 13.2.4
-  peerDependencies:
-    webpack: 4.x.x
-  bin:
-    webpack-cli: ./bin/cli.js
-  checksum: 3d835a5c7e811159c7fbe0cd8911890c8ad7dc54f4c60b1cdd07073ea7fa67818259383f793f3d21c2a5fdfba3d26a74c0e0983d207b20d5c1b36a35dd2299fa
   languageName: node
   linkType: hard
 
@@ -24145,7 +24056,7 @@ typescript@^4.0.0-beta:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:13.1.2, yargs-parser@npm:^13.1.0, yargs-parser@npm:^13.1.2":
+"yargs-parser@npm:13.1.2, yargs-parser@npm:^13.1.2":
   version: 13.1.2
   resolution: "yargs-parser@npm:13.1.2"
   dependencies:
@@ -24182,25 +24093,6 @@ typescript@^4.0.0-beta:
     lodash: ^4.17.15
     yargs: ^13.3.0
   checksum: b78a4ccc2e1c8aa73e0e30bf3adb7b7be52b98d8d638250d32dc8c4a514cd43144702577d33c02f12de20c9df1e27fdbf77bdf6863a9338661f7bdeb674a2cad
-  languageName: node
-  linkType: hard
-
-"yargs@npm:13.2.4":
-  version: 13.2.4
-  resolution: "yargs@npm:13.2.4"
-  dependencies:
-    cliui: ^5.0.0
-    find-up: ^3.0.0
-    get-caller-file: ^2.0.1
-    os-locale: ^3.1.0
-    require-directory: ^2.1.1
-    require-main-filename: ^2.0.0
-    set-blocking: ^2.0.0
-    string-width: ^3.0.0
-    which-module: ^2.0.0
-    y18n: ^4.0.0
-    yargs-parser: ^13.1.0
-  checksum: a0be3e8df5b91bc19e11ce0a7234db69e9d50e6d284a06bdb3547fb5f26eaa234720c3b8db75abdd358d442ef0db91ee2065e0c28e29617f535f0a26b791225c
   languageName: node
   linkType: hard
 

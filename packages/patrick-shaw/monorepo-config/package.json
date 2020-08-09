@@ -1,0 +1,26 @@
+{
+  "name": "@pshaw/monorepo-config",
+  "description": "My @monorepo/config preset settings",
+  "keywords": [
+    "config",
+    "utils"
+  ],
+  "version": "1.4.2",
+  "main": "./src/index.js",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "patrick-shaw/monorepo-config"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

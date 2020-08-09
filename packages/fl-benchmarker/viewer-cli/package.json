@@ -5,6 +5,9 @@
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./commonjs/index.js",
+  "bin": {
+    "fl-benchmarker-viewer": "./commonjs/bin.js"
+  },
   "files": [
     "commonjs",
     "src",
@@ -29,6 +32,7 @@
   "dependencies": {
     "chart.js": "^2.9.3",
     "chartjs-chart-box-and-violin-plot": "^2.3.0",
-    "cinder": "workspace:packages/cinder/cinder"
+    "cinder": "workspace:packages/cinder/cinder",
+    "webpack-dev-server": "^3.11.0"
   }
 }

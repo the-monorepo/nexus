@@ -38,7 +38,6 @@
     "@babel/parser": "^7.5.0",
     "@babel/register": "^7.9.0",
     "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl",
-    "@fault/benchmark-viewer-components": "workspace:packages/faultjs/fault-benchmark-viewer-components",
     "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util",
     "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults",
     "@fault/runner": "workspace:packages/faultjs/fault-runner",
@@ -48,6 +47,7 @@
     "@fault/sbfl-op2": "workspace:packages/faultjs/fault-sbfl-op2",
     "@fault/sbfl-tarantula": "workspace:packages/faultjs/fault-sbfl-tarantula",
     "@fault/tester-mocha": "workspace:packages/faultjs/fault-tester-mocha",
+    "@fl-benchmarker/viewer-cli": "workspace:packages/fl-benchmarker/viewer-cli",
     "@pshaw/fs": "workspace:packages/misc/pshaw-fs",
     "@pshaw/logger": "workspace:packages/misc/logger",
     "chai": "^4.2.0",
@@ -64,8 +64,6 @@
     "cross-spawn": "^6.0.5",
     "del": "^5.1.0",
     "isomorphic-git": "^0.58.1",
-    "node-fetch": "^2.6.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.0"
+    "node-fetch": "^2.6.0"
   }
 }
