@@ -538,14 +538,15 @@ export const run = async ({
 
   const testFiles = await globby(testMatch, { onlyFiles: true });
   testFiles.sort();
-
   const internalOptions: InternalRunOptions = {
     tester: require.resolve(tester, {
       paths: [process.cwd()],
     }),
     testFiles,
     workerCount: processCount,
-    setupFiles,
+    setupFiles: setupFiles.map(path => require.resolve(path, {
+      paths: [process.cwd()],
+    })),
     hooks,
     cwd,
     env,
