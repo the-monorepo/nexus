@@ -1,5 +1,5 @@
 {
-  "name": "@fl-benchmarker/viewer-frontend",
+  "name": "@fl-benchmarker/viewer-cli",
   "version": "1.0.0-alpha.1",
   "description": "Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js",
   "types": "./src/index.ts",
