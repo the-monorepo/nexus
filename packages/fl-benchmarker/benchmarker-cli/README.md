@@ -1,15 +1,15 @@
-# Benchmark
+# Benchmarker Cli
 
-Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
+Benchmark your fault localization techniques
 
 ## Installation
 
 ```bash
-npm install --save @fault/benchmark@1.0.0-alpha.1
+npm install --save @fl-benchmarker/benchmarker-cli@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @fault/benchmark@1.0.0-alpha.1
+yarn add @fl-benchmarker/benchmarker-cli@1.0.0-alpha.1
 ```
 
 ---

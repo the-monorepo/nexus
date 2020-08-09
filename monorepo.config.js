@@ -1,37 +1,23 @@
-// CONFIG HERE
-const dependencyGlobs = [
-  '.yarn/cache/**',
-  '.pnp.js',
-  '.yarn/unplugged/**',
-  '**/node_modules/**',
-];
+const createPresetConfig = require('@pshaw/monorepo-config');
 
-const faultJsBenchmarkerProjectGlobs = [
-  './faultjs/fault-benchmark/{disabled-projects,projects}/**',
-];
+const pshawConfig = createPresetConfig(__dirname, require('./package.json').workspaces);
+
+module.exports.codeExtensions = pshawConfig.codeExtensions;
 
 module.exports.extra = {
   flMode: 'sbfl',
 };
 
-module.exports.codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
-
-module.exports.workspaces = require('./package.json').workspaces;
-
-module.exports.extraBuildIgnoreGlobs = ['./build-packages/**', ...dependencyGlobs];
+module.exports.extraBuildIgnoreGlobs = pshawConfig.extraBuildIgnoreGlobs;
 
 module.exports.extraFormatIgnoreGlobs = [
-  ...dependencyGlobs,
-  ...faultJsBenchmarkerProjectGlobs,
-  './pnp.js',
-  './pnp.cjs',
+  ...pshawConfig.extraFormatIgnoreGlobs,
 ];
 
-module.exports.extraBuildArtifactGlobs = ['./coverage/**'];
+module.exports.extraBuildArtifactGlobs = pshawConfig.extraBuildArtifactGlobs;
 
 module.exports.extraTestIgnoreGlobs = [
-  ...dependencyGlobs,
-  ...faultJsBenchmarkerProjectGlobs,
+  ...pshawConfig.extraTestIgnoreGlobs,
 ];
 
 module.exports.serve = {

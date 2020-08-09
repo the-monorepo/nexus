@@ -49,12 +49,12 @@ module.exports = (api) => {
     overrides: [
       {
         test: [
-          './patrick-shaw/my-resume',
-          './misc/resume-template',
-          './misc/page-breaker-chrome',
-          './faultjs/fault-benchmark/src/frontend',
-          './faultjs/fault-benchmark-viewer-components',
-          './misc/genetic-sequence-analysis-app',
+          './packages/patrick-shaw/my-resume',
+          './packages/misc/resume-template',
+          './packages/misc/page-breaker-chrome',
+          './packages/fl-benchmarker/benchmarker-cli/src/frontend',
+          './packages/fl-benchmarker/viewer-cli',
+          './packages/misc/genetic-sequence-analysis-app',
         ],
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [

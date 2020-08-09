@@ -6,6 +6,8 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
+1.0.0-alpha.1 | [`@fl-benchmarker/benchmarker-cli`](packages/fl-benchmarker/benchmarker-cli/README.md) | Benchmark your fault localization techniques
+1.0.0-alpha.1 | [`@fl-benchmarker/viewer-cli`](packages/fl-benchmarker/viewer-cli/README.md) | View your benchmarking results
 1.4.3 | [`@pshaw/convict-util`](packages/misc/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
@@ -89,8 +91,6 @@ Version | Package | Description
 1.0.0-alpha.1 | [`@fault/addon-istanbul`](packages/faultjs/fault-addon-istanbul/README.md) | Report istanbul coverage
 1.0.0-alpha.1 | [`@fault/addon-mutation-localization`](packages/faultjs/fault-addon-mutation-localization/README.md) | Fault AST localization
 1.0.0-alpha.1 | [`@fault/addon-sbfl`](packages/faultjs/fault-addon-sbfl/README.md) | A spectrum based localization addon
-1.0.0-alpha.1 | [`@fault/benchmark`](packages/faultjs/fault-benchmark/README.md) | Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
-1.0.0-alpha.1 | [`@fault/benchmark-viewer-components`](packages/faultjs/fault-benchmark-viewer-components/README.md) | Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js
 1.0.0-alpha.0 | [`@fault/istanbul-util`](packages/faultjs/fault-istanbul-util/README.md) | Helper functions for use with istanbul
 1.0.0-alpha.1 | [`@fault/localization-util`](packages/faultjs/fault-localization-util/README.md) | Utility package containing common fault localization methods
 1.0.0-alpha.1 | [`@fault/messages`](packages/faultjs/fault-messages/README.md) | Helper methods for easier communication between the main @fault/runner process and its workers
@@ -117,7 +117,9 @@ Version | Package | Description
 1.4.2 | [`@pshaw/eslint-config-plugin-react`](packages/patrick-shaw/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
 1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](packages/patrick-shaw/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
 1.4.3-0 | [`@pshaw/eslint-config-preset`](packages/patrick-shaw/eslint-config-preset/README.md) | A pratical style preset for ESLint
+1.4.2 | [`@pshaw/monorepo-config`](packages/patrick-shaw/monorepo-config/README.md) | My @monorepo/config preset settings
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](packages/patrick-shaw/typography-scss/README.md) | Nice typograhpy SCSS package
+1.4.2 | [`@pshaw/webpack-config-utils`](packages/patrick-shaw/webpack-config-utils/README.md) | Some utilities for building webpack configs
 
 
 ---
