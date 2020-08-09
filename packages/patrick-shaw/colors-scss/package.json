@@ -10,7 +10,7 @@
     "directory": "patrick-shaw/colors-scss"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

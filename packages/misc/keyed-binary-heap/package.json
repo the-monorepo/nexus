@@ -20,7 +20,7 @@
     "directory": "misc/binary-heap"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

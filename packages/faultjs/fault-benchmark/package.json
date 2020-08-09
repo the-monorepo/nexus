@@ -13,7 +13,7 @@
     "scrape-repo": "yarn node ./commonjs/index.js"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

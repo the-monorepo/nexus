@@ -12,7 +12,7 @@
   "types": "./src/index.ts",
   "license": "MIT",
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

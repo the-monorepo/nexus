@@ -17,7 +17,7 @@
     "directory": "misc/hook-schema"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

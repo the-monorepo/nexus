@@ -10,7 +10,7 @@
     "directory": "cinder/cinder-babel-plugin-transform-jsx"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm"
   ],

@@ -10,7 +10,7 @@
     "directory": "cinder/cinder"
   },
   "files": [
-    "lib",
+    "commonjs",
     "src",
     "esm",
     "babel.js"
