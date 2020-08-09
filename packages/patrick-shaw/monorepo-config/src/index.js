@@ -2,6 +2,8 @@ const { resolve } = require('path');
 
 const codeExtensions = ["js", "jsx", "ts", "tsx", "mjs", "cjs"];
 
+module.exports.codeExtensions = codeExtensions;
+
 const createConfigPresets = (rootProjectDir, workspaces = resolve(rootProjectDir, './packages/*/*')) => {
   const dependencyGlobs = [
     ".yarn/cache/**",
