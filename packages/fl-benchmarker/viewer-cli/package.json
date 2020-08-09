@@ -1,7 +1,7 @@
 {
   "name": "@fl-benchmarker/viewer-cli",
   "version": "1.0.0-alpha.1",
-  "description": "Also known as DefectsJS. A benchmarking library for measuring various fault localization/repair algorithms in Fault.js",
+  "description": "View your benchmarking results",
   "types": "./src/index.ts",
   "module": "./esm/index.js",
   "main": "./commonjs/index.js",
@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
-    "directory": "faultjs/fault-benchmark-viewer-components"
+    "directory": "fl-benchmarker/viewer-cli"
   },
   "keywords": [
     "testing",
