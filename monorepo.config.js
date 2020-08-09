@@ -1,6 +1,10 @@
 const createPresetConfig = require('@pshaw/monorepo-config');
 
-const pshawConfig = createPresetConfig(__dirname, require('./package.json').workspaces);
+const workspaces = require('./package.json').workspaces;
+
+const pshawConfig = createPresetConfig(__dirname, workspaces);
+
+module.exports.workspaces = workspaces;
 
 module.exports.codeExtensions = pshawConfig.codeExtensions;
 

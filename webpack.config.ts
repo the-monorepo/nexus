@@ -1,128 +1,27 @@
-import { resolve } from 'path';
+import { resolve } from "path";
 
-import CopyPlugin from 'copy-webpack-plugin';
-import fibers from 'fibers';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import sass from 'sass';
-import type { Configuration as WebpackConfiguration } from 'webpack';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
+import CopyPlugin from "copy-webpack-plugin";
+import type { Configuration as WebpackConfiguration } from "webpack";
+import type { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
+
+import {
+  createHtmlWebpackPlugin,
+  createBundleAnalyzerPlugin,
+  recommendedRules,
+  codeExtensions,
+  createDistOutput,
+} from "@pshaw/webpack-config-utils";
 
 type Configuration = WebpackConfiguration & {
   devServer: WebpackDevServerConfiguration;
 };
 
-const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
-const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
-const normalizeCssUrl =
-  'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css';
+const miscDir = resolve(__dirname, "./misc");
+const faultjsDir = resolve(__dirname, "faultjs");
+const faultjsBenchmarkDir = resolve(faultjsDir, "fault-benchmark");
+const patrickShawDir = resolve(__dirname, "patrick-shaw");
 
-const svgRule = {
-  test: /\.svg$/,
-  use: [
-    {
-      loader: require.resolve('file-loader'),
-    },
-  ],
-};
-
-const sourceMapRule = {
-  test: /\.[jt]sx?$/,
-  enforce: 'pre',
-  use: [
-    {
-      loader: require.resolve('source-map-loader'),
-    },
-  ],
-};
-
-const babelRule = {
-  test: /\.[jt]sx?$/,
-  use: [
-    {
-      loader: require.resolve('babel-loader'),
-      options: {
-        cwd: resolve('.'),
-      },
-    },
-  ],
-};
-
-const tsxExtensions = ['.tsx', '.ts', '.jsx', '.js'];
-
-const miscDir = resolve(__dirname, './misc');
-const faultjsDir = resolve(__dirname, 'faultjs');
-const faultjsBenchmarkDir = resolve(faultjsDir, 'fault-benchmark');
-const patrickShawDir = resolve(__dirname, 'patrick-shaw');
-
-const resumeDir = resolve(patrickShawDir, 'my-resume');
-
-const distPath = (packageDir) => resolve(packageDir, 'dist');
-
-const createDistOutput = (packageDir) => {
-  return {
-    filename: '[name].js',
-    path: distPath(packageDir),
-    publicPath: '/',
-  };
-};
-
-const defaultHtmlWebpackPlugin = (options) => {
-  return new HtmlWebpackPlugin({
-    inject: true,
-    template: resolve(__dirname, 'template.html'),
-    title: options.title,
-    tags: {
-      headTags: options.links.map((linkHref) =>
-        HtmlWebpackPlugin.createHtmlTagObject(
-          'link',
-          { href: linkHref, rel: 'stylesheet' },
-          undefined,
-        ),
-      ),
-    },
-  });
-};
-
-const defaultBundleAnalyzerPlugin = (packageDir, options?) => {
-  return new BundleAnalyzerPlugin({
-    openAnalyzer: false,
-    analyzerMode: 'static',
-    reportFilename: resolve(packageDir, 'stats.html'),
-    ...options,
-  });
-};
-
-const cssModuleLoader = {
-  loader: require.resolve('css-loader'),
-  options: {
-    esModule: true,
-    modules: {
-      localIdentName: '[name]__[local]--[hash:base64:5]',
-    },
-  },
-};
-
-const sassLoader = {
-  loader: require.resolve('sass-loader'),
-  options: {
-    sourceMap: true,
-    implementation: sass,
-    sassOptions: {
-      fiber: fibers,
-    },
-  },
-};
-
-const cssRule = {
-  test: /\.css$/,
-  use: [require.resolve('style-loader'), cssModuleLoader],
-};
-
-const sassModulesRule = {
-  test: /\.(sass|scss)$/,
-  use: [require.resolve('style-loader'), cssModuleLoader, sassLoader],
-};
+const resumeDir = resolve(patrickShawDir, "my-resume");
 
 /*const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
@@ -130,22 +29,21 @@ const sassModulesRule = {
 };*/
 
 const resumeConfig: Configuration = {
-  name: 'my-resume',
-  target: 'web',
+  name: "my-resume",
+  target: "web",
   resolve: {
-    extensions: tsxExtensions,
+    extensions: codeExtensions,
   },
   module: {
-    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+    rules: recommendedRules,
   },
-  entry: resolve(resumeDir, 'src/index.tsx'),
+  entry: resolve(resumeDir, "src/index.tsx"),
   output: createDistOutput(resumeDir),
   plugins: [
-    defaultHtmlWebpackPlugin({
-      title: 'Patrick Shaw - Resume',
-      links: [openSansUrl],
+    createHtmlWebpackPlugin({
+      title: "Patrick Shaw - Resume",
     }),
-    defaultBundleAnalyzerPlugin(resumeDir),
+    createBundleAnalyzerPlugin(resumeDir),
   ],
   devServer: {
     port: 3000,
@@ -154,21 +52,20 @@ const resumeConfig: Configuration = {
 };
 
 const faultjsBenchmarkConfig: Configuration = {
-  name: 'fault-benchmark',
-  target: 'web',
+  name: "fault-benchmark",
+  target: "web",
   resolve: {
-    extensions: tsxExtensions,
+    extensions: codeExtensions,
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
-    rules: [svgRule, cssRule, sourceMapRule, babelRule],
+    rules: recommendedRules,
   },
-  entry: resolve(faultjsBenchmarkDir, 'src/frontend/index.tsx'),
+  entry: resolve(faultjsBenchmarkDir, "src/frontend/index.tsx"),
   output: createDistOutput(faultjsBenchmarkDir),
   plugins: [
-    defaultHtmlWebpackPlugin({
+    createHtmlWebpackPlugin({
       title: `Fault.js benchmark results`,
-      links: [openSansUrl],
     }),
   ],
   devServer: {
@@ -177,32 +74,31 @@ const faultjsBenchmarkConfig: Configuration = {
   },
 };
 
-const pageBreakerDir = resolve(miscDir, 'page-breaker-chrome');
+const pageBreakerDir = resolve(miscDir, "page-breaker-chrome");
 const pageBreakerFrontendConfig: Configuration = {
-  name: 'page-breaker',
-  target: 'web',
+  name: "page-breaker",
+  target: "web",
   resolve: {
-    extensions: tsxExtensions,
+    extensions: codeExtensions,
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
-    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+    rules: recommendedRules,
   },
-  entry: resolve(pageBreakerDir, 'src/index.tsx'),
+  entry: resolve(pageBreakerDir, "src/index.tsx"),
   output: createDistOutput(pageBreakerDir),
   plugins: [
-    defaultHtmlWebpackPlugin({
+    createHtmlWebpackPlugin({
       title: `Page Breaker`,
-      links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
     }),
     new CopyPlugin([
       {
-        from: resolve(pageBreakerDir, 'src/manifest.json'),
-        to: resolve(pageBreakerDir, 'dist/manifest.json'),
+        from: resolve(pageBreakerDir, "src/manifest.json"),
+        to: resolve(pageBreakerDir, "dist/manifest.json"),
       },
       {
-        from: resolve(pageBreakerDir, 'src/icon.png'),
-        to: resolve(pageBreakerDir, 'dist/icon.png'),
+        from: resolve(pageBreakerDir, "src/icon.png"),
+        to: resolve(pageBreakerDir, "dist/icon.png"),
       },
     ]),
   ],
@@ -212,32 +108,34 @@ const pageBreakerFrontendConfig: Configuration = {
   },
 };
 
-const geneticSequenceAnalysisAppDir = resolve(miscDir, 'genetic-sequence-analysis-app');
+const geneticSequenceAnalysisAppDir = resolve(
+  miscDir,
+  "genetic-sequence-analysis-app"
+);
 const geneticSequenceAnalysisApp: Configuration = {
-  name: 'genetic-sequence-analysis-app',
-  target: 'web',
+  name: "genetic-sequence-analysis-app",
+  target: "web",
   resolve: {
-    extensions: tsxExtensions,
+    extensions: codeExtensions,
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
-    rules: [svgRule, sassModulesRule, sourceMapRule, babelRule],
+    rules: recommendedRules,
   },
-  entry: resolve(geneticSequenceAnalysisAppDir, 'src/index.tsx'),
+  entry: resolve(geneticSequenceAnalysisAppDir, "src/index.tsx"),
   output: createDistOutput(pageBreakerDir),
   plugins: [
-    defaultHtmlWebpackPlugin({
+    createHtmlWebpackPlugin({
       title: `Genetic Sequence Analysis`,
-      links: [openSansUrl, materialIconsUrl, normalizeCssUrl],
     }),
     new CopyPlugin([
       {
-        from: resolve(geneticSequenceAnalysisAppDir, 'src/manifest.json'),
-        to: resolve(geneticSequenceAnalysisAppDir, 'dist/manifest.json'),
+        from: resolve(geneticSequenceAnalysisAppDir, "src/manifest.json"),
+        to: resolve(geneticSequenceAnalysisAppDir, "dist/manifest.json"),
       },
       {
-        from: resolve(geneticSequenceAnalysisAppDir, 'src/icon.png'),
-        to: resolve(geneticSequenceAnalysisAppDir, 'dist/icon.png'),
+        from: resolve(geneticSequenceAnalysisAppDir, "src/icon.png"),
+        to: resolve(geneticSequenceAnalysisAppDir, "dist/icon.png"),
       },
     ]),
   ],
