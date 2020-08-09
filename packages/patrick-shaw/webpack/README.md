@@ -1,15 +1,15 @@
-# Webpack Config Utils
+# Webpack
 
 Some utilities for building webpack configs
 
 ## Installation
 
 ```bash
-npm install --save @pshaw/webpack-config-utils
+npm install --save @pshaw/webpack
 ```
 or
 ```bash
-yarn add @pshaw/webpack-config-utils
+yarn add @pshaw/webpack
 ```
 
 ---

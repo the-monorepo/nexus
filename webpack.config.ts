@@ -1,25 +1,24 @@
 import { resolve } from "path";
 
-import CopyPlugin from "copy-webpack-plugin";
-import type { Configuration as WebpackConfiguration } from "webpack";
-import type { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
-
 import {
   createHtmlWebpackPlugin,
   createBundleAnalyzerPlugin,
   recommendedRules,
   codeExtensions,
   createDistOutput,
-} from "@pshaw/webpack-config-utils";
+  CopyPlugin,
+  Configuration,
+} from "@pshaw/webpack";
 
 type Configuration = WebpackConfiguration & {
   devServer: WebpackDevServerConfiguration;
 };
 
-const miscDir = resolve(__dirname, "./misc");
-const faultjsDir = resolve(__dirname, "faultjs");
-const faultjsBenchmarkDir = resolve(faultjsDir, "fault-benchmark");
-const patrickShawDir = resolve(__dirname, "patrick-shaw");
+const packagesDir = resolve(__dirname, './packages');
+const miscDir = resolve(packagesDir, "./misc");
+const faultjsDir = resolve(packagesDir, "./faultjs");
+const faultjsBenchmarkDir = resolve(faultjsDir, "./fault-benchmark");
+const patrickShawDir = resolve(packagesDir, "./patrick-shaw");
 
 const resumeDir = resolve(patrickShawDir, "my-resume");
 

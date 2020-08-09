@@ -1,4 +1,4 @@
-const createPresetConfig = require('@pshaw/monorepo-config');
+const { default: createPresetConfig, codeExtensions } = require('@pshaw/monorepo-config');
 
 const workspaces = require('./package.json').workspaces;
 
@@ -6,7 +6,7 @@ const pshawConfig = createPresetConfig(__dirname, workspaces);
 
 module.exports.workspaces = workspaces;
 
-module.exports.codeExtensions = pshawConfig.codeExtensions;
+module.exports.codeExtensions = codeExtensions;
 
 module.exports.extra = {
   flMode: 'sbfl',
