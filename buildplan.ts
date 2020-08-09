@@ -1,17 +1,17 @@
-import 'source-map-support/register';
+import "source-map-support/register";
 
-import { join, sep, relative } from 'path';
+import { join, sep, relative } from "path";
 
-import chalk from 'chalk';
+import chalk from "chalk";
 
-import gulp from 'gulp';
-import changed from 'gulp-changed';
+import gulp from "gulp";
+import changed from "gulp-changed";
 
-import rename from 'gulp-rename';
+import rename from "gulp-rename";
 
-import getStagableFiles from 'lint-staged/lib/getStagedFiles';
-import streamToPromise from 'stream-to-promise';
-import through from 'through2';
+import getStagableFiles from "lint-staged/lib/getStagedFiles";
+import streamToPromise from "stream-to-promise";
+import through from "through2";
 
 import {
   task as buildplanTask,
@@ -19,12 +19,12 @@ import {
   series as buildplanSeries,
   parallel as buildplanParallel,
   TASK_INFO,
-} from '@buildplan/core';
+} from "@buildplan/core";
 
-import config from '@monorepo/config';
-import createLogger from '@pshaw/logger';
+import config from "@monorepo/config";
+import createLogger from "@pshaw/logger";
 
-import filter from 'stream-filter-glob';
+import filter from "stream-filter-glob";
 
 const oldStreamToPromise = async (something) => {
   const value = await something;
@@ -32,7 +32,7 @@ const oldStreamToPromise = async (something) => {
     value !== undefined &&
     value !== null &&
     value.constructor !== undefined &&
-    value.constructor.name === 'Pumpify'
+    value.constructor.name === "Pumpify"
   ) {
     return streamToPromise(value);
   }
@@ -51,23 +51,27 @@ const task = (name: string, callback) => {
 const series = (...tasks) =>
   buildplanSeries(
     ...tasks.map((aTask) => {
-      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
+      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[
+        aTask.name
+      ];
       if (aTask[TASK_INFO] !== undefined) {
         wrapped[TASK_INFO] = aTask[TASK_INFO];
       }
       return wrapped;
-    }),
+    })
   );
 
 const parallel = (...tasks) =>
   buildplanParallel(
     ...tasks.map((aTask) => {
-      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
+      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[
+        aTask.name
+      ];
       if (aTask[TASK_INFO] !== undefined) {
         wrapped[TASK_INFO] = aTask[TASK_INFO];
       }
       return wrapped;
-    }),
+    })
   );
 
 const swapSrcWith = (srcPath, newDirName) => {
@@ -94,10 +98,10 @@ const packagesSrcAssetStream = (options?) => {
       ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
     ],
     {
-      base: '.',
+      base: ".",
       nodir: true,
       ...options,
-    },
+    }
   );
 };
 
@@ -111,7 +115,7 @@ const packagesSrcCodeStream = (options?) => {
       base: `.`,
       nodir: true,
       ...options,
-    },
+    }
   );
 };
 
@@ -132,23 +136,25 @@ const formatStream = (options?) =>
       ...config.formatableIgnoreGlobs.map((glob) => `!${glob}`),
     ],
     {
-      base: '.',
+      base: ".",
       nodir: true,
       ...options,
-    },
+    }
   );
 
 const formatStagedStream = async () => {
-  const { Readable } = await import('stream');
+  const { Readable } = await import("stream");
   const stagedPaths = await getStagableFiles();
   const stagedStream =
     stagedPaths.length > 0
       ? gulp.src(stagedPaths, {
-          base: '.',
+          base: ".",
           nodir: true,
         })
       : Readable.from([]);
-  return stagedStream.pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
+  return stagedStream.pipe(
+    filter(config.formatableGlobs, config.formatableIgnoreGlobs)
+  );
 };
 
 const simplePipeLogger = (l) => {
@@ -159,43 +165,60 @@ const simplePipeLogger = (l) => {
 };
 
 const clean = async () => {
-  const { default: del } = await import('del');
+  const { default: del } = await import("del");
   await del(config.buildArtifactGlobs);
 };
-task('clean', clean);
+task("clean", clean);
 
 const copyPipes = (stream, l, dir) => {
   return stream
-    .pipe(changed('.', { transformPath: createSrcDirSwapper(dir) }))
+    .pipe(changed(".", { transformPath: createSrcDirSwapper(dir) }))
     .pipe(simplePipeLogger(l))
     .pipe(
       rename((filePath) => {
         filePath.dirname = swapSrcWith(filePath.dirname, dir);
         return filePath;
-      }),
+      })
     )
-    .pipe(gulp.dest('.'));
+    .pipe(gulp.dest("."));
 };
 
 const copyScript = () => {
-  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(200, 255, 100)('lib'));
-  return copyPipes(packagesSrcAssetStream(), l, 'commonjs');
+  const l = logger.child(
+    chalk.yellowBright("copy"),
+    chalk.rgb(200, 255, 100)("lib")
+  );
+  return copyPipes(packagesSrcAssetStream(), l, "commonjs");
 };
 
 const copyEsm = () => {
-  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(255, 200, 100)('esm'));
-  return copyPipes(packagesSrcAssetStream(), l, 'esm');
+  const l = logger.child(
+    chalk.yellowBright("copy"),
+    chalk.rgb(255, 200, 100)("esm")
+  );
+  return copyPipes(packagesSrcAssetStream(), l, "esm");
 };
 
 const copy = parallel(copyScript, copyEsm);
 
-const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn) => {
-  const sourcemaps = await import('gulp-sourcemaps');
-  const { default: babel } = await import('gulp-babel');
-  const l = logger.child(chalk.blueBright('transpile'), chalkFn(logName));
+const transpilePipes = async (
+  stream,
+  babelOptions,
+  dir,
+  logName = dir,
+  chalkFn
+) => {
+  const sourcemaps = await import("gulp-sourcemaps");
+  const { default: babel } = await import("gulp-babel");
+  const l = logger.child(chalk.blueBright("transpile"), chalkFn(logName));
 
   return stream
-    .pipe(changed('.', { extension: '.js', transformPath: createSrcDirSwapper(dir) }))
+    .pipe(
+      changed(".", {
+        extension: ".js",
+        transformPath: createSrcDirSwapper(dir),
+      })
+    )
     .pipe(simplePipeLogger(l))
     .pipe(sourcemaps.init())
     .pipe(babel(babelOptions))
@@ -203,10 +226,14 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
       rename((filePath) => {
         filePath.dirname = swapSrcWith(filePath.dirname, dir);
         return filePath;
-      }),
+      })
     )
-    .pipe(sourcemaps.mapSources((filePath) => filePath.replace(/.*\/src\//g, '../src/')))
-    .pipe(sourcemaps.write('.', undefined));
+    .pipe(
+      sourcemaps.mapSources((filePath) =>
+        filePath.replace(/.*\/src\//g, "../src/")
+      )
+    )
+    .pipe(sourcemaps.write(".", undefined));
 };
 
 const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
@@ -214,13 +241,13 @@ const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
     await transpilePipes(
       packagesSrcCodeStream(),
       {
-        envName: process.env.NODE_ENV ?? 'development',
+        envName: process.env.NODE_ENV ?? "development",
       },
-      'commonjs',
-      'cjs',
-      chalk.rgb(200, 255, 100),
-    ),
-  ).pipe(gulp.dest('.'));
+      "commonjs",
+      "cjs",
+      chalk.rgb(200, 255, 100)
+    )
+  ).pipe(gulp.dest("."));
 };
 
 const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
@@ -228,13 +255,13 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
     await transpilePipes(
       packagesSrcCodeStream(),
       {
-        envName: `${process.env.NODE_ENV}-esm` ?? 'development-esm',
+        envName: `${process.env.NODE_ENV}-esm` ?? "development-esm",
       },
-      'esm',
+      "esm",
       undefined,
-      chalk.rgb(255, 200, 100),
-    ),
-  ).pipe(gulp.dest('.'));
+      chalk.rgb(255, 200, 100)
+    )
+  ).pipe(gulp.dest("."));
 };
 
 const transpileScript = () => {
@@ -246,20 +273,20 @@ const transpileEsm = () => {
 };
 
 const prettierPipes = async (stream) => {
-  const { default: prettier } = await import('gulp-prettier');
-  const l = logger.child(chalk.magentaBright('prettier'));
+  const { default: prettier } = await import("gulp-prettier");
+  const l = logger.child(chalk.magentaBright("prettier"));
   return stream.pipe(simplePipeLogger(l)).pipe(prettier());
 };
 
 const lintPipes = async (stream, lintOptions) => {
-  const { default: eslint } = await import('gulp-eslint');
+  const { default: eslint } = await import("gulp-eslint");
 
-  const l = logger.child(chalk.magentaBright('eslint'));
+  const l = logger.child(chalk.magentaBright("eslint"));
   return (
     stream
       .pipe(simplePipeLogger(l))
       .pipe(eslint(lintOptions))
-      .pipe(eslint.format('unix'))
+      .pipe(eslint.format("unix"))
       // TODO: Need to halt build process/throw error
       .pipe(eslint.failAfterError())
   );
@@ -270,28 +297,36 @@ const formatPipes = async (stream) => {
 };
 
 const printFriendlyAbsoluteDir = (dir) => {
-  if (relative(dir, __dirname) === '') {
-    return '.';
+  if (relative(dir, __dirname) === "") {
+    return ".";
   }
   return relative(join(__dirname), dir);
 };
 
 const transpile = parallel(transpileScript, transpileEsm);
-task('transpile', transpile);
+task("transpile", transpile);
 
 const writeme = async () => {
-  const { default: writeReadmeFromPackageDir } = await import('@writeme/core');
-  const l = logger.child(chalk.greenBright('writeme'));
+  const { default: writeReadmeFromPackageDir } = await import("@writeme/core");
+  const l = logger.child(chalk.greenBright("writeme"));
   await writeReadmeFromPackageDir(__dirname, {
     before: {
       genReadme: async ({ packageDir }) => {
-        l.info(`Generating '${chalk.cyanBright(printFriendlyAbsoluteDir(packageDir))}'`);
+        l.info(
+          `Generating '${chalk.cyanBright(
+            printFriendlyAbsoluteDir(packageDir)
+          )}'`
+        );
       },
     },
     after: {
       readConfig: async ({ config, configPath }) => {
         if (!config) {
-          l.warn(`Missing '${chalk.cyanBright(printFriendlyAbsoluteDir(configPath))}'`);
+          l.warn(
+            `Missing '${chalk.cyanBright(
+              printFriendlyAbsoluteDir(configPath)
+            )}'`
+          );
         }
       },
     },
@@ -302,64 +337,75 @@ const writeme = async () => {
     },
   });
 };
-task('writeme', writeme);
+task("writeme", writeme);
 
 const buildSource = parallel(copy, transpile);
 
 const build = series(buildSource, writeme);
-task('build', build);
+task("build", build);
 
-const watch = () => {
-  gulp.watch(
-    [
-      ...config.buildableSourceFileGlobs,
-      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-    ],
-    { ignoreInitial: false, events: 'all' },
-    () => {
-      logger.info(`Rerunning ${chalk.cyan('watch')}`);
-      return parallel(copy, transpile);
-    },
-  );
+const watch = async () => {
+  const { watch: chokidarWatch } = await import("chokidar");
+  // TODO: Never resolves :3 (on purpose but should find a better way)
+  return new Promise((_, reject) => {
+    gulp.watch(
+      config.buildableSourceFileGlobs,
+      {
+        ignoreInitial: false,
+        ignored: config.buildableIgnoreGlobs,
+        events: "all",
+      },
+      () => {
+        try {
+          logger.info(`Rerunning ${chalk.cyan("watch")}`);
+          return parallel(copy, transpile)();
+        } catch (err) {
+          reject(err);
+        }
+      }
+    );
+  });
 };
-task('watch', watch);
+task("watch", watch);
 
-task('default', build);
+task("default", build);
 
 const formatPrettier = async () => {
-  return (await prettierPipes(formatStream())).pipe(gulp.dest('.'));
+  return (await prettierPipes(formatStream())).pipe(gulp.dest("."));
 };
-task('format:prettier', formatPrettier);
+task("format:prettier", formatPrettier);
 
 const formatStagedPrettier = async () => {
-  return (await prettierPipes(await formatStagedStream())).pipe(gulp.dest('.'));
+  return (await prettierPipes(await formatStagedStream())).pipe(gulp.dest("."));
 };
-task('format-staged:prettier', formatStagedPrettier);
+task("format-staged:prettier", formatStagedPrettier);
 
 const formatStagedLint = async () => {
   return lintPipes(await formatStagedStream(), { fix: true });
 };
 formatStagedLint.description =
-  'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
-  'overwrite files without creating a backup.';
-task('format-staged:lint', formatStagedLint);
+  "Corrects any automatically fixable linter warnings or errors. Note that this command will " +
+  "overwrite files without creating a backup.";
+task("format-staged:lint", formatStagedLint);
 
 const format = async () => {
-  return (await formatPipes(formatStream())).pipe(gulp.dest('.'));
+  return (await formatPipes(formatStream())).pipe(gulp.dest("."));
 };
-task('format', format);
+task("format", format);
 
 const formatStaged = async () => {
-  return (await formatPipes(await formatStagedStream())).pipe(gulp.dest('.'));
+  return (await formatPipes(await formatStagedStream())).pipe(gulp.dest("."));
 };
-task('format-staged', formatStaged);
+task("format-staged", formatStaged);
 
 let withTypeCheckPipes = async (stream) => {
-  const gulpTypescript = await import('gulp-typescript');
+  const gulpTypescript = await import("gulp-typescript");
 
   const tsProjectPromise = (async () => {
-    const typescript = await import('typescript');
-    const tsProject = await gulpTypescript.createProject('tsconfig.json', { typescript });
+    const typescript = await import("typescript");
+    const tsProject = await gulpTypescript.createProject("tsconfig.json", {
+      typescript,
+    });
 
     return tsProject;
   })();
@@ -377,39 +423,46 @@ const checkTypes = async () => {
     packagesSrcCodeStream([
       ...config.buildableSourceCodeGlobs,
       ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-    ]),
+    ])
   );
 };
 checkTypes.description =
-  'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
-  'serious errors in the code, such as invalid syntax or the use of incorrect types.';
-task('check-types', checkTypes);
+  "Runs the TypeScript type checker on the codebase, displaying the output. This will display any " +
+  "serious errors in the code, such as invalid syntax or the use of incorrect types.";
+task("check-types", checkTypes);
 
 const checkTypesStaged = async () => {
   return withTypeCheckPipes(await packagesSrcCodeStagedStream());
 };
-task('check-types-staged', checkTypesStaged);
+task("check-types-staged", checkTypesStaged);
 
 const flIgnoreGlob =
-  'faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+  "faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*";
 
 const getFaultLocalizationAddon = async () => {
   switch (config.extra.flMode) {
     default:
-    case 'sbfl': {
-      const { default: createAddon } = await import('@fault/addon-sbfl');
-      const { default: dstar } = await import('@fault/sbfl-dstar');
+    case "sbfl": {
+      const { default: createAddon } = await import("@fault/addon-sbfl");
+      const { default: dstar } = await import("@fault/sbfl-dstar");
       return createAddon({
         scoringFn: dstar,
         console: true,
       });
     }
-    case 'mbfl': {
-      const { default: createAddon } = await import('@fault/addon-mutation-localization');
+    case "mbfl": {
+      const { default: createAddon } = await import(
+        "@fault/addon-mutation-localization"
+      );
       return createAddon({
         babelOptions: {
-          plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
-          sourceType: 'module',
+          plugins: [
+            "jsx",
+            "typescript",
+            "exportDefaultFrom",
+            "classProperties",
+          ],
+          sourceType: "module",
         },
         ignoreGlob: flIgnoreGlob,
         mapToIstanbul: true,
@@ -422,18 +475,18 @@ const getFaultLocalizationAddon = async () => {
                 resolve();
               }
             };
-            const rejectOnStreamError = (stream) => stream.on('error', reject);
+            const rejectOnStreamError = (stream) => stream.on("error", reject);
             scriptTranspileStream(rejectOnStreamError).then((stream) =>
-              stream.on('end', () => {
+              stream.on("end", () => {
                 scriptFinish = true;
                 checkToFinish();
-              }),
+              })
             );
             esmTranspileStream(rejectOnStreamError).then((stream) =>
-              stream.on('end', () => {
+              stream.on("end", () => {
                 esmFinish = true;
                 checkToFinish();
-              }),
+              })
             );
           });
         },
@@ -443,10 +496,10 @@ const getFaultLocalizationAddon = async () => {
 };
 
 const testNoBuild = async () => {
-  const runner = await import('@fault/runner');
+  const runner = await import("@fault/runner");
   const flAddon = await getFaultLocalizationAddon();
   const passed = await runner.run({
-    tester: '@fault/tester-mocha',
+    tester: "@fault/tester-mocha",
     testMatch: [
       ...config.testableGlobs,
       ...config.testableIgnoreGlobs.map((glob) => `!${glob}`),
@@ -454,11 +507,9 @@ const testNoBuild = async () => {
     addons: [flAddon],
     env: {
       ...process.env,
-      NODE_ENV: 'test',
+      NODE_ENV: "test",
     },
-    setupFiles: [
-      './test/helpers/globals',
-    ],
+    setupFiles: ["./test/helpers/globals"],
     testerOptions: {
       sandbox: true,
     },
@@ -469,26 +520,29 @@ const testNoBuild = async () => {
   }
 };
 
-task('test', testNoBuild);
+task("test", testNoBuild);
 
-const precommit = series(parallel(series(formatStaged, transpile), copy), writeme);
-task('precommit', precommit);
+const precommit = series(
+  parallel(series(formatStaged, transpile), copy),
+  writeme
+);
+task("precommit", precommit);
 
 const webpackCompilers = async () => {
-  const { default: minimist } = await import('minimist');
-  const { default: webpack } = await import('webpack');
-  const { isMatch } = await import('micromatch');
-  const { default: webpackConfigs } = await import('./webpack.config');
+  const { default: minimist } = await import("minimist");
+  const { default: webpack } = await import("webpack");
+  const { isMatch } = await import("micromatch");
+  const { default: webpackConfigs } = await import("./webpack.config");
 
   const args = minimist(process.argv.slice(2));
 
   const {
-    name = ['*'],
+    name = ["*"],
     mode = process.env.NODE_ENV
-      ? process.env.NODE_ENV === 'production'
-        ? 'prod'
-        : 'dev'
-      : 'dev',
+      ? process.env.NODE_ENV === "production"
+        ? "prod"
+        : "dev"
+      : "dev",
   } = args;
 
   const names = Array.isArray(name) ? name : [name];
@@ -497,7 +551,7 @@ const webpackCompilers = async () => {
     .filter((config) => isMatch(config.name, names))
     .map((config) => {
       const mergedConfig = {
-        mode: mode === 'prod' ? 'production' : 'development',
+        mode: mode === "prod" ? "production" : "development",
         ...config,
       };
       return {
@@ -512,7 +566,7 @@ const humanReadableFileSize = (size: number) => {
   const i = Math.floor(Math.log(size) / Math.log(1024));
   const humanReadableValue = size / Math.pow(1024, i);
   const roundedHumanReadableString = humanReadableValue.toFixed(2);
-  return `${roundedHumanReadableString} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
+  return `${roundedHumanReadableString} ${["B", "kB", "MB", "GB", "TB"][i]}`;
 };
 
 const bundleWebpack = async () => {
@@ -530,7 +584,7 @@ const bundleWebpack = async () => {
     });
   });
 
-  const l = logger.child(chalk.magentaBright('webpack'));
+  const l = logger.child(chalk.magentaBright("webpack"));
   for await (const stats of compilersStatsPromises) {
     const compilation = stats.compilation;
     const timeTaken = (stats.endTime - stats.startTime) / 1000;
@@ -541,12 +595,12 @@ const bundleWebpack = async () => {
       .map(
         (asset) =>
           ` - ${chalk.cyanBright(asset.existsAt)} ${chalk.magentaBright(
-            humanReadableFileSize(asset.size()),
-          )}`,
+            humanReadableFileSize(asset.size())
+          )}`
       )
-      .join('\n');
+      .join("\n");
     const bundleMessage = `Bundled: '${chalk.cyanBright(
-      `${compilation.name}`,
+      `${compilation.name}`
     )}' ${chalk.magentaBright(`${timeTaken} s`)}`;
     messages.push(bundleMessage, filesMessage);
 
@@ -556,7 +610,7 @@ const bundleWebpack = async () => {
         compilation.warnings
           .map((warning) => warning.stack)
           .map(chalk.yellowBright)
-          .join('\n\n'),
+          .join("\n\n")
       );
     }
 
@@ -566,45 +620,46 @@ const bundleWebpack = async () => {
         compilation.errors
           .map(chalk.redBright)
           .map((error) => (error.stack !== undefined ? error.stack : error))
-          .join('\n\n'),
+          .join("\n\n")
       );
     }
-    const outputMessage = messages.join('\n');
+    const outputMessage = messages.join("\n");
 
     l.info(outputMessage);
   }
 };
 
-task('webpack', bundleWebpack);
+task("webpack", bundleWebpack);
 
-task('build-all', series(buildSource, bundleWebpack, writeme));
+task("build-all", series(buildSource, bundleWebpack, writeme));
 
 const prepublish = series(
   parallel(clean, format),
   parallel(transpile, copy, testNoBuild),
-  parallel(bundleWebpack, checkTypes, writeme),
+  parallel(bundleWebpack, checkTypes, writeme)
 );
 
-task('prepublish', prepublish);
+task("prepublish", prepublish);
 
 const serveBundles = async () => {
-  const { default: WebpackDevServer } = await import('webpack-dev-server');
+  const { default: WebpackDevServer } = await import("webpack-dev-server");
   const compilers = await webpackCompilers();
   let port = 3000;
-  const l = logger.child(chalk.magentaBright('webpack'));
+  const l = logger.child(chalk.magentaBright("webpack"));
   for (const { compiler, config } of compilers) {
     const mergedDevServerConfig = config.devServer;
     const server = new WebpackDevServer(compiler, mergedDevServerConfig);
-    const serverPort = config.devServer.port !== undefined ? config.devServer.port : port;
-    server.listen(serverPort, 'localhost', () => {
+    const serverPort =
+      config.devServer.port !== undefined ? config.devServer.port : port;
+    server.listen(serverPort, "localhost", () => {
       l.info(
         `Serving '${chalk.cyanBright(config.name)}' on port ${chalk.cyanBright(
-          serverPort.toString(),
-        )}...`,
+          serverPort.toString()
+        )}...`
       );
     });
     port++;
   }
 };
-task('serve', serveBundles);
+task("serve", serveBundles);
 run();
