@@ -10,16 +10,16 @@ import {
   Configuration,
 } from "@pshaw/webpack";
 
+import flBenchmarkerViewerConfig from '@fl-benchmarker/viewer-cli/src/webpack.config';
+
 type Configuration = WebpackConfiguration & {
   devServer: WebpackDevServerConfiguration;
 };
 
 const packagesDir = resolve(__dirname, './packages');
 const miscDir = resolve(packagesDir, "./misc");
-const faultjsDir = resolve(packagesDir, "./faultjs");
-const faultjsBenchmarkDir = resolve(faultjsDir, "./fault-benchmark");
 const patrickShawDir = resolve(packagesDir, "./patrick-shaw");
-
+const pageBreakerDir = resolve(miscDir, "page-breaker-chrome");
 const resumeDir = resolve(patrickShawDir, "my-resume");
 
 /*const webcomponentsSassModulesRule = {
@@ -27,53 +27,7 @@ const resumeDir = resolve(patrickShawDir, "my-resume");
   use: [cssModuleLoader, sassLoader],
 };*/
 
-const resumeConfig: Configuration = {
-  name: "my-resume",
-  target: "web",
-  resolve: {
-    extensions: codeExtensions,
-  },
-  module: {
-    rules: recommendedRules,
-  },
-  entry: resolve(resumeDir, "src/index.tsx"),
-  output: createDistOutput(resumeDir),
-  plugins: [
-    createHtmlWebpackPlugin({
-      title: "Patrick Shaw - Resume",
-    }),
-    createBundleAnalyzerPlugin(resumeDir),
-  ],
-  devServer: {
-    port: 3000,
-    compress: true,
-  },
-};
 
-const faultjsBenchmarkConfig: Configuration = {
-  name: "fault-benchmark",
-  target: "web",
-  resolve: {
-    extensions: codeExtensions,
-  },
-  devtool: "source-map",
-  module: {
-    rules: recommendedRules,
-  },
-  entry: resolve(faultjsBenchmarkDir, "src/frontend/index.tsx"),
-  output: createDistOutput(faultjsBenchmarkDir),
-  plugins: [
-    createHtmlWebpackPlugin({
-      title: `Fault.js benchmark results`,
-    }),
-  ],
-  devServer: {
-    port: 3001,
-    compress: true,
-  },
-};
-
-const pageBreakerDir = resolve(miscDir, "page-breaker-chrome");
 const pageBreakerFrontendConfig: Configuration = {
   name: "page-breaker",
   target: "web",
@@ -103,6 +57,29 @@ const pageBreakerFrontendConfig: Configuration = {
   ],
   devServer: {
     port: 3002,
+    compress: true,
+  },
+};
+
+const resumeConfig: Configuration = {
+  name: "my-resume",
+  target: "web",
+  resolve: {
+    extensions: codeExtensions,
+  },
+  module: {
+    rules: recommendedRules,
+  },
+  entry: resolve(resumeDir, "src/index.tsx"),
+  output: createDistOutput(resumeDir),
+  plugins: [
+    createHtmlWebpackPlugin({
+      title: "Patrick Shaw - Resume",
+    }),
+    createBundleAnalyzerPlugin(resumeDir),
+  ],
+  devServer: {
+    port: 3000,
     compress: true,
   },
 };
@@ -146,7 +123,7 @@ const geneticSequenceAnalysisApp: Configuration = {
 
 const configs: Configuration[] = [
   resumeConfig,
-  faultjsBenchmarkConfig,
+  flBenchmarkerViewerConfig,
   pageBreakerFrontendConfig,
   geneticSequenceAnalysisApp,
 ];

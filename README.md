@@ -12,8 +12,6 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.4-0 | [`@pshaw/resume-template`](packages/misc/resume-template/README.md) | A template you can use to generate resumes
-0.0.3 | [`@resultful/react-async`](packages/resultful/resultful-react-async/README.md) | React utilities for handling asynchronous state
-0.0.3 | [`@resultful/react-async-payload-types`](packages/resultful/resultful-react-async-payload-types/README.md) | 
 0.0.4 | [`@resultful/types`](packages/resultful/resultful-types/README.md) | String constants for the different result types returned by resultful
 1.6.2-0 | [`css-color-checker`](packages/misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](packages/misc/custom-element/README.md) | TODO

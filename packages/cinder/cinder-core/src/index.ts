@@ -1065,6 +1065,7 @@ export const repeat = <V, C, R, CR extends ComponentResult<C, R, any>>(
   return keyedComponents<V, C, R, CR>(values, keyFn, mapFn, false);
 };
 
-export type SFC<P, R> = (props: P) => R;
+// TODO Give R an extends
+export type SFC<P, R = unknown> = (props: P) => R;
 
-export type FC<P, R> = (props: P) => R;
+export type FC<P, R = unknown> = (props: P) => R;
