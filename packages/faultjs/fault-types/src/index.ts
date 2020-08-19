@@ -21,6 +21,7 @@ export type TestData = {
   titlePath: string[];
   file: string;
   coverage: Coverage;
+  duration: number;
 };
 
 export type PassingTestData = {
