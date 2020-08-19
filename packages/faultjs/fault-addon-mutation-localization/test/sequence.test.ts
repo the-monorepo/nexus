@@ -10,7 +10,7 @@ import {
   mutationWrapperToInstruction,
 } from '../src/index';
 describe('sequences', () => {
-  const ast1 = it('delete statement', () => {
+  it('delete statement', () => {
     const filePath = '';
 
     const ast = parse('const fn = () => { const a = 0; const b = 0; };');

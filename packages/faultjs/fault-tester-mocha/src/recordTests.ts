@@ -32,6 +32,7 @@ const commonTestHandle = (submitHandle: SubmitHandle) => {
       test!.titlePath().join('_') +
       createHash('sha1').update(test!.body).digest('base64');
     const duration = test.duration! * 1000;
+    console.log(duration);
     const file = test.file!;
     const titlePath = test.titlePath();
     return submitHandle({ key: hash, duration, file, titlePath, coverage }, test, err);
