@@ -33,6 +33,7 @@ Version | Package | Description
 1.0.0-alpha.2 | [`@cinderjs/babel-plugin-transform-jsx`](packages/cinder/cinder-babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
 1.0.0-alpha.2 | [`@cinderjs/core`](packages/cinder/cinder-core/README.md) | Cinder runtime
 1.0.0-alpha.2 | [`@cinderjs/element`](packages/cinder/cinder-element/README.md) | Cinder element
+1.0.0-alpha.2 | [`@cinderjs/hooks`](packages/cinder/cinder-hooks/README.md) | Cinder hooks
 1.0.0-alpha.2 | [`cinder`](packages/cinder/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 
 ### Build tooling

@@ -2707,6 +2707,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@cinderjs/hooks@workspace:packages/cinder/cinder-hooks":
+  version: 0.0.0-use.local
+  resolution: "@cinderjs/hooks@workspace:packages/cinder/cinder-hooks"
+  peerDependencies:
+    "@cinderjs/core": "*"
+  languageName: unknown
+  linkType: soft
+
 "@contextual-documents/classname-picker@workspace:packages/contextual-documents/contextual-documents-classname-picker":
   version: 0.0.0-use.local
   resolution: "@contextual-documents/classname-picker@workspace:packages/contextual-documents/contextual-documents-classname-picker"

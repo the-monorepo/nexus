@@ -67,6 +67,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/cinder/cinder-element"
       },
       {
+        "name": "@cinderjs/hooks",
+        "reference": "workspace:packages/cinder/cinder-hooks"
+      },
+      {
         "name": "@contextual-documents/classname-picker",
         "reference": "workspace:packages/contextual-documents/contextual-documents-classname-picker"
       },
@@ -839,6 +843,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@cinderjs/element",
         "virtual:7c555c9cd2452760a59bcf727ca1076c368e6575741781265e13f65ab4b78ba2ff6b57c3a8e8567c1c1e2e966fc8d50e06fe8544a5b6e719eed3370007e4f32e#workspace:packages/cinder/cinder-element"
+      ],
+      [
+        "@cinderjs/hooks",
+        "workspace:packages/cinder/cinder-hooks"
       ],
       [
         "@contextual-documents/classname-picker",
@@ -11712,6 +11720,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/cinder/cinder-element/",
           "packageDependencies": [
             ["@cinderjs/element", "workspace:packages/cinder/cinder-element"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@cinderjs/hooks", [
+        ["workspace:packages/cinder/cinder-hooks", {
+          "packageLocation": "./packages/cinder/cinder-hooks/",
+          "packageDependencies": [
+            ["@cinderjs/hooks", "workspace:packages/cinder/cinder-hooks"]
           ],
           "linkType": "SOFT",
         }]
