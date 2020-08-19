@@ -3276,7 +3276,9 @@ __metadata:
     chart.js: ^2.9.3
     chartjs-chart-box-and-violin-plot: ^2.3.0
     cinder: "workspace:packages/cinder/cinder"
+    mobx: ^5.15.5
     webpack-dev-server: ^3.11.0
+    xy-ui: ^1.10.0
   bin:
     fl-benchmarker-viewer: ./commonjs/bin.js
   languageName: unknown
@@ -3877,18 +3879,6 @@ __metadata:
   checksum: a6564be20f5b7d00ed48461b9e0f00b880eb95d477d9880eceb338fc1a2748da080daa3ab8c2a74c304ea0a0027afe81aa38f4e692f96d5f3a38b47ebef097b0
   languageName: node
   linkType: hard
-
-"@resultful/react-async-payload-types@workspace:packages/resultful/resultful-react-async-payload-types":
-  version: 0.0.0-use.local
-  resolution: "@resultful/react-async-payload-types@workspace:packages/resultful/resultful-react-async-payload-types"
-  languageName: unknown
-  linkType: soft
-
-"@resultful/react-async@workspace:packages/resultful/resultful-react-async":
-  version: 0.0.0-use.local
-  resolution: "@resultful/react-async@workspace:packages/resultful/resultful-react-async"
-  languageName: unknown
-  linkType: soft
 
 "@resultful/types@workspace:packages/resultful/resultful-types":
   version: 0.0.0-use.local
@@ -16851,6 +16841,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"mobx@npm:^5.15.5":
+  version: 5.15.5
+  resolution: "mobx@npm:5.15.5"
+  checksum: 382cbe20bd034913ae76ba43384196e0c6f1ab60ee9e8395dd7e824532aefd6491fc473f59609fb073ee6742eb41cf8cb7515cb467b95c513a9ca4f80af9ae95
+  languageName: node
+  linkType: hard
+
 "mocha@npm:^7.1.1":
   version: 7.1.2
   resolution: "mocha@npm:7.1.2"
@@ -24207,6 +24204,13 @@ typescript@^4.0.0-beta:
   version: 4.0.2
   resolution: "xtend@npm:4.0.2"
   checksum: 37ee522a3e9fb9b143a400c30b21dc122aa8c9c9411c6afae1005a4617dc20a21765c114d544e37a6bb60c2733dd8ee0a44ed9e80d884ac78cccd30b5e0ab0da
+  languageName: node
+  linkType: hard
+
+"xy-ui@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "xy-ui@npm:1.10.0"
+  checksum: 9491d20177b54f840ec3558580286a092c1940302279caaa7ebae30b133323415ba1f157bc622fb35b3d88f26031ce54544f5a8b54cc7c05d3a90ce07b22ef5b
   languageName: node
   linkType: hard
 

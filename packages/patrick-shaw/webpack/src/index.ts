@@ -111,7 +111,7 @@ export const cssModuleLoader = {
   options: {
     esModule: true,
     modules: {
-      localIdentName: '[name]__[local]--[hash:base64:5]',
+      localIdentName: '[name].[ext]__[local]--[hash:base64:5]',
     },
   },
 };

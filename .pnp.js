@@ -323,14 +323,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/resultful/resultful"
       },
       {
-        "name": "@resultful/react-async",
-        "reference": "workspace:packages/resultful/resultful-react-async"
-      },
-      {
-        "name": "@resultful/react-async-payload-types",
-        "reference": "workspace:packages/resultful/resultful-react-async-payload-types"
-      },
-      {
         "name": "@resultful/types",
         "reference": "workspace:packages/resultful/resultful-types"
       },
@@ -1227,14 +1219,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [
         "@reach/router",
         "virtual:8304a20517a4974f62ef220e28602909e85d5996d7da6a25f25ada5681133aa13b72f6db83c370cefeebcee9a7a325b869c6b88792b5f1ea85045ed4b383f554#npm:1.3.3"
-      ],
-      [
-        "@resultful/react-async",
-        "workspace:packages/resultful/resultful-react-async"
-      ],
-      [
-        "@resultful/react-async-payload-types",
-        "workspace:packages/resultful/resultful-react-async-payload-types"
       ],
       [
         "@resultful/types",
@@ -7778,7 +7762,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],
       [
         "xy-ui",
-        "npm:1.9.6"
+        "npm:1.10.0"
       ],
       [
         "y18n",
@@ -12491,7 +12475,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["chart.js", "npm:2.9.3"],
             ["chartjs-chart-box-and-violin-plot", "npm:2.3.0"],
             ["cinder", "workspace:packages/cinder/cinder"],
-            ["webpack-dev-server", "virtual:fd6cd57f06065ee88b61bfebdf11c5f97c88ffc47ee6e78f69e35fdd7aa3cbb8045c616665a3dbc672be75a57a3eebc0ed6cad42925589f1c2dc0c6554e5cf19#npm:3.11.0"]
+            ["mobx", "npm:5.15.5"],
+            ["webpack-dev-server", "virtual:fd6cd57f06065ee88b61bfebdf11c5f97c88ffc47ee6e78f69e35fdd7aa3cbb8045c616665a3dbc672be75a57a3eebc0ed6cad42925589f1c2dc0c6554e5cf19#npm:3.11.0"],
+            ["xy-ui", "npm:1.10.0"]
           ],
           "linkType": "SOFT",
         }]
@@ -13219,24 +13205,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "react-dom"
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["@resultful/react-async", [
-        ["workspace:packages/resultful/resultful-react-async", {
-          "packageLocation": "./packages/resultful/resultful-react-async/",
-          "packageDependencies": [
-            ["@resultful/react-async", "workspace:packages/resultful/resultful-react-async"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@resultful/react-async-payload-types", [
-        ["workspace:packages/resultful/resultful-react-async-payload-types", {
-          "packageLocation": "./packages/resultful/resultful-react-async-payload-types/",
-          "packageDependencies": [
-            ["@resultful/react-async-payload-types", "workspace:packages/resultful/resultful-react-async-payload-types"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["@resultful/types", [
@@ -28051,6 +28019,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["mobx", "npm:5.15.4"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:5.15.5", {
+          "packageLocation": "./.yarn/cache/mobx-npm-5.15.5-c83607b89c-382cbe20bd.zip/node_modules/mobx/",
+          "packageDependencies": [
+            ["mobx", "npm:5.15.5"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["mocha", [
@@ -36489,6 +36464,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["xy-ui", [
+        ["npm:1.10.0", {
+          "packageLocation": "./.yarn/cache/xy-ui-npm-1.10.0-d5121260b0-9491d20177.zip/node_modules/xy-ui/",
+          "packageDependencies": [
+            ["xy-ui", "npm:1.10.0"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:1.9.6", {
           "packageLocation": "./.yarn/cache/xy-ui-npm-1.9.6-9f38da85f4-7e830aee73.zip/node_modules/xy-ui/",
           "packageDependencies": [
