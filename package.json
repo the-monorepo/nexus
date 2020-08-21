@@ -73,7 +73,6 @@
     "babel-plugin-istanbul": "^6.0.0",
     "chalk": "^3.0.0",
     "cinder": "workspace:packages/cinder/cinder",
-    "codecov": "^3.6.1",
     "del": "^5.1.0",
     "eslint": "^7.0.0",
     "esm": "^3.2.25",
