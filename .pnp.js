@@ -3657,10 +3657,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:1.1.0"
       ],
       [
-        "esm",
-        "npm:3.2.25"
-      ],
-      [
         "espree",
         "npm:7.0.0"
       ],
@@ -7819,7 +7815,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cinder", "workspace:packages/cinder/cinder"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:7.0.0"],
-            ["esm", "npm:3.2.25"],
             ["expect", "npm:25.5.0"],
             ["flamebearer", "npm:1.1.3"],
             ["globby", "npm:11.0.0"],
@@ -22023,15 +22018,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["esm", [
-        ["npm:3.2.25", {
-          "packageLocation": "./.yarn/cache/esm-npm-3.2.25-762b3ebd40-12a0272aaa.zip/node_modules/esm/",
-          "packageDependencies": [
-            ["esm", "npm:3.2.25"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["espree", [
         ["npm:6.2.1", {
           "packageLocation": "./.yarn/cache/espree-npm-6.2.1-c3370c8022-8651a6c162.zip/node_modules/espree/",
@@ -28104,7 +28090,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cinder", "workspace:packages/cinder/cinder"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:7.0.0"],
-            ["esm", "npm:3.2.25"],
             ["expect", "npm:25.5.0"],
             ["flamebearer", "npm:1.1.3"],
             ["globby", "npm:11.0.0"],
