@@ -123,9 +123,8 @@ export const initialize = async (options: Options) => {
     return client.on(candidatePayload, async (data) => {
       switch (data.type) {
         case IPC.STOP_WORKER: {
-          await client.stoppedWorker({ coverage: global[COVERAGE_KEY] }).then(() => {
-            process.exit(0);
-          });
+          await client.stoppedWorker({ coverage: global[COVERAGE_KEY] });
+          queue.splice(0, queue.length);
           break;
         }
         case IPC.TEST_FILE: {

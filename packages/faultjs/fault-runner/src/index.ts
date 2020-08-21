@@ -1,4 +1,4 @@
-import { fork, ChildProcess } from 'child_process';
+import { fork, ForkOptions, ChildProcess } from 'child_process';
 
 import { cpus } from 'os';
 import { join, resolve } from 'path';
@@ -81,16 +81,14 @@ const forkForTest = (
   tester: string,
   testerOptions: any,
   setupFiles: string[],
-  env: any,
-  cwd: string,
+  processOptions: ForkOptions,
 ): ChildProcess =>
   fork(
     addonEntryPath,
     [tester, JSON.stringify(testerOptions), JSON.stringify(setupFiles)],
     {
-      env,
-      cwd,
       stdio: 'inherit',
+      ...processOptions,
     },
   );
 
@@ -233,13 +231,12 @@ const createWorkers = (
   tester: string,
   testerOptions: any,
   setupFiles: string[],
-  env: any,
-  cwd: string,
+  processOptions: ForkOptions,
   workerCount: number,
 ) => {
   const workers: WorkerInfo[] = [];
   for (let w = 0; w < workerCount; w++) {
-    const childProcess = forkForTest(tester, testerOptions, setupFiles, env, cwd);
+    const childProcess = forkForTest(tester, testerOptions, setupFiles, processOptions);
     const worker: WorkerInfo = {
       expirationTimer: undefined,
       process: childProcess,
@@ -253,16 +250,13 @@ const createWorkers = (
   return workers;
 };
 
-const ERROR_SIGNAL = 'SIGKILL';
-
 const runAndRecycleProcesses = async ({
   tester,
   testFiles,
   workerCount,
   setupFiles,
   hooks,
-  cwd,
-  env,
+  processOptions,
   testerOptions,
   bufferCount,
   timeout,
@@ -296,8 +290,7 @@ const runAndRecycleProcesses = async ({
       tester,
       testerOptions,
       setupFiles,
-      env,
-      cwd,
+      processOptions,
       processCount,
     );
 
@@ -314,7 +307,7 @@ const runAndRecycleProcesses = async ({
 
     // TODO: This is getting way too messy. Clean this whole thing up. Needs to be much easier to understand
     const results = await new Promise<FinalTesterResults>((resolve, reject) => {
-      const killWorkers = async (someWorkers: WorkerInfo[], err) => {
+      const disconnectWorkers = async (someWorkers: WorkerInfo[], err) => {
         if (alreadyKillingWorkers) {
           return;
         }
@@ -322,7 +315,9 @@ const runAndRecycleProcesses = async ({
         console.log('Killing workers');
         for (const otherWorker of someWorkers) {
           clearTimeout(otherWorker.expirationTimer!);
-          otherWorker.process.kill(ERROR_SIGNAL);
+          if (!otherWorker.process.connected) {
+            otherWorker.process.disconnect();
+          }
         }
         // TODO: DRY (see tester results creation above)
         const endTime = Date.now();
@@ -359,7 +354,7 @@ const runAndRecycleProcesses = async ({
           // TODO: Didn't actually check if clearTimeout(null) does anything weird
           clearTimeout(worker.expirationTimer!);
           worker.expirationTimer = setTimeout(() => {
-            killWorkers(
+            disconnectWorkers(
               [...runningWorkers],
               new Error(
                 `Worker ${id} took longer than ${timeout}ms. ${inspect(
@@ -389,7 +384,7 @@ const runAndRecycleProcesses = async ({
                 clearTimeout(worker.expirationTimer!);
                 workerCoverage.push(message.data.coverage);
                 runningWorkers.delete(worker);
-                worker.process.kill();
+                //worker.process.kill();
                 if (runningWorkers.size <= 0) {
                   console.log('finished test run');
                   const endTime = Date.now();
@@ -456,7 +451,7 @@ const runAndRecycleProcesses = async ({
             const otherWorkers = [...runningWorkers].filter(
               (otherWorker) => otherWorker !== worker,
             );
-            killWorkers(
+            disconnectWorkers(
               otherWorkers,
               new Error(
                 `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal. ${inspect(
@@ -492,12 +487,11 @@ const runAndRecycleProcesses = async ({
 export type RunOptions = {
   tester: string;
   testMatch: string | string[];
-  cwd?: string;
   setupFiles?: string[];
   addons?: PartialTestHookOptions[];
   reporters?: PartialTestHookOptions[];
   workers?: number;
-  env?: { [s: string]: any };
+  processOptions: ForkOptions;
   testerOptions?: any;
   fileBufferCount?: number | null;
   timeout?: number;
@@ -509,25 +503,28 @@ type InternalRunOptions = {
   workerCount: number;
   setupFiles: string[];
   hooks: TestHookOptions;
-  cwd: string;
-  env: { [s: string]: any };
+  processOptions: ForkOptions,
   testerOptions: any;
   bufferCount: number;
   timeout: number;
 };
+
 export const run = async ({
   tester,
   testMatch,
   setupFiles = [],
   addons = [],
   workers = cpus().length,
-  cwd = process.cwd(),
+  processOptions: {
+    cwd = process.cwd(),
+    env = process.env,
+    ...otherProcessOptions
+  } = {},
   reporters = [defaultReporter.createPlugin({ dir: join(cwd, 'coverage') })],
-  env = process.env,
   testerOptions = {},
-  fileBufferCount = 2,
+  fileBufferCount = 4,
   timeout = 20000,
-}: RunOptions) => {
+}: RunOptions) => {  
   addons.push(...reporters);
 
   const hooks: TestHookOptions = schema.merge(addons);
@@ -548,8 +545,11 @@ export const run = async ({
       paths: [process.cwd()],
     })),
     hooks,
-    cwd,
-    env,
+    processOptions: {
+      cwd,
+      env,
+      ...otherProcessOptions,
+    },
     testerOptions,
     bufferCount: fileBufferCount === null ? Number.POSITIVE_INFINITY : fileBufferCount,
     timeout,
