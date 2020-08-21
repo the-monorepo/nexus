@@ -19,7 +19,7 @@ export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   return mochaInstance;
 };
 
-export const runMochaInstance = (mochaInstance, runHandle) =>
+export const runMochaInstance = (mochaInstance): Promise<resultful.Result<undefined, any, any>> =>
   new Promise((resolve) => {
     try {
       mochaInstance.run((failures) => {

@@ -506,9 +506,11 @@ const testNoBuild = async () => {
       ...config.testableIgnoreGlobs.map((glob) => `!${glob}`),
     ],
     addons: [flAddon],
-    env: {
-      ...process.env,
-      NODE_ENV: "test",
+    processOptions: {
+      env: {
+        ...process.env,
+        NODE_ENV: "test",
+      },
     },
     setupFiles: ["./test/helpers/globals"],
     testerOptions: {
