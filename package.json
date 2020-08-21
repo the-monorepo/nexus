@@ -12,7 +12,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git"
   },
   "scripts": {
-    "run:buildplan": "yarn node --prof --require=./transpile-at-runtime --require=./original-code-require-override buildplan.ts",
+    "run:buildplan": "yarn node --require=./transpile-at-runtime --require=./original-code-require-override buildplan.ts",
     "format": "yarn run:buildplan format",
     "format-staged": "yarn run:buildplan format-staged",
     "test": "yarn run:buildplan test",
@@ -64,7 +64,7 @@
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-knobs": "^5.3.19",
     "@storybook/core": "^5.3.19",
-    "@types/mocha": "^7.0.2",
+    "@types/mocha": "^8.0.3",
     "@types/node": "^13.13.4",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
@@ -94,7 +94,7 @@
     "lint-staged": "^10.2.10",
     "micromatch": "^4.0.2",
     "minimist": "^1.2.5",
-    "mocha": "^7.2.0",
+    "mocha": "^8.1.1",
     "node-fetch": "^2.6.0",
     "plugin-error": "^1.0.1",
     "prettier": "^2.0.1",
