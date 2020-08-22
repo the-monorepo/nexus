@@ -39,6 +39,6 @@
     "@resultful/types": "workspace:packages/resultful/resultful-types"
   },
   "devDependencies": {
-    "jest-mock": "^26.1.0"
+    "jest-mock": "^26.3.0"
   }
 }

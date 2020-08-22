@@ -307,7 +307,7 @@ const runAndRecycleProcesses = async ({
 
     // TODO: This is getting way too messy. Clean this whole thing up. Needs to be much easier to understand
     const results = await new Promise<FinalTesterResults>((resolve, reject) => {
-      const disconnectWorkers = async (someWorkers: WorkerInfo[], err) => {
+      const killWorkers = async (someWorkers: WorkerInfo[], err) => {
         if (alreadyKillingWorkers) {
           return;
         }
@@ -315,9 +315,7 @@ const runAndRecycleProcesses = async ({
         console.log('Killing workers');
         for (const otherWorker of someWorkers) {
           clearTimeout(otherWorker.expirationTimer!);
-          if (!otherWorker.process.connected) {
-            otherWorker.process.disconnect();
-          }
+          otherWorker.process.kill();
         }
         // TODO: DRY (see tester results creation above)
         const endTime = Date.now();
@@ -354,7 +352,7 @@ const runAndRecycleProcesses = async ({
           // TODO: Didn't actually check if clearTimeout(null) does anything weird
           clearTimeout(worker.expirationTimer!);
           worker.expirationTimer = setTimeout(() => {
-            disconnectWorkers(
+            killWorkers(
               [...runningWorkers],
               new Error(
                 `Worker ${id} took longer than ${timeout}ms. ${inspect(
@@ -451,7 +449,7 @@ const runAndRecycleProcesses = async ({
             const otherWorkers = [...runningWorkers].filter(
               (otherWorker) => otherWorker !== worker,
             );
-            disconnectWorkers(
+            killWorkers(
               otherWorkers,
               new Error(
                 `Something went wrong while running tests in worker ${id}. Received ${code} exit code and ${signal} signal. ${inspect(

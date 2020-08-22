@@ -25,6 +25,6 @@
   ],
   "dependencies": {
     "hook-schema": "workspace:packages/misc/hook-schema",
-    "stacktrace-js": "^2.0.0"
+    "stacktrace-js": "^2.0.2"
   }
 }
