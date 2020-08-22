@@ -13,10 +13,10 @@
   "types": "./src/index.ts",
   "devPackage": true,
   "dependencies": {
-    "@types/node": "^10.5.4",
-    "chalk": "^2.4.1",
-    "commander": "^5.1.0",
-    "source-map-support": "^0.5.9"
+    "@types/node": "^14.6.0",
+    "chalk": "^4.1.0",
+    "commander": "^6.0.0",
+    "source-map-support": "^0.5.19"
   },
   "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da"
 }

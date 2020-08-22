@@ -28,9 +28,9 @@
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
   "dependencies": {
     "@pshaw/monorepo-config": "workspace:packages/patrick-shaw/monorepo-config",
-    "@types/webpack-dev-server": "^3.10.1",
+    "@types/webpack-dev-server": "^3.11.0",
     "babel-loader": "^8.1.0",
-    "copy-webpack-plugin": "^5.1.1",
+    "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^4.2.1",
     "fibers": "^5.0.0",
     "file-loader": "^6.0.0",
@@ -38,9 +38,9 @@
     "html-webpack-template": "^6.2.0",
     "sass": "^1.26.10",
     "sass-loader": "^9.0.3",
-    "source-map-loader": "^1.0.1",
+    "source-map-loader": "^1.0.2",
     "style-loader": "^1.2.1",
-    "webpack": "^5.0.0-beta.22",
+    "webpack": "^5.0.0-beta.28",
     "webpack-bundle-analyzer": "^3.8.0",
     "webpack-dev-server": "^3.11.0"
   }
