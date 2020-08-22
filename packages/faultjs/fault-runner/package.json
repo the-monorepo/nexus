@@ -30,6 +30,7 @@
     "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util",
     "@fault/messages": "workspace:packages/faultjs/fault-messages",
     "@fault/types": "workspace:packages/faultjs/fault-types",
+    "@pshaw/fs": "workspace:packages/misc/pshaw-fs",
     "@types/node": "^14.6.0",
     "chalk": "^4.1.0",
     "globby": "^11.0.1",
