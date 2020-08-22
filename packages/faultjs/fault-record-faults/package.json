@@ -24,6 +24,6 @@
   ],
   "dependencies": {
     "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util",
-    "chalk": "^4.0.0"
+    "chalk": "^4.1.0"
   }
 }

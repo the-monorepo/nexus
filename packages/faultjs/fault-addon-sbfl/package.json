@@ -33,6 +33,6 @@
     "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults",
     "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar",
     "micromatch": "^4.0.2",
-    "stacktrace-js": "^2.0.0"
+    "stacktrace-js": "^2.0.2"
   }
 }

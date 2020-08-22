@@ -125,6 +125,7 @@ export const initialize = async (options: Options) => {
         case IPC.STOP_WORKER: {
           await client.stoppedWorker({ coverage: global[COVERAGE_KEY] });
           queue.splice(0, queue.length);
+          process.disconnect();
           break;
         }
         case IPC.TEST_FILE: {

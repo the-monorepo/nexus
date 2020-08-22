@@ -29,12 +29,12 @@
   },
   "dependencies": {
     "@polymer/paper-radio-button": "^3.0.1",
-    "@types/jest": "^24.0.15",
+    "@types/jest": "^26.0.10",
     "fasta-format-parser": "workspace:packages/misc/fasta-format-parser",
     "replace-functions": "^4.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.15",
-    "jest-mock": "^25.3.0"
+    "@types/jest": "^26.0.10",
+    "jest-mock": "^26.3.0"
   }
 }

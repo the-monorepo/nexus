@@ -7,7 +7,7 @@ yargs
     commandConfigurator.option('port', {
       alias: 'p',
       type: 'number',
-      default: 34343,
+      default: 3004,
     });
   }, async (...args) => {
     await watch(...args);

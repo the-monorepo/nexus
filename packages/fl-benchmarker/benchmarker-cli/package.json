@@ -34,9 +34,9 @@
     "benchmark"
   ],
   "dependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/parser": "^7.5.0",
-    "@babel/register": "^7.9.0",
+    "@babel/core": "^7.11.4",
+    "@babel/parser": "^7.11.4",
+    "@babel/register": "^7.10.5",
     "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl",
     "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util",
     "@fault/record-faults": "workspace:packages/faultjs/fault-record-faults",
@@ -51,19 +51,19 @@
     "@pshaw/fs": "workspace:packages/misc/pshaw-fs",
     "@pshaw/logger": "workspace:packages/misc/logger",
     "chai": "^4.2.0",
-    "chalk": "^4.0.0",
+    "chalk": "^4.1.0",
     "chart.js": "^2.9.3",
     "chartjs-chart-box-and-violin-plot": "^2.3.0",
     "cinder": "workspace:packages/cinder/cinder",
-    "globby": "^11.0.0",
+    "globby": "^11.0.1",
     "micromatch": "^4.0.2",
-    "mocha": "^7.1.1",
-    "source-map-support": "^0.5.16"
+    "mocha": "^8.1.1",
+    "source-map-support": "^0.5.19"
   },
   "devDependencies": {
-    "cross-spawn": "^6.0.5",
+    "cross-spawn": "^7.0.3",
     "del": "^5.1.0",
-    "isomorphic-git": "^0.58.1",
+    "isomorphic-git": "^1.7.4",
     "node-fetch": "^2.6.0"
   }
 }

@@ -27,10 +27,10 @@
     "debugging"
   ],
   "dependencies": {
-    "@babel/generator": "^7.9.5",
-    "@babel/parser": "^7.9.4",
-    "@babel/traverse": "^7.9.5",
-    "@babel/types": "^7.9.5",
+    "@babel/generator": "^7.11.4",
+    "@babel/parser": "^7.11.4",
+    "@babel/traverse": "^7.11.0",
+    "@babel/types": "^7.11.0",
     "@fault/addon-hook-schema": "workspace:packages/faultjs/fault-addon-hook-schema",
     "@fault/addon-sbfl": "workspace:packages/faultjs/fault-addon-sbfl",
     "@fault/istanbul-util": "workspace:packages/faultjs/fault-istanbul-util",
@@ -39,13 +39,13 @@
     "@fault/sbfl-dstar": "workspace:packages/faultjs/fault-sbfl-dstar",
     "@fault/types": "workspace:packages/faultjs/fault-types",
     "@types/pouchdb": "^6.4.0",
-    "chalk": "^4.0.0",
+    "chalk": "^4.1.0",
     "del": "^5.1.0",
     "error-stack-parser": "^2.0.6",
     "istanbul-lib-coverage": "^3.0.0",
     "micromatch": "^4.0.2",
-    "pouchdb": "^7.1.1",
-    "pouchdb-adapter-memory": "^7.1.1",
-    "pouchdb-find": "^7.1.1"
+    "pouchdb": "^7.2.2",
+    "pouchdb-adapter-memory": "^7.2.2",
+    "pouchdb-find": "^7.2.2"
   }
 }

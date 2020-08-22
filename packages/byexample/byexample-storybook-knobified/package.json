@@ -19,11 +19,11 @@
     "css-color-checker": "workspace:packages/misc/css-color-checker"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^5.3.18",
-    "@storybook/addon-knobs": "^5.3.18",
+    "@storybook/addon-actions": "^6.0.16",
+    "@storybook/addon-knobs": "^6.0.16",
     "prop-types": "^15.7.2",
-    "react": "^16.6.1",
-    "react-dom": "^16.4.2"
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da"
 }

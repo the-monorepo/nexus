@@ -19,6 +19,6 @@
     "@pshaw/resume-template": "workspace:packages/misc/resume-template",
     "cinder": "workspace:packages/cinder/cinder",
     "express": "^4.17.1",
-    "puppeteer": "^2.1.1"
+    "puppeteer": "^5.2.1"
   }
 }

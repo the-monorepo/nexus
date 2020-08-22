@@ -20,12 +20,12 @@
   "main": "./commonjs/index.js",
   "module": "./esm/index.js",
   "dependencies": {
-    "@types/classnames": "^2.2.7",
+    "@types/classnames": "^2.2.10",
     "@types/date-fns": "^2.6.0",
     "cinder": "workspace:packages/cinder/cinder",
     "classnames": "^2.2.6",
-    "date-fns": "^2.12.0",
-    "mobx": "^5.9.0"
+    "date-fns": "^2.15.0",
+    "mobx": "^5.15.6"
   },
   "devDependencies": {
     "jss-global": "^3.0.0",
