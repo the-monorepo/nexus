@@ -358,12 +358,8 @@ const watch = async () => {
       events: "all",
     },
     () => {
-      try {
-        logger.info(`Rerunning ${chalk.cyan("watch")}`);
-        return parallel(copy, transpile)();
-      } catch (err) {
-        reject(err);
-      }
+      logger.info(`Rerunning ${chalk.cyan("watch")}`);
+      return parallel(copy, transpile)();
     }
   );
 };
