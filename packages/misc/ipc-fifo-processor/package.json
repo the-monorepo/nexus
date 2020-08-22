@@ -22,7 +22,7 @@
     "typescript"
   ],
   "devDependencies": {
-    "@types/node": "^13.13.4"
+    "@types/node": "^14.6.0"
   },
   "dependencies": {
     "@pshaw/keyed-binary-heap": "workspace:packages/misc/keyed-binary-heap"

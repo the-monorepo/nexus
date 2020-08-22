@@ -33,7 +33,7 @@
     "chart.js": "^2.9.3",
     "chartjs-chart-box-and-violin-plot": "^2.3.0",
     "cinder": "workspace:packages/cinder/cinder",
-    "mobx": "^5.15.5",
+    "mobx": "^5.15.6",
     "webpack-dev-server": "^3.11.0",
     "xy-ui": "^1.10.0"
   }

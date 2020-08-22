@@ -31,11 +31,11 @@
     "jest": "^23.6.0"
   },
   "dependencies": {
-    "@types/jest": "^24.0.15",
+    "@types/jest": "^26.0.10",
     "replace-functions": "^4.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.15",
-    "jest-mock": "^25.3.0"
+    "@types/jest": "^26.0.10",
+    "jest-mock": "^26.3.0"
   }
 }

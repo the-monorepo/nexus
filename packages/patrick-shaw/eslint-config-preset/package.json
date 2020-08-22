@@ -34,9 +34,9 @@
     "@pshaw/eslint-config-plugin-import": "workspace:packages/patrick-shaw/eslint-config-plugin-import",
     "@pshaw/eslint-config-plugin-react": "workspace:packages/patrick-shaw/eslint-config-plugin-react",
     "@pshaw/eslint-config-plugin-typescript": "workspace:packages/patrick-shaw/eslint-config-plugin-typescript",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "eslint-config-prettier": "^6.10.1",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-react": "^7.19.0"
+    "@typescript-eslint/eslint-plugin": "^3.9.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-react": "^7.20.6"
   }
 }

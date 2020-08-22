@@ -29,8 +29,8 @@
     "access": "public"
   },
   "devDependencies": {
-    "jest-mock": "^26.0.1",
-    "mockdate": "^2.0.2"
+    "jest-mock": "^26.3.0",
+    "mockdate": "^3.0.2"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }
