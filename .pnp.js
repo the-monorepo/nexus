@@ -13240,6 +13240,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@fault/record-faults", "workspace:packages/faultjs/fault-record-faults"],
             ["@fault/istanbul-util", "workspace:packages/faultjs/fault-istanbul-util"],
+            ["@pshaw/fs", "workspace:packages/misc/pshaw-fs"],
             ["chalk", "npm:4.1.0"]
           ],
           "linkType": "SOFT",
@@ -13255,6 +13256,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@fault/istanbul-util", "workspace:packages/faultjs/fault-istanbul-util"],
             ["@fault/messages", "workspace:packages/faultjs/fault-messages"],
             ["@fault/types", "workspace:packages/faultjs/fault-types"],
+            ["@pshaw/fs", "workspace:packages/misc/pshaw-fs"],
             ["@types/node", "npm:14.6.0"],
             ["chalk", "npm:4.1.0"],
             ["globby", "npm:11.0.1"],
@@ -35233,8 +35235,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react", "npm:16.13.1"]
           ],
           "packagePeers": [
-            "react",
-            "@types/react"
+            "@types/react",
+            "react"
           ],
           "linkType": "HARD",
         }],
@@ -35246,8 +35248,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react", null]
           ],
           "packagePeers": [
-            "react",
-            "@types/react"
+            "@types/react",
+            "react"
           ],
           "linkType": "HARD",
         }]
@@ -35262,8 +35264,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["use-isomorphic-layout-effect", "virtual:7499fc8b793db11586e86ac4b17b9188a3541f2438b43cfed208843b072146a0980d91724326b677bfe32249b58853b3341d74829ba0a59e3176e682a681eb61#npm:1.0.0"]
           ],
           "packagePeers": [
-            "react",
-            "@types/react"
+            "@types/react",
+            "react"
           ],
           "linkType": "HARD",
         }],
@@ -35276,8 +35278,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["use-isomorphic-layout-effect", "virtual:b029a5b29b639002e16f81a29ec36bed9fe9aedefc7cc1a752f33d6c2b95db82c69377c767253ff26f74683102c0cdb29d2d03f80c5eb4fe82aff4a68e54f580#npm:1.0.0"]
           ],
           "packagePeers": [
-            "react",
-            "@types/react"
+            "@types/react",
+            "react"
           ],
           "linkType": "HARD",
         }]
