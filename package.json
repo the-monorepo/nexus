@@ -61,6 +61,7 @@
     "@pshaw/eslint-config-preset": "workspace:packages/patrick-shaw/eslint-config-preset",
     "@pshaw/logger": "workspace:packages/misc/logger",
     "@pshaw/markdown-util": "workspace:packages/misc/markdown-util",
+    "@pshaw/monorepo-config": "workspace:packages/patrick-shaw/monorepo-config",
     "@storybook/addon-actions": "^6.0.16",
     "@storybook/addon-knobs": "^6.0.16",
     "@storybook/core": "^6.0.16",
@@ -109,8 +110,5 @@
     "hooks": {
       "pre-commit": "yarn precommit && git add ."
     }
-  },
-  "peerDependencies": {
-    "@babel/core": "*"
   }
 }

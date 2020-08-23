@@ -39,6 +39,7 @@
     "@resultful/types": "workspace:packages/resultful/resultful-types"
   },
   "devDependencies": {
+    "@pshaw/markdown-util": "workspace:packages/misc/markdown-util",
     "jest-mock": "^26.3.0"
   }
 }

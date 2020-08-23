@@ -1,3 +1,5 @@
+// Note: Needs to be before transpilation hook because of cinder/babel
+
 import { readFileSync, accessSync, constants } from 'fs';
 
 import Module from 'module';
@@ -12,31 +14,38 @@ const packageDirs = globby.sync(config.workspaces, {
   onlyDirectories: true,
 });
 
-const packageJsonFilePaths = packageDirs.map((dir) => join(dir, 'package.json'));
+const workspacedPackageNames = new Map();
+for(const dir of packageDirs) {
+  const jsonFilePath = join(dir, 'package.json');
 
-const readablePackageJsonFilePaths = packageJsonFilePaths.filter((filePath) => {
   try {
-    accessSync(filePath, constants.R_OK);
-    return true;
+    accessSync(jsonFilePath, constants.R_OK);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err);
-    return false;
+    continue;
   }
-});
 
-const packageJsons = readablePackageJsonFilePaths.map((filePath) =>
-  JSON.parse(readFileSync(filePath, 'utf8')),
-);
+  const json = JSON.parse(readFileSync(jsonFilePath, 'utf8'));
 
-const workspacedPackageNames = new Map(
-  packageJsons
-    .filter(
-      (json) =>
-        json.exports !== undefined && json.exports['monorepo-original'] !== undefined,
-    )
-    .map((json) => [json.name, join(json.name, json.exports['monorepo-original'])]),
-);
+  if (json.exports === undefined) {
+    continue;
+  }
+
+  const monorepoOriginalPath = json.exports['monorepo-original'];
+  if (monorepoOriginalPath !== undefined) {
+    if (typeof monorepoOriginalPath === 'string') {
+      const mappedResolvedRequirePath = join(json.name, monorepoOriginalPath);
+      workspacedPackageNames.set(json.name, mappedResolvedRequirePath);
+    } else {
+      for (const [relativeRequirePath, mappedRequirePath] of Object.entries<string>(monorepoOriginalPath)) {
+        const packageResolvedRequirePath = join(json.name, relativeRequirePath);
+        const mappedResolvedRequirePath = mappedRequirePath.startsWith('@') ? mappedRequirePath : join(json.name, mappedRequirePath);
+        workspacedPackageNames.set(packageResolvedRequirePath, mappedResolvedRequirePath);
+      }
+    }
+  }
+} 
 
 const { require: oldRequire } = Module.prototype;
 

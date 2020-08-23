@@ -5,11 +5,11 @@ Mock all functions inside an array or object literal with Jest
 ## Installation
 
 ```bash
-npm install --save jest-mock-functions jest
+npm install --save jest-mock-functions jest-mock
 ```
 or
 ```bash
-yarn add jest-mock-functions jest
+yarn add jest-mock-functions jest-mock
 ```
 
 ---

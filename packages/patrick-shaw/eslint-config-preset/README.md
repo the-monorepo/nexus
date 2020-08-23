@@ -5,11 +5,11 @@ A pratical style preset for ESLint
 ## Installation
 
 ```bash
-npm install --save-dev @pshaw/eslint-config-preset@1.4.3-0
+npm install --save-dev @pshaw/eslint-config-preset@1.4.3-0 eslint
 ```
 or
 ```bash
-yarn add --dev @pshaw/eslint-config-preset@1.4.3-0
+yarn add --dev @pshaw/eslint-config-preset@1.4.3-0 eslint
 ```
 
 ---

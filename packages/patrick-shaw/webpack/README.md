@@ -5,11 +5,11 @@ Some utilities for building webpack configs
 ## Installation
 
 ```bash
-npm install --save @pshaw/webpack
+npm install --save @pshaw/webpack @babel/core
 ```
 or
 ```bash
-yarn add @pshaw/webpack
+yarn add @pshaw/webpack @babel/core
 ```
 
 ---

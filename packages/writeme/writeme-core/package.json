@@ -33,6 +33,7 @@
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
   "devDependencies": {
+    "@pshaw/markdown-util": "workspace:packages/misc/markdown-util",
     "@types/node": "^14.6.0"
   }
 }

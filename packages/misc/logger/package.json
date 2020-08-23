@@ -29,8 +29,12 @@
     "access": "public"
   },
   "devDependencies": {
+    "@pshaw/markdown-util": "workspace:packages/misc/markdown-util",
     "jest-mock": "^26.3.0",
     "mockdate": "^3.0.2"
   },
-  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
+  "dependencies": {
+    "chalk": "^4.1.0"
+  }
 }
