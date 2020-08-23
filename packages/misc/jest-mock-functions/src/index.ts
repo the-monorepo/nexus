@@ -1,3 +1,4 @@
+import { fn } from 'jest-mock';
 import { replaceFunctions, RecursionOptions } from 'replace-functions';
 export const mockFunctions = <T>(
   value: T,
@@ -7,7 +8,7 @@ export const mockFunctions = <T>(
   return replaceFunctions(
     value,
     (originalFn) => {
-      const mockedFn = jest.fn();
+      const mockedFn = fn();
       onMockFunction(mockedFn, originalFn);
       return mockedFn;
     },

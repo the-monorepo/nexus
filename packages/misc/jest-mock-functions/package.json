@@ -28,7 +28,7 @@
     "function"
   ],
   "peerDependencies": {
-    "jest": "^23.6.0"
+    "jest-mock": "*"
   },
   "dependencies": {
     "@types/jest": "^26.0.10",
