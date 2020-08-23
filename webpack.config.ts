@@ -12,10 +12,6 @@ import {
 
 import flBenchmarkerViewerConfig from '@fl-benchmarker/viewer-cli/src/webpack.config';
 
-type Configuration = WebpackConfiguration & {
-  devServer: WebpackDevServerConfiguration;
-};
-
 const packagesDir = resolve(__dirname, './packages');
 const miscDir = resolve(packagesDir, "./misc");
 const patrickShawDir = resolve(packagesDir, "./patrick-shaw");

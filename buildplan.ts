@@ -228,7 +228,7 @@ const transpilePipes = async (
     .pipe(babel(babelOptions))
     .pipe(
       rename((filePath) => {
-        filePath.dirname = renamePath(filePath.dirname, dir);
+        filePath.dirname = renamePath(filePath.dirname);
         return filePath;
       })
     )
