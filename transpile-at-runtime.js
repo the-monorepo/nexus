@@ -13,9 +13,9 @@ const transpilationGlobs = [
 
 const transpilationIgnoreGlobs = config.buildableIgnoreGlobs;
 
-const matchers = [...transpilationIgnoreGlobs, ...transpilationGlobs].map(
-  matcher
-);
+const isMatch = matcher(transpilationGlobs, {
+  ignore: transpilationIgnoreGlobs
+});
 
 register({
   extensions: config.codeExtensions.map((extension) => `.${extension}`),
@@ -28,7 +28,7 @@ register({
         case "buildplan.ts":
           return true;
         default: {
-          return matchers.some((isMatch) => isMatch(relativePath));
+          return isMatch(relativePath);
         }
       }
     },
