@@ -88,7 +88,6 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^6.0.0-alpha.1",
     "husky": "^4.2.5",
-    "jest-mock-functions": "workspace:packages/misc/jest-mock-functions",
     "lint-staged": "^10.2.11",
     "micromatch": "^4.0.2",
     "minimist": "^1.2.5",
@@ -96,6 +95,8 @@
     "node-fetch": "^2.6.0",
     "plugin-error": "^1.0.1",
     "prettier": "^2.0.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "rewiremock": "^3.14.3",
     "source-map-support": "^0.5.19",
     "stream-filter-glob": "workspace:packages/misc/stream-filter-glob",
@@ -108,5 +109,8 @@
     "hooks": {
       "pre-commit": "yarn precommit && git add ."
     }
+  },
+  "peerDependencies": {
+    "@babel/core": "*"
   }
 }

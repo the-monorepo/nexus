@@ -23,9 +23,6 @@
     "genetics",
     "typescript"
   ],
-  "peerDependencies": {
-    "jest": "^23.6.0"
-  },
   "dependencies": {
     "@polymer/paper-radio-button": "^3.0.1",
     "@types/jest": "^26.0.10",

@@ -2336,9 +2336,10 @@ __metadata:
     "@types/storybook__react": ^5.2.1
     babel-loader: ^8.1.0
     react: ^16.13.1
-    react-dom: ^16.13.1
+    webpack: ^4.44.1
   peerDependencies:
-    "@storybook/addons": ^4.0.4
+    "@storybook/addons": "*"
+    react-dom: "*"
   languageName: unknown
   linkType: soft
 
@@ -2354,8 +2355,8 @@ __metadata:
     react: ^16.13.1
     react-dom: ^16.13.1
   peerDependencies:
-    "@storybook/addon-actions": ^4.0.4
-    "@storybook/addon-knobs": ^4.0.4
+    "@storybook/addon-actions": ^6.0.16
+    "@storybook/addon-knobs": ^6.0.16
     prop-types: ^15.6.2
   languageName: unknown
   linkType: soft
@@ -2833,6 +2834,7 @@ __metadata:
     chartjs-chart-box-and-violin-plot: ^2.3.0
     cinder: "workspace:packages/cinder/cinder"
     mobx: ^5.15.6
+    webpack: ^5.0.0-beta.28
     webpack-dev-server: ^3.11.0
     xy-ui: ^1.10.0
   bin:
@@ -3025,8 +3027,8 @@ __metadata:
     "@pipelines/core": "workspace:packages/pipelines/pipelines-core"
     "@types/node": ^14.6.0
   peerDependencies:
-    "@babel/parser": ^7.9.6
-    "@babel/types": ^7.9.6
+    "@babel/parser": ^7.11.4
+    "@babel/types": ^7.11.0
     "@pipelines/core": "*"
   languageName: unknown
   linkType: soft
@@ -3325,9 +3327,12 @@ __metadata:
     "@pshaw/eslint-config-plugin-react": "workspace:packages/patrick-shaw/eslint-config-plugin-react"
     "@pshaw/eslint-config-plugin-typescript": "workspace:packages/patrick-shaw/eslint-config-plugin-typescript"
     "@typescript-eslint/eslint-plugin": ^3.9.1
+    "@typescript-eslint/parser": ^3.9.1
     eslint-config-prettier: ^6.11.0
     eslint-plugin-import: ^2.22.0
     eslint-plugin-react: ^7.20.6
+  peerDependencies:
+    eslint: "*"
   languageName: unknown
   linkType: soft
 
@@ -3405,8 +3410,6 @@ __metadata:
     cinder: "workspace:packages/cinder/cinder"
     classnames: ^2.2.6
     date-fns: ^2.15.0
-    jss-global: ^3.0.0
-    jss-nested: ^6.0.1
     mobx: ^5.15.6
   languageName: unknown
   linkType: soft
@@ -3429,7 +3432,6 @@ __metadata:
     fibers: ^5.0.0
     file-loader: ^6.0.0
     html-webpack-plugin: ^4.3.0
-    html-webpack-template: ^6.2.0
     sass: ^1.26.10
     sass-loader: ^9.0.3
     source-map-loader: ^1.0.2
@@ -3437,6 +3439,8 @@ __metadata:
     webpack: ^5.0.0-beta.28
     webpack-bundle-analyzer: ^3.8.0
     webpack-dev-server: ^3.11.0
+  peerDependencies:
+    "@babel/core": "*"
   languageName: unknown
   linkType: soft
 
@@ -10521,8 +10525,6 @@ __metadata:
     jest-mock: ^26.3.0
     replace-functions: ^4.0.0
     resultful: "workspace:packages/resultful/resultful"
-  peerDependencies:
-    jest: ^23.6.0
   languageName: unknown
   linkType: soft
 
@@ -11210,8 +11212,6 @@ fsevents@~2.1.2:
     fasta-format-parser: "workspace:packages/misc/fasta-format-parser"
     jest-mock: ^26.3.0
     replace-functions: ^4.0.0
-  peerDependencies:
-    jest: ^23.6.0
   languageName: unknown
   linkType: soft
 
@@ -12216,15 +12216,6 @@ fsevents@~2.1.2:
   peerDependencies:
     webpack: ">=4.0.0 < 6.0.0"
   checksum: 13c23547ac83142f2e23a993a82e6fa6beb21291848a856c09d27e0dae12f5781699ed9c1fe798fb03cf317a6a4dce164d224fd6023640abc167f222b59a0fa0
-  languageName: node
-  linkType: hard
-
-"html-webpack-template@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "html-webpack-template@npm:6.2.0"
-  peerDependencies:
-    html-webpack-plugin: 2.x || ^3
-  checksum: 099bbb5a5dc30f285054be63244324f8fa4248e5385eff9a8acaafa140a9160bfa69ede6add094201dc242bf126498c709a86c07993e576dda7cd09c762a24cb
   languageName: node
   linkType: hard
 
@@ -13562,7 +13553,7 @@ fsevents@~2.1.2:
     jest-mock: ^26.3.0
     replace-functions: ^4.0.0
   peerDependencies:
-    jest: ^23.6.0
+    jest-mock: "*"
   languageName: unknown
   linkType: soft
 
@@ -13826,26 +13817,6 @@ fsevents@~2.1.2:
     json-schema: 0.2.3
     verror: 1.10.0
   checksum: ee0177b7ef39e6becf18c586d31fabe15d62be88e7867d3aff86466e4a3de9a2cd47b6e597417aebc1cd3c2d43bc662e79ab5eecdadf3ce0643e909432ed6d2c
-  languageName: node
-  linkType: hard
-
-"jss-global@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "jss-global@npm:3.0.0"
-  peerDependencies:
-    jss: ^9.0.0
-  checksum: 4503fc59bbd429c48663de2bd5fee56f9f8fa726ebe4e589c1d02b43af6adafec1a23b67801a744536c187d099eaebfd65a2876702b6bbbb715defd92a2859a0
-  languageName: node
-  linkType: hard
-
-"jss-nested@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "jss-nested@npm:6.0.1"
-  dependencies:
-    warning: ^3.0.0
-  peerDependencies:
-    jss: ^9.0.0
-  checksum: 148696d74f7aa856ab5ac0530eff2213a6e48ec491a188530420d93f76aa835b59f2cf60ca4508c0daaaa5df451262df9391e403cc014cb1b3c1cdb32935cd08
   languageName: node
   linkType: hard
 
@@ -15353,7 +15324,6 @@ fsevents@~2.1.2:
     gulp-sourcemaps: ^2.6.5
     gulp-typescript: ^6.0.0-alpha.1
     husky: ^4.2.5
-    jest-mock-functions: "workspace:packages/misc/jest-mock-functions"
     lint-staged: ^10.2.11
     micromatch: ^4.0.2
     minimist: ^1.2.5
@@ -15361,6 +15331,8 @@ fsevents@~2.1.2:
     node-fetch: ^2.6.0
     plugin-error: ^1.0.1
     prettier: ^2.0.5
+    react: ^16.13.1
+    react-dom: ^16.13.1
     rewiremock: ^3.14.3
     source-map-support: ^0.5.19
     stream-filter-glob: "workspace:packages/misc/stream-filter-glob"
@@ -15368,6 +15340,8 @@ fsevents@~2.1.2:
     stylelint: ^13.6.1
     through2: ^4.0.2
     typescript: ^4.0.2
+  peerDependencies:
+    "@babel/core": "*"
   languageName: unknown
   linkType: soft
 
@@ -15790,8 +15764,6 @@ fsevents@~2.1.2:
     "@types/jest": ^26.0.10
     jest-mock: ^26.3.0
     replace-functions: ^4.0.0
-  peerDependencies:
-    jest: ^23.6.0
   languageName: unknown
   linkType: soft
 
@@ -21869,15 +21841,6 @@ typescript@^4.0.2:
   languageName: node
   linkType: hard
 
-"warning@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "warning@npm:3.0.0"
-  dependencies:
-    loose-envify: ^1.0.0
-  checksum: 91371f1e41c301c595b25b3f8df1826925d679b74c34b97284ec01937ee5e96aeaf65e7b78a7e9cbb34526597bf806edc9bf9d8d41314bae59b91526ff6712fa
-  languageName: node
-  linkType: hard
-
 "warning@npm:^4.0.2, warning@npm:^4.0.3":
   version: 4.0.3
   resolution: "warning@npm:4.0.3"
@@ -22103,7 +22066,7 @@ typescript@^4.0.2:
   languageName: node
   linkType: hard
 
-"webpack@npm:^4.43.0":
+"webpack@npm:^4.43.0, webpack@npm:^4.44.1":
   version: 4.44.1
   resolution: "webpack@npm:4.44.1"
   dependencies:
