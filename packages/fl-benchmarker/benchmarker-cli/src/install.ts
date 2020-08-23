@@ -20,6 +20,7 @@ const main = async () => {
     console.log(`Installing for ${resolvedProjectDir}`);
     const packagePaths = await globby(resolve(resolvedProjectDir, 'yarn.lock'), {
       onlyFiles: true,
+      expandDirectories: false,
     });
 
     const args = ['install'];

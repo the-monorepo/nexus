@@ -109,6 +109,8 @@ const callbackToStringCode = (taskCallback: TaskCallback): string => {
   return chalk.cyanBright(taskCallback.name !== '' ? taskCallback.name : 'anonymous');
 };
 
+const duraitonNumberFormat = new Intl.NumberFormat(undefined, { style: 'unit', unit: 'second', unitDisplay: 'narrow', maximumFractionDigits: 2 });
+
 const createTask = (
   name: string,
   description: string | undefined,
@@ -123,8 +125,13 @@ const createTask = (
     async () => {
       try {
         const value = callback();
-        log.info(`Running ${callbackToStringCode(callback)}`);
+        const taskSummary = callbackToStringCode(callback);
+        log.info(`Running ${taskSummary}`);
+        const startTime = Date.now();
         await waitForTaskReturnValue(value);
+        const endTime = Date.now();
+        const durationMessage = `(${duraitonNumberFormat.format((endTime - startTime) / 1000)})`;
+        log.info(`Finished ${taskSummary} ${chalk.grey(durationMessage)}`);
       } catch (err) {
         defaultExceptionHandler({ exception: err, taskName: name });
         process.exitCode = 1;
