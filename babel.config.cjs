@@ -55,7 +55,7 @@ module.exports = (api) => {
           './packages/fl-benchmarker/benchmarker-cli/src/frontend',
           './packages/fl-benchmarker/viewer-cli',
           './packages/misc/genetic-sequence-analysis-app',
-        ],
+        ].map(projectPath => `${projectPath}.{t,j}sx`),
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
           [
