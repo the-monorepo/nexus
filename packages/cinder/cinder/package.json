@@ -21,12 +21,16 @@
   "main": "./commonjs/index.js",
   "module": "./esm/index.js",
   "exports": {
-    "require": {
-      ".": "./commonjs/index.js",
+    "monorepo-original": {
+      ".": "./src/index.ts",
       "./babel": "@cinderjs/babel-plugin-transform-jsx"
     },
     "import": {
       ".": "./esm/index.js",
+      "./babel": "@cinderjs/babel-plugin-transform-jsx"
+    },
+    "require": {
+      ".": "./commonjs/index.js",
       "./babel": "@cinderjs/babel-plugin-transform-jsx"
     }
   },

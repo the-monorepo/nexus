@@ -5,11 +5,11 @@ A helper package for nucleotide bases
 ## Installation
 
 ```bash
-npm install --save nucleotide-bases jest
+npm install --save nucleotide-bases
 ```
 or
 ```bash
-yarn add nucleotide-bases jest
+yarn add nucleotide-bases
 ```
 
 ---

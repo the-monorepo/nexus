@@ -4,6 +4,41 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 ## Packages
 
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.2 | [`@cinderjs/babel-plugin-transform-jsx`](packages/cinder/cinder-babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
+1.0.0-alpha.2 | [`@cinderjs/core`](packages/cinder/cinder-core/README.md) | Cinder runtime
+1.0.0-alpha.2 | [`@cinderjs/element`](packages/cinder/cinder-element/README.md) | Cinder element
+1.0.0-alpha.2 | [`@cinderjs/hooks`](packages/cinder/cinder-hooks/README.md) | Cinder hooks
+1.0.0-alpha.1 | [`@fl-benchmarker/benchmarker-cli`](packages/fl-benchmarker/benchmarker-cli/README.md) | Benchmark your fault localization techniques
+1.0.0-alpha.1 | [`@fl-benchmarker/viewer-cli`](packages/fl-benchmarker/viewer-cli/README.md) | View your benchmarking results
+1.4.3 | [`@pshaw/convict-util`](packages/misc/convict-util/README.md) | A helper package for reading configs in using convict
+1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/pshaw-fs/README.md) | fs utilities
+1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
+1.1.4-0 | [`@pshaw/resume-template`](packages/misc/resume-template/README.md) | A template you can use to generate resumes
+0.0.4 | [`@resultful/types`](packages/resultful/resultful-types/README.md) | String constants for the different result types returned by resultful
+1.0.0-alpha.2 | [`cinder`](packages/cinder/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
+1.6.2-0 | [`css-color-checker`](packages/misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
+1.0.0-alpha.0 | [`custom-element`](packages/misc/custom-element/README.md) | TODO
+1.0.0-alpha.0 | [`dom-context`](packages/misc/dom-context/README.md) | A React Context API-like context API for web components
+2.2.4-0 | [`hook-schema`](packages/misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
+1.0.0-alpha.1 | [`ipc-fifo-processor`](packages/misc/ipc-fifo-processor/README.md) | Makes IPC connections appear FIFO
+4.0.0 | [`jest-mock-functions`](packages/misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
+1.6.1 | [`named-css-colors`](packages/misc/named-css-colors/README.md) | Package of named CSS colors and their values
+1.0.0 | [`nucleotide-bases`](packages/misc/nucleotide-bases/README.md) | A helper package for nucleotide bases
+4.0.0 | [`replace-functions`](packages/misc/replace-functions/README.md) | Mock all functions inside an array or object literal
+0.0.11 | [`resultful`](packages/resultful/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
+4.0.1-0 | [`sinon-stub-functions`](packages/misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
+1.0.0-alpha.6 | [`stream-filter-glob`](packages/misc/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob
+1.0.0-alpha.0 | [`tree-suffix-mapper`](packages/misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
+
+### Build tooling
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.1 | [`@buildplan/core`](packages/buildplan/core/README.md) | Programatic API for Buildplan
+1.0.0-alpha.1 | [`@pipelines/babel-parse`](packages/pipelines/pipelines-babel-parse/README.md) | Pipelines Babel integration
+1.0.0-alpha.1 | [`@pipelines/core`](packages/pipelines/pipelines-core/README.md) | Programatic API for Buildplan
+
 ### Contextual documents
 Version | Package | Description
 --- | --- | ---
@@ -22,6 +57,17 @@ Version | Package | Description
 1.0.0-alpha.6 | [`@byexample/storybook-addon-auto-knobs`](packages/byexample/byexample-storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
 1.0.0-alpha.6 | [`@byexample/storybook-knobified`](packages/byexample/byexample-storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
 1.0.0-alpha.6 | [`@byexample/types`](packages/byexample/byexample-types/README.md) | Extract type information from examples
+
+### Documentation
+Version | Package | Description
+--- | --- | ---
+1.4.3 | [`@pshaw/markdown-util`](packages/misc/markdown-util/README.md) | A helper package for writing markdown files
+3.1.4-0 | [`@writeme/core`](packages/writeme/writeme-core/README.md) | A readme generator
+
+### Logging
+Version | Package | Description
+--- | --- | ---
+2.0.5-0 | [`@pshaw/logger`](packages/misc/logger/README.md) | A preformatted, opinionated logger
 
 ### ESLint
 Version | Package | Description
