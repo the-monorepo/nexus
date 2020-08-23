@@ -235,8 +235,19 @@ async function testToPaths(packageDir: string, test: string | string[]) {
   if (!test) {
     throw new Error("'test' was undefined");
   }
-  const joinedGlobs = testToGlobs(test).map((glob) => join(packageDir, glob));
-  return await globby(joinedGlobs, { onlyFiles: false });
+  // TODO: Hack cause globby doesn't work properly on absolute paths
+  const relativePackageDir = toRelativeFromCwd(packageDir);
+  const joinedGlobs = testToGlobs(test).map((glob) => join(relativePackageDir, glob));
+  const filePaths = await globby(joinedGlobs, { onlyDirectories: true, expandDirectories: false });
+  return filePaths;
+}
+
+const toRelativeFromCwd = (dir) => {
+  const path = relative(dir, process.cwd())
+  if (path === '') {
+    return '.';
+  }
+  return path;
 }
 
 export async function genReadmeFromPackageDir(
@@ -246,7 +257,7 @@ export async function genReadmeFromPackageDir(
   const h = genReadmeFromPackageDirHookUtil.withNoops(hooks);
   const context: any = { packageDir };
   async function readConfig() {
-    context.configRequirePath = join(context.packageDir, 'writeme.config');
+    context.configRequirePath = resolve(context.packageDir, 'writeme.config');
     context.configPath = `${context.configRequirePath}.js`;
     async function getConfigModule() {
       if (await pathExists(context.configPath)) {

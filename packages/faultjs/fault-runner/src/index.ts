@@ -531,7 +531,7 @@ export const run = async ({
 
   await hooks.on.start();
 
-  const testFiles = await globby(testMatch, { onlyFiles: true });
+  const testFiles = await globby(testMatch, { onlyFiles: true, expandDirectories: false });
   testFiles.sort();
   const internalOptions: InternalRunOptions = {
     tester: require.resolve(tester, {

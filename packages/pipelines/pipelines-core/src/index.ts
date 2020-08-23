@@ -66,7 +66,7 @@ export class ReadFileObject extends FileObject<string> {
 
 export async function* readFrom(baseDir: '.', globs: string[] | string) {
   // TODO: Directories as well
-  const files = await globby(globs, { onlyFiles: true });
+  const files = await globby(globs, { onlyFiles: true, expandDirectories: false, });
   yield* files.map((file) => new ReadFileObject(url.pathToFileURL(file)));
 }
 
