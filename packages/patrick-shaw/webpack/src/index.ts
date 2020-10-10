@@ -70,17 +70,18 @@ export const tsxExtensions = ['.tsx', '.ts', '.jsx', '.js'];
 
 export const distPath = (packageDir) => resolve(packageDir, 'dist');
 
-export const createDistOutput = (packageDir) => {
+export const createOutput = (outputDir) => {
   return {
     filename: '[name].js',
-    path: distPath(packageDir),
+    path: outputDir,
     publicPath: '/',
+    scriptType: 'module',
   };
 };
 
 export const defaultLinks = [openSansUrl, materialIconsUrl, normalizeCssUrl];
 
-export const createHtmlWebpackPlugin = ({ title, links = defaultLinks }) => {
+export const createHtmlWebpackPlugin = ({ title = 'TODO: Title', links = defaultLinks } = {}) => {
   return new HtmlWebpackPlugin({
     inject: true,
     template: resolve(__dirname, 'template.html'),
@@ -132,14 +133,26 @@ export const cssRule = {
   use: [require.resolve('style-loader'), cssModuleLoader],
 };
 
+export const inlineJsonRule = {
+  test: /\.json$/,
+  use: [require.resolve('json-loader')],
+};
+
+export const fileJsonRule = {
+  test: /\.json$/,
+  use: [require.resolve('file-loader')],
+};
+
 export const sassModulesRule = {
   test: /\.(sass|scss)$/,
   use: [require.resolve('style-loader'), cssModuleLoader, sassLoader],
 };
 
-export const recommendedRules = [svgRule, sassModulesRule, sourceMapRule, babelRule];
+export const recommendedRules = [svgRule, sassModulesRule, cssRule, fileJsonRule, sourceMapRule, babelRule];
 
-/*const webcomponentsSassModulesRule = {
+export const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
   use: [cssModuleLoader, sassLoader],
-};*/
+};
+
+export const recommendedWebcomponentRules = [webcomponentsSassModulesRule, ...recommendedRules.filter(rule => rule !== sassModulesRule)];

@@ -5,9 +5,10 @@ import {
   createBundleAnalyzerPlugin,
   recommendedRules,
   codeExtensions,
-  createDistOutput,
+  createOutput,
   CopyPlugin,
   Configuration,
+  distPath,
 } from "@pshaw/webpack";
 
 import flBenchmarkerViewerConfig from '@fl-benchmarker/viewer-cli/src/webpack.config';
@@ -17,6 +18,10 @@ const miscDir = resolve(packagesDir, "./misc");
 const patrickShawDir = resolve(packagesDir, "./patrick-shaw");
 const pageBreakerDir = resolve(miscDir, "page-breaker-chrome");
 const resumeDir = resolve(patrickShawDir, "my-resume");
+
+const createDistOutput = (packageDir: string) => {
+  return createOutput(distPath(packageDir));
+};
 
 /*const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,

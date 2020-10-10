@@ -16,6 +16,7 @@
     "classnames": "^2.2.6",
     "mobx": "^5.15.6",
     "paper-range-slider": "^3.0.0",
+    "unstyled": "workspace:packages/misc/unstyled",
     "xy-ui": "^1.10.0"
   }
 }

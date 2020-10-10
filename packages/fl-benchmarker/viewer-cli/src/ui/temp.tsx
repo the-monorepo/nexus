@@ -1,10 +1,27 @@
-import { autorun } from 'mobx';
 import * as cinder from 'cinder';
+import { render, DomElement } from 'cinder';
+
+import styles from './index.scss';
+
+import './ViolinGraph';
+
+import { autorun } from 'mobx';
+
+import cx from 'classnames';
 
 const App = () => (
-  <div>Rawr</div>
+  <main class={styles.main}>
+    <style>
+      {styles.toString()}
+    </style>
+    <div class={styles.locals.graph}>
+      <faultjs-violin />
+    </div>
+  </main>
 );
 
-const rerender = () => cinder.render(<App />, document.getElementById('root'));
+const rerender = () => render(<App />, document.getElementById('root'));
 
-autorun(rerender);
+autorun(() => {
+  rerender();
+});

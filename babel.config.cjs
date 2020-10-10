@@ -48,14 +48,14 @@ module.exports = (api) => {
     plugins,
     overrides: [
       {
-        test: [
+        test: [].concat(...[
           './packages/patrick-shaw/my-resume',
           './packages/misc/resume-template',
           './packages/misc/page-breaker-chrome',
           './packages/fl-benchmarker/benchmarker-cli/src/frontend',
-          './packages/fl-benchmarker/viewer-cli',
+          './packages/fl-benchmarker/viewer-cli/src/ui',
           './packages/misc/genetic-sequence-analysis-app',
-        ].map(projectPath => `${projectPath}.{t,j}sx`),
+        ].map(projectPath => [`${projectPath}/**/*.tsx`, `${projectPath}/**/*.jsx`])),
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
           [

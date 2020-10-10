@@ -434,7 +434,7 @@ const checkTypesStaged = async () => {
 task("check-types-staged", checkTypesStaged);
 
 const flIgnoreGlob =
-  "faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*";
+  "packages/faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*";
 
 const getFaultLocalizationAddon = async () => {
   switch (config.extra.flMode) {
@@ -444,6 +444,7 @@ const getFaultLocalizationAddon = async () => {
       const { default: dstar } = await import("@fault/sbfl-dstar");
       return createAddon({
         scoringFn: dstar,
+        faultFilePath: true,
         console: true,
       });
     }

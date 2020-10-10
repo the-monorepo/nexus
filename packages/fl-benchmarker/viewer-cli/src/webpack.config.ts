@@ -1,27 +1,47 @@
 import { resolve } from 'path';
-import { createHtmlWebpackPlugin, createDistOutput, Configuration, resolvedExtensions, recommendedRules } from '@pshaw/webpack';
 
-const config: Configuration = {
-  name: "fault-benchmark",
-  target: "web",
-  resolve: {
-    extensions: resolvedExtensions,
-  },
-  devtool: "source-map",
-  module: {
-    rules: recommendedRules,
-  },
-  entry: resolve(__dirname, "ui/temp.tsx"),
-  output: createDistOutput(resolve(__dirname, 'temp')),
-  plugins: [
-    createHtmlWebpackPlugin({
-      title: `Fault benchmarker results`,
-    }),
-  ],
-  devServer: {
-    port: 3001,
-    compress: true,
-  },
+import { createHtmlWebpackPlugin, createOutput, Configuration, resolvedExtensions, recommendedWebcomponentRules } from '@pshaw/webpack';
+import { DefinePlugin } from '@pshaw/webpack/webpack';
+
+import { readFileSync, readdirSync } from 'fs';
+
+export type CreateConfigOptions = {
+  resultsDir: string;
+  outputDir?: string | undefined;
 };
+export const createConfig = ({ resultsDir, outputDir }: CreateConfigOptions) => {
+  const resolvedResultsDir = resolve(process.cwd(), resultsDir);
+  const fileExample = resolve(resolvedResultsDir, 'example-technique/faults/faults.json');
+  return {
+    name: "fault-benchmark",
+    target: "web",
+    resolve: {
+      extensions: resolvedExtensions,
+    },
+    devtool: "source-map",
+    module: {
+      rules: recommendedWebcomponentRules,
+    },
+    entry: require.resolve(resolve(__dirname, "ui/temp")),
+    output: outputDir !== undefined ? createOutput(resolve(process.cwd(), outputDir)) : undefined,
+    plugins: [
+      createHtmlWebpackPlugin({
+        title: `Fault benchmarker results`,
+      }),
+      new DefinePlugin({
+        __FAULT_BENCHMARKER_DATA__: DefinePlugin.runtimeValue(() => {
+          const dirs = readdirSync(resolve());
+          const faultData = readFileSync(fileExample, 'utf8');
 
-export default config;
+          return faultData;
+        }, [fileExample]),
+      })
+    ],
+    devServer: {
+      port: 3001,
+      compress: true,
+      liveReload: true,
+      watchContentBase: true,
+    },
+  };
+};
