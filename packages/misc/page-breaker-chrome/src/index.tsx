@@ -1,5 +1,5 @@
 import './globals.d.ts';
-import './unstyled.scss';
+import 'unstyled';
 
 import cx from 'classnames';
 

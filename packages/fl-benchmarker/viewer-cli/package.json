@@ -8,6 +8,14 @@
   "bin": {
     "fl-benchmarker-viewer": "./commonjs/bin.js"
   },
+  "scripts": {
+    "run-cli": "yarn node ./commonjs/bin.js --results-dir ./fl-benchmarker-results-example",
+    "demo-serve": "yarn run-cli serve",
+    "demo-build": "yarn run-cli build",
+    "start": "yarn demo-serve",
+    "serve": "yarn demo-serve",
+    "build": "yarn demo-build"
+  },
   "files": [
     "commonjs",
     "src",
@@ -30,14 +38,20 @@
     "benchmark"
   ],
   "dependencies": {
+    "@babel/core": "^7.11.4",
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents",
+    "@pshaw/fs": "workspace:packages/misc/pshaw-fs",
+    "@pshaw/logger": "workspace:packages/misc/logger",
+    "@pshaw/webpack": "workspace:packages/patrick-shaw/webpack",
+    "@types/d3": "^5.7.2",
+    "chalk": "^4.1.0",
     "chart.js": "^2.9.3",
     "chartjs-chart-box-and-violin-plot": "^2.3.0",
     "cinder": "workspace:packages/cinder/cinder",
+    "classnames": "^2.2.6",
+    "d3": "^6.1.0",
     "mobx": "^5.15.6",
-    "webpack-dev-server": "^3.11.0",
-    "xy-ui": "^1.10.0"
-  },
-  "devDependencies": {
-    "webpack": "^5.0.0-beta.28"
+    "xy-ui": "^1.10.0",
+    "yargs": "^15.4.1"
   }
 }
