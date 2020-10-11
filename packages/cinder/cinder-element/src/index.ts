@@ -60,6 +60,8 @@ export const rerender = (target) => {
 };
 
 export const UPDATE = Symbol('update');
+export const MOUNT = Symbol('mount');
+export const UNMOUNT = Symbol('unmount');
 
 export abstract class RootlessDomElement<C, V> extends HTMLElement {
   protected renderRoot: Node;
@@ -72,16 +74,25 @@ export abstract class RootlessDomElement<C, V> extends HTMLElement {
   abstract mountRenderRoot(): Node;
 
   connectedCallback() {
-    this[UPDATE]();
+    this[MOUNT]();
   }
 
   disconnectedCallback() {
-    cinder.render(null, this.renderRoot);
+    this[UNMOUNT]();
+  }
+
+  [MOUNT]() {
+    const result = this.render();
+    cinder.render(result, this.renderRoot);
   }
 
   [UPDATE]() {
     const result = this.render();
     cinder.render(result, this.renderRoot);
+  }
+
+  [UNMOUNT]() {
+    cinder.render(null, this.renderRoot);
   }
 
   abstract render(): cinder.ComponentResult<C, V, Node>;

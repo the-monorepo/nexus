@@ -3007,7 +3007,7 @@ __metadata:
     cinder: "workspace:packages/cinder/cinder"
     classnames: ^2.2.6
     d3: ^6.1.0
-    mobx: ^5.15.6
+    mobx: ^6.0.1
     xy-ui: ^1.10.0
     yargs: ^15.4.1
   bin:
@@ -16077,6 +16077,13 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
+"mobx@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "mobx@npm:6.0.1"
+  checksum: b0923287360a300bbb04942c9c78fd1b40674122820b18dbfbec4779dd848d7aaad5268edbfc87b56c6f29b62f078495c76a6eae6ddacc56185f0a407cbaa298
+  languageName: node
+  linkType: hard
+
 "mocha@npm:^8.1.1":
   version: 8.1.1
   resolution: "mocha@npm:8.1.1"
@@ -16136,7 +16143,6 @@ fsevents@~2.1.2:
     "@babel/plugin-proposal-decorators": ^7.10.5
     "@babel/plugin-proposal-optional-chaining": ^7.11.0
     "@babel/plugin-proposal-pipeline-operator": ^7.10.5
-    "@babel/plugin-proposal-private-methods": ^7.10.4
     "@babel/plugin-syntax-jsx": ^7.10.4
     "@babel/plugin-transform-strict-mode": ^7.10.4
     "@babel/preset-env": ^7.11.5
