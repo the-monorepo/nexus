@@ -8099,6 +8099,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cinder", "workspace:packages/cinder/cinder"],
             ["classnames", "npm:2.2.6"],
             ["d3", "npm:6.1.0"],
+            ["globby", "npm:11.0.1"],
             ["mobx", "npm:6.0.1"],
             ["xy-ui", "npm:1.10.0"],
             ["yargs", "npm:15.4.1"]
