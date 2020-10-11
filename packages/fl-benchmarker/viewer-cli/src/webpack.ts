@@ -3,7 +3,9 @@ import { resolve } from 'path';
 import { createHtmlWebpackPlugin, createOutput, Configuration, resolvedExtensions, recommendedWebcomponentRules } from '@pshaw/webpack';
 import { DefinePlugin } from '@pshaw/webpack/webpack';
 
+import globby from 'globby';
 import { readFileSync, readdirSync } from 'fs';
+import { readFile, readdir } from 'fs/promises';
 
 export type CreateConfigOptions = {
   resultsDir: string;
@@ -11,7 +13,8 @@ export type CreateConfigOptions = {
 };
 export const createConfig = ({ resultsDir, outputDir }: CreateConfigOptions) => {
   const resolvedResultsDir = resolve(process.cwd(), resultsDir);
-  const fileExample = resolve(resolvedResultsDir, 'example-technique/faults/faults.json');
+  const fileExample = resolve(resolvedResultsDir, 'example-defect/example-technique/faults/faults.json');
+
   return {
     name: "fault-benchmark",
     target: "web",

@@ -15,7 +15,7 @@ export const build = async ({ mode, resultsDir, outputDir }) => {
   const l = log.child(chalk.blueBright('build'));
   l.info('Starting...');
 
-  const [{ createConfig }, { webpack }] = await Promise.all([import('./webpack.config'), import('@pshaw/webpack')]);
+  const [{ createConfig }, { webpack }] = await Promise.all([import('./webpack'), import('@pshaw/webpack')]);
 
   const config = await createConfig({ resultsDir, outputDir });
 
@@ -53,8 +53,8 @@ export const watch = async ({ port, mode, resultsDir }: WatchOptions) => {
   const l = log.child(chalk.magentaBright('serve'));
   l.info('Starting...');
 
-  const [{ createConfig }, { webpack, WebpackDevServer }] = await Promise.all([import('./webpack.config'), import('@pshaw/webpack')] as const);
-  
+  const [{ createConfig }, { webpack, WebpackDevServer }] = await Promise.all([import('./webpack'), import('@pshaw/webpack')] as const);
+
   const config = await createConfig({ resultsDir });
 
   const compiler = webpack({

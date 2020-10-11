@@ -3007,6 +3007,7 @@ __metadata:
     cinder: "workspace:packages/cinder/cinder"
     classnames: ^2.2.6
     d3: ^6.1.0
+    globby: ^11.0.1
     mobx: ^6.0.1
     xy-ui: ^1.10.0
     yargs: ^15.4.1

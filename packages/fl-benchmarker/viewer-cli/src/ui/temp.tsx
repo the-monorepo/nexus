@@ -76,6 +76,6 @@ const App = () => (
 const rerender = () => render(<App />, document.getElementById('root'));
 
 autorun(() => {
-  console.log('rerender')
+  console.log('rerender', __FAULT_BENCHMARKER_DATA__)
   rerender();
 });
