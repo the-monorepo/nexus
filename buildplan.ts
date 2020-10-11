@@ -538,11 +538,7 @@ const webpackCompilers = async () => {
 
   const {
     name = ["*"],
-    mode = process.env.NODE_ENV
-      ? process.env.NODE_ENV === "production"
-        ? "prod"
-        : "dev"
-      : "dev",
+    mode = (process.env.NODE_ENV ?? 'development') === 'production' ? 'prod' : 'dev',
   } = args;
 
   const names = Array.isArray(name) ? name : [name];

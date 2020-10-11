@@ -1,23 +1,21 @@
-import { resolve } from "path";
+import { resolve } from 'path';
 
 import {
   createHtmlWebpackPlugin,
   createBundleAnalyzerPlugin,
   recommendedRules,
-  codeExtensions,
+  resolvedExtensions,
   createOutput,
   CopyPlugin,
   Configuration,
   distPath,
-} from "@pshaw/webpack";
-
-import flBenchmarkerViewerConfig from '@fl-benchmarker/viewer-cli/src/webpack.config';
+} from '@pshaw/webpack';
 
 const packagesDir = resolve(__dirname, './packages');
-const miscDir = resolve(packagesDir, "./misc");
-const patrickShawDir = resolve(packagesDir, "./patrick-shaw");
-const pageBreakerDir = resolve(miscDir, "page-breaker-chrome");
-const resumeDir = resolve(patrickShawDir, "my-resume");
+const miscDir = resolve(packagesDir, './misc');
+const patrickShawDir = resolve(packagesDir, './patrick-shaw');
+const pageBreakerDir = resolve(miscDir, 'page-breaker-chrome');
+const resumeDir = resolve(patrickShawDir, 'my-resume');
 
 const createDistOutput = (packageDir: string) => {
   return createOutput(distPath(packageDir));
@@ -28,33 +26,34 @@ const createDistOutput = (packageDir: string) => {
   use: [cssModuleLoader, sassLoader],
 };*/
 
-
 const pageBreakerFrontendConfig: Configuration = {
-  name: "page-breaker",
-  target: "web",
+  name: 'page-breaker',
+  target: 'web',
   resolve: {
-    extensions: codeExtensions,
+    extensions: resolvedExtensions,
   },
-  devtool: "source-map",
+  devtool: 'source-map',
   module: {
     rules: recommendedRules,
   },
-  entry: resolve(pageBreakerDir, "src/index.tsx"),
+  entry: resolve(pageBreakerDir, 'src/index.tsx'),
   output: createDistOutput(pageBreakerDir),
   plugins: [
     createHtmlWebpackPlugin({
       title: `Page Breaker`,
     }),
-    new CopyPlugin([
-      {
-        from: resolve(pageBreakerDir, "src/manifest.json"),
-        to: resolve(pageBreakerDir, "dist/manifest.json"),
-      },
-      {
-        from: resolve(pageBreakerDir, "src/icon.png"),
-        to: resolve(pageBreakerDir, "dist/icon.png"),
-      },
-    ]),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: resolve(pageBreakerDir, 'src/manifest.json'),
+          to: resolve(pageBreakerDir, 'dist/manifest.json'),
+        },
+        {
+          from: resolve(pageBreakerDir, 'src/icon.png'),
+          to: resolve(pageBreakerDir, 'dist/icon.png'),
+        },
+      ]
+    }),
   ],
   devServer: {
     port: 3002,
@@ -63,19 +62,19 @@ const pageBreakerFrontendConfig: Configuration = {
 };
 
 const resumeConfig: Configuration = {
-  name: "my-resume",
-  target: "web",
+  name: 'my-resume',
+  target: 'web',
   resolve: {
-    extensions: codeExtensions,
+    extensions: resolvedExtensions,
   },
   module: {
     rules: recommendedRules,
   },
-  entry: resolve(resumeDir, "src/index.tsx"),
+  entry: resolve(resumeDir, 'src/index.tsx'),
   output: createDistOutput(resumeDir),
   plugins: [
     createHtmlWebpackPlugin({
-      title: "Patrick Shaw - Resume",
+      title: 'Patrick Shaw - Resume',
     }),
     createBundleAnalyzerPlugin(resumeDir),
   ],
@@ -85,36 +84,35 @@ const resumeConfig: Configuration = {
   },
 };
 
-const geneticSequenceAnalysisAppDir = resolve(
-  miscDir,
-  "genetic-sequence-analysis-app"
-);
+const geneticSequenceAnalysisAppDir = resolve(miscDir, 'genetic-sequence-analysis-app');
 const geneticSequenceAnalysisApp: Configuration = {
-  name: "genetic-sequence-analysis-app",
-  target: "web",
+  name: 'genetic-sequence-analysis-app',
+  target: 'web',
   resolve: {
-    extensions: codeExtensions,
+    extensions: resolvedExtensions,
   },
-  devtool: "source-map",
+  devtool: 'source-map',
   module: {
     rules: recommendedRules,
   },
-  entry: resolve(geneticSequenceAnalysisAppDir, "src/index.tsx"),
+  entry: resolve(geneticSequenceAnalysisAppDir, 'src/index.tsx'),
   output: createDistOutput(pageBreakerDir),
   plugins: [
     createHtmlWebpackPlugin({
       title: `Genetic Sequence Analysis`,
     }),
-    new CopyPlugin([
-      {
-        from: resolve(geneticSequenceAnalysisAppDir, "src/manifest.json"),
-        to: resolve(geneticSequenceAnalysisAppDir, "dist/manifest.json"),
-      },
-      {
-        from: resolve(geneticSequenceAnalysisAppDir, "src/icon.png"),
-        to: resolve(geneticSequenceAnalysisAppDir, "dist/icon.png"),
-      },
-    ]),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: resolve(geneticSequenceAnalysisAppDir, 'src/manifest.json'),
+          to: resolve(geneticSequenceAnalysisAppDir, 'dist/manifest.json'),
+        },
+        {
+          from: resolve(geneticSequenceAnalysisAppDir, 'src/icon.png'),
+          to: resolve(geneticSequenceAnalysisAppDir, 'dist/icon.png'),
+        },
+      ],
+    }),
   ],
   devServer: {
     port: 3003,
@@ -124,7 +122,6 @@ const geneticSequenceAnalysisApp: Configuration = {
 
 const configs: Configuration[] = [
   resumeConfig,
-  flBenchmarkerViewerConfig,
   pageBreakerFrontendConfig,
   geneticSequenceAnalysisApp,
 ];
