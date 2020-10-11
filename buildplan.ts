@@ -259,7 +259,7 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
     await transpilePipes(
       packagesSrcCodeStream(),
       {
-        envName: `${process.env.NODE_ENV}-esm` ?? "development-esm",
+        envName: `${process.env.NODE_ENV ?? 'development'}-esm`,
       },
       "esm",
       undefined,
