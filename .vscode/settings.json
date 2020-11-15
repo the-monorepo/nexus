@@ -6,7 +6,9 @@
   "search.exclude": {
     ".pnp.{mjs,cjs,js}": true,
     ".yarn/**": true,
-    "yarn-error.log": true
+    "yarn-error.log": true,
+    "**/.yarn": true,
+    "**/.pnp.*": true
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "stylelint.stylelintPath": ".yarn/sdks/stylelint/lib/index.js"
