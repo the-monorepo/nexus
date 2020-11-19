@@ -3327,10 +3327,10 @@ __metadata:
   resolution: "@buildplan/core@workspace:packages/buildplan/core"
   dependencies:
     "@pshaw/logger": "workspace:packages/misc/logger"
-    "@types/yargs": ^15.0.5
+    "@types/yargs": ^15.0.10
     chalk: ^4.1.0
     jest-mock: ^26.3.0
-    yargs: ^15.4.1
+    yargs: ^16.1.1
   languageName: unknown
   linkType: soft
 
@@ -4520,9 +4520,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@resultful/types@workspace:packages/resultful/resultful-types":
+"@resultful/failure@workspace:packages/resultful/failure":
   version: 0.0.0-use.local
-  resolution: "@resultful/types@workspace:packages/resultful/resultful-types"
+  resolution: "@resultful/failure@workspace:packages/resultful/failure"
+  dependencies:
+    "@pshaw/markdown-util": "workspace:packages/misc/markdown-util"
+    "@resultful/utility-types": "workspace:packages/resultful/utility-types"
+    jest-mock: ^26.3.0
+  languageName: unknown
+  linkType: soft
+
+"@resultful/result@workspace:packages/resultful/result":
+  version: 0.0.0-use.local
+  resolution: "@resultful/result@workspace:packages/resultful/result"
+  dependencies:
+    "@pshaw/markdown-util": "workspace:packages/misc/markdown-util"
+    "@resultful/utility-types": "workspace:packages/resultful/utility-types"
+    jest-mock: ^26.3.0
+  languageName: unknown
+  linkType: soft
+
+"@resultful/utility-types@workspace:packages/resultful/utility-types":
+  version: 0.0.0-use.local
+  resolution: "@resultful/utility-types@workspace:packages/resultful/utility-types"
   languageName: unknown
   linkType: soft
 
@@ -6454,12 +6474,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yargs@npm:^15.0.0, @types/yargs@npm:^15.0.5":
+"@types/yargs@npm:^15.0.0":
   version: 15.0.5
   resolution: "@types/yargs@npm:15.0.5"
   dependencies:
     "@types/yargs-parser": "*"
   checksum: 2133c8cb5878d13959844f98e546e69dacdf44cd9baf87d84c828a1a093febfc97c8f4df19cffd34a4a4f726a3cdb1851da4391176accf56534c5f8a1c271f46
+  languageName: node
+  linkType: hard
+
+"@types/yargs@npm:^15.0.10":
+  version: 15.0.10
+  resolution: "@types/yargs@npm:15.0.10"
+  dependencies:
+    "@types/yargs-parser": "*"
+  checksum: 151fc79f8146511722b3739ed0c7e83190da4c5fbd8bd0dbcbfedcf89349e7c40908c93656986e67c276a010e6749c59d5f317558bd47fed4ee51da2780a0284
   languageName: node
   linkType: hard
 
@@ -9383,6 +9412,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cliui@npm:^7.0.2":
+  version: 7.0.4
+  resolution: "cliui@npm:7.0.4"
+  dependencies:
+    string-width: ^4.2.0
+    strip-ansi: ^6.0.0
+    wrap-ansi: ^7.0.0
+  checksum: c49ac1d13f6dda4beaa11b26f62867e0e9892eb985951187d7c691793e0fe08b9bc15cedfaf4dc6d2e9a4d1516704c0c9dcb671ebcd758dbabb18b5d757fbdb5
+  languageName: node
+  linkType: hard
+
 "clone-buffer@npm:1.0.0, clone-buffer@npm:^1.0.0":
   version: 1.0.0
   resolution: "clone-buffer@npm:1.0.0"
@@ -11622,6 +11662,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"escalade@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "escalade@npm:3.1.1"
+  checksum: 1e31ff50d66f47cd0dfffa702061127116ccf9886d1f54a802a7b3bc95b94cab0cbf5b145cc5ac199036df6fd9d1bb24af1fa1bfed87c94879e950fbee5f86d1
+  languageName: node
+  linkType: hard
+
 "escape-goat@npm:^2.0.0":
   version: 2.1.1
   resolution: "escape-goat@npm:2.1.1"
@@ -11663,7 +11710,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-import-resolver-node@npm:^0.3.3":
+"eslint-import-resolver-node@npm:^0.3.3, eslint-import-resolver-node@npm:^0.3.4":
   version: 0.3.4
   resolution: "eslint-import-resolver-node@npm:0.3.4"
   dependencies:
@@ -11703,6 +11750,29 @@ __metadata:
   peerDependencies:
     eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0
   checksum: ad41aec63d8986e0a0e279bb2877e1f36029573b8f310112159509fd52d7344a2e91bd4bb9c6d2b131838a3538a0bc5e3998217df1b88304df9872ad9fb30c84
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-import@npm:^2.22.1":
+  version: 2.22.1
+  resolution: "eslint-plugin-import@npm:2.22.1"
+  dependencies:
+    array-includes: ^3.1.1
+    array.prototype.flat: ^1.2.3
+    contains-path: ^0.1.0
+    debug: ^2.6.9
+    doctrine: 1.5.0
+    eslint-import-resolver-node: ^0.3.4
+    eslint-module-utils: ^2.6.0
+    has: ^1.0.3
+    minimatch: ^3.0.4
+    object.values: ^1.1.1
+    read-pkg-up: ^2.0.0
+    resolve: ^1.17.0
+    tsconfig-paths: ^3.9.0
+  peerDependencies:
+    eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0
+  checksum: 35ae09ceae6f0fe239f6b72e134d58d74762ad1ed0f57aa989affb856354e46bc082bb6df9399b624989107efb9ab9af2c91c08f03c0c70c5cb46a37676591ec
   languageName: node
   linkType: hard
 
@@ -13055,7 +13125,7 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"get-caller-file@npm:^2.0.1":
+"get-caller-file@npm:^2.0.1, get-caller-file@npm:^2.0.5":
   version: 2.0.5
   resolution: "get-caller-file@npm:2.0.5"
   checksum: 9dd9e1e2591039ee4c38c897365b904f66f1e650a8c1cb7b7db8ce667fa63e88cc8b13282b74df9d93de481114b3304a0487880d31cd926dfda6efe71455855d
@@ -17160,6 +17230,7 @@ fsevents@~2.1.2:
     "@pshaw/markdown-util": "workspace:packages/misc/markdown-util"
     "@pshaw/monorepo-config": "workspace:packages/patrick-shaw/monorepo-config"
     "@pshaw/webpack": "workspace:packages/patrick-shaw/webpack"
+    "@resultful/utility-types": "workspace:packages/resultful/utility-types"
     "@storybook/addon-actions": ^6.0.16
     "@storybook/addon-knobs": ^6.0.16
     "@storybook/core": ^6.0.16
@@ -17174,6 +17245,7 @@ fsevents@~2.1.2:
     cinder: "workspace:packages/cinder/cinder"
     del: ^5.1.0
     eslint: ^7.7.0
+    eslint-plugin-import: ^2.22.1
     expect: ^26.4.1
     flamebearer: ^1.1.3
     globby: ^11.0.1
@@ -20683,7 +20755,9 @@ fsevents@~2.1.2:
   resolution: "resultful@workspace:packages/resultful/resultful"
   dependencies:
     "@pshaw/markdown-util": "workspace:packages/misc/markdown-util"
-    "@resultful/types": "workspace:packages/resultful/resultful-types"
+    "@resultful/failure": "workspace:packages/resultful/failure"
+    "@resultful/result": "workspace:packages/resultful/result"
+    "@resultful/utility-types": "workspace:packages/resultful/utility-types"
     jest-mock: ^26.3.0
   languageName: unknown
   linkType: soft
@@ -24263,6 +24337,17 @@ typescript@^4.0.2:
   languageName: node
   linkType: hard
 
+"wrap-ansi@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "wrap-ansi@npm:7.0.0"
+  dependencies:
+    ansi-styles: ^4.0.0
+    string-width: ^4.1.0
+    strip-ansi: ^6.0.0
+  checksum: 09939dd775ae565bb99a25a6c072fe3775a95fa71751b5533c94265fe986ba3e3ab071a027ab76cf26876bd9afd10ac3c2d06d7c4bcce148bf7d2d9514e3a0df
+  languageName: node
+  linkType: hard
+
 "wrappy@npm:1":
   version: 1.0.2
   resolution: "wrappy@npm:1.0.2"
@@ -24370,6 +24455,13 @@ typescript@^4.0.2:
   languageName: node
   linkType: hard
 
+"y18n@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "y18n@npm:5.0.5"
+  checksum: a7d41b0cccca1c98ebab270a944df48eb3b5352d3be0affb8afc8369823f6aa97a5fbead2c5b35e59a5650cb786b2b37627b45be5ff31f02a80dd3b881aceb17
+  languageName: node
+  linkType: hard
+
 "yallist@npm:^3.0.0, yallist@npm:^3.0.2, yallist@npm:^3.0.3":
   version: 3.1.1
   resolution: "yallist@npm:3.1.1"
@@ -24418,6 +24510,13 @@ typescript@^4.0.2:
     camelcase: ^5.0.0
     decamelize: ^1.2.0
   checksum: 33871721679053cc38165afc6356c06c3e820459589b5db78f315886105070eb90cbb583cd6515fa4231937d60c80262ca2b7c486d5942576802446318a39597
+  languageName: node
+  linkType: hard
+
+"yargs-parser@npm:^20.2.2":
+  version: 20.2.4
+  resolution: "yargs-parser@npm:20.2.4"
+  checksum: 00dd0f23b608aa16962f1b73ac6c461ae6c97e8e85ad24b0c9adfeb5ef20a93a484ba858a6a3200f487478427db27d555d7772463d793d6c27b1b8b614cf3d7e
   languageName: node
   linkType: hard
 
@@ -24496,6 +24595,21 @@ typescript@^4.0.2:
     y18n: ^4.0.0
     yargs-parser: ^18.1.2
   checksum: dbf687d6b938f01bbf11e158dde6df906282b70cd9295af0217ee8cefbd83ad09d49fa9458d0d5325b0e66f03df954a38986db96f91e5b46ccdbbaf9a0157b23
+  languageName: node
+  linkType: hard
+
+"yargs@npm:^16.1.1":
+  version: 16.1.1
+  resolution: "yargs@npm:16.1.1"
+  dependencies:
+    cliui: ^7.0.2
+    escalade: ^3.1.1
+    get-caller-file: ^2.0.5
+    require-directory: ^2.1.1
+    string-width: ^4.2.0
+    y18n: ^5.0.5
+    yargs-parser: ^20.2.2
+  checksum: f88462770b6d65107b7295bdd68c38bc3cba9ab0362df476f44c5f6770ee2f39f48bca9813e8a9dc792a15f93e051a7e37346c0f66cf0ec35c63869963c43e0c
   languageName: node
   linkType: hard
 

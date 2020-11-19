@@ -18,6 +18,6 @@ export async function* parseFormatObjects(reader: AsyncIterableIterator<string>)
     }
 
     current = value.currentReaderResult;
-    yield result;  
-  }  
+    yield result;
+  }
 };

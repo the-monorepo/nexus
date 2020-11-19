@@ -42,12 +42,13 @@ const oldStreamToPromise = async (something) => {
   return value;
 };
 
-const task = (name: string, callback) => {
+const task = (name: string, descriptionOrCallback, callbackOrUndefined) => {
+  const callback = callbackOrUndefined === undefined ? descriptionOrCallback : callbackOrUndefined;
   const wrapped = { [name]: () => oldStreamToPromise(callback()) }[name];
   if (callback[TASK_INFO] !== undefined) {
     wrapped[TASK_INFO] = callback[TASK_INFO];
   }
-  return buildplanTask(name, wrapped);
+  return buildplanTask(name, callbackOrUndefined !== undefined ? descriptionOrCallback : '', callback);
 };
 
 const series = (...tasks) =>
@@ -169,7 +170,7 @@ const clean = async () => {
   const { default: del } = await import("del");
   await del(config.buildArtifactGlobs);
 };
-task("clean", clean);
+task("clean", "Cleans up generated files", clean);
 
 const copyPipes = (stream, l, dir) => {
   const renamePath = createSrcDirSwapper(dir);
@@ -308,7 +309,7 @@ const printFriendlyAbsoluteDir = (dir) => {
 };
 
 const transpile = parallel(transpileScript, transpileEsm);
-task("transpile", transpile);
+task("transpile", 'Transpiles source code', transpile);
 
 const writeme = async () => {
   const { default: writeReadmeFromPackageDir } = await import("@writeme/core");
@@ -341,12 +342,12 @@ const writeme = async () => {
     },
   });
 };
-task("writeme", writeme);
+task("writeme", 'Generates README doco', writeme);
 
 const buildSource = parallel(copy, transpile);
 
 const build = series(buildSource, writeme);
-task("build", build);
+task("build", 'Builds everything required to run packages other than certain slow (bundled) packages', build);
 
 const watch = async () => {
   // TODO: Never resolves :3 (on purpose but should find a better way)
@@ -363,9 +364,9 @@ const watch = async () => {
     }
   );
 };
-task("watch", watch);
+task("watch", 'Like build but continuously watches for changes', watch);
 
-task("default", build);
+// task("default", 'Alias for build', build);
 
 const formatPrettier = async () => {
   return (await prettierPipes(formatStream())).pipe(gulp.dest("."));
@@ -388,12 +389,12 @@ task("format-staged:lint", formatStagedLint);
 const format = async () => {
   return (await formatPipes(formatStream())).pipe(gulp.dest("."));
 };
-task("format", format);
+task("format", 'Formats all your source code files', format);
 
 const formatStaged = async () => {
   return (await formatPipes(await formatStagedStream())).pipe(gulp.dest("."));
 };
-task("format-staged", formatStaged);
+task("format-staged", "Formats all your source code that's currently staging in Git", formatStaged);
 
 let withTypeCheckPipes = async (stream) => {
   const gulpTypescript = await import("gulp-typescript");
@@ -426,12 +427,12 @@ const checkTypes = async () => {
 checkTypes.description =
   "Runs the TypeScript type checker on the codebase, displaying the output. This will display any " +
   "serious errors in the code, such as invalid syntax or the use of incorrect types.";
-task("check-types", checkTypes);
+task("check-types", 'Run TypeScript type checking', checkTypes);
 
 const checkTypesStaged = async () => {
   return withTypeCheckPipes(await packagesSrcCodeStagedStream());
 };
-task("check-types-staged", checkTypesStaged);
+task("check-types-staged", 'Run TypeScript type checking against files being staged in Git', checkTypesStaged);
 
 const flIgnoreGlob =
   "packages/faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*";
@@ -520,13 +521,13 @@ const testNoBuild = async () => {
   }
 };
 
-task("test", testNoBuild);
+task("test", 'Runs unit tests (without building)', testNoBuild);
 
 const precommit = series(
   parallel(series(formatStaged, transpile), copy),
   writeme
 );
-task("precommit", precommit);
+task("precommit", "This'll run when you commit", precommit);
 
 const webpackCompilers = async () => {
   const { default: minimist } = await import("minimist");
@@ -625,9 +626,9 @@ const bundleWebpack = async () => {
   }
 };
 
-task("webpack", bundleWebpack);
+task("webpack", 'Bundke all Webpack-bundled packages', bundleWebpack);
 
-task("build-all", series(buildSource, bundleWebpack, writeme));
+task("build-all", 'Build literally everything including things that require bundling (slower)', series(buildSource, bundleWebpack, writeme));
 
 const prepublish = series(
   parallel(clean, format),
@@ -635,7 +636,7 @@ const prepublish = series(
   parallel(bundleWebpack, checkTypes, writeme)
 );
 
-task("prepublish", prepublish);
+task("prepublish", "Runs before you publish code", prepublish);
 
 const serveBundles = async () => {
   const { WebpackDevServer } = await import("@pshaw/webpack");
@@ -657,5 +658,5 @@ const serveBundles = async () => {
     port++;
   }
 };
-task("serve", serveBundles);
+task("serve", "Serves Webpack bundled packages", serveBundles);
 run();

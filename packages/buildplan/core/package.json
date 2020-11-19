@@ -34,12 +34,12 @@
     "regex"
   ],
   "devDependencies": {
-    "@types/yargs": "^15.0.5",
+    "@types/yargs": "^15.0.10",
     "jest-mock": "^26.3.0"
   },
   "dependencies": {
     "@pshaw/logger": "workspace:packages/misc/logger",
     "chalk": "^4.1.0",
-    "yargs": "^15.4.1"
+    "yargs": "^16.1.1"
   }
 }

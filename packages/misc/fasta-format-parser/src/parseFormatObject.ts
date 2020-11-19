@@ -144,7 +144,7 @@ export const parseFormatObject = async (fastaReaderStart: AsyncIterableIterator<
   // TODO: remove currentReaderReslt from this function
   const metadataResult = typeToMetadata(type, typeInfo.currentReaderResult);
   console.log('metadata', metadataResult)
- 
+
   if (!isSuccess(metadataResult)) {
     return metadataResult;
   }

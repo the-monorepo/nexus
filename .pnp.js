@@ -327,12 +327,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/pipelines/pipelines-core"
       },
       {
+        "name": "@resultful/failure",
+        "reference": "workspace:packages/resultful/failure"
+      },
+      {
+        "name": "@resultful/result",
+        "reference": "workspace:packages/resultful/result"
+      },
+      {
         "name": "resultful",
         "reference": "workspace:packages/resultful/resultful"
       },
       {
-        "name": "@resultful/types",
-        "reference": "workspace:packages/resultful/resultful-types"
+        "name": "@resultful/utility-types",
+        "reference": "workspace:packages/resultful/utility-types"
       },
       {
         "name": "@writeme/core",
@@ -380,6 +388,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pshaw/markdown-util", "workspace:packages/misc/markdown-util"],
             ["@pshaw/monorepo-config", "workspace:packages/patrick-shaw/monorepo-config"],
             ["@pshaw/webpack", "virtual:fd6cd57f06065ee88b61bfebdf11c5f97c88ffc47ee6e78f69e35fdd7aa3cbb8045c616665a3dbc672be75a57a3eebc0ed6cad42925589f1c2dc0c6554e5cf19#workspace:packages/patrick-shaw/webpack"],
+            ["@resultful/utility-types", "workspace:packages/resultful/utility-types"],
             ["@storybook/addon-actions", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.16"],
             ["@storybook/addon-knobs", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.16"],
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.16"],
@@ -394,6 +403,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cinder", "workspace:packages/cinder/cinder"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:7.7.0"],
+            ["eslint-plugin-import", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.22.1"],
             ["expect", "npm:26.4.1"],
             ["flamebearer", "npm:1.1.3"],
             ["globby", "npm:11.0.1"],
@@ -8349,10 +8359,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@buildplan/core", "workspace:packages/buildplan/core"],
             ["@pshaw/logger", "workspace:packages/misc/logger"],
-            ["@types/yargs", "npm:15.0.5"],
+            ["@types/yargs", "npm:15.0.10"],
             ["chalk", "npm:4.1.0"],
             ["jest-mock", "npm:26.3.0"],
-            ["yargs", "npm:15.4.1"]
+            ["yargs", "npm:16.1.1"]
           ],
           "linkType": "SOFT",
         }]
@@ -10004,11 +10014,35 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["@resultful/types", [
-        ["workspace:packages/resultful/resultful-types", {
-          "packageLocation": "./packages/resultful/resultful-types/",
+      ["@resultful/failure", [
+        ["workspace:packages/resultful/failure", {
+          "packageLocation": "./packages/resultful/failure/",
           "packageDependencies": [
-            ["@resultful/types", "workspace:packages/resultful/resultful-types"]
+            ["@resultful/failure", "workspace:packages/resultful/failure"],
+            ["@pshaw/markdown-util", "workspace:packages/misc/markdown-util"],
+            ["@resultful/utility-types", "workspace:packages/resultful/utility-types"],
+            ["jest-mock", "npm:26.3.0"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@resultful/result", [
+        ["workspace:packages/resultful/result", {
+          "packageLocation": "./packages/resultful/result/",
+          "packageDependencies": [
+            ["@resultful/result", "workspace:packages/resultful/result"],
+            ["@pshaw/markdown-util", "workspace:packages/misc/markdown-util"],
+            ["@resultful/utility-types", "workspace:packages/resultful/utility-types"],
+            ["jest-mock", "npm:26.3.0"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@resultful/utility-types", [
+        ["workspace:packages/resultful/utility-types", {
+          "packageLocation": "./packages/resultful/utility-types/",
+          "packageDependencies": [
+            ["@resultful/utility-types", "workspace:packages/resultful/utility-types"]
           ],
           "linkType": "SOFT",
         }]
@@ -12925,6 +12959,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@types/yargs", [
+        ["npm:15.0.10", {
+          "packageLocation": "./.yarn/cache/@types-yargs-npm-15.0.10-dc61489546-151fc79f81.zip/node_modules/@types/yargs/",
+          "packageDependencies": [
+            ["@types/yargs", "npm:15.0.10"],
+            ["@types/yargs-parser", "npm:15.0.0"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:15.0.5", {
           "packageLocation": "./.yarn/cache/@types-yargs-npm-15.0.5-18a2128a57-2133c8cb58.zip/node_modules/@types/yargs/",
           "packageDependencies": [
@@ -16439,6 +16481,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["wrap-ansi", "npm:6.2.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:7.0.4", {
+          "packageLocation": "./.yarn/cache/cliui-npm-7.0.4-d6b8a9edb6-c49ac1d13f.zip/node_modules/cliui/",
+          "packageDependencies": [
+            ["cliui", "npm:7.0.4"],
+            ["string-width", "npm:4.2.0"],
+            ["strip-ansi", "npm:6.0.0"],
+            ["wrap-ansi", "npm:7.0.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["clone", [
@@ -19035,6 +19087,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["escalade", "npm:3.1.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:3.1.1", {
+          "packageLocation": "./.yarn/cache/escalade-npm-3.1.1-e02da076aa-1e31ff50d6.zip/node_modules/escalade/",
+          "packageDependencies": [
+            ["escalade", "npm:3.1.1"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["escape-goat", [
@@ -19213,6 +19272,32 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["eslint-plugin-import", [
+        ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.22.1", {
+          "packageLocation": "./.yarn/$$virtual/eslint-plugin-import-virtual-09078f9273/0/cache/eslint-plugin-import-npm-2.22.1-93ff619870-35ae09ceae.zip/node_modules/eslint-plugin-import/",
+          "packageDependencies": [
+            ["eslint-plugin-import", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.22.1"],
+            ["@types/eslint", null],
+            ["array-includes", "npm:3.1.1"],
+            ["array.prototype.flat", "npm:1.2.3"],
+            ["contains-path", "npm:0.1.0"],
+            ["debug", "virtual:6e177cabfad012f413f9c41366539c04d8701f0567119998690ab02224012faa99ec3a16b9f74f4d7920ab472c12b3e70f47f8f143239c06d0e2569e60ed9f62#npm:2.6.9"],
+            ["doctrine", "npm:1.5.0"],
+            ["eslint", "npm:7.7.0"],
+            ["eslint-import-resolver-node", "npm:0.3.4"],
+            ["eslint-module-utils", "npm:2.6.0"],
+            ["has", "npm:1.0.3"],
+            ["minimatch", "npm:3.0.4"],
+            ["object.values", "npm:1.1.1"],
+            ["read-pkg-up", "npm:2.0.0"],
+            ["resolve", "patch:resolve@npm%3A1.17.0#builtin<compat/resolve>::version=1.17.0&hash=3388aa"],
+            ["tsconfig-paths", "npm:3.9.0"]
+          ],
+          "packagePeers": [
+            "@types/eslint",
+            "eslint"
+          ],
+          "linkType": "HARD",
+        }],
         ["virtual:8d06f76ee51758836bf50922cac2afd284dbddbb94829b357b1d1fec449b6370cfd9a91826fbab7a24592a123f24871cdb4501aa01ad9ddb6c26247327321786#npm:2.22.0", {
           "packageLocation": "./.yarn/$$virtual/eslint-plugin-import-virtual-28455f6624/0/cache/eslint-plugin-import-npm-2.22.0-d731009c35-ad41aec63d.zip/node_modules/eslint-plugin-import/",
           "packageDependencies": [
@@ -25201,6 +25286,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pshaw/markdown-util", "workspace:packages/misc/markdown-util"],
             ["@pshaw/monorepo-config", "workspace:packages/patrick-shaw/monorepo-config"],
             ["@pshaw/webpack", "virtual:fd6cd57f06065ee88b61bfebdf11c5f97c88ffc47ee6e78f69e35fdd7aa3cbb8045c616665a3dbc672be75a57a3eebc0ed6cad42925589f1c2dc0c6554e5cf19#workspace:packages/patrick-shaw/webpack"],
+            ["@resultful/utility-types", "workspace:packages/resultful/utility-types"],
             ["@storybook/addon-actions", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.16"],
             ["@storybook/addon-knobs", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.16"],
             ["@storybook/core", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:6.0.16"],
@@ -25215,6 +25301,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cinder", "workspace:packages/cinder/cinder"],
             ["del", "npm:5.1.0"],
             ["eslint", "npm:7.7.0"],
+            ["eslint-plugin-import", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:2.22.1"],
             ["expect", "npm:26.4.1"],
             ["flamebearer", "npm:1.1.3"],
             ["globby", "npm:11.0.1"],
@@ -29343,7 +29430,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["resultful", "workspace:packages/resultful/resultful"],
             ["@pshaw/markdown-util", "workspace:packages/misc/markdown-util"],
-            ["@resultful/types", "workspace:packages/resultful/resultful-types"],
+            ["@resultful/failure", "workspace:packages/resultful/failure"],
+            ["@resultful/result", "workspace:packages/resultful/result"],
+            ["@resultful/utility-types", "workspace:packages/resultful/utility-types"],
             ["jest-mock", "npm:26.3.0"]
           ],
           "linkType": "SOFT",
@@ -33369,6 +33458,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["strip-ansi", "npm:6.0.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:7.0.0", {
+          "packageLocation": "./.yarn/cache/wrap-ansi-npm-7.0.0-ad6e1a0554-09939dd775.zip/node_modules/wrap-ansi/",
+          "packageDependencies": [
+            ["wrap-ansi", "npm:7.0.0"],
+            ["ansi-styles", "npm:4.2.1"],
+            ["string-width", "npm:4.2.0"],
+            ["strip-ansi", "npm:6.0.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["wrappy", [
@@ -33491,6 +33590,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["y18n", "npm:4.0.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:5.0.5", {
+          "packageLocation": "./.yarn/cache/y18n-npm-5.0.5-1fa41a2023-a7d41b0ccc.zip/node_modules/y18n/",
+          "packageDependencies": [
+            ["y18n", "npm:5.0.5"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["yallist", [
@@ -33572,6 +33678,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "HARD",
         }],
+        ["npm:16.1.1", {
+          "packageLocation": "./.yarn/cache/yargs-npm-16.1.1-374a071ba7-f88462770b.zip/node_modules/yargs/",
+          "packageDependencies": [
+            ["yargs", "npm:16.1.1"],
+            ["cliui", "npm:7.0.4"],
+            ["escalade", "npm:3.1.1"],
+            ["get-caller-file", "npm:2.0.5"],
+            ["require-directory", "npm:2.1.1"],
+            ["string-width", "npm:4.2.0"],
+            ["y18n", "npm:5.0.5"],
+            ["yargs-parser", "npm:20.2.4"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:7.1.0", {
           "packageLocation": "./.yarn/cache/yargs-npm-7.1.0-3fad15bb3d-076561496f.zip/node_modules/yargs/",
           "packageDependencies": [
@@ -33618,6 +33738,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["yargs-parser", "npm:18.1.3"],
             ["camelcase", "npm:5.3.1"],
             ["decamelize", "npm:1.2.0"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:20.2.4", {
+          "packageLocation": "./.yarn/cache/yargs-parser-npm-20.2.4-1de20916a6-00dd0f23b6.zip/node_modules/yargs-parser/",
+          "packageDependencies": [
+            ["yargs-parser", "npm:20.2.4"]
           ],
           "linkType": "HARD",
         }],
