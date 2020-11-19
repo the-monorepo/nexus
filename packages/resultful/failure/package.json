@@ -1,6 +1,6 @@
 {
   "version": "0.0.11",
-  "name": "resultful",
+  "name": "@resultful/failure",
   "description": "A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.",
   "keywords": [
     "util",
@@ -29,7 +29,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
-    "directory": "resultful/resultful"
+    "directory": "resultful/failure"
   },
   "publishConfig": {
     "access": "public"
@@ -40,8 +40,6 @@
     "jest-mock": "^26.3.0"
   },
   "dependencies": {
-    "@resultful/failure": "workspace:packages/resultful/failure",
-    "@resultful/result": "workspace:packages/resultful/result",
     "@resultful/utility-types": "workspace:packages/resultful/utility-types"
   }
 }

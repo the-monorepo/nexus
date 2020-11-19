@@ -116,11 +116,11 @@ const createTask = (
   description: string | undefined,
   callback: TaskCallback,
 ) => {
-  const descriptionValue = description !== undefined ? description : false;
+  const descriptionValue = description !== undefined ? description : '';
 
   yargs.command(
     name,
-    descriptionValue as any, // TODO: Not sure how to get this Type to work
+    descriptionValue,
     () => {},
     async () => {
       try {
@@ -152,7 +152,7 @@ export const task: TaskFn = (
 
   return createTask(
     name,
-    callbackOrUndefined === undefined ? undefined : (descriptionOrCallback as string),
+    callbackOrUndefined !== undefined ? descriptionOrCallback as string : '-',
     callback,
   );
 };
@@ -185,4 +185,4 @@ export const series = (...taskCallbacks: TaskCallback[]) => {
   return runInSeries;
 };
 
-export const run = () => yargs.argv;
+export const run = () => yargs.parse();

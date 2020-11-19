@@ -109,5 +109,9 @@
   },
   "husky": {
     "hooks": {}
+  },
+  "dependencies": {
+    "@resultful/utility-types": "workspace:packages/resultful/utility-types",
+    "eslint-plugin-import": "^2.22.1"
   }
 }
