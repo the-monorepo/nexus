@@ -56,9 +56,20 @@ const createConsoleArgs = (
 
   const padding = createLevelAlignmentPadding(level);
 
+  const levelPrefix = (() => {
+    switch(level) {
+      case 'info': return 'ℹ️'
+      case 'error': return '❌'
+      case 'warn': return '⚠️';
+      case 'log': return '💬';
+      case 'debug': return '🔎';
+      default: return 'unknown';
+    }
+  })();
+
   return [
     ...extraArgs,
-    `${useColors ? levelColorFn(level) : level}${padding}`,
+    `${useColors ? levelColorFn(levelPrefix) : levelPrefix}${padding}`,
     ...(customOptions.tags.length > 0
       ? [customOptions.tags.map((tag) => `[${tag}]`).join('')]
       : []),

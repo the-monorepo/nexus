@@ -16,7 +16,9 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.4-0 | [`@pshaw/resume-template`](packages/misc/resume-template/README.md) | A template you can use to generate resumes
-0.0.4 | [`@resultful/types`](packages/resultful/resultful-types/README.md) | String constants for the different result types returned by resultful
+0.0.11 | [`@resultful/failure`](packages/resultful/failure/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
+0.0.11 | [`@resultful/result`](packages/resultful/result/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
+0.0.4 | [`@resultful/utility-types`](packages/resultful/utility-types/README.md) | String constants for the different result types returned by resultful
 1.0.0-alpha.2 | [`cinder`](packages/cinder/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 1.6.2-0 | [`css-color-checker`](packages/misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](packages/misc/custom-element/README.md) | TODO
