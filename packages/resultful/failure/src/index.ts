@@ -117,7 +117,7 @@ export type TransformFn = {
  * This is exactly the same as {@link handle} except there is no try { ... } catch { ... } wrapper around the handlers.
  * This may improve performance but removes the guarentee that nothing will ever be thrown by the handle function.
  */
-export const transform: TransformFn = <E, ER, UR>(
+export const transformResult: TransformFn = <E, ER, UR>(
   result: Failure<E>,
   handlers: HandleOptions<E, ER, UR> = {},
 ) => {
@@ -159,9 +159,10 @@ export type ValueOf<R extends TypedResultfulSchema> = R extends ErrorFailure<inf
   : R extends UnknownFailure
   ? 1
   : never;
+const passThrough = <T>(value: T) => value;
 export type ValueOfFn = <F extends Failure<any>>(result: F) => ValueOf<F>;
 export const valueOf: ValueOfFn = <E>(result: Failure<E>): any =>
-  transform(result, {
-    error: (error) => error,
-    unknown: (unknown) => unknown,
+  transformResult(result, {
+    error: passThrough,
+    unknown: passThrough,
   });
