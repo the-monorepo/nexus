@@ -111,6 +111,7 @@
     "hooks": {}
   },
   "dependencies": {
+    "@babel/preset-react": "^7.12.10",
     "@resultful/utility-types": "workspace:packages/resultful/utility-types",
     "eslint-plugin-import": "^2.22.1"
   }

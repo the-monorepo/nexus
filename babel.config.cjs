@@ -48,6 +48,13 @@ module.exports = (api) => {
     plugins,
     overrides: [
       {
+        test: [
+          './packages/**/*.react.tsx'
+        ],
+        plugins,
+        presets: presets.concat(['@babel/preset-typescript', '@babel/preset-react'])
+      },
+      {
         test: [].concat(...[
           './packages/patrick-shaw/my-resume',
           './packages/misc/resume-template',
