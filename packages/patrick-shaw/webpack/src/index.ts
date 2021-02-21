@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 
-import fibers from 'fibers';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import fibers from 'fibers';
 import sass from 'sass';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
@@ -37,6 +37,7 @@ export const resolvedExtensions = codeExtensions.map((extension) => `.${extensio
 
 export const svgRule = {
   test: /\.svg$/,
+  exclude: /node_modules/,
   use: [
     {
       loader: require.resolve('file-loader'),
@@ -56,6 +57,7 @@ export const sourceMapRule = {
 
 export const babelRule = {
   test: /\.[jt]sx?$/,
+  exclude: /node_modules/,
   use: [
     {
       loader: require.resolve('babel-loader'),
@@ -130,21 +132,25 @@ export const sassLoader = {
 
 export const cssRule = {
   test: /\.css$/,
+  exclude: /node_modules/,
   use: [require.resolve('style-loader'), cssModuleLoader],
 };
 
 export const inlineJsonRule = {
   test: /\.json$/,
+  exclude: /node_modules/,
   use: [require.resolve('json-loader')],
 };
 
 export const fileJsonRule = {
   test: /\.json$/,
+  exclude: /node_modules/,
   use: [require.resolve('file-loader')],
 };
 
 export const sassModulesRule = {
   test: /\.(sass|scss)$/,
+  exclude: /node_modules/,
   use: [require.resolve('style-loader'), cssModuleLoader, sassLoader],
 };
 
@@ -152,6 +158,7 @@ export const recommendedRules = [svgRule, sassModulesRule, cssRule, fileJsonRule
 
 export const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
+  exclude: /node_modules/,
   use: [cssModuleLoader, sassLoader],
 };
 
