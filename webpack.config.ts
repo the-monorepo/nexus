@@ -52,7 +52,7 @@ const pageBreakerFrontendConfig: Configuration = {
           from: resolve(pageBreakerDir, 'src/icon.png'),
           to: resolve(pageBreakerDir, 'dist/icon.png'),
         },
-      ]
+      ],
     }),
   ],
   devServer: {
