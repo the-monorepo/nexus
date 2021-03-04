@@ -1,2 +1,0 @@
-avrdude -CC:"\Program Files (x86)\Arduino\hardware\tools\avr/etc/avrdude.conf" -p atmega328p -c arduino -P COM5 -b 115200 -D -U flash:w:"target/avr-atmega328p/debug/particle-sensor-arduino.elf":e
-pause

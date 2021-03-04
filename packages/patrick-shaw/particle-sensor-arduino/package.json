@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "Arduino logic for Arduino part side of the particle sensor app",
   "private": true,
+  "scripts": {
+    "start": "yarn build && yarn upload",
+    "build": "arduino-cli compile -b arduino:avr:nano",
+    "upload": "arduino-cli upload -p /dev/cu.usbserial-14210 --fqbn arduino:avr:uno  ArdUnixTime"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "pshaw/particle-sensor-arduino"
-  },
-  "dependencies": { }
+  }
 }
