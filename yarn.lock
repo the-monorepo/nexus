@@ -4529,6 +4529,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@pshaw/particle-sensor-app@workspace:packages/patrick-shaw/particle-sensor-app":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/particle-sensor-app@workspace:packages/patrick-shaw/particle-sensor-app"
+  dependencies:
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements"
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents"
+    cinder: "workspace:packages/cinder/cinder"
+    mobx: ^6.1.8
+    unstyled: "workspace:packages/misc/unstyled"
+  languageName: unknown
+  linkType: soft
+
 "@pshaw/resume-template@workspace:packages/misc/resume-template":
   version: 0.0.0-use.local
   resolution: "@pshaw/resume-template@workspace:packages/misc/resume-template"
@@ -17213,6 +17225,13 @@ fsevents@~2.1.2:
   version: 6.0.1
   resolution: "mobx@npm:6.0.1"
   checksum: b0923287360a300bbb04942c9c78fd1b40674122820b18dbfbec4779dd848d7aaad5268edbfc87b56c6f29b62f078495c76a6eae6ddacc56185f0a407cbaa298
+  languageName: node
+  linkType: hard
+
+"mobx@npm:^6.1.8":
+  version: 6.1.8
+  resolution: "mobx@npm:6.1.8"
+  checksum: 4b039ffa800686c5f4af76efee71599e1c2569104516b60d1eaf1b902e50ee6f751769715a6d0727fc6f5a859207a96ecc922cc971aa55b53e68b85aa3b813d7
   languageName: node
   linkType: hard
 
