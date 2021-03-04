@@ -1,0 +1,12 @@
+{
+  "name": "@pshaw/particle-sensor-arduino",
+  "version": "1.0.0",
+  "description": "Arduino logic for Arduino part side of the particle sensor app",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "pshaw/particle-sensor-arduino"
+  },
+  "dependencies": { }
+}
