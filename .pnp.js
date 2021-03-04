@@ -311,6 +311,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/patrick-shaw/my-resume"
       },
       {
+        "name": "@pshaw/particle-sensor-app",
+        "reference": "workspace:packages/patrick-shaw/particle-sensor-app"
+      },
+      {
         "name": "@pshaw/typography-scss",
         "reference": "workspace:packages/patrick-shaw/typography-scss"
       },
@@ -10015,6 +10019,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["paper-range-slider", "npm:3.0.0"],
             ["unstyled", "workspace:packages/misc/unstyled"],
             ["xy-ui", "npm:1.10.0"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pshaw/particle-sensor-app", [
+        ["workspace:packages/patrick-shaw/particle-sensor-app", {
+          "packageLocation": "./packages/patrick-shaw/particle-sensor-app/",
+          "packageDependencies": [
+            ["@pshaw/particle-sensor-app", "workspace:packages/patrick-shaw/particle-sensor-app"],
+            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/contextual-documents-html-elements"],
+            ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/contextual-documents"],
+            ["cinder", "workspace:packages/cinder/cinder"],
+            ["mobx", "npm:6.1.8"],
+            ["unstyled", "workspace:packages/misc/unstyled"]
           ],
           "linkType": "SOFT",
         }]
@@ -25839,6 +25857,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/mobx-npm-6.0.1-c054f3d94a-b092328736.zip/node_modules/mobx/",
           "packageDependencies": [
             ["mobx", "npm:6.0.1"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:6.1.8", {
+          "packageLocation": "./.yarn/cache/mobx-npm-6.1.8-77d78bbf11-4b039ffa80.zip/node_modules/mobx/",
+          "packageDependencies": [
+            ["mobx", "npm:6.1.8"]
           ],
           "linkType": "HARD",
         }]

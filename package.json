@@ -27,6 +27,7 @@
     "serve:my-resume": "yarn run:buildplan serve --name='my-resume'",
     "serve:page-breaker": "yarn run:buildplan serve --name='page-breaker'",
     "serve:genetic-sequence-analysis-app": "yarn run:buildplan serve --name='genetic-sequence-analysis-app'",
+    "serve:particle-sensor-app": "yarn run:buildplan serve --name='particle-sensor-app'",
     "precommit": "yarn run:buildplan precommit",
     "update-yarn": "yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn install && yarn update-pnpify",
     "update-pnpify": "yarn pnpify --sdk"

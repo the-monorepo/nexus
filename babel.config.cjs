@@ -55,14 +55,9 @@ module.exports = (api) => {
         presets: presets.concat(['@babel/preset-typescript', '@babel/preset-react'])
       },
       {
-        test: [].concat(...[
-          './packages/patrick-shaw/my-resume',
-          './packages/misc/resume-template',
-          './packages/misc/page-breaker-chrome',
-          './packages/fl-benchmarker/benchmarker-cli/src/frontend',
-          './packages/fl-benchmarker/viewer-cli/src/ui',
-          './packages/misc/genetic-sequence-analysis-app',
-        ].map(projectPath => [`${projectPath}/**/*.tsx`, `${projectPath}/**/*.jsx`])),
+        test: [
+          './packages/**/*.tsx',
+        ],
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
           [

@@ -120,10 +120,47 @@ const geneticSequenceAnalysisApp: Configuration = {
   },
 };
 
+const particleSensorAppDir = resolve(patrickShawDir, 'particle-sensor-app');
+const particleSensorApp: Configuration = {
+  name: 'particle-sensor-app',
+  target: 'web',
+  resolve: {
+    extensions: resolvedExtensions,
+  },
+  devtool: 'source-map',
+  module: {
+    rules: recommendedRules,
+  },
+  entry: resolve(particleSensorAppDir, 'src/index.tsx'),
+  output: createDistOutput(particleSensorAppDir),
+  plugins: [
+    createHtmlWebpackPlugin({
+      title: `Particle Sensor App`,
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: resolve(particleSensorAppDir, 'src/manifest.json'),
+          to: resolve(particleSensorAppDir, 'dist/manifest.json'),
+        },
+        {
+          from: resolve(particleSensorAppDir, 'src/icon.png'),
+          to: resolve(particleSensorAppDir, 'dist/icon.png'),
+        },
+      ],
+    }),
+  ],
+  devServer: {
+    port: 3014,
+    compress: true,
+  },
+};
+
 const configs: Configuration[] = [
   resumeConfig,
   pageBreakerFrontendConfig,
   geneticSequenceAnalysisApp,
+  particleSensorApp,
 ];
 
 export default configs;
