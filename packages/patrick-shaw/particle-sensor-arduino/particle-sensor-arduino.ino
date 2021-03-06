@@ -1,7 +1,7 @@
-#include "PMS.h"
-#include "SoftwareSerial.h"
+#include <PMS.h>
+#include <SoftwareSerial.h>
 
-SoftwareSerial pmsSerial(2, 3); // RX, TX
+SoftwareSerial pmsSerial(5, 3); // RX, TX
 
 PMS pms(pmsSerial);
 PMS::DATA data;
@@ -15,31 +15,37 @@ void setup()
 
 void loop()
 {
-  Serial.println("Waking up, wait 30 seconds for stable readings...");
   pms.wakeUp();
-  delay(30000);
+  delay(5000);
 
-  Serial.println("Send read request...");
   pms.requestRead();
-
-  Serial.println("Reading data...");
   if (pms.readUntil(data))
   {
-    Serial.print("PM 1.0 (ug/m3): ");
-    Serial.println(data.PM_AE_UG_1_0);
+    uint8_t dataToUpload[] = {
+      static_cast<uint8_t>(data.PM_SP_UG_1_0 & 0x00FF),
+      static_cast<uint8_t>((data.PM_SP_UG_1_0 & 0xFF00) >> 8),
 
-    Serial.print("PM 2.5 (ug/m3): ");
-    Serial.println(data.PM_AE_UG_2_5);
+      static_cast<uint8_t>(data.PM_SP_UG_2_5 & 0x00FF),
+      static_cast<uint8_t>((data.PM_SP_UG_2_5 & 0xFF00) >> 8),
 
-    Serial.print("PM 10.0 (ug/m3): ");
-    Serial.println(data.PM_AE_UG_10_0);
+      static_cast<uint8_t>(data.PM_SP_UG_10_0 & 0x00FF),
+      static_cast<uint8_t>((data.PM_SP_UG_10_0 & 0xFF00) >> 8),
+
+      static_cast<uint8_t>(data.PM_AE_UG_1_0 & 0x00FF),
+      static_cast<uint8_t>((data.PM_AE_UG_1_0 & 0xFF00) >> 8),
+
+      static_cast<uint8_t>(data.PM_SP_UG_1_0 & 0x00FF),
+      static_cast<uint8_t>((data.PM_SP_UG_1_0 & 0xFF00) >> 8),
+
+      static_cast<uint8_t>(data.PM_AE_UG_2_5 & 0x00FF),
+      static_cast<uint8_t>((data.PM_AE_UG_2_5 & 0xFF00) >> 8),
+
+      static_cast<uint8_t>(data.PM_AE_UG_10_0 & 0x00FF),
+      static_cast<uint8_t>((data.PM_AE_UG_10_0 & 0xFF00) >> 8),
+    };
+
+    Serial.write(dataToUpload, 12);
   }
-  else
-  {
-    Serial.println("No data.");
-  }
-
-  Serial.println("Going to sleep for 60 seconds.");
   pms.sleep();
-  delay(60000);
+  delay(5000);
 }

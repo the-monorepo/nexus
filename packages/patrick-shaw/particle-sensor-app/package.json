@@ -11,6 +11,7 @@
   "dependencies": {
     "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements",
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents",
+    "@resultful/result": "workspace:packages/resultful/result",
     "cinder": "workspace:packages/cinder/cinder",
     "mobx": "^6.1.8",
     "unstyled": "workspace:packages/misc/unstyled"

@@ -11,5 +11,21 @@
     "**/.pnp.*": true
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "stylelint.stylelintPath": ".yarn/sdks/stylelint/lib/index.js"
+  "stylelint.stylelintPath": ".yarn/sdks/stylelint/lib/index.js",
+  "files.associations": {
+    "array": "cpp",
+    "iterator": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "vector": "cpp",
+    "__bit_reference": "cpp",
+    "__hash_table": "cpp",
+    "__split_buffer": "cpp",
+    "__tree": "cpp",
+    "deque": "cpp",
+    "initializer_list": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "unordered_map": "cpp"
+  }
 }
