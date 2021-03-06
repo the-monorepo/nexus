@@ -4535,9 +4535,16 @@ __metadata:
   dependencies:
     "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements"
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents"
+    "@resultful/result": "workspace:packages/resultful/result"
     cinder: "workspace:packages/cinder/cinder"
     mobx: ^6.1.8
     unstyled: "workspace:packages/misc/unstyled"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/particle-sensor-arduino@workspace:packages/patrick-shaw/particle-sensor-arduino":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/particle-sensor-arduino@workspace:packages/patrick-shaw/particle-sensor-arduino"
   languageName: unknown
   linkType: soft
 

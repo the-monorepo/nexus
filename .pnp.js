@@ -315,6 +315,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/patrick-shaw/particle-sensor-app"
       },
       {
+        "name": "@pshaw/particle-sensor-arduino",
+        "reference": "workspace:packages/patrick-shaw/particle-sensor-arduino"
+      },
+      {
         "name": "@pshaw/typography-scss",
         "reference": "workspace:packages/patrick-shaw/typography-scss"
       },
@@ -10030,9 +10034,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pshaw/particle-sensor-app", "workspace:packages/patrick-shaw/particle-sensor-app"],
             ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/contextual-documents-html-elements"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/contextual-documents"],
+            ["@resultful/result", "workspace:packages/resultful/result"],
             ["cinder", "workspace:packages/cinder/cinder"],
             ["mobx", "npm:6.1.8"],
             ["unstyled", "workspace:packages/misc/unstyled"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pshaw/particle-sensor-arduino", [
+        ["workspace:packages/patrick-shaw/particle-sensor-arduino", {
+          "packageLocation": "./packages/patrick-shaw/particle-sensor-arduino/",
+          "packageDependencies": [
+            ["@pshaw/particle-sensor-arduino", "workspace:packages/patrick-shaw/particle-sensor-arduino"]
           ],
           "linkType": "SOFT",
         }]
