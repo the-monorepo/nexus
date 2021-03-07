@@ -4537,6 +4537,8 @@ __metadata:
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents"
     "@resultful/result": "workspace:packages/resultful/result"
     cinder: "workspace:packages/cinder/cinder"
+    classnames: ^2.2.6
+    d3: ^6.5.0
     mobx: ^6.1.8
     unstyled: "workspace:packages/misc/unstyled"
   languageName: unknown
@@ -10635,6 +10637,44 @@ __metadata:
     d3-transition: 2
     d3-zoom: 2
   checksum: ef308bb63d7001dab982a902de98c083c65489ba7210c019c966169931c5878f6760ad7d5eac19dab258844081350d1c9d61f2dcb85672accaf7431729724ed0
+  languageName: node
+  linkType: hard
+
+"d3@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "d3@npm:6.5.0"
+  dependencies:
+    d3-array: 2
+    d3-axis: 2
+    d3-brush: 2
+    d3-chord: 2
+    d3-color: 2
+    d3-contour: 2
+    d3-delaunay: 5
+    d3-dispatch: 2
+    d3-drag: 2
+    d3-dsv: 2
+    d3-ease: 2
+    d3-fetch: 2
+    d3-force: 2
+    d3-format: 2
+    d3-geo: 2
+    d3-hierarchy: 2
+    d3-interpolate: 2
+    d3-path: 2
+    d3-polygon: 2
+    d3-quadtree: 2
+    d3-random: 2
+    d3-scale: 3
+    d3-scale-chromatic: 2
+    d3-selection: 2
+    d3-shape: 2
+    d3-time: 2
+    d3-time-format: 3
+    d3-timer: 2
+    d3-transition: 2
+    d3-zoom: 2
+  checksum: 9a05fb551bec8a3e4e3a859c7d26fe46dd76234f623e3e0025521c39b80337ae8a4fa1365a899d360cf26703d2a398461eb7ad284e16cc5c595359e043a32481
   languageName: node
   linkType: hard
 
