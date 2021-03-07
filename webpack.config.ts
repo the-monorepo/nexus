@@ -4,6 +4,7 @@ import {
   createHtmlWebpackPlugin,
   createBundleAnalyzerPlugin,
   recommendedRules,
+  recommendedWebcomponentRules,
   resolvedExtensions,
   createOutput,
   CopyPlugin,
@@ -129,7 +130,7 @@ const particleSensorApp: Configuration = {
   },
   devtool: 'source-map',
   module: {
-    rules: recommendedRules,
+    rules: recommendedWebcomponentRules,
   },
   entry: resolve(particleSensorAppDir, 'src/index.tsx'),
   output: createDistOutput(particleSensorAppDir),
