@@ -56,36 +56,52 @@ export class TimeLineChartElement extends DomElement {
     const xAxisElement = this.renderRoot.getElementById('axis-bottom');
     const yAxisSelection = select(this.renderRoot.getElementById('axis-left'));
 
-    const xScale = observable.box(scaleTime().domain([0, Date.now()]));
-    const xAxis = observable.box(axisBottom(xScale.get()).tickFormat(timeFormat('%c')));
+    const xScale = observable.box(scaleTime().domain([0, Date.now()]).nice());
+    const xAxis = observable.box(axisBottom(xScale.get()).tickFormat(timeFormat('%I:%M:%S')));
     const xAxisSelection = select(xAxisElement);
 
+    let maxX = observable.box(Date.now());
+    let minX = observable.box(Date.now());
+    let maxY = observable.box(0);
+
     autorun(() => {
-      let maxY = 0;
+      let newMaxY = 0;
       for (const aInterface of this.dataClient.interfaces) {
         for (const datum of aInterface.data) {
-          maxY = Math.max(maxY, datum.y);
+          newMaxY = Math.max(maxY, datum.y);
         }
       }
-      console.log('y', maxY);
-      yScale.get().domain([0, maxY]);
-      yAxisSelection.call(yAxis.get());
+      maxY.set(newMaxY);
     });
+
+    autorun(() => {
+      setInterval(action(() => {
+        maxX.set(Date.now());
+      }), 1000);
+    });
+
+    autorun(() => {
+      let newMinX = Number.POSITIVE_INFINITY;
+      for (const aInterface of this.dataClient.interfaces) {
+        for (const datum of aInterface.data) {
+          newMinX = Math.min(minX, datum.x);
+        }
+      }
+      const safeMinX = Math.min(newMinX, Date.now());
+      minX.set(safeMinX);
+    });
+
 
     autorun(() => {
       yScale.get().range([this.height.get(), 0]);
     });
 
     autorun(() => {
-      let minX = Number.POSITIVE_INFINITY;
-      for (const aInterface of this.dataClient.interfaces) {
-        for (const datum of aInterface.data) {
-          minX = Math.min(minX, datum.x);
-        }
-      }
-      const safeMinX = Math.min(minX, Date.now());
-      console.log('x', this.dataClient, safeMinX);
-      xScale.get().domain([safeMinX, Date.now()]);
+      yScale.get().domain([0, maxY.get()]).nice();
+    })
+
+    autorun(() => {
+      xScale.get().domain([minX.get(), maxX.get()]).nice();
     });
 
     autorun(() => {
@@ -94,11 +110,16 @@ export class TimeLineChartElement extends DomElement {
 
     autorun(() => {
       this.height.get();
+      maxY.get();
+
       yAxisSelection.call(yAxis.get());
     });
 
     autorun(() => {
       this.width.get();
+      minX.get();
+      maxX.get();
+
       xAxisSelection.call(xAxis.get());
     });
 

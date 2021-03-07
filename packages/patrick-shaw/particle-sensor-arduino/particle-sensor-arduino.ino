@@ -16,7 +16,7 @@ void setup()
 void loop()
 {
   pms.wakeUp();
-  delay(2000);
+  delay(30000);
 
   pms.requestRead();
   if (pms.readUntil(data))
@@ -47,5 +47,5 @@ void loop()
     Serial.write(dataToUpload, 12);
   }
   pms.sleep();
-  delay(2000);
+  delay(120000);
 }

@@ -40,12 +40,12 @@ const onMockAddUSB = async () => {
 
       const dataView = new DataView(new ArrayBuffer(12));
       const isEven = transferInCallCount % 2 === 0;
-      dataView.setInt16(0, isEven ? 0 : 1);
-      dataView.setInt16(2, isEven ? 2 : 3);
-      dataView.setInt16(4, isEven ? 4 : 5);
-      dataView.setInt16(6, isEven ? 6 : 7);
-      dataView.setInt16(8, isEven ? 8 : 9);
-      dataView.setInt16(10, isEven ? 10 : 11);
+      dataView.setInt16(0, isEven ? 0 : 1, true);
+      dataView.setInt16(2, isEven ? 2 : 3, true);
+      dataView.setInt16(4, isEven ? 4 : 5, true);
+      dataView.setInt16(6, isEven ? 6 : 7, true);
+      dataView.setInt16(8, isEven ? 8 : 9, true);
+      dataView.setInt16(10, isEven ? 10 : 11, true);
 
       transferInCallCount++;
 
