@@ -9,7 +9,7 @@
     "list:current-avr-port": "ls /dev/cu.usbserial*",
     "build": "yarn build:arduino",
     "build:arduino": "arduino-cli compile -b arduino:avr:nano",
-    "upload": "arduino-cli upload -p /dev/cu.usbserial-14110 --fqbn arduino:avr:nano"
+    "upload": "arduino-cli upload -p /dev/cu.usbserial-14310 --fqbn arduino:avr:nano"
   },
   "repository": {
     "type": "git",

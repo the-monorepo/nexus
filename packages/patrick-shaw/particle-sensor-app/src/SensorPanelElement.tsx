@@ -109,6 +109,7 @@ export class SensorPanelElement extends cinder.DomElement<any, any> {
   }
 
   render() {
+    console.log(this.data);
     const dataClient = {
       interfaces: [
         {
