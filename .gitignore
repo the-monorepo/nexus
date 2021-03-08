@@ -43,3 +43,5 @@ report.*.*.*.*.*.json
 .DS_Store
 
 flamegraph.html
+
+.yarn/install-state.gz
