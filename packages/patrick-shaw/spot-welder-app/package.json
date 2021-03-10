@@ -1,0 +1,20 @@
+{
+  "name": "@pshaw/spot-welder-app",
+  "version": "1.0.0",
+  "description": "An app for communcating with the spot-welder Arduino board",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "pshaw/spot-welder-app"
+  },
+  "dependencies": {
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements",
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents",
+    "@resultful/result": "workspace:packages/resultful/result",
+    "cinder": "workspace:packages/cinder/cinder",
+    "classnames": "^2.2.6",
+    "mobx": "^6.1.8",
+    "unstyled": "workspace:packages/misc/unstyled"
+  }
+}

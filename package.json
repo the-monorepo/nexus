@@ -12,7 +12,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git"
   },
   "scripts": {
-    "run:buildplan": "yarn node --conditions monorepo-original --require=./transpile-at-runtime buildplan.ts",
+    "run:buildplan": "yarn node --conditions=monorepo-original --require=./transpile-at-runtime buildplan.ts",
     "format": "yarn run:buildplan format",
     "format-staged": "yarn run:buildplan format-staged",
     "test": "yarn run:buildplan test",
@@ -28,6 +28,7 @@
     "serve:page-breaker": "yarn run:buildplan serve --name='page-breaker'",
     "serve:genetic-sequence-analysis-app": "yarn run:buildplan serve --name='genetic-sequence-analysis-app'",
     "serve:particle-sensor-app": "yarn run:buildplan serve --name='particle-sensor-app'",
+    "serve:spot-welder-app": "yarn run:buildplan serve --name='spot-welder-app'",
     "precommit": "yarn run:buildplan precommit",
     "update-yarn": "yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn install && yarn update-pnpify",
     "update-pnpify": "yarn pnpify --sdk"

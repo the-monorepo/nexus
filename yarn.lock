@@ -5627,6 +5627,26 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@pshaw/spot-welder-app@workspace:packages/patrick-shaw/spot-welder-app":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/spot-welder-app@workspace:packages/patrick-shaw/spot-welder-app"
+  dependencies:
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements"
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents"
+    "@resultful/result": "workspace:packages/resultful/result"
+    cinder: "workspace:packages/cinder/cinder"
+    classnames: ^2.2.6
+    mobx: ^6.1.8
+    unstyled: "workspace:packages/misc/unstyled"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/spot-welder-arduino@workspace:packages/patrick-shaw/spot-welder-arduino":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/spot-welder-arduino@workspace:packages/patrick-shaw/spot-welder-arduino"
+  languageName: unknown
+  linkType: soft
+
 "@pshaw/typography-scss@workspace:packages/patrick-shaw/typography-scss":
   version: 0.0.0-use.local
   resolution: "@pshaw/typography-scss@workspace:packages/patrick-shaw/typography-scss"
