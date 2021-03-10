@@ -319,6 +319,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/patrick-shaw/particle-sensor-arduino"
       },
       {
+        "name": "@pshaw/spot-welder-app",
+        "reference": "workspace:packages/patrick-shaw/spot-welder-app"
+      },
+      {
+        "name": "@pshaw/spot-welder-arduino",
+        "reference": "workspace:packages/patrick-shaw/spot-welder-arduino"
+      },
+      {
         "name": "@pshaw/typography-scss",
         "reference": "workspace:packages/patrick-shaw/typography-scss"
       },
@@ -14483,6 +14491,31 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["classnames", "npm:2.2.6"],
             ["date-fns", "npm:2.15.0"],
             ["mobx", "npm:5.15.6"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pshaw/spot-welder-app", [
+        ["workspace:packages/patrick-shaw/spot-welder-app", {
+          "packageLocation": "./packages/patrick-shaw/spot-welder-app/",
+          "packageDependencies": [
+            ["@pshaw/spot-welder-app", "workspace:packages/patrick-shaw/spot-welder-app"],
+            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/contextual-documents-html-elements"],
+            ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/contextual-documents"],
+            ["@resultful/result", "workspace:packages/resultful/result"],
+            ["cinder", "workspace:packages/cinder/cinder"],
+            ["classnames", "npm:2.2.6"],
+            ["mobx", "npm:6.1.8"],
+            ["unstyled", "workspace:packages/misc/unstyled"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pshaw/spot-welder-arduino", [
+        ["workspace:packages/patrick-shaw/spot-welder-arduino", {
+          "packageLocation": "./packages/patrick-shaw/spot-welder-arduino/",
+          "packageDependencies": [
+            ["@pshaw/spot-welder-arduino", "workspace:packages/patrick-shaw/spot-welder-arduino"]
           ],
           "linkType": "SOFT",
         }]

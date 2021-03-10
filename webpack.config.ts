@@ -157,11 +157,48 @@ const particleSensorApp: Configuration = {
   },
 };
 
+const spotWelderSensorAppDir = resolve(patrickShawDir, 'spot-welder-app');
+const spotWelderApp: Configuration = {
+  name: 'spot-welder-app',
+  target: 'web',
+  resolve: {
+    extensions: resolvedExtensions,
+  },
+  devtool: 'source-map',
+  module: {
+    rules: recommendedWebcomponentRules,
+  },
+  entry: resolve(spotWelderSensorAppDir, 'src/index.tsx'),
+  output: createDistOutput(spotWelderSensorAppDir),
+  plugins: [
+    createHtmlWebpackPlugin({
+      title: `Particle Sensor App`,
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: resolve(spotWelderSensorAppDir, 'src/manifest.json'),
+          to: resolve(spotWelderSensorAppDir, 'dist/manifest.json'),
+        },
+        {
+          from: resolve(spotWelderSensorAppDir, 'src/icon.png'),
+          to: resolve(spotWelderSensorAppDir, 'dist/icon.png'),
+        },
+      ],
+    }),
+  ],
+  devServer: {
+    port: 3015,
+    compress: true,
+  },
+};
+
 const configs: Configuration[] = [
   resumeConfig,
   pageBreakerFrontendConfig,
   geneticSequenceAnalysisApp,
   particleSensorApp,
+  spotWelderApp,
 ];
 
 export default configs;
