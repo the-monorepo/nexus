@@ -105,6 +105,37 @@ abstract class CachedField implements Field {
   }
 }
 
+class AsyncIteratorField<T extends any> extends CachedField {
+  constructor(private readonly innerField: Field) {
+    super();
+  }
+
+  set(iterable: AsyncIterable<T>) {
+    (async () => {
+      const iterator = iterable[Symbol.asyncIterator]();
+
+      {
+        const firstVal = await iterator.next();
+        if (firstVal.done) {
+          return;
+        }
+        this.innerField.init([firstVal.value], 0);
+      }
+
+
+      let val = await iterator.next();
+      while(!val.done) {
+        this.innerField.update([val.value], 0);
+        val = await iterator.next();
+      }
+    })();
+  }
+}
+
+export const asyncIterator = (innerField: Field) => {
+  return new AsyncIteratorField(innerField);
+}
+
 const setAttribute = (el: Element, key: string, value: any) => {
   if (value != null) {
     el.setAttribute(key, value);
