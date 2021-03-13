@@ -50,6 +50,7 @@ const PROPERTY_TYPE = 'property';
 const SPREAD_TYPE = 'spread';
 const EVENT_TYPE = 'event';
 const ATTRIBUTE_TYPE = 'attribute';
+const ASYNC_ITERATOR_TYPE = 'asyncIterator';
 
 type JSXChildrenNode =
   | t.JSXText
@@ -105,7 +106,13 @@ type LiteralAttributeField = {
 
 type AttributeField = DynamicAttributeField | LiteralAttributeField;
 
-type ElementField = AttributeField | PropertyField | EventField | SpreadField; // TODO: SpreadType
+type InnerField = AttributeField | PropertyField | EventField | SpreadField;
+type AsyncField = {
+  type: typeof ASYNC_ITERATOR_TYPE;
+  innerField: InnerField;
+}
+
+type ElementField = AttributeField | PropertyField | EventField | SpreadField | AsyncField; // TODO: SpreadType
 
 /**
  * We have no idea how many node will be in this section.
@@ -210,11 +217,15 @@ export default declare((api, options) => {
   };*/
 
   const fieldType = (name: string) => {
-    return name.match(/^\$\$/)
-      ? EVENT_TYPE
-      : name.match(/^\$/)
-      ? PROPERTY_TYPE
-      : ATTRIBUTE_TYPE;
+    if (/^watch_/.test(name)) {
+      return ASYNC_ITERATOR_TYPE;
+    } else if (/^\$\$/.test(name)) {
+      return EVENT_TYPE;
+    } else if (/^\$/.test(name)) {
+      return PROPERTY_TYPE;
+    } else {
+      return ATTRIBUTE_TYPE;
+    }
   };
 
   const findProgramAndOuterPath = (path: tr.NodePath) => {
@@ -291,6 +302,58 @@ export default declare((api, options) => {
     );
   };
 
+  // TODO: Need a better name for this function
+  const fieldFromNodes = (nodePathName: string, outerPath, valuePath) => {
+    const type = fieldType(nodePathName);
+    switch (type) {
+      case ASYNC_ITERATOR_TYPE:
+        return {
+          type,
+          innerField: fieldFromNodes(nodePathName.replace(/^watch_/, ''), outerPath, valuePath),
+        };
+      case PROPERTY_TYPE:
+        console.log(nodePathName);
+        const key = cleanFieldName(nodePathName);
+        const setterId = (() => {
+          if (setterMap.has(key)) {
+            return setterMap.get(key)!;
+          } else {
+            const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
+            const elementId = outerPath.scope.generateUidIdentifier('element');
+            const valueId = outerPath.scope.generateUidIdentifier('value');
+
+            outerPath.insertBefore(
+              constDeclaration(
+                id,
+                t.arrowFunctionExpression(
+                  [elementId, valueId],
+                  t.assignmentExpression(
+                    '=',
+                    t.memberExpression(elementId, t.identifier(key)),
+                    valueId,
+                  ),
+                ),
+              ),
+            );
+            setterMap.set(key, id);
+            return id;
+          }
+        })();
+        return {
+          type,
+          setterId,
+          expression: valueExpressionFromJsxAttributeValue(valuePath),
+          key,
+        };
+      default:
+        return {
+          type,
+          key: cleanFieldName(nodePathName),
+          expression: valueExpressionFromJsxAttributeValue(valuePath),
+        } as ElementField;
+    }
+  }
+
   const domNodeFromJSXElement = (
     path: tr.NodePath<JSXElement>,
     previousIsDynamic: boolean,
@@ -326,48 +389,7 @@ export default declare((api, options) => {
             if (namePath.isJSXNamespacedName()) {
               throw new Error('Not supported');
             } else if (namePath.isJSXIdentifier()) {
-              const type = fieldType(namePath.node.name);
-              switch (type) {
-                case PROPERTY_TYPE:
-                  const key = cleanFieldName(namePath.node.name);
-                  const setterId = (() => {
-                    if (setterMap.has(key)) {
-                      return setterMap.get(key)!;
-                    } else {
-                      const id = outerPath.scope.generateUidIdentifier(`${key}$setter`);
-                      const elementId = outerPath.scope.generateUidIdentifier('element');
-                      const valueId = outerPath.scope.generateUidIdentifier('value');
-
-                      outerPath.insertBefore(
-                        constDeclaration(
-                          id,
-                          t.arrowFunctionExpression(
-                            [elementId, valueId],
-                            t.assignmentExpression(
-                              '=',
-                              t.memberExpression(elementId, t.identifier(key)),
-                              valueId,
-                            ),
-                          ),
-                        ),
-                      );
-                      setterMap.set(key, id);
-                      return id;
-                    }
-                  })();
-                  return {
-                    type,
-                    setterId,
-                    expression: valueExpressionFromJsxAttributeValue(valuePath),
-                    key,
-                  };
-                default:
-                  return {
-                    type,
-                    key: cleanFieldName(namePath.node.name),
-                    expression: valueExpressionFromJsxAttributeValue(valuePath),
-                  } as ElementField;
-              }
+              return fieldFromNodes(namePath.node.name, outerPath, valuePath);
             }
           }
           throw new Error('Not supported');
@@ -744,6 +766,32 @@ export default declare((api, options) => {
     return null;
   };
 
+  const fieldExpressionFromFieldData = (nodeId, field: ElementField) => {
+    switch (field.type) {
+      case EVENT_TYPE:
+      case ATTRIBUTE_TYPE:
+        if (!isLiteral(field.expression)) {
+          if (nodeId === null) {
+            throw new Error('Null attribute id not supported');
+          }
+
+          return cinderCallExpression(field.type, [
+            nodeId,
+            t.stringLiteral(field.key),
+          ]);
+        }
+        return null;
+      case ASYNC_ITERATOR_TYPE:
+        return cinderCallExpression(field.type, [fieldExpressionFromFieldData(nodeId, field.innerField)])
+      case PROPERTY_TYPE:
+        return cinderCallExpression(field.type, [nodeId, field.setterId]);
+      case SPREAD_TYPE:
+        return cinderCallExpression(field.type, [nodeId]);
+      default:
+        throw new Error(`Field not supported: ${field}`);
+    }
+  }
+
   function* yieldFieldExpressionsFromNodes(nodes: Node[], rootId: t.Identifier) {
     let previousConsecutiveDynamicNodeCount = 0;
     for (const node of nodes) {
@@ -761,30 +809,12 @@ export default declare((api, options) => {
           previousConsecutiveDynamicNodeCount = 0;
           if (node.type === ELEMENT_TYPE) {
             for (const field of node.fields) {
-              switch (field.type) {
-                case EVENT_TYPE:
-                case ATTRIBUTE_TYPE:
-                  if (!isLiteral(field.expression)) {
-                    if (node.id === null) {
-                      console.log(node);
-                      throw new Error('Null attribute id not supported');
-                    }
-
-                    yield cinderCallExpression(field.type, [
-                      node.id,
-                      t.stringLiteral(field.key),
-                    ]);
-                  }
-                  break;
-                case PROPERTY_TYPE:
-                  yield cinderCallExpression(field.type, [node.id, field.setterId]);
-                  break;
-                case SPREAD_TYPE:
-                  yield cinderCallExpression(field.type, [node.id]);
-                  break;
-                default:
-                  throw new Error(`Field not supported: ${field}`);
+              const expression = fieldExpressionFromFieldData(node.id, field);
+              if (expression === null) {
+                return;
               }
+
+              yield expression;
             }
             if (node.id !== null) {
               yield* yieldFieldExpressionsFromNodes(node.children, node.id);
@@ -807,19 +837,31 @@ export default declare((api, options) => {
     }
   }
 
+  const fieldValueFromElementFieldData = (field: ElementField) => {
+    switch (field.type) {
+      case ATTRIBUTE_TYPE:
+        if (!isLiteral(field.expression)) {
+          return field.expression.node;
+        }
+        break;
+      case ASYNC_ITERATOR_TYPE:
+        return fieldValueFromElementFieldData(field.innerField);
+      default:
+        return field.expression.node;
+    }
+
+    return null;
+  };
+
   function* yieldFieldValuesFromNode(node: Node): Generator<t.Node | null> {
     switch (node.type) {
       case ELEMENT_TYPE:
         for (const field of node.fields) {
-          switch (field.type) {
-            case ATTRIBUTE_TYPE:
-              if (!isLiteral(field.expression)) {
-                yield field.expression.node;
-              }
-              break;
-            default:
-              yield field.expression.node;
+          const value = fieldValueFromElementFieldData(field);
+          if(value === null) {
+            continue;
           }
+          yield value;
         }
         for (const childNode of node.children) {
           yield* yieldFieldValuesFromNode(childNode);
