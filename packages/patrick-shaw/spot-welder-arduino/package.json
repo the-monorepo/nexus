@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Arduino logic for Arduino part side of the spot welder app",
   "private": true,
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
