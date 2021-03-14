@@ -17,11 +17,30 @@ const requestUSB = async () => {
   return device;
 };
 
-const device: undefined | any;
+let device: undefined | any;
+
+async function* timerThing() {
+  let v = 0;
+  while(true) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    yield v++;
+  }
+}
+
+const timerIterator = timerThing();
 
 const App = () => (
   <main>
     TODO
+    <div watch_$textContent={timerIterator} />
+    <form>
+      <label htmlFor="first-pulse-duration">First pulse duration</label>
+      <input type="range" name="first-pulse-duration" />
+      <label htmlFor="pulse-gap">Pulse gap</label>
+      <input type="range" name="pulse-gap" />
+      <label htmlFor="second-pulse-duration">Second pulse duration</label>
+      <input type="range" name="second-pulse-duration" />
+    </form>
   </main>
 );
 
