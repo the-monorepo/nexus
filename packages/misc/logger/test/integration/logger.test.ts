@@ -14,10 +14,12 @@ class MockedWriteable extends Writable {
 }
 
 const levelName = 'info';
+const logLevelTag = 'ℹ️';
 function formatTester({ timestamp = '' }: any = {}) {
   return (expectedString) => {
-    const padding: string = ' '.repeat(9 - levelName.length);
-    const output = `${timestamp}${levelName}${padding} ${expectedString}\n`;
+    // TODO: Remove magic number
+    const padding: string = ' '.repeat(7 - logLevelTag.length);
+    const output = `${timestamp}${logLevelTag}${padding} ${expectedString}\n`;
     return output;
   };
 }
