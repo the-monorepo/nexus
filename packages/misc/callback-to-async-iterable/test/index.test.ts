@@ -1,19 +1,18 @@
 import { callbackToIterable } from '../src/index';
 
 describe(callbackToIterable.name, () => {
-  it('A single async iterable listening from the start yields all values', async () => {
-    const { createIterable, callback } = callbackToIterable<number>();
+  it('Start listening, call with 1, 2, 3, receive 1, 2, 3', async () => {
+    const { createIterable, callback } = callbackToIterable<[number]>();
 
     const iterable = createIterable();
+
+    const nextPromises = Promise.all([iterable.next(), iterable.next() ,iterable.next()]);
+
     callback(1);
     callback(2);
     callback(3);
 
-    const values: number[] = [];
-    for await (const i of iterable) {
-      values.push(i);
-    }
-
-    expect(values).toEqual([1, 2, 3]);
+    const values = (await nextPromises).map(({ value }) => value);
+    expect(values).toEqual([[1], [2], [3]]);
   })
 });

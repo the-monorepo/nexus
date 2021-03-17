@@ -1,25 +1,26 @@
-export const callbackToIterable = <I>() => {
-  const queue: I[] = [];
+export const callbackToIterable = <I extends any[]>() => {
+  const bufferQueue: I[] = [];
+  const waitingQueue: ((input: I) => any)[] = [];
 
-  let waitForQueueResolve: () => void;
-  let waitForQueuePromise: Promise<any>;
-  const newWaitForQueue = () => {
-    waitForQueuePromise = new Promise(resolve => waitForQueueResolve = resolve);
-  };
-  newWaitForQueue();
-
-  const callback = (input: I) => {
-    queue.push(input);
-    if (queue.length === 1) {
-      waitForQueueResolve();
-      newWaitForQueue();
+  const callback = (...args: I) => {
+    if (waitingQueue.length >= 1) {
+      waitingQueue.shift()!(args);
+    } else {
+      bufferQueue.push(args);
     }
   };
 
   const asyncIterable: AsyncIterableIterator<I> = {
     async next() {
-      await waitForQueuePromise;
-      return { done: false, value: queue.pop()!, };
+      if (bufferQueue.length >= 1) {
+        return { done: false, value: bufferQueue.shift()! };
+      } else {
+        const promise = new Promise<I>((resolve) => {
+          waitingQueue.push(resolve);
+        });
+
+        return { done: false, value: await promise };
+        }
     },
     [Symbol.asyncIterator]() {
       return this;
