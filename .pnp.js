@@ -171,6 +171,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/fl-benchmarker/viewer-cli"
       },
       {
+        "name": "callback-to-async-iterable",
+        "reference": "workspace:packages/misc/callback-to-async-iterable"
+      },
+      {
         "name": "@pshaw/convict-util",
         "reference": "workspace:packages/misc/convict-util"
       },
@@ -21301,6 +21305,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["call-me-maybe", "npm:1.0.1"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["callback-to-async-iterable", [
+        ["workspace:packages/misc/callback-to-async-iterable", {
+          "packageLocation": "./packages/misc/callback-to-async-iterable/",
+          "packageDependencies": [
+            ["callback-to-async-iterable", "workspace:packages/misc/callback-to-async-iterable"],
+            ["fs-extra", "npm:9.0.1"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["caller-callsite", [

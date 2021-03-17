@@ -11,6 +11,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
+    "noImplicitThis": false,
     "jsx": "preserve",
     "moduleResolution": "node",
     "resolveJsonModule": true,

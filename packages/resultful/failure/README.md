@@ -25,11 +25,11 @@ import {
 } from '@resultful/failure';
 
 // There are 3 types of 'results' you can create:
-const successResult = resultful.success('put whatever you want in here'); // Aliases for resultful.success include: resultful.payload resultful.normal
-const errorResult = resultful.error({
+const successResult = resultful.createPayload('put whatever you want in here'); // Aliases for resultful.createPayload include: resultful.payload resultful.normal
+const errorResult = resultful.createErrorFailure({
   message: 'Really, whatever you want',
 });
-const exceptionResult = resultful.exception(
+const exceptionResult = resultful.createUnknownFailure(
   new Error('Exceptions are recommended to be or at least contain an error'),
 );
 console.log(successResult.payload, errorResult.error, exceptionResult.exception);
@@ -37,21 +37,21 @@ console.log(successResult.payload, errorResult.error, exceptionResult.exception)
 // You can then use any of the following to differentiate between error types:
 // Prints: true false false
 console.log(
-  resultful.isSuccess(successResult),
-  resultful.isSuccess(errorResult),
-  resultful.isSuccess(exceptionResult),
-); // Aliases for resultful.isSuccess include: resultful.isPayload resultful.isNormal
+  resultful.hasSuccess(successResult),
+  resultful.hasSuccess(errorResult),
+  resultful.hasSuccess(exceptionResult),
+); // Aliases for resultful.hasSuccess include: resultful.isPayload resultful.isNormal
 // Prints: false true false
 console.log(
-  resultful.isError(successResult),
-  resultful.isError(errorResult),
-  resultful.isError(exceptionResult),
+  resultful.hasErrorFailure(successResult),
+  resultful.hasErrorFailure(errorResult),
+  resultful.hasErrorFailure(exceptionResult),
 );
 // Prints: false false true
 console.log(
-  resultful.isException(successResult),
-  resultful.isException(errorResult),
-  resultful.isException(exceptionResult),
+  resultful.hasUnknownFailure(successResult),
+  resultful.hasUnknownFailure(errorResult),
+  resultful.hasUnknownFailure(exceptionResult),
 );
 // Prints: false true true
 console.log(

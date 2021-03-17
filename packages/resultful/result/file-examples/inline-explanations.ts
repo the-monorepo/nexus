@@ -7,7 +7,7 @@ import {
 } from '@resultful/result';
 
 // There are 2 types of 'results' you can create:
-const payloadResult = createPayload('put whatever you want in here'); // Aliases for resultful.success include: resultful.payload resultful.normal
+const payloadResult = createPayload('put whatever you want in here'); // Aliases for resultful.createPayload include: resultful.payload resultful.normal
 const errorResult = createFailure({
   message: 'Really, whatever you want',
 });
@@ -18,7 +18,7 @@ console.log(payloadResult.payload, errorResult.failure);
 console.log(
   hasPayload(payloadResult),
   hasFailure(errorResult),
-); // Aliases for resultful.isSuccess include: resultful.isPayload resultful.isNormal
+); // Aliases for resultful.hasSuccess include: resultful.isPayload resultful.isNormal
 // Prints: false true false
 console.log(
   hasPayload(payloadResult),
