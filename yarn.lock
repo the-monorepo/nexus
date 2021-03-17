@@ -10067,6 +10067,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"callback-to-async-iterable@workspace:packages/misc/callback-to-async-iterable":
+  version: 0.0.0-use.local
+  resolution: "callback-to-async-iterable@workspace:packages/misc/callback-to-async-iterable"
+  dependencies:
+    fs-extra: ^9.0.1
+  languageName: unknown
+  linkType: soft
+
 "caller-callsite@npm:^2.0.0":
   version: 2.0.0
   resolution: "caller-callsite@npm:2.0.0"

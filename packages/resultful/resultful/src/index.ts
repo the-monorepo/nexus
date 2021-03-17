@@ -18,6 +18,8 @@ import {
   TypedObjectSchema,
 } from '@resultful/utility-types';
 
+export { createPayload, hasPayload };
+
 export const createUnknownFailure = (value: unknown) => createFailure(createUnknown(value));
 export const createErrorFailure = <E>(value: E) => createFailure(createError(value));
 

@@ -24,12 +24,12 @@ export const runMochaInstance = (mochaInstance): Promise<resultful.Result<undefi
     try {
       mochaInstance.run((failures) => {
         if (failures) {
-          resolve(resultful.error(failures));
+          resolve(resultful.createErrorFailure(failures));
         } else {
-          resolve(resultful.success(undefined));
+          resolve(resultful.createPayload(undefined));
         }
       });
     } catch (err) {
-      resolve(resultful.exception(err));
+      resolve(resultful.createUnknownFailure(err));
     }
   });

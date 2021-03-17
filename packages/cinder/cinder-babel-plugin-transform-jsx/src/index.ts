@@ -312,7 +312,6 @@ export default declare((api, options) => {
           innerField: fieldFromNodes(nodePathName.replace(/^watch_/, ''), outerPath, valuePath),
         };
       case PROPERTY_TYPE:
-        console.log(nodePathName);
         const key = cleanFieldName(nodePathName);
         const setterId = (() => {
           if (setterMap.has(key)) {
