@@ -1,37 +1,33 @@
 export const callbackToIterable = <I extends any[]>() => {
-  const bufferQueue: I[] = [];
-  const waitingQueue: ((input: I) => any)[] = [];
+  const waitingQueue: Map<any, ((input: I) => any)[]> = new Map();
 
   const callback = (...args: I) => {
-    if (waitingQueue.length >= 1) {
-      waitingQueue.shift()!(args);
-    } else {
-      bufferQueue.push(args);
-    }
-  };
-
-  const asyncIterable: AsyncIterableIterator<I> = {
-    async next() {
-      if (bufferQueue.length >= 1) {
-        return { done: false, value: bufferQueue.shift()! };
-      } else {
-        const promise = new Promise<I>((resolve) => {
-          waitingQueue.push(resolve);
-        });
-
-        return { done: false, value: await promise };
+    if (waitingQueue.size >= 1) {
+      for(const [key, queue] of waitingQueue) {
+        queue.shift()!(args);
+        if (queue.length === 0) {
+          waitingQueue.delete(key);
         }
-    },
-    [Symbol.asyncIterator]() {
-      return this;
+      }
     }
-  }
-  const createIterable = () => {
-    return asyncIterable;
   };
 
   return {
-    createIterable,
+    [Symbol.asyncIterator]() {
+      return {
+        async next() {
+          if (!waitingQueue.has(this)) {
+            waitingQueue.set(this, []);
+          }
+
+          const promise = new Promise<I>((resolve) => {
+            waitingQueue.get(this)!.push(resolve);
+          });
+
+          return { done: false, value: await promise };
+        }
+      };
+    },
     callback,
-  }
+  };
 };
