@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-avrdude -p m328p -c arduino -P /dev/cu.usbserial-14110 -b 57600 -U flash:w:"target/avr-atmega328p/debug/particle-sensor-arduino.elf":e
+cargo build
+mkdir release
+avr-objcopy -O ihex ./target/avr-atmega328p/debug/spot-welder-arduino.elf ./release/arduino.hex
+arduino-cli upload --input-file ./release/arduino.hex -p /dev/cu.usbserial-14310 --fqbn arduino:avr:uno

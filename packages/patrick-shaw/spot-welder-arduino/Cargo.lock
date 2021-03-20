@@ -102,14 +102,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de96540e0ebde571dc55c73d60ef407c653844e6f9a1e2fdbd40c07b9252d812"
 
 [[package]]
-name = "particle-sensor-arduino"
-version = "0.1.0"
-dependencies = [
- "arduino-uno",
- "panic-halt",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -162,6 +154,14 @@ name = "semver-parser"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
+
+[[package]]
+name = "spot-welder-arduino"
+version = "0.1.0"
+dependencies = [
+ "arduino-uno",
+ "panic-halt",
+]
 
 [[package]]
 name = "syn"
