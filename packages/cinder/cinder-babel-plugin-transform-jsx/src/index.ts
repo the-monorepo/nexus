@@ -810,7 +810,7 @@ export default declare((api, options) => {
             for (const field of node.fields) {
               const expression = fieldExpressionFromFieldData(node.id, field);
               if (expression === null) {
-                return;
+                continue;
               }
 
               yield expression;
