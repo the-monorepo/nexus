@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "yarn build && yarn upload",
-    "install:project": "brew install arduino-cli && arduino-cli core update-index && arduino-cli core install arduino:avr && arduino-cli core install arduino:megaavr && arduino-cli lib install \"PMS Library\"",
+    "install:project:osx": "brew install arduino-cli && arduino-cli core update-index && arduino-cli core install arduino:avr && arduino-cli core install arduino:megaavr && arduino-cli lib install \"PMS Library\"",
     "list:current-avr-port": "ls /dev/cu.usbserial*",
     "build": "yarn build:arduino",
     "build:arduino": "arduino-cli compile -b arduino:avr:nano",

@@ -1,5 +1,5 @@
 [package]
-name = "particle-sensor-arduino"
+name = "spot-welder-arduino"
 version = "0.1.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2018"
