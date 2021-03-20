@@ -14507,6 +14507,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/contextual-documents-html-elements"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/contextual-documents"],
             ["@resultful/result", "workspace:packages/resultful/result"],
+            ["callback-to-async-iterable", "workspace:packages/misc/callback-to-async-iterable"],
             ["cinder", "workspace:packages/cinder/cinder"],
             ["classnames", "npm:2.2.6"],
             ["mobx", "npm:6.1.8"],

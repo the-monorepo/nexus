@@ -1,4 +1,4 @@
-export const callbackToIterable = <I extends any[]>() => {
+const callbackToAsyncIterable = <I extends any[]>() => {
   const waitingQueue: Map<any, ((input: I) => any)[]> = new Map();
 
   const callback = (...args: I) => {
@@ -31,3 +31,5 @@ export const callbackToIterable = <I extends any[]>() => {
     callback,
   };
 };
+
+export default callbackToAsyncIterable;
