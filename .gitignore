@@ -45,3 +45,6 @@ report.*.*.*.*.*.json
 flamegraph.html
 
 .yarn/install-state.gz
+
+localhost.crt
+localhost.key
