@@ -12,7 +12,6 @@ const requestUSB = async () => {
 const claimUSB = async (device) => {
   await device.open();
   try {
-    console.log(device);
     await device.selectConfiguration(1);
     await device.claimInterface(0);
   } catch (err) {
@@ -32,10 +31,6 @@ const devices = callbackGenerator<[any]>();
     if (initialDevices.length >= 1) {
       selectedDevice = initialDevices[0];
       await claimUSB(selectedDevice);
-      console.log('test...');
-      while(true) {
-        console.log((await selectedDevice.transferIn(2, 64)).data.getUint8(0, true));
-      }
       rerender();
     }
   } catch(err) {
@@ -59,7 +54,6 @@ const onSelectUsbClick = async (event) => {
 };
 
 const onDisconnectUsbClick = async (event) => {
-  console.log(selectedDevice);
   if (selectedDevice === undefined) {
     return;
   }
@@ -147,10 +141,10 @@ const secondPulseDurations = withDefault(
 const submissions = callbackGenerator<[Event]>();
 (async () => {
   for await (const [e] of submissions) {
-    console.log('submitting...');
+    e.preventDefault();
+
     transferring = true;
     rerender();
-    e.preventDefault();
 
     try {
       const formData = new FormData(e.target);
@@ -168,20 +162,17 @@ const submissions = callbackGenerator<[Event]>();
       transferOutDataView.setUint16(6, pulseGapDuration, true);
       transferOutDataView.setUint16(8, secondPulseDuration, true);
       transferOutDataView.setUint16(10, secondPulseDuration, true);
-      transferOutDataView.getUint8();
 
       if (selectedDevice === undefined) {
         alert("You haven't selected a device yet!");
         continue;
       }
-      console.log(transferOutDataView);
       await selectedDevice.transferOut(2, transferOutDataView.buffer);
-      console.log('sent');
       const { data: transferInData, status } = await selectedDevice.transferIn(2, 64);
       const weldStatus = transferInData.getUint8(0, true);
-      const weldStatus2 = transferInData.getUint8(0, true);
-      const weldStatus3 = transferInData.getUint8(0, true);
-      console.log(transferInData, status, weldStatus, weldStatus2, weldStatus3);
+      if (weldStatus > 0) {
+        alert(`Error: Received spot weld status "${weldStatus}"`);
+      }
     } catch (err) {
       console.error(err);
       alert('Something went wrong when sending the pulse data, check the console');
