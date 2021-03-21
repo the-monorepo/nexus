@@ -52,11 +52,15 @@ fn main() -> ! {
         9600.into_baudrate(),
     );
 
-    let mut timer0 = pwm::Timer2Pwm::new(peripherals.TC2, pwm::Prescaler::Prescale64);
+    let mut low_sound_timer = pwm::Timer2Pwm::new(peripherals.TC2, pwm::Prescaler::Prescale1024);
+    let mut high_sound_timer = pwm::Timer1Pwm::new(peripherals.TC1, pwm::Prescaler::Prescale256);
 
-    let mut sound = pins.d3.into_output(&mut pins.ddr).into_pwm(&mut timer0);
-    sound.set_duty(127);
-    sound.disable();
+    let mut low_sound = pins.d3.into_output(&mut pins.ddr).into_pwm(&mut low_sound_timer);
+    let mut high_sound = pins.d10.into_output(&mut pins.ddr).into_pwm(&mut high_sound_timer);
+    low_sound.set_duty(127);
+    high_sound.set_duty(127);
+    low_sound.disable();
+    high_sound.disable();
 
     let mut welder = pins.d13.into_output(&mut pins.ddr);
     welder.set_low().void_unwrap();
@@ -91,20 +95,20 @@ fn main() -> ! {
             continue;
         }
 
-        sound.enable();
+        low_sound.enable();
         welder.set_high().void_unwrap();
         arduino_uno::delay_ms(first_pulse_duration.value1);
 
         welder.set_low().void_unwrap();
-        sound.disable();
+        low_sound.disable();
         arduino_uno::delay_ms(pulse_gap_duration.value1);
 
-        sound.enable();
+        high_sound.enable();
         welder.set_high().void_unwrap();
         arduino_uno::delay_ms(second_pulse_duration.value1);
 
         welder.set_low().void_unwrap();
-        sound.disable();
+        high_sound.disable();
 
         serial.write_byte(0);
     }
