@@ -200,10 +200,10 @@ export default declare((api, options) => {
 
   const isLiteral = (value: tr.NodePath<any>): boolean => {
     return (
-      value.node !== undefined &&
-      value.node !== null &&
-      value.isLiteral() &&
-      (!value.isTemplateLiteral() || value.node.expressions.length <= 0)
+      value.node === undefined ||
+      value.node === null ||
+      (value.isLiteral() &&
+      (!value.isTemplateLiteral() || value.node.expressions.length <= 0))
     );
   };
 
