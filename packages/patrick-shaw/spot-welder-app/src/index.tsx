@@ -6,7 +6,10 @@ import styles from './index.scss';
 
 const requestUSB = async () => {
   const device = await navigator.usb.requestDevice({ filters: [] });
+  return device;
+};
 
+const claimUSB = async (device) => {
   await device.open();
   try {
     console.log(device);
@@ -16,11 +19,67 @@ const requestUSB = async () => {
     await device.close();
     throw err;
   }
-
-  return device;
 };
 
-let device: undefined | any;
+let selectedDevice: undefined | any;
+let transferring = false;
+
+const devices = callbackGenerator<[any]>();
+
+(async () => {
+  try {
+    const initialDevices = await navigator.usb.getDevices();
+    if (initialDevices.length >= 1) {
+      selectedDevice = initialDevices[0];
+      await claimUSB(selectedDevice);
+      console.log('test...');
+      while(true) {
+        console.log((await selectedDevice.transferIn(2, 64)).data.getUint8(0, true));
+      }
+      rerender();
+    }
+  } catch(err) {
+    console.error(err);
+  }
+
+  for await(const [device] of devices) {
+    try {
+      await claimUSB(device);
+      selectedDevice = device;
+      rerender();
+    } catch(err) {
+      console.error(err);
+    }
+  }
+})();
+
+const onSelectUsbClick = async (event) => {
+  const device = await requestUSB();
+  devices.callback(device);
+};
+
+const onDisconnectUsbClick = async (event) => {
+  console.log(selectedDevice);
+  if (selectedDevice === undefined) {
+    return;
+  }
+
+  await selectedDevice.close();
+  selectedDevice = undefined;
+  rerender();
+};
+
+const UsbSelection = ({ device }) => (
+  <section>
+    <button $$click={onSelectUsbClick}>
+      Select USB
+    </button>
+    <button $$click={onDisconnectUsbClick}>
+      Disconnect
+    </button>
+    {device === undefined ? undefined : `Selected ${device.productName}`}
+  </section>
+);
 
 export type RangeSliderProps = {
   name: string;
@@ -88,33 +147,47 @@ const secondPulseDurations = withDefault(
 const submissions = callbackGenerator<[Event]>();
 (async () => {
   for await (const [e] of submissions) {
+    console.log('submitting...');
+    transferring = true;
+    rerender();
     e.preventDefault();
-
-    if (device === undefined) {
-      alert("You haven't selected a device yet!");
-      continue;
-    }
 
     try {
       const formData = new FormData(e.target);
 
       const firstPulseDuration = Number.parseInt(formData.get(FIRST_PULSE_DURATION_NAME));
-      const pulseGap = Number.parseInt(formData.get(PULSE_GAP_DURATION_NAME));
+      const pulseGapDuration = Number.parseInt(formData.get(PULSE_GAP_DURATION_NAME));
       const secondPulseDuration = Number.parseInt(
         formData.get(SECOND_PULSE_DURATION_NAME),
       );
 
-      const data = new Uint16Array([
-        firstPulseDuration,
-        firstPulseDuration,
-        pulseGap,
-        pulseGap,
-        secondPulseDuration,
-        secondPulseDuration,
-      ]);
+      const transferOutDataView = new DataView(new ArrayBuffer(12));
+      transferOutDataView.setUint16(0, firstPulseDuration, true);
+      transferOutDataView.setUint16(2, firstPulseDuration, true);
+      transferOutDataView.setUint16(4, pulseGapDuration, true);
+      transferOutDataView.setUint16(6, pulseGapDuration, true);
+      transferOutDataView.setUint16(8, secondPulseDuration, true);
+      transferOutDataView.setUint16(10, secondPulseDuration, true);
+      transferOutDataView.getUint8();
+
+      if (selectedDevice === undefined) {
+        alert("You haven't selected a device yet!");
+        continue;
+      }
+      console.log(transferOutDataView);
+      await selectedDevice.transferOut(2, transferOutDataView.buffer);
+      console.log('sent');
+      const { data: transferInData, status } = await selectedDevice.transferIn(2, 64);
+      const weldStatus = transferInData.getUint8(0, true);
+      const weldStatus2 = transferInData.getUint8(0, true);
+      const weldStatus3 = transferInData.getUint8(0, true);
+      console.log(transferInData, status, weldStatus, weldStatus2, weldStatus3);
     } catch (err) {
       console.error(err);
       alert('Something went wrong when sending the pulse data, check the console');
+    } finally {
+      transferring = false;
+      rerender();
     }
   }
 })();
@@ -123,6 +196,7 @@ const App = () => (
   <>
     <style>{styles.toString()}</style>
     <main>
+      <UsbSelection device={selectedDevice} />
       <form
         $$submit={submissions.callback}
         class={styles.locals.form}
@@ -155,7 +229,8 @@ const App = () => (
         >
           Second pulse duration
         </RangeSlider>
-        <button type="submit">Fire</button>
+        <button type="submit" $disabled={transferring}>Fire</button>
+        {transferring ? 'Transferring' : undefined}
       </form>
     </main>
   </>
@@ -166,11 +241,9 @@ const rerender = () => cinder.render(<App />, rootElement);
 
 rerender();
 navigator.usb.addEventListener('connect', (event) => {
-  device = event.device;
-  rerender();
+  devices.callback(event.device);
 });
 
 navigator.usb.addEventListener('disconnect', (event) => {
-  device = event.device;
-  rerender();
+  devices.callback(undefined);
 });
