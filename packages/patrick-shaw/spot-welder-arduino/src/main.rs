@@ -43,29 +43,31 @@ fn main() -> ! {
         57600.into_baudrate(),
     );
 
-    let mut led = pins.d3.into_output(&mut pins.ddr);
-
-    let mut read_pair = || U16Pair::read(|| serial.read_byte());
+    let mut led = pins.d13.into_output(&mut pins.ddr);
+    led.set_low().void_unwrap();
 
     //let mut sound = pins.d9.into_output(&mut pins.ddr);
     loop {
-        let mut first_pulse_duration = read_pair();
-        let mut pulse_gap_duration = read_pair();
-        let mut second_pulse_duration = read_pair();
+      led.set_low();
+        let mut first_pulse_duration = U16Pair::read(|| serial.read_byte());
+        let mut pulse_gap_duration = U16Pair::read(|| serial.read_byte());
+        let mut second_pulse_duration = U16Pair::read(|| serial.read_byte());
 
         // Just wanna make sure it doens't turn on if something weird happens (like a freak short or something?) dunno if it's really necessary
         if first_pulse_duration.is_corrupted()
             || pulse_gap_duration.is_corrupted()
             || second_pulse_duration.is_corrupted()
         {
-            continue;
+          serial.write_byte(1);
+          continue;
         }
 
-        led.toggle().void_unwrap();
+        led.set_high().void_unwrap();
         arduino_uno::delay_ms(first_pulse_duration.value1);
-        led.toggle().void_unwrap();
+        led.set_low().void_unwrap();
         arduino_uno::delay_ms(pulse_gap_duration.value1);
-        led.toggle().void_unwrap();
+        led.set_high().void_unwrap();
         arduino_uno::delay_ms(second_pulse_duration.value1);
+        serial.write_byte(0);
     }
 }
