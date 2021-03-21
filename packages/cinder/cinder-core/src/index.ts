@@ -137,7 +137,7 @@ export const asyncIterator = (innerField: Field) => {
 }
 
 const setAttribute = (el: Element, key: string, value: any) => {
-  if (value != null) {
+  if (value !== undefined) {
     el.setAttribute(key, value);
   } else {
     el.removeAttribute(key);
