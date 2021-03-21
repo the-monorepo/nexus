@@ -160,7 +160,9 @@ name = "spot-welder-arduino"
 version = "0.1.0"
 dependencies = [
  "arduino-uno",
+ "nb 0.1.3",
  "panic-halt",
+ "ufmt",
 ]
 
 [[package]]
