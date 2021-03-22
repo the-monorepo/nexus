@@ -14,11 +14,7 @@ use arduino_uno::{
     pwm::Timer2Pwm,
 };
 use avr_device::interrupt::Mutex;
-use core::{
-    borrow::{Borrow, BorrowMut},
-    cell::{Cell, RefCell},
-    ops::{Deref, DerefMut},
-};
+use core::{cell::{RefCell}, ops::{DerefMut}};
 use panic_halt as _;
 
 struct PulseData {
@@ -27,21 +23,28 @@ struct PulseData {
     second_pulse_duration: u16,
 }
 
+enum RedundentReadStatus<R> {
+  Success(R),
+  Corrupt,
+}
 impl PulseData {
-    fn read<F, E>(mut read_byte: F) -> Result<PulseData, E>
+    fn read<F>(mut read_byte: F) -> RedundentReadStatus<PulseData>
     where
-        F: FnMut() -> Result<u8, E>,
+        F: FnMut() -> u8,
     {
-        Ok(PulseData {
-            first_pulse_duration: U16Pair::read(&mut read_byte)?.value1,
-            pulse_gap_duration: U16Pair::read(&mut read_byte)?.value1,
-            second_pulse_duration: U16Pair::read(&mut read_byte)?.value1,
+      if let (
+        RedundentReadStatus::Success(first_pulse_duration),
+        RedundentReadStatus::Success(pulse_gap_duration),
+        RedundentReadStatus::Success(second_pulse_duration)
+      ) = (redundent_read_u16(&mut read_byte), redundent_read_u16(&mut read_byte), redundent_read_u16(&mut read_byte)) {
+        RedundentReadStatus::Success(PulseData {
+          first_pulse_duration,
+          pulse_gap_duration,
+          second_pulse_duration,
         })
-    }
-
-    fn is_corrupted(&mut self) -> bool {
-        // TODO
-        return false;
+      } else {
+        RedundentReadStatus::Corrupt
+      }
     }
 }
 
@@ -125,33 +128,26 @@ static SPOT_WELDER_MUTEX: Mutex<SpotWeldInterruptData> = Mutex::new(SpotWeldInte
 
 const TIMER_COUNTS: u32 = 250;
 
-fn read_u16<F, E>(mut read_byte: F) -> Result<u16, E>
+fn read_u16<F>(mut read_byte: F) -> u16
 where
-    F: FnMut() -> Result<u8, E>,
+    F: FnMut() -> u8,
 {
-    let small_byte = read_byte()? as u16;
-    let large_byte = (read_byte()? as u16) << 8;
-    return Ok(large_byte | small_byte);
-}
-struct U16Pair {
-    value1: u16,
-    value2: u16,
+    let small_byte = read_byte() as u16;
+    let large_byte = (read_byte() as u16) << 8;
+    return large_byte | small_byte;
 }
 
-impl U16Pair {
-    fn read<F, E>(mut read_byte: F) -> Result<U16Pair, E>
-    where
-        F: FnMut() -> Result<u8, E>,
-    {
-        Ok(U16Pair {
-            value1: read_u16(&mut read_byte)?,
-            value2: read_u16(&mut read_byte)?,
-        })
-    }
-
-    fn is_corrupted(&mut self) -> bool {
-        self.value1 != self.value2
-    }
+fn redundent_read_u16<F>(mut read_byte: F) -> RedundentReadStatus<u16>
+where
+    F: FnMut() -> u8,
+{
+  let value1 = read_u16(&mut read_byte);
+  let value2 = read_u16(&mut read_byte);
+  if value1 == value2 {
+    RedundentReadStatus::Success(value1)
+  } else {
+    RedundentReadStatus::Corrupt
+  }
 }
 
 #[arduino_uno::entry]
@@ -198,13 +194,14 @@ fn main() -> ! {
     unsafe { avr_device::interrupt::enable() };
 
     loop {
-        let mut pulse_data = PulseData::read(|| Ok(serial.read_byte())).void_unwrap();
-
-        // Just wanna make sure it doens't turn on if something weird happens (like a freak short or something?) dunno if it's really necessary
-        if pulse_data.is_corrupted() {
+        let pulse_data_response = PulseData::read(|| serial.read_byte());
+        let pulse_data = match pulse_data_response {
+          RedundentReadStatus::Success(pulse_data) => pulse_data,
+          _ => {
             serial.write_byte(1);
             continue;
-        }
+          }
+        };
 
         if pulse_data.first_pulse_duration > 300 {
             serial.write_byte(2);
