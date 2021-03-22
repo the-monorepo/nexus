@@ -1,9 +1,125 @@
 #![no_std]
 #![no_main]
-
-use arduino_uno::prelude::*;
-use arduino_uno::pwm;
+#![feature(abi_avr_interrupt)]
+use arduino_uno::{
+    hal::port::portb::{PB2, PB5},
+    pwm::{self, Timer1Pwm},
+};
+use arduino_uno::{
+    hal::port::{
+        mode::{Output, Pwm},
+        portd::PD3,
+    },
+    prelude::*,
+    pwm::Timer2Pwm,
+};
+use avr_device::interrupt::Mutex;
+use core::{
+    borrow::{Borrow, BorrowMut},
+    cell::{Cell, RefCell},
+    ops::{Deref, DerefMut},
+};
 use panic_halt as _;
+
+struct PulseData {
+    first_pulse_duration: u16,
+    pulse_gap_duration: u16,
+    second_pulse_duration: u16,
+}
+
+impl PulseData {
+    fn read<F, E>(mut read_byte: F) -> Result<PulseData, E>
+    where
+        F: FnMut() -> Result<u8, E>,
+    {
+        Ok(PulseData {
+            first_pulse_duration: U16Pair::read(&mut read_byte)?.value1,
+            pulse_gap_duration: U16Pair::read(&mut read_byte)?.value1,
+            second_pulse_duration: U16Pair::read(&mut read_byte)?.value1,
+        })
+    }
+
+    fn is_corrupted(&mut self) -> bool {
+        // TODO
+        return false;
+    }
+}
+
+struct PulseMilliThresholds {
+    start_millis: u16,
+    current_millis: u16,
+    first_pulse_end_threshold: u16,
+    second_pulse_start_threshold: u16,
+}
+
+impl From<PulseData> for PulseMilliThresholds {
+    fn from(data: PulseData) -> Self {
+        let second_pulse_start_threshold = data.second_pulse_duration;
+        let first_pulse_end_threshold = second_pulse_start_threshold + data.pulse_gap_duration;
+        let start_millis = first_pulse_end_threshold + data.first_pulse_duration;
+        let current_millis = start_millis;
+
+        PulseMilliThresholds {
+            start_millis,
+            second_pulse_start_threshold,
+            first_pulse_end_threshold,
+            current_millis,
+        }
+    }
+}
+
+struct SpotWelderIO {
+    low_sound: PD3<Pwm<Timer2Pwm>>,
+    high_sound: PB2<Pwm<Timer1Pwm>>,
+    spot_welder: PB5<Output>,
+}
+
+impl SpotWelderIO {
+    fn initialise(
+        mut low_sound: PD3<Pwm<Timer2Pwm>>,
+        mut high_sound: PB2<Pwm<Timer1Pwm>>,
+        mut spot_welder: PB5<Output>,
+    ) -> Self {
+        low_sound.set_duty(127);
+        high_sound.set_duty(127);
+        low_sound.disable();
+        high_sound.disable();
+        spot_welder.set_low().void_unwrap();
+
+        SpotWelderIO {
+            low_sound,
+            high_sound,
+            spot_welder,
+        }
+    }
+
+    fn first_pulse_on(&mut self) {
+        self.spot_welder.set_high().void_unwrap();
+        self.low_sound.enable();
+    }
+
+    fn first_pulse_off(&mut self) {
+        self.spot_welder.set_low().void_unwrap();
+        self.low_sound.disable();
+    }
+
+    fn second_pulse_on(&mut self) {
+        self.spot_welder.set_high().void_unwrap();
+        self.high_sound.enable();
+    }
+
+    fn second_pulse_off(&mut self) {
+        self.spot_welder.set_low().void_unwrap();
+        self.high_sound.disable();
+    }
+}
+
+static SPOT_WELDER_IO_MUTEX: Mutex<RefCell<Option<SpotWelderIO>>> = Mutex::new(RefCell::new(None));
+
+const PULSE_MILLIS_THRESHOLDS_MUTEX: Mutex<RefCell<Option<PulseMilliThresholds>>> =
+    Mutex::new(RefCell::new(None));
+
+const TIMER_COUNTS: u32 = 125;
 
 fn read_u16<F, E>(mut read_byte: F) -> Result<u16, E>
 where
@@ -13,25 +129,20 @@ where
     let large_byte = (read_byte()? as u16) << 8;
     return Ok(large_byte | small_byte);
 }
-
 struct U16Pair {
     value1: u16,
     value2: u16,
 }
 
 impl U16Pair {
-    fn new(value1: u16, value2: u16) -> U16Pair {
-        U16Pair { value1, value2 }
-    }
-
     fn read<F, E>(mut read_byte: F) -> Result<U16Pair, E>
     where
         F: FnMut() -> Result<u8, E>,
     {
-      Ok(U16Pair::new(
-        read_u16(&mut read_byte)?,
-          read_u16(&mut read_byte)?,
-      ))
+        Ok(U16Pair {
+            value1: read_u16(&mut read_byte)?,
+            value2: read_u16(&mut read_byte)?,
+        })
     }
 
     fn is_corrupted(&mut self) -> bool {
@@ -55,61 +166,112 @@ fn main() -> ! {
     let mut low_sound_timer = pwm::Timer2Pwm::new(peripherals.TC2, pwm::Prescaler::Prescale1024);
     let mut high_sound_timer = pwm::Timer1Pwm::new(peripherals.TC1, pwm::Prescaler::Prescale256);
 
-    let mut low_sound = pins.d3.into_output(&mut pins.ddr).into_pwm(&mut low_sound_timer);
-    let mut high_sound = pins.d10.into_output(&mut pins.ddr).into_pwm(&mut high_sound_timer);
-    low_sound.set_duty(127);
-    high_sound.set_duty(127);
-    low_sound.disable();
-    high_sound.disable();
+    let low_sound = pins
+        .d3
+        .into_output(&mut pins.ddr)
+        .into_pwm(&mut low_sound_timer);
+    let high_sound = pins
+        .d10
+        .into_output(&mut pins.ddr)
+        .into_pwm(&mut high_sound_timer);
 
-    let mut welder = pins.d13.into_output(&mut pins.ddr);
-    welder.set_low().void_unwrap();
+    let spot_welder = pins.d13.into_output(&mut pins.ddr);
+
+    let mut spot_welder_io = SpotWelderIO::initialise(low_sound, high_sound, spot_welder);
+
+    /*avr_device::interrupt::free(|cs| {
+        SPOT_WELDER_IO_MUTEX
+            .borrow(cs)
+            .replace(Some(spot_welder_io));
+    });
+
+    peripherals.TC0.tccr0a.write(|w| w.wgm0().ctc());
+    peripherals
+        .TC0
+        .ocr0a
+        .write(|w| unsafe { w.bits(TIMER_COUNTS as u8) });
+    peripherals.TC0.tccr0b.write(|w| w.cs0().prescale_1024());
+    peripherals.TC0.timsk0.write(|w| w.ocie0a().set_bit());
+
+    unsafe { avr_device::interrupt::enable() };*/
 
     //let mut sound = pins.d9.into_output(&mut pins.ddr);
     loop {
-        let mut first_pulse_duration = U16Pair::read(|| Ok(serial.read_byte())).void_unwrap();
-        let mut pulse_gap_duration = U16Pair::read(|| Ok(serial.read_byte())).void_unwrap();
-        let mut second_pulse_duration = U16Pair::read(|| Ok(serial.read_byte())).void_unwrap();
+        let mut pulse_data = PulseData::read(|| Ok(serial.read_byte())).void_unwrap();
 
         // Just wanna make sure it doens't turn on if something weird happens (like a freak short or something?) dunno if it's really necessary
-        if first_pulse_duration.is_corrupted()
-            || pulse_gap_duration.is_corrupted()
-            || second_pulse_duration.is_corrupted()
-        {
-          serial.write_byte(1);
+        if pulse_data.is_corrupted() {
+            serial.write_byte(1);
             continue;
         }
 
-        if first_pulse_duration.value1 > 300 {
-          serial.write_byte(2);
+        if pulse_data.first_pulse_duration > 300 {
+            serial.write_byte(2);
             continue;
         }
 
-        if pulse_gap_duration.value1 > 20000 {
-          serial.write_byte(3);
+        if pulse_data.pulse_gap_duration > 20000 {
+            serial.write_byte(3);
             continue;
         }
 
-        if second_pulse_duration.value1 > 300 {
-          serial.write_byte(4);
+        if pulse_data.second_pulse_duration > 300 {
+            serial.write_byte(4);
             continue;
         }
 
-        low_sound.enable();
-        welder.set_high().void_unwrap();
-        arduino_uno::delay_ms(first_pulse_duration.value1);
+        let mut thresholds = PulseMilliThresholds::from(pulse_data);
+        spot_welder_io.first_pulse_on();
+        arduino_uno::delay_ms(thresholds.current_millis - thresholds.first_pulse_end_threshold);
 
-        welder.set_low().void_unwrap();
-        low_sound.disable();
-        arduino_uno::delay_ms(pulse_gap_duration.value1);
+        spot_welder_io.first_pulse_off();
+        thresholds.current_millis -= thresholds.current_millis - thresholds.first_pulse_end_threshold;
+        arduino_uno::delay_ms(thresholds.current_millis - thresholds.second_pulse_start_threshold);
 
-        high_sound.enable();
-        welder.set_high().void_unwrap();
-        arduino_uno::delay_ms(second_pulse_duration.value1);
+        spot_welder_io.second_pulse_on();
+        thresholds.current_millis -= thresholds.current_millis - thresholds.second_pulse_start_threshold;
+        arduino_uno::delay_ms(thresholds.current_millis);
 
-        welder.set_low().void_unwrap();
-        high_sound.disable();
-
+        spot_welder_io.second_pulse_off();
+        /*avr_device::interrupt::free(|cs| {
+            PULSE_MILLIS_THRESHOLDS_MUTEX
+                .borrow(cs)
+                .replace(Some(thresholds));
+        });*/
         serial.write_byte(0);
     }
 }
+
+/*#[avr_device::interrupt(atmega328p)]
+fn TIMER0_COMPA() {
+    avr_device::interrupt::free(|cs| {
+        if let Some(ref mut threshold_data) = PULSE_MILLIS_THRESHOLDS_MUTEX
+            .borrow(cs)
+            .borrow_mut()
+            .deref_mut()
+        {
+            if let Some(ref mut spot_welder_io) =
+                SPOT_WELDER_IO_MUTEX.borrow(cs).borrow_mut().deref_mut()
+            {
+                spot_welder_io.second_pulse_on();
+                if threshold_data.current_millis > 0 {
+                    match threshold_data.current_millis {
+                        millis if millis == threshold_data.start_millis => {
+                            spot_welder_io.first_pulse_on()
+                        }
+                        millis if millis == threshold_data.first_pulse_end_threshold => {
+                            spot_welder_io.first_pulse_off()
+                        }
+                        millis if millis == threshold_data.second_pulse_start_threshold => {
+                            spot_welder_io.second_pulse_on()
+                        }
+                        millis if millis == 1 => spot_welder_io.second_pulse_off(),
+                        _ => (),
+                    };
+
+                    threshold_data.current_millis -= 1;
+                }
+            }
+        }
+    });
+}*/
