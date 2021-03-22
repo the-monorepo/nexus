@@ -114,12 +114,16 @@ impl SpotWelderIO {
     }
 }
 
-static SPOT_WELDER_IO_MUTEX: Mutex<RefCell<Option<SpotWelderIO>>> = Mutex::new(RefCell::new(None));
+struct SpotWeldInterruptData {
+    spot_welder_io_cell: RefCell<Option<SpotWelderIO>>,
+    pulse_millis_thresholds_cell: RefCell<Option<PulseMilliThresholds>>,
+}
+static SPOT_WELDER_MUTEX: Mutex<SpotWeldInterruptData> = Mutex::new(SpotWeldInterruptData {
+    spot_welder_io_cell: RefCell::new(None),
+    pulse_millis_thresholds_cell: RefCell::new(None),
+});
 
-const PULSE_MILLIS_THRESHOLDS_MUTEX: Mutex<RefCell<Option<PulseMilliThresholds>>> =
-    Mutex::new(RefCell::new(None));
-
-const TIMER_COUNTS: u32 = 125;
+const TIMER_COUNTS: u32 = 250;
 
 fn read_u16<F, E>(mut read_byte: F) -> Result<u16, E>
 where
@@ -177,12 +181,10 @@ fn main() -> ! {
 
     let spot_welder = pins.d13.into_output(&mut pins.ddr);
 
-    let mut spot_welder_io = SpotWelderIO::initialise(low_sound, high_sound, spot_welder);
+    let spot_welder_io = SpotWelderIO::initialise(low_sound, high_sound, spot_welder);
 
-    /*avr_device::interrupt::free(|cs| {
-        SPOT_WELDER_IO_MUTEX
-            .borrow(cs)
-            .replace(Some(spot_welder_io));
+    avr_device::interrupt::free(|cs| {
+        SPOT_WELDER_MUTEX.borrow(cs).spot_welder_io_cell.replace(Some(spot_welder_io));
     });
 
     peripherals.TC0.tccr0a.write(|w| w.wgm0().ctc());
@@ -190,12 +192,11 @@ fn main() -> ! {
         .TC0
         .ocr0a
         .write(|w| unsafe { w.bits(TIMER_COUNTS as u8) });
-    peripherals.TC0.tccr0b.write(|w| w.cs0().prescale_1024());
+    peripherals.TC0.tccr0b.write(|w| w.cs0().prescale_64());
     peripherals.TC0.timsk0.write(|w| w.ocie0a().set_bit());
 
-    unsafe { avr_device::interrupt::enable() };*/
+    unsafe { avr_device::interrupt::enable() };
 
-    //let mut sound = pins.d9.into_output(&mut pins.ddr);
     loop {
         let mut pulse_data = PulseData::read(|| Ok(serial.read_byte())).void_unwrap();
 
@@ -220,40 +221,23 @@ fn main() -> ! {
             continue;
         }
 
-        let mut thresholds = PulseMilliThresholds::from(pulse_data);
-        spot_welder_io.first_pulse_on();
-        arduino_uno::delay_ms(thresholds.current_millis - thresholds.first_pulse_end_threshold);
-
-        spot_welder_io.first_pulse_off();
-        thresholds.current_millis -= thresholds.current_millis - thresholds.first_pulse_end_threshold;
-        arduino_uno::delay_ms(thresholds.current_millis - thresholds.second_pulse_start_threshold);
-
-        spot_welder_io.second_pulse_on();
-        thresholds.current_millis -= thresholds.current_millis - thresholds.second_pulse_start_threshold;
-        arduino_uno::delay_ms(thresholds.current_millis);
-
-        spot_welder_io.second_pulse_off();
-        /*avr_device::interrupt::free(|cs| {
-            PULSE_MILLIS_THRESHOLDS_MUTEX
-                .borrow(cs)
-                .replace(Some(thresholds));
-        });*/
+        let thresholds = PulseMilliThresholds::from(pulse_data);
+        avr_device::interrupt::free(|cs| {
+          SPOT_WELDER_MUTEX.borrow(cs)
+            .pulse_millis_thresholds_cell
+            .replace(Some(thresholds));
+        });
         serial.write_byte(0);
     }
 }
 
-/*#[avr_device::interrupt(atmega328p)]
+#[avr_device::interrupt(atmega328p)]
 fn TIMER0_COMPA() {
     avr_device::interrupt::free(|cs| {
-        if let Some(ref mut threshold_data) = PULSE_MILLIS_THRESHOLDS_MUTEX
-            .borrow(cs)
-            .borrow_mut()
-            .deref_mut()
-        {
-            if let Some(ref mut spot_welder_io) =
-                SPOT_WELDER_IO_MUTEX.borrow(cs).borrow_mut().deref_mut()
-            {
-                spot_welder_io.second_pulse_on();
+        let mutex_data = SPOT_WELDER_MUTEX.borrow(cs);
+
+        if let Some(ref mut threshold_data) = mutex_data.pulse_millis_thresholds_cell.borrow_mut().deref_mut() {
+            if let Some(ref mut spot_welder_io) = mutex_data.spot_welder_io_cell.borrow_mut().deref_mut() {
                 if threshold_data.current_millis > 0 {
                     match threshold_data.current_millis {
                         millis if millis == threshold_data.start_millis => {
@@ -274,4 +258,4 @@ fn TIMER0_COMPA() {
             }
         }
     });
-}*/
+}
