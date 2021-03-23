@@ -4,7 +4,6 @@
 mod pulse_data;
 use arduino_uno::{
     hal::port::portb::{PB2, PB5},
-    pac::TC0,
     pwm::{self, Timer1Pwm},
 };
 use arduino_uno::{
@@ -79,17 +78,8 @@ impl SpotWelderManager {
         }
     }
 
-    fn initialize(&mut self, ref tc0: TC0, spot_welder_io: SpotWelderIO) {
-        const TIMER_COUNTS: u32 = 250;
-
-        tc0.tccr0a.write(|w| w.wgm0().ctc());
-        tc0.ocr0a.write(|w| unsafe { w.bits(TIMER_COUNTS as u8) });
-        tc0.tccr0b.write(|w| w.cs0().prescale_64());
-        tc0.timsk0.write(|w| w.ocie0a().set_bit());
-
-        self.spot_welder_io.replace(Some(spot_welder_io));
-
-        unsafe { avr_device::interrupt::enable() };
+    fn initialize(&mut self, spot_welder_io: SpotWelderIO) {
+      self.spot_welder_io.replace(Some(spot_welder_io));
     }
 
     fn execute(&mut self, pulse_data: PulseData) {
@@ -147,17 +137,49 @@ fn main() -> ! {
 
     let spot_welder = pins.d13.into_output(&mut pins.ddr);
 
-    let spot_welder_io = SpotWelderIO::initialise(low_sound, high_sound, spot_welder);
+    let mut spot_welder_io = SpotWelderIO::initialise(low_sound, high_sound, spot_welder);
 
-    let tc0 = peripherals.TC0;
-    avr_device::interrupt::free(move |cs| {
-        SPOT_WELDER_MANAGER_MUTEX
-            .borrow(cs)
-            .borrow_mut()
-            .deref_mut()
-            .initialize(tc0, spot_welder_io);
+    avr_device::interrupt::free(|cs| {
+      SPOT_WELDER_MANAGER_MUTEX
+          .borrow(cs)
+          .borrow_mut()
+          .deref_mut()
+          .initialize(spot_welder_io);
     });
 
+    const TIMER_COUNTS: u32 = 250;
+
+    peripherals.TC0.tccr0a.write(|w| w.wgm0().ctc());
+    peripherals.TC0.ocr0a.write(|w| unsafe { w.bits(TIMER_COUNTS as u8) });
+    peripherals.TC0.tccr0b.write(|w| w.cs0().prescale_64());
+    peripherals.TC0.timsk0.write(|w| w.ocie0a().set_bit());
+
+    unsafe { avr_device::interrupt::enable() };
+
+
+    avr_device::interrupt::free(|cs| {
+      SPOT_WELDER_MANAGER_MUTEX
+          .borrow(cs)
+          .borrow_mut()
+          .deref_mut()
+          .execute(PulseData {
+            first_pulse_duration: 100,
+            pulse_gap_duration: 100,
+            second_pulse_duration: 100
+          });
+    });
+
+    avr_device::interrupt::free(|cs| {
+      SPOT_WELDER_MANAGER_MUTEX
+          .borrow(cs)
+          .borrow_mut()
+          .deref_mut()
+          .execute(PulseData {
+            first_pulse_duration: 100,
+            pulse_gap_duration: 100,
+            second_pulse_duration: 100
+          });
+    });
     loop {
         let pulse_data_response = PulseData::read(|| serial.read_byte());
         let pulse_data = match pulse_data_response {
@@ -182,14 +204,14 @@ fn main() -> ! {
             serial.write_byte(4);
             continue;
         }
-        avr_device::interrupt::free(|cs| {
-            SPOT_WELDER_MANAGER_MUTEX
-                .borrow(cs)
-                .borrow_mut()
-                .deref_mut()
-                .execute(pulse_data);
-        });
 
+        avr_device::interrupt::free(|cs| {
+          SPOT_WELDER_MANAGER_MUTEX
+              .borrow(cs)
+              .borrow_mut()
+              .deref_mut()
+              .execute(pulse_data);
+        });
         serial.write_byte(0);
     }
 }
