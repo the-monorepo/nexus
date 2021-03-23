@@ -67,15 +67,15 @@ impl SpotWelderIO {
 }
 
 struct SpotWelderManager {
-    spot_welder_io: Option<SpotWelderIO>,
-    pulse_millis_thresholds: Option<PulseMilliThresholds>,
+    spot_welder_io: RefCell<Option<SpotWelderIO>>,
+    pulse_millis_thresholds: RefCell<Option<PulseMilliThresholds>>,
 }
 
 impl SpotWelderManager {
     const fn new() -> Self {
         SpotWelderManager {
-            spot_welder_io: None,
-            pulse_millis_thresholds: None,
+            spot_welder_io: RefCell::new(None),
+            pulse_millis_thresholds: RefCell::new(None),
         }
     }
 
@@ -87,19 +87,19 @@ impl SpotWelderManager {
         tc0.tccr0b.write(|w| w.cs0().prescale_64());
         tc0.timsk0.write(|w| w.ocie0a().set_bit());
 
-        self.spot_welder_io = Some(spot_welder_io);
+        self.spot_welder_io.replace(Some(spot_welder_io));
 
         unsafe { avr_device::interrupt::enable() };
     }
 
     fn execute(&mut self, pulse_data: PulseData) {
         let thresholds = PulseMilliThresholds::from(pulse_data);
-        self.pulse_millis_thresholds = Some(thresholds);
+        self.pulse_millis_thresholds.replace(Some(thresholds));
     }
 
     fn interrupt(&mut self) {
-        if let Some(ref mut threshold_data) = self.pulse_millis_thresholds {
-            if let Some(ref mut spot_welder_io) = self.spot_welder_io {
+        if let Some(ref mut threshold_data) = self.pulse_millis_thresholds.borrow_mut().deref_mut() {
+            if let Some(ref mut spot_welder_io) = self.spot_welder_io.borrow_mut().deref_mut() {
                 let current_millis = threshold_data.current_millis;
 
                 threshold_data.current_millis -= 1;
