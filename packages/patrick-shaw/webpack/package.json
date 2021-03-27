@@ -16,13 +16,13 @@
     "esm"
   ],
   "exports": {
-    "import": {
-      ".": "./esm/index.js",
-      "./webpack": "webpack"
+    ".": {
+      "import": "./esm/index.js",
+      "node": "./commonjs/index.js"
     },
-    "require": {
-      ".": "./commonjs/index.js",
-      "./webpack": "webpack"
+    "./webpack": {
+      "import": "./common/webpack.js",
+      "node": "./commonjs/webpack.js"
     }
   },
   "license": "MIT",
