@@ -1,4 +1,7 @@
-const callbackToAsyncIterable = <I extends any[]>() => {
+export interface CallbackManager<T extends any[]> extends AsyncIterable<T> {
+  callback(...args: T): any;
+}
+const callbackToAsyncIterable = <I extends any[]>(): CallbackManager<I> => {
   const waitingQueue: Map<any, ((input: I) => any)[]> = new Map();
 
   const callback = (...args: I) => {

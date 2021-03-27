@@ -81,24 +81,34 @@ export type RangeSliderProps = {
   min: number;
   max: number;
   step: number;
-  currentDuration: AsyncIterable<number>;
 };
 
-export const RangeSlider = ({
-  children,
-  currentDuration,
-  ...other
-}: RangeSliderProps) => (
-  <>
-    <label class={styles.locals.rangeLabel}>
-      {children}
-      <div class={styles.locals.inputContainer}>
-        <input type="range" class={styles.locals.rangeInput} {...other} />
-        <span watch_$textContent={currentDuration} />
-      </div>
-    </label>
-  </>
-);
+export type RangeSliderInput = {
+  defaultValue: number;
+};
+export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
+  const durationState = callbackGenerator<[Event]>();
+
+
+  const durations = withDefault(eventsToValue(durationState), defaultValue);
+
+  const RangeSlider = ({
+    children,
+    ...other
+  }: RangeSliderProps) => (
+    <>
+      <label class={styles.locals.rangeLabel}>
+        {children}
+        <div class={styles.locals.inputContainer}>
+          <input type="range" class={styles.locals.rangeInput} $$input={durationState.callback} value={defaultValue} {...other} />
+          <span watch_$textContent={durations} />
+        </div>
+      </label>
+    </>
+  );
+
+  return [RangeSlider, durationState];
+};
 
 async function* eventsToValueByName(events: AsyncIterable<Event>, name: string) {
   for await (const [e] of events) {
@@ -108,6 +118,12 @@ async function* eventsToValueByName(events: AsyncIterable<Event>, name: string) 
   }
 }
 
+async function* eventsToValue(events: AsyncIterable<Event>) {
+  for await (const [e] of events) {
+    yield e.target.value;
+  }
+};
+
 // TODO: If state was scoped to RangeSlider, woudln't need this
 async function* withDefault(iterable: AsyncIterable<T>, defaultValue: T) {
   yield defaultValue;
@@ -116,27 +132,11 @@ async function* withDefault(iterable: AsyncIterable<T>, defaultValue: T) {
 
 const formInputs = callbackGenerator<[Event]>();
 
-const FIRST_PULSE_DURATION_DEFAULT = 60;
 const FIRST_PULSE_DURATION_NAME = 'firstPulseDuration';
 
-const PULSE_GAP_DURATION_DEFAULT = 30;
 const PULSE_GAP_DURATION_NAME = 'pulseGapDuration';
 
-const SECOND_PULSE_DURATION_DEFAULT = 120;
 const SECOND_PULSE_DURATION_NAME = 'secondPulseDuration';
-
-const firstPulseDurations = withDefault(
-  eventsToValueByName(formInputs, FIRST_PULSE_DURATION_NAME),
-  FIRST_PULSE_DURATION_DEFAULT,
-);
-const pulseGapDurations = withDefault(
-  eventsToValueByName(formInputs, PULSE_GAP_DURATION_NAME),
-  PULSE_GAP_DURATION_DEFAULT,
-);
-const secondPulseDurations = withDefault(
-  eventsToValueByName(formInputs, SECOND_PULSE_DURATION_NAME),
-  SECOND_PULSE_DURATION_DEFAULT,
-);
 
 const submissions = callbackGenerator<[Event]>();
 (async () => {
@@ -183,6 +183,10 @@ const submissions = callbackGenerator<[Event]>();
   }
 })();
 
+const [FirstPulseSlider, firstPulseDurations] = createRangeSlider({ defaultValue: 60 });
+const [PulseGapSlider, pulseGapDurations] = createRangeSlider({ defaultValue: 30 });
+const [SecondPulseSlider, secondPulseDurations] = createRangeSlider({ defaultValue: 120 });
+
 const App = () => (
   <>
     <style>{styles.toString()}</style>
@@ -193,33 +197,27 @@ const App = () => (
         class={styles.locals.form}
         $$input={formInputs.callback}
       >
-        <RangeSlider
+        <FirstPulseSlider
           name={FIRST_PULSE_DURATION_NAME}
           min={1}
-          value={FIRST_PULSE_DURATION_DEFAULT}
           max={300}
-          currentDuration={firstPulseDurations}
         >
           First pulse duration
-        </RangeSlider>
-        <RangeSlider
+        </FirstPulseSlider>
+        <PulseGapSlider
           name={PULSE_GAP_DURATION_NAME}
           min={1}
-          value={PULSE_GAP_DURATION_DEFAULT}
           max={1000}
-          currentDuration={pulseGapDurations}
         >
           Pulse gap duration
-        </RangeSlider>
-        <RangeSlider
+        </PulseGapSlider>
+        <SecondPulseSlider
           name={SECOND_PULSE_DURATION_NAME}
           min={1}
-          value={SECOND_PULSE_DURATION_DEFAULT}
           max={300}
-          currentDuration={secondPulseDurations}
         >
           Second pulse duration
-        </RangeSlider>
+        </SecondPulseSlider>
         <button type="submit" $disabled={transferring}>Fire</button>
         {transferring ? 'Transferring' : undefined}
       </form>
