@@ -58,7 +58,6 @@ impl PulseData {
 
 pub struct PulseMilliThresholds {
   pub start_millis: u16,
-  pub current_millis: u16,
   pub first_pulse_end_threshold: u16,
   pub second_pulse_start_threshold: u16,
 }
@@ -68,13 +67,11 @@ impl From<PulseData> for PulseMilliThresholds {
       let second_pulse_start_threshold = data.second_pulse_duration;
       let first_pulse_end_threshold = second_pulse_start_threshold + data.pulse_gap_duration;
       let start_millis = first_pulse_end_threshold + data.first_pulse_duration;
-      let current_millis = start_millis;
 
       PulseMilliThresholds {
           start_millis,
           second_pulse_start_threshold,
           first_pulse_end_threshold,
-          current_millis,
       }
   }
 }
