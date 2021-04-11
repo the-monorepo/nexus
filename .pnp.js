@@ -171,10 +171,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/fl-benchmarker/viewer-cli"
       },
       {
-        "name": "callback-to-async-iterable",
-        "reference": "workspace:packages/misc/callback-to-async-iterable"
-      },
-      {
         "name": "@pshaw/convict-util",
         "reference": "workspace:packages/misc/convict-util"
       },
@@ -337,6 +333,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       {
         "name": "@pshaw/webpack",
         "reference": "workspace:packages/patrick-shaw/webpack"
+      },
+      {
+        "name": "@pipelines/broadcaster",
+        "reference": "workspace:packages/pipelines/broadcaster"
+      },
+      {
+        "name": "@pipelines/callback-converter",
+        "reference": "workspace:packages/pipelines/callback-converter"
       },
       {
         "name": "@pipelines/babel-parse",
@@ -13996,6 +14000,26 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
+      ["@pipelines/broadcaster", [
+        ["workspace:packages/pipelines/broadcaster", {
+          "packageLocation": "./packages/pipelines/broadcaster/",
+          "packageDependencies": [
+            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
+            ["fs-extra", "npm:9.0.1"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pipelines/callback-converter", [
+        ["workspace:packages/pipelines/callback-converter", {
+          "packageLocation": "./packages/pipelines/callback-converter/",
+          "packageDependencies": [
+            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
+            ["fs-extra", "npm:9.0.1"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
       ["@pipelines/core", [
         ["workspace:packages/pipelines/pipelines-core", {
           "packageLocation": "./packages/pipelines/pipelines-core/",
@@ -14505,9 +14529,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@pshaw/spot-welder-app", "workspace:packages/patrick-shaw/spot-welder-app"],
             ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/contextual-documents-html-elements"],
+            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/contextual-documents"],
             ["@resultful/result", "workspace:packages/resultful/result"],
-            ["callback-to-async-iterable", "workspace:packages/misc/callback-to-async-iterable"],
             ["cinder", "workspace:packages/cinder/cinder"],
             ["classnames", "npm:2.2.6"],
             ["mobx", "npm:6.1.8"],
@@ -21306,16 +21330,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["call-me-maybe", "npm:1.0.1"]
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["callback-to-async-iterable", [
-        ["workspace:packages/misc/callback-to-async-iterable", {
-          "packageLocation": "./packages/misc/callback-to-async-iterable/",
-          "packageDependencies": [
-            ["callback-to-async-iterable", "workspace:packages/misc/callback-to-async-iterable"],
-            ["fs-extra", "npm:9.0.1"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["caller-callsite", [

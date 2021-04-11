@@ -5222,6 +5222,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@pipelines/broadcaster@workspace:packages/pipelines/broadcaster":
+  version: 0.0.0-use.local
+  resolution: "@pipelines/broadcaster@workspace:packages/pipelines/broadcaster"
+  dependencies:
+    fs-extra: ^9.0.1
+  languageName: unknown
+  linkType: soft
+
+"@pipelines/callback-converter@workspace:packages/pipelines/callback-converter":
+  version: 0.0.0-use.local
+  resolution: "@pipelines/callback-converter@workspace:packages/pipelines/callback-converter"
+  dependencies:
+    fs-extra: ^9.0.1
+  languageName: unknown
+  linkType: soft
+
 "@pipelines/core@workspace:packages/pipelines/pipelines-core":
   version: 0.0.0-use.local
   resolution: "@pipelines/core@workspace:packages/pipelines/pipelines-core"
@@ -5632,9 +5648,9 @@ __metadata:
   resolution: "@pshaw/spot-welder-app@workspace:packages/patrick-shaw/spot-welder-app"
   dependencies:
     "@contextual-documents/html-elements": "workspace:packages/contextual-documents/contextual-documents-html-elements"
+    "@pipelines/callback-converter": "workspace:packages/pipelines/callback-converter"
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/contextual-documents"
     "@resultful/result": "workspace:packages/resultful/result"
-    callback-to-async-iterable: "workspace:packages/misc/callback-to-async-iterable"
     cinder: "workspace:packages/cinder/cinder"
     classnames: ^2.2.6
     mobx: ^6.1.8
@@ -10067,14 +10083,6 @@ __metadata:
   checksum: 07e1afb493ed945c6b053940881d46ece2ab04e1862e7cd8c483e8651e9831a70b31098e6be321a897b7e702d34b6417301280efda98c5e663a608baaf95d2f4
   languageName: node
   linkType: hard
-
-"callback-to-async-iterable@workspace:packages/misc/callback-to-async-iterable":
-  version: 0.0.0-use.local
-  resolution: "callback-to-async-iterable@workspace:packages/misc/callback-to-async-iterable"
-  dependencies:
-    fs-extra: ^9.0.1
-  languageName: unknown
-  linkType: soft
 
 "caller-callsite@npm:^2.0.0":
   version: 2.0.0

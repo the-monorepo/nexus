@@ -1,5 +1,5 @@
 {
-  "name": "callback-to-async-iterable",
+  "name": "@pipelines/callback-converter",
   "description": "Convert callbacks to async generators",
   "private": true,
   "keywords": [
@@ -18,7 +18,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
-    "directory": "misc/callback-to-async-iterable"
+    "directory": "pipelines/callback-converter"
   },
   "publishConfig": {
     "access": "public"
