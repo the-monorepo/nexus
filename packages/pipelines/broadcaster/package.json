@@ -1,0 +1,31 @@
+{
+  "name": "@pipelines/broadcaster",
+  "description": "Clone an async iterable",
+  "private": true,
+  "keywords": [
+    "util"
+  ],
+  "version": "1.4.3",
+  "main": "./commonjs/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "pipelines/broadcaster"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "fs-extra": "^9.0.1"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}
