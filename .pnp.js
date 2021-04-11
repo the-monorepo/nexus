@@ -14529,6 +14529,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@pshaw/spot-welder-app", "workspace:packages/patrick-shaw/spot-welder-app"],
             ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/contextual-documents-html-elements"],
+            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
             ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/contextual-documents"],
             ["@resultful/result", "workspace:packages/resultful/result"],
