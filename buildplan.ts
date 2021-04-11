@@ -497,9 +497,17 @@ const getFaultLocalizationAddon = async () => {
 const testNoBuild = async () => {
   const runner = await import("@fault/runner");
   const flAddon = await getFaultLocalizationAddon();
+  const { default: minimist } = await import('minimist');
+
+  const args = minimist(process.argv.slice(3));
+
+  const {
+    _: paths,
+  } = args;
+
   const passed = await runner.run({
     tester: "@fault/tester-mocha",
-    testMatch: [
+    testMatch: paths.length >= 1 ? paths : [
       ...config.testableGlobs,
       ...config.testableIgnoreGlobs.map((glob) => `!${glob}`),
     ],
