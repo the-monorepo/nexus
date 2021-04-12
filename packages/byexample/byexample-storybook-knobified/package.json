@@ -3,7 +3,7 @@
   "description": "Automatically created knobbed versions of your stories based on value and prop types",
   "version": "1.0.0-alpha.6",
   "license": "MIT",
-  "main": "./commonjs/index.js",
+  "main": "./commonjs/index.ts",
   "types": "./src/index.ts",
   "devPackage": false,
   "publishConfig": {

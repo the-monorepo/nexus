@@ -17,11 +17,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./commonjs/index.js",
-  "module": "./esm/index.js",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
   "exports": {
-    "import": "./esm/index.js",
-    "require": "./commonjs/index.js"
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
   },
   "types": "./src/index.ts",
   "dependencies": {

@@ -12,8 +12,8 @@
   "version": "1.4.2",
   "license": "MIT",
   "types": "./src/index.ts",
-  "module": "./esm/index.js",
-  "main": "./commonjs/index.js",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
   "files": [
     "commonjs",
     "src",
