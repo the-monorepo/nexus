@@ -16,6 +16,7 @@
     "@resultful/result": "workspace:packages/resultful/result",
     "cinder": "workspace:packages/cinder/cinder",
     "classnames": "^2.2.6",
+    "core-js": "^3.10.1",
     "mobx": "^6.1.8",
     "unstyled": "workspace:packages/misc/unstyled"
   }
