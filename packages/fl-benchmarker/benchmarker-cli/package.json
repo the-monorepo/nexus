@@ -3,8 +3,8 @@
   "version": "1.0.0-alpha.1",
   "description": "Benchmark your fault localization techniques",
   "types": "./src/index.ts",
-  "module": "./esm/index.js",
-  "main": "./commonjs/index.js",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
   "scripts": {
     "start": "yarn node --max-old-space-size=4096 ./commonjs/index.js",
     "results": "yarn node ./commonjs/index.js",

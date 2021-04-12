@@ -7,7 +7,7 @@
     "schema",
     "util"
   ],
-  "main": "./commonjs/index.js",
+  "main": "./commonjs/index.ts",
   "module": "./src/index.js",
   "types": "./src/index.ts",
   "license": "MIT",

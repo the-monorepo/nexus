@@ -9,7 +9,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./commonjs/index.js",
+  "main": "./commonjs/index.ts",
   "types": "./src/index.ts",
   "devPackage": true,
   "dependencies": {
