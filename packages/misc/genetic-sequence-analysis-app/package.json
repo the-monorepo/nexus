@@ -27,6 +27,7 @@
   "dependencies": {
     "@polymer/paper-radio-button": "^3.0.1",
     "@types/jest": "^26.0.10",
+    "core-js": "^3.10.1",
     "fasta-format-parser": "workspace:packages/misc/fasta-format-parser",
     "replace-functions": "^4.0.0"
   },

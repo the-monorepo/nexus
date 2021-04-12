@@ -39,16 +39,16 @@
     "typescript"
   ],
   "devDependencies": {
-    "@babel/core": "^7.13.8",
+    "@babel/core": "^7.13.15",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "@babel/plugin-proposal-decorators": "^7.13.5",
-    "@babel/plugin-proposal-optional-chaining": "^7.13.8",
+    "@babel/plugin-proposal-decorators": "^7.13.15",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "@babel/plugin-proposal-pipeline-operator": "^7.12.13",
     "@babel/plugin-syntax-jsx": "^7.12.13",
     "@babel/plugin-transform-strict-mode": "^7.12.13",
-    "@babel/preset-env": "^7.13.9",
+    "@babel/preset-env": "^7.13.15",
     "@babel/preset-typescript": "^7.13.0",
-    "@babel/register": "^7.13.8",
+    "@babel/register": "^7.13.14",
     "@buildplan/core": "workspace:packages/buildplan/core",
     "@byexample/openapi": "workspace:packages/byexample/byexample-openapi",
     "@byexample/storybook-knobified": "workspace:packages/byexample/byexample-storybook-knobified",
@@ -115,8 +115,9 @@
     "hooks": {}
   },
   "dependencies": {
-    "@babel/preset-react": "^7.12.10",
+    "@babel/preset-react": "^7.13.13",
     "@resultful/utility-types": "workspace:packages/resultful/utility-types",
+    "core-js": "^3.10.1",
     "eslint-plugin-import": "^2.22.1"
   }
 }

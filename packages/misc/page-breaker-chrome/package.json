@@ -14,6 +14,7 @@
     "@types/chrome": "^0.0.122",
     "cinder": "workspace:packages/cinder/cinder",
     "classnames": "^2.2.6",
+    "core-js": "^3.10.1",
     "mobx": "^5.15.6",
     "paper-range-slider": "^3.0.0",
     "unstyled": "workspace:packages/misc/unstyled",

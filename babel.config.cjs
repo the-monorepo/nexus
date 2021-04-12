@@ -36,6 +36,8 @@ module.exports = (api) => {
         // TODO: Remove this in once Babel 8 is implemented
         bugfixes: true,
         modules: usingEsm ? false : 'commonjs',
+        useBuiltIns: 'usage',
+        corejs: '3',
         targets: {
           node: production ? '10' : 'current',
           esmodules: usingEsm,

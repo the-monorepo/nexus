@@ -18,6 +18,7 @@
     "@pshaw/logger": "workspace:packages/misc/logger",
     "@pshaw/resume-template": "workspace:packages/misc/resume-template",
     "cinder": "workspace:packages/cinder/cinder",
+    "core-js": "^3.10.1",
     "express": "^4.17.1",
     "puppeteer": "^5.2.1"
   }
