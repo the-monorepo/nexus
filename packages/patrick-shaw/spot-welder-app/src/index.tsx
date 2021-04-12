@@ -25,7 +25,7 @@ function storeLastValue<T>(asyncIterable: AsyncIterable<T>) {
     do {
       current = (await currentYield).value;
       currentYield = iterator.next();
-    } while(!currentYield.done)
+    } while (!currentYield.done);
   })();
 
   return async () => {
@@ -60,8 +60,6 @@ const createUSBConnectButton = ({ onDevice }) => {
 
   return USBConnectButton;
 };
-
-let transferring = false;
 
 const rawDevices = callbackBroadcasterConverter<[any]>();
 
@@ -116,25 +114,24 @@ const USBSelection = ({ device }) => {
 
 export type RangeSliderInput = {
   defaultValue: number;
-  name: string;
-  min: number;
-  max: number;
-  step: number;
 };
 
 export type RangeSliderProps = {
   children: any;
 };
 
-async function * stringsToIntegers(strings: AsyncIterable<string>) {
-  for await(const string of strings) {
-    yield Number.parseInt(string);
-  }
-}
 export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
   const durationState = callbackGenerator<[Event]>();
+  const durations = broadcaster(
+    withDefault(
+      map(durationState, ([e]) => {
+        e.preventDefault();
 
-  const durations = broadcaster(withDefault(stringsToIntegers(eventsToValue(durationState)), defaultValue));
+        return Number.parseInt(e.target.value);
+      }),
+      defaultValue,
+    ),
+  );
 
   const RangeSlider = ({ children, ...other }: RangeSliderProps) => (
     <label class={styles.locals.rangeLabel}>
@@ -155,63 +152,92 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
   return [RangeSlider, durations];
 };
 
-async function* eventsToValue(events: AsyncIterable<Event>) {
-  for await (const [e] of events) {
-    yield e.target.value;
+async function* withDefault(
+  iterable: AsyncIterable<T>,
+  defaultValue: T,
+): AsyncIterable<T> {
+  yield defaultValue;
+  yield* iterable;
+}
+
+async function* map<I, O>(iterable: AsyncIterable<I>, mapFn: (i: I) => O) {
+  for await (const i of iterable) {
+    yield await mapFn(i);
   }
 }
 
-async function* withDefault(iterable: AsyncIterable<T>, defaultValue: T): AsyncIterable<T> {
-  yield defaultValue;
-  yield * iterable;
-}
+const createSpotWelderForm = () => {
+  const [FirstPulseSlider, firstPulseDurations] = createRangeSlider({
+    defaultValue: 60,
+  });
+  const mostRecentFirstPulseDuration = storeLastValue(firstPulseDurations);
 
-const formInputs = callbackBroadcasterConverter<[Event]>();
+  const [PulseGapSlider, pulseGapDurations] = createRangeSlider({
+    defaultValue: 30,
+  });
+  const mostRecentPulseGapDuration = storeLastValue(pulseGapDurations);
 
-const [FirstPulseSlider, firstPulseDurations] = createRangeSlider({
-  defaultValue: 60,
-  min: 1,
-  max: 300,
-});
-const mostRecentFirstPulseDuration = storeLastValue(firstPulseDurations);
+  const [SecondPulseSlider, secondPulseDurations] = createRangeSlider({
+    defaultValue: 120,
+  });
+  const mostRecentSecondPulseDuration = storeLastValue(secondPulseDurations);
 
-const [PulseGapSlider, pulseGapDurations] = createRangeSlider({
-  defaultValue: 30,
-  min: 1,
-  max: 1000,
-});
-const mostRecentPulseGapDuration = storeLastValue(pulseGapDurations);
-
-const [SecondPulseSlider, secondPulseDurations] = createRangeSlider({
-  defaultValue: 120,
-  min: 1,
-  max: 300,
-});
-const mostRecentSecondPulseDuration = storeLastValue(secondPulseDurations);
-
-const submissions = callbackBroadcasterConverter<[Event]>();
-(async () => {
-  for await (const [e] of submissions) {
+  const submissions = callbackBroadcasterConverter<[Event]>();
+  const spotWelderTriggers = map(submissions, async ([e]) => {
     e.preventDefault();
 
+    const [
+      firstPulseDuration,
+      pulseGapDuration,
+      secondPulseDuration,
+    ] = await Promise.all([
+      mostRecentFirstPulseDuration(),
+      mostRecentPulseGapDuration(),
+      mostRecentSecondPulseDuration(),
+    ]);
+
+    console.log(firstPulseDuration, pulseGapDuration, secondPulseDuration);
+
+    return {
+      firstPulseDuration,
+      pulseGapDuration,
+      secondPulseDuration,
+    };
+  });
+
+  const Form = ({ disabled }) => (
+    <form $$submit={submissions.callback} class={styles.locals.form}>
+      <FirstPulseSlider min={1} max={300}>
+        First pulse duration
+      </FirstPulseSlider>
+      <PulseGapSlider min={1} max={1000}>
+        Pulse gap duration
+      </PulseGapSlider>
+      <SecondPulseSlider min={1} max={300}>
+        Second pulse duration
+      </SecondPulseSlider>
+      <button type="submit" $disabled={disabled}>
+        Fire
+      </button>
+    </form>
+  );
+
+  return [Form, spotWelderTriggers];
+};
+
+const [Form, spotWelderTriggers] = createSpotWelderForm();
+
+let transferring = false;
+(async () => {
+  for await (const {
+    firstPulseDuration,
+    pulseGapDuration,
+    secondPulseDuration,
+  } of spotWelderTriggers) {
     transferring = true;
     rerender();
 
     try {
-      const formData = new FormData(e.target);
-
-      const [
-        firstPulseDuration,
-        pulseGapDuration,
-        secondPulseDuration,
-      ] = await Promise.all([
-        mostRecentFirstPulseDuration(),
-        mostRecentPulseGapDuration(),
-        mostRecentSecondPulseDuration(),
-      ]);
-
-      console.log(firstPulseDuration, pulseGapDuration, secondPulseDuration)
-
       const transferOutDataView = new DataView(new ArrayBuffer(12));
       transferOutDataView.setUint16(0, firstPulseDuration, true);
       transferOutDataView.setUint16(2, firstPulseDuration, true);
@@ -247,19 +273,8 @@ const App = () => (
       <USBSelection device={selectedDevice} />
       <ConnectButton />
       {selectedDevice === null ? <DisconnectButton /> : null}
-      <form
-        $$submit={submissions.callback}
-        class={styles.locals.form}
-        $$input={formInputs.callback}
-      >
-        <FirstPulseSlider>First pulse duration</FirstPulseSlider>
-        <PulseGapSlider>Pulse gap duration</PulseGapSlider>
-        <SecondPulseSlider>Second pulse duration</SecondPulseSlider>
-        <button type="submit" $disabled={transferring}>
-          Fire
-        </button>
-        {transferring ? 'Transferring' : undefined}
-      </form>
+      <Form disabled={transferring} />
+      {transferring ? 'Transferring' : undefined}
     </main>
   </>
 );
