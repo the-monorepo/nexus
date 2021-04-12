@@ -3,12 +3,12 @@
   "version": "1.0.0-alpha.1",
   "description": "Programatic API for Buildplan",
   "types": "./src/index.ts",
-  "module": "./esm/index.js",
-  "main": "./commonjs/index.js",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
   "exports": {
     "monorepo-original": "./src/index.ts",
-    "import": "./esm/index.js",
-    "require": "./commonjs/index.js"
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
   },
   "files": [
     "bin",

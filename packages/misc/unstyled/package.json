@@ -17,7 +17,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./commonjs/index.js",
-  "module": "./esm/index.js",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }
