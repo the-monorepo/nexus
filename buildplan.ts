@@ -212,7 +212,9 @@ const transpilePipes = async (
   chalkFn
 ) => {
   const sourcemaps = await import("gulp-sourcemaps");
-  const { default: babel } = await import("gulp-babel");
+  const { transformAsync: bableTransform } = await import('@babel/core');
+  const { default: applySourceMap } = await import('vinyl-sourcemaps-apply');
+
   const l = logger.child(chalk.blueBright("transpile"), chalkFn(logName));
   const renamePath = createSrcDirSwapper(dir);
 
@@ -220,13 +222,28 @@ const transpilePipes = async (
     .pipe(gulpPlumber({ errorHandler: (err) => l.exception(err) }))
     .pipe(
       changed(".", {
-        extension: ".js",
         transformPath: renamePath,
       })
     )
     .pipe(simplePipeLogger(l))
     .pipe(sourcemaps.init())
-    .pipe(babel(babelOptions))
+    .pipe(through.obj(async function (file, _, done) {
+      // Copied from https://github.com/babel/gulp-babel/blob/master/index.js
+      const { code, map } = await bableTransform(file.contents.toString(), {
+        ...babelOptions,
+        filename: file.path,
+        filenameRelative: file.relative,
+        sourceMap: Boolean(file.sourceMap),
+        sourceFileName: file.relative,
+      });
+
+      file.contents = Buffer.from(code);
+
+      map.file = file.relative;
+      applySourceMap(file, map);
+
+      done(null, file);
+    }))
     .pipe(
       rename((filePath) => {
         filePath.dirname = renamePath(filePath.dirname);

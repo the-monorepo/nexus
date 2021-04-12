@@ -3,8 +3,8 @@
   "description": "Stub all functions inside an arrays, objects and classes with sinon",
   "version": "4.0.1-0",
   "types": "./src/index.ts",
-  "module": "./esm/index.js",
-  "main": "./commonjs/index.js",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
   "files": [
     "commonjs",
     "src",

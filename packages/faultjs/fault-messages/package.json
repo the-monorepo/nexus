@@ -3,8 +3,8 @@
   "version": "1.0.0-alpha.1",
   "description": "Helper methods for easier communication between the main @fault/runner process and its workers",
   "types": "./src/index.ts",
-  "module": "./esm/index.js",
-  "main": "./commonjs/index.js",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
   "files": [
     "commonjs",
     "src",

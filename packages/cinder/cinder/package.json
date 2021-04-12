@@ -18,8 +18,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./commonjs/index.js",
-  "module": "./esm/index.js",
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
   "exports": {
     "monorepo-original": {
       ".": "./src/index.ts",

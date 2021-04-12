@@ -3,8 +3,8 @@
   "description": "Mock all functions inside an array or object literal",
   "version": "4.0.0",
   "types": "./src/index.ts",
-  "module": "./esm/index.js",
-  "main": "./commonjs/index.js",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
   "files": [
     "commonjs",
     "src",
