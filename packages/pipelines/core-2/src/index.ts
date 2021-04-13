@@ -19,6 +19,16 @@ export async function* of<T extends any[]>(values: T[]) {
   yield* values;
 }
 
+export const find = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>): Promise<T | undefined> => {
+  for await(const i of iterable) {
+    if (await finder(i)) {
+      return i;
+    }
+  }
+
+  return undefined;
+};
+
 export const forEach = async <I>(iterable: AsyncIterable<I>, callback: (current: I) => any) => {
   for await(const i of iterable) {
     await callback(i);
