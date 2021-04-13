@@ -87,6 +87,18 @@ export async function* fill<T>(iterable: AsyncIterable<T>, value: T, start: numb
   }
 }
 
+export const lastIndexOf = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>) => {
+  let index = 0;
+  for await(const i of iterable) {
+    if (await finder(i)) {
+      return index;
+    }
+    index++;
+  }
+
+  return -1;
+}
+
 export const find = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>): Promise<T | undefined> => {
   for await(const i of iterable) {
     if (await finder(i)) {
