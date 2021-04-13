@@ -19,6 +19,18 @@ export async function* of<T extends any[]>(values: T[]) {
   yield* values;
 }
 
+export type RecursiveAsyncIterable<T> = AsyncIterable<RecursiveAsyncIterable<T>> | T;
+
+export async function* flat<A>(iterable: RecursiveAsyncIterable<A>, depth?: number): RecursiveAsyncIterable<A> {
+  for await (const current of iterable) {
+    if (current[Symbol.asyncIterator] !== undefined) {
+      yield *flat(current as AsyncIterable<A>, depth !== undefined ? depth - 1 : undefined);
+    } else {
+      yield current;
+    }
+  }
+}
+
 export async function* slice<T>(iterable: AsyncIterable<T>, start: number = 0, end?: number) {
   const iterator = iterable[Symbol.asyncIterator]();
   for (let i = 0; i < start; i++) {
