@@ -19,6 +19,37 @@ export async function* of<T extends any[]>(values: T[]) {
   yield* values;
 }
 
+export async function* fill<T>(iterable: AsyncIterable<T>, value: T, start: number = 0, end?: number) {
+  const iterator = iterable[Symbol.asyncIterator]();
+  for (let i = 0; i < start; i++) {
+    const result = await iterator.next();
+    if (result.done) {
+      return;
+    }
+
+    yield result.value;
+  }
+
+  if (end === undefined) {
+    for (let i = await iterator.next(); i.done; i = await iterator.next()) {
+      yield value;
+    }
+  } else {
+    for (let i = start; i < end; i++) {
+      const result = await iterator.next();
+      if (result.done) {
+        return;
+      }
+
+      yield value;
+    }
+
+    for (let i = await iterator.next(); i.done; i = await iterator.next()) {
+      yield i.value;
+    }
+  }
+}
+
 export const find = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>): Promise<T | undefined> => {
   for await(const i of iterable) {
     if (await finder(i)) {
@@ -47,10 +78,9 @@ export const reduce = async <I>(iterable: AsyncIterable<I>, reducer: (current: I
     }
   })();
 
-  let i = await iterator.next();
-  do {
-    current = await reducer(current, i.value);
-  } while(i.done)
+  for (let i = await iterator.next(); i.done; i = await iterator.next()) {
+    current = i.value;
+  }
 
   return current;
 };
