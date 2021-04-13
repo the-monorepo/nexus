@@ -15,6 +15,16 @@ export const zip = <T extends any[]>(...iterables: AsyncIterable<T>[]): AsyncIte
   return converter;
 };
 
+export async function* of<T extends any[]>(values: T[]) {
+  yield* values;
+}
+
+export async function* concat<T>(...iterables: AsyncIterable<T>[]) {
+  for (const iterable of iterables) {
+    yield* iterable;
+  }
+}
+
 export async function* filter<T>(iterable: AsyncIterable<T>, filter: (item: T) => boolean) {
   for await (const value of iterable) {
     if (filter(value)) {
