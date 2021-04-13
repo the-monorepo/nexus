@@ -19,6 +19,31 @@ export async function* of<T extends any[]>(values: T[]) {
   yield* values;
 }
 
+export async function* slice<T>(iterable: AsyncIterable<T>, start: number = 0, end?: number) {
+  const iterator = iterable[Symbol.asyncIterator]();
+  for (let i = 0; i < start; i++) {
+    const result = await iterator.next();
+    if (result.done) {
+      return;
+    }
+  }
+
+  if (end !== undefined) {
+    for (let i = start; i < end; i++) {
+      const result = await iterator.next();
+      if (result.done) {
+        return;
+      }
+
+      yield result.value;
+    }
+  } else {
+    for (let i = await iterator.next(); i.done; i = await iterator.next()) {
+      yield i.value;
+    }
+  }
+}
+
 export async function* fill<T>(iterable: AsyncIterable<T>, value: T, start: number = 0, end?: number) {
   const iterator = iterable[Symbol.asyncIterator]();
   for (let i = 0; i < start; i++) {
