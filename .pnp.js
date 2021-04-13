@@ -343,6 +343,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/pipelines/callback-converter"
       },
       {
+        "name": "@pipelines/core-2",
+        "reference": "workspace:packages/pipelines/core-2"
+      },
+      {
+        "name": "@pipelines/map",
+        "reference": "workspace:packages/pipelines/map"
+      },
+      {
         "name": "@pipelines/babel-parse",
         "reference": "workspace:packages/pipelines/pipelines-babel-parse"
       },
@@ -11114,6 +11122,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/pipelines/callback-converter/",
           "packageDependencies": [
             ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
+            ["@pipelines/map", "workspace:packages/pipelines/map"],
             ["fs-extra", "npm:9.0.1"]
           ],
           "linkType": "SOFT",
@@ -11124,6 +11133,33 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/pipelines/pipelines-core/",
           "packageDependencies": [
             ["@pipelines/core", "workspace:packages/pipelines/pipelines-core"],
+            ["@types/node", "npm:14.6.0"],
+            ["web-streams-polyfill", "npm:3.0.0"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pipelines/core-2", [
+        ["workspace:packages/pipelines/core-2", {
+          "packageLocation": "./packages/pipelines/core-2/",
+          "packageDependencies": [
+            ["@pipelines/core-2", "workspace:packages/pipelines/core-2"],
+            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
+            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
+            ["@pipelines/map", "workspace:packages/pipelines/map"],
+            ["@types/node", "npm:14.6.0"],
+            ["web-streams-polyfill", "npm:3.0.0"]
+          ],
+          "linkType": "SOFT",
+        }]
+      ]],
+      ["@pipelines/map", [
+        ["workspace:packages/pipelines/map", {
+          "packageLocation": "./packages/pipelines/map/",
+          "packageDependencies": [
+            ["@pipelines/map", "workspace:packages/pipelines/map"],
+            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
+            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
             ["@types/node", "npm:14.6.0"],
             ["web-streams-polyfill", "npm:3.0.0"]
           ],
@@ -11631,14 +11667,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@pshaw/spot-welder-app", "workspace:packages/patrick-shaw/spot-welder-app"],
             ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/contextual-documents-html-elements"],
-            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
-            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
+            ["@pipelines/core-2", "workspace:packages/pipelines/core-2"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/contextual-documents"],
             ["@resultful/result", "workspace:packages/resultful/result"],
             ["cinder", "workspace:packages/cinder/cinder"],
             ["classnames", "npm:2.2.6"],
             ["core-js", "npm:3.10.1"],
             ["mobx", "npm:6.1.8"],
+            ["rxjs", "npm:6.6.7"],
             ["unstyled", "workspace:packages/misc/unstyled"]
           ],
           "linkType": "SOFT",
@@ -33063,6 +33099,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/rxjs-npm-6.5.5-c43270ece8-a3882e0374.zip/node_modules/rxjs/",
           "packageDependencies": [
             ["rxjs", "npm:6.5.5"],
+            ["tslib", "npm:1.13.0"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:6.6.7", {
+          "packageLocation": "./.yarn/cache/rxjs-npm-6.6.7-055046ea3c-1146975cbd.zip/node_modules/rxjs/",
+          "packageDependencies": [
+            ["rxjs", "npm:6.6.7"],
             ["tslib", "npm:1.13.0"]
           ],
           "linkType": "HARD",
