@@ -1,7 +1,11 @@
 import * as cinder from 'cinder';
 
-import callbackGenerator from '@pipelines/callback-converter';
-import broadcaster from '@pipelines/broadcaster';
+import {
+  broadcaster,
+  zip,
+  callbackConverter as callbackGenerator,
+  map,
+} from '@pipelines/core-2';
 
 import styles from './index.scss';
 
@@ -160,16 +164,11 @@ async function* withDefault(
   yield* iterable;
 }
 
-async function* map<I, O>(iterable: AsyncIterable<I>, mapFn: (i: I) => O) {
-  for await (const i of iterable) {
-    yield await mapFn(i);
-  }
-}
-
 const createSpotWelderForm = () => {
   const [FirstPulseSlider, firstPulseDurations] = createRangeSlider({
     defaultValue: 60,
   });
+
   const mostRecentFirstPulseDuration = storeLastValue(firstPulseDurations);
 
   const [PulseGapSlider, pulseGapDurations] = createRangeSlider({

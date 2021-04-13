@@ -25,6 +25,7 @@
   },
   "sideEffects": false,
   "dependencies": {
+    "@pipelines/map": "workspace:packages/pipelines/map",
     "fs-extra": "^9.0.1"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
