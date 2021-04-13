@@ -19,6 +19,12 @@ export async function* of<T extends any[]>(values: T[]) {
   yield* values;
 }
 
+export const forEach = async <I>(iterable: AsyncIterable<I>, callback: (current: I) => any) => {
+  for await(const i of iterable) {
+    await callback(i);
+  }
+}
+
 export const reduce = async <I>(iterable: AsyncIterable<I>, reducer: (current: I, incomingValue: I) => Promise<I> | I, initial?: I): Promise<I> => {
   const iterator = iterable[Symbol.asyncIterator]();
 
