@@ -1,25 +1,22 @@
-import broadcaster from '@pipelines/broadcaster';
 import callbackConverter, {
   singleParamCallbackConverter,
 } from '@pipelines/callback-converter';
 import map from '@pipelines/map';
 import { createPayload, createFailure, hasFailure, Result } from '@resultful/result';
-export { broadcaster, singleParamCallbackConverter, callbackConverter, map };
+export { singleParamCallbackConverter, callbackConverter, map };
 
-class Emitter<T> implements AsyncIterableIterator<T> {
+class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
   private readonly waitingQueue: ((v: IteratorResult<T>) => any)[] = [];
   private done: boolean = false;
 
-  push(value: T) {
-    if (this.waitingQueue.length <= 0) {
-      return;
+  push(value: IteratorResult<T>) {
+    if (this.waitingQueue.length >= 1) {
+      this.waitingQueue.shift()!(value);
     }
 
-    if (this.done) {
-      return;
+    if (value.done) {
+      this.finish();
     }
-
-    this.waitingQueue.shift()!({ value, done: false });
   }
 
   async next(): Promise<IteratorResult<T>> {
@@ -32,27 +29,44 @@ class Emitter<T> implements AsyncIterableIterator<T> {
     );
   }
 
-  finish() {
+  private finish() {
     this.done = true;
-    this.killWaitingQueue();
-  }
-
-  private killWaitingQueue() {
     for (const resolve of this.waitingQueue) {
       resolve({ value: undefined, done: true });
     }
     this.waitingQueue.length = 0;
   }
 
-  [Symbol.asyncIterator]() {
+  [Symbol.asyncIterator](): IteratorResultEmitter<T> {
     return this;
   }
 }
+
+class Emitter<T> implements AsyncIterableIterator<T> {
+  private readonly internalEmitter = new IteratorResultEmitter<T>();
+
+  push(value: T) {
+    this.internalEmitter.push({ value, done: false });
+  }
+
+  async next(): Promise<IteratorResult<T>> {
+    return await this.internalEmitter.next();
+  }
+
+  finish() {
+    // FIXME: Remvoe as any
+    return this.internalEmitter.push({ value: undefined, done: false } as any as IteratorResult<T>);
+  }
+
+  [Symbol.asyncIterator](): Emitter<T> {
+    return this;
+  }
+}
+
 /**
  * @internal This method name is subject to change
  */
-export const emitter = <T>() => new Emitter<T>();
-
+export const emitter = <T>(): Emitter<T> => new Emitter<T>();
 // TOOD: A lot of these methods do not account for values that are returned from AsyncGenerators since they all use for await... of syntax
 
 export const zip = <T extends any[]>(
@@ -350,6 +364,10 @@ class Buffered<T> implements AsyncIterableIterator<T> {
     })();
   }
 
+  get length() {
+    return this.buffer.length;
+  }
+
   private killWaitingQueue() {
     this.waitingQueue.forEach((waiting) =>
       waiting.resolve({ value: undefined, done: true }),
@@ -380,9 +398,9 @@ class Buffered<T> implements AsyncIterableIterator<T> {
 }
 export const bufferred = <T, E = unknown>(
   iterable: AsyncIterable<T>,
-  initial: BufferStore<Result<T, E>> = [],
-): AsyncIterable<T> => {
-  return new Buffered(iterable, initial);
+  store: BufferStore<Result<T, E>> = [],
+): Buffered<T> => {
+  return new Buffered(iterable, store);
 };
 
 /**
