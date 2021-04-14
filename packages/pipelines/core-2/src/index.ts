@@ -140,13 +140,19 @@ export const forEach = async <I>(iterable: AsyncIterable<I>, callback: (current:
   }
 }
 
+export class EmptyIterableError extends Error {
+  constructor() {
+    super('Reduce of empty array with no initial value');
+  }
+}
+
 export const reduce = async <I>(iterable: AsyncIterable<I>, reducer: (current: I, incomingValue: I) => Promise<I> | I, initial?: I): Promise<I> => {
   const iterator = iterable[Symbol.asyncIterator]();
 
   let current = initial ?? await (async () => {
     const result = await iterator.next();
     if (result.done) {
-      throw new Error('Reduce of empty array with no initial value');
+      throw new EmptyIterableError();
     } else {
       return result.value;
     }
@@ -207,4 +213,38 @@ export async function* interval(ms: number): AsyncGenerator<void> {
     await new Promise(resolve => setInterval(resolve, ms));
     yield;
   }
+}
+
+/**
+ * @internal Method name subject to change
+ */
+export type GetLatestValue<T> = () => Promise<T>;
+
+/**
+ * @internal Method name subject to change
+ */
+function latestValueStore<T>(asyncIterable: AsyncIterable<T>): GetLatestValue<T> {
+  const iterator = asyncIterable[Symbol.asyncIterator]();
+
+  let currentPromise: Promise<T>;
+
+  (async () => {
+    currentPromise = (async () => {
+      const result = await iterator.next();
+      if (result.done) {
+        throw new EmptyIterableError();
+      } else {
+        return result.value;
+      }
+    })();
+
+    await currentPromise;
+
+    let currentResult: IteratorResult<T>;
+    while (!(currentResult = await iterator.next()).done) {
+      currentPromise = Promise.resolve(currentResult.value);
+    }
+  })();
+
+  return () => currentPromise;
 }
