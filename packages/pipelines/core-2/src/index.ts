@@ -201,3 +201,10 @@ export const merge = <T>(...iterables: AsyncIterable<T>[]): AsyncIterable<T> => 
 
   return converter;
 }
+
+export async function* interval(ms: number): AsyncGenerator<void> {
+  while(true) {
+    await new Promise(resolve => setInterval(resolve, ms));
+    yield;
+  }
+}
