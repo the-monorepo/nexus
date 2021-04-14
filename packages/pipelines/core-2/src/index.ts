@@ -189,3 +189,15 @@ export async function* delay<T>(iterable: AsyncIterable<T>, interval: number) {
     await new Promise(resolve => setInterval(resolve, interval));
   }
 };
+
+export const merge = <T>(...iterables: AsyncIterable<T>[]): AsyncIterable<T> => {
+  const converter = singleParamCallbackConverter<T>();
+
+  iterables.forEach(async (iterable) => {
+    for await (const v of iterable) {
+      converter.callback(v);
+    }
+  });
+
+  return converter;
+}
