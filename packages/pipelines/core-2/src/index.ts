@@ -56,6 +56,18 @@ export async function* slice<T>(iterable: AsyncIterable<T>, start: number = 0, e
   }
 }
 
+export const indexOf = async <T>(iterable: AsyncIterable<T>, value: T) => {
+  let index = 0;
+  for await(const i of iterable) {
+    if (i === value) {
+      return index;
+    }
+    index++;
+  }
+
+  return -1;
+};
+
 export async function* fill<T>(iterable: AsyncIterable<T>, value: T, start: number = 0, end?: number) {
   const iterator = iterable[Symbol.asyncIterator]();
   for (let i = 0; i < start; i++) {
@@ -87,7 +99,7 @@ export async function* fill<T>(iterable: AsyncIterable<T>, value: T, start: numb
   }
 }
 
-export const lastIndexOf = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>) => {
+export const findIndex = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>) => {
   let index = 0;
   for await(const i of iterable) {
     if (await finder(i)) {
@@ -97,6 +109,19 @@ export const lastIndexOf = async <T>(iterable: AsyncIterable<T>, finder: (curren
   }
 
   return -1;
+}
+
+export const lastIndexOf = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>) => {
+  let index = 0;
+  let found = -1;
+  for await(const i of iterable) {
+    if (await finder(i)) {
+      found = index;
+    }
+    index++;
+  }
+
+  return found;
 }
 
 export const find = async <T>(iterable: AsyncIterable<T>, finder: (current: T) => boolean | Promise<boolean>): Promise<T | undefined> => {
@@ -158,3 +183,9 @@ export async function* filter<T>(iterable: AsyncIterable<T>, filter: (item: T) =
   }
 };
 
+export async function* delay<T>(iterable: AsyncIterable<T>, interval: number) {
+  for await(const v of iterable) {
+    yield v;
+    await new Promise(resolve => setInterval(resolve, interval));
+  }
+};
