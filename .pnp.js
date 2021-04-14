@@ -11147,6 +11147,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
             ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
             ["@pipelines/map", "workspace:packages/pipelines/map"],
+            ["@resultful/result", "workspace:packages/resultful/result"],
             ["@types/node", "npm:14.6.0"],
             ["web-streams-polyfill", "npm:3.0.0"]
           ],
@@ -11674,7 +11675,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["classnames", "npm:2.2.6"],
             ["core-js", "npm:3.10.1"],
             ["mobx", "npm:6.1.8"],
-            ["rxjs", "npm:6.6.7"],
             ["unstyled", "workspace:packages/misc/unstyled"]
           ],
           "linkType": "SOFT",
@@ -33099,14 +33099,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/rxjs-npm-6.5.5-c43270ece8-a3882e0374.zip/node_modules/rxjs/",
           "packageDependencies": [
             ["rxjs", "npm:6.5.5"],
-            ["tslib", "npm:1.13.0"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:6.6.7", {
-          "packageLocation": "./.yarn/cache/rxjs-npm-6.6.7-055046ea3c-1146975cbd.zip/node_modules/rxjs/",
-          "packageDependencies": [
-            ["rxjs", "npm:6.6.7"],
             ["tslib", "npm:1.13.0"]
           ],
           "linkType": "HARD",

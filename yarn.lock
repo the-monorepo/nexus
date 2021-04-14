@@ -4418,6 +4418,7 @@ __metadata:
     "@pipelines/broadcaster": "workspace:packages/pipelines/broadcaster"
     "@pipelines/callback-converter": "workspace:packages/pipelines/callback-converter"
     "@pipelines/map": "workspace:packages/pipelines/map"
+    "@resultful/result": "workspace:packages/resultful/result"
     "@types/node": ^14.6.0
     web-streams-polyfill: ^3.0.0
   languageName: unknown
@@ -4854,7 +4855,6 @@ __metadata:
     classnames: ^2.2.6
     core-js: ^3.10.1
     mobx: ^6.1.8
-    rxjs: ^6.6.7
     unstyled: "workspace:packages/misc/unstyled"
   languageName: unknown
   linkType: soft
@@ -21734,15 +21734,6 @@ resolve@^1.14.2:
   dependencies:
     tslib: ^1.9.0
   checksum: a3882e0374af8aa32459ea9219fdcf24cb5a943cdf35f50da4ded48435ec474647c315b85c3e7b703927a55689e54037538cbd24789548d07b74e4865c4adb78
-  languageName: node
-  linkType: hard
-
-"rxjs@npm:^6.6.7":
-  version: 6.6.7
-  resolution: "rxjs@npm:6.6.7"
-  dependencies:
-    tslib: ^1.9.0
-  checksum: 1146975cbd5388ee5e61450235dc5670931e43cce71813f567977d334acc4d75c6e8d9d293df67e1fb31510b99fc8957943d4a9b550d109e4dc69967a8471543
   languageName: node
   linkType: hard
 

@@ -37,6 +37,7 @@
     "@pipelines/broadcaster": "workspace:packages/pipelines/broadcaster",
     "@pipelines/callback-converter": "workspace:packages/pipelines/callback-converter",
     "@pipelines/map": "workspace:packages/pipelines/map",
+    "@resultful/result": "workspace:packages/resultful/result",
     "web-streams-polyfill": "^3.0.0"
   },
   "devDependencies": {
