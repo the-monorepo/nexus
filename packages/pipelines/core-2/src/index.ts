@@ -348,7 +348,7 @@ export type GetLatestValue<T> = () => Promise<T>;
 /**
  * @internal Method name subject to change
  */
-function latestValueStore<T>(asyncIterable: AsyncIterable<T>): GetLatestValue<T> {
+export function latestValueStore<T>(asyncIterable: AsyncIterable<T>): GetLatestValue<T> {
   const iterator = asyncIterable[Symbol.asyncIterator]();
 
   let currentPromise: Promise<T>;
