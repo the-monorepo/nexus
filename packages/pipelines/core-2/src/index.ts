@@ -6,6 +6,53 @@ import map from '@pipelines/map';
 import { createPayload, createFailure, hasFailure, Result } from '@resultful/result';
 export { broadcaster, singleParamCallbackConverter, callbackConverter, map };
 
+class Emitter<T> implements AsyncIterableIterator<T> {
+  private readonly waitingQueue: ((v: IteratorResult<T>) => any)[] = [];
+  private done: boolean = false;
+
+  push(value: T) {
+    if (this.waitingQueue.length <= 0) {
+      return;
+    }
+
+    if (this.done) {
+      return;
+    }
+
+    this.waitingQueue.shift()!({ value, done: false });
+  }
+
+  async next(): Promise<IteratorResult<T>> {
+    if (this.done) {
+      return { value: undefined, done: true };
+    }
+
+    return new Promise<IteratorResult<T>>((resolve) =>
+      this.waitingQueue.push(resolve),
+    );
+  }
+
+  finish() {
+    this.done = true;
+    this.killWaitingQueue();
+  }
+
+  private killWaitingQueue() {
+    for (const resolve of this.waitingQueue) {
+      resolve({ value: undefined, done: true });
+    }
+    this.waitingQueue.length = 0;
+  }
+
+  [Symbol.asyncIterator]() {
+    return this;
+  }
+}
+/**
+ * @internal This method name is subject to change
+ */
+export const emitter = <T>() => new Emitter<T>();
+
 // TOOD: A lot of these methods do not account for values that are returned from AsyncGenerators since they all use for await... of syntax
 
 export const zip = <T extends any[]>(
@@ -242,6 +289,9 @@ export async function* delay<T>(iterable: AsyncIterable<T>, interval: number) {
   }
 }
 
+/**
+ * @param iterables Merges these iterables into a single iterable. This "merged" iterable will
+ */
 export const merge = <T>(...iterables: AsyncIterable<T>[]): AsyncIterable<T> => {
   const converter = singleParamCallbackConverter<T>();
 
@@ -254,6 +304,9 @@ export const merge = <T>(...iterables: AsyncIterable<T>[]): AsyncIterable<T> => 
   return converter;
 };
 
+/**
+ * Yields every {@link ms} seconds
+ */
 export async function* interval(ms: number): AsyncGenerator<void> {
   while (true) {
     await new Promise((resolve) => setInterval(resolve, ms));
@@ -261,18 +314,10 @@ export async function* interval(ms: number): AsyncGenerator<void> {
   }
 }
 
+/**
+ * An array-like data-structure
+ */
 export type BufferStore<T> = Pick<Array<T>, 'push' | 'shift' | 'length'>;
-
-export type BufferedSuccess<T> = {
-  success: T;
-  failure: undefined;
-};
-
-export type BufferedError = {
-  success: undefined;
-  failure: unknown;
-};
-
 class Buffered<T> implements AsyncIterableIterator<T> {
   private readonly waitingQueue: {
     resolve: (v: IteratorResult<T>) => any;
