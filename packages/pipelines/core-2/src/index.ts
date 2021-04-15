@@ -80,39 +80,37 @@ class Emitter<T> implements AsyncIterableIterator<T> {
 export const emitter = <T>(): Emitter<T> => new Emitter<T>();
 // TOOD: A lot of these methods do not account for values that are returned from AsyncGenerators since they all use for await... of syntax
 
-class Broadcaster<T> implements AsyncIterable<T> {
-  private readonly iterator: AsyncIterator<T>;
-  private readonly emitters: IteratorResultEmitter<T>[] = [];
+class Broadcaster<T> implements AsyncIterableIterator<T> {
+  protected readonly emitter: IteratorResultEmitter<T> = new IteratorResultEmitter<T>();
 
-  constructor(iterable: AsyncIterable<T>) {
-    this.iterator = iterable[Symbol.asyncIterator]();
+  private constructor(private readonly iterator: AsyncIterator<T>, private readonly broadcasters: Broadcaster<T>[]) {
+    broadcasters.push(this);
+  }
+
+  static create<T>(iterable: AsyncIterable<T>) {
+    return new Broadcaster(iterable[Symbol.asyncIterator](), []);
+  }
+
+  async next() {
+    if (this.emitter.bufferLength >= 1) {
+      const result = await this.emitter.next();
+      return result;
+    }
+
+    const result = await this.iterator.next();
+
+    for (const broadcaster of this.broadcasters) {
+      if (this === broadcaster) {
+        continue;
+      }
+      broadcaster.emitter.push(result);
+    }
+
+    return result;
   }
 
   [Symbol.asyncIterator]() {
-    const internalEmitter = new IteratorResultEmitter<T>();
-
-    this.emitters.push(internalEmitter);
-
-    return {
-      next: async () => {
-        if (internalEmitter.bufferLength >= 1) {
-          const result = await internalEmitter.next();
-          console.log('emitter', result);
-          return result;
-        }
-
-        const result = await this.iterator.next();
-
-        for (const emitter of this.emitters) {
-          if (emitter === internalEmitter) {
-            continue;
-          }
-          emitter.push(result);
-        }
-        console.log('direct', result);
-        return result;
-      },
-    };
+    return new Broadcaster(this.iterator, this.broadcasters);
   }
 }
 
@@ -120,7 +118,7 @@ class Broadcaster<T> implements AsyncIterable<T> {
  * @internal This method name is subject to change
  */
 export const broadcaster = <T>(iterable: AsyncIterable<T>): Broadcaster<T> =>
-  new Broadcaster(iterable);
+  Broadcaster.create(iterable);
 
 export const zip = <T extends any[]>(
   ...iterables: AsyncIterable<T>[]
