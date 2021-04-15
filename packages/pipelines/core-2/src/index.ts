@@ -59,10 +59,10 @@ class Emitter<T> implements AsyncIterableIterator<T> {
   }
 
   finish() {
-    return this.internalEmitter.push(({
+    return this.internalEmitter.push({
       value: undefined,
       done: true,
-    }) as IteratorResult<T>);
+    } as IteratorResult<T>);
   }
 
   [Symbol.asyncIterator](): Emitter<T> {
@@ -88,7 +88,10 @@ export const callbackConverter = <T extends any[]>() => {
 class Broadcaster<T> implements AsyncIterableIterator<T> {
   protected readonly emitter: IteratorResultEmitter<T> = new IteratorResultEmitter<T>();
 
-  private constructor(private readonly iterator: AsyncIterator<T>, private readonly broadcasters: Broadcaster<T>[]) {
+  private constructor(
+    private readonly iterator: AsyncIterator<T>,
+    private readonly broadcasters: Broadcaster<T>[],
+  ) {
     broadcasters.push(this);
   }
 
@@ -515,3 +518,41 @@ export const arrayFrom = async <T>(iterable: AsyncIterable<T>): Promise<T[]> => 
 
   return array;
 };
+
+async function* internalInterleaveBail<T>(...iterators: AsyncIterator<T>[]) {
+  while (true) {
+    for (const iterator of iterators) {
+      const result = await iterator.next();
+      if (result.done) {
+        return {
+          returnValue: result.value,
+          remaining: iterators.filter((candiate) => candiate !== iterator),
+        };
+      }
+    }
+  }
+}
+
+/**
+ * @internal Method name subject to change
+ */
+ export async function* interleaveBail<T>(...iterables: AsyncIterable<T>[]) {
+  const iterators = iterables.map((iterable) => iterable[Symbol.asyncIterator]());
+  return yield* internalInterleaveBail(...iterators);
+}
+
+/**
+ * @internal Method name subject to change
+ */
+ export async function* interleave<T>(...iterables: AsyncIterable<T>[]) {
+  let returnValues: T[] = [];
+  let iterators = iterables.map((iterable) => iterable[Symbol.asyncIterator]());
+
+  while(iterators.length >= 0) {
+    const { returnValue, remaining } = yield* internalInterleaveBail(...iterators);
+    returnValues.push(returnValue);
+    iterators = remaining;
+  }
+
+  return returnValues;
+}
