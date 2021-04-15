@@ -10,6 +10,7 @@ class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
   private done: boolean = false;
 
   push(value: IteratorResult<T>) {
+    console.log('real push', value);
     if (this.waitingQueue.length >= 1) {
       this.waitingQueue.shift()!(value);
     }
@@ -21,8 +22,11 @@ class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
 
   async next(): Promise<IteratorResult<T>> {
     if (this.done) {
+      console.log('emitter done');
       return { value: undefined, done: true };
     }
+
+    console.log('emitter next');
 
     return new Promise<IteratorResult<T>>((resolve) =>
       this.waitingQueue.push(resolve),
@@ -68,6 +72,48 @@ class Emitter<T> implements AsyncIterableIterator<T> {
  */
 export const emitter = <T>(): Emitter<T> => new Emitter<T>();
 // TOOD: A lot of these methods do not account for values that are returned from AsyncGenerators since they all use for await... of syntax
+
+
+
+class Broadcaster<T> implements AsyncIterable<T> {
+  private readonly iterator: AsyncIterator<T>;
+  private readonly emitters: IteratorResultEmitter<T>[] = [];
+
+  constructor(iterable: AsyncIterable<T>) {
+    this.iterator = iterable[Symbol.asyncIterator]();
+  }
+
+  [Symbol.asyncIterator]() {
+    const internalEmitter = new IteratorResultEmitter<T>();
+    const bufferedEmitter = bufferred(internalEmitter);
+
+    this.emitters.push(internalEmitter);
+
+    return {
+      next: async () => {
+        if (bufferedEmitter.queueLengthLength <= 0) {
+          const result = await this.iterator.next();
+
+          for (const emitter of this.emitters) {
+            if (emitter === internalEmitter) {
+              continue;
+            }
+            emitter.push(result);
+          }
+
+          return result;
+        } else {
+          return bufferedEmitter.next();
+        }
+      }
+    };
+  }
+}
+
+/**
+ * @internal This method name is subject to change
+ */
+export const broadcaster = <T>(iterable: AsyncIterable<T>): Broadcaster<T> => new Broadcaster(iterable);
 
 export const zip = <T extends any[]>(
   ...iterables: AsyncIterable<T>[]
@@ -343,28 +389,51 @@ class Buffered<T> implements AsyncIterableIterator<T> {
     iterable: AsyncIterable<T>,
     private readonly buffer: BufferStore<Result<T, any>>,
   ) {
+    console.log('constructed');
     (async () => {
+      console.log('listening');
       try {
-        for await (const value of iterable) {
-          if (this.waitingQueue.length <= 0) {
+        const iterator = iterable[Symbol.asyncIterator]();
+        let i = iterator.next();
+        let next = iterator.next();
+        while (true) {
+          const result = await i;
+          if (result.done) {
+            return;
+          }
+          i = next;
+          next = iterator.next();
+          const value = result.value;
+          console.log('received', value);
+          if (this.queueLengthLength <= 0) {
             buffer.push(createPayload(value));
           } else {
             this.waitingQueue.pop()!.resolve({ value, done: false });
           }
         }
+        for await (const value of iterable) {
+          console.log('pushed', value);
+        }
+        console.log('?');
       } catch (err) {
-        if (this.waitingQueue.length <= 0) {
+        console.log(err);
+        if (this.queueLengthLength <= 0) {
           buffer.push(createFailure(err));
         } else {
           this.waitingQueue.pop()!.reject(err);
         }
       } finally {
+        console.log('done');
         this.killWaitingQueue();
       }
     })();
   }
 
-  get length() {
+  get queueLengthLength() {
+    return this.waitingQueue.length;
+  }
+
+  get bufferLength() {
     return this.buffer.length;
   }
 
@@ -376,6 +445,7 @@ class Buffered<T> implements AsyncIterableIterator<T> {
   }
 
   async next(): Promise<IteratorResult<T>> {
+    console.log(this.queueLengthLength, this.bufferLength);
     if (this.buffer.length >= 1) {
       const result = this.buffer.shift()!;
       if (hasFailure(result)) {
