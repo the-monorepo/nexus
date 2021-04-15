@@ -1,3 +1,4 @@
+import { map } from '../src';
 export async function* infiniteCounter() {
   let i = 0;
 
@@ -8,4 +9,10 @@ export async function* infiniteCounter() {
 
 export async function* countToThree() {
   yield* [1, 2, 3];
+}
+
+export async function* threeCountersCountingThreeEach() {
+  for (let i = 0; i < 3; i++) {
+    yield map(countToThree(), (v) => v + 3 * i);
+  }
 }
