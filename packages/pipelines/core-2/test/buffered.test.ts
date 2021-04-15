@@ -1,17 +1,14 @@
-import { emitter, bufferred } from '../src/index';
+import { bufferred, arrayFrom } from '../src/index';
+import { countToThree } from './test-iterables';
 
 it(bufferred.name, async () => {
-  const myEmitter = emitter<number>();
-  myEmitter.push(0);
+  const count = countToThree();
 
-  const buffer = bufferred(myEmitter);
+  const buffer = bufferred(count);
 
-  myEmitter.push(1);
-  myEmitter.push(2);
-  myEmitter.push(3);
-  const promise = Promise.all([buffer.next(), buffer.next(), buffer.next()]);
+  await new Promise((resolve) => setTimeout(resolve, 0));
 
-  await expect(promise).resolves.toEqual(
-    [1, 2, 3].map((value) => ({ value, done: false })),
-  );
+  await expect(count.next()).resolves.toEqual({ value: undefined, done: true });
+
+  await expect(arrayFrom(buffer)).resolves.toEqual(await arrayFrom(countToThree()));
 });
