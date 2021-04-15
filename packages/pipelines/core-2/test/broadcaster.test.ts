@@ -28,5 +28,5 @@ it(broadcaster.name, async () => {
 
   console.log(3)
   const [result1b, result2b] = await Promise.all([b.next(), b.next()]);
-  expect([result1b.value, result2b]).toEqual([1, 2]);
+  expect([result1b.value, result2b.value]).toEqual([1, 2]);
 });
