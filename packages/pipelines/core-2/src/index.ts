@@ -1,9 +1,6 @@
-import callbackConverter, {
-  singleParamCallbackConverter,
-} from '@pipelines/callback-converter';
 import map from '@pipelines/map';
 import { createPayload, createFailure, hasFailure, Result } from '@resultful/result';
-export { singleParamCallbackConverter, callbackConverter, map };
+export { map };
 
 class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
   private readonly waitingQueue: ((v: IteratorResult<T>) => any)[] = [];
@@ -62,11 +59,10 @@ class Emitter<T> implements AsyncIterableIterator<T> {
   }
 
   finish() {
-    // FIXME: Remvoe as any
     return this.internalEmitter.push(({
       value: undefined,
-      done: false,
-    } as any) as IteratorResult<T>);
+      done: true,
+    }) as IteratorResult<T>);
   }
 
   [Symbol.asyncIterator](): Emitter<T> {
@@ -78,6 +74,15 @@ class Emitter<T> implements AsyncIterableIterator<T> {
  * @internal This method name is subject to change
  */
 export const emitter = <T>(): Emitter<T> => new Emitter<T>();
+
+export const callbackConverter = <T extends any[]>() => {
+  const iterable = new Emitter<T>();
+  return {
+    iterable,
+    callback: (...v: T) => iterable.push(v),
+    finish: () => iterable.finish(),
+  };
+};
 // TOOD: A lot of these methods do not account for values that are returned from AsyncGenerators since they all use for await... of syntax
 
 class Broadcaster<T> implements AsyncIterableIterator<T> {
@@ -124,11 +129,11 @@ export const zip = <T extends any[]>(
   ...iterables: AsyncIterable<T>[]
 ): AsyncIterable<T[]> => {
   const current = new Array(iterables.length);
-  const converter = singleParamCallbackConverter<T[]>();
+  const converter = emitter<T[]>();
   iterables.forEach(async (iterable, i) => {
     for await (const value of iterable) {
       current[i] = value;
-      converter.callback([...current]);
+      converter.push([...current]);
     }
   });
   return converter;
@@ -358,11 +363,11 @@ export async function* delay<T>(iterable: AsyncIterable<T>, interval: number) {
  * @param iterables Merges these iterables into a single iterable. This "merged" iterable will
  */
 export const merge = <T>(...iterables: AsyncIterable<T>[]): AsyncIterable<T> => {
-  const converter = singleParamCallbackConverter<T>();
+  const converter = emitter<T>();
 
   iterables.forEach(async (iterable) => {
     for await (const v of iterable) {
-      converter.callback(v);
+      converter.push(v);
     }
   });
 
@@ -388,48 +393,29 @@ class Buffered<T> implements AsyncIterableIterator<T> {
     resolve: (v: IteratorResult<T>) => any;
     reject: (err: unknown) => any;
   }[] = [];
-  private readonly done: boolean = false;
+  private done: boolean = false;
 
   constructor(
     iterable: AsyncIterable<T>,
     private readonly buffer: BufferStore<Result<T, any>>,
   ) {
-    console.log('constructed');
     (async () => {
-      console.log('listening');
       try {
-        const iterator = iterable[Symbol.asyncIterator]();
-        let i = iterator.next();
-        let next = iterator.next();
-        while (true) {
-          const result = await i;
-          if (result.done) {
-            return;
-          }
-          i = next;
-          next = iterator.next();
-          const value = result.value;
-          console.log('received', value);
+        for await (const value of iterable) {
           if (this.queueLengthLength <= 0) {
             buffer.push(createPayload(value));
           } else {
             this.waitingQueue.pop()!.resolve({ value, done: false });
           }
         }
-        for await (const value of iterable) {
-          console.log('pushed', value);
-        }
-        console.log('?');
       } catch (err) {
-        console.log(err);
         if (this.queueLengthLength <= 0) {
           buffer.push(createFailure(err));
         } else {
           this.waitingQueue.pop()!.reject(err);
         }
       } finally {
-        console.log('done');
-        this.killWaitingQueue();
+        this.finish();
       }
     })();
   }
@@ -442,7 +428,8 @@ class Buffered<T> implements AsyncIterableIterator<T> {
     return this.buffer.length;
   }
 
-  private killWaitingQueue() {
+  private finish() {
+    this.done = true;
     this.waitingQueue.forEach((waiting) =>
       waiting.resolve({ value: undefined, done: true }),
     );
@@ -511,3 +498,16 @@ export function latestValueStore<T>(asyncIterable: AsyncIterable<T>): GetLatestV
 
   return () => currentPromise;
 }
+
+/**
+ * @internal Method name subject to change
+ */
+export const arrayFrom = async <T>(iterable: AsyncIterable<T>): Promise<T[]> => {
+  let array: T[] = [];
+
+  for await (const v of iterable) {
+    array.push(v);
+  }
+
+  return array;
+};
