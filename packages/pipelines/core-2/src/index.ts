@@ -323,24 +323,34 @@ export const reduce = async <I>(
     })());
 
   for (let i = await iterator.next(); i.done; i = await iterator.next()) {
-    current = i.value;
+    current = await reducer(current, i.value);
   }
 
   return current;
 };
 
-export const every = async <T>(
+export const some = async <T>(
   iterable: AsyncIterable<T>,
   condition: (value: T) => boolean | Promise<boolean>,
 ): Promise<boolean> => {
   for await (const i of iterable) {
     if (!(await condition(i))) {
-      return false;
+      return true;
     }
   }
 
-  return true;
+  return false;
 };
+
+export const every = async <T>(
+  iterable: AsyncIterable<T>,
+  condition: (value: T) => boolean | Promise<boolean>,
+): Promise<boolean> => some(iterable, async (v) => !(await condition(v)));
+
+export const includes = async <T>(
+  iterable: AsyncIterable<T>,
+  value: T
+): Promise<boolean> => some(iterable, (v) => v === value);
 
 export async function* concat<T>(...iterables: AsyncIterable<T>[]) {
   for (const iterable of iterables) {
