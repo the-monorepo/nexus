@@ -139,16 +139,20 @@ export const zip = <T extends any[]>(
   return converter;
 };
 
-export async function* of<T extends any[]>(values: T[]) {
+export async function* of<T extends any[]>(...values: T) {
   yield* values;
 }
 
 export type RecursiveAsyncIterable<T> = AsyncIterable<RecursiveAsyncIterable<T>> | T;
 
 export async function* flat<A>(
-  iterable: RecursiveAsyncIterable<A>,
-  depth?: number,
-): RecursiveAsyncIterable<A> {
+  iterable: AsyncIterable<RecursiveAsyncIterable<A>>,
+  depth: number = 1,
+  // TODO: Need better types
+): AsyncIterable<RecursiveAsyncIterable<A>> {
+  if (depth <= 0) {
+    yield* iterable;
+  }
   for await (const current of iterable) {
     if (current[Symbol.asyncIterator] !== undefined) {
       yield* flat(
