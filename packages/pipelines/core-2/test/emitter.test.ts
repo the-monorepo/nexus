@@ -12,6 +12,6 @@ it(emitter.name, async () => {
   myEmitter.push(3);
 
   await expect(promise).resolves.toEqual(
-    [1, 2, 3].map((value) => ({ value, done: false })),
+    [0, 1, 2].map((value) => ({ value, done: false })),
   );
 });
