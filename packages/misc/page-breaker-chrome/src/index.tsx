@@ -101,7 +101,7 @@ const previewWords = computed(() => {
 });
 
 const languageState = observable({
-  langs: [...window.navigator.languages],
+  langs: [...globalThis.navigator.languages],
 });
 
 autorun(() => {});

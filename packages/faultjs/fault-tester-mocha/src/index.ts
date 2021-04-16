@@ -71,7 +71,7 @@ export const initialize = async (options: Options) => {
 
             clearCache();
 
-            globalThis.beforeTestCoverage = cloneCoverage(global[COVERAGE_KEY]);
+            globalThis.beforeTestCoverage = cloneCoverage(globalThis[COVERAGE_KEY]);
             const startTime = Date.now();
 
             const result = await runMochaInstance(mochaInstance);
@@ -123,7 +123,7 @@ export const initialize = async (options: Options) => {
     return client.on(candidatePayload, async (data) => {
       switch (data.type) {
         case IPC.STOP_WORKER: {
-          await client.stoppedWorker({ coverage: global[COVERAGE_KEY] });
+          await client.stoppedWorker({ coverage: globalThis[COVERAGE_KEY] });
           queue.splice(0, queue.length);
           process.disconnect();
           break;
