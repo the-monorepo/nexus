@@ -20,7 +20,7 @@ describe.skip('basic rendering', () => {
         shadow.appendChild(divElement);
       }
     }
-    window.customElements.define('x-test', TestElement);
+    globalThis.customElements.define('x-test', TestElement);
     render(root, <TestElement />);
   });
 

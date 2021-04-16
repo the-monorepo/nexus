@@ -5,7 +5,7 @@ export const customElement = (elementName: string) => {
       kind,
       elements,
       finisher(clazz: { new (): HTMLElement }) {
-        window.customElements.define(elementName, clazz);
+        globalThis.customElements.define(elementName, clazz);
       },
     };
   };

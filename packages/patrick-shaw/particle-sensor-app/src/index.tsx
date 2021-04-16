@@ -6,7 +6,7 @@ import { TimeLineChartElement } from './TimeLineChartElement';
 import { SensorPanelElement } from './SensorPanelElement';
 
 import styles from './index.scss';
-window.customElements.define('time-line-chart', TimeLineChartElement);
+globalThis.customElements.define('time-line-chart', TimeLineChartElement);
 
 const requestUSB = async () => {
   const device = await navigator.usb.requestDevice({ filters: [] });
@@ -29,7 +29,7 @@ const USBError = ({ error }) =>
 const USBView = ({ device }) =>
   device !== undefined ? <section>Selected {device.productName}</section> : null;
 
-window.customElements.define('sensor-panel', SensorPanelElement);
+globalThis.customElements.define('sensor-panel', SensorPanelElement);
 
 const onMockAddUSB = async () => {
   let transferInCallCount = 0;

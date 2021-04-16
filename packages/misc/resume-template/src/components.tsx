@@ -48,7 +48,7 @@ export class ResumeLinkText extends MobxElement {
           <slot />
         </span>
         {/*
-          People who print the resume can't click on the link, obviously, 
+          People who print the resume can't click on the link, obviously,
           so have to show the link as text
         */}
         <span class="printLink">
@@ -58,7 +58,7 @@ export class ResumeLinkText extends MobxElement {
     );
   }
 }
-window.customElements.define('x-resume-link', ResumeLinkText);
+globalThis.customElements.define('x-resume-link', ResumeLinkText);
 
 type ContactProps = {
   icon: {
@@ -96,7 +96,7 @@ class Contact extends MobxElement {
   }
 }
 
-window.customElements.define('x-contact', Contact);
+globalThis.customElements.define('x-contact', Contact);
 
 type HeaderProps = {
   otherClasses: any;
@@ -123,7 +123,7 @@ class Header extends MobxElement {
                       .header {
                         background: ${theme.palette.primary.main};
                         padding-top: 32px;
-                        padding-bottom: 32px;                
+                        padding-bottom: 32px;
                       }
                       .heading {
                         color: ${color};
@@ -136,7 +136,7 @@ class Header extends MobxElement {
                       }
                       .contact {
                         grid-column: 3;
-                      }          
+                      }
           `}
         </style>
         <header class="header pageGrid">
@@ -169,7 +169,7 @@ class Header extends MobxElement {
     );
   }
 }
-window.customElements.define('x-header', Header);
+globalThis.customElements.define('x-header', Header);
 
 type TopicProps = {
   heading: any;
@@ -201,7 +201,7 @@ class Topic extends MobxElement {
     );
   }
 }
-window.customElements.define('x-topic', Topic);
+globalThis.customElements.define('x-topic', Topic);
 
 type EntryTopicProps = {
   [s: string]: any;
@@ -223,7 +223,7 @@ class EntryTopic extends MobxElement {
     );
   }
 }
-window.customElements.define('x-entry-topic', EntryTopic);
+globalThis.customElements.define('x-entry-topic', EntryTopic);
 
 type EntryProps = {
   leftHeading?: string;
@@ -288,7 +288,7 @@ class Entry extends MobxElement {
     );
   }
 }
-window.customElements.define('x-entry', Entry);
+globalThis.customElements.define('x-entry', Entry);
 
 type Grade = {
   gpa: number;
@@ -312,7 +312,7 @@ class EducationEntry extends MobxElement {
     );
   }
 }
-window.customElements.define('x-education', EducationEntry);
+globalThis.customElements.define('x-education', EducationEntry);
 
 type DateRangeProps = {
   start?: Date;
@@ -339,7 +339,7 @@ class DateRange extends MobxElement {
     );
   }
 }
-window.customElements.define('x-date-range', DateRange);
+globalThis.customElements.define('x-date-range', DateRange);
 
 type EntryHeadingProps = {
   [s: string]: any;
@@ -353,7 +353,7 @@ class EntryHeading extends MobxElement {
     );
   }
 }
-window.customElements.define('x-entry-heading', EntryHeading);
+globalThis.customElements.define('x-entry-heading', EntryHeading);
 
 type EntryLinkProps = {
   [s: string]: any;
@@ -368,7 +368,7 @@ class EntryLink extends MobxElement {
   }
 }
 
-window.customElements.define('x-entry-link', EntryLink);
+globalThis.customElements.define('x-entry-link', EntryLink);
 
 type EntryTextProps = {
   [s: string]: any;
@@ -382,7 +382,7 @@ class EntryText extends MobxElement {
     );
   }
 }
-window.customElements.define('x-entry-text', EntryText);
+globalThis.customElements.define('x-entry-text', EntryText);
 
 type ListLabelProps = {
   [s: string]: any;
@@ -403,7 +403,7 @@ class ListLabel extends MobxElement {
     );
   }
 }
-window.customElements.define('x-list-label', ListLabel);
+globalThis.customElements.define('x-list-label', ListLabel);
 
 class LabeledList extends MobxElement {
   private items;
@@ -433,7 +433,7 @@ class LabeledList extends MobxElement {
     );
   }
 }
-window.customElements.define('x-labeled-list', LabeledList);
+globalThis.customElements.define('x-labeled-list', LabeledList);
 
 type KeyPointItemProps = {
   [s: string]: any;
@@ -447,7 +447,7 @@ class KeyPoint extends MobxElement {
     );
   }
 }
-window.customElements.define('x-key-point', KeyPoint);
+globalThis.customElements.define('x-key-point', KeyPoint);
 type KeyPointsProps = {
   keyPoints?: KeyPoint[];
   [s: string]: any;
@@ -474,7 +474,7 @@ class KeyPoints extends MobxElement {
     );
   }
 }
-window.customElements.define('x-key-points', KeyPoints);
+globalThis.customElements.define('x-key-points', KeyPoints);
 type Experience = {
   company: string;
   job: string;
@@ -497,7 +497,7 @@ class ExperienceEntry extends MobxElement {
     );
   }
 }
-window.customElements.define('x-experience', ExperienceEntry);
+globalThis.customElements.define('x-experience', ExperienceEntry);
 
 type Volunteering = {
   organization: string;
@@ -539,7 +539,7 @@ class ProjectEntry extends MobxElement {
     );
   }
 }
-window.customElements.define('x-project', ProjectEntry);
+globalThis.customElements.define('x-project', ProjectEntry);
 
 type Hackathon = {
   hack?: string;
@@ -574,7 +574,7 @@ class HackathonEntry extends MobxElement {
     );
   }
 }
-window.customElements.define('x-hackathon', HackathonEntry);
+globalThis.customElements.define('x-hackathon', HackathonEntry);
 
 type EntryData = any;
 type EntryMapperProps = {
@@ -586,7 +586,7 @@ class EntryMapper extends MobxElement {
     return this.props.data.map((item) => <this.props.Component {...item} />);
   }
 }
-window.customElements.define('x-entry-mapper', EntryMapper);
+globalThis.customElements.define('x-entry-mapper', EntryMapper);
 
 type ResumeData = any;
 type PageProps = {
@@ -657,6 +657,6 @@ class Resume extends MobxElement {
     );
   }
 }
-window.customElements.define('x-resume', Resume);
+globalThis.customElements.define('x-resume', Resume);
 
 export default Resume;

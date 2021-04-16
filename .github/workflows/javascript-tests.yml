@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, globalThis.-latest]
         node-version: [14.x]
 
     steps:
@@ -22,4 +22,3 @@ jobs:
     - run: yarn install --immutable
     - run: yarn build
     - run: yarn test
- 

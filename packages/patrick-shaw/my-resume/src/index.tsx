@@ -45,7 +45,7 @@ class Test extends MobxElement {
   }
 }
 
-window.customElements.define('x-test', Test);
+globalThis.customElements.define('x-test', Test);
 cinder.render(document.getElementById('root'), <Test obj={store.obj} />);
 */
 /*
@@ -60,7 +60,7 @@ class Test extends React.Component {
       arr: [[]]
     };
     setInterval(() => {
-      this.setState(prevState => {  
+      this.setState(prevState => {
         const add = Math.round(Math.random()) === 0;
         if(add) {
           prevState.arr.push(observable.array());
@@ -252,7 +252,7 @@ Block.template = (
     />
   </>
 );
-window.customElements.define('x-block', Block);
+globalThis.customElements.define('x-block', Block);
 
 class Row extends MobxElement { }
 Row.template = (
@@ -264,7 +264,7 @@ Row.template = (
     }
   </div>
 )
-window.customElements.define('x-row', Row);
+globalThis.customElements.define('x-row', Row);
 
 class Test extends MobxElement {}
 Test.template = (
@@ -276,7 +276,7 @@ Test.template = (
     <div>This should be at the bottom</div>
   </>
 );
-window.customElements.define('x-test', Test);
+globalThis.customElements.define('x-test', Test);
 cinder.render(document.getElementById('root'), <Test />);
 
 */
