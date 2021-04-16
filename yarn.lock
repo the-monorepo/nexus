@@ -4394,30 +4394,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pipelines/broadcaster@workspace:packages/pipelines/broadcaster":
-  version: 0.0.0-use.local
-  resolution: "@pipelines/broadcaster@workspace:packages/pipelines/broadcaster"
-  dependencies:
-    fs-extra: ^9.0.1
-  languageName: unknown
-  linkType: soft
-
-"@pipelines/callback-converter@workspace:packages/pipelines/callback-converter":
-  version: 0.0.0-use.local
-  resolution: "@pipelines/callback-converter@workspace:packages/pipelines/callback-converter"
-  dependencies:
-    "@pipelines/map": "workspace:packages/pipelines/map"
-    fs-extra: ^9.0.1
-  languageName: unknown
-  linkType: soft
-
 "@pipelines/core-2@workspace:packages/pipelines/core-2":
   version: 0.0.0-use.local
   resolution: "@pipelines/core-2@workspace:packages/pipelines/core-2"
   dependencies:
-    "@pipelines/broadcaster": "workspace:packages/pipelines/broadcaster"
-    "@pipelines/callback-converter": "workspace:packages/pipelines/callback-converter"
-    "@pipelines/map": "workspace:packages/pipelines/map"
     "@resultful/result": "workspace:packages/resultful/result"
     "@types/node": ^14.6.0
     web-streams-polyfill: ^3.0.0
@@ -4428,17 +4408,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@pipelines/core@workspace:packages/pipelines/pipelines-core"
   dependencies:
-    "@types/node": ^14.6.0
-    web-streams-polyfill: ^3.0.0
-  languageName: unknown
-  linkType: soft
-
-"@pipelines/map@workspace:packages/pipelines/map":
-  version: 0.0.0-use.local
-  resolution: "@pipelines/map@workspace:packages/pipelines/map"
-  dependencies:
-    "@pipelines/broadcaster": "workspace:packages/pipelines/broadcaster"
-    "@pipelines/callback-converter": "workspace:packages/pipelines/callback-converter"
     "@types/node": ^14.6.0
     web-streams-polyfill: ^3.0.0
   languageName: unknown
@@ -13943,7 +13912,7 @@ fsevents@~2.1.2:
   resolution: "global-modules@npm:1.0.0"
   dependencies:
     global-prefix: ^1.0.1
-    is-globalThis.: ^1.0.1
+    is-window: ^1.0.1
     resolve-dir: ^1.0.0
   checksum: 89fb699eee43823ce94e2dbcb5f7607e1de4f3e37b897a65b59720fa7284424b5f94b67f449a5f259e7a96e2bf851a1582ec31deb7f89b5336c9318ed95fcfe8
   languageName: node
@@ -13956,7 +13925,7 @@ fsevents@~2.1.2:
     expand-tilde: ^2.0.2
     homedir-polyfill: ^1.0.1
     ini: ^1.3.4
-    is-globalThis.: ^1.0.1
+    is-window: ^1.0.1
     which: ^1.2.14
   checksum: 2353fc9bf5c3b688164356c08843b3f9cae6300836071d1250c06c70a0aa13ed643c5711399ec4a2027899977f1423f4d24e81e01a1da4c5239c4e195d80b024
   languageName: node
@@ -15294,7 +15263,7 @@ fsevents@~2.1.2:
   resolution: "is-absolute@npm:1.0.0"
   dependencies:
     is-relative: ^1.0.0
-    is-globalThis.: ^1.0.1
+    is-window: ^1.0.1
   checksum: 4b8ebda658ee6d820cc9ef77c7228f5048e4824cd0092415d41d94ae9d59d8cf27cb1a322958161059be1887d7d8bc85ef10e1444ed763731b45229b74bb7ad1
   languageName: node
   linkType: hard
@@ -15487,7 +15456,7 @@ fsevents@~2.1.2:
   resolution: "is-dom@npm:1.1.0"
   dependencies:
     is-object: ^1.0.1
-    is-globalThis. ^1.0.2
+    is-window: ^1.0.2
   checksum: f2662466f74e032fd3af4b6915a9eb8b1a10d72fb753a7ea8a0336879a6ffdd078b597773878633756d995ba7d6be85f5af665213932d6747d05bc694410d4ab
   languageName: node
   linkType: hard
@@ -15845,17 +15814,10 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"is-globalThis.npm:^1.0.2":
+"is-window@npm:^1.0.1, is-window@npm:^1.0.2":
   version: 1.0.2
-  resolution: "is-globalThis.npm:1.0.2"
+  resolution: "is-window@npm:1.0.2"
   checksum: 37aec6fc04564948bf71ff63a95912675d04bf95dcbbdfc4322e03c3a6f12b2b9d398405be8aff7a9ac5bcd0ab18ea637ef375d3d880efc81cf2d4d496933543
-  languageName: node
-  linkType: hard
-
-"is-globalThis.@npm:^1.0.1, is-globalThis.@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "is-globalThis.@npm:1.0.2"
-  checksum: dd1ed8339a28c68fb52f05931c832488dafc90063e53b97a69ead219a5584d7f3e6e564731c2f983962ff5403afeb05365d88ce9af34c8dae76a14911020d73a
   languageName: node
   linkType: hard
 
@@ -18056,7 +18018,7 @@ fsevents@~2.1.2:
     stream-to-promise: ^3.0.0
     stylelint: ^13.6.1
     through2: ^4.0.2
-    typescript: ^4.0.2
+    typescript: ^4.2.4
     vinyl-sourcemaps-apply: ^0.2.1
   languageName: unknown
   linkType: soft
@@ -18162,7 +18124,7 @@ fsevents@~2.1.2:
     define-property: ^2.0.2
     extend-shallow: ^3.0.2
     fragment-cache: ^0.2.1
-    is-globalThis.: ^1.0.2
+    is-window: ^1.0.2
     kind-of: ^6.0.2
     object.pick: ^1.3.0
     regex-not: ^1.0.0
@@ -24009,23 +23971,23 @@ resolve@^1.14.2:
   languageName: node
   linkType: hard
 
-typescript@^4.0.2:
-  version: 4.0.2
-  resolution: "typescript@npm:4.0.2"
+typescript@^4.2.4:
+  version: 4.2.4
+  resolution: "typescript@npm:4.2.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: cc0e7806eee7997a1b4b2990badacc4a8d089893ed0a377f35c9658e2ac392503cb340d0187203ed82e36e427dda94b0fb7107e44a71cca99efac86be26e16ee
+  checksum: edaede2fa77f56b7fba80ee624a2368ab1216e75b0434d968ccb47ab0a5e2f6d94f848b3b111c1237dd71e988cd376af26370dcdad3b94355c76e759f0dd0a1e
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.0.2#builtin<compat/typescript>":
-  version: 4.0.2
-  resolution: "typescript@patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"
+"typescript@patch:typescript@^4.2.4#builtin<compat/typescript>":
+  version: 4.2.4
+  resolution: "typescript@patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 8d06192b7d5075632f1044fde45041d54a4c7d5ac21837b8f8a4bb756316177fe3f29c153d41609063402282acb04427dba4d74a043874acd6e420c7ab349fc2
+  checksum: 3be44317593182e8ce494c114e7ad9b0bb2553a22f3085cc6da4f0a36912c20850daa9be4c898af2ab6fc8b12f430c1c9e46ac715721867cd38643f2350d3ef9
   languageName: node
   linkType: hard
 

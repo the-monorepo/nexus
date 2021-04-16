@@ -108,7 +108,7 @@
     "stream-to-promise": "^3.0.0",
     "stylelint": "^13.6.1",
     "through2": "^4.0.2",
-    "typescript": "^4.0.2"
+    "typescript": "^4.2.4"
   },
   "husky": {
     "hooks": {}

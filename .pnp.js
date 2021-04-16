@@ -335,20 +335,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/patrick-shaw/webpack"
       },
       {
-        "name": "@pipelines/broadcaster",
-        "reference": "workspace:packages/pipelines/broadcaster"
-      },
-      {
-        "name": "@pipelines/callback-converter",
-        "reference": "workspace:packages/pipelines/callback-converter"
-      },
-      {
         "name": "@pipelines/core-2",
         "reference": "workspace:packages/pipelines/core-2"
-      },
-      {
-        "name": "@pipelines/map",
-        "reference": "workspace:packages/pipelines/map"
       },
       {
         "name": "@pipelines/babel-parse",
@@ -466,7 +454,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["stream-to-promise", "npm:3.0.0"],
             ["stylelint", "npm:13.6.1"],
             ["through2", "npm:4.0.2"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"],
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"],
             ["vinyl-sourcemaps-apply", "npm:0.2.1"]
           ],
           "linkType": "SOFT",
@@ -11107,27 +11095,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "SOFT",
         }]
       ]],
-      ["@pipelines/broadcaster", [
-        ["workspace:packages/pipelines/broadcaster", {
-          "packageLocation": "./packages/pipelines/broadcaster/",
-          "packageDependencies": [
-            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
-            ["fs-extra", "npm:9.0.1"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@pipelines/callback-converter", [
-        ["workspace:packages/pipelines/callback-converter", {
-          "packageLocation": "./packages/pipelines/callback-converter/",
-          "packageDependencies": [
-            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
-            ["@pipelines/map", "workspace:packages/pipelines/map"],
-            ["fs-extra", "npm:9.0.1"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
       ["@pipelines/core", [
         ["workspace:packages/pipelines/pipelines-core", {
           "packageLocation": "./packages/pipelines/pipelines-core/",
@@ -11144,23 +11111,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/pipelines/core-2/",
           "packageDependencies": [
             ["@pipelines/core-2", "workspace:packages/pipelines/core-2"],
-            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
-            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
-            ["@pipelines/map", "workspace:packages/pipelines/map"],
             ["@resultful/result", "workspace:packages/resultful/result"],
-            ["@types/node", "npm:14.6.0"],
-            ["web-streams-polyfill", "npm:3.0.0"]
-          ],
-          "linkType": "SOFT",
-        }]
-      ]],
-      ["@pipelines/map", [
-        ["workspace:packages/pipelines/map", {
-          "packageLocation": "./packages/pipelines/map/",
-          "packageDependencies": [
-            ["@pipelines/map", "workspace:packages/pipelines/map"],
-            ["@pipelines/broadcaster", "workspace:packages/pipelines/broadcaster"],
-            ["@pipelines/callback-converter", "workspace:packages/pipelines/callback-converter"],
             ["@types/node", "npm:14.6.0"],
             ["web-streams-polyfill", "npm:3.0.0"]
           ],
@@ -15402,7 +15353,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["regexpp", "npm:3.1.0"],
             ["semver", "npm:7.3.2"],
             ["tsutils", "virtual:e9aba41830a9b4fc032db65af0a2eba2e780c803271ddb5ee1647eab7047bd274638ee009e2ba231a4996c9a3ad3785be539fbec51146fc1e06e53b9b731ed37#npm:3.17.1"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"]
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"]
           ],
           "packagePeers": [
             "@types/eslint",
@@ -15534,7 +15485,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@typescript-eslint/typescript-estree", "virtual:ae245e30f7777e06b973fb706086d43a667000098c38a66a461487f938904579ad977d570592de93f1c69eb125099aa3b462e6ba9b84e0bffe5a2d23d032f998#npm:3.9.1"],
             ["eslint", "npm:7.7.0"],
             ["eslint-visitor-keys", "npm:1.1.0"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"]
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"]
           ],
           "packagePeers": [
             "@types/eslint",
@@ -15640,7 +15591,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lodash", "npm:4.17.15"],
             ["semver", "npm:7.3.2"],
             ["tsutils", "virtual:e9aba41830a9b4fc032db65af0a2eba2e780c803271ddb5ee1647eab7047bd274638ee009e2ba231a4996c9a3ad3785be539fbec51146fc1e06e53b9b731ed37#npm:3.17.1"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"]
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"]
           ],
           "packagePeers": [
             "@types/typescript",
@@ -16070,7 +16021,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint", "npm:7.7.0"],
             ["lodash", "npm:4.17.15"],
             ["tslib", "npm:1.13.0"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"]
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"]
           ],
           "packagePeers": [
             "@types/eslint",
@@ -23854,7 +23805,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["global-modules", "npm:1.0.0"],
             ["global-prefix", "npm:1.0.2"],
-            ["is-windows", "npm:1.0.2"],
+            ["is-window", "npm:1.0.2"],
             ["resolve-dir", "npm:1.0.1"]
           ],
           "linkType": "HARD",
@@ -23876,7 +23827,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["expand-tilde", "npm:2.0.2"],
             ["homedir-polyfill", "npm:1.0.3"],
             ["ini", "npm:1.3.5"],
-            ["is-windows", "npm:1.0.2"],
+            ["is-window", "npm:1.0.2"],
             ["which", "npm:1.3.1"]
           ],
           "linkType": "HARD",
@@ -24266,7 +24217,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["plugin-error", "npm:1.0.1"],
             ["source-map", "npm:0.7.3"],
             ["through2", "npm:3.0.1"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"],
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"],
             ["vinyl", "npm:2.2.0"],
             ["vinyl-fs", "npm:3.0.3"]
           ],
@@ -25369,7 +25320,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["is-absolute", "npm:1.0.0"],
             ["is-relative", "npm:1.0.0"],
-            ["is-windows", "npm:1.0.2"]
+            ["is-window", "npm:1.0.2"]
           ],
           "linkType": "HARD",
         }]
@@ -26005,15 +25956,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/is-window-npm-1.0.2-e1d420ddc3-37aec6fc04.zip/node_modules/is-window/",
           "packageDependencies": [
             ["is-window", "npm:1.0.2"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["is-windows", [
-        ["npm:1.0.2", {
-          "packageLocation": "./.yarn/cache/is-windows-npm-1.0.2-898cd6f3d7-dd1ed8339a.zip/node_modules/is-windows/",
-          "packageDependencies": [
-            ["is-windows", "npm:1.0.2"]
           ],
           "linkType": "HARD",
         }]
@@ -28446,7 +28388,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["stream-to-promise", "npm:3.0.0"],
             ["stylelint", "npm:13.6.1"],
             ["through2", "npm:4.0.2"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"],
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"],
             ["vinyl-sourcemaps-apply", "npm:0.2.1"]
           ],
           "linkType": "SOFT",
@@ -28567,7 +28509,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["define-property", "npm:2.0.2"],
             ["extend-shallow", "npm:3.0.2"],
             ["fragment-cache", "npm:0.2.1"],
-            ["is-windows", "npm:1.0.2"],
+            ["is-window", "npm:1.0.2"],
             ["kind-of", "npm:6.0.3"],
             ["object.pick", "npm:1.3.0"],
             ["regex-not", "npm:1.0.2"],
@@ -35530,7 +35472,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["tsutils", "virtual:e9aba41830a9b4fc032db65af0a2eba2e780c803271ddb5ee1647eab7047bd274638ee009e2ba231a4996c9a3ad3785be539fbec51146fc1e06e53b9b731ed37#npm:3.17.1"],
             ["@types/typescript", null],
             ["tslib", "npm:1.13.0"],
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"]
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"]
           ],
           "packagePeers": [
             "@types/typescript",
@@ -35689,10 +35631,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["typescript", [
-        ["patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e", {
-          "packageLocation": "./.yarn/cache/typescript-patch-962db1a823-8d06192b7d.zip/node_modules/typescript/",
+        ["patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e", {
+          "packageLocation": "./.yarn/cache/typescript-patch-70a7929abf-3be4431759.zip/node_modules/typescript/",
           "packageDependencies": [
-            ["typescript", "patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=a45b0e"]
+            ["typescript", "patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"]
           ],
           "linkType": "HARD",
         }]
