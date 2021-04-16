@@ -1,6 +1,27 @@
-import map from '@pipelines/map';
 import { createPayload, createFailure, hasFailure, Result } from '@resultful/result';
-export { map };
+
+class Mapper<I, O> implements AsyncIterable<O>, AsyncIterator<O> {
+  constructor(private readonly iterator: AsyncIterator<I>, private readonly mapFn: (i: I) => O) {
+
+  }
+
+  async next(v: P) {
+    const i = await this.iterator.next(v);
+    if(i.done) {
+      return i;
+    }
+
+    return { value: this.mapFn(i.value), done: false };
+  }
+
+  [Symbol.asyncIterator](): Mapper<I, O> {
+    return this;
+  }
+}
+
+export const map = <I, O>(iterable: AsyncIterable<I>, mapFn: (i: I) => O) => {
+  return new Mapper(iterable[Symbol.asyncIterator](), mapFn);
+};
 
 class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
   private readonly waitingQueue: ((v: IteratorResult<T>) => any)[] = [];
