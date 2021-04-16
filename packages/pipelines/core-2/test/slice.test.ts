@@ -1,4 +1,4 @@
-import { countToThree } from './test-iterables';
+import { countToThree } from './test-utils';
 import { slice, arrayFrom } from '../src/index';
 
 describe(slice.name, () => {

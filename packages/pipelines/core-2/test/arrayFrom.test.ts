@@ -1,4 +1,4 @@
-import { countToThree } from './test-iterables';
+import { countToThree } from './test-utils';
 import { arrayFrom } from '../src/index';
 
 it(arrayFrom.name, async () =>{
