@@ -1,6 +1,6 @@
 import { broadcaster } from '../src/index';
 
-import { infiniteCounter } from './test-iterables';
+import { infiniteCounter } from './test-utils';
 
 it(broadcaster.name, async () => {
   const iterator = infiniteCounter();

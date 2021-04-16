@@ -1,4 +1,4 @@
-import { threeCountersCountingThreeEach } from './test-iterables';
+import { threeCountersCountingThreeEach } from './test-utils';
 import { map, flat, arrayFrom, of } from '../src/index';
 
 describe(flat.name, () => {
