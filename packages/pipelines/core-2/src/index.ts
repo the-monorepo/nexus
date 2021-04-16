@@ -369,11 +369,8 @@ export async function* filter<T>(
   }
 }
 
-export async function* delay<T>(iterable: AsyncIterable<T>, interval: number) {
-  for await (const v of iterable) {
-    yield v;
-    await new Promise((resolve) => setInterval(resolve, interval));
-  }
+export const delay = <T extends AsyncIterable<any>>(iterable: T, ms: number): T => {
+  return interleaveBail(interval(ms), iterable);
 }
 
 /**
@@ -529,7 +526,7 @@ export const arrayFrom = async <T>(iterable: AsyncIterable<T>): Promise<T[]> => 
   return array;
 };
 
-async function* internalInterleaveBail<T>(...iterators: AsyncIterator<T>[]) {
+async function* internalInterleaveBail<T extends AsyncIterator<any>[]>(...iterators: T) {
   while (true) {
     for (const iterator of iterators) {
       const result = await iterator.next();
@@ -546,7 +543,7 @@ async function* internalInterleaveBail<T>(...iterators: AsyncIterator<T>[]) {
 /**
  * @internal Method name subject to change
  */
- export async function* interleaveBail<T>(...iterables: AsyncIterable<T>[]) {
+ export async function* interleaveBail<T extends AsyncIterable<T>[]>(...iterables: T) {
   const iterators = iterables.map((iterable) => iterable[Symbol.asyncIterator]());
   return yield* internalInterleaveBail(...iterators);
 }
