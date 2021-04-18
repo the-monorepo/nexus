@@ -94,7 +94,7 @@ let selectedDevice = null;
       selectedDevice = device;
     }
     rerender();
-t  }
+  }
 })();
 
 const disconnectDevice = () => rawDevices.callback(null);
@@ -105,9 +105,9 @@ const ConnectButton = createUSBConnectButton({
 navigator.usb.addEventListener('connect', (e) => rawDevices.callback(e.device));
 navigator.usb.addEventListener('disconnect', disconnectDevice);
 
-const USBSelection = ({ device }) => {
-  <section>{device === null ? undefined : `Selected ${device.productName}`}</section>;
-};
+const USBSelection = ({ device }) => (
+  <section>{device === null ? undefined : `Selected ${device.productName}`}</section>
+);
 
 export type RangeSliderInput = {
   defaultValue: number;
@@ -256,7 +256,7 @@ let transferring = false;
       rerender();
     }
   }
-})();
+})();{}
 
 const App = () => (
   <>

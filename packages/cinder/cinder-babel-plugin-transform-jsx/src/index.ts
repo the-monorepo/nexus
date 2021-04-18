@@ -916,10 +916,7 @@ export default declare((api, options) => {
           }
         }
         // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
-        yield t.callExpression(
-          jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression),
-          [t.objectExpression(objectProperties)],
-        );
+        yield cinderCallExpression('validateComponent', [jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression), t.objectExpression(objectProperties)]);
     }
   }
 
