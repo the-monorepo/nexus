@@ -51,7 +51,7 @@ class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
     if (this.buffer.length >= 1) {
       return this.buffer.shift()!;
     } else {
-      return new Promise<IteratorResult<T>>((resolve) => this.waitingQueue.push(resolve));
+      return await new Promise<IteratorResult<T>>((resolve) => this.waitingQueue.push(resolve));
     }
   }
 
