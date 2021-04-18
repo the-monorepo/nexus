@@ -20,9 +20,7 @@ const callbackBroadcasterConverter = <T extends any>() => {
   return {
     ...converter,
     [Symbol.asyncIterator]() {
-      return (async function* (){
-        await new Promise(resolve => resolve);
-      })();
+      return broadcast;
     },
   };
 };
@@ -45,6 +43,7 @@ const claimUSB = async (device) => {
 
 const createUSBConnectButton = ({ onDevice }) => {
   const onSelectUSBClick = async (event) => {
+    console.warn(event);
     const device = await requestUSB();
     onDevice(device);
   };
@@ -74,8 +73,13 @@ const devicesWithInitial = (async function* deviceGenerator() {
 let selectedDevice = null;
 (async () => {
   for await (const device of devicesWithInitial) {
+    console.log('DEVICE SEELCTED', device);
     if (selectedDevice !== null) {
-      selectedDevice.close();
+      try {
+        await selectedDevice.close();
+      } catch(err){
+        console.error(err);
+      }
     }
     if (device !== null) {
       try {
@@ -90,7 +94,7 @@ let selectedDevice = null;
       selectedDevice = device;
     }
     rerender();
-  }
+t  }
 })();
 
 const disconnectDevice = () => rawDevices.callback(null);
@@ -260,7 +264,7 @@ const App = () => (
     <main>
       <USBSelection device={selectedDevice} />
       <ConnectButton />
-      {selectedDevice === null ? <DisconnectButton /> : null}
+      {selectedDevice !== null ? <DisconnectButton /> : null}
       <Form disabled={transferring} />
       {transferring ? 'Transferring' : undefined}
     </main>

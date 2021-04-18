@@ -108,26 +108,29 @@ abstract class CachedField implements Field {
 class AsyncIteratorField<T extends any> extends CachedField {
   constructor(private readonly innerField: Field) {
     super();
-    console.log('yes?');
   }
 
   set(iterable: AsyncIterable<T>) {
     (async () => {
-      const iterator = iterable[Symbol.asyncIterator]();
+      try {
+        const iterator = iterable[Symbol.asyncIterator]();
 
-      {
-        const firstVal = await iterator.next();
-        if (firstVal.done) {
-          return;
+        {
+          const firstVal = await iterator.next();
+          if (firstVal.done) {
+            return;
+          }
+          this.innerField.init([firstVal.value], 0);
         }
-        this.innerField.init([firstVal.value], 0);
-      }
 
 
-      let val = await iterator.next();
-      while(!val.done) {
-        this.innerField.update([val.value], 0);
-        val = await iterator.next();
+        let val = await iterator.next();
+        while(!val.done) {
+          this.innerField.update([val.value], 0);
+          val = await iterator.next();
+        }
+      } catch(err) {
+        console.error(err);
       }
     })();
   }
@@ -571,7 +574,6 @@ export const renderValue = (
   container: Node,
   before: Node | null,
 ): RenderResult<unknown> | undefined => {
-  console.log(value);
   if (value == null) {
     if (oldResult !== undefined) {
       removeUntilBefore(container, oldResult.data.first, before);
