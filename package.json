@@ -114,7 +114,6 @@
   },
   "dependencies": {
     "@babel/preset-react": "^7.13.13",
-    "@resultful/utility-types": "workspace:packages/resultful/utility-types",
     "core-js": "^3.10.1",
     "eslint-plugin-import": "^2.22.1",
     "gulp-transform": "^3.0.5",

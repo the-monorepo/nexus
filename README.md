@@ -41,6 +41,7 @@ Version | Package | Description
 1.0.0-alpha.1 | [`@buildplan/core`](packages/buildplan/core/README.md) | Programatic API for Buildplan
 1.0.0-alpha.1 | [`@pipelines/babel-parse`](packages/pipelines/pipelines-babel-parse/README.md) | Pipelines Babel integration
 1.0.0-alpha.1 | [`@pipelines/core`](packages/pipelines/pipelines-core/README.md) | Programatic API for Buildplan
+1.0.0-alpha.1 | [`@pipelines/core-2`](packages/pipelines/core-2/README.md) | Programatic API for Buildplan
 
 ### Contextual documents
 Version | Package | Description
