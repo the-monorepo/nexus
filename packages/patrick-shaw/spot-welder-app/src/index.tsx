@@ -3,40 +3,29 @@ import * as cinder from 'cinder';
 import {
   broadcaster,
   zip,
-  callbackConverter as callbackGenerator,
+  callbackConverter,
+  latestValueStore,
   map,
 } from '@pipelines/core-2';
 
 import styles from './index.scss';
 
 const callbackBroadcasterConverter = <T extends any>() => {
-  const converter = callbackGenerator<T>();
+  const converter = callbackConverter<T>();
 
   const broadcast = broadcaster(converter);
-  broadcast['callback'] = (...args) => converter.callback(...args);
 
-  return broadcast;
-};
+  broadcast['callback'] = converter.callback;
 
-function storeLastValue<T>(asyncIterable: AsyncIterable<T>) {
-  const iterator = asyncIterable[Symbol.asyncIterator]();
-
-  let firstYieldedResult = iterator.next();
-  let current;
-
-  (async () => {
-    let currentYield = firstYieldedResult;
-    do {
-      current = (await currentYield).value;
-      currentYield = iterator.next();
-    } while (!currentYield.done);
-  })();
-
-  return async () => {
-    await firstYieldedResult;
-    return current;
+  return {
+    ...converter,
+    [Symbol.asyncIterator]() {
+      return (async function* (){
+        await new Promise(resolve => resolve);
+      })();
+    },
   };
-}
+};
 
 const requestUSB = async () => {
   const device = await navigator.usb.requestDevice({ filters: [] });
@@ -125,7 +114,7 @@ export type RangeSliderProps = {
 };
 
 export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
-  const durationState = callbackGenerator<[Event]>();
+  const durationState = callbackConverter<[Event]>();
   const durations = broadcaster(
     withDefault(
       map(durationState, ([e]) => {
@@ -134,7 +123,7 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
         return Number.parseInt(e.target.value);
       }),
       defaultValue,
-    ),
+    )
   );
 
   const RangeSlider = ({ children, ...other }: RangeSliderProps) => (
@@ -169,17 +158,17 @@ const createSpotWelderForm = () => {
     defaultValue: 60,
   });
 
-  const mostRecentFirstPulseDuration = storeLastValue(firstPulseDurations);
+  const mostRecentFirstPulseDuration = latestValueStore(firstPulseDurations);
 
   const [PulseGapSlider, pulseGapDurations] = createRangeSlider({
     defaultValue: 30,
   });
-  const mostRecentPulseGapDuration = storeLastValue(pulseGapDurations);
+  const mostRecentPulseGapDuration = latestValueStore(pulseGapDurations);
 
   const [SecondPulseSlider, secondPulseDurations] = createRangeSlider({
     defaultValue: 120,
   });
-  const mostRecentSecondPulseDuration = storeLastValue(secondPulseDurations);
+  const mostRecentSecondPulseDuration = latestValueStore(secondPulseDurations);
 
   const submissions = callbackBroadcasterConverter<[Event]>();
   const spotWelderTriggers = map(submissions, async ([e]) => {

@@ -108,6 +108,7 @@ abstract class CachedField implements Field {
 class AsyncIteratorField<T extends any> extends CachedField {
   constructor(private readonly innerField: Field) {
     super();
+    console.log('yes?');
   }
 
   set(iterable: AsyncIterable<T>) {
@@ -570,6 +571,7 @@ export const renderValue = (
   container: Node,
   before: Node | null,
 ): RenderResult<unknown> | undefined => {
+  console.log(value);
   if (value == null) {
     if (oldResult !== undefined) {
       removeUntilBefore(container, oldResult.data.first, before);

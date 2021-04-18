@@ -5,13 +5,13 @@ class Mapper<I, O> implements AsyncIterable<O>, AsyncIterator<O> {
 
   }
 
-  async next(v: P) {
+  async next(v) {
     const i = await this.iterator.next(v);
     if(i.done) {
       return i;
     }
 
-    return { value: this.mapFn(i.value), done: false };
+    return { value: await this.mapFn(i.value), done: false };
   }
 
   [Symbol.asyncIterator](): Mapper<I, O> {
@@ -28,7 +28,6 @@ class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
   constructor(private readonly buffer: BufferStore<IteratorResult<T>> = []) {}
 
   push(value: IteratorResult<T>) {
-    console.log('test', value);
     if (this.waitingQueue.length >= 1) {
       this.waitingQueue.shift()!(value);
     } else {
@@ -86,6 +85,14 @@ class Emitter<T> implements AsyncIterableIterator<T> {
     } as IteratorResult<T>);
   }
 
+  get queueLength() {
+    return this.internalEmitter.queueLength
+  }
+
+  get bufferLength() {
+    return this.internalEmitter.bufferLength;
+  }
+
   [Symbol.asyncIterator](): Emitter<T> {
     return this;
   }
@@ -99,47 +106,46 @@ export const emitter = <T>(): Emitter<T> => new Emitter<T>();
 export const callbackConverter = <T extends any[]>() => {
   const iterable = new Emitter<T>();
   return {
-    iterable,
     callback: (...v: T) => iterable.push(v),
-    finish: () => iterable.finish(),
+    next: iterable.next.bind(iterable),
+    finish: iterable.finish.bind(iterable),
+    [Symbol.asyncIterator]: () => iterable[Symbol.asyncIterator](),
   };
 };
 // TOOD: A lot of these methods do not account for values that are returned from AsyncGenerators since they all use for await... of syntax
 
 class Broadcaster<T> implements AsyncIterableIterator<T> {
-  protected readonly emitter: IteratorResultEmitter<T> = new IteratorResultEmitter<T>();
-
   private constructor(
     private readonly iterator: AsyncIterator<T>,
     private readonly broadcasters: Broadcaster<T>[],
+    protected readonly buffer: Promise<IteratorResult<T>>[]
   ) {
     broadcasters.push(this);
   }
 
   static create<T>(iterable: AsyncIterable<T>) {
-    return new Broadcaster(iterable[Symbol.asyncIterator](), []);
+    return new Broadcaster(iterable[Symbol.asyncIterator](), [], []);
   }
 
   async next() {
-    if (this.emitter.bufferLength >= 1) {
-      const result = await this.emitter.next();
-      return result;
+    if (this.buffer.length >= 1) {
+      return this.buffer.shift()!;
     }
 
-    const result = await this.iterator.next();
+    const resultPromise = this.iterator.next();
 
     for (const broadcaster of this.broadcasters) {
       if (this === broadcaster) {
         continue;
       }
-      broadcaster.emitter.push(result);
+      broadcaster.buffer.push(resultPromise);
     }
 
-    return result;
+    return await resultPromise;
   }
 
   [Symbol.asyncIterator]() {
-    return new Broadcaster(this.iterator, this.broadcasters);
+    return new Broadcaster(this.iterator, this.broadcasters, [...this.buffer]);
   }
 }
 
@@ -472,7 +478,6 @@ class Buffered<T> implements AsyncIterableIterator<T> {
   }
 
   async next(): Promise<IteratorResult<T>> {
-    console.log(this.queueLengthLength, this.bufferLength);
     if (this.buffer.length >= 1) {
       const result = this.buffer.shift()!;
       if (hasFailure(result)) {
