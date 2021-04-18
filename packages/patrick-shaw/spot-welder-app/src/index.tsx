@@ -58,8 +58,15 @@ const rawDevices = callbackBroadcasterConverter<[any]>();
 const devicesWithInitial = (async function* deviceGenerator() {
   try {
     const initialDevices = await navigator.usb.getDevices();
-    if (initialDevices.length >= 1) {
-      yield initialDevices[0];
+    console.log('initial', initialDevices);
+    for(const device of initialDevices) {
+      if (device.productId === 29987) {
+        yield device;
+      } else {
+        await device.open();
+        await device.reset();
+        await device.close();
+      }
     }
   } catch (err) {
     console.error(err);
@@ -73,10 +80,12 @@ const devicesWithInitial = (async function* deviceGenerator() {
 let selectedDevice = null;
 (async () => {
   for await (const device of devicesWithInitial) {
-    console.log('DEVICE SEELCTED', device);
+    console.log('DEVICE SEELCTED', device, selectedDevice);
     if (selectedDevice !== null) {
       try {
+        await selectedDevice.reset();
         await selectedDevice.close();
+        console.log('reset');
       } catch(err){
         console.error(err);
       }
@@ -91,7 +100,7 @@ let selectedDevice = null;
         selectedDevice = null;
       }
     } else {
-      selectedDevice = device;
+      selectedDevice = null;
     }
     rerender();
   }
@@ -196,6 +205,41 @@ const createSpotWelderForm = () => {
       secondPulseDuration,
     };
   });
+
+  const recognition = new (globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition)();
+  recognition.continuous = true;
+  recognition.lang = navigator.languages[0];
+  recognition.interimResults = false;
+
+  const speechRecognitionList = new (globalThis.SpeechGrammarList || globalThis.webkitSpeechGrammarList)();
+  speechRecognitionList.addFromString('start', 1);
+  recognition.grammars = speechRecognitionList;
+
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+  recognition.onresult = function(event) {
+    console.log(event);
+    // TODO: Totally hacky - Doesn't account for multiple words
+    const speechResult = event.results[event.resultIndex];
+    if (speechResult.length > 1 && speechResult.isFinal) {
+      return;
+    }
+    const weldResult = speechResult[0];
+    // TODO: Need some feedback if we're not confident enough
+    if (weldResult.confidence > 0.95 && weldResult.transcript.includes('start')) {
+      submissions.callback(event);
+    }
+  };
+  recognition.onspeechend = () => {
+    console.log('ended');
+    recognition.abort();
+    recognition.start();
+  };
+  recognition.onnomatch = function(event) {
+    console.log('No speech result');
+    recognition.start();
+  }
 
   const Form = ({ disabled }) => (
     <form $$submit={submissions.callback} class={styles.locals.form}>
