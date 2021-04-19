@@ -6,6 +6,7 @@ import {
   callbackConverter,
   latestValueStore,
   map,
+  forEach
 } from '@pipelines/core-2';
 
 import styles from './index.scss';
@@ -174,12 +175,12 @@ const createSpotWelderForm = () => {
   const mostRecentFirstPulseDuration = latestValueStore(firstPulseDurations);
 
   const [PulseGapSlider, pulseGapDurations] = createRangeSlider({
-    defaultValue: 30,
+    defaultValue: 300,
   });
   const mostRecentPulseGapDuration = latestValueStore(pulseGapDurations);
 
   const [SecondPulseSlider, secondPulseDurations] = createRangeSlider({
-    defaultValue: 120,
+    defaultValue: 200,
   });
   const mostRecentSecondPulseDuration = latestValueStore(secondPulseDurations);
 
@@ -205,6 +206,44 @@ const createSpotWelderForm = () => {
       secondPulseDuration,
     };
   });
+
+  const audioCtx = new AudioContext();
+  const volume = audioCtx.createGain();
+  volume.gain.value = 0.25;
+  volume.connect(audioCtx.destination);
+
+  const demos = callbackBroadcasterConverter<[Event]>();
+  (async () => {
+    for await (const [e] of demos) {
+      console.log({ e});
+      e.preventDefault();
+      const [
+        firstPulseDuration,
+        pulseGapDuration,
+        secondPulseDuration,
+      ] = await Promise.all([
+        mostRecentFirstPulseDuration(),
+        mostRecentPulseGapDuration(),
+        mostRecentSecondPulseDuration(),
+      ]);
+
+      const lowSound = audioCtx.createOscillator();
+      lowSound.frequency.setValueAtTime(220, 0);
+      lowSound.connect(volume);
+      lowSound.start();
+      await new Promise(resolve => setTimeout(resolve, firstPulseDuration));
+      lowSound.disconnect();
+
+      await new Promise(resolve => setTimeout(resolve, pulseGapDuration));
+
+      const highSound = audioCtx.createOscillator();
+      highSound.frequency.setValueAtTime(440, 0);
+      highSound.connect(volume);
+      highSound.start();
+      await new Promise(resolve => setTimeout(resolve, secondPulseDuration));
+      highSound.disconnect();
+    }
+  })();
 
   const recognition = new (globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition)();
   recognition.continuous = true;
@@ -233,29 +272,31 @@ const createSpotWelderForm = () => {
   };
   recognition.onspeechend = () => {
     console.log('ended');
-    recognition.abort();
-    recognition.start();
   };
   recognition.onnomatch = function(event) {
     console.log('No speech result');
-    recognition.start();
   }
 
   const Form = ({ disabled }) => (
-    <form $$submit={submissions.callback} class={styles.locals.form}>
-      <FirstPulseSlider min={1} max={300}>
-        First pulse duration
-      </FirstPulseSlider>
-      <PulseGapSlider min={1} max={1000}>
-        Pulse gap duration
-      </PulseGapSlider>
-      <SecondPulseSlider min={1} max={300}>
-        Second pulse duration
-      </SecondPulseSlider>
-      <button type="submit" $disabled={disabled}>
-        Fire
+    <>
+      <form $$submit={submissions.callback} class={styles.locals.form}>
+        <FirstPulseSlider min={1} max={300}>
+          First pulse duration
+        </FirstPulseSlider>
+        <PulseGapSlider min={1} max={1000}>
+          Pulse gap duration
+        </PulseGapSlider>
+        <SecondPulseSlider min={1} max={300}>
+          Second pulse duration
+        </SecondPulseSlider>
+        <button type="submit" $disabled={disabled}>
+          Fire
+        </button>
+      </form>
+      <button $$click={demos.callback}>
+        Demo
       </button>
-    </form>
+    </>
   );
 
   return [Form, spotWelderTriggers];
