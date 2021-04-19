@@ -145,11 +145,11 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
       {children}
       <div class={styles.locals.inputContainer}>
         <input
+          {...other}
           type="range"
           class={styles.locals.rangeInput}
           $$input={durationState.callback}
           value={defaultValue}
-          {...other}
         />
         <span watch_$textContent={durations} />
       </div>
