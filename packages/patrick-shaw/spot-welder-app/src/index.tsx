@@ -169,18 +169,18 @@ async function* withDefault(
 
 const createSpotWelderForm = () => {
   const [FirstPulseSlider, firstPulseDurations] = createRangeSlider({
-    defaultValue: 60,
+    defaultValue: 39,
   });
 
   const mostRecentFirstPulseDuration = latestValueStore(firstPulseDurations);
 
   const [PulseGapSlider, pulseGapDurations] = createRangeSlider({
-    defaultValue: 300,
+    defaultValue: 200,
   });
   const mostRecentPulseGapDuration = latestValueStore(pulseGapDurations);
 
   const [SecondPulseSlider, secondPulseDurations] = createRangeSlider({
-    defaultValue: 200,
+    defaultValue: 120,
   });
   const mostRecentSecondPulseDuration = latestValueStore(secondPulseDurations);
 
@@ -270,6 +270,9 @@ const createSpotWelderForm = () => {
       submissions.callback(event);
     }
   };
+  recognition.onend = () => {
+    recognition.start();
+  }
   recognition.onspeechend = () => {
     console.log('ended');
   };
