@@ -157,9 +157,6 @@ impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CL
     }
 }
 
-static SPOT_WELDER_MANAGER_MUTEX: Mutex<
-    RefCell<Option<SpotWelderManager<USART0, PD0<Input<Floating>>, PD1<Output>, MHz16>>>,
-> = Mutex::new(RefCell::new(None));
 
 #[arduino_uno::entry]
 fn main() -> ! {
@@ -189,11 +186,28 @@ fn main() -> ! {
 
     let spot_welder_io = SpotWelderIO::new(low_sound, high_sound, spot_welder);
 
+    static SPOT_WELDER_MANAGER_MUTEX: Mutex<
+        RefCell<Option<SpotWelderManager<USART0, PD0<Input<Floating>>, PD1<Output>, MHz16>>>,
+    > = Mutex::new(RefCell::new(None));
+
     avr_device::interrupt::free(|cs| {
         SPOT_WELDER_MANAGER_MUTEX
             .borrow(cs)
             .replace(Some(SpotWelderManager::new(spot_welder_io, serial)));
     });
+
+    #[avr_device::interrupt(atmega328p)]
+    fn TIMER0_COMPA() {
+        avr_device::interrupt::free(|cs| {
+            if let Some(ref mut manager) = SPOT_WELDER_MANAGER_MUTEX
+                .borrow(cs)
+                .borrow_mut()
+                .deref_mut()
+            {
+                manager.interrupt();
+            }
+        });
+    }
 
     const TIMER_COUNTS: u32 = 250;
 
@@ -210,15 +224,3 @@ fn main() -> ! {
     loop {}
 }
 
-#[avr_device::interrupt(atmega328p)]
-fn TIMER0_COMPA() {
-    avr_device::interrupt::free(|cs| {
-        if let Some(ref mut manager) = SPOT_WELDER_MANAGER_MUTEX
-            .borrow(cs)
-            .borrow_mut()
-            .deref_mut()
-        {
-            manager.interrupt();
-        }
-    });
-}
