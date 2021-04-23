@@ -125,31 +125,34 @@ impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CL
             state_data.current_millis -= 1;
         }
       } else {
-        let pulse_data_response = PulseData::read(|| self.serial.read_byte());
-        let pulse_data = match pulse_data_response {
-            RedundentReadStatus::Success(pulse_data) => pulse_data,
-            _ => {
-                self.serial.write_byte(1);
-                return;
-            }
-        };
+        loop {
+          let pulse_data_response = PulseData::read(|| self.serial.read_byte());
+          let pulse_data = match pulse_data_response {
+              RedundentReadStatus::Success(pulse_data) => pulse_data,
+              _ => {
+                  self.serial.write_byte(1);
+                  continue;
+              }
+          };
 
-        if pulse_data.first_pulse_duration > 300 {
-            self.serial.write_byte(2);
-            return;
+          if pulse_data.first_pulse_duration > 300 {
+              self.serial.write_byte(2);
+              continue;
+          }
+
+          if pulse_data.pulse_gap_duration > 20000 {
+              self.serial.write_byte(3);
+              continue;
+          }
+
+          if pulse_data.second_pulse_duration > 300 {
+              self.serial.write_byte(4);
+              continue;
+          }
+
+          self.execute(pulse_data);
+          break;
         }
-
-        if pulse_data.pulse_gap_duration > 20000 {
-            self.serial.write_byte(3);
-            return;
-        }
-
-        if pulse_data.second_pulse_duration > 300 {
-            self.serial.write_byte(4);
-            return;
-        }
-
-        self.execute(pulse_data);
       }
     }
 }
