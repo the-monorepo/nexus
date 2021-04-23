@@ -3,20 +3,13 @@
 #![feature(abi_avr_interrupt)]
 #![feature(const_fn)]
 mod pulse_data;
-use arduino_uno::{
-    hal::port::{
-        mode::{Output, Pwm},
-        portd::PD3,
-    },
-    prelude::*,
-    pwm::Timer2Pwm,
-};
+use arduino_uno::{hal::port::{Pin, mode::{Output, Pwm}, portd::PD3}, prelude::*, pwm::Timer2Pwm};
 use arduino_uno::{
     hal::{
         clock::MHz16,
         port::{
             mode::{Floating, Input},
-            portb::{PB2, PB5},
+            portb::{PB2},
             portd::{PD0, PD1},
         },
         usart::{Usart, UsartOps},
@@ -25,21 +18,21 @@ use arduino_uno::{
     pwm::{self, Timer1Pwm},
 };
 use avr_device::interrupt::Mutex;
-use core::{cell::RefCell, ops::DerefMut};
+use core::{cell::RefCell};
 use panic_halt as _;
 use pulse_data::{PulseData, PulseMilliThresholds, RedundentReadStatus};
 
 struct SpotWelderIO {
     low_sound: PD3<Pwm<Timer2Pwm>>,
     high_sound: PB2<Pwm<Timer1Pwm>>,
-    spot_welder: PB5<Output>,
+    spot_welder: Pin<Output>,
 }
 
 impl SpotWelderIO {
     fn new(
         mut low_sound: PD3<Pwm<Timer2Pwm>>,
         mut high_sound: PB2<Pwm<Timer1Pwm>>,
-        mut spot_welder: PB5<Output>,
+        mut spot_welder: Pin<Output>,
     ) -> Self {
         low_sound.set_duty(127);
         high_sound.set_duty(127);
@@ -110,6 +103,37 @@ impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CL
         )));
     }
 
+    fn wait_till_successful_read_then_execute(&mut self) {
+        loop {
+            let pulse_data_response = PulseData::read(|| self.serial.read_byte());
+            let pulse_data = match pulse_data_response {
+                RedundentReadStatus::Success(pulse_data) => pulse_data,
+                _ => {
+                    self.serial.write_byte(1);
+                    continue;
+                }
+            };
+
+            if pulse_data.first_pulse_duration > 300 {
+                self.serial.write_byte(2);
+                continue;
+            }
+
+            if pulse_data.pulse_gap_duration > 20000 {
+                self.serial.write_byte(3);
+                continue;
+            }
+
+            if pulse_data.second_pulse_duration > 300 {
+                self.serial.write_byte(4);
+                continue;
+            }
+
+            self.execute(pulse_data);
+            break;
+        }
+    }
+
     fn interrupt(&mut self) {
         if let Some(ref mut state_data) = self.state {
             if state_data.current_millis == 0 {
@@ -133,34 +157,7 @@ impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CL
                 state_data.current_millis -= 1;
             }
         } else {
-            loop {
-                let pulse_data_response = PulseData::read(|| self.serial.read_byte());
-                let pulse_data = match pulse_data_response {
-                    RedundentReadStatus::Success(pulse_data) => pulse_data,
-                    _ => {
-                        self.serial.write_byte(1);
-                        continue;
-                    }
-                };
-
-                if pulse_data.first_pulse_duration > 300 {
-                    self.serial.write_byte(2);
-                    continue;
-                }
-
-                if pulse_data.pulse_gap_duration > 20000 {
-                    self.serial.write_byte(3);
-                    continue;
-                }
-
-                if pulse_data.second_pulse_duration > 300 {
-                    self.serial.write_byte(4);
-                    continue;
-                }
-
-                self.execute(pulse_data);
-                break;
-            }
+            self.wait_till_successful_read_then_execute();
         }
     }
 }
@@ -191,7 +188,7 @@ fn main() -> ! {
 
     let spot_welder = pins.d13.into_output(&mut pins.ddr);
 
-    let spot_welder_io = SpotWelderIO::new(low_sound, high_sound, spot_welder);
+    let spot_welder_io = SpotWelderIO::new(low_sound, high_sound, spot_welder.downgrade());
 
     let spot_welder_manager = SpotWelderManager::new(spot_welder_io, serial);
 
@@ -209,7 +206,12 @@ fn main() -> ! {
     #[avr_device::interrupt(atmega328p)]
     fn TIMER0_COMPA() {
         avr_device::interrupt::free(|cs| {
-          SPOT_WELDER_MANAGER_MUTEX.borrow(cs).borrow_mut().as_mut().unwrap().interrupt();
+            SPOT_WELDER_MANAGER_MUTEX
+                .borrow(cs)
+                .borrow_mut()
+                .as_mut()
+                .unwrap()
+                .interrupt();
         });
     }
 
