@@ -49,7 +49,7 @@ const createUSBConnectButton = ({ onDevice }) => {
     onDevice(device);
   };
 
-  const USBConnectButton = () => <button $$click={onSelectUSBClick}>Select USB</button>;
+  const USBConnectButton = () => <button $$click={onSelectUSBClick} type="submit">Select USB</button>;
 
   return USBConnectButton;
 };
@@ -151,7 +151,7 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
           $$input={durationState.callback}
           value={defaultValue}
         />
-        <span watch_$textContent={durations} />
+        <span class={styles.locals.inputValue} watch_$textContent={durations} />
       </div>
     </label>
   );
@@ -266,7 +266,7 @@ const createSpotWelderForm = () => {
     }
     const weldResult = speechResult[0];
     // TODO: Need some feedback if we're not confident enough
-    if (weldResult.confidence > 0.95 && weldResult.transcript.includes('start')) {
+    if (weldResult.confidence > 0.95 && /\bstart\b/.test(weldResult.transcript)) {
       submissions.callback(event);
     }
   };
@@ -295,10 +295,10 @@ const createSpotWelderForm = () => {
         <button type="submit" $disabled={disabled}>
           Fire
         </button>
+        <button $$click={demos.callback}>
+          Demo
+        </button>
       </form>
-      <button $$click={demos.callback}>
-        Demo
-      </button>
     </>
   );
 
@@ -346,13 +346,19 @@ let transferring = false;
   }
 })();{}
 
+const USBInfo = () => (
+  <section>
+    <USBSelection device={selectedDevice} />
+    <ConnectButton />
+    {selectedDevice !== null ? <DisconnectButton /> : null}
+  </section>
+)
+
 const App = () => (
   <>
     <style>{styles.toString()}</style>
     <main>
-      <USBSelection device={selectedDevice} />
-      <ConnectButton />
-      {selectedDevice !== null ? <DisconnectButton /> : null}
+      <USBInfo />
       <Form disabled={transferring} />
       {transferring ? 'Transferring' : undefined}
     </main>
