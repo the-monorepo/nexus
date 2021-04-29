@@ -3,7 +3,7 @@ import yargs from 'yargs';
 
 import createLogger from '@pshaw/logger';
 
-import * as TaskTypes from './TaskTypes';
+import * as TaskTypes from './TaskTypes.ts'
 export { TaskTypes };
 
 const log: Console = createLogger({ colorMode: 'auto' });

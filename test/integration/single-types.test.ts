@@ -1,6 +1,6 @@
 import { DefaultTypeName, NumberFormat } from '@byexample/types';
 
-import { examples } from '../util/from-examples';
+import { examples } from '../util/from-examples.ts'
 
 describe('single types', () => {
   describe('function', () => {

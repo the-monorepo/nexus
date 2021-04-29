@@ -1,4 +1,4 @@
-import { defaultCompareFn } from '../src/index';
+import { defaultCompareFn } from '../src/index.ts'
 it(defaultCompareFn.name, () => {
   expect(defaultCompareFn(0, 0)).toBe(0);
   expect(defaultCompareFn('0', 0)).toBe(0);

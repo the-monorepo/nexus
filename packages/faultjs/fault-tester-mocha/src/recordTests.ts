@@ -4,7 +4,7 @@ import Mocha from 'mocha';
 
 import { subtractCoverage, Coverage } from '@fault/istanbul-util';
 
-import { client } from './client';
+import { client } from './client.ts'
 
 const {
   EVENT_TEST_FAIL,

@@ -12,7 +12,7 @@ import {
   getDependencyPaths,
   pathToKey,
   widenCoveragePath,
-} from '../src/index';
+} from '../src/index.ts'
 
 const ast1 = parse(
   'const a = Math.random(); if(a > 0.5) { console.log("consequent") } else { console.log("alternate") }; null;',

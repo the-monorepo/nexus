@@ -1,5 +1,5 @@
 import { OverrideHierachyElement } from '@contextual-documents/element';
-import { PShawHeaderElement, PShawFooterElement, PShawSectionElement, PShawH1Element, PShawH2Element, PShawH3Element, PShawH4Element, PShawH5Element, PShawH6Element, PShawLabelElement, PShawPElement } from './elements';
+import { PShawHeaderElement, PShawFooterElement, PShawSectionElement, PShawH1Element, PShawH2Element, PShawH3Element, PShawH4Element, PShawH5Element, PShawH6Element, PShawLabelElement, PShawPElement } from './elements.ts'
 
 globalThis.customElements.define('pshaw-header', PShawHeaderElement);
 globalThis.customElements.define('pshaw-footer', PShawFooterElement);

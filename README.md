@@ -16,14 +16,11 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
 1.1.4-0 | [`@pshaw/resume-template`](packages/misc/resume-template/README.md) | A template you can use to generate resumes
-0.0.11 | [`@resultful/failure`](packages/resultful/failure/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
-0.0.11 | [`@resultful/result`](packages/resultful/result/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 0.0.4 | [`@resultful/utility-types`](packages/resultful/utility-types/README.md) | String constants for the different result types returned by resultful
 1.0.0-alpha.2 | [`cinder`](packages/cinder/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 1.6.2-0 | [`css-color-checker`](packages/misc/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](packages/misc/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](packages/misc/dom-context/README.md) | A React Context API-like context API for web components
-2.2.4-0 | [`hook-schema`](packages/misc/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 1.0.0-alpha.1 | [`ipc-fifo-processor`](packages/misc/ipc-fifo-processor/README.md) | Makes IPC connections appear FIFO
 4.0.0 | [`jest-mock-functions`](packages/misc/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.6.1 | [`named-css-colors`](packages/misc/named-css-colors/README.md) | Package of named CSS colors and their values
@@ -66,12 +63,6 @@ Version | Package | Description
 Version | Package | Description
 --- | --- | ---
 1.4.3 | [`@pshaw/markdown-util`](packages/misc/markdown-util/README.md) | A helper package for writing markdown files
-3.1.4-0 | [`@writeme/core`](packages/writeme/writeme-core/README.md) | A readme generator
-
-### Logging
-Version | Package | Description
---- | --- | ---
-2.0.5-0 | [`@pshaw/logger`](packages/misc/logger/README.md) | A preformatted, opinionated logger
 
 ### ESLint
 Version | Package | Description

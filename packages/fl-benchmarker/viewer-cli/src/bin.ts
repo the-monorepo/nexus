@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import { build, watch } from './index';
+import { build, watch } from './index.ts'
 
 const createModeOptionArgs = (defaultEnv: string) => ([
   'mode',

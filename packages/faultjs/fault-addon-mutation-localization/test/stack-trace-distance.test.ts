@@ -6,7 +6,7 @@ import ErrorStackParser from 'error-stack-parser';
 
 import { TestResult } from '@fault/types';
 
-import { executionDistanceFromStart, evaluateStackDifference } from '../src';
+import { executionDistanceFromStart, evaluateStackDifference } from '../src/index.ts'
 
 const stubTestResult = (key: string, stack): TestResult => ({
   type: 'submit-test-result',

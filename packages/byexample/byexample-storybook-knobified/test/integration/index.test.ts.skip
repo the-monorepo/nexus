@@ -2,7 +2,7 @@ import rewiremock from 'rewiremock';
 
 import { text, color, number } from '@storybook/addon-knobs';
 
-import { fromExamples } from '../../src/index';
+import { fromExamples } from '../../src/index.ts'
 
 rewiremock('@storybook/addon-knobs').enable();
 rewiremock('@storybook/addon-actions').enable();

@@ -1,6 +1,6 @@
-import { broadcaster } from '../src/index';
+import { broadcaster } from '../src/index.ts'
 
-import { infiniteCounter } from './test-utils';
+import { infiniteCounter } from './test-utils.ts'
 
 it(broadcaster.name, async () => {
   const iterator = infiniteCounter();

@@ -1,8 +1,8 @@
 import { success, error, isSuccess, valueOf } from 'resultful';
 
-import * as ErrorTypes from './ErrorTypes';
-import * as FormatTypes from './FormatTypes';
-import * as FormatMetadata from './FormatMetadata';
+import * as ErrorTypes from './ErrorTypes.ts'
+import * as FormatTypes from './FormatTypes.ts'
+import * as FormatMetadata from './FormatMetadata.ts'
 
 const defaultDelimiters = new Set(['|', '\n']);
 const nextString = async (reader: AsyncIterableIterator<string>, delimiters: Set<string> = defaultDelimiters) => {

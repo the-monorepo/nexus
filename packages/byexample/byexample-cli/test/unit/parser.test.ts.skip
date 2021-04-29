@@ -1,4 +1,4 @@
-import { createArgParser } from '../../src/createArgParser';
+import { createArgParser } from '../../src/createArgParser.ts'
 
 jest.mock('../../src/actions/defaultModuleAction');
 

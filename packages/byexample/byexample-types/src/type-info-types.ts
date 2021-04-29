@@ -2,7 +2,7 @@
  * TODO: Not a great file name
  * To be honest, if it didn't sound confusing, I would call this type-types :P
  */
-import { DefaultTypeName } from './DefaultTypeName';
+import { DefaultTypeName } from './DefaultTypeName.ts'
 
 export type Type = {
   name: string;

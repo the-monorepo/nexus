@@ -1,10 +1,10 @@
-import * as FailureTypes from './types';
+import * as FailureTypes from './types.ts'
 import {
   ResultTransformer,
   TransformTypedObject,
   OptionIfTypeElseEmpty,
 } from '@resultful/utility-types';
-import { ERROR, UNKNOWN } from './types';
+import { ERROR, UNKNOWN } from './types.ts'
 export { FailureTypes };
 
 export type ErrorFailure<ErrorType> = {

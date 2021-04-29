@@ -24,7 +24,7 @@ import * as previousStyles from './ViolinGraph.scss';
 import * as figureStyles from './figure.scss';
 import styles from './ViolinGraphElement.scss';
 
-import { COLUMN, ROW, LayoutFlow } from './LayoutFlows';
+import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts'
 import { autorun } from 'mobx';
 
 const kernelEpanechnikov = (bandwidth: number) => {

@@ -1,4 +1,4 @@
-import { countConsequtiveValues, BaseLocation } from '../src/countConsequtiveValues';
+import { countConsequtiveValues, BaseLocation } from '../src/countConsequtiveValues.ts'
 const countConsequtiveValuesToArray = async <T>(sequence: Iterable<T>): Promise<BaseLocation<T>[]> => {
   const locations: BaseLocation<T>[] = [];
 

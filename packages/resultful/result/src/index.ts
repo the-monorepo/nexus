@@ -1,5 +1,5 @@
-import * as ResultTypes from './types';
-import { PAYLOAD, FAILURE } from './types';
+import * as ResultTypes from './types.ts'
+import { PAYLOAD, FAILURE } from './types.ts'
 import {
   TransformTypedObject,
   Include,
