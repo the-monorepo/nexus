@@ -6,7 +6,7 @@ import * as tr from '@babel/traverse';
 import type { JSXElement, JSXText, JSXExpressionContainer } from '@babel/types';
 import * as t from '@babel/types';
 
-import PRAGMA from './DefaultPragma';
+import PRAGMA from './DefaultPragma.ts'
 
 const cinderMemberExpression = (field: string) => {
   return t.memberExpression(t.identifier(PRAGMA), t.identifier(field));

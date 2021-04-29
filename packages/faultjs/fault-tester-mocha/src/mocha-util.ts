@@ -1,6 +1,6 @@
 import * as resultful from 'resultful';
 
-import { IPCReporter } from './recordTests';
+import { IPCReporter } from './recordTests.ts'
 
 export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   const mochaInstance = new Mocha({

@@ -1,4 +1,4 @@
-import { isCssColor } from '../src/index';
+import { isCssColor } from '../src/index.ts'
 describe('isCssColor', () => {
   it('rgb(0,0,0) returns true', () => {
     expect(isCssColor('rgb(0,0,0)')).toBe(true);

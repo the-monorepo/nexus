@@ -1,4 +1,4 @@
-import * as FormatTypes from './FormatTypes';
+import * as FormatTypes from './FormatTypes.ts'
 
 type BaseFormatMetadata<Type extends FormatTypes.FormatType, Keys extends Readonly<string[]>> = {
   type: Type,

@@ -5,7 +5,6 @@ import {
   createBundleAnalyzerPlugin,
   recommendedRules,
   recommendedWebcomponentRules,
-  resolvedExtensions,
   createOutput,
   CopyPlugin,
   Configuration,
@@ -30,9 +29,6 @@ const createDistOutput = (packageDir: string) => {
 const pageBreakerFrontendConfig: Configuration = {
   name: 'page-breaker',
   target: 'web',
-  resolve: {
-    extensions: resolvedExtensions,
-  },
   devtool: 'source-map',
   module: {
     rules: recommendedRules,
@@ -65,9 +61,6 @@ const pageBreakerFrontendConfig: Configuration = {
 const resumeConfig: Configuration = {
   name: 'my-resume',
   target: 'web',
-  resolve: {
-    extensions: resolvedExtensions,
-  },
   module: {
     rules: recommendedRules,
   },
@@ -89,9 +82,6 @@ const geneticSequenceAnalysisAppDir = resolve(miscDir, 'genetic-sequence-analysi
 const geneticSequenceAnalysisApp: Configuration = {
   name: 'genetic-sequence-analysis-app',
   target: 'web',
-  resolve: {
-    extensions: resolvedExtensions,
-  },
   devtool: 'source-map',
   module: {
     rules: recommendedRules,
@@ -125,9 +115,6 @@ const particleSensorAppDir = resolve(patrickShawDir, 'particle-sensor-app');
 const particleSensorApp: Configuration = {
   name: 'particle-sensor-app',
   target: 'web',
-  resolve: {
-    extensions: resolvedExtensions,
-  },
   devtool: 'source-map',
   module: {
     rules: recommendedWebcomponentRules,
@@ -161,9 +148,6 @@ const spotWelderSensorAppDir = resolve(patrickShawDir, 'spot-welder-app');
 const spotWelderApp: Configuration = {
   name: 'spot-welder-app',
   target: 'web',
-  resolve: {
-    extensions: resolvedExtensions,
-  },
   devtool: 'source-map',
   module: {
     rules: recommendedWebcomponentRules,

@@ -2,8 +2,8 @@ import * as cinder from 'cinder';
 
 import { createPayload, createFailure } from '@resultful/result';
 
-import { TimeLineChartElement } from './TimeLineChartElement';
-import { SensorPanelElement } from './SensorPanelElement';
+import { TimeLineChartElement } from './TimeLineChartElement.ts'
+import { SensorPanelElement } from './SensorPanelElement.ts'
 
 import styles from './index.scss';
 globalThis.customElements.define('time-line-chart', TimeLineChartElement);

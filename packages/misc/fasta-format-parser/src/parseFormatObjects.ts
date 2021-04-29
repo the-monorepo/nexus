@@ -1,5 +1,5 @@
 import { valueOf } from 'resultful';
-import { parseFormatObject } from './parseFormatObject';
+import { parseFormatObject } from './parseFormatObject.ts'
 
 export async function* parseFormatObjects(reader: AsyncIterableIterator<string>) {
   let current = await reader.next();

@@ -25,7 +25,7 @@ import {
 } from '@fault/types';
 import { readJson, writeJson } from '@pshaw/fs';
 
-import * as defaultReporter from './default-reporter';
+import * as defaultReporter from './default-reporter.ts'
 
 const addonEntryPath = require.resolve('./addon-entry');
 

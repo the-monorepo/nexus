@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 
-import { createHtmlWebpackPlugin, createOutput, Configuration, resolvedExtensions, recommendedWebcomponentRules } from '@pshaw/webpack';
+import { createHtmlWebpackPlugin, createOutput, Configuration, recommendedWebcomponentRules } from '@pshaw/webpack';
 import { DefinePlugin } from '@pshaw/webpack/webpack';
 
 import globby from 'globby';
@@ -18,9 +18,6 @@ export const createConfig = ({ resultsDir, outputDir }: CreateConfigOptions) => 
   return {
     name: "fault-benchmark",
     target: "web",
-    resolve: {
-      extensions: resolvedExtensions,
-    },
     devtool: "source-map",
     module: {
       rules: recommendedWebcomponentRules,

@@ -1,7 +1,7 @@
 import jest from 'jest-mock';
 
-import { typeTest } from '../../src/TypeTest';
-import { runTypeTests } from '../../src/runTypeTests';
+import { typeTest } from '../../src/TypeTest.ts'
+import { runTypeTests } from '../../src/runTypeTests.ts'
 function testResult(values, checks, expectedResult) {
   it('correct result', () => {
     const expectedValues: any[] = [];

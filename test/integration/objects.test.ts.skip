@@ -3,7 +3,7 @@ import { text, boolean, number, object, array } from '@storybook/addon-knobs';
 
 import { DefaultTypeName, NumberFormat } from '@byexample/types';
 
-import { examples } from '../util/from-examples';
+import { examples } from '../util/from-examples.ts'
 
 describe('objects', () => {
   describe('2 objects with all fields', () => {

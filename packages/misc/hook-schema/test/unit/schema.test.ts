@@ -1,4 +1,4 @@
-import { fromSchema } from '../../src';
+import { fromSchema } from '../../src/index.ts'
 describe('schema', () => {
   const testSchema = {
     a: null,

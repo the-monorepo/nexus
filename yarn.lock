@@ -1592,12 +1592,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@byexample/cli@workspace:packages/byexample/byexample-cli"
   dependencies:
+    "@byexample/openapi": "workspace:packages/byexample/byexample-openapi"
+    "@byexample/types": "workspace:packages/byexample/byexample-types"
     "@types/node": ^14.6.0
     chalk: ^4.1.0
     commander: ^6.0.0
     source-map-support: ^0.5.19
   bin:
-    byexample: ./commonjs/index.js
+    byexample: ./commonjs/index.ts
   languageName: unknown
   linkType: soft
 
@@ -15391,6 +15393,7 @@ fsevents@~2.3.1:
     "@babel/preset-typescript": ^7.13.0
     "@babel/register": ^7.13.14
     "@buildplan/core": "workspace:packages/buildplan/core"
+    "@byexample/cli": "workspace:packages/byexample/byexample-cli"
     "@byexample/openapi": "workspace:packages/byexample/byexample-openapi"
     "@byexample/storybook-knobified": "workspace:packages/byexample/byexample-storybook-knobified"
     "@byexample/types": "workspace:packages/byexample/byexample-types"

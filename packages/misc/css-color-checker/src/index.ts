@@ -6,7 +6,7 @@ import {
   isValidPercentage,
   isValidHue,
   isValidRgbVal,
-} from './value-checks';
+} from './value-checks.ts'
 
 const cssColorNames = Object.keys(cssColors);
 
