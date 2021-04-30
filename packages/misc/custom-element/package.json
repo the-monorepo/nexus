@@ -18,5 +18,5 @@
     "access": "public"
   },
   "main": "./commonjs/index.ts",
-  "module": "./esm/index.js"
+  "module": "./esm/index.ts"
 }

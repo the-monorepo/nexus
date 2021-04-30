@@ -353,7 +353,7 @@ class ViolinResultsChartElement extends HTMLElement {
   }
 }
 
-window.customElements.define('violin-chart', ViolinResultsChartElement);
+globalThis.customElements.define('violin-chart', ViolinResultsChartElement);
 
 const rerender = () => cinder.render(<Main />, document.getElementById('root'));
 

@@ -4,7 +4,7 @@
   "version": "1.0.0-alpha.6",
   "license": "MIT",
   "bin": {
-    "byexample": "./commonjs/index.js"
+    "byexample": "./commonjs/index.ts"
   },
   "publishConfig": {
     "access": "public"
@@ -13,6 +13,8 @@
   "types": "./src/index.ts",
   "devPackage": true,
   "dependencies": {
+    "@byexample/openapi": "workspace:packages/byexample/byexample-openapi",
+    "@byexample/types": "workspace:packages/byexample/byexample-types",
     "@types/node": "^14.6.0",
     "chalk": "^4.1.0",
     "commander": "^6.0.0",

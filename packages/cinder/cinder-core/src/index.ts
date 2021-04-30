@@ -112,21 +112,25 @@ class AsyncIteratorField<T extends any> extends CachedField {
 
   set(iterable: AsyncIterable<T>) {
     (async () => {
-      const iterator = iterable[Symbol.asyncIterator]();
+      try {
+        const iterator = iterable[Symbol.asyncIterator]();
 
-      {
-        const firstVal = await iterator.next();
-        if (firstVal.done) {
-          return;
+        {
+          const firstVal = await iterator.next();
+          if (firstVal.done) {
+            return;
+          }
+          this.innerField.init([firstVal.value], 0);
         }
-        this.innerField.init([firstVal.value], 0);
-      }
 
 
-      let val = await iterator.next();
-      while(!val.done) {
-        this.innerField.update([val.value], 0);
-        val = await iterator.next();
+        let val = await iterator.next();
+        while(!val.done) {
+          this.innerField.update([val.value], 0);
+          val = await iterator.next();
+        }
+      } catch(err) {
+        console.error(err);
       }
     })();
   }
@@ -258,6 +262,8 @@ export const renderComponentResultNoSet = <C, V, N extends Node>(
   container: Node,
   before: Node | null,
 ): RenderResult<C, N> => {
+
+  console.log(renderInfo, container, before);
   const blueprint = renderInfo.blueprint;
   const data = blueprint.mount(renderInfo.value, container, before);
   return renderResult(blueprint.id, data, blueprint.unmount);
@@ -457,6 +463,7 @@ const mapBlueprint: GenericBlueprint<
 class DynamicSection implements Field {
   private readonly state: (RenderResult<unknown> | undefined)[];
   constructor(private readonly el: Node, private readonly before: Node, length: number) {
+    console.log(el, before);
     this.state = new Array(length).fill(undefined);
   }
 
@@ -469,10 +476,12 @@ class DynamicSection implements Field {
   }
 
   init(fieldValues, v) {
+    console.log('init', fieldValues);
     return this.update(fieldValues, v);
   }
 
   update(fieldValues, v) {
+    console.log('update', fieldValues);
     const container = this.el;
     let before = this.before;
     let f = 0;
@@ -564,13 +573,21 @@ export const renderOrReuseComponentResult = <C, V, N extends Node>(
   }
 };
 
+export const validateComponent = (component, properties) => {
+  const result = component(properties);
+  if (result === undefined) {
+    throw new Error(`The '${component.name}' component returned ${result} which is not a valid return value`);
+  }
+  return result;
+};
+
 export const renderValue = (
   value: unknown,
   oldResult: RenderResult<unknown> | undefined,
   container: Node,
   before: Node | null,
 ): RenderResult<unknown> | undefined => {
-  if (value == null) {
+  if (value === null || value === undefined) {
     if (oldResult !== undefined) {
       removeUntilBefore(container, oldResult.data.first, before);
     }

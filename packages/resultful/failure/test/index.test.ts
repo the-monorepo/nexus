@@ -14,7 +14,7 @@ import {
   handle,
   payload,
   normal
-} from '../src/index';
+} from '../src/index.ts'
 
 const successPayload = {
   type: ResultTypes.SUCCESS,

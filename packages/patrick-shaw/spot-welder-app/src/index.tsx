@@ -1,38 +1,30 @@
 import * as cinder from 'cinder';
 
-import callbackGenerator from '@pipelines/callback-converter';
-import broadcaster from '@pipelines/broadcaster';
+import {
+  broadcaster,
+  zip,
+  callbackConverter,
+  latestValueStore,
+  map,
+  forEach
+} from '@pipelines/core-2';
 
 import styles from './index.scss';
 
 const callbackBroadcasterConverter = <T extends any>() => {
-  const converter = callbackGenerator<T>();
+  const converter = callbackConverter<T>();
 
   const broadcast = broadcaster(converter);
-  broadcast['callback'] = (...args) => converter.callback(...args);
 
-  return broadcast;
-};
+  broadcast['callback'] = converter.callback;
 
-function storeLastValue<T>(asyncIterable: AsyncIterable<T>) {
-  const iterator = asyncIterable[Symbol.asyncIterator]();
-
-  let firstYieldedResult = iterator.next();
-  let current;
-
-  (async () => {
-    let currentYield = firstYieldedResult;
-    do {
-      current = (await currentYield).value;
-      currentYield = iterator.next();
-    } while (!currentYield.done);
-  })();
-
-  return async () => {
-    await firstYieldedResult;
-    return current;
+  return {
+    ...converter,
+    [Symbol.asyncIterator]() {
+      return broadcast;
+    },
   };
-}
+};
 
 const requestUSB = async () => {
   const device = await navigator.usb.requestDevice({ filters: [] });
@@ -52,11 +44,12 @@ const claimUSB = async (device) => {
 
 const createUSBConnectButton = ({ onDevice }) => {
   const onSelectUSBClick = async (event) => {
+    console.warn(event);
     const device = await requestUSB();
     onDevice(device);
   };
 
-  const USBConnectButton = () => <button $$click={onSelectUSBClick}>Select USB</button>;
+  const USBConnectButton = () => <button $$click={onSelectUSBClick} type="submit">Select USB</button>;
 
   return USBConnectButton;
 };
@@ -66,8 +59,15 @@ const rawDevices = callbackBroadcasterConverter<[any]>();
 const devicesWithInitial = (async function* deviceGenerator() {
   try {
     const initialDevices = await navigator.usb.getDevices();
-    if (initialDevices.length >= 1) {
-      yield initialDevices[0];
+    console.log('initial', initialDevices);
+    for(const device of initialDevices) {
+      if (device.productId === 29987) {
+        yield device;
+      } else {
+        await device.open();
+        await device.reset();
+        await device.close();
+      }
     }
   } catch (err) {
     console.error(err);
@@ -81,8 +81,15 @@ const devicesWithInitial = (async function* deviceGenerator() {
 let selectedDevice = null;
 (async () => {
   for await (const device of devicesWithInitial) {
+    console.log('DEVICE SEELCTED', device, selectedDevice);
     if (selectedDevice !== null) {
-      selectedDevice.close();
+      try {
+        await selectedDevice.reset();
+        await selectedDevice.close();
+        console.log('reset');
+      } catch(err){
+        console.error(err);
+      }
     }
     if (device !== null) {
       try {
@@ -94,7 +101,7 @@ let selectedDevice = null;
         selectedDevice = null;
       }
     } else {
-      selectedDevice = device;
+      selectedDevice = null;
     }
     rerender();
   }
@@ -108,9 +115,9 @@ const ConnectButton = createUSBConnectButton({
 navigator.usb.addEventListener('connect', (e) => rawDevices.callback(e.device));
 navigator.usb.addEventListener('disconnect', disconnectDevice);
 
-const USBSelection = ({ device }) => {
-  <section>{device === null ? undefined : `Selected ${device.productName}`}</section>;
-};
+const USBSelection = ({ device }) => (
+  <section>{device === null ? undefined : `Selected ${device.productName}`}</section>
+);
 
 export type RangeSliderInput = {
   defaultValue: number;
@@ -121,7 +128,7 @@ export type RangeSliderProps = {
 };
 
 export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
-  const durationState = callbackGenerator<[Event]>();
+  const durationState = callbackConverter<[Event]>();
   const durations = broadcaster(
     withDefault(
       map(durationState, ([e]) => {
@@ -130,7 +137,7 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
         return Number.parseInt(e.target.value);
       }),
       defaultValue,
-    ),
+    )
   );
 
   const RangeSlider = ({ children, ...other }: RangeSliderProps) => (
@@ -138,13 +145,13 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
       {children}
       <div class={styles.locals.inputContainer}>
         <input
+          {...other}
           type="range"
           class={styles.locals.rangeInput}
           $$input={durationState.callback}
           value={defaultValue}
-          {...other}
         />
-        <span watch_$textContent={durations} />
+        <span class={styles.locals.inputValue} watch_$textContent={durations} />
       </div>
     </label>
   );
@@ -160,27 +167,22 @@ async function* withDefault(
   yield* iterable;
 }
 
-async function* map<I, O>(iterable: AsyncIterable<I>, mapFn: (i: I) => O) {
-  for await (const i of iterable) {
-    yield await mapFn(i);
-  }
-}
-
 const createSpotWelderForm = () => {
   const [FirstPulseSlider, firstPulseDurations] = createRangeSlider({
-    defaultValue: 60,
+    defaultValue: 39,
   });
-  const mostRecentFirstPulseDuration = storeLastValue(firstPulseDurations);
+
+  const mostRecentFirstPulseDuration = latestValueStore(firstPulseDurations);
 
   const [PulseGapSlider, pulseGapDurations] = createRangeSlider({
-    defaultValue: 30,
+    defaultValue: 200,
   });
-  const mostRecentPulseGapDuration = storeLastValue(pulseGapDurations);
+  const mostRecentPulseGapDuration = latestValueStore(pulseGapDurations);
 
   const [SecondPulseSlider, secondPulseDurations] = createRangeSlider({
     defaultValue: 120,
   });
-  const mostRecentSecondPulseDuration = storeLastValue(secondPulseDurations);
+  const mostRecentSecondPulseDuration = latestValueStore(secondPulseDurations);
 
   const submissions = callbackBroadcasterConverter<[Event]>();
   const spotWelderTriggers = map(submissions, async ([e]) => {
@@ -205,21 +207,99 @@ const createSpotWelderForm = () => {
     };
   });
 
+  const audioCtx = new AudioContext();
+  const volume = audioCtx.createGain();
+  volume.gain.value = 0.25;
+  volume.connect(audioCtx.destination);
+
+  const demos = callbackBroadcasterConverter<[Event]>();
+  (async () => {
+    for await (const [e] of demos) {
+      console.log({ e});
+      e.preventDefault();
+      const [
+        firstPulseDuration,
+        pulseGapDuration,
+        secondPulseDuration,
+      ] = await Promise.all([
+        mostRecentFirstPulseDuration(),
+        mostRecentPulseGapDuration(),
+        mostRecentSecondPulseDuration(),
+      ]);
+
+      const lowSound = audioCtx.createOscillator();
+      lowSound.frequency.setValueAtTime(220, 0);
+      lowSound.connect(volume);
+      lowSound.start();
+      await new Promise(resolve => setTimeout(resolve, firstPulseDuration));
+      lowSound.disconnect();
+
+      await new Promise(resolve => setTimeout(resolve, pulseGapDuration));
+
+      const highSound = audioCtx.createOscillator();
+      highSound.frequency.setValueAtTime(440, 0);
+      highSound.connect(volume);
+      highSound.start();
+      await new Promise(resolve => setTimeout(resolve, secondPulseDuration));
+      highSound.disconnect();
+    }
+  })();
+
+  const recognition = new (globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition)();
+  recognition.continuous = true;
+  recognition.lang = navigator.languages[0];
+  recognition.interimResults = false;
+
+  const speechRecognitionList = new (globalThis.SpeechGrammarList || globalThis.webkitSpeechGrammarList)();
+  speechRecognitionList.addFromString('start', 1);
+  recognition.grammars = speechRecognitionList;
+
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+  recognition.onresult = function(event) {
+    console.log(event);
+    // TODO: Totally hacky - Doesn't account for multiple words
+    const speechResult = event.results[event.resultIndex];
+    if (speechResult.length > 1 && speechResult.isFinal) {
+      return;
+    }
+    const weldResult = speechResult[0];
+    // TODO: Need some feedback if we're not confident enough
+    if (weldResult.confidence > 0.95 && /\bstart\b/.test(weldResult.transcript)) {
+      submissions.callback(event);
+    }
+  };
+  recognition.onend = () => {
+    recognition.start();
+  }
+  recognition.onspeechend = () => {
+    console.log('ended');
+  };
+  recognition.onnomatch = function(event) {
+    console.log('No speech result');
+  }
+
   const Form = ({ disabled }) => (
-    <form $$submit={submissions.callback} class={styles.locals.form}>
-      <FirstPulseSlider min={1} max={300}>
-        First pulse duration
-      </FirstPulseSlider>
-      <PulseGapSlider min={1} max={1000}>
-        Pulse gap duration
-      </PulseGapSlider>
-      <SecondPulseSlider min={1} max={300}>
-        Second pulse duration
-      </SecondPulseSlider>
-      <button type="submit" $disabled={disabled}>
-        Fire
-      </button>
-    </form>
+    <>
+      <form $$submit={submissions.callback} class={styles.locals.form}>
+        <FirstPulseSlider min={1} max={300}>
+          First pulse duration
+        </FirstPulseSlider>
+        <PulseGapSlider min={1} max={1000}>
+          Pulse gap duration
+        </PulseGapSlider>
+        <SecondPulseSlider min={1} max={300}>
+          Second pulse duration
+        </SecondPulseSlider>
+        <button type="submit" $disabled={disabled}>
+          Fire
+        </button>
+        <button $$click={demos.callback}>
+          Demo
+        </button>
+      </form>
+    </>
   );
 
   return [Form, spotWelderTriggers];
@@ -264,15 +344,21 @@ let transferring = false;
       rerender();
     }
   }
-})();
+})();{}
+
+const USBInfo = () => (
+  <section>
+    <USBSelection device={selectedDevice} />
+    <ConnectButton />
+    {selectedDevice !== null ? <DisconnectButton /> : null}
+  </section>
+)
 
 const App = () => (
   <>
     <style>{styles.toString()}</style>
     <main>
-      <USBSelection device={selectedDevice} />
-      <ConnectButton />
-      {selectedDevice === null ? <DisconnectButton /> : null}
+      <USBInfo />
       <Form disabled={transferring} />
       {transferring ? 'Transferring' : undefined}
     </main>

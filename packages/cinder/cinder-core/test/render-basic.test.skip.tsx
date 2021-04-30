@@ -1,5 +1,5 @@
-import * as cinder from '../src/index';
-import { render } from '../src/index';
+import * as cinder from '../src/index.ts'
+import { render } from '../src/index.ts'
 
 describe.skip('basic rendering', () => {
   let root;
@@ -20,7 +20,7 @@ describe.skip('basic rendering', () => {
         shadow.appendChild(divElement);
       }
     }
-    window.customElements.define('x-test', TestElement);
+    globalThis.customElements.define('x-test', TestElement);
     render(root, <TestElement />);
   });
 

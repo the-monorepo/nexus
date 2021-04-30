@@ -9,10 +9,10 @@ module.exports = {
   "parser": "@typescript-eslint/parser",
   "extends": [
     "@pshaw/eslint-config-preset"
-  ],  
+  ],
   "globals": {
-    "expect": "writable",
-    "globalThis": "writeable",
+    "expect": "readable",
+    "globalThis": "readable",
   },
   "env": {
       "browser": true,

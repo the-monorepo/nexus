@@ -13,7 +13,7 @@ import {
 } from '@contextual-documents/html-elements';
 import styles from '@pshaw/contextual-documents-scss';
 
-import styleRoot from './styleRoot';
+import styleRoot from './styleRoot.ts'
 
 const styleString = styles.toString();
 export class PShawHeaderElement extends HeaderElement {

@@ -16,5 +16,4 @@ require('@babel/register')({
     },
   ],
   configFile: resolve(__dirname, 'babel.config.js'),
-  extensions: ['.js', '.jsx', '.ts', '.tsx'],
 });

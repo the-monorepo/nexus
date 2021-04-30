@@ -3,20 +3,13 @@
 #![feature(abi_avr_interrupt)]
 #![feature(const_fn)]
 mod pulse_data;
-use arduino_uno::{
-    hal::port::{
-        mode::{Output, Pwm},
-        portd::PD3,
-    },
-    prelude::*,
-    pwm::Timer2Pwm,
-};
+use arduino_uno::{hal::port::{Pin, mode::{Output, Pwm}, portd::PD3}, prelude::*, pwm::Timer2Pwm};
 use arduino_uno::{
     hal::{
         clock::MHz16,
         port::{
             mode::{Floating, Input},
-            portb::{PB2, PB5},
+            portb::{PB2},
             portd::{PD0, PD1},
         },
         usart::{Usart, UsartOps},
@@ -25,21 +18,21 @@ use arduino_uno::{
     pwm::{self, Timer1Pwm},
 };
 use avr_device::interrupt::Mutex;
-use core::{borrow::Borrow, cell::RefCell, ops::DerefMut};
+use core::{cell::RefCell};
 use panic_halt as _;
 use pulse_data::{PulseData, PulseMilliThresholds, RedundentReadStatus};
 
 struct SpotWelderIO {
     low_sound: PD3<Pwm<Timer2Pwm>>,
     high_sound: PB2<Pwm<Timer1Pwm>>,
-    spot_welder: PB5<Output>,
+    spot_welder: Pin<Output>,
 }
 
 impl SpotWelderIO {
     fn new(
         mut low_sound: PD3<Pwm<Timer2Pwm>>,
         mut high_sound: PB2<Pwm<Timer1Pwm>>,
-        mut spot_welder: PB5<Output>,
+        mut spot_welder: Pin<Output>,
     ) -> Self {
         low_sound.set_duty(127);
         high_sound.set_duty(127);
@@ -75,11 +68,24 @@ impl SpotWelderIO {
     }
 }
 
+struct SpotWelderManagerState {
+    pulse_millis_thresholds: PulseMilliThresholds,
+    current_millis: u16,
+}
+
+impl SpotWelderManagerState {
+    const fn from(pulse_millis_thresholds: PulseMilliThresholds) -> SpotWelderManagerState {
+        return SpotWelderManagerState {
+            current_millis: pulse_millis_thresholds.start_millis,
+            pulse_millis_thresholds,
+        };
+    }
+}
+
 struct SpotWelderManager<USART: UsartOps<RX, TX>, RX, TX, CLOCK> {
     serial: Usart<USART, RX, TX, CLOCK>,
     spot_welder_io: SpotWelderIO,
-    pulse_millis_thresholds: Option<PulseMilliThresholds>,
-    current_millis: Option<u16>,
+    state: Option<SpotWelderManagerState>,
 }
 
 impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CLOCK> {
@@ -87,66 +93,74 @@ impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CL
         SpotWelderManager {
             serial,
             spot_welder_io,
-            pulse_millis_thresholds: None,
-            current_millis: None,
+            state: None,
         }
     }
 
     fn execute(&mut self, pulse_data: PulseData) {
-        let thresholds = PulseMilliThresholds::from(pulse_data);
-        self.pulse_millis_thresholds = Some(thresholds);
+        self.state = Some(SpotWelderManagerState::from(PulseMilliThresholds::from(
+            pulse_data,
+        )));
+    }
+
+    fn wait_till_successful_read_then_execute(&mut self) {
+        loop {
+            let pulse_data_response = PulseData::read(|| self.serial.read_byte());
+            let pulse_data = match pulse_data_response {
+                RedundentReadStatus::Success(pulse_data) => pulse_data,
+                _ => {
+                    self.serial.write_byte(1);
+                    continue;
+                }
+            };
+
+            if pulse_data.first_pulse_duration > 300 {
+                self.serial.write_byte(2);
+                continue;
+            }
+
+            if pulse_data.pulse_gap_duration > 20000 {
+                self.serial.write_byte(3);
+                continue;
+            }
+
+            if pulse_data.second_pulse_duration > 300 {
+                self.serial.write_byte(4);
+                continue;
+            }
+
+            self.execute(pulse_data);
+            break;
+        }
     }
 
     fn interrupt(&mut self) {
-        if let Some(ref mut threshold_data) = self.pulse_millis_thresholds {
-            if let Some(current_millis) = self.current_millis {
-                if current_millis == 0 {
-                    self.spot_welder_io.second_pulse_off();
-                    self.serial.write_byte(0);
-                } else {
-                    if current_millis == threshold_data.start_millis {
-                        self.spot_welder_io.first_pulse_on();
-                    } else if current_millis == threshold_data.first_pulse_end_threshold {
-                        self.spot_welder_io.first_pulse_off();
-                    } else if current_millis == threshold_data.second_pulse_start_threshold {
-                        self.spot_welder_io.second_pulse_on();
-                    }
-                    self.current_millis.replace(current_millis - 1);
-                }
+        if let Some(ref mut state_data) = self.state {
+            if state_data.current_millis == 0 {
+                self.spot_welder_io.second_pulse_off();
+                self.serial.write_byte(0);
+                self.state = None;
             } else {
-                let pulse_data_response = PulseData::read(|| self.serial.read_byte());
-                let pulse_data = match pulse_data_response {
-                    RedundentReadStatus::Success(pulse_data) => pulse_data,
-                    _ => {
-                        self.serial.write_byte(1);
-                        return;
-                    }
-                };
-
-                if pulse_data.first_pulse_duration > 300 {
-                    self.serial.write_byte(2);
-                    return;
+                if state_data.current_millis == state_data.pulse_millis_thresholds.start_millis {
+                    self.spot_welder_io.first_pulse_on();
+                } else if state_data.current_millis
+                    == state_data.pulse_millis_thresholds.first_pulse_end_threshold
+                {
+                    self.spot_welder_io.first_pulse_off();
+                } else if state_data.current_millis
+                    == state_data
+                        .pulse_millis_thresholds
+                        .second_pulse_start_threshold
+                {
+                    self.spot_welder_io.second_pulse_on();
                 }
-
-                if pulse_data.pulse_gap_duration > 20000 {
-                    self.serial.write_byte(3);
-                    return;
-                }
-
-                if pulse_data.second_pulse_duration > 300 {
-                    self.serial.write_byte(4);
-                    return;
-                }
-
-                self.execute(pulse_data);
+                state_data.current_millis -= 1;
             }
+        } else {
+            self.wait_till_successful_read_then_execute();
         }
     }
 }
-
-static SPOT_WELDER_MANAGER_MUTEX: Mutex<
-    RefCell<Option<SpotWelderManager<USART0, PD0<Input<Floating>>, PD1<Output>, MHz16>>>,
-> = Mutex::new(RefCell::new(None));
 
 #[arduino_uno::entry]
 fn main() -> ! {
@@ -174,13 +188,32 @@ fn main() -> ! {
 
     let spot_welder = pins.d13.into_output(&mut pins.ddr);
 
-    let spot_welder_io = SpotWelderIO::new(low_sound, high_sound, spot_welder);
+    let spot_welder_io = SpotWelderIO::new(low_sound, high_sound, spot_welder.downgrade());
+
+    let spot_welder_manager = SpotWelderManager::new(spot_welder_io, serial);
+
+    static SPOT_WELDER_MANAGER_MUTEX: Mutex<
+        RefCell<Option<SpotWelderManager<USART0, PD0<Input<Floating>>, PD1<Output>, MHz16>>>,
+    > = Mutex::new(RefCell::new(None));
 
     avr_device::interrupt::free(|cs| {
         SPOT_WELDER_MANAGER_MUTEX
             .borrow(cs)
-            .replace(Some(SpotWelderManager::new(spot_welder_io, serial)));
+            .borrow_mut()
+            .replace(spot_welder_manager)
     });
+
+    #[avr_device::interrupt(atmega328p)]
+    fn TIMER0_COMPA() {
+        avr_device::interrupt::free(|cs| {
+            SPOT_WELDER_MANAGER_MUTEX
+                .borrow(cs)
+                .borrow_mut()
+                .as_mut()
+                .unwrap()
+                .interrupt();
+        });
+    }
 
     const TIMER_COUNTS: u32 = 250;
 
@@ -195,17 +228,4 @@ fn main() -> ! {
     unsafe { avr_device::interrupt::enable() };
 
     loop {}
-}
-
-#[avr_device::interrupt(atmega328p)]
-fn TIMER0_COMPA() {
-    avr_device::interrupt::free(|cs| {
-        if let Some(ref mut manager) = SPOT_WELDER_MANAGER_MUTEX
-            .borrow(cs)
-            .borrow_mut()
-            .deref_mut()
-        {
-            manager.interrupt();
-        }
-    });
 }
