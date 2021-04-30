@@ -9,10 +9,7 @@
     "directory": "misc/my-resume"
   },
   "scripts": {
-    "build": "webpack --mode production",
-    "start": "yarn watch",
-    "pdf": "babel-node ./commonjs/index.js",
-    "watch": "webpack-dev-server --watch --mode development"
+    "pdf": "babel-node ./commonjs/to-pdf.ts"
   },
   "dependencies": {
     "@pshaw/logger": "workspace:packages/misc/logger",
