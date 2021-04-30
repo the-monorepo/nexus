@@ -1,6 +1,6 @@
 import { Fault } from '@fault/record-faults';
 
-import { calculateExamScore } from '../src/core';
+import { calculateExamScore } from '../src/core.ts'
 describe('measure', () => {
   describe('exact match', () => {
     it('1 fault, 1 line', () => {

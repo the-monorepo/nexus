@@ -6,11 +6,11 @@
   "module": "./esm/index.ts",
   "main": "./commonjs/index.ts",
   "scripts": {
-    "start": "yarn node --max-old-space-size=4096 ./commonjs/index.js",
-    "results": "yarn node ./commonjs/index.js",
+    "start": "yarn node --max-old-space-size=4096 ./commonjs/index.ts",
+    "results": "yarn node ./commonjs/index.ts",
     "build": "yarn start && yarn results",
     "report": "webpack-dev-server --watch --mode development",
-    "scrape-repo": "yarn node ./commonjs/index.js"
+    "scrape-repo": "yarn node ./commonjs/index.ts"
   },
   "files": [
     "commonjs",

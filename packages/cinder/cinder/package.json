@@ -21,18 +21,12 @@
   "main": "./commonjs/index.ts",
   "module": "./esm/index.ts",
   "exports": {
-    "monorepo-original": {
-      ".": "./src/index.ts",
-      "./babel": "@cinderjs/babel-plugin-transform-jsx"
+    ".": {
+      "monorepo-origianl": "./src/index.ts",
+      "import": "./esm/index.ts",
+      "require": "./commonjs/index.ts"
     },
-    "import": {
-      ".": "./esm/index.js",
-      "./babel": "@cinderjs/babel-plugin-transform-jsx"
-    },
-    "require": {
-      ".": "./commonjs/index.js",
-      "./babel": "@cinderjs/babel-plugin-transform-jsx"
-    }
+    "./babel": "@cinderjs/babel-plugin-transform-jsx"
   },
   "dependencies": {
     "@cinderjs/babel-plugin-transform-jsx": "workspace:packages/cinder/cinder-babel-plugin-transform-jsx",

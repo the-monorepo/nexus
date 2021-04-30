@@ -1,4 +1,4 @@
-import { TestComponent } from './TestComponent';
+import { TestComponent } from './TestComponent.ts'
 import { storiesOf } from '@storybook/react';
 import React from 'react';
 export function createStories() {

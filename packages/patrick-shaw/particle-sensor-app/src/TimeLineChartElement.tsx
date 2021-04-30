@@ -25,7 +25,7 @@ import {
 import * as figureStyles from './figure.scss';
 import styles from './TimeLineGraph.scss';
 
-import { COLUMN, ROW, LayoutFlow } from './LayoutFlows';
+import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts'
 import { autorun } from 'mobx';
 
 export class TimeLineChartElement extends DomElement {

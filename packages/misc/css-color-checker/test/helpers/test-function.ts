@@ -1,5 +1,5 @@
-import { expandInputs } from '../inputs/expand';
-import { TestInputs } from '../inputs/test-inputs';
+import { expandInputs } from '../inputs/expand.ts'
+import { TestInputs } from '../inputs/test-inputs.ts'
 export const invalidTypes: [string, any][] = [
   ['Function', () => undefined],
   ['Integer', 1],

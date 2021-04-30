@@ -1,5 +1,5 @@
-import { leftIndex, parentIndex, rightIndex, swap } from '../src/index';
-import Heap from '../src/index';
+import { leftIndex, parentIndex, rightIndex, swap } from '../src/index.ts'
+import Heap from '../src/index.ts'
 
 type ScoreHolder = {
   score: number;

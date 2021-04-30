@@ -33,8 +33,6 @@ export const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Materi
 export const normalizeCssUrl =
   'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css';
 
-export const resolvedExtensions = codeExtensions.map((extension) => `.${extension}`);
-
 export const svgRule = {
   test: /\.svg$/,
   exclude: /node_modules/,
@@ -67,8 +65,6 @@ export const babelRule = {
     },
   ],
 };
-
-export const tsxExtensions = ['.tsx', '.ts', '.jsx', '.js'];
 
 export const distPath = (packageDir) => resolve(packageDir, 'dist');
 

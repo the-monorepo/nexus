@@ -228,21 +228,25 @@ const transpilePipes = async (
     .pipe(simplePipeLogger(l))
     .pipe(sourcemaps.init())
     .pipe(through.obj(async function (file, _, done) {
-      // Copied from https://github.com/babel/gulp-babel/blob/master/index.js
-      const { code, map } = await bableTransform(file.contents.toString(), {
-        ...babelOptions,
-        filename: file.path,
-        filenameRelative: file.relative,
-        sourceMap: Boolean(file.sourceMap),
-        sourceFileName: file.relative,
-      });
+      try {
+        // Copied from https://github.com/babel/gulp-babel/blob/master/index.js
+        const { code, map } = await bableTransform(file.contents.toString(), {
+          ...babelOptions,
+          filename: file.path,
+          filenameRelative: file.relative,
+          sourceMap: Boolean(file.sourceMap),
+          sourceFileName: file.relative,
+        });
 
-      file.contents = Buffer.from(code);
+        file.contents = Buffer.from(code);
 
-      map.file = file.relative;
-      applySourceMap(file, map);
+        map.file = file.relative;
+        applySourceMap(file, map);
 
-      done(null, file);
+        done(null, file);
+      } catch(err){
+        done(err);
+      }
     }))
     .pipe(
       rename((filePath) => {

@@ -3,8 +3,8 @@ import { Writable } from 'stream';
 import jest from 'jest-mock';
 import MockDate from 'mockdate';
 
-import createLogger from '../../src/index';
-import { testCases } from '../util/testCases';
+import createLogger from '../../src/index.ts'
+import { testCases } from '../util/testCases.ts'
 
 class MockedWriteable extends Writable {
   public readonly mockedWrite = jest.fn();

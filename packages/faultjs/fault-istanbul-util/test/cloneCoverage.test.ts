@@ -1,4 +1,4 @@
-import { cloneCoverage } from '../src/index';
+import { cloneCoverage } from '../src/index.ts'
 describe('cloneCoverage', () => {
   [
     {},
@@ -525,7 +525,7 @@ describe('cloneCoverage', () => {
           mappings:
             ';;;;;;;AAAA;;AACA;;AACA;;;;AACA,MAAMA,GAAG,GAAG,MAAMC,SAAN,IAAmB;AAC7B,QAAMC,KAAK,GAAG,IAAIC,cAAJ,CAAU;AACtBC,IAAAA,aAAa,EAAE,IADO;AAEtBC,IAAAA,KAAK,EAAE,IAFe;AAGtBC,IAAAA,QAAQ,EAAEC,wBAHY;AAItBC,IAAAA,cAAc,EAAE;AAJM,GAAV,CAAd;AAOAN,EAAAA,KAAK,CAACO,OAAN,CAAcC,OAAO,CAACC,OAAR,CAAgB,eAAhB,CAAd;AACAV,EAAAA,SAAS,CAACW,OAAV,CAAkBC,QAAQ,IAAIX,KAAK,CAACO,OAAN,CAAcI,QAAd,CAA9B;;AAEA,MAAI;AACF,UAAMC,QAAQ,GAAG,MAAM,IAAIC,OAAJ,CAAYJ,OAAO,IAAI;AAC5CT,MAAAA,KAAK,CAACF,GAAN,CAAUc,QAAQ,IAAI;AACpB,YAAIA,QAAJ,EAAc;AACZH,UAAAA,OAAO,CAACG,QAAD,CAAP;AACD,SAFD,MAEO;AACLH,UAAAA,OAAO;AACR;AACF,OAND;AAOD,KARsB,CAAvB;AASA,UAAM,wCAAsB;AAC1BK,MAAAA,MAAM,EAAE,CAACF;AADiB,KAAtB,CAAN;AAGD,GAbD,CAaE,OAAOG,GAAP,EAAY;AACZC,IAAAA,OAAO,CAACC,KAAR,CAAcF,GAAd;AACAG,IAAAA,OAAO,CAACC,IAAR,CAAa,CAAb;AACD;AACF,CA5BD;;eA6BerB,G',
           sourcesContent: [
-            "import Mocha from 'mocha';\r\nimport { submitExecutionResult } from '@fault/messages';\r\nimport { IPCReporter } from './recordTests';\r\nconst run = async testPaths => {\r\n  const mocha = new Mocha({\r\n    allowUncaught: true,\r\n    color: true,\r\n    reporter: IPCReporter,\r\n    fullStackTrace: true,\r\n  } as any);\r\n\r\n  mocha.addFile(require.resolve('./recordTests'));\r\n  testPaths.forEach(testPath => mocha.addFile(testPath));\r\n\r\n  try {\r\n    const failures = await new Promise(resolve => {\r\n      mocha.run(failures => {\r\n        if (failures) {\r\n          resolve(failures);\r\n        } else {\r\n          resolve();\r\n        }\r\n      });\r\n    });\r\n    await submitExecutionResult({\r\n      passed: !failures,\r\n    });\r\n  } catch (err) {\r\n    console.error(err);\r\n    process.exit(1);\r\n  }\r\n};\r\nexport default run;\r\n",
+            "import Mocha from 'mocha';\r\nimport { submitExecutionResult } from '@fault/messages';\r\nimport { IPCReporter } from './recordTests.ts'\r\nconst run = async testPaths => {\r\n  const mocha = new Mocha({\r\n    allowUncaught: true,\r\n    color: true,\r\n    reporter: IPCReporter,\r\n    fullStackTrace: true,\r\n  } as any);\r\n\r\n  mocha.addFile(require.resolve('./recordTests'));\r\n  testPaths.forEach(testPath => mocha.addFile(testPath));\r\n\r\n  try {\r\n    const failures = await new Promise(resolve => {\r\n      mocha.run(failures => {\r\n        if (failures) {\r\n          resolve(failures);\r\n        } else {\r\n          resolve();\r\n        }\r\n      });\r\n    });\r\n    await submitExecutionResult({\r\n      passed: !failures,\r\n    });\r\n  } catch (err) {\r\n    console.error(err);\r\n    process.exit(1);\r\n  }\r\n};\r\nexport default run;\r\n",
           ],
           file: 'index.js',
         },

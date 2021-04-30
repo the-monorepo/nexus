@@ -1,6 +1,6 @@
 import { DefaultTypeName, NumberFormat } from '@byexample/types';
 
-import { examples } from '../util/from-examples';
+import { examples } from '../util/from-examples.ts'
 
 describe('mixed root types', () => {
   describe('every default type', () => {

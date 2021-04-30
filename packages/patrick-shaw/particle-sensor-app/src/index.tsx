@@ -2,11 +2,11 @@ import * as cinder from 'cinder';
 
 import { createPayload, createFailure } from '@resultful/result';
 
-import { TimeLineChartElement } from './TimeLineChartElement';
-import { SensorPanelElement } from './SensorPanelElement';
+import { TimeLineChartElement } from './TimeLineChartElement.ts'
+import { SensorPanelElement } from './SensorPanelElement.ts'
 
 import styles from './index.scss';
-window.customElements.define('time-line-chart', TimeLineChartElement);
+globalThis.customElements.define('time-line-chart', TimeLineChartElement);
 
 const requestUSB = async () => {
   const device = await navigator.usb.requestDevice({ filters: [] });
@@ -29,7 +29,7 @@ const USBError = ({ error }) =>
 const USBView = ({ device }) =>
   device !== undefined ? <section>Selected {device.productName}</section> : null;
 
-window.customElements.define('sensor-panel', SensorPanelElement);
+globalThis.customElements.define('sensor-panel', SensorPanelElement);
 
 const onMockAddUSB = async () => {
   let transferInCallCount = 0;

@@ -2,7 +2,7 @@ import SwaggerParser from 'swagger-parser';
 
 import { DefaultTypeName, NumberFormat } from '@byexample/types';
 
-import { createSchema } from '../../src/index';
+import { createSchema } from '../../src/index.ts'
 function testWithValidation(name, callback) {
   it(name, async () => {
     const schema = callback();

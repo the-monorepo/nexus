@@ -8,7 +8,7 @@ import {
   executeInstructions,
   getTraverseKeys,
   mutationWrapperToInstruction,
-} from '../src/index';
+} from '../src/index.ts'
 describe('sequences', () => {
   it('delete statement', () => {
     const filePath = '';
