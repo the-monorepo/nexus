@@ -6,7 +6,7 @@
     "utils"
   ],
   "version": "1.4.2",
-  "main": "./esm/index.ts",
+  "main": "./src/index.js",
   "files": [
     "commonjs",
     "src",
