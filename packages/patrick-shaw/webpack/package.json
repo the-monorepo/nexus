@@ -40,7 +40,7 @@
     "@pshaw/monorepo-config": "workspace:packages/patrick-shaw/monorepo-config",
     "@types/webpack-dev-server": "^3.11.0",
     "babel-loader": "^8.1.0",
-    "copy-webpack-plugin": "^6.2.1",
+    "copy-webpack-plugin": "^8.1.1",
     "css-loader": "^4.2.1",
     "fibers": "^5.0.0",
     "file-loader": "^6.0.0",
