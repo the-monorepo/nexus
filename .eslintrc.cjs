@@ -22,7 +22,7 @@ module.exports = {
       "mocha": true,
   },
   "parserOptions": {
-    "ecmaVersion": 9,
+    "ecmaVersion": 12,
     "sourceType": "module",
     "ecmaFeatures": {
       "modules": true,
