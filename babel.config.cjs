@@ -39,7 +39,7 @@ module.exports = (api) => {
         // useBuiltIns: 'usage',
         // corejs: '3',
         targets: {
-          node: production ? '10' : 'current',
+          node: production ? '12' : 'current',
           esmodules: usingEsm,
         },
       },
