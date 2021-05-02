@@ -30,7 +30,6 @@ module.exports = {
     }
   },
   "settings": {
-    "import/extensions": [],
     "import/resolver": {
       "node": {
         "extensions": config.codeExtensions.map(extension => `.${extension}`),
