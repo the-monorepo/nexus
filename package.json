@@ -37,7 +37,10 @@
   "keywords": [
     "typescript"
   ],
-  "devDependencies": {
+  "husky": {
+    "hooks": {}
+  },
+  "dependencies": {
     "@babel/core": "^7.13.15",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/plugin-proposal-decorators": "^7.13.15",
@@ -46,9 +49,11 @@
     "@babel/plugin-syntax-jsx": "^7.12.13",
     "@babel/plugin-transform-strict-mode": "^7.12.13",
     "@babel/preset-env": "^7.13.15",
+    "@babel/preset-react": "^7.13.13",
     "@babel/preset-typescript": "^7.13.0",
     "@babel/register": "^7.13.14",
     "@buildplan/core": "workspace:packages/buildplan/core",
+    "@byexample/cli": "workspace:packages/byexample/byexample-cli",
     "@byexample/openapi": "workspace:packages/byexample/byexample-openapi",
     "@byexample/storybook-knobified": "workspace:packages/byexample/byexample-storybook-knobified",
     "@byexample/types": "workspace:packages/byexample/byexample-types",
@@ -78,6 +83,7 @@
     "babel-plugin-istanbul": "^6.0.0",
     "chalk": "^4.1.0",
     "cinder": "workspace:packages/cinder/cinder",
+    "core-js": "^3.10.1",
     "del": "^5.1.0",
     "eslint": "^7.7.0",
     "eslint-plugin-react": "^7.20.6",
@@ -91,6 +97,7 @@
     "gulp-prettier": "^3.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^2.6.5",
+    "gulp-transform": "^3.0.5",
     "gulp-typescript": "^6.0.0-alpha.1",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
@@ -108,16 +115,7 @@
     "stream-to-promise": "^3.0.0",
     "stylelint": "^13.6.1",
     "through2": "^4.0.2",
-    "typescript": "^4.2.4"
-  },
-  "husky": {
-    "hooks": {}
-  },
-  "dependencies": {
-    "@babel/preset-react": "^7.13.13",
-    "@byexample/cli": "workspace:packages/byexample/byexample-cli",
-    "core-js": "^3.10.1",
-    "gulp-transform": "^3.0.5",
+    "typescript": "^4.2.4",
     "vinyl-sourcemaps-apply": "^0.2.1"
   }
 }
