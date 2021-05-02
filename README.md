@@ -69,7 +69,6 @@ Version | Package | Description
 --- | --- | ---
 1.4.2 | [`@pshaw/eslint-config-core`](packages/patrick-shaw/eslint-config-core/README.md) | A pratical style preset for ESLint
 1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](packages/patrick-shaw/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
-1.4.4-0 | [`@pshaw/eslint-config-plugin-import`](packages/patrick-shaw/eslint-config-plugin-import/README.md) | eslint-plugin-import configuration
 1.4.2 | [`@pshaw/eslint-config-plugin-react`](packages/patrick-shaw/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
 1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](packages/patrick-shaw/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
 1.4.3-0 | [`@pshaw/eslint-config-preset`](packages/patrick-shaw/eslint-config-preset/README.md) | A pratical style preset for ESLint
@@ -103,7 +102,6 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/contextual-documents-style-root`](packages/patrick-shaw/contextual-documents-style-root/README.md) | Contextual document style root for @pshaw/contextual-documents-scss
 1.4.2 | [`@pshaw/eslint-config-core`](packages/patrick-shaw/eslint-config-core/README.md) | A pratical style preset for ESLint
 1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](packages/patrick-shaw/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
-1.4.4-0 | [`@pshaw/eslint-config-plugin-import`](packages/patrick-shaw/eslint-config-plugin-import/README.md) | eslint-plugin-import configuration
 1.4.2 | [`@pshaw/eslint-config-plugin-react`](packages/patrick-shaw/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
 1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](packages/patrick-shaw/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
 1.4.3-0 | [`@pshaw/eslint-config-preset`](packages/patrick-shaw/eslint-config-preset/README.md) | A pratical style preset for ESLint
