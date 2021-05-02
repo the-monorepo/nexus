@@ -3,7 +3,7 @@ import {
   assignmentCategories,
   binaryOperationCategories,
   CategoryData,
-} from '../src/index.ts'
+} from '../src/index.ts';
 
 const expectCategory = <T>(categories: CategoryData<T>) => {
   return {

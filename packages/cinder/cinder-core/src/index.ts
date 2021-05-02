@@ -123,13 +123,12 @@ class AsyncIteratorField<T extends any> extends CachedField {
           this.innerField.init([firstVal.value], 0);
         }
 
-
         let val = await iterator.next();
-        while(!val.done) {
+        while (!val.done) {
           this.innerField.update([val.value], 0);
           val = await iterator.next();
         }
-      } catch(err) {
+      } catch (err) {
         console.error(err);
       }
     })();
@@ -138,7 +137,7 @@ class AsyncIteratorField<T extends any> extends CachedField {
 
 export const asyncIterator = (innerField: Field) => {
   return new AsyncIteratorField(innerField);
-}
+};
 
 const setAttribute = (el: Element, key: string, value: any) => {
   if (value !== undefined) {
@@ -262,7 +261,6 @@ export const renderComponentResultNoSet = <C, V, N extends Node>(
   container: Node,
   before: Node | null,
 ): RenderResult<C, N> => {
-
   console.log(renderInfo, container, before);
   const blueprint = renderInfo.blueprint;
   const data = blueprint.mount(renderInfo.value, container, before);
@@ -576,7 +574,9 @@ export const renderOrReuseComponentResult = <C, V, N extends Node>(
 export const validateComponent = (component, properties) => {
   const result = component(properties);
   if (result === undefined) {
-    throw new Error(`The '${component.name}' component returned ${result} which is not a valid return value`);
+    throw new Error(
+      `The '${component.name}' component returned ${result} which is not a valid return value`,
+    );
   }
   return result;
 };

@@ -1,6 +1,11 @@
 import { resolve } from 'path';
 
-import { createHtmlWebpackPlugin, createOutput, Configuration, recommendedWebcomponentRules } from '@pshaw/webpack';
+import {
+  createHtmlWebpackPlugin,
+  createOutput,
+  Configuration,
+  recommendedWebcomponentRules,
+} from '@pshaw/webpack';
 import { DefinePlugin } from '@pshaw/webpack/webpack';
 
 import globby from 'globby';
@@ -13,17 +18,23 @@ export type CreateConfigOptions = {
 };
 export const createConfig = ({ resultsDir, outputDir }: CreateConfigOptions) => {
   const resolvedResultsDir = resolve(process.cwd(), resultsDir);
-  const fileExample = resolve(resolvedResultsDir, 'example-defect/example-technique/faults/faults.json');
+  const fileExample = resolve(
+    resolvedResultsDir,
+    'example-defect/example-technique/faults/faults.json',
+  );
 
   return {
-    name: "fault-benchmark",
-    target: "web",
-    devtool: "source-map",
+    name: 'fault-benchmark',
+    target: 'web',
+    devtool: 'source-map',
     module: {
       rules: recommendedWebcomponentRules,
     },
-    entry: require.resolve(resolve(__dirname, "ui/temp")),
-    output: outputDir !== undefined ? createOutput(resolve(process.cwd(), outputDir)) : undefined,
+    entry: require.resolve(resolve(__dirname, 'ui/temp')),
+    output:
+      outputDir !== undefined
+        ? createOutput(resolve(process.cwd(), outputDir))
+        : undefined,
     plugins: [
       createHtmlWebpackPlugin({
         title: `Fault benchmarker results`,
@@ -35,7 +46,7 @@ export const createConfig = ({ resultsDir, outputDir }: CreateConfigOptions) => 
 
           return faultData;
         }, [fileExample]),
-      })
+      }),
     ],
     devServer: {
       port: 3001,

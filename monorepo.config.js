@@ -14,15 +14,11 @@ module.exports.extra = {
 
 module.exports.extraBuildIgnoreGlobs = pshawConfig.extraBuildIgnoreGlobs;
 
-module.exports.extraFormatIgnoreGlobs = [
-  ...pshawConfig.extraFormatIgnoreGlobs,
-];
+module.exports.extraFormatIgnoreGlobs = [...pshawConfig.extraFormatIgnoreGlobs];
 
 module.exports.extraBuildArtifactGlobs = pshawConfig.extraBuildArtifactGlobs;
 
-module.exports.extraTestIgnoreGlobs = [
-  ...pshawConfig.extraTestIgnoreGlobs,
-];
+module.exports.extraTestIgnoreGlobs = [...pshawConfig.extraTestIgnoreGlobs];
 
 module.exports.serve = {
   servers: {

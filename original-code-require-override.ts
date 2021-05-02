@@ -15,7 +15,7 @@ const packageDirs = globby.sync(config.workspaces, {
 });
 
 const workspacedPackageNames = new Map();
-for(const dir of packageDirs) {
+for (const dir of packageDirs) {
   const jsonFilePath = join(dir, 'package.json');
 
   try {
@@ -38,14 +38,18 @@ for(const dir of packageDirs) {
       const mappedResolvedRequirePath = join(json.name, monorepoOriginalPath);
       workspacedPackageNames.set(json.name, mappedResolvedRequirePath);
     } else {
-      for (const [relativeRequirePath, mappedRequirePath] of Object.entries<string>(monorepoOriginalPath)) {
+      for (const [relativeRequirePath, mappedRequirePath] of Object.entries<string>(
+        monorepoOriginalPath,
+      )) {
         const packageResolvedRequirePath = join(json.name, relativeRequirePath);
-        const mappedResolvedRequirePath = mappedRequirePath.startsWith('@') ? mappedRequirePath : join(json.name, mappedRequirePath);
+        const mappedResolvedRequirePath = mappedRequirePath.startsWith('@')
+          ? mappedRequirePath
+          : join(json.name, mappedRequirePath);
         workspacedPackageNames.set(packageResolvedRequirePath, mappedResolvedRequirePath);
       }
     }
   }
-} 
+}
 
 const { require: oldRequire } = Module.prototype;
 

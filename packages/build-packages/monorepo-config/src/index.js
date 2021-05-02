@@ -1,13 +1,13 @@
 const { resolve } = require('path');
 
 const arrayToBracedString = (array) => {
-  switch(array.length) {
+  switch (array.length) {
     case 0:
       return '';
     case 1:
       return array[0];
     default:
-      return `{${array.join(',')}}`;    
+      return `{${array.join(',')}}`;
   }
 };
 
@@ -28,7 +28,9 @@ const getConfig = () => {
   const concatenatedCodeExtensions = arrayToBracedString(codeExtensions);
 
   const defaultArtifactDirNames = ['esm', 'commonjs', 'dist'];
-  const concatenatedDefaultArtifactDirNames = arrayToBracedString(defaultArtifactDirNames);
+  const concatenatedDefaultArtifactDirNames = arrayToBracedString(
+    defaultArtifactDirNames,
+  );
 
   const buildableIgnoreGlobs = extraBuildIgnoreGlobs;
 
@@ -67,11 +69,13 @@ const getConfig = () => {
 
   const testDirGlobs = ['test', `${concatenatedWorkspaces}/test`];
 
-  const testCodeGlobs = testDirGlobs.map(glob => `${glob}/**/*.${concatenatedCodeExtensions}`);
+  const testCodeGlobs = testDirGlobs.map(
+    (glob) => `${glob}/**/*.${concatenatedCodeExtensions}`,
+  );
 
   const testableGlobs = [
     `test/**/*.test.${concatenatedCodeExtensions}`,
-    `${concatenatedWorkspaces}/**/*.test.${concatenatedCodeExtensions}`
+    `${concatenatedWorkspaces}/**/*.test.${concatenatedCodeExtensions}`,
   ];
 
   return {

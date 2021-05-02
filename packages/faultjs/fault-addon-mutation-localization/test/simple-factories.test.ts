@@ -16,7 +16,7 @@ import {
   replaceAssignmentOperatorFactory,
   leftNullifyBinaryOrLogicalOperatorFactory,
   rightNullifyBinaryOrLogicalOperatorFactory,
-} from '../src/index.ts'
+} from '../src/index.ts';
 type Code = string;
 type Factory = AbstractSimpleInstructionFactory<any, any>;
 type ExpectedInstructionCount = number;

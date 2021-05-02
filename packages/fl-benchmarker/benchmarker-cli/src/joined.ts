@@ -6,7 +6,7 @@ import { resolve } from 'path';
 import { locationToKeyIncludingEnd } from '@fault/addon-mutation-localization';
 import { recordFaults, convertFileFaultDataToFaults } from '@fault/record-faults';
 
-import { requestProjectDirs } from './requestProjectDirs.ts'
+import { requestProjectDirs } from './requestProjectDirs.ts';
 
 // TODO: This is just a temporary script to see if FaultJs does better with SBFL techniques
 const algos = ['dstar-2', 'op2'];

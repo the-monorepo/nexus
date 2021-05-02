@@ -7,7 +7,7 @@ import {
   CONSTRUCTOR_ACCESS,
   UNKNOWN_ACCESS,
   MemberAccessInfo,
-} from '../src/index.ts'
+} from '../src/index.ts';
 const accessInfoToString = (info: AccessInfo) => {
   switch (info.type) {
     case MEMBER_ACCESS:

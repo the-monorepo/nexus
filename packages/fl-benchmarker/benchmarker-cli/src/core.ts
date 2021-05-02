@@ -22,9 +22,9 @@ import { tarantula } from '@fault/sbfl-tarantula';
 import { writeJson, readJson } from '@pshaw/fs';
 import createLogger from '@pshaw/logger';
 
-import { BenchmarkConfig, ProjectConfig } from './config.ts'
-import benchmarkConfig from './config.ts'
-import { requestProjectDirs } from './requestProjectDirs.ts'
+import { BenchmarkConfig, ProjectConfig } from './config.ts';
+import benchmarkConfig from './config.ts';
+import { requestProjectDirs } from './requestProjectDirs.ts';
 
 const WITHIN = 'within';
 const EXACT = 'exact';

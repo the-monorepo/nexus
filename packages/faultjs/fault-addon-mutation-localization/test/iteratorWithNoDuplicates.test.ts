@@ -1,4 +1,4 @@
-import { iteratorWithNoDuplicates } from '../src/index.ts'
+import { iteratorWithNoDuplicates } from '../src/index.ts';
 describe('iteratorWithNoDuplicates', () => {
   it('numbers', () => {
     const arrWithDuplicates = [1, 2, 3, 4, 4, 3, 2, 1];

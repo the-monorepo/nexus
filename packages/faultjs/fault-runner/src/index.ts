@@ -25,7 +25,7 @@ import {
 } from '@fault/types';
 import { readJson, writeJson } from '@pshaw/fs';
 
-import * as defaultReporter from './default-reporter.ts'
+import * as defaultReporter from './default-reporter.ts';
 
 const addonEntryPath = require.resolve('./addon-entry');
 
@@ -501,7 +501,7 @@ type InternalRunOptions = {
   workerCount: number;
   setupFiles: string[];
   hooks: TestHookOptions;
-  processOptions: ForkOptions,
+  processOptions: ForkOptions;
   testerOptions: any;
   bufferCount: number;
   timeout: number;
@@ -513,16 +513,12 @@ export const run = async ({
   setupFiles = [],
   addons = [],
   workers = cpus().length,
-  processOptions: {
-    cwd = process.cwd(),
-    env = process.env,
-    ...otherProcessOptions
-  } = {},
+  processOptions: { cwd = process.cwd(), env = process.env, ...otherProcessOptions } = {},
   reporters = [defaultReporter.createPlugin({ dir: join(cwd, 'coverage') })],
   testerOptions = {},
   fileBufferCount = 4,
   timeout = 20000,
-}: RunOptions) => {  
+}: RunOptions) => {
   addons.push(...reporters);
 
   const hooks: TestHookOptions = schema.merge(addons);
@@ -531,7 +527,10 @@ export const run = async ({
 
   await hooks.on.start();
 
-  const testFiles = await globby(testMatch, { onlyFiles: true, expandDirectories: false });
+  const testFiles = await globby(testMatch, {
+    onlyFiles: true,
+    expandDirectories: false,
+  });
   testFiles.sort();
   const internalOptions: InternalRunOptions = {
     tester: require.resolve(tester, {
@@ -539,9 +538,11 @@ export const run = async ({
     }),
     testFiles,
     workerCount: processCount,
-    setupFiles: setupFiles.map(path => require.resolve(path, {
-      paths: [process.cwd()],
-    })),
+    setupFiles: setupFiles.map((path) =>
+      require.resolve(path, {
+        paths: [process.cwd()],
+      }),
+    ),
     hooks,
     processOptions: {
       cwd,

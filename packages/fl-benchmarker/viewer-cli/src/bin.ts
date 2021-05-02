@@ -1,14 +1,15 @@
 import yargs from 'yargs';
-import { build, watch } from './index.ts'
+import { build, watch } from './index.ts';
 
-const createModeOptionArgs = (defaultEnv: string) => ([
-  'mode',
-  {
-    alias: 'm',
-    type: 'string',
-    default: defaultEnv,
-  },
-] as const);
+const createModeOptionArgs = (defaultEnv: string) =>
+  [
+    'mode',
+    {
+      alias: 'm',
+      type: 'string',
+      default: defaultEnv,
+    },
+  ] as const;
 
 yargs
   .strict()
@@ -38,13 +39,16 @@ yargs
   .command(
     'build',
     'Build a Webpack bundle of the benchmarker results UI',
-    (commandConfigurator) => commandConfigurator.option('outputDir', {
-      alias: 'o',
-      type: 'string',
-      description: 'The output directory of the created bundle',
-      required: true,
-      default: './dist',
-    }).option(...createModeOptionArgs('production')),
+    (commandConfigurator) =>
+      commandConfigurator
+        .option('outputDir', {
+          alias: 'o',
+          type: 'string',
+          description: 'The output directory of the created bundle',
+          required: true,
+          default: './dist',
+        })
+        .option(...createModeOptionArgs('production')),
     async (...args) => {
       await build(...args);
     },
