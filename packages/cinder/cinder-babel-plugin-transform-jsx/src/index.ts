@@ -6,7 +6,7 @@ import * as tr from '@babel/traverse';
 import type { JSXElement, JSXText, JSXExpressionContainer } from '@babel/types';
 import * as t from '@babel/types';
 
-import PRAGMA from './DefaultPragma.ts'
+import PRAGMA from './DefaultPragma.ts';
 
 const cinderMemberExpression = (field: string) => {
   return t.memberExpression(t.identifier(PRAGMA), t.identifier(field));
@@ -110,9 +110,14 @@ type InnerField = AttributeField | PropertyField | EventField | SpreadField;
 type AsyncField = {
   type: typeof ASYNC_ITERATOR_TYPE;
   innerField: InnerField;
-}
+};
 
-type ElementField = AttributeField | PropertyField | EventField | SpreadField | AsyncField; // TODO: SpreadType
+type ElementField =
+  | AttributeField
+  | PropertyField
+  | EventField
+  | SpreadField
+  | AsyncField; // TODO: SpreadType
 
 /**
  * We have no idea how many node will be in this section.
@@ -203,7 +208,7 @@ export default declare((api, options) => {
       value.node === undefined ||
       value.node === null ||
       (value.isLiteral() &&
-      (!value.isTemplateLiteral() || value.node.expressions.length <= 0))
+        (!value.isTemplateLiteral() || value.node.expressions.length <= 0))
     );
   };
 
@@ -309,7 +314,11 @@ export default declare((api, options) => {
       case ASYNC_ITERATOR_TYPE:
         return {
           type,
-          innerField: fieldFromNodes(nodePathName.replace(/^watch_/, ''), outerPath, valuePath),
+          innerField: fieldFromNodes(
+            nodePathName.replace(/^watch_/, ''),
+            outerPath,
+            valuePath,
+          ),
         };
       case PROPERTY_TYPE:
         const key = cleanFieldName(nodePathName);
@@ -351,7 +360,7 @@ export default declare((api, options) => {
           expression: valueExpressionFromJsxAttributeValue(valuePath),
         } as ElementField;
     }
-  }
+  };
 
   const domNodeFromJSXElement = (
     path: tr.NodePath<JSXElement>,
@@ -774,14 +783,13 @@ export default declare((api, options) => {
             throw new Error('Null attribute id not supported');
           }
 
-          return cinderCallExpression(field.type, [
-            nodeId,
-            t.stringLiteral(field.key),
-          ]);
+          return cinderCallExpression(field.type, [nodeId, t.stringLiteral(field.key)]);
         }
         return null;
       case ASYNC_ITERATOR_TYPE:
-        return cinderCallExpression(field.type, [fieldExpressionFromFieldData(nodeId, field.innerField)])
+        return cinderCallExpression(field.type, [
+          fieldExpressionFromFieldData(nodeId, field.innerField),
+        ]);
       case PROPERTY_TYPE:
         return cinderCallExpression(field.type, [nodeId, field.setterId]);
       case SPREAD_TYPE:
@@ -789,7 +797,7 @@ export default declare((api, options) => {
       default:
         throw new Error(`Field not supported: ${field}`);
     }
-  }
+  };
 
   function* yieldFieldExpressionsFromNodes(nodes: Node[], rootId: t.Identifier) {
     let previousConsecutiveDynamicNodeCount = 0;
@@ -857,7 +865,7 @@ export default declare((api, options) => {
       case ELEMENT_TYPE:
         for (const field of node.fields) {
           const value = fieldValueFromElementFieldData(field);
-          if(value === null) {
+          if (value === null) {
             continue;
           }
           yield value;
@@ -916,7 +924,10 @@ export default declare((api, options) => {
           }
         }
         // TODO: This whole block of code assumes that it's a SFC and not a string (representing an HTML element)
-        yield cinderCallExpression('validateComponent', [jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression), t.objectExpression(objectProperties)]);
+        yield cinderCallExpression('validateComponent', [
+          jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression),
+          t.objectExpression(objectProperties),
+        ]);
     }
   }
 

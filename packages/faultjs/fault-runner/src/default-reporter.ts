@@ -55,18 +55,33 @@ export const createPlugin = (contextOptions?) => {
       const fileDir = dirname(filePath);
       const formattedFilePath = join(fileDir, chalk.whiteBright.bold(fileName));
       const passed = !suiteResult.some((result) => !result.data.passed);
-      
-      const totalDuration = Math.max(0, ...suiteResult.map(testResult => testResult.data.duration));
-      
+
+      const totalDuration = Math.max(
+        0,
+        ...suiteResult.map((testResult) => testResult.data.duration),
+      );
+
       const durationInSeconds = totalDuration / 1000;
       // TODO: Remove hard coded threshold
       const durationInSecondsMessage = `${durationInSeconds}s`;
-      const durationInSecondsColoredMessage = totalDuration > 4000 ? chalk.reset.inverse.bold.yellow(durationInSecondsMessage) : chalk.grey(durationInSecondsMessage);
-      const durationMessage = totalDuration === 0 ? '' : ` ${durationInSecondsColoredMessage}`;
+      const durationInSecondsColoredMessage =
+        totalDuration > 4000
+          ? chalk.reset.inverse.bold.yellow(durationInSecondsMessage)
+          : chalk.grey(durationInSecondsMessage);
+      const durationMessage =
+        totalDuration === 0 ? '' : ` ${durationInSecondsColoredMessage}`;
       if (passed) {
-        console.log(`${chalk.reset.inverse.bold.green(' PASS ')} ${formattedFilePath}${durationMessage}`);
+        console.log(
+          `${chalk.reset.inverse.bold.green(
+            ' PASS ',
+          )} ${formattedFilePath}${durationMessage}`,
+        );
       } else {
-        console.log(`${chalk.reset.inverse.bold.red(' FAIL ')} ${formattedFilePath}${durationMessage}`);
+        console.log(
+          `${chalk.reset.inverse.bold.red(
+            ' FAIL ',
+          )} ${formattedFilePath}${durationMessage}`,
+        );
       }
     }
 

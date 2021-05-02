@@ -1,4 +1,4 @@
-import { TypeCheck } from './type-checks.ts'
+import { TypeCheck } from './type-checks.ts';
 export type TypeTest<V = any> = {
   typeCheck: (...params: any[]) => boolean;
   value: V;

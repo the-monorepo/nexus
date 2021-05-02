@@ -15,7 +15,7 @@ import {
   createInstructionQueue,
   createInstructionBlocks,
   NodeInformation,
-} from '../src/index.ts'
+} from '../src/index.ts';
 const arrToString = (arr: number[]) => `[${arr.join(', ')}]`;
 
 const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {

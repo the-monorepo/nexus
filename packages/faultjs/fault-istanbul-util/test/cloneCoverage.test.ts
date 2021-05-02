@@ -1,4 +1,4 @@
-import { cloneCoverage } from '../src/index.ts'
+import { cloneCoverage } from '../src/index.ts';
 describe('cloneCoverage', () => {
   [
     {},

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { basename } from 'path';
 
-import { TestInputs } from './tests/inputs/test-inputs.ts'
+import { TestInputs } from './tests/inputs/test-inputs.ts';
 import {
   default as cssColorFormat,
   isHexColor,
@@ -12,8 +12,8 @@ import {
   isColorName,
   isHwbColor,
   isCssColor,
-} from './src/index.ts'
-import { inputs } from './tests/inputs/suites.ts'
+} from './src/index.ts';
+import { inputs } from './tests/inputs/suites.ts';
 
 function example(isColorFunction, input: string) {
   return `${isColorFunction.name}("${input}");`;

@@ -2,9 +2,9 @@ import { cloneCoverage } from '@fault/istanbul-util';
 
 import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
 
-import { client } from './client.ts'
+import { client } from './client.ts';
 
-import { createMochaInstance, runMochaInstance } from './mocha-util.ts'
+import { createMochaInstance, runMochaInstance } from './mocha-util.ts';
 
 import * as resultful from 'resultful';
 

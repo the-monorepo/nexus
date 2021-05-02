@@ -1,6 +1,6 @@
 import * as resultful from 'resultful';
 
-import { IPCReporter } from './recordTests.ts'
+import { IPCReporter } from './recordTests.ts';
 
 export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   const mochaInstance = new Mocha({
@@ -19,7 +19,9 @@ export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
   return mochaInstance;
 };
 
-export const runMochaInstance = (mochaInstance): Promise<resultful.Result<undefined, any, any>> =>
+export const runMochaInstance = (
+  mochaInstance,
+): Promise<resultful.Result<undefined, any, any>> =>
   new Promise((resolve) => {
     try {
       mochaInstance.run((failures) => {

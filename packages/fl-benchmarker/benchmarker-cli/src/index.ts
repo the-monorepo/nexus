@@ -1,2 +1,2 @@
-import { run } from './core.ts'
+import { run } from './core.ts';
 run().catch(console.error);

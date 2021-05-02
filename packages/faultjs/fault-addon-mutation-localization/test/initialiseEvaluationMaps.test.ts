@@ -6,7 +6,7 @@ import {
   getAstPath,
   initialiseEvaluationMaps,
   pathToPrimaryKey,
-} from '../src/index.ts'
+} from '../src/index.ts';
 const code = 'let a = 0; 1 + 2; () => {}';
 const ast = parse(code);
 const filePath = 'test';

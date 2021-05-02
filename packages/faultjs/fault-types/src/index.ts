@@ -1,6 +1,6 @@
 import { Coverage } from '@fault/istanbul-util';
 
-import * as IPC from './ipc.ts'
+import * as IPC from './ipc.ts';
 export { IPC };
 export type Stats = {
   failed: number;

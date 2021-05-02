@@ -1,6 +1,6 @@
-import { DefaultTypeName } from './DefaultTypeName.ts'
-import { typeTest } from './TypeTest.ts'
-import { extractTypeInfo } from './extractTypeInfo.ts'
+import { DefaultTypeName } from './DefaultTypeName.ts';
+import { typeTest } from './TypeTest.ts';
+import { extractTypeInfo } from './extractTypeInfo.ts';
 import {
   isBoolean,
   isObject,
@@ -8,7 +8,7 @@ import {
   isString,
   isFunction,
   isNumber,
-} from './type-checks.ts'
+} from './type-checks.ts';
 import {
   BooleanType,
   StringType,
@@ -17,8 +17,8 @@ import {
   NumberFormat,
   ArrayType,
   ObjectType,
-} from './type-info-types.ts'
-import { allAreIntegers } from './util.ts'
+} from './type-info-types.ts';
+import { allAreIntegers } from './util.ts';
 
 export function defaultTypeTests(extractTypeInfoFunction = extractTypeInfo) {
   return {

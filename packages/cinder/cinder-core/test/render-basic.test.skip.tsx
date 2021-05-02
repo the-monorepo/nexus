@@ -1,5 +1,5 @@
-import * as cinder from '../src/index.ts'
-import { render } from '../src/index.ts'
+import * as cinder from '../src/index.ts';
+import { render } from '../src/index.ts';
 
 describe.skip('basic rendering', () => {
   let root;

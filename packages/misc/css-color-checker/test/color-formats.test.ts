@@ -6,9 +6,9 @@ import {
   isHslColor,
   isHslaColor,
   isHwbColor,
-} from '../src/index.ts'
-import { testFunction } from './helpers/test-function.ts'
-import { inputs } from './inputs/suites.ts'
+} from '../src/index.ts';
+import { testFunction } from './helpers/test-function.ts';
+import { inputs } from './inputs/suites.ts';
 testFunction('Hex', isHexColor, inputs.hex);
 testFunction('rgb(...)', isRgbColor, inputs.rgb);
 testFunction('rgba(...)', isRgbaColor, inputs.rgba);
