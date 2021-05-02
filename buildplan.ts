@@ -11,7 +11,7 @@ import changed from 'gulp-changed';
 
 import rename from 'gulp-rename';
 
-import getStagableFiles from 'lint-staged/lib/getStagedFiles';
+import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';
 import streamToPromise from 'stream-to-promise';
 import through from 'through2';
 
