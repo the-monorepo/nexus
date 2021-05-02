@@ -98,7 +98,7 @@ const ProjectResult = (project: ProjectResultProps) => {
   );
 };
 
-type PercentageData = {};
+type PercentageData = Record<string, unknown>;
 type ResultsTableProps = {
   projectResults: ProjectResultProps[];
   // TODO: Kind of hacked, refactor
