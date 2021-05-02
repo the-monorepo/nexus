@@ -10,9 +10,8 @@
     "preset"
   ],
   "version": "1.4.4-0",
-  "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
+  "module": "./esm/index.json",
+  "main": "./commonjs/index.json",
   "files": [
     "commonjs",
     "src",
