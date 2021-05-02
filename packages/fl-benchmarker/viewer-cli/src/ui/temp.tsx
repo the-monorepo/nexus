@@ -1,5 +1,5 @@
 import * as cinder from 'cinder';
-import { render, DomElement } from 'cinder';
+import { render } from 'cinder';
 
 import styles from './index.scss';
 

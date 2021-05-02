@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-require(s */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { relative } = require('path');
 
 const register = require('@babel/register');
