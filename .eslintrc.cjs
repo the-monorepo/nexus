@@ -27,7 +27,6 @@ module.exports = {
     "ecmaFeatures": {
       "modules": true,
       "jsx": true,
-      "impliedStrict": true
     }
   },
   "settings": {
