@@ -29,7 +29,7 @@ class GlobFilterStream extends Duplex {
   }
 }
 
-const createGlobFilterStream = (glob, ignoreGlobs, options) => {
+const createGlobFilterStream = (glob, ignoreGlobs, options?) => {
   return new GlobFilterStream(glob, ignoreGlobs, options);
 };
 

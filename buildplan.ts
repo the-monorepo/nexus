@@ -42,7 +42,7 @@ const oldStreamToPromise = async (something) => {
   return value;
 };
 
-const task = (name: string, descriptionOrCallback, callbackOrUndefined) => {
+const task = (name: string, descriptionOrCallback, callbackOrUndefined?) => {
   const callback =
     callbackOrUndefined === undefined ? descriptionOrCallback : callbackOrUndefined;
   const wrapped = { [name]: () => oldStreamToPromise(callback()) }[name];
@@ -178,7 +178,7 @@ const copyPipes = (stream, l, dir) => {
     .pipe(simplePipeLogger(l))
     .pipe(
       rename((filePath) => {
-        filePath.dirname = renamePath(filePath.dirname, dir);
+        filePath.dirname = renamePath(filePath.dirname);
         return filePath;
       }),
     )
@@ -469,7 +469,7 @@ const getFaultLocalizationAddon = async () => {
         ignoreGlob: flIgnoreGlob,
         mapToIstanbul: true,
         onMutation: () => {
-          return new Promise((resolve, reject) => {
+          return new Promise<void>((resolve, reject) => {
             let scriptFinish = false;
             let esmFinish = false;
             const checkToFinish = () => {
@@ -596,7 +596,8 @@ const webpackCompilers = async () => {
       };
       return {
         config: mergedConfig,
-        compiler: webpack(mergedConfig),
+        // TODO: Fix
+        compiler: webpack(mergedConfig as any),
       };
     });
 };
@@ -613,7 +614,7 @@ const bundleWebpack = async () => {
   const compilers = await webpackCompilers();
 
   const compilersStatsPromises = compilers.map((info) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
       info.compiler.run((err, stats) => {
         if (err) {
           reject(err);
@@ -631,7 +632,7 @@ const bundleWebpack = async () => {
 
     const messages: string[] = [];
 
-    const filesMessage = Object.values(compilation.assets)
+    const filesMessage = Object.values<any>(compilation.assets)
       .map(
         (asset) =>
           ` - ${chalk.cyanBright(asset.existsAt)} ${chalk.magentaBright(
@@ -692,7 +693,7 @@ const serveBundles = async () => {
   const l = logger.child(chalk.magentaBright('webpack'));
   for (const { compiler, config } of compilers) {
     const mergedDevServerConfig = config.devServer;
-    const server = new WebpackDevServer(compiler, mergedDevServerConfig);
+    const server = new WebpackDevServer(compiler as any, mergedDevServerConfig);
     const serverPort = config.devServer.port !== undefined ? config.devServer.port : port;
     server.listen(serverPort, 'localhost', () => {
       l.info(
