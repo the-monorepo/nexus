@@ -1,0 +1,10 @@
+[package]
+name = "scriptplan"
+version = "1.0.0"
+authors = ["Patrick Shaw <mail@patrickshaw.me>"]
+edition = "2018"
+
+[dependencies]
+yaml-rust = "0.4.5"
+clap = "2.33.3"
+shellwords = "1.1.0"
