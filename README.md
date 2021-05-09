@@ -27,6 +27,7 @@ Version | Package | Description
 1.0.0 | [`nucleotide-bases`](packages/misc/nucleotide-bases/README.md) | A helper package for nucleotide bases
 4.0.0 | [`replace-functions`](packages/misc/replace-functions/README.md) | Mock all functions inside an array or object literal
 0.0.11 | [`resultful`](packages/resultful/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
+1.0.0 | [`scriptplan`](packages/scriptplan/scriptplan/README.md) | 
 4.0.1-0 | [`sinon-stub-functions`](packages/misc/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 1.0.0-alpha.6 | [`stream-filter-glob`](packages/misc/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob
 1.0.0-alpha.0 | [`tree-suffix-mapper`](packages/misc/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
