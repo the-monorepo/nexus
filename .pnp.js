@@ -359,6 +359,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/resultful/utility-types"
       },
       {
+        "name": "scriptplan",
+        "reference": "workspace:packages/scriptplan/scriptplan"
+      },
+      {
         "name": "@writeme/core",
         "reference": "workspace:packages/writeme/writeme-core"
       }
@@ -26401,6 +26405,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["ajv-keywords", "virtual:f84d18c473fad3c01e1cf352f81ad13de804ca40da5bf6e752464a2e78dcb097ad579b06da5ff33a55ba9957fb9c74909b99fc5e215420a3f9b5dc87ad71363b#npm:3.5.2"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["scriptplan", [
+        ["workspace:packages/scriptplan/scriptplan", {
+          "packageLocation": "./packages/scriptplan/scriptplan/",
+          "packageDependencies": [
+            ["scriptplan", "workspace:packages/scriptplan/scriptplan"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["select", [
