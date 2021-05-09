@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "./packages/scriptplan/scriptplan",
+    "./packages/patrick-shaw/spot-welder-arduino"
+]
