@@ -48,3 +48,5 @@ flamegraph.html
 
 localhost.crt
 localhost.key
+
+target/
