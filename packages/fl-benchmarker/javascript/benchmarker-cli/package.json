@@ -1,0 +1,69 @@
+{
+  "name": "@fl-benchmarker/benchmarker-cli",
+  "version": "1.0.0-alpha.1",
+  "description": "Benchmark your fault localization techniques",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "scripts": {
+    "start": "yarn node --max-old-space-size=4096 ./commonjs/index.ts",
+    "results": "yarn node ./commonjs/index.ts",
+    "build": "yarn start && yarn results",
+    "report": "webpack-dev-server --watch --mode development",
+    "scrape-repo": "yarn node ./commonjs/index.ts"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "fl-benchmarker/benchmarker-cli"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "faultjs",
+    "fault-localization",
+    "debugging",
+    "benchmark"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.13.15",
+    "@babel/parser": "^7.13.15",
+    "@babel/register": "^7.13.14",
+    "@fault/addon-sbfl": "workspace:packages/faultjs/javascript/fault-addon-sbfl",
+    "@fault/istanbul-util": "workspace:packages/faultjs/javascript/fault-istanbul-util",
+    "@fault/record-faults": "workspace:packages/faultjs/javascript/fault-record-faults",
+    "@fault/runner": "workspace:packages/faultjs/javascript/fault-runner",
+    "@fault/sbfl-barinel": "workspace:packages/faultjs/javascript/fault-sbfl-barinel",
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/javascript/fault-sbfl-dstar",
+    "@fault/sbfl-ochiai": "workspace:packages/faultjs/javascript/fault-sbfl-ochiai",
+    "@fault/sbfl-op2": "workspace:packages/faultjs/javascript/fault-sbfl-op2",
+    "@fault/sbfl-tarantula": "workspace:packages/faultjs/javascript/fault-sbfl-tarantula",
+    "@fault/tester-mocha": "workspace:packages/faultjs/javascript/fault-tester-mocha",
+    "@fl-benchmarker/viewer-cli": "workspace:packages/fl-benchmarker/javascript/viewer-cli",
+    "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs",
+    "@pshaw/logger": "workspace:packages/misc/javascript/logger",
+    "chai": "^4.2.0",
+    "chalk": "^4.1.0",
+    "chart.js": "^2.9.3",
+    "chartjs-chart-box-and-violin-plot": "^2.3.0",
+    "cinder": "workspace:packages/cinder/javascript/cinder",
+    "globby": "^11.0.1",
+    "micromatch": "^4.0.2",
+    "mocha": "^8.1.1",
+    "source-map-support": "^0.5.19"
+  },
+  "devDependencies": {
+    "cross-spawn": "^7.0.3",
+    "del": "^5.1.0",
+    "isomorphic-git": "^1.7.4",
+    "node-fetch": "^2.6.0"
+  }
+}

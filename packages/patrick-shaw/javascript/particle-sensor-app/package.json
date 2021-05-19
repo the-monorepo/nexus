@@ -1,0 +1,22 @@
+{
+  "name": "@pshaw/particle-sensor-app",
+  "version": "1.0.0",
+  "description": "An app for reading sensor data from an Arduino",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "pshaw/particle-sensor-app"
+  },
+  "dependencies": {
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements",
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
+    "@resultful/result": "workspace:packages/resultful/javascript/result",
+    "cinder": "workspace:packages/cinder/javascript/cinder",
+    "classnames": "^2.2.6",
+    "core-js": "^3.10.1",
+    "d3": "^6.5.0",
+    "mobx": "^6.1.8",
+    "unstyled": "workspace:packages/misc/javascript/unstyled"
+  }
+}
