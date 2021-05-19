@@ -50,12 +50,12 @@ module.exports = (api) => {
     plugins,
     overrides: [
       {
-        test: ['./packages/**/*.react.tsx'],
+        test: ['./packages/**/javascript/*.react.tsx'],
         plugins,
         presets: presets.concat(['@babel/preset-typescript', '@babel/preset-react']),
       },
       {
-        test: ['./packages/**/*.tsx'],
+        test: ['./packages/**/javascript/*.tsx'],
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
           [

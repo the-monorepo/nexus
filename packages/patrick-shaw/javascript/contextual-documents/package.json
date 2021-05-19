@@ -1,0 +1,30 @@
+{
+  "name": "@pshaw/contextual-documents",
+  "version": "1.0.0-alpha.0",
+  "description": "A nice, sensible, web component based Contextual Document API",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "patrick-shaw/contextual-documents"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.ts",
+  "module": "./esm/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker",
+    "@contextual-documents/element": "workspace:packages/contextual-documents/javascript/contextual-documents-element",
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements",
+    "@contextual-documents/html-symbols": "workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols",
+    "@pshaw/contextual-documents-scss": "workspace:packages/patrick-shaw/javascript/contextual-documents-scss"
+  }
+}

@@ -40,7 +40,7 @@ module.exports = {
     ...commonRules,
   },
   "overrides": [{
-    "files": ["./packages/faultjs/**", './packages/fl-benchmarker/**'],
+    "files": ["./packages/faultjs/javascript/**", './packages/fl-benchmarker/javascript/**'],
     "rules": {
       ...commonRules,
       "no-console": "off",
@@ -53,13 +53,13 @@ module.exports = {
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
-    "files": ["**/test/**", "packages/build-packages/**", "**/*.config.js", '.eslintrc.cjs'],
+    "files": ["**/test/**", "packages/build-packages/javascript/**", "**/*.config.js", '.eslintrc.cjs'],
     "rules": {
       ...commonRules,
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
-    "files": ["packages/misc/jest-mock-functions/**"],
+    "files": ["packages/misc/javascript/jest-mock-functions/**"],
     "env": {
       "jest": true
     },

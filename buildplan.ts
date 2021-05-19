@@ -79,7 +79,7 @@ const parallel = (...tasks) =>
   );
 
 const swapSrcWith = (srcPath, newDirName) => {
-  // Should look like /packages/<package-name>/src/<rest-of-the-path>
+  // Should look like /packages/<package-name>/javascript/src/<rest-of-the-path>
   srcPath = relative(__dirname, srcPath);
   const parts = srcPath.split(sep);
   // Swap out src for the new dir name
@@ -445,7 +445,7 @@ task(
 );
 
 const flIgnoreGlob =
-  'packages/faultjs/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+  'packages/faultjs/javascript/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
 
 const getFaultLocalizationAddon = async () => {
   switch (config.extra.flMode) {

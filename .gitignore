@@ -31,10 +31,10 @@ jspm_packages/
 .env
 
 .cache
-packages/*/*/commonjs/
-packages/*/*/esm/
-packages/*/*/dist/
-packages/*/*/stats.html
+packages/*/javascript/*/commonjs/
+packages/*/javascript/*/esm/
+packages/*/javascript/*/dist/
+packages/*/javascript/*/stats.html
 
 /faults
 
