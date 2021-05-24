@@ -1,12 +1,15 @@
+
+mod expand;
+mod schema;
 use std::fs;
 use std::path::Path;
 use clap::{App, SubCommand};
 
-use shellwords::split;
-
 use yaml_rust::{YamlLoader,Yaml};
 
-use std::process::{Command, Stdio};
+use conch_parser::lexer::Lexer;
+use conch_parser::parse::DefaultParser;
+use expand::expand;
 
 fn main() {
   let path = Path::new("./.scripts.yaml");
@@ -30,13 +33,21 @@ fn main() {
 
     let command_str = map.get(&yaml_key).unwrap().as_str().unwrap();
 
-    let splitted = split(command_str).unwrap();
+    let lex = Lexer::new(command_str.chars());
 
+    let parser = DefaultParser::new(lex);
+    for t in parser {
+      // println!("{:?}\n", t);
+      let ast = expand(t.unwrap());
+      // println!("{:?}", ast);
+      ast.run();
+    }
+    /*
     Command::new(&splitted[0])
       .stdin(Stdio::null())
       .stdout(Stdio::inherit())
       .args(&splitted[1..])
       .output()
-      .unwrap();
+      .unwrap();*/
   }
 }
