@@ -11,29 +11,6 @@
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git"
   },
-  "scripts": {
-    "node-base": "yarn node --require=./transpile-at-runtime.js --require=./original-code-require-override.ts",
-    "run:buildplan": "yarn node-base buildplan.ts",
-    "format": "yarn run:buildplan format",
-    "format-staged": "yarn run:buildplan format-staged",
-    "test": "yarn run:buildplan test",
-    "clean": "yarn run:buildplan clean",
-    "transpile": "yarn run:buildplan transpile",
-    "build": "yarn run:buildplan build",
-    "build-all": "yarn run:buildplan build-all",
-    "watch": "yarn run:buildplan watch",
-    "writeme": "yarn run:buildplan writeme",
-    "webpack": "yarn run:buildplan webpack",
-    "serve": "yarn run:buildplan serve",
-    "serve:my-resume": "yarn run:buildplan serve --name='my-resume'",
-    "serve:page-breaker": "yarn run:buildplan serve --name='page-breaker'",
-    "serve:genetic-sequence-analysis-app": "yarn run:buildplan serve --name='genetic-sequence-analysis-app'",
-    "serve:particle-sensor-app": "yarn run:buildplan serve --name='particle-sensor-app'",
-    "serve:spot-welder-app": "yarn run:buildplan serve --name='spot-welder-app'",
-    "precommit": "yarn run:buildplan precommit",
-    "update-yarn": "yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn install && yarn pnpify --sdk",
-    "create-ssl-certificate-osx": "openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt"
-  },
   "keywords": [
     "typescript"
   ],
