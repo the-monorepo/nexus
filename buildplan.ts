@@ -83,7 +83,8 @@ const swapSrcWith = (srcPath, newDirName) => {
   srcPath = relative(__dirname, srcPath);
   const parts = srcPath.split(sep);
   // Swap out src for the new dir name
-  parts[3] = newDirName;
+  parts[4] = newDirName;
+  console.log(parts);
   const resultingPath = join(...parts);
   return resultingPath;
 };
