@@ -7,4 +7,6 @@ edition = "2018"
 [dependencies]
 yaml-rust = "0.4.5"
 clap = "2.33.3"
-conch-parser = "0.1.1"
+conch-parser = { version = "0.1" }
+conch-runtime = { git = "https://github.com/ipetkov/conch-runtime" }
+tokio = { version = "0.2", features = ["fs", "io-util", "process", "macros"] }
