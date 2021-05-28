@@ -15,6 +15,7 @@ Version | Package | Description
 1.4.3 | [`@pshaw/convict-util`](packages/misc/javascript/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/javascript/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/javascript/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
+1.4.3 | [`@pshaw/markdown-util`](packages/misc/javascript/markdown-util/README.md) | A helper package for writing markdown files
 1.1.4-0 | [`@pshaw/resume-template`](packages/misc/javascript/resume-template/README.md) | A template you can use to generate resumes
 0.0.4 | [`@resultful/utility-types`](packages/resultful/javascript/utility-types/README.md) | String constants for the different result types returned by resultful
 1.0.0-alpha.2 | [`cinder`](packages/cinder/javascript/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
@@ -27,7 +28,6 @@ Version | Package | Description
 1.0.0 | [`nucleotide-bases`](packages/misc/javascript/nucleotide-bases/README.md) | A helper package for nucleotide bases
 4.0.0 | [`replace-functions`](packages/misc/javascript/replace-functions/README.md) | Mock all functions inside an array or object literal
 0.0.11 | [`resultful`](packages/resultful/javascript/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
-1.0.0 | [`scriptplan`](packages/scriptplan/javascript/scriptplan/README.md) | 
 4.0.1-0 | [`sinon-stub-functions`](packages/misc/javascript/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 1.0.0-alpha.6 | [`stream-filter-glob`](packages/misc/javascript/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob
 1.0.0-alpha.0 | [`tree-suffix-mapper`](packages/misc/javascript/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
@@ -59,11 +59,6 @@ Version | Package | Description
 1.0.0-alpha.6 | [`@byexample/storybook-addon-auto-knobs`](packages/byexample/javascript/byexample-storybook-addon-auto-knobs/README.md) | Automatically created knobbed versions of your stories based on value and prop types
 1.0.0-alpha.6 | [`@byexample/storybook-knobified`](packages/byexample/javascript/byexample-storybook-knobified/README.md) | Automatically created knobbed versions of your stories based on value and prop types
 1.0.0-alpha.6 | [`@byexample/types`](packages/byexample/javascript/byexample-types/README.md) | Extract type information from examples
-
-### Documentation
-Version | Package | Description
---- | --- | ---
-1.4.3 | [`@pshaw/markdown-util`](packages/misc/javascript/markdown-util/README.md) | A helper package for writing markdown files
 
 ### ESLint
 Version | Package | Description
