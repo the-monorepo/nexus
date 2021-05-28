@@ -1,26 +1,25 @@
-node-base: node --require ./pnp.js --require=./transpile-at-runtime.js
+node-base: node --require ./.pnp.js --require=./transpile-at-runtime.js
   --require=./original-code-require-override.ts
-run:buildplan: $0 node-base buildplan.ts
-format: $0 run:buildplan format
-format-staged: $0 run:buildplan format-staged
-test: echo test:rawr
-clean: $0 run:buildplan clean
-transpile: $0 run:buildplan transpile
-thing: echo Test
-thing2: $0 thing
-build: $0 run:buildplan build
-build-all: $0 run:buildplan build-all
-watch: $0 run:buildplan watch
-writeme: $0 run:buildplan writeme
-webpack: $0 run:buildplan webpack
-serve: $0 run:buildplan serve
-serve:my-resume: $0 run:buildplan serve --name='my-resume'
-serve:page-breaker: $0 run:buildplan serve --name='page-breaker'
-serve:genetic-sequence-analysis-app: $0 run:buildplan serve --name='genetic-sequence-analysis-app'
-serve:particle-sensor-app: $0 run:buildplan serve --name='particle-sensor-app'
-serve:spot-welder-app: $0 run:buildplan serve --name='spot-welder-app'
-precommit: $0 run:buildplan precommit
-update-$0: $0 set version berry && $0 add @$0pkg/pnpify --dev && $0
-  install && $0 pnpify --sdk
+node: node
+run:buildplan: ./$0 node-base buildplan.ts
+format: ./$0 run:buildplan format
+format-staged: ./$0 run:buildplan format-staged
+test: ./$0 run:buildplan test
+clean: ./$0 run:buildplan clean
+transpile: ./$0 run:buildplan transpile
+build: ./$0 run:buildplan build
+build-all: ./$0 run:buildplan build-all
+watch: ./$0 run:buildplan watch
+writeme: ./$0 run:buildplan writeme
+webpack: ./$0 run:buildplan webpack
+serve: ./$0 run:buildplan serve
+serve:my-resume: ./$0 run:buildplan serve --name='my-resume'
+serve:page-breaker: ./$0 run:buildplan serve --name='page-breaker'
+serve:genetic-sequence-analysis-app: ./$0 run:buildplan serve --name='genetic-sequence-analysis-app'
+serve:particle-sensor-app: ./$0 run:buildplan serve --name='particle-sensor-app'
+serve:spot-welder-app: ./$0 run:buildplan serve --name='spot-welder-app'
+precommit: ./$0 run:buildplan precommit
+update-yarn: yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn
+  install && yarn pnpify --sdk
 create-ssl-certificate-osx: openssl req -x509 -config localhost.cnf -new -nodes
   -keyout localhost.key -out localhost.crt
