@@ -1,4 +1,15 @@
-use std::process::{Command as ProcessCommand, Stdio};
+use conch_parser::lexer::Lexer;
+use conch_parser::parse::{Parser};
+use conch_parser::ast::builder::ArcBuilder;
+
+use conch_runtime::env::{DefaultEnvArc, DefaultEnvConfigArc, ArgsEnv, SetArgumentsEnvironment};
+use conch_runtime::spawn::{sequence, sequence_exact};
+use conch_runtime::ExitStatus;
+
+use std::collections::VecDeque;
+use std::sync::Arc;
+
+use std::process::exit;
 
 #[derive(Debug)]
 pub struct EnvVar {
@@ -8,18 +19,39 @@ pub struct EnvVar {
 
 #[derive(Debug)]
 pub struct Command {
-  pub program: String, // TODO: Support expressions
-  pub args: Vec<String>, // TODO: Support expressions
+  pub command_str: String,
 }
 
+pub type VarArgs = VecDeque<Arc<String>>;
+
 impl Command {
-  pub fn run(&self) {
-    ProcessCommand::new(&self.program)
-      .args(&self.args)
-      .stdin(Stdio::null())
-      .stdout(Stdio::inherit())
-      .output()
-      .unwrap();
+  pub async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
+    let command_str = self.command_str.to_string() + " \"$@\"";
+
+    let lex = Lexer::new(command_str.chars());
+
+    let parser = Parser::with_builder(lex, ArcBuilder::new());
+
+    let mut args = ArgsEnv::new();
+    args.set_args(Arc::new(vars));
+
+    let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
+      interactive: true,
+      args_env: args,
+      ..DefaultEnvConfigArc::new().unwrap()
+    });
+
+    let cmds = parser.into_iter().map(|x| {
+      x.unwrap()
+    });
+
+    let env_future_result = sequence(cmds, &mut env).await;
+
+    let status = env_future_result.unwrap().await;
+
+    drop(env);
+
+    return Ok(status);
   }
 }
 
@@ -40,13 +72,13 @@ pub enum CommandGroup {
 }
 
 impl CommandGroup {
-  pub fn run(&self) {
+  pub async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
     match self {
       Self::Parallel(group) => {
         todo!();
       }
       Self::Series(group) => {
-        group.first.run();
+        return group.first.run(args).await;
       }
     }
   }
@@ -63,13 +95,13 @@ pub enum Script {
 }
 
 impl Script {
-  pub fn run(&self) {
+  pub async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
     match self {
       Self::Alias(alias) => {
         todo!();
       }
       Self::Command(command) => {
-        command.as_ref().run();
+        return command.as_ref().run(args).await;
       }
       Self::Group(group) => {
         todo!();

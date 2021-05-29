@@ -1,6 +1,6 @@
 
-mod expand;
 mod schema;
+
 use std::collections::VecDeque;
 use std::collections::HashMap;
 use std::ffi::OsString;
@@ -8,6 +8,7 @@ use std::fs;
 use std::path::Path;
 use clap::{App, SubCommand};
 
+use schema::Command;
 use yaml_rust::{YamlLoader,Yaml};
 
 use conch_parser::lexer::Lexer;
@@ -52,32 +53,17 @@ async fn main() {
 
     let yaml_key = Yaml::from_str(&root_task.name);
 
-    let command_str = map.get(&yaml_key).unwrap().as_str().unwrap().to_string() + " \"$@\"";
+    let task_yaml = map.get(&yaml_key).unwrap();
 
-    let lex = Lexer::new(command_str.chars());
+    if let Some(command_str) = task_yaml.as_str() {
+      let command = Command {
+        command_str: command_str.to_string(),
+      };
 
-    let parser = Parser::with_builder(lex, ArcBuilder::new());
+      command.run(vars).await.unwrap();
+    } else if let Some(hash) = task_yaml.as_hash() {
 
-    let mut args = ArgsEnv::new();
-    args.set_args(Arc::new(vars));
-
-    let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
-      interactive: true,
-      args_env: args,
-      ..DefaultEnvConfigArc::new().unwrap()
-    });
-
-    let cmds = parser.into_iter().map(|x| {
-      x.unwrap()
-    });
-
-    let env_future_result = sequence(cmds, &mut env).await;
-
-    let status = env_future_result.unwrap().await;
-
-    drop(env);
-
-    exit_with_status(status);
+    }
   }
 }
 
