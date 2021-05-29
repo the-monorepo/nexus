@@ -1,6 +1,7 @@
 
 mod expand;
 mod schema;
+use std::collections::VecDeque;
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::fs;
@@ -13,11 +14,12 @@ use conch_parser::lexer::Lexer;
 use conch_parser::parse::{Parser};
 use conch_parser::ast::builder::ArcBuilder;
 
-use conch_runtime::env::{DefaultEnvArc, DefaultEnvConfigArc};
-use conch_runtime::spawn::sequence;
+use conch_runtime::env::{DefaultEnvArc, DefaultEnvConfigArc, ArgsEnv, SetArgumentsEnvironment};
+use conch_runtime::spawn::{sequence, sequence_exact};
 use conch_runtime::ExitStatus;
 
 use std::fmt::format;
+use std::sync::Arc;
 
 use std::process::exit;
 
@@ -40,30 +42,31 @@ async fn main() {
   let matches = app.get_matches();
 
   if let Some(ref root_task) = matches.subcommand {
-    let vars = (|| {
+    let vars: VecDeque<_> = (|| {
       if let Some(ref values) = root_task.matches.args.get("other") {
-        return values.vals.iter().cloned().map(|x| x.to_str().unwrap().to_string()).collect::<Vec<_>>().join::<&str>(" ");
+        return values.vals.iter().cloned().map(|x| Arc::new(x.to_str().unwrap().to_string())).collect();
       } else {
-        return "".to_string();
+        return VecDeque::new();
       }
     })();
 
     let yaml_key = Yaml::from_str(&root_task.name);
 
-    let command_str = map.get(&yaml_key).unwrap().as_str().unwrap();
+    let command_str = map.get(&yaml_key).unwrap().as_str().unwrap().to_string() + " \"$@\"";
 
-    let mut full_command_str = command_str.to_string();
-    full_command_str.push_str(" ");
-    full_command_str.push_str(&vars);
-
-    let lex = Lexer::new(full_command_str.chars());
+    let lex = Lexer::new(command_str.chars());
 
     let parser = Parser::with_builder(lex, ArcBuilder::new());
 
+    let mut args = ArgsEnv::new();
+    args.set_args(Arc::new(vars));
+
     let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
       interactive: true,
+      args_env: args,
       ..DefaultEnvConfigArc::new().unwrap()
     });
+
     let cmds = parser.into_iter().map(|x| {
       x.unwrap()
     });
