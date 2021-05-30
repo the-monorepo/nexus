@@ -1,6 +1,6 @@
 pub enum RedundentReadStatus<R> {
-  Success(R),
-  Corrupt,
+    Success(R),
+    Corrupt,
 }
 
 fn read_u16<F>(mut read_byte: F) -> u16
@@ -26,52 +26,52 @@ where
 }
 
 pub struct PulseData {
-  pub first_pulse_duration: u16,
-  pub pulse_gap_duration: u16,
-  pub second_pulse_duration: u16,
+    pub first_pulse_duration: u16,
+    pub pulse_gap_duration: u16,
+    pub second_pulse_duration: u16,
 }
 
 impl PulseData {
-  pub fn read<F>(mut read_byte: F) -> RedundentReadStatus<PulseData>
-  where
-      F: FnMut() -> u8,
-  {
-      if let (
-          RedundentReadStatus::Success(first_pulse_duration),
-          RedundentReadStatus::Success(pulse_gap_duration),
-          RedundentReadStatus::Success(second_pulse_duration),
-      ) = (
-          redundent_read_u16(&mut read_byte),
-          redundent_read_u16(&mut read_byte),
-          redundent_read_u16(&mut read_byte),
-      ) {
-          RedundentReadStatus::Success(PulseData {
-              first_pulse_duration,
-              pulse_gap_duration,
-              second_pulse_duration,
-          })
-      } else {
-          RedundentReadStatus::Corrupt
-      }
-  }
+    pub fn read<F>(mut read_byte: F) -> RedundentReadStatus<PulseData>
+    where
+        F: FnMut() -> u8,
+    {
+        if let (
+            RedundentReadStatus::Success(first_pulse_duration),
+            RedundentReadStatus::Success(pulse_gap_duration),
+            RedundentReadStatus::Success(second_pulse_duration),
+        ) = (
+            redundent_read_u16(&mut read_byte),
+            redundent_read_u16(&mut read_byte),
+            redundent_read_u16(&mut read_byte),
+        ) {
+            RedundentReadStatus::Success(PulseData {
+                first_pulse_duration,
+                pulse_gap_duration,
+                second_pulse_duration,
+            })
+        } else {
+            RedundentReadStatus::Corrupt
+        }
+    }
 }
 
 pub struct PulseMilliThresholds {
-  pub start_millis: u16,
-  pub first_pulse_end_threshold: u16,
-  pub second_pulse_start_threshold: u16,
+    pub start_millis: u16,
+    pub first_pulse_end_threshold: u16,
+    pub second_pulse_start_threshold: u16,
 }
 
 impl From<PulseData> for PulseMilliThresholds {
-  fn from(data: PulseData) -> Self {
-      let second_pulse_start_threshold = data.second_pulse_duration;
-      let first_pulse_end_threshold = second_pulse_start_threshold + data.pulse_gap_duration;
-      let start_millis = first_pulse_end_threshold + data.first_pulse_duration;
+    fn from(data: PulseData) -> Self {
+        let second_pulse_start_threshold = data.second_pulse_duration;
+        let first_pulse_end_threshold = second_pulse_start_threshold + data.pulse_gap_duration;
+        let start_millis = first_pulse_end_threshold + data.first_pulse_duration;
 
-      PulseMilliThresholds {
-          start_millis,
-          second_pulse_start_threshold,
-          first_pulse_end_threshold,
-      }
-  }
+        PulseMilliThresholds {
+            start_millis,
+            second_pulse_start_threshold,
+            first_pulse_end_threshold,
+        }
+    }
 }

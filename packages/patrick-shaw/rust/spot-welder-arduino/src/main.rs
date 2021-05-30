@@ -3,13 +3,21 @@
 #![feature(abi_avr_interrupt)]
 #![feature(const_fn)]
 mod pulse_data;
-use arduino_uno::{hal::port::{Pin, mode::{Output, Pwm}, portd::PD3}, prelude::*, pwm::Timer2Pwm};
+use arduino_uno::{
+    hal::port::{
+        mode::{Output, Pwm},
+        portd::PD3,
+        Pin,
+    },
+    prelude::*,
+    pwm::Timer2Pwm,
+};
 use arduino_uno::{
     hal::{
         clock::MHz16,
         port::{
             mode::{Floating, Input},
-            portb::{PB2},
+            portb::PB2,
             portd::{PD0, PD1},
         },
         usart::{Usart, UsartOps},
@@ -18,7 +26,7 @@ use arduino_uno::{
     pwm::{self, Timer1Pwm},
 };
 use avr_device::interrupt::Mutex;
-use core::{cell::RefCell};
+use core::cell::RefCell;
 use panic_halt as _;
 use pulse_data::{PulseData, PulseMilliThresholds, RedundentReadStatus};
 
