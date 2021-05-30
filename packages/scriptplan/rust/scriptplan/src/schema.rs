@@ -22,7 +22,7 @@ pub struct Command {
   pub command_str: String,
 }
 
-pub type VarArgs = VecDeque<Arc<String>>;
+pub type VarArgs = Arc<VecDeque<Arc<String>>>;
 
 impl Command {
   pub async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
@@ -33,7 +33,7 @@ impl Command {
     let parser = Parser::with_builder(lex, ArcBuilder::new());
 
     let mut args = ArgsEnv::new();
-    args.set_args(Arc::new(vars));
+    args.set_args(vars);
 
     let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
       interactive: true,
@@ -78,7 +78,13 @@ impl CommandGroup {
         todo!();
       }
       Self::Series(group) => {
-        return group.first.run(args).await;
+        let mut status = group.first.run(args.clone()).await.unwrap();
+
+        for script in &group.rest {
+          status = script.run(args.clone()).await.unwrap();
+        }
+
+        return Ok(status);
       }
     }
   }
