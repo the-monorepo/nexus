@@ -3,4 +3,4 @@
 set -xe
 
 cargo build --release --bins --package scriptplan
-mv ./target/release/scriptplan ./cli
+mv ./target/release/scriptplan ./scriptplan
