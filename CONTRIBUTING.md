@@ -2,19 +2,18 @@
 
 ## Quick start
 To build everything:
-1. `nvm use`
-2. `yarn install`
-3. `yarn build`
+1. `./scriptplan install-osx`
+1. `./scriptplan build`
 
-To clean artifacts: `yarn clean`
+To clean artifacts: `./scriptplan clean`
 
 To serve webapp packages:
-1. `yarn serve --name <webpack-config-name>`
+1. `./scriptplan serve --name <webpack-config-name>`
 2. The CLI will show what port the server is listening on
 You can currently find the names of various webpack configs in [webpack.config.ts](./webpack.config.ts);
 
 For anything else:
-1. Run `yarn help`.
+1. Run `./scriptplan help`.
 
 ## Prerequisites
 - [nvm](https://github.com/nvm-sh/nvm);
@@ -34,7 +33,7 @@ The file is probably auto-generated from somewhere else. There's no documentatio
 You can try commit files with `--no-verify`. However, this will skip the build steps that get run everytime you commit something to the monorepo.
 
 **What is a monorepo? Why a monorepo?**
-- Using a monorepo means that all packages in the monorepo follow a similar folder structure and a unified build system. This makes jumping back and forth between packages much easier. 
+- Using a monorepo means that all packages in the monorepo follow a similar folder structure and a unified build system. This makes jumping back and forth between packages much easier.
 - Package releases can be synced
 - The contributing process for the packages is unified. No need to read lots of CONTRIBUTING.md fiels
 - Makes searching through code for multiple packages easier.
