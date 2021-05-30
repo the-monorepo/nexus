@@ -1,3 +1,37 @@
+install-osx:brew:
+  script: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+install-osx:node:
+  script: |
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+    nvm install
+    nvm use
+    npm install --global yarn
+    yarn install
+install-osx:rust:
+  script: |
+    brew install llvm
+    ln -s /usr/local/opt/llvm/bin/lld-link ~/bin/link.exe
+
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+    rustup target add x86_64-pc-windows-gnu
+    rustup target add x86_64-apple-darwin
+
+install-osx:
+  script: |
+    ./$0 install-osx:brew
+    ./$0 install-osx:node
+    ./$0 install-osx:rust
+    ./$0 create-ssl-certificate-osx
+
+# Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
+recompile-scriptplan:
+  script: |
+    cargo build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
+    cargo build --release --bins --target x86_64-apple-darwin --package scriptplan
+    mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
+    mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
+
 node-base:
   script: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
 # FIXME: Remove ./$0
@@ -9,7 +43,8 @@ format:javascript: run:buildplan format
 format:rust:
   script: cargo fmt
 # FIXME: Remove ./$0
-format: ./$0 format:javascript && ./$0 format:rust
+format:
+  script: ./$0 format:javascript && ./$0 format:rust
 
 format-staged:javascript: run:buildplan format-staged
 # FIXME: Remove ./$0
@@ -33,4 +68,4 @@ precommit: run:buildplan precommit
 update-yarn:
   script: yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn install && yarn pnpify --sdk
 create-ssl-certificate-osx:
-  scrip: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
+  script: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
