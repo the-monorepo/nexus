@@ -20,6 +20,8 @@ use conch_runtime::env::{DefaultEnvArc, DefaultEnvConfigArc, ArgsEnv, SetArgumen
 use conch_runtime::spawn::{sequence, sequence_exact};
 use conch_runtime::ExitStatus;
 
+use schema::Runnable;
+
 use std::collections::HashSet;
 
 use std::fmt::format;
