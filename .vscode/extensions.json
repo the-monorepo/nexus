@@ -3,6 +3,7 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "arcanis.vscode-zipfs",
-    "stylelint.vscode-stylelint"
+    "stylelint.vscode-stylelint",
+    "matklad.rust-analyzer"
   ]
 }
