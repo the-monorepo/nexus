@@ -67,6 +67,6 @@ serve:particle-sensor-app: run:buildplan serve --name='particle-sensor-app'
 serve:spot-welder-app: run:buildplan serve --name='spot-welder-app'
 precommit: run:buildplan precommit
 update-yarn:
-  script: yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn install && yarn pnpify --sdk
+  script: yarn set version berry && yarn add @yarnpkg/pnpify && yarn install && yarn pnpify --sdk
 create-ssl-certificate-osx:
   script: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
