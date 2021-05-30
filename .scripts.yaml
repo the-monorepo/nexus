@@ -1,9 +1,20 @@
 node-base:
   script: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
+# FIXME: Remove ./$0
 run:buildplan:
   script: ./$0 node-base buildplan.ts
-format: run:buildplan format
-format-staged: run:buildplan format-staged
+
+# FIXME: Remove ./$0
+format:javascript: run:buildplan format
+format:rust:
+  script: cargo fmt
+# FIXME: Remove ./$0
+format: ./$0 format:javascript && ./$0 format:rust
+
+format-staged:javascript: run:buildplan format-staged
+# FIXME: Remove ./$0
+format-staged: ./$0 "format-staged:javascript" && ./$0 format:rust
+
 test: run:buildplan test
 clean: run:buildplan clean
 transpile: run:buildplan transpile
