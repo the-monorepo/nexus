@@ -91,10 +91,6 @@ async fn main() {
         })();
 
         let vars: VecDeque<_> = task_vars.into_iter().chain(user_vars_iter).collect();
-        print!(
-            "{:?} {:?} {:?} {:?}",
-            task_name, vars, tasks, root_task.name
-        );
 
         let yaml_key = Yaml::from_str(&task_name);
 
@@ -102,17 +98,12 @@ async fn main() {
 
         if let Some(hash) = task_yaml.as_hash() {
             if let Some(script) = hash.get(&Yaml::from_str("script")) {
-                print!("test");
                 let command_str = script.as_str().unwrap().to_string();
                 let command = Command { command_str };
 
                 let status = command.run(Arc::new(vars)).await.unwrap();
                 exit_with_status(status);
-            } else {
-                print!("no");
             }
-        } else {
-            print!("rawr");
         }
     }
 }
