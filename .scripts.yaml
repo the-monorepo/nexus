@@ -25,6 +25,7 @@ install-osx:
     ./$0 create-ssl-certificate-osx
 
 # Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
+# FIXME: Find an alternative to mv that would work for default Windows machines
 recompile-scriptplan:
   script: |
     cargo build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
