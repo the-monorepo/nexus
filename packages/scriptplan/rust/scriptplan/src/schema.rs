@@ -7,9 +7,17 @@ use conch_runtime::spawn::{sequence, sequence_exact};
 use conch_runtime::ExitStatus;
 
 use std::collections::VecDeque;
+use std::future::Future;
 use std::sync::Arc;
 
 use std::process::exit;
+
+use async_trait::async_trait;
+
+#[async_trait]
+pub trait Runnable {
+  async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()>;
+}
 
 #[derive(Debug)]
 pub struct EnvVar {
@@ -24,8 +32,9 @@ pub struct Command {
 
 pub type VarArgs = Arc<VecDeque<Arc<String>>>;
 
-impl Command {
-  pub async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
+#[async_trait]
+impl Runnable for Command {
+  async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
     let command_str = self.command_str.to_string() + " \"$@\"";
 
     let lex = Lexer::new(command_str.chars());
@@ -71,8 +80,9 @@ pub enum CommandGroup {
   Series(ScriptGroup),
 }
 
-impl CommandGroup {
-  pub async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
+#[async_trait]
+impl Runnable for CommandGroup {
+  async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
     match self {
       Self::Parallel(group) => {
         todo!();
@@ -100,8 +110,9 @@ pub enum Script {
   Group(Box<CommandGroup>)
 }
 
-impl Script {
-  pub async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
+#[async_trait]
+impl Runnable for Script {
+  async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
     match self {
       Self::Alias(alias) => {
         todo!();
