@@ -10,3 +10,4 @@ clap = "2.33.3"
 conch-parser = { version = "0.1" }
 conch-runtime = { git = "https://github.com/ipetkov/conch-runtime" }
 tokio = { version = "0.2", features = ["fs", "io-util", "process", "macros"] }
+shellwords = { version = "1.1.0" }

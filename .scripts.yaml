@@ -1,24 +1,25 @@
-node-base: node --require ./.pnp.js --require=./transpile-at-runtime.js
-  --require=./original-code-require-override.ts
-run:buildplan: ./$0 node-base buildplan.ts
-format: ./$0 run:buildplan format
-format-staged: ./$0 run:buildplan format-staged
-test: ./$0 run:buildplan test
-clean: ./$0 run:buildplan clean
-transpile: ./$0 run:buildplan transpile
-build: ./$0 run:buildplan build
-build-all: ./$0 run:buildplan build-all
-watch: ./$0 run:buildplan watch
-writeme: ./$0 run:buildplan writeme
-webpack: ./$0 run:buildplan webpack
-serve: ./$0 run:buildplan serve
-serve:my-resume: ./$0 run:buildplan serve --name='my-resume'
-serve:page-breaker: ./$0 run:buildplan serve --name='page-breaker'
-serve:genetic-sequence-analysis-app: ./$0 run:buildplan serve --name='genetic-sequence-analysis-app'
-serve:particle-sensor-app: ./$0 run:buildplan serve --name='particle-sensor-app'
-serve:spot-welder-app: ./$0 run:buildplan serve --name='spot-welder-app'
-precommit: ./$0 run:buildplan precommit
-update-yarn: yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn
-  install && yarn pnpify --sdk
-create-ssl-certificate-osx: openssl req -x509 -config localhost.cnf -new -nodes
-  -keyout localhost.key -out localhost.crt
+node-base:
+  script: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
+run:buildplan:
+  script: ./$0 node-base buildplan.ts
+format: run:buildplan format
+format-staged: run:buildplan format-staged
+test: run:buildplan test
+clean: run:buildplan clean
+transpile: run:buildplan transpile
+build: run:buildplan build
+build-all: run:buildplan build-all
+watch: run:buildplan watch
+writeme: run:buildplan writeme
+webpack: run:buildplan webpack
+serve: run:buildplan serve
+serve:my-resume: run:buildplan serve --name='my-resume'
+serve:page-breaker: run:buildplan serve --name='page-breaker'
+serve:genetic-sequence-analysis-app: run:buildplan serve --name='genetic-sequence-analysis-app'
+serve:particle-sensor-app: run:buildplan serve --name='particle-sensor-app'
+serve:spot-welder-app: run:buildplan serve --name='spot-welder-app'
+precommit: run:buildplan precommit
+update-yarn:
+  script: yarn set version berry && yarn add @yarnpkg/pnpify --dev && yarn install && yarn pnpify --sdk
+create-ssl-certificate-osx:
+  scrip: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
