@@ -15,13 +15,18 @@ Version | Package | Description
 1.4.3 | [`@pshaw/convict-util`](packages/misc/javascript/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/javascript/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/javascript/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
+2.0.5-0 | [`@pshaw/logger`](packages/misc/javascript/logger/README.md) | A preformatted, opinionated logger
 1.4.3 | [`@pshaw/markdown-util`](packages/misc/javascript/markdown-util/README.md) | A helper package for writing markdown files
 1.1.4-0 | [`@pshaw/resume-template`](packages/misc/javascript/resume-template/README.md) | A template you can use to generate resumes
+0.0.11 | [`@resultful/failure`](packages/resultful/javascript/failure/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
+0.0.11 | [`@resultful/result`](packages/resultful/javascript/result/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 0.0.4 | [`@resultful/utility-types`](packages/resultful/javascript/utility-types/README.md) | String constants for the different result types returned by resultful
+3.1.4-0 | [`@writeme/core`](packages/writeme/javascript/core/README.md) | A readme generator
 1.0.0-alpha.2 | [`cinder`](packages/cinder/javascript/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 1.6.2-0 | [`css-color-checker`](packages/misc/javascript/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`custom-element`](packages/misc/javascript/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](packages/misc/javascript/dom-context/README.md) | A React Context API-like context API for web components
+2.2.4-0 | [`hook-schema`](packages/misc/javascript/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 1.0.0-alpha.1 | [`ipc-fifo-processor`](packages/misc/javascript/ipc-fifo-processor/README.md) | Makes IPC connections appear FIFO
 4.0.0 | [`jest-mock-functions`](packages/misc/javascript/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.6.1 | [`named-css-colors`](packages/misc/javascript/named-css-colors/README.md) | Package of named CSS colors and their values
