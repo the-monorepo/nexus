@@ -9,7 +9,7 @@
     "directory": "pshaw/spot-welder-app"
   },
   "dependencies": {
-    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements",
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements",
     "@pipelines/core-2": "workspace:packages/pipelines/javascript/core-2",
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
     "@resultful/result": "workspace:packages/resultful/javascript/result",

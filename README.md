@@ -44,12 +44,12 @@ Version | Package | Description
 ### Contextual documents
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.0 | [`@contextual-documents/classname-picker`](packages/contextual-documents/javascript/contextual-documents-classname-picker/README.md) | TODO
-1.0.0-alpha.0 | [`@contextual-documents/element`](packages/contextual-documents/javascript/contextual-documents-element/README.md) | TODO
-1.0.0-alpha.0 | [`@contextual-documents/html-elements`](packages/contextual-documents/javascript/contextual-documents-html-elements/README.md) | Helper HTMLElement classes that implement elements that use the @contextual-documents/html-symbols
-1.0.0-alpha.0 | [`@contextual-documents/html-symbols`](packages/contextual-documents/javascript/contextual-documents-html-symbols/README.md) | TODO
-1.0.0-alpha.0 | [`@contextual-documents/matcher-info`](packages/contextual-documents/javascript/contextual-documents-matcher-info/README.md) | TODO
-1.0.0-alpha.0 | [`@contextual-documents/suffix-element`](packages/contextual-documents/javascript/contextual-documents-suffix-element/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/classname-picker`](packages/contextual-documents/javascript/classname-picker/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/element`](packages/contextual-documents/javascript/element/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/html-elements`](packages/contextual-documents/javascript/html-elements/README.md) | Helper HTMLElement classes that implement elements that use the @contextual-documents/html-symbols
+1.0.0-alpha.0 | [`@contextual-documents/html-symbols`](packages/contextual-documents/javascript/html-symbols/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/matcher-info`](packages/contextual-documents/javascript/matcher-info/README.md) | TODO
+1.0.0-alpha.0 | [`@contextual-documents/suffix-element`](packages/contextual-documents/javascript/suffix-element/README.md) | TODO
 
 ### By Example
 Version | Package | Description

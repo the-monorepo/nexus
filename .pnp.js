@@ -72,27 +72,27 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       },
       {
         "name": "@contextual-documents/classname-picker",
-        "reference": "workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker"
+        "reference": "workspace:packages/contextual-documents/javascript/classname-picker"
       },
       {
         "name": "@contextual-documents/element",
-        "reference": "workspace:packages/contextual-documents/javascript/contextual-documents-element"
+        "reference": "workspace:packages/contextual-documents/javascript/element"
       },
       {
         "name": "@contextual-documents/html-elements",
-        "reference": "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements"
+        "reference": "workspace:packages/contextual-documents/javascript/html-elements"
       },
       {
         "name": "@contextual-documents/html-symbols",
-        "reference": "workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols"
+        "reference": "workspace:packages/contextual-documents/javascript/html-symbols"
       },
       {
         "name": "@contextual-documents/matcher-info",
-        "reference": "workspace:packages/contextual-documents/javascript/contextual-documents-matcher-info"
+        "reference": "workspace:packages/contextual-documents/javascript/matcher-info"
       },
       {
         "name": "@contextual-documents/suffix-element",
-        "reference": "workspace:packages/contextual-documents/javascript/contextual-documents-suffix-element"
+        "reference": "workspace:packages/contextual-documents/javascript/suffix-element"
       },
       {
         "name": "@fault/addon-hook-schema",
@@ -3586,62 +3586,62 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@contextual-documents/classname-picker", [
-        ["workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker", {
-          "packageLocation": "./packages/contextual-documents/javascript/contextual-documents-classname-picker/",
+        ["workspace:packages/contextual-documents/javascript/classname-picker", {
+          "packageLocation": "./packages/contextual-documents/javascript/classname-picker/",
           "packageDependencies": [
-            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker"],
-            ["@contextual-documents/matcher-info", "workspace:packages/contextual-documents/javascript/contextual-documents-matcher-info"],
+            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/classname-picker"],
+            ["@contextual-documents/matcher-info", "workspace:packages/contextual-documents/javascript/matcher-info"],
             ["tree-suffix-mapper", "workspace:packages/misc/javascript/tree-suffix-mapper"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@contextual-documents/element", [
-        ["workspace:packages/contextual-documents/javascript/contextual-documents-element", {
-          "packageLocation": "./packages/contextual-documents/javascript/contextual-documents-element/",
+        ["workspace:packages/contextual-documents/javascript/element", {
+          "packageLocation": "./packages/contextual-documents/javascript/element/",
           "packageDependencies": [
-            ["@contextual-documents/element", "workspace:packages/contextual-documents/javascript/contextual-documents-element"],
-            ["@contextual-documents/suffix-element", "workspace:packages/contextual-documents/javascript/contextual-documents-suffix-element"]
+            ["@contextual-documents/element", "workspace:packages/contextual-documents/javascript/element"],
+            ["@contextual-documents/suffix-element", "workspace:packages/contextual-documents/javascript/suffix-element"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@contextual-documents/html-elements", [
-        ["workspace:packages/contextual-documents/javascript/contextual-documents-html-elements", {
-          "packageLocation": "./packages/contextual-documents/javascript/contextual-documents-html-elements/",
+        ["workspace:packages/contextual-documents/javascript/html-elements", {
+          "packageLocation": "./packages/contextual-documents/javascript/html-elements/",
           "packageDependencies": [
-            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements"],
-            ["@contextual-documents/element", "workspace:packages/contextual-documents/javascript/contextual-documents-element"],
-            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols"]
+            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/html-elements"],
+            ["@contextual-documents/element", "workspace:packages/contextual-documents/javascript/element"],
+            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/html-symbols"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@contextual-documents/html-symbols", [
-        ["workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols", {
-          "packageLocation": "./packages/contextual-documents/javascript/contextual-documents-html-symbols/",
+        ["workspace:packages/contextual-documents/javascript/html-symbols", {
+          "packageLocation": "./packages/contextual-documents/javascript/html-symbols/",
           "packageDependencies": [
-            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols"],
-            ["@contextual-documents/matcher-info", "workspace:packages/contextual-documents/javascript/contextual-documents-matcher-info"]
+            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/html-symbols"],
+            ["@contextual-documents/matcher-info", "workspace:packages/contextual-documents/javascript/matcher-info"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@contextual-documents/matcher-info", [
-        ["workspace:packages/contextual-documents/javascript/contextual-documents-matcher-info", {
-          "packageLocation": "./packages/contextual-documents/javascript/contextual-documents-matcher-info/",
+        ["workspace:packages/contextual-documents/javascript/matcher-info", {
+          "packageLocation": "./packages/contextual-documents/javascript/matcher-info/",
           "packageDependencies": [
-            ["@contextual-documents/matcher-info", "workspace:packages/contextual-documents/javascript/contextual-documents-matcher-info"]
+            ["@contextual-documents/matcher-info", "workspace:packages/contextual-documents/javascript/matcher-info"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@contextual-documents/suffix-element", [
-        ["workspace:packages/contextual-documents/javascript/contextual-documents-suffix-element", {
-          "packageLocation": "./packages/contextual-documents/javascript/contextual-documents-suffix-element/",
+        ["workspace:packages/contextual-documents/javascript/suffix-element", {
+          "packageLocation": "./packages/contextual-documents/javascript/suffix-element/",
           "packageDependencies": [
-            ["@contextual-documents/suffix-element", "workspace:packages/contextual-documents/javascript/contextual-documents-suffix-element"],
-            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker"],
+            ["@contextual-documents/suffix-element", "workspace:packages/contextual-documents/javascript/suffix-element"],
+            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/classname-picker"],
             ["dom-context", "workspace:packages/misc/javascript/dom-context"]
           ],
           "linkType": "SOFT",
@@ -4829,10 +4829,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/patrick-shaw/javascript/contextual-documents/",
           "packageDependencies": [
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/javascript/contextual-documents"],
-            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker"],
-            ["@contextual-documents/element", "workspace:packages/contextual-documents/javascript/contextual-documents-element"],
-            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements"],
-            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols"],
+            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/classname-picker"],
+            ["@contextual-documents/element", "workspace:packages/contextual-documents/javascript/element"],
+            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/html-elements"],
+            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/html-symbols"],
             ["@pshaw/contextual-documents-scss", "workspace:packages/patrick-shaw/javascript/contextual-documents-scss"]
           ],
           "linkType": "SOFT",
@@ -4852,8 +4852,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/patrick-shaw/javascript/contextual-documents-style-root/",
           "packageDependencies": [
             ["@pshaw/contextual-documents-style-root", "workspace:packages/patrick-shaw/javascript/contextual-documents-style-root"],
-            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker"],
-            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols"],
+            ["@contextual-documents/classname-picker", "workspace:packages/contextual-documents/javascript/classname-picker"],
+            ["@contextual-documents/html-symbols", "workspace:packages/contextual-documents/javascript/html-symbols"],
             ["@pshaw/contextual-documents-scss", "workspace:packages/patrick-shaw/javascript/contextual-documents-scss"]
           ],
           "linkType": "SOFT",
@@ -5024,7 +5024,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/misc/javascript/page-breaker-chrome/",
           "packageDependencies": [
             ["@pshaw/page-breaker-chrome", "workspace:packages/misc/javascript/page-breaker-chrome"],
-            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements"],
+            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/html-elements"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/javascript/contextual-documents"],
             ["@types/chrome", "npm:0.0.122"],
             ["cinder", "workspace:packages/cinder/javascript/cinder"],
@@ -5043,7 +5043,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/patrick-shaw/javascript/particle-sensor-app/",
           "packageDependencies": [
             ["@pshaw/particle-sensor-app", "workspace:packages/patrick-shaw/javascript/particle-sensor-app"],
-            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements"],
+            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/html-elements"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/javascript/contextual-documents"],
             ["@resultful/result", "workspace:packages/resultful/javascript/result"],
             ["cinder", "workspace:packages/cinder/javascript/cinder"],
@@ -5085,7 +5085,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/patrick-shaw/javascript/spot-welder-app/",
           "packageDependencies": [
             ["@pshaw/spot-welder-app", "workspace:packages/patrick-shaw/javascript/spot-welder-app"],
-            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements"],
+            ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/html-elements"],
             ["@pipelines/core-2", "workspace:packages/pipelines/javascript/core-2"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/javascript/contextual-documents"],
             ["@resultful/result", "workspace:packages/resultful/javascript/result"],
