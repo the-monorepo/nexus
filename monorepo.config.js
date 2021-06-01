@@ -24,7 +24,7 @@ module.exports.serve = {
   servers: {
     servers: [
       {
-        input: './packages/faultjs/javascript/fault-benchmark/src/frontend/index.tsx',
+        input: './packages/faultjs/javascript/benchmark/src/frontend/index.tsx',
       },
       {
         input: './packages/patrick-shaw/javascript/my-resume/src/index.tsx',

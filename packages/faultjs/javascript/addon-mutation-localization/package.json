@@ -1,0 +1,47 @@
+{
+  "name": "@fault/addon-mutation-localization",
+  "version": "1.0.0-alpha.1",
+  "description": "Fault AST localization",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/mutation-localization"
+  },
+  "keywords": [
+    "testing",
+    "test",
+    "typescript",
+    "faultjs",
+    "fault-localization",
+    "repair",
+    "debugging"
+  ],
+  "dependencies": {
+    "@babel/generator": "^7.13.9",
+    "@babel/parser": "^7.13.15",
+    "@babel/traverse": "^7.13.15",
+    "@babel/types": "^7.13.14",
+    "@fault/addon-hook-schema": "workspace:packages/faultjs/javascript/addon-hook-schema",
+    "@fault/addon-sbfl": "workspace:packages/faultjs/javascript/addon-sbfl",
+    "@fault/istanbul-util": "workspace:packages/faultjs/javascript/istanbul-util",
+    "@fault/localization-util": "workspace:packages/faultjs/javascript/localization-util",
+    "@fault/record-faults": "workspace:packages/faultjs/javascript/record-faults",
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/javascript/sbfl-dstar",
+    "@fault/types": "workspace:packages/faultjs/javascript/types",
+    "chalk": "^4.1.0",
+    "del": "^5.1.0",
+    "error-stack-parser": "^2.0.6",
+    "istanbul-lib-coverage": "^3.0.0",
+    "micromatch": "^4.0.2"
+  }
+}
