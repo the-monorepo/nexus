@@ -81,7 +81,7 @@
     "micromatch": "^4.0.2",
     "minimist": "^1.2.5",
     "mocha": "^8.1.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "plugin-error": "^1.0.1",
     "prettier": "^2.0.5",
     "react": "^17.0.1",
