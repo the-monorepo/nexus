@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises';
 import { extname } from 'path';
 
-import languagesObject from './languages.ts'
+import languagesObject from './languages.js'
 /**
  * Map from extensions to language info
  */
