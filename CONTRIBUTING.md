@@ -15,6 +15,14 @@ You can currently find the names of various webpack configs in [webpack.config.t
 For anything else:
 1. Run `./scriptplan help`.
 
+## OS Support
+
+Building/formatting/linting this monorepo is communicated via the `scriptplan` program. There are different versions of this program for different OSs:
+- OSX: `./scriptplan`
+- Windows: `./scriptplan.exe`
+
+See the quickstart section for how to use it (more documentation pending).
+
 ## Prerequisites
 Either run `./scriptplan install-osx` or inspect the command itself in [.scripts.yaml](./.scripts.yaml) to install any dependencies required to build the (majority of) the packages in this repo.
 
