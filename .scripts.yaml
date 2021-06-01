@@ -28,8 +28,8 @@ install-osx:
 # FIXME: Find an alternative to mv that would work for default Windows machines
 recompile-scriptplan:
   script: |
-    cargo build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
-    cargo build --release --bins --target x86_64-apple-darwin --package scriptplan
+    cargo +nightly build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
+    cargo +nightly build --release --bins --target x86_64-apple-darwin --package scriptplan
     mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
     mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
 
@@ -41,8 +41,12 @@ run:buildplan:
 
 # FIXME: Remove ./$0
 format:javascript: run:buildplan format
-format:rust:
-  script: cargo fmt
+# TODO: Should be a part of format:rust but errors out ATM
+format:rust:fix:
+  script: cargo +nightly fix
+format:rust:fmt:
+  script: cargo +nightly fmt
+format:rust: format:rust:fix
 # FIXME: Remove ./$0
 format:
   script: ./$0 format:javascript && ./$0 format:rust
@@ -54,7 +58,13 @@ format-staged: ./$0 "format-staged:javascript" && ./$0 format:rust
 test: run:buildplan test
 clean: run:buildplan clean
 transpile: run:buildplan transpile
-build: run:buildplan build
+# FIXME: Remove ./$0
+build:
+  script: ./$0 build:node # && ./$0 build:rust
+build:node: run:buildplan build
+# FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
+#build:rust:
+#  script: cargo +nightly build
 build-all: run:buildplan build-all
 watch: run:buildplan watch
 writeme: run:buildplan writeme
