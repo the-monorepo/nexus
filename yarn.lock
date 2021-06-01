@@ -1647,12 +1647,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/cli@workspace:packages/byexample/javascript/byexample-cli":
+"@byexample/cli@workspace:packages/byexample/javascript/cli":
   version: 0.0.0-use.local
-  resolution: "@byexample/cli@workspace:packages/byexample/javascript/byexample-cli"
+  resolution: "@byexample/cli@workspace:packages/byexample/javascript/cli"
   dependencies:
-    "@byexample/openapi": "workspace:packages/byexample/javascript/byexample-openapi"
-    "@byexample/types": "workspace:packages/byexample/javascript/byexample-types"
+    "@byexample/openapi": "workspace:packages/byexample/javascript/openapi"
+    "@byexample/types": "workspace:packages/byexample/javascript/types"
     "@types/node": ^14.6.0
     chalk: ^4.1.0
     commander: ^6.0.0
@@ -1662,25 +1662,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/openapi@workspace:packages/byexample/javascript/byexample-openapi":
+"@byexample/openapi@workspace:packages/byexample/javascript/openapi":
   version: 0.0.0-use.local
-  resolution: "@byexample/openapi@workspace:packages/byexample/javascript/byexample-openapi"
+  resolution: "@byexample/openapi@workspace:packages/byexample/javascript/openapi"
   dependencies:
-    "@byexample/types": "workspace:packages/byexample/javascript/byexample-types"
+    "@byexample/types": "workspace:packages/byexample/javascript/types"
     swagger-parser: ^10.0.1
   languageName: unknown
   linkType: soft
 
-"@byexample/storybook-addon-auto-knobs@workspace:packages/byexample/javascript/byexample-storybook-addon-auto-knobs":
+"@byexample/storybook-addon-auto-knobs@workspace:packages/byexample/javascript/storybook-addon-auto-knobs":
   version: 0.0.0-use.local
-  resolution: "@byexample/storybook-addon-auto-knobs@workspace:packages/byexample/javascript/byexample-storybook-addon-auto-knobs"
+  resolution: "@byexample/storybook-addon-auto-knobs@workspace:packages/byexample/javascript/storybook-addon-auto-knobs"
   dependencies:
     "@babel/cli": ^7.13.14
     "@babel/core": ^7.13.15
     "@babel/preset-env": ^7.13.15
     "@babel/preset-react": ^7.13.13
     "@babel/preset-typescript": ^7.13.0
-    "@byexample/storybook-knobified": "workspace:packages/byexample/javascript/byexample-storybook-knobified"
+    "@byexample/storybook-knobified": "workspace:packages/byexample/javascript/storybook-knobified"
     "@storybook/addon-actions": ^6.0.16
     "@storybook/addon-knobs": ^6.0.16
     "@storybook/addons": ^6.0.16
@@ -1697,11 +1697,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/storybook-knobified@workspace:packages/byexample/javascript/byexample-storybook-knobified":
+"@byexample/storybook-knobified@workspace:packages/byexample/javascript/storybook-knobified":
   version: 0.0.0-use.local
-  resolution: "@byexample/storybook-knobified@workspace:packages/byexample/javascript/byexample-storybook-knobified"
+  resolution: "@byexample/storybook-knobified@workspace:packages/byexample/javascript/storybook-knobified"
   dependencies:
-    "@byexample/types": "workspace:packages/byexample/javascript/byexample-types"
+    "@byexample/types": "workspace:packages/byexample/javascript/types"
     "@storybook/addon-actions": ^6.0.16
     "@storybook/addon-knobs": ^6.0.16
     css-color-checker: "workspace:packages/misc/javascript/css-color-checker"
@@ -1715,9 +1715,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@byexample/types@workspace:packages/byexample/javascript/byexample-types":
+"@byexample/types@workspace:packages/byexample/javascript/types":
   version: 0.0.0-use.local
-  resolution: "@byexample/types@workspace:packages/byexample/javascript/byexample-types"
+  resolution: "@byexample/types@workspace:packages/byexample/javascript/types"
   dependencies:
     jest-mock: ^26.3.0
   languageName: unknown
@@ -14962,10 +14962,10 @@ fsevents@~2.3.1:
     "@babel/preset-typescript": ^7.13.0
     "@babel/register": ^7.13.14
     "@buildplan/core": "workspace:packages/buildplan/javascript/core"
-    "@byexample/cli": "workspace:packages/byexample/javascript/byexample-cli"
-    "@byexample/openapi": "workspace:packages/byexample/javascript/byexample-openapi"
-    "@byexample/storybook-knobified": "workspace:packages/byexample/javascript/byexample-storybook-knobified"
-    "@byexample/types": "workspace:packages/byexample/javascript/byexample-types"
+    "@byexample/cli": "workspace:packages/byexample/javascript/cli"
+    "@byexample/openapi": "workspace:packages/byexample/javascript/openapi"
+    "@byexample/storybook-knobified": "workspace:packages/byexample/javascript/storybook-knobified"
+    "@byexample/types": "workspace:packages/byexample/javascript/types"
     "@fault/addon-mutation-localization": "workspace:packages/faultjs/javascript/addon-mutation-localization"
     "@fault/addon-sbfl": "workspace:packages/faultjs/javascript/addon-sbfl"
     "@fault/runner": "workspace:packages/faultjs/javascript/runner"
