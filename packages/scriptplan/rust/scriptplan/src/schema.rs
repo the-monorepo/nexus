@@ -3,14 +3,12 @@ use conch_parser::lexer::Lexer;
 use conch_parser::parse::Parser;
 
 use conch_runtime::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
-use conch_runtime::spawn::{sequence, sequence_exact};
+use conch_runtime::spawn::sequence;
 use conch_runtime::ExitStatus;
 
 use std::collections::VecDeque;
-use std::future::Future;
-use std::sync::Arc;
 
-use std::process::exit;
+use std::sync::Arc;
 
 use async_trait::async_trait;
 
@@ -82,7 +80,7 @@ pub enum CommandGroup {
 impl Runnable for CommandGroup {
     async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
         match self {
-            Self::Parallel(group) => {
+            Self::Parallel(_group) => {
                 todo!();
             }
             Self::Series(group) => {
@@ -112,13 +110,13 @@ pub enum Script {
 impl Runnable for Script {
     async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
         match self {
-            Self::Alias(alias) => {
+            Self::Alias(_alias) => {
                 todo!();
             }
             Self::Command(command) => {
                 return command.as_ref().run(args).await;
             }
-            Self::Group(group) => {
+            Self::Group(_group) => {
                 todo!();
             }
         }
