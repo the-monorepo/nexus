@@ -1,29 +1,21 @@
 mod schema;
 
 use clap::{App, SubCommand};
-use std::collections::HashMap;
+
 use std::collections::VecDeque;
-use std::ffi::OsString;
+
 use std::fs;
 use std::path::Path;
-use std::str::SplitN;
 
 use schema::Command;
 use yaml_rust::{Yaml, YamlLoader};
 
-use conch_parser::ast::builder::ArcBuilder;
-use conch_parser::lexer::Lexer;
-use conch_parser::parse::Parser;
-
-use conch_runtime::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
-use conch_runtime::spawn::{sequence, sequence_exact};
 use conch_runtime::ExitStatus;
 
 use schema::Runnable;
 
 use std::collections::HashSet;
 
-use std::fmt::format;
 use std::sync::Arc;
 
 use shellwords::split;
@@ -52,6 +44,10 @@ async fn main() {
             .arg(clap::Arg::with_name("other").multiple(true).hidden(true));
         if let Some(_) = value.as_str() {
             tasks.insert(key.as_str().unwrap());
+        } else if let Some(yaml_object) = value.as_hash() {
+            if let Some(_) = yaml_object.get(&Yaml::from_str("task")) {
+                tasks.insert(key.as_str().unwrap());
+            }
         }
         app = app.subcommand(subcommand);
     }
@@ -74,8 +70,18 @@ async fn main() {
 
         let (task_name, task_vars) = (|| {
             if tasks.contains(root_task.name.as_str()) {
-                let yaml_key = &Yaml::from_str(root_task.name.as_str());
-                let task_str = map.get(yaml_key).unwrap().as_str().unwrap();
+                let task_str = (|| {
+                    let yaml_key = &Yaml::from_str(root_task.name.as_str());
+
+                    let yaml_value = map.get(yaml_key).unwrap();
+                    if let Some(str) = yaml_value.as_str() {
+                        return str;
+                    } else if let Some(hash) = yaml_value.as_hash() {
+                        return hash.get(&Yaml::from_str("task")).unwrap().as_str().unwrap();
+                    } else {
+                        panic!("should never happen");
+                    }
+                })();
 
                 // TODO: Consider supportin quotations?
                 let mut split_vec = split(task_str).unwrap();
