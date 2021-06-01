@@ -16,11 +16,11 @@ For anything else:
 1. Run `./scriptplan help`.
 
 ## Prerequisites
-- [nvm](https://github.com/nvm-sh/nvm);
-- [yarn](https://yarnpkg.com/getting-started/install).
-- [git](https://git-scm.com/)
-- The officially supported editor for this repository is [VSCode](https://code.visualstudio.com/)
-That's pretty much it.
+Either run `./scriptplan install-osx` or inspect the command itself in [.scripts.yaml](./.scripts.yaml) to install any dependencies required to build the (majority of) the packages in this repo.
+
+### Supported IDEs/Editors
+The officially supported editor for this repository is [VSCode](https://code.visualstudio.com/).
+Provided that they're lightweight, you're welcome to add any configs/files that make the dev experience for those using your editor/IDE of choice easier.
 
 ## Questions/Troubleshooting/Things you may want to do
 **I want to be able to approve a package that I am a main contributor for**
