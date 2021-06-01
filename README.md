@@ -6,10 +6,10 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.2 | [`@cinderjs/babel-plugin-transform-jsx`](packages/cinder/javascript/cinder-babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
-1.0.0-alpha.2 | [`@cinderjs/core`](packages/cinder/javascript/cinder-core/README.md) | Cinder runtime
-1.0.0-alpha.2 | [`@cinderjs/element`](packages/cinder/javascript/cinder-element/README.md) | Cinder element
-1.0.0-alpha.2 | [`@cinderjs/hooks`](packages/cinder/javascript/cinder-hooks/README.md) | Cinder hooks
+1.0.0-alpha.2 | [`@cinderjs/babel-plugin-transform-jsx`](packages/cinder/javascript/babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
+1.0.0-alpha.2 | [`@cinderjs/core`](packages/cinder/javascript/core/README.md) | Cinder runtime
+1.0.0-alpha.2 | [`@cinderjs/element`](packages/cinder/javascript/element/README.md) | Cinder element
+1.0.0-alpha.2 | [`@cinderjs/hooks`](packages/cinder/javascript/hooks/README.md) | Cinder hooks
 1.0.0-alpha.1 | [`@fl-benchmarker/benchmarker-cli`](packages/fl-benchmarker/javascript/benchmarker-cli/README.md) | Benchmark your fault localization techniques
 1.0.0-alpha.1 | [`@fl-benchmarker/viewer-cli`](packages/fl-benchmarker/javascript/viewer-cli/README.md) | View your benchmarking results
 1.4.3 | [`@pshaw/convict-util`](packages/misc/javascript/convict-util/README.md) | A helper package for reading configs in using convict
