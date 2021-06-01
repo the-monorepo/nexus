@@ -21,10 +21,10 @@
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/javascript/contextual-documents-classname-picker",
-    "@contextual-documents/element": "workspace:packages/contextual-documents/javascript/contextual-documents-element",
-    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/contextual-documents-html-elements",
-    "@contextual-documents/html-symbols": "workspace:packages/contextual-documents/javascript/contextual-documents-html-symbols",
+    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/javascript/classname-picker",
+    "@contextual-documents/element": "workspace:packages/contextual-documents/javascript/element",
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements",
+    "@contextual-documents/html-symbols": "workspace:packages/contextual-documents/javascript/html-symbols",
     "@pshaw/contextual-documents-scss": "workspace:packages/patrick-shaw/javascript/contextual-documents-scss"
   }
 }
