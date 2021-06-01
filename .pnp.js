@@ -356,7 +356,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       },
       {
         "name": "@writeme/core",
-        "reference": "workspace:packages/writeme/javascript/writeme-core"
+        "reference": "workspace:packages/writeme/javascript/core"
       }
     ],
     "enableTopLevelFallback": false,
@@ -409,7 +409,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:14.17.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.10.1"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.10.1"],
-            ["@writeme/core", "workspace:packages/writeme/javascript/writeme-core"],
+            ["@writeme/core", "workspace:packages/writeme/javascript/core"],
             ["@yarnpkg/pnpify", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.0.0-rc.3"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
             ["chalk", "npm:4.1.1"],
@@ -9706,10 +9706,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@writeme/core", [
-        ["workspace:packages/writeme/javascript/writeme-core", {
-          "packageLocation": "./packages/writeme/javascript/writeme-core/",
+        ["workspace:packages/writeme/javascript/core", {
+          "packageLocation": "./packages/writeme/javascript/core/",
           "packageDependencies": [
-            ["@writeme/core", "workspace:packages/writeme/javascript/writeme-core"],
+            ["@writeme/core", "workspace:packages/writeme/javascript/core"],
             ["@pshaw/markdown-util", "workspace:packages/misc/javascript/markdown-util"],
             ["@types/node", "npm:14.17.0"],
             ["fs-extra", "npm:9.1.0"],
@@ -21340,7 +21340,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:14.17.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.10.1"],
             ["@typescript-eslint/parser", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.10.1"],
-            ["@writeme/core", "workspace:packages/writeme/javascript/writeme-core"],
+            ["@writeme/core", "workspace:packages/writeme/javascript/core"],
             ["@yarnpkg/pnpify", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:3.0.0-rc.3"],
             ["babel-plugin-istanbul", "npm:6.0.0"],
             ["chalk", "npm:4.1.1"],
