@@ -72,22 +72,22 @@ Version | Package | Description
 ### FaultJS
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.1 | [`@fault/addon-hook-schema`](packages/faultjs/javascript/fault-addon-hook-schema/README.md) | Hook schema for Fault.js addons
-1.0.0-alpha.1 | [`@fault/addon-istanbul`](packages/faultjs/javascript/fault-addon-istanbul/README.md) | Report istanbul coverage
-1.0.0-alpha.1 | [`@fault/addon-mutation-localization`](packages/faultjs/javascript/fault-addon-mutation-localization/README.md) | Fault AST localization
-1.0.0-alpha.1 | [`@fault/addon-sbfl`](packages/faultjs/javascript/fault-addon-sbfl/README.md) | A spectrum based localization addon
-1.0.0-alpha.0 | [`@fault/istanbul-util`](packages/faultjs/javascript/fault-istanbul-util/README.md) | Helper functions for use with istanbul
-1.0.0-alpha.1 | [`@fault/localization-util`](packages/faultjs/javascript/fault-localization-util/README.md) | Utility package containing common fault localization methods
-1.0.0-alpha.1 | [`@fault/messages`](packages/faultjs/javascript/fault-messages/README.md) | Helper methods for easier communication between the main @fault/runner process and its workers
-1.0.0-alpha.1 | [`@fault/record-faults`](packages/faultjs/javascript/fault-record-faults/README.md) | Record faults
-1.0.0-alpha.1 | [`@fault/runner`](packages/faultjs/javascript/fault-runner/README.md) | The official Fault.js test runner
-1.0.0-alpha.1 | [`@fault/sbfl-barinel`](packages/faultjs/javascript/fault-sbfl-barinel/README.md) | Barinel algorithm for use with @fault/addon-sbfl
-1.0.0-alpha.1 | [`@fault/sbfl-dstar`](packages/faultjs/javascript/fault-sbfl-dstar/README.md) | DStar algorithm for use with @fault/addon-sbfl
-1.0.0-alpha.1 | [`@fault/sbfl-ochiai`](packages/faultjs/javascript/fault-sbfl-ochiai/README.md) | Ochiai algorithm for use with @fault/addon-sbfl
-1.0.0-alpha.1 | [`@fault/sbfl-op2`](packages/faultjs/javascript/fault-sbfl-op2/README.md) | Op2 algorithm for use with @fault/addon-sbfl
-1.0.0-alpha.1 | [`@fault/sbfl-tarantula`](packages/faultjs/javascript/fault-sbfl-tarantula/README.md) | Tarantula algorithm for use with @fault/addon-sbfl
-1.0.0-alpha.1 | [`@fault/tester-mocha`](packages/faultjs/javascript/fault-tester-mocha/README.md) | Use Mocha tests in the fl test runner
-1.0.0-alpha.1 | [`@fault/types`](packages/faultjs/javascript/fault-types/README.md) | Package containing all type values for Fault.js
+1.0.0-alpha.1 | [`@fault/addon-hook-schema`](packages/faultjs/javascript/addon-hook-schema/README.md) | Hook schema for Fault.js addons
+1.0.0-alpha.1 | [`@fault/addon-istanbul`](packages/faultjs/javascript/addon-istanbul/README.md) | Report istanbul coverage
+1.0.0-alpha.1 | [`@fault/addon-mutation-localization`](packages/faultjs/javascript/addon-mutation-localization/README.md) | Fault AST localization
+1.0.0-alpha.1 | [`@fault/addon-sbfl`](packages/faultjs/javascript/addon-sbfl/README.md) | A spectrum based localization addon
+1.0.0-alpha.0 | [`@fault/istanbul-util`](packages/faultjs/javascript/istanbul-util/README.md) | Helper functions for use with istanbul
+1.0.0-alpha.1 | [`@fault/localization-util`](packages/faultjs/javascript/localization-util/README.md) | Utility package containing common fault localization methods
+1.0.0-alpha.1 | [`@fault/messages`](packages/faultjs/javascript/messages/README.md) | Helper methods for easier communication between the main @fault/runner process and its workers
+1.0.0-alpha.1 | [`@fault/record-faults`](packages/faultjs/javascript/record-faults/README.md) | Record faults
+1.0.0-alpha.1 | [`@fault/runner`](packages/faultjs/javascript/runner/README.md) | The official Fault.js test runner
+1.0.0-alpha.1 | [`@fault/sbfl-barinel`](packages/faultjs/javascript/sbfl-barinel/README.md) | Barinel algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.1 | [`@fault/sbfl-dstar`](packages/faultjs/javascript/sbfl-dstar/README.md) | DStar algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.1 | [`@fault/sbfl-ochiai`](packages/faultjs/javascript/sbfl-ochiai/README.md) | Ochiai algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.1 | [`@fault/sbfl-op2`](packages/faultjs/javascript/sbfl-op2/README.md) | Op2 algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.1 | [`@fault/sbfl-tarantula`](packages/faultjs/javascript/sbfl-tarantula/README.md) | Tarantula algorithm for use with @fault/addon-sbfl
+1.0.0-alpha.1 | [`@fault/tester-mocha`](packages/faultjs/javascript/tester-mocha/README.md) | Use Mocha tests in the fl test runner
+1.0.0-alpha.1 | [`@fault/types`](packages/faultjs/javascript/types/README.md) | Package containing all type values for Fault.js
 
 ### Personal (Patrick Shaw)
 Version | Package | Description

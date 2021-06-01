@@ -1,0 +1,39 @@
+{
+  "name": "@fault/runner",
+  "version": "1.0.0-alpha.1",
+  "description": "The official Fault.js test runner",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "faultjs/runner"
+  },
+  "keywords": [
+    "faultjs",
+    "test",
+    "testing",
+    "test-runner",
+    "typescript"
+  ],
+  "dependencies": {
+    "@fault/addon-hook-schema": "workspace:packages/faultjs/javascript/addon-hook-schema",
+    "@fault/addon-istanbul": "workspace:packages/faultjs/javascript/addon-istanbul",
+    "@fault/istanbul-util": "workspace:packages/faultjs/javascript/istanbul-util",
+    "@fault/messages": "workspace:packages/faultjs/javascript/messages",
+    "@fault/types": "workspace:packages/faultjs/javascript/types",
+    "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs",
+    "@types/node": "^14.6.0",
+    "chalk": "^4.1.0",
+    "globby": "^11.0.1",
+    "istanbul-lib-coverage": "^3.0.0"
+  }
+}

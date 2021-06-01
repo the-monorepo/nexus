@@ -96,71 +96,71 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       },
       {
         "name": "@fault/addon-hook-schema",
-        "reference": "workspace:packages/faultjs/javascript/fault-addon-hook-schema"
+        "reference": "workspace:packages/faultjs/javascript/addon-hook-schema"
       },
       {
         "name": "@fault/addon-istanbul",
-        "reference": "workspace:packages/faultjs/javascript/fault-addon-istanbul"
+        "reference": "workspace:packages/faultjs/javascript/addon-istanbul"
       },
       {
         "name": "@fault/addon-mutation-localization",
-        "reference": "workspace:packages/faultjs/javascript/fault-addon-mutation-localization"
+        "reference": "workspace:packages/faultjs/javascript/addon-mutation-localization"
       },
       {
         "name": "@fault/addon-mutation-localization-v1",
-        "reference": "workspace:packages/faultjs/javascript/fault-addon-mutation-localization-v1"
+        "reference": "workspace:packages/faultjs/javascript/addon-mutation-localization-v1"
       },
       {
         "name": "@fault/addon-sbfl",
-        "reference": "workspace:packages/faultjs/javascript/fault-addon-sbfl"
+        "reference": "workspace:packages/faultjs/javascript/addon-sbfl"
       },
       {
         "name": "@fault/istanbul-util",
-        "reference": "workspace:packages/faultjs/javascript/fault-istanbul-util"
+        "reference": "workspace:packages/faultjs/javascript/istanbul-util"
       },
       {
         "name": "@fault/localization-util",
-        "reference": "workspace:packages/faultjs/javascript/fault-localization-util"
+        "reference": "workspace:packages/faultjs/javascript/localization-util"
       },
       {
         "name": "@fault/messages",
-        "reference": "workspace:packages/faultjs/javascript/fault-messages"
+        "reference": "workspace:packages/faultjs/javascript/messages"
       },
       {
         "name": "@fault/record-faults",
-        "reference": "workspace:packages/faultjs/javascript/fault-record-faults"
+        "reference": "workspace:packages/faultjs/javascript/record-faults"
       },
       {
         "name": "@fault/runner",
-        "reference": "workspace:packages/faultjs/javascript/fault-runner"
+        "reference": "workspace:packages/faultjs/javascript/runner"
       },
       {
         "name": "@fault/sbfl-barinel",
-        "reference": "workspace:packages/faultjs/javascript/fault-sbfl-barinel"
+        "reference": "workspace:packages/faultjs/javascript/sbfl-barinel"
       },
       {
         "name": "@fault/sbfl-dstar",
-        "reference": "workspace:packages/faultjs/javascript/fault-sbfl-dstar"
+        "reference": "workspace:packages/faultjs/javascript/sbfl-dstar"
       },
       {
         "name": "@fault/sbfl-ochiai",
-        "reference": "workspace:packages/faultjs/javascript/fault-sbfl-ochiai"
+        "reference": "workspace:packages/faultjs/javascript/sbfl-ochiai"
       },
       {
         "name": "@fault/sbfl-op2",
-        "reference": "workspace:packages/faultjs/javascript/fault-sbfl-op2"
+        "reference": "workspace:packages/faultjs/javascript/sbfl-op2"
       },
       {
         "name": "@fault/sbfl-tarantula",
-        "reference": "workspace:packages/faultjs/javascript/fault-sbfl-tarantula"
+        "reference": "workspace:packages/faultjs/javascript/sbfl-tarantula"
       },
       {
         "name": "@fault/tester-mocha",
-        "reference": "workspace:packages/faultjs/javascript/fault-tester-mocha"
+        "reference": "workspace:packages/faultjs/javascript/tester-mocha"
       },
       {
         "name": "@fault/types",
-        "reference": "workspace:packages/faultjs/javascript/fault-types"
+        "reference": "workspace:packages/faultjs/javascript/types"
       },
       {
         "name": "@fl-benchmarker/benchmarker-cli",
@@ -388,11 +388,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@byexample/openapi", "workspace:packages/byexample/javascript/byexample-openapi"],
             ["@byexample/storybook-knobified", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/byexample/javascript/byexample-storybook-knobified"],
             ["@byexample/types", "workspace:packages/byexample/javascript/byexample-types"],
-            ["@fault/addon-mutation-localization", "workspace:packages/faultjs/javascript/fault-addon-mutation-localization"],
-            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/fault-addon-sbfl"],
-            ["@fault/runner", "workspace:packages/faultjs/javascript/fault-runner"],
-            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/fault-sbfl-dstar"],
-            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/fault-tester-mocha"],
+            ["@fault/addon-mutation-localization", "workspace:packages/faultjs/javascript/addon-mutation-localization"],
+            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/addon-sbfl"],
+            ["@fault/runner", "workspace:packages/faultjs/javascript/runner"],
+            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/sbfl-dstar"],
+            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/tester-mocha"],
             ["@fl-benchmarker/viewer-cli", "workspace:packages/fl-benchmarker/javascript/viewer-cli"],
             ["@monorepo/config", "workspace:packages/build-packages/javascript/monorepo-config"],
             ["@pipelines/core", "workspace:packages/pipelines/javascript/pipelines-core"],
@@ -3982,10 +3982,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/addon-hook-schema", [
-        ["workspace:packages/faultjs/javascript/fault-addon-hook-schema", {
-          "packageLocation": "./packages/faultjs/javascript/fault-addon-hook-schema/",
+        ["workspace:packages/faultjs/javascript/addon-hook-schema", {
+          "packageLocation": "./packages/faultjs/javascript/addon-hook-schema/",
           "packageDependencies": [
-            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/fault-addon-hook-schema"],
+            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/addon-hook-schema"],
             ["hook-schema", "workspace:packages/misc/javascript/hook-schema"],
             ["stacktrace-js", "npm:2.0.2"]
           ],
@@ -3993,12 +3993,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/addon-istanbul", [
-        ["workspace:packages/faultjs/javascript/fault-addon-istanbul", {
-          "packageLocation": "./packages/faultjs/javascript/fault-addon-istanbul/",
+        ["workspace:packages/faultjs/javascript/addon-istanbul", {
+          "packageLocation": "./packages/faultjs/javascript/addon-istanbul/",
           "packageDependencies": [
-            ["@fault/addon-istanbul", "workspace:packages/faultjs/javascript/fault-addon-istanbul"],
-            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/fault-addon-hook-schema"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/addon-istanbul", "workspace:packages/faultjs/javascript/addon-istanbul"],
+            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/addon-hook-schema"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["istanbul-lib-coverage", "npm:3.0.0"],
             ["istanbul-lib-report", "npm:3.0.0"],
             ["istanbul-reports", "npm:3.0.2"]
@@ -4007,21 +4007,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/addon-mutation-localization", [
-        ["workspace:packages/faultjs/javascript/fault-addon-mutation-localization", {
-          "packageLocation": "./packages/faultjs/javascript/fault-addon-mutation-localization/",
+        ["workspace:packages/faultjs/javascript/addon-mutation-localization", {
+          "packageLocation": "./packages/faultjs/javascript/addon-mutation-localization/",
           "packageDependencies": [
-            ["@fault/addon-mutation-localization", "workspace:packages/faultjs/javascript/fault-addon-mutation-localization"],
+            ["@fault/addon-mutation-localization", "workspace:packages/faultjs/javascript/addon-mutation-localization"],
             ["@babel/generator", "npm:7.14.3"],
             ["@babel/parser", "npm:7.14.3"],
             ["@babel/traverse", "npm:7.14.2"],
             ["@babel/types", "npm:7.14.2"],
-            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/fault-addon-hook-schema"],
-            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/fault-addon-sbfl"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/localization-util", "workspace:packages/faultjs/javascript/fault-localization-util"],
-            ["@fault/record-faults", "workspace:packages/faultjs/javascript/fault-record-faults"],
-            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/fault-sbfl-dstar"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/addon-hook-schema"],
+            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/addon-sbfl"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/localization-util", "workspace:packages/faultjs/javascript/localization-util"],
+            ["@fault/record-faults", "workspace:packages/faultjs/javascript/record-faults"],
+            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/sbfl-dstar"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["chalk", "npm:4.1.1"],
             ["del", "npm:5.1.0"],
             ["error-stack-parser", "npm:2.0.6"],
@@ -4032,18 +4032,18 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/addon-mutation-localization-v1", [
-        ["workspace:packages/faultjs/javascript/fault-addon-mutation-localization-v1", {
-          "packageLocation": "./packages/faultjs/javascript/fault-addon-mutation-localization-v1/",
+        ["workspace:packages/faultjs/javascript/addon-mutation-localization-v1", {
+          "packageLocation": "./packages/faultjs/javascript/addon-mutation-localization-v1/",
           "packageDependencies": [
-            ["@fault/addon-mutation-localization-v1", "workspace:packages/faultjs/javascript/fault-addon-mutation-localization-v1"],
+            ["@fault/addon-mutation-localization-v1", "workspace:packages/faultjs/javascript/addon-mutation-localization-v1"],
             ["@babel/generator", "npm:7.14.3"],
             ["@babel/parser", "npm:7.14.3"],
             ["@babel/traverse", "npm:7.14.2"],
             ["@babel/types", "npm:7.14.2"],
-            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/fault-addon-hook-schema"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/record-faults", "workspace:packages/faultjs/javascript/fault-record-faults"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/addon-hook-schema"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/record-faults", "workspace:packages/faultjs/javascript/record-faults"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["chalk", "npm:4.1.1"],
             ["del", "npm:5.1.0"],
             ["error-stack-parser", "npm:2.0.6"],
@@ -4054,15 +4054,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/addon-sbfl", [
-        ["workspace:packages/faultjs/javascript/fault-addon-sbfl", {
-          "packageLocation": "./packages/faultjs/javascript/fault-addon-sbfl/",
+        ["workspace:packages/faultjs/javascript/addon-sbfl", {
+          "packageLocation": "./packages/faultjs/javascript/addon-sbfl/",
           "packageDependencies": [
-            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/fault-addon-sbfl"],
-            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/fault-addon-hook-schema"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/localization-util", "workspace:packages/faultjs/javascript/fault-localization-util"],
-            ["@fault/record-faults", "workspace:packages/faultjs/javascript/fault-record-faults"],
-            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/fault-sbfl-dstar"],
+            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/addon-sbfl"],
+            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/addon-hook-schema"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/localization-util", "workspace:packages/faultjs/javascript/localization-util"],
+            ["@fault/record-faults", "workspace:packages/faultjs/javascript/record-faults"],
+            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/sbfl-dstar"],
             ["micromatch", "npm:4.0.4"],
             ["stacktrace-js", "npm:2.0.2"]
           ],
@@ -4070,10 +4070,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/istanbul-util", [
-        ["workspace:packages/faultjs/javascript/fault-istanbul-util", {
-          "packageLocation": "./packages/faultjs/javascript/fault-istanbul-util/",
+        ["workspace:packages/faultjs/javascript/istanbul-util", {
+          "packageLocation": "./packages/faultjs/javascript/istanbul-util/",
           "packageDependencies": [
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
             ["istanbul-lib-coverage", "npm:3.0.0"],
             ["istanbul-lib-report", "npm:3.0.0"],
             ["istanbul-reports", "npm:3.0.2"]
@@ -4082,32 +4082,32 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/localization-util", [
-        ["workspace:packages/faultjs/javascript/fault-localization-util", {
-          "packageLocation": "./packages/faultjs/javascript/fault-localization-util/",
+        ["workspace:packages/faultjs/javascript/localization-util", {
+          "packageLocation": "./packages/faultjs/javascript/localization-util/",
           "packageDependencies": [
-            ["@fault/localization-util", "workspace:packages/faultjs/javascript/fault-localization-util"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"]
+            ["@fault/localization-util", "workspace:packages/faultjs/javascript/localization-util"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/messages", [
-        ["workspace:packages/faultjs/javascript/fault-messages", {
-          "packageLocation": "./packages/faultjs/javascript/fault-messages/",
+        ["workspace:packages/faultjs/javascript/messages", {
+          "packageLocation": "./packages/faultjs/javascript/messages/",
           "packageDependencies": [
-            ["@fault/messages", "workspace:packages/faultjs/javascript/fault-messages"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/messages", "workspace:packages/faultjs/javascript/messages"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["ipc-fifo-processor", "workspace:packages/misc/javascript/ipc-fifo-processor"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/record-faults", [
-        ["workspace:packages/faultjs/javascript/fault-record-faults", {
-          "packageLocation": "./packages/faultjs/javascript/fault-record-faults/",
+        ["workspace:packages/faultjs/javascript/record-faults", {
+          "packageLocation": "./packages/faultjs/javascript/record-faults/",
           "packageDependencies": [
-            ["@fault/record-faults", "workspace:packages/faultjs/javascript/fault-record-faults"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
+            ["@fault/record-faults", "workspace:packages/faultjs/javascript/record-faults"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
             ["@pshaw/fs", "workspace:packages/misc/javascript/pshaw-fs"],
             ["chalk", "npm:4.1.1"]
           ],
@@ -4115,15 +4115,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/runner", [
-        ["workspace:packages/faultjs/javascript/fault-runner", {
-          "packageLocation": "./packages/faultjs/javascript/fault-runner/",
+        ["workspace:packages/faultjs/javascript/runner", {
+          "packageLocation": "./packages/faultjs/javascript/runner/",
           "packageDependencies": [
-            ["@fault/runner", "workspace:packages/faultjs/javascript/fault-runner"],
-            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/fault-addon-hook-schema"],
-            ["@fault/addon-istanbul", "workspace:packages/faultjs/javascript/fault-addon-istanbul"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/messages", "workspace:packages/faultjs/javascript/fault-messages"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/runner", "workspace:packages/faultjs/javascript/runner"],
+            ["@fault/addon-hook-schema", "workspace:packages/faultjs/javascript/addon-hook-schema"],
+            ["@fault/addon-istanbul", "workspace:packages/faultjs/javascript/addon-istanbul"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/messages", "workspace:packages/faultjs/javascript/messages"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["@pshaw/fs", "workspace:packages/misc/javascript/pshaw-fs"],
             ["@types/node", "npm:14.17.0"],
             ["chalk", "npm:4.1.1"],
@@ -4134,63 +4134,63 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@fault/sbfl-barinel", [
-        ["workspace:packages/faultjs/javascript/fault-sbfl-barinel", {
-          "packageLocation": "./packages/faultjs/javascript/fault-sbfl-barinel/",
+        ["workspace:packages/faultjs/javascript/sbfl-barinel", {
+          "packageLocation": "./packages/faultjs/javascript/sbfl-barinel/",
           "packageDependencies": [
-            ["@fault/sbfl-barinel", "workspace:packages/faultjs/javascript/fault-sbfl-barinel"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"]
+            ["@fault/sbfl-barinel", "workspace:packages/faultjs/javascript/sbfl-barinel"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/sbfl-dstar", [
-        ["workspace:packages/faultjs/javascript/fault-sbfl-dstar", {
-          "packageLocation": "./packages/faultjs/javascript/fault-sbfl-dstar/",
+        ["workspace:packages/faultjs/javascript/sbfl-dstar", {
+          "packageLocation": "./packages/faultjs/javascript/sbfl-dstar/",
           "packageDependencies": [
-            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/fault-sbfl-dstar"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"]
+            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/sbfl-dstar"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/sbfl-ochiai", [
-        ["workspace:packages/faultjs/javascript/fault-sbfl-ochiai", {
-          "packageLocation": "./packages/faultjs/javascript/fault-sbfl-ochiai/",
+        ["workspace:packages/faultjs/javascript/sbfl-ochiai", {
+          "packageLocation": "./packages/faultjs/javascript/sbfl-ochiai/",
           "packageDependencies": [
-            ["@fault/sbfl-ochiai", "workspace:packages/faultjs/javascript/fault-sbfl-ochiai"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"]
+            ["@fault/sbfl-ochiai", "workspace:packages/faultjs/javascript/sbfl-ochiai"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/sbfl-op2", [
-        ["workspace:packages/faultjs/javascript/fault-sbfl-op2", {
-          "packageLocation": "./packages/faultjs/javascript/fault-sbfl-op2/",
+        ["workspace:packages/faultjs/javascript/sbfl-op2", {
+          "packageLocation": "./packages/faultjs/javascript/sbfl-op2/",
           "packageDependencies": [
-            ["@fault/sbfl-op2", "workspace:packages/faultjs/javascript/fault-sbfl-op2"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"]
+            ["@fault/sbfl-op2", "workspace:packages/faultjs/javascript/sbfl-op2"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/sbfl-tarantula", [
-        ["workspace:packages/faultjs/javascript/fault-sbfl-tarantula", {
-          "packageLocation": "./packages/faultjs/javascript/fault-sbfl-tarantula/",
+        ["workspace:packages/faultjs/javascript/sbfl-tarantula", {
+          "packageLocation": "./packages/faultjs/javascript/sbfl-tarantula/",
           "packageDependencies": [
-            ["@fault/sbfl-tarantula", "workspace:packages/faultjs/javascript/fault-sbfl-tarantula"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"]
+            ["@fault/sbfl-tarantula", "workspace:packages/faultjs/javascript/sbfl-tarantula"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/tester-mocha", [
-        ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/fault-tester-mocha", {
-          "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-4d779a07ec/1/packages/faultjs/javascript/fault-tester-mocha/",
+        ["virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/tester-mocha", {
+          "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-54e5052bcb/1/packages/faultjs/javascript/tester-mocha/",
           "packageDependencies": [
-            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/fault-tester-mocha"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/messages", "workspace:packages/faultjs/javascript/fault-messages"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/tester-mocha"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/messages", "workspace:packages/faultjs/javascript/messages"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["@types/mocha", "npm:8.2.2"],
             ["mocha", "npm:8.4.0"],
             ["resultful", "workspace:packages/resultful/javascript/resultful"]
@@ -4201,13 +4201,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "SOFT",
         }],
-        ["virtual:1cfcac4822ab37355cf08fe526c21db410143475332eb4a5e2a8e5e39a6fdf0ae88d38a8fc1f24a6491cca78e56174390a119a5477ab0849f25144f31412b393#workspace:packages/faultjs/javascript/fault-tester-mocha", {
-          "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-344800d310/1/packages/faultjs/javascript/fault-tester-mocha/",
+        ["virtual:1cfcac4822ab37355cf08fe526c21db410143475332eb4a5e2a8e5e39a6fdf0ae88d38a8fc1f24a6491cca78e56174390a119a5477ab0849f25144f31412b393#workspace:packages/faultjs/javascript/tester-mocha", {
+          "packageLocation": "./.yarn/$$virtual/@fault-tester-mocha-virtual-c205de297b/1/packages/faultjs/javascript/tester-mocha/",
           "packageDependencies": [
-            ["@fault/tester-mocha", "virtual:1cfcac4822ab37355cf08fe526c21db410143475332eb4a5e2a8e5e39a6fdf0ae88d38a8fc1f24a6491cca78e56174390a119a5477ab0849f25144f31412b393#workspace:packages/faultjs/javascript/fault-tester-mocha"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/messages", "workspace:packages/faultjs/javascript/fault-messages"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/tester-mocha", "virtual:1cfcac4822ab37355cf08fe526c21db410143475332eb4a5e2a8e5e39a6fdf0ae88d38a8fc1f24a6491cca78e56174390a119a5477ab0849f25144f31412b393#workspace:packages/faultjs/javascript/tester-mocha"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/messages", "workspace:packages/faultjs/javascript/messages"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["@types/mocha", null],
             ["mocha", "npm:8.4.0"],
             ["resultful", "workspace:packages/resultful/javascript/resultful"]
@@ -4218,23 +4218,23 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "SOFT",
         }],
-        ["workspace:packages/faultjs/javascript/fault-tester-mocha", {
-          "packageLocation": "./packages/faultjs/javascript/fault-tester-mocha/",
+        ["workspace:packages/faultjs/javascript/tester-mocha", {
+          "packageLocation": "./packages/faultjs/javascript/tester-mocha/",
           "packageDependencies": [
-            ["@fault/tester-mocha", "workspace:packages/faultjs/javascript/fault-tester-mocha"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/messages", "workspace:packages/faultjs/javascript/fault-messages"],
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"],
+            ["@fault/tester-mocha", "workspace:packages/faultjs/javascript/tester-mocha"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/messages", "workspace:packages/faultjs/javascript/messages"],
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"],
             ["resultful", "workspace:packages/resultful/javascript/resultful"]
           ],
           "linkType": "SOFT",
         }]
       ]],
       ["@fault/types", [
-        ["workspace:packages/faultjs/javascript/fault-types", {
-          "packageLocation": "./packages/faultjs/javascript/fault-types/",
+        ["workspace:packages/faultjs/javascript/types", {
+          "packageLocation": "./packages/faultjs/javascript/types/",
           "packageDependencies": [
-            ["@fault/types", "workspace:packages/faultjs/javascript/fault-types"]
+            ["@fault/types", "workspace:packages/faultjs/javascript/types"]
           ],
           "linkType": "SOFT",
         }]
@@ -4247,16 +4247,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/core", "npm:7.14.3"],
             ["@babel/parser", "npm:7.14.3"],
             ["@babel/register", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#npm:7.13.16"],
-            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/fault-addon-sbfl"],
-            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/fault-istanbul-util"],
-            ["@fault/record-faults", "workspace:packages/faultjs/javascript/fault-record-faults"],
-            ["@fault/runner", "workspace:packages/faultjs/javascript/fault-runner"],
-            ["@fault/sbfl-barinel", "workspace:packages/faultjs/javascript/fault-sbfl-barinel"],
-            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/fault-sbfl-dstar"],
-            ["@fault/sbfl-ochiai", "workspace:packages/faultjs/javascript/fault-sbfl-ochiai"],
-            ["@fault/sbfl-op2", "workspace:packages/faultjs/javascript/fault-sbfl-op2"],
-            ["@fault/sbfl-tarantula", "workspace:packages/faultjs/javascript/fault-sbfl-tarantula"],
-            ["@fault/tester-mocha", "virtual:1cfcac4822ab37355cf08fe526c21db410143475332eb4a5e2a8e5e39a6fdf0ae88d38a8fc1f24a6491cca78e56174390a119a5477ab0849f25144f31412b393#workspace:packages/faultjs/javascript/fault-tester-mocha"],
+            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/addon-sbfl"],
+            ["@fault/istanbul-util", "workspace:packages/faultjs/javascript/istanbul-util"],
+            ["@fault/record-faults", "workspace:packages/faultjs/javascript/record-faults"],
+            ["@fault/runner", "workspace:packages/faultjs/javascript/runner"],
+            ["@fault/sbfl-barinel", "workspace:packages/faultjs/javascript/sbfl-barinel"],
+            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/sbfl-dstar"],
+            ["@fault/sbfl-ochiai", "workspace:packages/faultjs/javascript/sbfl-ochiai"],
+            ["@fault/sbfl-op2", "workspace:packages/faultjs/javascript/sbfl-op2"],
+            ["@fault/sbfl-tarantula", "workspace:packages/faultjs/javascript/sbfl-tarantula"],
+            ["@fault/tester-mocha", "virtual:1cfcac4822ab37355cf08fe526c21db410143475332eb4a5e2a8e5e39a6fdf0ae88d38a8fc1f24a6491cca78e56174390a119a5477ab0849f25144f31412b393#workspace:packages/faultjs/javascript/tester-mocha"],
             ["@fl-benchmarker/viewer-cli", "workspace:packages/fl-benchmarker/javascript/viewer-cli"],
             ["@pshaw/fs", "workspace:packages/misc/javascript/pshaw-fs"],
             ["@pshaw/logger", "workspace:packages/misc/javascript/logger"],
@@ -21319,11 +21319,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@byexample/openapi", "workspace:packages/byexample/javascript/byexample-openapi"],
             ["@byexample/storybook-knobified", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/byexample/javascript/byexample-storybook-knobified"],
             ["@byexample/types", "workspace:packages/byexample/javascript/byexample-types"],
-            ["@fault/addon-mutation-localization", "workspace:packages/faultjs/javascript/fault-addon-mutation-localization"],
-            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/fault-addon-sbfl"],
-            ["@fault/runner", "workspace:packages/faultjs/javascript/fault-runner"],
-            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/fault-sbfl-dstar"],
-            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/fault-tester-mocha"],
+            ["@fault/addon-mutation-localization", "workspace:packages/faultjs/javascript/addon-mutation-localization"],
+            ["@fault/addon-sbfl", "workspace:packages/faultjs/javascript/addon-sbfl"],
+            ["@fault/runner", "workspace:packages/faultjs/javascript/runner"],
+            ["@fault/sbfl-dstar", "workspace:packages/faultjs/javascript/sbfl-dstar"],
+            ["@fault/tester-mocha", "virtual:153feba997cc61a3cf2b119c73f0a46150f4475b2449b54a9c09ded230a7e59552f9ddaa3d6273b9d60d464227c04336d4b04595bea51827334f0e7840915565#workspace:packages/faultjs/javascript/tester-mocha"],
             ["@fl-benchmarker/viewer-cli", "workspace:packages/fl-benchmarker/javascript/viewer-cli"],
             ["@monorepo/config", "workspace:packages/build-packages/javascript/monorepo-config"],
             ["@pipelines/core", "workspace:packages/pipelines/javascript/pipelines-core"],
