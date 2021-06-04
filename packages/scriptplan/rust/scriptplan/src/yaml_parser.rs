@@ -21,9 +21,9 @@ impl Task<'_> {
 
   pub fn parse(&mut self) -> Result<&mut Script, ()> {
       if self.script.is_none() {
-          if let Some(task) = self.yaml.as_str() {
+          if let Some(command_str) = self.yaml.as_str() {
             self.script.replace(Script::Command(Box::new(Command {
-                command_str: ("./$0 ".to_string() + task).to_string(),
+                command_str: command_str.to_string(),
             })));
           } else if let Some(hash) = self.yaml.as_hash() {
               if let Some(task) = hash.get(&Yaml::from_str("task")) {

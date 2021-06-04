@@ -1,14 +1,11 @@
-install-osx:brew:
-  script: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-install-osx:node:
-  script: |
+install-osx:brew: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+install-osx:node: |
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
     nvm install
     nvm use
     npm install --global yarn
     yarn install
-install-osx:rust:
-  script: |
+install-osx:rust: |
     brew install llvm
     ln -s /usr/local/opt/llvm/bin/lld-link ~/bin/link.exe
 
@@ -17,8 +14,7 @@ install-osx:rust:
     rustup target add x86_64-pc-windows-gnu
     rustup target add x86_64-apple-darwin
 
-install-osx:
-  script: |
+install-osx: |
     ./$0 install-osx:brew
     ./$0 install-osx:node
     ./$0 install-osx:rust
@@ -26,57 +22,65 @@ install-osx:
 
 # Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
 # FIXME: Find an alternative to mv that would work for default Windows machines
-recompile-scriptplan:
-  script: |
+recompile-scriptplan: |
     cargo +nightly build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
     cargo +nightly build --release --bins --target x86_64-apple-darwin --package scriptplan
     mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
     mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
 
-node-base:
-  script: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
+node-base: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
 # FIXME: Remove ./$0
-run:buildplan:
-  script: ./$0 node-base buildplan.ts
+run:buildplan: ./$0 node-base buildplan.ts
 
 # FIXME: Remove ./$0
-format:javascript: run:buildplan format
+format:javascript:
+  task: run:buildplan format
 # TODO: Should be a part of format:rust but errors out ATM
-format:rust:fix:
-  script: cargo +nightly fix
-format:rust:fmt:
-  script: cargo +nightly fmt
+format:rust:fix: cargo +nightly fix
+format:rust:fmt: cargo +nightly fmt
 format:rust: format:rust:fix
 # FIXME: Remove ./$0
-format:
-  script: ./$0 format:javascript && ./$0 format:rust
+format: ./$0 format:javascript && ./$0 format:rust
 
-format-staged:javascript: run:buildplan format-staged
+format-staged:javascript:
+  task: run:buildplan format-staged
 # FIXME: Remove ./$0
 format-staged: ./$0 "format-staged:javascript" && ./$0 format:rust
 
-test: run:buildplan test
-clean: run:buildplan clean
-transpile: run:buildplan transpile
+test:
+  task: run:buildplan test
+clean:
+  task: run:buildplan clean
+transpile:
+  task: run:buildplan transpile
 # FIXME: Remove ./$0
-build:
-  script: ./$0 build:node # && ./$0 build:rust
-build:node: run:buildplan build
+build: ./$0 build:node # && ./$0 build:rust
+build:node:
+  task: run:buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
 #build:rust:
 #  script: cargo +nightly build
-build-all: run:buildplan build-all
-watch: run:buildplan watch
-writeme: run:buildplan writeme
-webpack: run:buildplan webpack
-serve: run:buildplan serve
-serve:my-resume: run:buildplan serve --name='my-resume'
-serve:page-breaker: run:buildplan serve --name='page-breaker'
-serve:genetic-sequence-analysis-app: run:buildplan serve --name='genetic-sequence-analysis-app'
-serve:particle-sensor-app: run:buildplan serve --name='particle-sensor-app'
-serve:spot-welder-app: run:buildplan serve --name='spot-welder-app'
-precommit: run:buildplan precommit
-update-yarn:
-  script: yarn set version berry && yarn add @yarnpkg/pnpify && yarn install && yarn pnpify --sdk
-create-ssl-certificate-osx:
-  script: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
+build-all:
+  task: run:buildplan build-all
+watch:
+  task: run:buildplan watch
+writeme:
+  task: run:buildplan writeme
+webpack:
+  task: run:buildplan webpack
+serve:
+  task: run:buildplan serve
+serve:my-resume:
+  task: run:buildplan serve --name='my-resume'
+serve:page-breaker:
+  task: run:buildplan serve --name='page-breaker'
+serve:genetic-sequence-analysis-app:
+  task: run:buildplan serve --name='genetic-sequence-analysis-app'
+serve:particle-sensor-app:
+  task: run:buildplan serve --name='particle-sensor-app'
+serve:spot-welder-app:
+  task: run:buildplan serve --name='spot-welder-app'
+precommit:
+  task: run:buildplan precommit
+update-yarn: yarn set version berry && yarn add @yarnpkg/pnpify && yarn install && yarn pnpify --sdk
+create-ssl-certificate-osx: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
