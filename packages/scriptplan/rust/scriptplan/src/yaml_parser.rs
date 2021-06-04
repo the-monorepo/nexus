@@ -19,7 +19,7 @@ impl Task<'_> {
       Task { yaml, script: None }
   }
 
-  pub fn parse(&mut self) -> Result<&Script, ()> {
+  pub fn parse(&mut self) -> Result<&mut Script, ()> {
       if self.script.is_none() {
           if let Some(task) = self.yaml.as_str() {
             self.script.replace(Script::Command(Box::new(Command {
@@ -47,11 +47,14 @@ impl Task<'_> {
           }
       }
 
-      Ok(self.script.as_ref().unwrap())
+      Ok(self.script.as_mut().unwrap())
   }
+}
 
-  pub async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
-      self.parse().unwrap().run(args).await
+#[async_trait]
+impl Runnable for Task<'_> {
+  async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
+    self.parse().unwrap().run(args).await
   }
 }
 
