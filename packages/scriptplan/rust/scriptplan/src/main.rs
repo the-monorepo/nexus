@@ -2,6 +2,7 @@ mod schema;
 mod yaml_parser;
 
 use clap::{App, SubCommand};
+use schema::TaskRunner;
 
 use std::collections::VecDeque;
 
