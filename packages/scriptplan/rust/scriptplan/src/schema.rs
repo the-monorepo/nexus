@@ -17,7 +17,7 @@ use std::collections::HashMap;
 
 #[async_trait]
 pub trait Runnable {
-    async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()>;
+    async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()>;
 }
 
 #[async_trait(?Send)]
@@ -40,7 +40,7 @@ pub type VarArgs = Arc<VecDeque<Arc<String>>>;
 
 #[async_trait]
 impl Runnable for Command {
-    async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
+    async fn run(&mut self, vars: VarArgs) -> Result<ExitStatus, ()> {
         let command_str = self.command_str.to_string() + " \"$@\"";
 
         let lex = Lexer::new(command_str.chars());
@@ -86,7 +86,7 @@ pub enum CommandGroup {
 
 #[async_trait]
 impl Runnable for CommandGroup {
-    async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
+    async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
         match self {
             Self::Parallel(_group) => {
                 todo!();
@@ -94,7 +94,7 @@ impl Runnable for CommandGroup {
             Self::Series(group) => {
                 let mut status = group.first.run(args.clone()).await.unwrap();
 
-                for script in &group.rest {
+                for script in &mut group.rest {
                     status = script.run(args.clone()).await.unwrap();
                 }
 
@@ -116,13 +116,13 @@ pub enum Script {
 
 #[async_trait]
 impl Runnable for Script {
-    async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()> {
+    async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
         match self {
             Self::Alias(_alias) => {
                 todo!();
             }
             Self::Command(command) => {
-                return command.as_ref().run(args).await;
+                return command.as_mut().run(args).await;
             }
             Self::Group(_group) => {
                 todo!();
