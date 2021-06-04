@@ -8,13 +8,21 @@ use conch_runtime::ExitStatus;
 
 use std::collections::VecDeque;
 
+use std::ops::Deref;
 use std::sync::Arc;
 
 use async_trait::async_trait;
 
+use std::collections::HashMap;
+
 #[async_trait]
 pub trait Runnable {
     async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()>;
+}
+
+#[async_trait(?Send)]
+pub trait TaskRunner {
+    async fn run_task(&mut self, task: &str, args: VarArgs) -> Result<ExitStatus, ()>;
 }
 
 #[derive(Debug)]
@@ -121,4 +129,15 @@ impl Runnable for Script {
             }
         }
     }
+}
+
+pub struct ScriptRoot<'a, A : Runnable> {
+  tasks: HashMap<&'a str, A>,
+}
+
+#[async_trait(?Send)]
+impl<A : Runnable> TaskRunner for ScriptRoot<'_, A> {
+   async fn run_task(&mut self, task: &str, args: VarArgs) -> Result<ExitStatus, ()> {
+     self.tasks.get_mut(task).unwrap().run(args).await
+  }
 }

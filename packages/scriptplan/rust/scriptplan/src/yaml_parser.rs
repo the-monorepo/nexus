@@ -5,7 +5,9 @@ use yaml_rust::Yaml;
 use std::collections::HashMap;
 use std::option::Option;
 
-use crate::schema::{Command, Runnable, Script, VarArgs};
+use crate::schema::{Command, TaskRunner, Runnable, Script, VarArgs};
+
+use async_trait::async_trait;
 
 pub struct Task<'a> {
     yaml: &'a Yaml,
@@ -13,36 +15,40 @@ pub struct Task<'a> {
 }
 
 impl Task<'_> {
-    fn new(yaml: &Yaml) -> Task {
-        Task { yaml, script: None }
-    }
+  fn new(yaml: &Yaml) -> Task {
+      Task { yaml, script: None }
+  }
 
-    pub fn parse(&mut self) -> Result<&Script, ()> {
-        if self.script.is_none() {
-            if let Some(task) = self.yaml.as_str() {
-                self.script = Some(Script::Command(Box::new(Command {
-                    command_str: ("./$0 ".to_string() + task).to_string(),
-                })));
-            } else if let Some(hash) = self.yaml.as_hash() {
-                if let Some(task) = hash.get(&Yaml::from_str("task")) {
-                  // TODO: Don't do ./$0
-                    self.script = Some(Script::Command(Box::new(Command {
-                      command_str: ("./$0 ".to_string() + task.as_str().unwrap()).to_string(),
-                    })));
-                } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
-                    self.script = Some(Script::Command(Box::new(Command {
-                        command_str: command_str.as_str().unwrap().to_string(),
-                    })));
-                } else {
-                    panic!("should never happen");
-                }
-            } else {
-                panic!("should never happen");
-            }
-        }
+  pub fn parse(&mut self) -> Result<&Script, ()> {
+      if self.script.is_none() {
+          if let Some(task) = self.yaml.as_str() {
+            self.script.replace(Script::Command(Box::new(Command {
+                command_str: ("./$0 ".to_string() + task).to_string(),
+            })));
+          } else if let Some(hash) = self.yaml.as_hash() {
+              if let Some(task) = hash.get(&Yaml::from_str("task")) {
+                // TODO: Don't do ./$0
+                self.script.replace(
+                  Script::Command(Box::new(Command {
+                    command_str: ("./$0 ".to_string() + task.as_str().unwrap()).to_string(),
+                  }))
+                );
+              } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
+                self.script.replace(
+                  Script::Command(Box::new(Command {
+                    command_str: command_str.as_str().unwrap().to_string(),
+                  }))
+                );
+              } else {
+                  panic!("should never happen");
+              }
+          } else {
+              panic!("should never happen");
+          }
+      }
 
-        return Ok(self.script.as_ref().unwrap());
-    }
+      Ok(self.script.as_ref().unwrap())
+  }
 
   pub async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
       self.parse().unwrap().run(args).await
@@ -50,7 +56,7 @@ impl Task<'_> {
 }
 
 pub struct ScriptPlan<'a> {
-    pub tasks: HashMap<&'a str, Task<'a>>,
+  pub tasks: HashMap<&'a str, Task<'a>>,
 }
 
 pub fn create_scriptplan(yaml_object: &Hash) -> ScriptPlan {
@@ -65,8 +71,9 @@ pub fn create_scriptplan(yaml_object: &Hash) -> ScriptPlan {
   }
 }
 
-impl ScriptPlan<'_> {
-    pub async fn run_task(&mut self, task: &str, args: VarArgs) -> Result<ExitStatus, ()> {
-      self.tasks.get_mut(task).unwrap().run(args).await
-    }
+#[async_trait(?Send)]
+impl TaskRunner for ScriptPlan<'_> {
+  async fn run_task(&mut self, task: &str, args: VarArgs) -> Result<ExitStatus, ()> {
+    self.tasks.get_mut(task).unwrap().run(args).await
+  }
 }
