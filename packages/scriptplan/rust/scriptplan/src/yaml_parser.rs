@@ -28,17 +28,28 @@ enum AliasOrScript<'a> {
     Script(Rc<Script<'a>>),
 }
 
+impl AliasOrScript<'_> {
+  fn parse_script(command_str: &str) -> AliasOrScript {
+    AliasOrScript::Script(Rc::new(Script::Command(command_str.into())))
+  }
+
+  fn parse_alias(alias_str: &str) -> AliasOrScript {
+    let mut words: Vec<_> = split(alias_str).unwrap();
+    AliasOrScript::Alias(Alias {
+      task: words.remove(0),
+      args: Arc::new(words.into_iter().map(|string| Arc::new(string)).collect()),
+    })
+  }
+}
+
+
 fn parse_task(yaml: &Yaml) -> Result<AliasOrScript, ()> {
     if let Some(command_str) = yaml.as_str() {
-        return Ok(AliasOrScript::Script(Rc::new(Script::Command(command_str.into()))));
+        return Ok(AliasOrScript::parse_script(command_str));
     } else if let Some(hash) = yaml.as_hash() {
         if let Some(task) = hash.get(&Yaml::from_str("task")) {
             // TODO: Need a splitn
-            let mut words: Vec<_> = split(task.as_str().unwrap()).unwrap();
-            return Ok(AliasOrScript::Alias(Alias {
-              task: words.remove(0),
-              args: Arc::new(words.into_iter().map(|string| Arc::new(string)).collect()),
-            }));
+            return Ok(AliasOrScript::parse_alias(task.as_str().unwrap()));
         } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
             return Ok(AliasOrScript::Script(Rc::new(Script::Command(command_str.as_str().unwrap().into()))));
         } else {
@@ -49,7 +60,7 @@ fn parse_task(yaml: &Yaml) -> Result<AliasOrScript, ()> {
     }
 }
 
-pub enum YamlOrTask<'a> {
+enum YamlOrTask<'a> {
     NotLoaded(&'a Yaml),
     Loaded(Rc<AliasOrScript<'a>>),
 }
