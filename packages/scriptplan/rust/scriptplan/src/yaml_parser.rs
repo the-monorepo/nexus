@@ -27,11 +27,10 @@ enum AliasOrScript<'a> {
     Alias(Alias),
     Script(Rc<Script<'a>>),
 }
+
 fn parse_task(yaml: &Yaml) -> Result<AliasOrScript, ()> {
     if let Some(command_str) = yaml.as_str() {
-        return Ok(AliasOrScript::Script(Rc::new(Script::Command(Command {
-            command_str: command_str.to_string(),
-        }))));
+        return Ok(AliasOrScript::Script(Rc::new(Script::Command(command_str.into()))));
     } else if let Some(hash) = yaml.as_hash() {
         if let Some(task) = hash.get(&Yaml::from_str("task")) {
             // TODO: Need a splitn
@@ -41,9 +40,7 @@ fn parse_task(yaml: &Yaml) -> Result<AliasOrScript, ()> {
               args: Arc::new(words.into_iter().map(|string| Arc::new(string)).collect()),
             }));
         } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
-            return Ok(AliasOrScript::Script(Rc::new(Script::Command(Command {
-                command_str: command_str.as_str().unwrap().to_string(),
-            }))));
+            return Ok(AliasOrScript::Script(Rc::new(Script::Command(command_str.as_str().unwrap().into()))));
         } else {
             panic!("should never happen");
         }

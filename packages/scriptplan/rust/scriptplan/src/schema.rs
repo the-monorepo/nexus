@@ -37,6 +37,20 @@ pub struct Command {
     pub command_str: String,
 }
 
+impl From<&str> for Command {
+    fn from(command_str: &str) -> Self {
+        Command::from(command_str.to_string())
+    }
+}
+
+impl From<String> for Command {
+  fn from(command_str: String) -> Self {
+    Command {
+      command_str,
+    }
+  }
+}
+
 pub type VarArgs = Arc<VecDeque<Arc<String>>>;
 
 impl Command {
