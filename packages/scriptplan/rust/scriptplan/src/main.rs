@@ -2,6 +2,8 @@ mod schema;
 mod yaml_parser;
 
 use clap::{App, SubCommand};
+use schema::Script;
+use schema::ScriptRunner;
 use schema::TaskRunner;
 
 use std::collections::VecDeque;
@@ -42,7 +44,7 @@ async fn main() {
 
     let mut scriptplan = create_scriptplan(map);
 
-    for task in scriptplan.tasks.keys() {
+    for task in scriptplan.task_names() {
       let subcommand = SubCommand::with_name(task)
         .setting(clap::AppSettings::TrailingVarArg)
         .setting(clap::AppSettings::TrailingValues)
@@ -65,7 +67,8 @@ async fn main() {
                 return VecDeque::new().into_iter().collect();
             }
         })();
-        let status = scriptplan.run_task(root_task.name.as_str(), &user_vars_iter).await.unwrap();
+        // TODO: Remove clone
+        let status = scriptplan.run(&Script::Alias(root_task.name.clone()), &Arc::new(user_vars_iter)).await.unwrap();
 
         exit_with_status(status);
     }

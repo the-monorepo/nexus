@@ -3,9 +3,10 @@ use yaml_rust::yaml::Hash;
 use yaml_rust::Yaml;
 
 use std::collections::HashMap;
+use std::collections::hash_map::Keys;
 use std::option::Option;
 
-use crate::schema::{Command, TaskRunner, Runnable, Script, VarArgs};
+use crate::schema::{Command, Runnable, Script, ScriptRunner, VarArgs};
 
 use async_trait::async_trait;
 
@@ -14,69 +15,71 @@ pub struct Task<'a> {
     script: Option<Script>,
 }
 
-impl Task<'_> {
-  fn new(yaml: &Yaml) -> Task {
-      Task { yaml, script: None }
-  }
-
-  pub fn parse(&mut self) -> Result<&mut Script, ()> {
-      if self.script.is_none() {
-          if let Some(command_str) = self.yaml.as_str() {
-            self.script.replace(Script::Command(Command {
-                command_str: command_str.to_string(),
-            }));
-          } else if let Some(hash) = self.yaml.as_hash() {
-              if let Some(task) = hash.get(&Yaml::from_str("task")) {
-                // TODO: Don't do ./$0
-                self.script.replace(
-                  Script::Command(Command {
-                    command_str: ("./$0 ".to_string() + task.as_str().unwrap()).to_string(),
-                  })
-                );
-              } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
-                self.script.replace(
-                  Script::Command(Command {
-                    command_str: command_str.as_str().unwrap().to_string(),
-                  })
-                );
-              } else {
-                  panic!("should never happen");
-              }
-          } else {
-              panic!("should never happen");
-          }
+pub fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
+  if let Some(command_str) = yaml.as_str() {
+      return Ok(Script::Command(Command {
+          command_str: command_str.to_string(),
+      }));
+  } else if let Some(hash) = yaml.as_hash() {
+      if let Some(task) = hash.get(&Yaml::from_str("task")) {
+          // TODO: Don't do ./$0
+          return Ok(Script::Command(Command {
+              command_str: ("./$0 ".to_string() + task.as_str().unwrap()).to_string(),
+          }));
+      } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
+          return Ok(Script::Command(Command {
+              command_str: command_str.as_str().unwrap().to_string(),
+          }));
+      } else {
+          panic!("should never happen");
       }
-
-      Ok(self.script.as_mut().unwrap())
+  } else {
+      panic!("should never happen");
   }
 }
 
-#[async_trait]
-impl Runnable for Task<'_> {
-  async fn run(&mut self, args: &VarArgs) -> Result<ExitStatus, ()> {
-    self.parse().unwrap().run(args).await
-  }
-}
-
-pub struct ScriptPlan<'a> {
-  pub tasks: HashMap<&'a str, Task<'a>>,
+pub enum LazyTask<'a> {
+  NotLoaded(&'a Yaml),
+  Loaded(Script)
 }
 
 pub fn create_scriptplan(yaml_object: &Hash) -> ScriptPlan {
-  ScriptPlan {
-      tasks:
-        yaml_object
+    ScriptPlan {
+        tasks: yaml_object
           .iter()
           .map(|(yaml_name, yaml_value)| {
-              return (yaml_name.as_str().unwrap(), Task::new(yaml_value));
+              return (yaml_name.as_str().unwrap().to_string(), LazyTask::NotLoaded(yaml_value));
           })
           .collect(),
-  }
+    }
 }
 
-#[async_trait(?Send)]
-impl TaskRunner for ScriptPlan<'_> {
-  async fn run_task(&mut self, task: &str, args: &VarArgs) -> Result<ExitStatus, ()> {
-    self.tasks.get_mut(task).unwrap().run(args).await
+pub struct ScriptPlan<'b> {
+    tasks: HashMap<String, LazyTask<'b>>,
+}
+
+impl ScriptPlan<'_> {
+  pub fn task_names(&mut self) -> Keys<String, LazyTask> {
+    self.tasks.keys()
   }
+}
+#[async_trait(?Send)]
+impl ScriptRunner for ScriptPlan<'_> {
+    async fn run(&mut self, script: &Script, args: &VarArgs) -> Result<ExitStatus, ()> {
+        match script {
+            Script::Alias(task_name_str) => {
+              let task = self.tasks.remove(task_name_str).unwrap();
+              match task {
+                LazyTask::Loaded(real_script) => return self.run(&real_script, args).await,
+                LazyTask::NotLoaded(yaml) => {
+                  let loaded_script = parse_task(yaml).unwrap();
+                  self.tasks.insert(task_name_str.clone(), LazyTask::Loaded(loaded_script));
+                  return self.run(script, args).await;
+                }
+              }
+            }
+            Script::Command(command) => Ok(command.run(args).await.unwrap()),
+            Script::Group(var) => todo!(),
+        }
+    }
 }

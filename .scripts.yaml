@@ -30,15 +30,19 @@ recompile-scriptplan: |
 
 node-base: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
 # FIXME: Remove ./$0
-run:buildplan: ./$0 node-base buildplan.ts
+run:buildplan:
+  task: node-base buildplan.ts
 
 # FIXME: Remove ./$0
 format:javascript:
   task: run:buildplan format
 # TODO: Should be a part of format:rust but errors out ATM
-format:rust:fix: cargo +nightly fix
-format:rust:fmt: cargo +nightly fmt
-format:rust: format:rust:fix
+format:rust:fix:
+  task: cargo +nightly fix
+format:rust:fmt:
+  task: cargo +nightly fmt
+format:rust:
+  task: format:rust:fix
 # FIXME: Remove ./$0
 format: ./$0 format:javascript && ./$0 format:rust
 
@@ -54,7 +58,8 @@ clean:
 transpile:
   task: run:buildplan transpile
 # FIXME: Remove ./$0
-build: ./$0 build:node # && ./$0 build:rust
+build:
+  task: build:node # && ./$0 build:rust
 build:node:
   task: run:buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
