@@ -12,12 +12,13 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use async_recursion::async_recursion;
 
 use std::collections::HashMap;
 
 #[async_trait]
 pub trait Runnable {
-    async fn run(&mut self, runner: &mut impl ScriptRunner, args: &VarArgs) -> Result<ExitStatus, ()>;
+    async fn run(&mut self, runner: &mut impl ScriptParser, args: &VarArgs) -> Result<ExitStatus, ()>;
 }
 
 #[async_trait(?Send)]
@@ -68,32 +69,32 @@ impl Command {
 }
 
 #[derive(Debug)]
-pub struct ScriptGroup {
+pub struct ScriptGroup<'a> {
     // Enforces that there's always at least 1 script
-    pub first: Script,
-    pub rest: Vec<Script>,
+    pub first: &'a Script<'a>,
+    pub rest: Vec<&'a Script<'a>>,
 }
 
 /**
  * TODO: Choose a better name
  */
 #[derive(Debug)]
-pub enum CommandGroup {
-    Parallel(ScriptGroup),
-    Series(ScriptGroup),
+pub enum CommandGroup<'a> {
+    Parallel(ScriptGroup<'a>),
+    Series(ScriptGroup<'a>),
 }
 
-impl CommandGroup {
-    async fn run(&mut self, runner: &mut impl ScriptRunner, args: &VarArgs) -> Result<ExitStatus, ()> {
+impl CommandGroup<'_> {
+    async fn run(&self, args: &VarArgs) -> Result<ExitStatus, ()> {
         match self {
             Self::Parallel(_group) => {
                 todo!();
             }
             Self::Series(group) => {
-                let mut status = runner.run(&group.first, args).await.unwrap();
+                let mut status = group.first.run(args).await.unwrap();
 
                 for script in &group.rest {
-                    status = runner.run(script, args).await.unwrap();
+                    status = script.run(args).await.unwrap();
                 }
 
                 return Ok(status);
@@ -106,13 +107,21 @@ impl CommandGroup {
  * TODO: Choose a better name
  */
 #[derive(Debug)]
-pub enum Script {
+pub enum Script<'a> {
     Command(Command),
-    Alias(String),
-    Group(Box<CommandGroup>),
+    Group(Box<CommandGroup<'a>>),
 }
 
-#[async_trait(?Send)]
-pub trait ScriptRunner {
-  async fn run(&mut self, script: &Script, vars: &VarArgs) -> Result<ExitStatus, ()>;
+impl Script<'_> {
+  #[async_recursion]
+  pub async fn run(&self, args: &VarArgs) -> Result<ExitStatus, ()> {
+    match self {
+      Script::Command(cmd) => cmd.run(args).await,
+      Script::Group(group) => group.run(args).await,
+    }
+  }
+}
+
+pub trait ScriptParser {
+  fn parse(&mut self, task: &String) -> Result<Script, ()>;
 }
