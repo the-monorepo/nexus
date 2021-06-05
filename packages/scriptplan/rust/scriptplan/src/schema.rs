@@ -109,7 +109,7 @@ impl Runnable for CommandGroup {
  */
 #[derive(Debug)]
 pub enum Script {
-    Command(Box<Command>),
+    Command(Command),
     Alias(String),
     Group(Box<CommandGroup>),
 }
@@ -122,7 +122,7 @@ impl Runnable for Script {
                 todo!();
             }
             Self::Command(command) => {
-                return command.as_mut().run(args).await;
+                return command.run(args).await;
             }
             Self::Group(_group) => {
                 todo!();

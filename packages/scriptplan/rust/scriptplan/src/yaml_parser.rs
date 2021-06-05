@@ -22,22 +22,22 @@ impl Task<'_> {
   pub fn parse(&mut self) -> Result<&mut Script, ()> {
       if self.script.is_none() {
           if let Some(command_str) = self.yaml.as_str() {
-            self.script.replace(Script::Command(Box::new(Command {
+            self.script.replace(Script::Command(Command {
                 command_str: command_str.to_string(),
-            })));
+            }));
           } else if let Some(hash) = self.yaml.as_hash() {
               if let Some(task) = hash.get(&Yaml::from_str("task")) {
                 // TODO: Don't do ./$0
                 self.script.replace(
-                  Script::Command(Box::new(Command {
+                  Script::Command(Command {
                     command_str: ("./$0 ".to_string() + task.as_str().unwrap()).to_string(),
-                  }))
+                  })
                 );
               } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
                 self.script.replace(
-                  Script::Command(Box::new(Command {
+                  Script::Command(Command {
                     command_str: command_str.as_str().unwrap().to_string(),
-                  }))
+                  })
                 );
               } else {
                   panic!("should never happen");
