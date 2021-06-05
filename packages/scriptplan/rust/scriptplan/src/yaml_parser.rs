@@ -2,35 +2,44 @@ use conch_runtime::ExitStatus;
 use yaml_rust::yaml::Hash;
 use yaml_rust::Yaml;
 
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
 use std::cell::RefCell;
-use std::collections::hash_map::Keys;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 use std::ops::Deref;
-use std::option::Option;
 use std::rc::Rc;
 use std::sync::Arc;
-use std::sync::Mutex;
-use std::thread::current;
 
-use crate::schema::{Command, Runnable, Script, VarArgs};
+use shellwords::split;
+
+use crate::schema::VarArgs;
+use crate::schema::{Command, Script};
 
 use async_trait::async_trait;
 
-pub enum AliasOrScript<'a> {
-    Alias(String),
+#[derive(Debug)]
+struct Alias {
+  task: String,
+  args: VarArgs,
+}
+
+#[derive(Debug)]
+enum AliasOrScript<'a> {
+    Alias(Alias),
     Script(Rc<Script<'a>>),
 }
-pub fn parse_task(yaml: &Yaml) -> Result<AliasOrScript, ()> {
+fn parse_task(yaml: &Yaml) -> Result<AliasOrScript, ()> {
     if let Some(command_str) = yaml.as_str() {
         return Ok(AliasOrScript::Script(Rc::new(Script::Command(Command {
             command_str: command_str.to_string(),
         }))));
     } else if let Some(hash) = yaml.as_hash() {
         if let Some(task) = hash.get(&Yaml::from_str("task")) {
-            // TODO: Don't do ./$0
-            return Ok(AliasOrScript::Alias(task.as_str().unwrap().to_string()));
+            // TODO: Need a splitn
+            let mut words: Vec<_> = split(task.as_str().unwrap()).unwrap();
+            return Ok(AliasOrScript::Alias(Alias {
+              task: words.remove(0),
+              args: Arc::new(words.into_iter().map(|string| Arc::new(string)).collect()),
+            }));
         } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
             return Ok(AliasOrScript::Script(Rc::new(Script::Command(Command {
                 command_str: command_str.as_str().unwrap().to_string(),
@@ -95,15 +104,37 @@ impl ScriptParser<'_> {
     }
 }
 
-pub fn parse_to_script<'a>(parser: &'a ScriptParser, task_name: &'a str) -> Result<Rc<Script<'a>>, ()> {
+pub struct CompiledScript<'a> {
+  args: VarArgs,
+  script: Rc<Script<'a>>,
+}
+
+fn concat_var_args(args1: &VarArgs, args2: &VarArgs) -> VarArgs {
+  return Arc::new(args1.iter().chain(args2.iter()).map(|x| x.clone()).collect());
+}
+
+impl CompiledScript<'_> {
+  pub async fn run(&mut self, args: &VarArgs) -> Result<ExitStatus, ()> {
+    self.script.run(&concat_var_args(&self.args, args)).await
+  }
+}
+
+pub fn parse_to_script<'a>(parser: &'a ScriptParser, task_name: &'a str) -> Result<CompiledScript<'a>, ()> {
   let mut current = parser.parse(task_name).unwrap();
+  let mut args: VecDeque<Arc<String>> = VecDeque::new();
 
   while let AliasOrScript::Alias(alias) = current.deref() {
-    current = parser.parse(alias).unwrap();
+    for arg in alias.args.iter().rev() {
+      args.push_front(arg.clone())
+    }
+    current = parser.parse(&alias.task).unwrap();
   }
 
   if let AliasOrScript::Script(script) = current.deref() {
-    return Ok(script.clone());
+    return Ok(CompiledScript {
+      args: Arc::new(args),
+      script: script.clone(),
+    });
   } else {
     panic!();
   }

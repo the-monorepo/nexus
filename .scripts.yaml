@@ -57,7 +57,6 @@ clean:
   task: run:buildplan clean
 transpile:
   task: run:buildplan transpile
-# FIXME: Remove ./$0
 build:
   task: build:node # && ./$0 build:rust
 build:node:
