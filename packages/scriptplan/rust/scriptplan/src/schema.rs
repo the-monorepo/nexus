@@ -17,12 +17,12 @@ use std::collections::HashMap;
 
 #[async_trait]
 pub trait Runnable {
-    async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()>;
+    async fn run(&mut self, args: &VarArgs) -> Result<ExitStatus, ()>;
 }
 
 #[async_trait(?Send)]
 pub trait TaskRunner {
-    async fn run_task(&mut self, task: &str, args: VarArgs) -> Result<ExitStatus, ()>;
+    async fn run_task(&mut self, task: &str, args: &VarArgs) -> Result<ExitStatus, ()>;
 }
 
 #[derive(Debug)]
@@ -36,11 +36,11 @@ pub struct Command {
     pub command_str: String,
 }
 
-pub type VarArgs = Arc<VecDeque<Arc<String>>>;
+pub type VarArgs = VecDeque<Arc<String>>;
 
 #[async_trait]
 impl Runnable for Command {
-    async fn run(&mut self, vars: VarArgs) -> Result<ExitStatus, ()> {
+    async fn run(&mut self, vars: &VarArgs) -> Result<ExitStatus, ()> {
         let command_str = self.command_str.to_string() + " \"$@\"";
 
         let lex = Lexer::new(command_str.chars());
@@ -48,7 +48,7 @@ impl Runnable for Command {
         let parser = Parser::with_builder(lex, ArcBuilder::new());
 
         let mut args = ArgsEnv::new();
-        args.set_args(vars);
+        args.set_args(Arc::new(*vars));
 
         let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
             interactive: true,
@@ -86,16 +86,16 @@ pub enum CommandGroup {
 
 #[async_trait]
 impl Runnable for CommandGroup {
-    async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
+    async fn run(&mut self, args: &VarArgs) -> Result<ExitStatus, ()> {
         match self {
             Self::Parallel(_group) => {
                 todo!();
             }
             Self::Series(group) => {
-                let mut status = group.first.run(args.clone()).await.unwrap();
+                let mut status = group.first.run(args).await.unwrap();
 
                 for script in &mut group.rest {
-                    status = script.run(args.clone()).await.unwrap();
+                    status = script.run(args).await.unwrap();
                 }
 
                 return Ok(status);
@@ -116,7 +116,7 @@ pub enum Script {
 
 #[async_trait]
 impl Runnable for Script {
-    async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
+    async fn run(&mut self, args: &VarArgs) -> Result<ExitStatus, ()> {
         match self {
             Self::Alias(_alias) => {
                 todo!();
@@ -137,7 +137,7 @@ pub struct ScriptRoot<'a, A : Runnable> {
 
 #[async_trait(?Send)]
 impl<A : Runnable> TaskRunner for ScriptRoot<'_, A> {
-   async fn run_task(&mut self, task: &str, args: VarArgs) -> Result<ExitStatus, ()> {
+   async fn run_task(&mut self, task: &str, args: &VarArgs) -> Result<ExitStatus, ()> {
      self.tasks.get_mut(task).unwrap().run(args).await
   }
 }

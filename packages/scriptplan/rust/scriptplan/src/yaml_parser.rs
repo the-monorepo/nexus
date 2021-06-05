@@ -53,7 +53,7 @@ impl Task<'_> {
 
 #[async_trait]
 impl Runnable for Task<'_> {
-  async fn run(&mut self, args: VarArgs) -> Result<ExitStatus, ()> {
+  async fn run(&mut self, args: &VarArgs) -> Result<ExitStatus, ()> {
     self.parse().unwrap().run(args).await
   }
 }
@@ -76,7 +76,7 @@ pub fn create_scriptplan(yaml_object: &Hash) -> ScriptPlan {
 
 #[async_trait(?Send)]
 impl TaskRunner for ScriptPlan<'_> {
-  async fn run_task(&mut self, task: &str, args: VarArgs) -> Result<ExitStatus, ()> {
+  async fn run_task(&mut self, task: &str, args: &VarArgs) -> Result<ExitStatus, ()> {
     self.tasks.get_mut(task).unwrap().run(args).await
   }
 }

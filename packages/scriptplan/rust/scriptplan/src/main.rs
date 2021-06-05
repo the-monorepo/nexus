@@ -65,7 +65,7 @@ async fn main() {
                 return VecDeque::new().into_iter().collect();
             }
         })();
-        let status = scriptplan.run_task(root_task.name.as_str(), Arc::new(user_vars_iter)).await.unwrap();
+        let status = scriptplan.run_task(root_task.name.as_str(), &user_vars_iter).await.unwrap();
 
         exit_with_status(status);
     }
