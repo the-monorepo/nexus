@@ -3,7 +3,6 @@ mod yaml_parser;
 
 use clap::{App, SubCommand};
 use schema::Script;
-use schema::ScriptRunner;
 use schema::TaskRunner;
 
 use std::collections::VecDeque;
@@ -28,7 +27,7 @@ use shellwords::split;
 
 use std::process::exit;
 
-use yaml_parser::{create_scriptplan};
+use yaml_parser::{create_scriptplan, parse_to_script};
 
 #[tokio::main]
 async fn main() {
@@ -44,7 +43,7 @@ async fn main() {
 
     let mut scriptplan = create_scriptplan(map);
 
-    for task in scriptplan.task_names() {
+    for task in scriptplan.tasks.keys() {
       let subcommand = SubCommand::with_name(task)
         .setting(clap::AppSettings::TrailingVarArg)
         .setting(clap::AppSettings::TrailingValues)
@@ -67,8 +66,9 @@ async fn main() {
                 return VecDeque::new().into_iter().collect();
             }
         })();
+
         // TODO: Remove clone
-        let status = scriptplan.run(&Script::Alias(root_task.name.clone()), &Arc::new(user_vars_iter)).await.unwrap();
+        let status = parse_to_script(&scriptplan, root_task.name.as_str()).unwrap().run(&Arc::new(user_vars_iter)).await.unwrap();
 
         exit_with_status(status);
     }
