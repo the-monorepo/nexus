@@ -36,11 +36,16 @@ run:buildplan:
 format:javascript:
   task: run:buildplan format
 # TODO: Should be a part of format:rust but errors out ATM
-format:rust:fix: |
-    cargo +nightly fix
-    git add .
-    git commit -m "Ran format:rust:fix"
-format:rust:fmt: cargo +nightly fmt
+format:rust:fix:
+  series:
+    - cargo +nightly fix
+    - git add .
+    - git commit -m "Ran format:rust:fix"
+format:rust:fmt:
+  series:
+    - cargo +nightly fmt
+    - git add .
+    - git commit -m "Ran format:rust:fmt"
 format:rust:
   series:
    - task: format:rust:fix
