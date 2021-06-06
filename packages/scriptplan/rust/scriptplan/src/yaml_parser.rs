@@ -42,7 +42,7 @@ fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
             return Ok(Script::parse_alias(task.as_str().unwrap()));
         } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
             return Ok(Script::parse_command(command_str.as_str().unwrap()));
-        } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("serial")) {
+        } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("series")) {
           let mut obj = Vec::new();
           let yaml_list = serial_yaml.as_vec().unwrap();
           for sub_yaml in yaml_list {
