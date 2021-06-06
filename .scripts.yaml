@@ -14,11 +14,12 @@ install-osx:rust: |
     rustup target add x86_64-pc-windows-gnu
     rustup target add x86_64-apple-darwin
 
-install-osx: |
-    ./$0 install-osx:brew
-    ./$0 install-osx:node
-    ./$0 install-osx:rust
-    ./$0 create-ssl-certificate-osx
+install-osx:
+  series:
+    - task: install-osx:brew
+    - task: install-osx:node
+    - task: install-osx:rust
+    - task: create-ssl-certificate-osx
 
 # Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
 # FIXME: Find an alternative to mv that would work for default Windows machines
@@ -29,11 +30,9 @@ recompile-scriptplan: |
     mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
 
 node-base: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
-# FIXME: Remove ./$0
 run:buildplan:
   task: node-base buildplan.ts
 
-# FIXME: Remove ./$0
 format:javascript:
   task: run:buildplan format
 # TODO: Should be a part of format:rust but errors out ATM
@@ -43,17 +42,20 @@ format:rust:fmt:
   task: cargo +nightly fmt
 format:rust:
   task: format:rust:fix
-# FIXME: Remove ./$0
-format: ./$0 format:javascript && ./$0 format:rust
+format:
+  description: Formats all your source code files
+  series:
+    - task: format:javascript
+    - task: format:rust
 
 format-staged:javascript:
   task: run:buildplan format-staged
-# FIXME: Remove ./$0
 format-staged:
+  task: Corrects any automatically fixable linter warnings or errors. Note that this command will overwrite files without creating a backup.
   series:
     - task: format-staged:javascript
     - task: format:rust
-thing: echo
+
 test:
   task: run:buildplan test
 clean:
@@ -61,7 +63,10 @@ clean:
 transpile:
   task: run:buildplan transpile
 build:
-  task: build:node # && ./$0 build:rust
+  description: Builds everything required to run packages other than certain slow (bundled) packages
+  series:
+    - task: build:node
+    - task: build:rust
 build:node:
   task: run:buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
@@ -73,8 +78,10 @@ build-all:
     - task: build
     - task: webpack
 watch:
+  description: Like build but continuously watches for changes
   task: run:buildplan watch
 writeme:
+  description: Generates README doco
   task: run:buildplan writeme
 webpack:
   task: run:buildplan webpack
