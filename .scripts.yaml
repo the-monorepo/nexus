@@ -66,7 +66,7 @@ build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
   series:
     - task: build:node
-    - task: build:rust
+    # - task: build:rust
 build:node:
   task: run:buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
