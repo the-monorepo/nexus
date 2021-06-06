@@ -36,12 +36,12 @@ run:buildplan:
 format:javascript:
   task: run:buildplan format
 # TODO: Should be a part of format:rust but errors out ATM
-format:rust:fix:
-  task: cargo +nightly fix
-format:rust:fmt:
-  task: cargo +nightly fmt
+format:rust:fix: cargo +nightly fix
+format:rust:fmt: cargo +nightly fmt
 format:rust:
-  task: format:rust:fix
+  series:
+   - task: format:rust:fix
+   - task: format:rust:fmt
 format:
   description: Formats all your source code files
   series:
