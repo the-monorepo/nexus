@@ -1,10 +1,10 @@
-use conch_runtime::ExitStatus;
+
 use yaml_rust::yaml::Hash;
 use yaml_rust::Yaml;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::collections::VecDeque;
+
 use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -14,9 +14,9 @@ use shellwords::split;
 use crate::schema::ScriptGroup;
 use crate::schema::ScriptParser;
 use crate::schema::VarArgs;
-use crate::schema::{Command, Script, Alias, CommandGroup};
+use crate::schema::{Script, Alias, CommandGroup};
 
-use async_trait::async_trait;
+
 
 impl Script {
   fn parse_command(command_str: &str) -> Script {
