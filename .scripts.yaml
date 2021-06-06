@@ -41,11 +41,7 @@ format:rust:fix:
     - cargo +nightly fix
     - git add .
     - git commit -m "Ran format:rust:fix"
-format:rust:fmt:
-  series:
-    - cargo +nightly fmt
-    - git add .
-    - git commit -m "Ran format:rust:fmt"
+format:rust:fmt: cargo +nightly fmt
 format:rust:
   series:
    - task: format:rust:fix
@@ -53,8 +49,8 @@ format:rust:
 format:
   description: Formats all your source code files
   series:
-    - task: format:javascript
     - task: format:rust
+    - task: format:javascript
 
 format-staged:javascript:
   task: run:buildplan format-staged
