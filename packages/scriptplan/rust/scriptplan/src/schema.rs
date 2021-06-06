@@ -9,6 +9,7 @@ use conch_runtime::ExitStatus;
 use std::collections::VecDeque;
 
 use std::ops::Deref;
+use std::rc::Rc;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -51,10 +52,10 @@ impl From<String> for Command {
   }
 }
 
-pub type VarArgs = Arc<VecDeque<Arc<String>>>;
+pub type VarArgs = VecDeque<Arc<String>>;
 
 impl Command {
-    pub async fn run(&self, vars: &VarArgs) -> Result<ExitStatus, ()> {
+    pub async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
         let command_str = self.command_str.to_string() + " \"$@\"";
 
         let lex = Lexer::new(command_str.chars());
@@ -62,7 +63,7 @@ impl Command {
         let parser = Parser::with_builder(lex, ArcBuilder::new());
 
         let mut args = ArgsEnv::new();
-        args.set_args(vars.clone());
+        args.set_args(Arc::new(vars));
 
         let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
             interactive: true,
@@ -83,32 +84,33 @@ impl Command {
 }
 
 #[derive(Debug)]
-pub struct ScriptGroup<'a> {
+pub struct ScriptGroup {
     // Enforces that there's always at least 1 script
-    pub first: &'a Script<'a>,
-    pub rest: Vec<&'a Script<'a>>,
+    pub first: Script,
+    pub rest: Vec<Script>,
 }
 
 /**
  * TODO: Choose a better name
  */
 #[derive(Debug)]
-pub enum CommandGroup<'a> {
-    Parallel(ScriptGroup<'a>),
-    Series(ScriptGroup<'a>),
+pub enum CommandGroup {
+    Parallel(ScriptGroup),
+    Series(ScriptGroup),
 }
 
-impl CommandGroup<'_> {
-    async fn run(&self, args: &VarArgs) -> Result<ExitStatus, ()> {
+impl CommandGroup {
+    async fn run(&self, parser: &impl ScriptParser, args: VarArgs) -> Result<ExitStatus, ()> {
+      // TODO: Figure out what to do with args
         match self {
             Self::Parallel(_group) => {
                 todo!();
             }
             Self::Series(group) => {
-                let mut status = group.first.run(args).await.unwrap();
+                let mut status = group.first.run(parser, args.clone()).await.unwrap();
 
                 for script in &group.rest {
-                    status = script.run(args).await.unwrap();
+                    status = script.run(parser, args.clone()).await.unwrap();
                 }
 
                 return Ok(status);
@@ -117,25 +119,41 @@ impl CommandGroup<'_> {
     }
 }
 
+#[derive(Debug)]
+pub struct Alias {
+  pub task: String,
+  pub args: VarArgs,
+}
+
 /**
  * TODO: Choose a better name
  */
 #[derive(Debug)]
-pub enum Script<'a> {
+pub enum Script {
     Command(Command),
-    Group(Box<CommandGroup<'a>>),
+    Group(Box<CommandGroup>),
+    Alias(Alias),
 }
 
-impl Script<'_> {
-  #[async_recursion]
-  pub async fn run(&self, args: &VarArgs) -> Result<ExitStatus, ()> {
+impl Script {
+  #[async_recursion(?Send)]
+  pub async fn run(&self, parser: &impl ScriptParser, args: VarArgs) -> Result<ExitStatus, ()> {
     match self {
       Script::Command(cmd) => cmd.run(args).await,
-      Script::Group(group) => group.run(args).await,
+      Script::Group(group) => group.run(parser, args).await,
+      Script::Alias(alias) => {
+        let mut joined_args: VecDeque<Arc<String>> = args.into_iter().collect();
+
+        for arg in alias.args.iter().rev() {
+          joined_args.push_front(arg.clone())
+        }
+
+        parser.parse(alias.task.as_str()).unwrap().run(parser, joined_args).await
+      },
     }
   }
 }
 
 pub trait ScriptParser {
-  fn parse(&mut self, task: &String) -> Result<Script, ()>;
+  fn parse(&self, task: &str) -> Result<Rc<Script>, ()>;
 }
