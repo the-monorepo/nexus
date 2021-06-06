@@ -672,12 +672,6 @@ const bundleWebpack = async () => {
 
 task('webpack', 'Bundke all Webpack-bundled packages', bundleWebpack);
 
-task(
-  'build-all',
-  'Build literally everything including things that require bundling (slower)',
-  series(buildSource, bundleWebpack, writeme),
-);
-
 const prepublish = series(
   parallel(clean, format),
   parallel(transpile, copy, testNoBuild),

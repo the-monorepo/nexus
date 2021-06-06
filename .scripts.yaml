@@ -68,7 +68,10 @@ build:node:
 #build:rust:
 #  script: cargo +nightly build
 build-all:
-  task: run:buildplan build-all
+  description: Build literally everything including things that require bundling (slower)
+  series:
+    - task: build
+    - task: webpack
 watch:
   task: run:buildplan watch
 writeme:
@@ -78,16 +81,20 @@ webpack:
 serve:
   task: run:buildplan serve
 serve:my-resume:
-  task: run:buildplan serve --name='my-resume'
+  task: serve --name='my-resume'
 serve:page-breaker:
-  task: run:buildplan serve --name='page-breaker'
+  task: serve --name='page-breaker'
 serve:genetic-sequence-analysis-app:
-  task: run:buildplan serve --name='genetic-sequence-analysis-app'
+  task: serve --name='genetic-sequence-analysis-app'
 serve:particle-sensor-app:
-  task: run:buildplan serve --name='particle-sensor-app'
+  task: serve --name='particle-sensor-app'
 serve:spot-welder-app:
-  task: run:buildplan serve --name='spot-welder-app'
+  task: serve --name='spot-welder-app'
 precommit:
   task: run:buildplan precommit
-update-yarn: yarn set version berry && yarn add @yarnpkg/pnpify && yarn install && yarn pnpify --sdk
+update-yarn:
+  series:
+    - yarn set version berry
+    - yarn add @yarnpkg/pnpify
+    - yarn install && yarn pnpify --sdk
 create-ssl-certificate-osx: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
