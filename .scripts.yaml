@@ -50,7 +50,7 @@ format-staged:javascript:
   task: run:buildplan format-staged
 # FIXME: Remove ./$0
 format-staged:
-  serial:
+  series:
     - task: format-staged:javascript
     - task: format:rust
 thing: echo
