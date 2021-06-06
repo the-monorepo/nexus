@@ -3,6 +3,7 @@ mod yaml_parser;
 
 use clap::{App, SubCommand};
 use schema::Script;
+use schema::ScriptParser;
 use schema::TaskRunner;
 
 use std::collections::VecDeque;
@@ -27,7 +28,7 @@ use shellwords::split;
 
 use std::process::exit;
 
-use yaml_parser::{create_scriptplan, parse_to_script};
+use yaml_parser::{create_scriptplan};
 
 #[tokio::main]
 async fn main() {
@@ -67,8 +68,7 @@ async fn main() {
             }
         })();
 
-        // TODO: Remove clone
-        let status = parse_to_script(&scriptplan, root_task.name.as_str()).unwrap().run(&Arc::new(user_vars_iter)).await.unwrap();
+        let status = scriptplan.parse(root_task.name.as_str()).unwrap().run(&scriptplan, user_vars_iter).await.unwrap();
 
         exit_with_status(status);
     }

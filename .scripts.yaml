@@ -49,8 +49,11 @@ format: ./$0 format:javascript && ./$0 format:rust
 format-staged:javascript:
   task: run:buildplan format-staged
 # FIXME: Remove ./$0
-format-staged: ./$0 "format-staged:javascript" && ./$0 format:rust
-
+format-staged:
+  serial:
+    - task: format-staged:javascript
+    - task: format:rust
+thing: echo
 test:
   task: run:buildplan test
 clean:
