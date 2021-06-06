@@ -8,14 +8,14 @@ use conch_runtime::ExitStatus;
 
 use std::collections::VecDeque;
 
-use std::ops::Deref;
+
 use std::rc::Rc;
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use async_recursion::async_recursion;
 
-use std::collections::HashMap;
+
 
 #[async_trait]
 pub trait Runnable {

@@ -2,29 +2,29 @@ mod schema;
 mod yaml_parser;
 
 use clap::{App, SubCommand};
-use schema::Script;
+
 use schema::ScriptParser;
-use schema::TaskRunner;
+
 
 use std::collections::VecDeque;
 
 use std::fs;
-use std::ops::Deref;
-use std::ops::DerefMut;
+
+
 use std::path::Path;
 
 
-use yaml_rust::{Yaml, YamlLoader};
+use yaml_rust::{YamlLoader};
 
 use conch_runtime::ExitStatus;
 
 use schema::Runnable;
 
-use std::collections::HashSet;
+
 
 use std::sync::Arc;
 
-use shellwords::split;
+
 
 use std::process::exit;
 
@@ -42,7 +42,7 @@ async fn main() {
 
     let map = doc.as_hash().unwrap();
 
-    let mut scriptplan = create_scriptplan(map);
+    let scriptplan = create_scriptplan(map);
 
     for task in scriptplan.tasks.keys() {
       let subcommand = SubCommand::with_name(task)
