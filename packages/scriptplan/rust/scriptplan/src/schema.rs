@@ -99,6 +99,13 @@ pub enum CommandGroup {
     Series(ScriptGroup),
 }
 
+fn merge_status(status1: ExitStatus, status2: ExitStatus) -> ExitStatus {
+  if !status1.success() {
+    return status2;
+  }
+  return status1;
+}
+
 impl CommandGroup {
     async fn run(&self, parser: &impl ScriptParser, args: VarArgs) -> Result<ExitStatus, ()> {
       // TODO: Figure out what to do with args
@@ -107,13 +114,17 @@ impl CommandGroup {
                 todo!();
             }
             Self::Series(group) => {
-                let mut status = group.first.run(parser, args.clone()).await.unwrap();
+                let mut final_status = group.first.run(parser, args.clone()).await.unwrap();
 
                 for script in &group.rest {
-                    status = script.run(parser, args.clone()).await.unwrap();
+                  if !final_status.success() {
+                    return Ok(final_status);
+                  }
+                  let status = script.run(parser, args.clone()).await.unwrap();
+                    final_status = status;
                 }
 
-                return Ok(status);
+                return Ok(final_status);
             }
         }
     }
