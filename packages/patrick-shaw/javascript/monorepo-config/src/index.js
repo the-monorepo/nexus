@@ -1,18 +1,21 @@
 /* eslint-disable no-var-requires */
 const { resolve } = require('path');
 
-const codeExtensions = ["js", "jsx", "ts", "tsx", "mjs", "cjs"];
+const codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];
 
-const createConfigPresets = (rootProjectDir, workspaces = resolve(rootProjectDir, './packages/*/javascript/*')) => {
+const createConfigPresets = (
+  rootProjectDir,
+  workspaces = resolve(rootProjectDir, './packages/*/javascript/*'),
+) => {
   const dependencyGlobs = [
-    ".yarn/cache/**",
-    resolve(rootProjectDir, ".pnp.js"),
-    ".yarn/unplugged/**",
-    "**/node_modules/**",
+    '.yarn/cache/**',
+    resolve(rootProjectDir, '.pnp.js'),
+    '.yarn/unplugged/**',
+    '**/node_modules/**',
   ];
 
   const extraBuildIgnoreGlobs = [
-    resolve(rootProjectDir, "./packages/build-packages/javascript/**"),
+    resolve(rootProjectDir, './packages/build-packages/javascript/**'),
   ];
 
   const extraFormatIgnoreGlobs = [
@@ -22,13 +25,9 @@ const createConfigPresets = (rootProjectDir, workspaces = resolve(rootProjectDir
     resolve(rootProjectDir, './pnp.cjs'),
   ];
 
-  const extraBuildArtifactGlobs = [
-    resolve(rootProjectDir, './coverage/**'),
-  ];
+  const extraBuildArtifactGlobs = [resolve(rootProjectDir, './coverage/**')];
 
-  const extraTestIgnoreGlobs = [
-    ...dependencyGlobs,
-  ]
+  const extraTestIgnoreGlobs = [...dependencyGlobs];
 
   return {
     dependencyGlobs,

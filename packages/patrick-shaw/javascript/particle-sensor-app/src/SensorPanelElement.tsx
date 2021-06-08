@@ -126,7 +126,7 @@ export class SensorPanelElement extends cinder.DomElement<any, any> {
             y: datum.data.PM_SP_UG_2_5,
           })),
           name: 'PM_SP_UG_2_5',
-          color: '#F9A825'
+          color: '#F9A825',
         },
         {
           data: this.data.map((datum) => ({
@@ -140,16 +140,11 @@ export class SensorPanelElement extends cinder.DomElement<any, any> {
     };
     return (
       <>
-        <style>
-          {styles.toString()}
-        </style>
+        <style>{styles.toString()}</style>
         <section>
           <p>Selected {this.device.productName}</p>
-          <section class={styles.locals.chartContainer}>
-            <time-line-chart
-              $device={this.device}
-              $dataClient={dataClient}
-            />
+          <section className={styles.locals.chartContainer}>
+            <time-line-chart $device={this.device} $dataClient={dataClient} />
           </section>
         </section>
       </>

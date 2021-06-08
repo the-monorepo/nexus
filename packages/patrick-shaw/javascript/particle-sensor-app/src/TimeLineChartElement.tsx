@@ -25,7 +25,7 @@ import {
 import * as figureStyles from './figure.scss';
 import styles from './TimeLineGraph.scss';
 
-import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts'
+import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts';
 import { autorun } from 'mobx';
 
 export class TimeLineChartElement extends DomElement {
@@ -57,12 +57,14 @@ export class TimeLineChartElement extends DomElement {
     const yAxisSelection = select(this.renderRoot.getElementById('axis-left'));
 
     const xScale = observable.box(scaleTime().domain([0, Date.now()]).nice());
-    const xAxis = observable.box(axisBottom(xScale.get()).tickFormat(timeFormat('%I:%M:%S')));
+    const xAxis = observable.box(
+      axisBottom(xScale.get()).tickFormat(timeFormat('%I:%M:%S')),
+    );
     const xAxisSelection = select(xAxisElement);
 
-    let maxX = observable.box(Date.now());
-    let minX = observable.box(Date.now());
-    let maxY = observable.box(0);
+    const maxX = observable.box(Date.now());
+    const minX = observable.box(Date.now());
+    const maxY = observable.box(0);
 
     autorun(() => {
       let newMaxY = 0;
@@ -75,9 +77,12 @@ export class TimeLineChartElement extends DomElement {
     });
 
     autorun(() => {
-      setInterval(action(() => {
-        maxX.set(Date.now());
-      }), 1000);
+      setInterval(
+        action(() => {
+          maxX.set(Date.now());
+        }),
+        1000,
+      );
     });
 
     autorun(() => {
@@ -91,14 +96,13 @@ export class TimeLineChartElement extends DomElement {
       minX.set(safeMinX);
     });
 
-
     autorun(() => {
       yScale.get().range([this.height.get(), 0]);
     });
 
     autorun(() => {
       yScale.get().domain([0, maxY.get()]).nice();
-    })
+    });
 
     autorun(() => {
       xScale.get().domain([minX.get(), maxX.get()]).nice();
@@ -185,12 +189,12 @@ export class TimeLineChartElement extends DomElement {
     return (
       <>
         <style>{styles.toString()}</style>
-        <div id="container" class={styles.locals.container}>
+        <div id="container" className={styles.locals.container}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             id="svg"
-            fill-rule="evenodd"
-            class={styles.locals.svg}
+            fillRule="evenodd"
+            className={styles.locals.svg}
             preserveAspectRatio="none"
             fill="000"
             overflow="visible"
@@ -206,5 +210,5 @@ export class TimeLineChartElement extends DomElement {
 }
 
 const Label = ({ children }) => (
-  <label class={cx(previousStyles.label)}>{children}</label>
+  <label className={cx(previousStyles.label)}>{children}</label>
 );

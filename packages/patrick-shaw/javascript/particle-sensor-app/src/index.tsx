@@ -2,8 +2,8 @@ import * as cinder from 'cinder';
 
 import { createPayload, createFailure } from '@resultful/result';
 
-import { TimeLineChartElement } from './TimeLineChartElement.ts'
-import { SensorPanelElement } from './SensorPanelElement.ts'
+import { TimeLineChartElement } from './TimeLineChartElement.ts';
+import { SensorPanelElement } from './SensorPanelElement.ts';
 
 import styles from './index.scss';
 globalThis.customElements.define('time-line-chart', TimeLineChartElement);
@@ -56,7 +56,7 @@ const onMockAddUSB = async () => {
   rerender();
 };
 
-let devices = new Set();
+const devices = new Set();
 const onAddUSB = async () => {
   const device = await requestUSB();
   devices.add(device);
@@ -64,13 +64,13 @@ const onAddUSB = async () => {
 };
 
 const App = () => (
-  <main class={styles.locals.main}>
+  <main className={styles.locals.main}>
     <style>{styles.toString()}</style>
     <section>
       <button $$click={onAddUSB}>Add USB</button>
       <button $$click={onMockAddUSB}>Add Mock USB</button>
     </section>
-    <section class={styles.locals.devices}>
+    <section className={styles.locals.devices}>
       {[...devices].map((device) => (
         <sensor-panel $device={device} />
       ))}

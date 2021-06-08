@@ -1,5 +1,5 @@
-import { bufferred, arrayFrom } from '../src/index.ts'
-import { countToThree } from './test-utils.ts'
+import { bufferred, arrayFrom } from '../src/index.ts';
+import { countToThree } from './test-utils.ts';
 
 it(bufferred.name, async () => {
   const count = countToThree();

@@ -1,5 +1,5 @@
-import { leftIndex, parentIndex, rightIndex, swap } from '../src/index.ts'
-import Heap from '../src/index.ts'
+import { leftIndex, parentIndex, rightIndex, swap } from '../src/index.ts';
+import Heap from '../src/index.ts';
 
 type ScoreHolder = {
   score: number;
@@ -104,33 +104,8 @@ describe('heap', () => {
     [
       'large, unsorted, negative numbers, mutli-digit, repeating elements',
       [
-        1,
-        2,
-        3,
-        4,
-        12,
-        31,
-        1,
-        -1,
-        3,
-        6,
-        7,
-        2,
-        -40,
-        1,
-        2,
-        2,
-        22,
-        2,
-        1,
-        5,
-        19,
-        -1,
-        -1,
-        -100,
-        -2,
-        -2,
-        -5,
+        1, 2, 3, 4, 12, 31, 1, -1, 3, 6, 7, 2, -40, 1, 2, 2, 22, 2, 1, 5, 19, -1, -1,
+        -100, -2, -2, -5,
       ],
     ],
   ];

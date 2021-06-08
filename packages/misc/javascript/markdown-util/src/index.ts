@@ -1,12 +1,12 @@
 import { readFile } from 'fs/promises';
 import { extname } from 'path';
 
-import languagesObject from './languages.js'
+import languagesObject from './languages.js';
 /**
  * Map from extensions to language info
  */
 const extMap = new Map();
-for(const language of Object.values(languagesObject)) {
+for (const language of Object.values(languagesObject)) {
   if (language.extensions !== undefined) {
     for (const ext of language.extensions) {
       if (!extMap.has(ext)) {
