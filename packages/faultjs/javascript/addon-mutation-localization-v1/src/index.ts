@@ -233,9 +233,8 @@ const compareInstructions = (a: InstructionHolder, b: InstructionHolder) => {
   }
   while (aI >= 0) {
     const aMutationEvaluation = a.data.mutationEvaluations[aI];
-    const didSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(
-      aMutationEvaluation,
-    );
+    const didSomethingGoodOrCrashed =
+      evaluationDidSomethingGoodOrCrashed(aMutationEvaluation);
     if (didSomethingGoodOrCrashed) {
       return 1;
     }
@@ -243,9 +242,8 @@ const compareInstructions = (a: InstructionHolder, b: InstructionHolder) => {
   }
   while (bI >= 0) {
     const bMutationEvaluation = b.data.mutationEvaluations[bI];
-    const didSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(
-      bMutationEvaluation,
-    );
+    const didSomethingGoodOrCrashed =
+      evaluationDidSomethingGoodOrCrashed(bMutationEvaluation);
     if (didSomethingGoodOrCrashed) {
       return -1;
     }
@@ -761,9 +759,8 @@ class DeleteStatementInstruction implements Instruction {
       throw new Error(`There were ${statements.statements.length} statements`);
     }
 
-    const deletingStatementsDidSomethingGoodOrCrashed = evaluationDidSomethingGoodOrCrashed(
-      evaluation,
-    );
+    const deletingStatementsDidSomethingGoodOrCrashed =
+      evaluationDidSomethingGoodOrCrashed(evaluation);
     if (deletingStatementsDidSomethingGoodOrCrashed) {
       if (!evaluation.crashed) {
         for (const statement of statements.statements) {
@@ -1129,7 +1126,8 @@ const couldBeVariableNameReplaceable = (path: NodePath): boolean =>
       (!path.parentPath.isCallExpression() || typeof path.key === 'number')));
 
 class ReplaceIdentifierFactory
-  implements InstructionFactory<ReplaceIdentifierInstruction> {
+  implements InstructionFactory<ReplaceIdentifierInstruction>
+{
   enter() {}
 
   *createPreBlockInstructions() {}
@@ -1298,7 +1296,8 @@ class SwapFunctionParametersInstruction implements Instruction {
 }
 
 class SwapFunctionParametersFactory
-  implements InstructionFactory<SwapFunctionParametersInstruction> {
+  implements InstructionFactory<SwapFunctionParametersInstruction>
+{
   *createInstructions() {}
 
   enter() {}
@@ -1335,7 +1334,8 @@ class SwapFunctionParametersFactory
 }
 
 class SwapFunctionCallArgumentsFactory
-  implements InstructionFactory<SwapFunctionCallArgumentsInstruction> {
+  implements InstructionFactory<SwapFunctionCallArgumentsInstruction>
+{
   *createInstructions() {}
 
   enter() {}
@@ -1376,7 +1376,8 @@ class SwapFunctionCallArgumentsFactory
 }
 
 class InvertBooleanLiteralInstructionFactory
-  implements InstructionFactory<InvertBooleanLiteralInstruction> {
+  implements InstructionFactory<InvertBooleanLiteralInstruction>
+{
   enter() {}
 
   *createInstructions(nodePath, filePath, derivedFromPassingTests) {
@@ -1684,7 +1685,6 @@ async function identifyUnknownInstruction(
             ['consequent', 'alternate'].includes(path.key))) &&
         node.loc
       ) {
-
         currentStatementStack[currentStatementStack.length - 1].push({
           index: path.key,
           type: path.isIfStatement() ? IF_TRUE : STATEMENT,
@@ -1709,7 +1709,6 @@ async function identifyUnknownInstruction(
       }
 
       if (isStatementContainer(path)) {
-
         currentStatementStack.push([]);
       }
 
@@ -2286,31 +2285,29 @@ export const mutationEvalatuationMapToFaults = (
   const locationEvaluationsList: LocationEvaluation[] = [...locationEvaluations.values()];
   locationEvaluationsList.sort(compareLocationEvaluations);
 
-  const faults = locationEvaluationsList.map(
-    (lE, i): Fault => {
-      return {
-        score: i,
-        sourcePath: lE.location.filePath,
-        location: {
-          start: lE.location.start,
-          end: lE.location.end,
-        },
-        other: {
-          isInCoverage: isInCoverage(
-            lE.location.filePath,
-            lE.location,
-            failingLocationKeys,
-          ),
-          totalAtomicMutationsPerformed: lE.totalAtomicMutationsPerformed,
-          totalNodes: lE.totalNodes,
-          evaluation: lE.evaluations.map((e) => ({
-            type: e.evaluation.type.toString(),
-            ...e,
-          })),
-        },
-      };
-    },
-  );
+  const faults = locationEvaluationsList.map((lE, i): Fault => {
+    return {
+      score: i,
+      sourcePath: lE.location.filePath,
+      location: {
+        start: lE.location.start,
+        end: lE.location.end,
+      },
+      other: {
+        isInCoverage: isInCoverage(
+          lE.location.filePath,
+          lE.location,
+          failingLocationKeys,
+        ),
+        totalAtomicMutationsPerformed: lE.totalAtomicMutationsPerformed,
+        totalNodes: lE.totalNodes,
+        evaluation: lE.evaluations.map((e) => ({
+          type: e.evaluation.type.toString(),
+          ...e,
+        })),
+      },
+    };
+  });
   return faults;
 };
 
@@ -2555,10 +2552,9 @@ export const createPlugin = ({
   const locationEvaluations: Map<LocationKey, LocationEvaluation> = new Map();
   let mutationCount = 0;
 
-  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob)
-    ? ignoreGlob
-    : [ignoreGlob]
-  ).map((glob) => resolve('.', glob).replace(/\\+/g, '/'));
+  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(
+    (glob) => resolve('.', glob).replace(/\\+/g, '/'),
+  );
   const analyzeEvaluation = async (
     mutationEvaluation: MutationEvaluation,
     cache: AstCache,
@@ -2568,8 +2564,6 @@ export const createPlugin = ({
 
       // Revert all mutated files
       await Promise.all(Object.keys(previousMutationResults.locations).map(resetFile));
-
-
 
       if (!(previousInstruction.instruction instanceof DeleteStatementInstruction)) {
         previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
@@ -2630,8 +2624,6 @@ export const createPlugin = ({
     const instruction = instructionQueue.peek()!;
 
     previousInstruction = instruction;
-
-
 
     await instruction.instruction.process(instruction.data, cache);
 
@@ -2706,7 +2698,6 @@ export const createPlugin = ({
           const statements: StatementBlock[] = [];
           const locations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -2901,10 +2892,8 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map((copyPath) => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
 
-        const locationEvaluationsThatArentEmpty: Map<
-          string,
-          LocationEvaluation
-        > = new Map();
+        const locationEvaluationsThatArentEmpty: Map<string, LocationEvaluation> =
+          new Map();
         for (const [key, value] of locationEvaluations) {
           if (value.evaluations.length > 0) {
             locationEvaluationsThatArentEmpty.set(key, value);
