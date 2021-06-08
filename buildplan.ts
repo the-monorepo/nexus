@@ -522,7 +522,7 @@ const testNoBuild = async () => {
         NODE_ENV: 'test',
       },
     },
-    setupFiles: ['./test/helpers/globals'],
+    setupFiles: ['./test/helpers/globals.js'],
     testerOptions: {
       sandbox: true,
     },
