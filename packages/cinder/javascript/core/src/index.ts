@@ -393,61 +393,6 @@ export const updateComponentResultsArray = <C, V, N extends Node>(
   return newRenderResults;
 };
 
-const mapBlueprint: GenericBlueprint<MapBlueprintState<unknown>, Iterable<any>> =
-  createBlueprint(
-    (
-      initialValues: Iterable<any>,
-      container,
-      before,
-    ): RenderData<MapBlueprintState<unknown>> => {
-      const results: RenderResult<unknown>[] = [];
-      let j = 0;
-      const marker = document.createComment('');
-      container.insertBefore(marker, before);
-      for (const itemData of initialValues) {
-        if (itemData != null) {
-          const componentResult = componentResultFromValue(itemData);
-          results[j++] = renderComponentResultNoSet(componentResult, container, before);
-        }
-      }
-      const state = { results };
-      return renderData(marker, state);
-    },
-    (
-      state: RenderData<MapBlueprintState<unknown>>,
-      newInput: Iterable<any>,
-      container: Node,
-      before: Node | null,
-    ) => {
-      const results = state.state.results;
-      const newComponentResults: ComponentResult<unknown, unknown, Node>[] = [];
-      let j = 0;
-      for (const itemValue of newInput) {
-        if (itemValue != null) {
-          const componentResult = componentResultFromValue(itemValue);
-          newComponentResults[j++] = componentResult;
-        }
-      }
-
-      const oldLength = results.length;
-      const newLength = newComponentResults.length;
-
-      // Head and tail pointers to old parts and new values
-      const oldHead = 0;
-      const newHead = 0;
-      state.state.results = updateComponentResultsArray(
-        newComponentResults,
-        results,
-        oldHead,
-        newHead,
-        oldLength,
-        newLength,
-        container,
-        before,
-      );
-    },
-  );
-
 class DynamicSection implements Field {
   private readonly state: (RenderResult<unknown> | undefined)[];
   constructor(private readonly el: Node, private readonly before: Node, length: number) {
