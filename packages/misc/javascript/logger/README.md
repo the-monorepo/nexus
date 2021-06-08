@@ -15,6 +15,8 @@ yarn add @pshaw/logger@2.0.5-0
 ## Examples
 
 ```javascript
+/* eslint-disable no-console */
+
 const { readFile } = require('fs/promises');
 const { join } = require('path');
 
