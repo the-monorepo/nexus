@@ -9,8 +9,6 @@ import './ViolinGraph';
 
 import { autorun, observable, action } from 'mobx';
 
-import cx from 'classnames';
-
 const kernalBandwidth = observable.box(0.2);
 const resolution = observable.box(10);
 

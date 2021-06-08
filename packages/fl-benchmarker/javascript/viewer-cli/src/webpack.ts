@@ -3,14 +3,11 @@ import { resolve } from 'path';
 import {
   createHtmlWebpackPlugin,
   createOutput,
-  Configuration,
   recommendedWebcomponentRules,
 } from '@pshaw/webpack';
 import { DefinePlugin } from '@pshaw/webpack/webpack';
 
-import globby from 'globby';
 import { readFileSync, readdirSync } from 'fs';
-import { readFile, readdir } from 'fs/promises';
 
 export type CreateConfigOptions = {
   resultsDir: string;
@@ -41,7 +38,6 @@ export const createConfig = ({ resultsDir, outputDir }: CreateConfigOptions) => 
       }),
       new DefinePlugin({
         __FAULT_BENCHMARKER_DATA__: DefinePlugin.runtimeValue(() => {
-          const dirs = readdirSync(resolve());
           const faultData = readFileSync(fileExample, 'utf8');
 
           return faultData;
