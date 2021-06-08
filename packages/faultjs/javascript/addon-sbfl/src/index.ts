@@ -170,10 +170,9 @@ export const createPlugin = ({
   ignoreGlob = [],
   console: printToConsole = false,
 }: PluginOptions): PartialTestHookOptions => {
-  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob)
-    ? ignoreGlob
-    : [ignoreGlob]
-  ).map((glob) => path.resolve('.', glob).replace(/\\+/g, '/'));
+  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(
+    (glob) => path.resolve('.', glob).replace(/\\+/g, '/'),
+  );
   return {
     on: {
       complete: async (results: FinalTesterResults) => {

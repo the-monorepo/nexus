@@ -384,9 +384,8 @@ export default declare((api, options) => {
         (jsxAttributePath): ElementField => {
           if (jsxAttributePath.isJSXSpreadAttribute()) {
             const argumentPath = jsxAttributePath.get('argument');
-            const spreadExpressionPath = valueExpressionFromJsxAttributeValue(
-              argumentPath,
-            );
+            const spreadExpressionPath =
+              valueExpressionFromJsxAttributeValue(argumentPath);
             return {
               type: SPREAD_TYPE,
               expression: spreadExpressionPath,
@@ -608,9 +607,11 @@ export default declare((api, options) => {
     switch (node.type) {
       case ELEMENT_TYPE:
         const tag: string = node.tag;
-        const attributeString: string = (node.fields.filter(
-          (field) => field.type === ATTRIBUTE_TYPE && isLiteral(field.expression),
-        ) as AttributeField[])
+        const attributeString: string = (
+          node.fields.filter(
+            (field) => field.type === ATTRIBUTE_TYPE && isLiteral(field.expression),
+          ) as AttributeField[]
+        )
           .map((field) => attributeLiteralToHTMLAttributeString(field))
           .join(' ');
         const childrenString: string = node.children
@@ -643,12 +644,10 @@ export default declare((api, options) => {
     isRoot: boolean,
     scope: tr.Scope,
   ) {
-    const childrenWithDomNodesAssociatedWithThem: (
-      | ElementNode
-      | TextNode
-    )[] = nodes.filter(
-      (child) => child.type === ELEMENT_TYPE || child.type === TEXT_TYPE,
-    ) as (ElementNode | TextNode)[];
+    const childrenWithDomNodesAssociatedWithThem: (ElementNode | TextNode)[] =
+      nodes.filter(
+        (child) => child.type === ELEMENT_TYPE || child.type === TEXT_TYPE,
+      ) as (ElementNode | TextNode)[];
     if (childrenWithDomNodesAssociatedWithThem.length > 0) {
       for (let c = 1; c < childrenWithDomNodesAssociatedWithThem.length - 1; c++) {
         const previous = childrenWithDomNodesAssociatedWithThem[c - 1];

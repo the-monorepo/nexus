@@ -20,12 +20,12 @@ export async function* countConsequtiveValues<T>(
   };
   for await (const value of iterator) {
     if (current.value !== value) {
-      yield current; 
+      yield current;
       current = {
         index: current.index + current.count,
         count: 1,
         value,
-      };     
+      };
     } else {
       current.count++;
     }

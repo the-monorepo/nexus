@@ -454,7 +454,8 @@ type ReplaceWithMultipleState = {
   value: t.Node[];
 };
 export class ReplaceWithMultipleMutation
-  implements WrapperMutation<any, ReplaceWithMultipleState> {
+  implements WrapperMutation<any, ReplaceWithMultipleState>
+{
   constructor(
     private readonly thisWrapper: NodePathMutationWrapper<any, any>,
     private readonly valueWrapper: NodePathMutationWrapper<any, t.Node>,
@@ -479,7 +480,8 @@ type ReplaceWithState = {
   value: t.Node;
 };
 abstract class AbstractReplaceWithMutation
-  implements WrapperMutation<any, ReplaceWithState> {
+  implements WrapperMutation<any, ReplaceWithState>
+{
   constructor(private readonly thisWrapper: NodePathMutationWrapper<any, any>) {}
 
   setup(data, rootPath) {
@@ -857,12 +859,10 @@ const createFilePathToCodeMap = async (
   filePaths: string[],
 ): Promise<Map<string, string>> => {
   const entries = await Promise.all(
-    filePaths.map(
-      async (filePath: string): Promise<[string, string]> => {
-        const code = await readFile(filePath, 'utf8');
-        return [filePath, code];
-      },
-    ),
+    filePaths.map(async (filePath: string): Promise<[string, string]> => {
+      const code = await readFile(filePath, 'utf8');
+      return [filePath, code];
+    }),
   );
   entries.sort(([filePath1], [filePath2]) => filePath1.localeCompare(filePath2));
   return new Map(entries);
@@ -1357,7 +1357,6 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
       index: temp.index,
       sequence: accesses,
     };
-
   }
 
   return accesses;
@@ -1404,7 +1403,6 @@ export const getReplacementIdentifierNode = (
   const index = identifierInfo.index;
 
   if (index >= otherSequence.length) {
-
     return null;
   }
   let i = 0;
@@ -1417,11 +1415,9 @@ export const getReplacementIdentifierNode = (
   }
 
   if (i !== index) {
-
     // Perfect match, skip
     return null;
   }
-
 
   let j = i + 1;
   while (
@@ -1433,7 +1429,6 @@ export const getReplacementIdentifierNode = (
   }
 
   if (j < accessSequence.length) {
-
     // This means there's at least 2 mismatches. Skip.
     return null;
   }
@@ -1480,8 +1475,6 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           blocks.push([]);
         }
         if (path.isIdentifier()) {
-
-
           const previousPaths: string[] = [];
 
           if (path.node[IDENTIFIER_INFO] === undefined) {
@@ -1491,7 +1484,6 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           }
 
           if (!(path.parentPath.isVariableDeclarator() && path.key === 'id')) {
-
             const identifierInfo: IdentifierInfo = path.node[IDENTIFIER_INFO];
 
             const parentDeclarator = path.find(
@@ -1553,9 +1545,8 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
               }
             }
           }
-          path.node[REPLACEMENT_IDENTIFIER_PATHS] = filterVariantDuplicates(
-            previousPaths,
-          );
+          path.node[REPLACEMENT_IDENTIFIER_PATHS] =
+            filterVariantDuplicates(previousPaths);
         }
       },
       exit: (path) => {
@@ -1837,7 +1828,6 @@ export const addInstructionsToCoverageMap = (
   coverageObjs: Map<string, Map<string, CoveragePathObj>>,
 ) => {
   for (const instruction of allInstructions) {
-
     for (const [filePath, fileDependencies] of instruction.typedDependencies) {
       const fileObjMap = coverageObjs.get(filePath)!;
       if (fileObjMap === undefined) {
@@ -2561,55 +2551,50 @@ export const mutationEvalatuationMapToFaults = (
         b,
       ),
     )
-    .map(
-      (obj, i): Fault => {
-        return {
-          score: i,
-          sourcePath: obj.originalLocation.filePath,
-          location: {
-            start: obj.originalLocation.start,
-            end: obj.originalLocation.end,
-          },
-          other: {
-            instructions: [...obj.instructions].map((instruction) => {
-              const keys = instruction.typedWriteDependencyKeys;
-              return {
-                type: instruction.type.toString(),
-                initial: instructionEvaluations.get(instruction)!.initial,
-                locations: [...instruction.conflictDependencies.values()][0].writes
-                  .map((path) =>
-                    path.find((parent) => parent.node != null && parent.node.loc != null),
-                  )
-                  .map((path) =>
-                    locationToKeyIncludingEnd(
-                      obj.originalLocation.filePath,
-                      path.node.loc,
-                    ),
-                  ),
-                evaluations: [
-                  ...instructionEvaluations
-                    .get(instruction)!
-                    .mutationEvaluations.sortedIterator(),
-                ]
-                  .reverse()
-                  .map((e) => ({ ...e, instructions: undefined })),
-                nodes: keys
-                  .map((key) =>
-                    [...nodeInfoMap.get(key)!.evaluations.sortedIterator()].map((e) => ({
-                      evaluation: {
-                        ...e.evaluation,
-                        instructions: undefined,
-                      },
-                      nodes: e.nodes,
-                    })),
-                  )
-                  .reverse(),
-              };
-            }),
-          },
-        };
-      },
-    );
+    .map((obj, i): Fault => {
+      return {
+        score: i,
+        sourcePath: obj.originalLocation.filePath,
+        location: {
+          start: obj.originalLocation.start,
+          end: obj.originalLocation.end,
+        },
+        other: {
+          instructions: [...obj.instructions].map((instruction) => {
+            const keys = instruction.typedWriteDependencyKeys;
+            return {
+              type: instruction.type.toString(),
+              initial: instructionEvaluations.get(instruction)!.initial,
+              locations: [...instruction.conflictDependencies.values()][0].writes
+                .map((path) =>
+                  path.find((parent) => parent.node != null && parent.node.loc != null),
+                )
+                .map((path) =>
+                  locationToKeyIncludingEnd(obj.originalLocation.filePath, path.node.loc),
+                ),
+              evaluations: [
+                ...instructionEvaluations
+                  .get(instruction)!
+                  .mutationEvaluations.sortedIterator(),
+              ]
+                .reverse()
+                .map((e) => ({ ...e, instructions: undefined })),
+              nodes: keys
+                .map((key) =>
+                  [...nodeInfoMap.get(key)!.evaluations.sortedIterator()].map((e) => ({
+                    evaluation: {
+                      ...e.evaluation,
+                      instructions: undefined,
+                    },
+                    nodes: e.nodes,
+                  })),
+                )
+                .reverse(),
+            };
+          }),
+        },
+      };
+    });
   return faults;
 };
 
@@ -2668,7 +2653,6 @@ export const shouldFinishMutations = (
       .map((instruction) => instructionEvaluations.get(instruction)!.mutationEvaluations)
       .some(hasPromisingEvaluation)
   ) {
-
     return true;
   }
 
@@ -2683,7 +2667,6 @@ export const shouldFinishMutations = (
   if (
     !allDependencyEvaluations.some((nodeEval) => hasPromisingNodeEvaluation(nodeEval))
   ) {
-
     return true;
   }
 
@@ -2708,12 +2691,10 @@ export const createDefaultIsFinishedFn = ({
     }
 
     if (durationThreshold !== undefined && testerResults.duration >= durationThreshold) {
-
       return true;
     }
 
     if (mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
-
       return true;
     }
 
@@ -3010,7 +2991,6 @@ export const initialiseEvaluationMaps = (
     // Wouldn't exist if there's a indirect dependency in a file that's excluded from babel istanbul coverage
     const fileCoverageMap = coverageInfoMap.get(filePath)!;
     for (const writePath of fileDependencies.writes) {
-
       let coverageInfo: CoveragePathObj | null = null;
       writePath.find((parentPath) => {
         if (parentPath.node.loc == null) {
@@ -3177,7 +3157,6 @@ export const overwriteWithMutatedAst = async (
   filePath: string,
   mutatedAsts: Map<string, t.File>,
 ): Promise<any> => {
-
   const originalCodeText = await readFile(filePath, 'utf8');
   const ast = mutatedAsts.get(filePath)!;
   const { code } = generate(
@@ -3527,10 +3506,9 @@ export const createPlugin = ({
 
   let mutationCount = 0;
 
-  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob)
-    ? ignoreGlob
-    : [ignoreGlob]
-  ).map((glob) => resolve('.', glob).replace(/\\+/g, '/'));
+  const resolvedIgnoreGlob = (Array.isArray(ignoreGlob) ? ignoreGlob : [ignoreGlob]).map(
+    (glob) => resolve('.', glob).replace(/\\+/g, '/'),
+  );
 
   const originalPathToCopyPath: Map<string, string> = new Map();
   let copyFileId = 0;
@@ -3566,7 +3544,6 @@ export const createPlugin = ({
     mutationEvaluation: MutationEvaluation,
   ) => {
     if (previousInstructions !== null) {
-
       if (previousInstructions.length >= 2) {
         if (evaluationChangedOrImprovedErrorOrCrashed(mutationEvaluation)) {
           addSplittedInstructionBlock(instructionQueue, previousInstructions);
@@ -3618,7 +3595,6 @@ export const createPlugin = ({
   };
 
   const runInstruction = async (tester: TesterResults) => {
-
     const count = instructionBlocksToMaxInstructionsLeft(instructionQueue);
     let instructionCount = 0;
     let nonFinishingInstructionCount = 0;
@@ -3637,8 +3613,6 @@ export const createPlugin = ({
     const instructions = instructionQueue.pop()!;
     previousInstructions = instructions;
 
-
-
     const newAstMap = codeMapToAstMap(codeMap, babelOptions);
     executeInstructions(newAstMap, instructions);
 
@@ -3652,7 +3626,6 @@ export const createPlugin = ({
         solutionCounter,
       )
     ) {
-
       // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
       finished = true;
       return false;
@@ -3706,7 +3679,6 @@ export const createPlugin = ({
           const locations: Location[] = [];
           const failingLocations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -3825,7 +3797,6 @@ export const createPlugin = ({
               organizedInstructions,
             ),
           );
-
         } else {
           const differenceBetweenResults = differenceInTesterResults(
             firstTesterResults,
@@ -3907,8 +3878,6 @@ export const createPlugin = ({
         return { rerun, allow: true };
       },
       complete: async (tester: FinalTesterResults) => {
-
-
         await writeFile(
           resolve(faultFileDir, 'mutations-attempted.txt'),
           mutationsAttempted.toString(),

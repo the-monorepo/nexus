@@ -15,21 +15,17 @@ const HEADING_SYMBOLS = [
   Symbol('h6'),
 ];
 
-export const [
-  HEADING_1,
-  HEADING_2,
-  HEADING_3,
-  HEADING_4,
-  HEADING_5,
-  HEADING_6,
-] = HEADING_SYMBOLS;
+export const [HEADING_1, HEADING_2, HEADING_3, HEADING_4, HEADING_5, HEADING_6] =
+  HEADING_SYMBOLS;
 export type MatcherInfoFactory = (
   className: string,
 ) => (...children: MatcherInfo[]) => MatcherInfo;
 
-const simpleMatcherInfoFactory = (type: symbol): MatcherInfoFactory => (className) => (
-  ...children
-) => new MatcherInfo(type, className, children);
+const simpleMatcherInfoFactory =
+  (type: symbol): MatcherInfoFactory =>
+  (className) =>
+  (...children) =>
+    new MatcherInfo(type, className, children);
 
 export const section: MatcherInfoFactory = simpleMatcherInfoFactory(SECTION);
 export const header: MatcherInfoFactory = simpleMatcherInfoFactory(HEADER);

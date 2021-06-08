@@ -1,14 +1,14 @@
 import { valueOf } from 'resultful';
-import { parseFormatObject } from './parseFormatObject.ts'
+import { parseFormatObject } from './parseFormatObject.ts';
 
 export async function* parseFormatObjects(reader: AsyncIterableIterator<string>) {
   let current = await reader.next();
-  while(!current.done) {
-    while(!current.done && current.value !== '>') {
+  while (!current.done) {
+    while (!current.done && current.value !== '>') {
       current = await reader.next();
     }
 
-    console.log('here')
+    console.log('here');
 
     const result = await parseFormatObject(reader);
     const value = valueOf(result);
@@ -20,4 +20,4 @@ export async function* parseFormatObjects(reader: AsyncIterableIterator<string>)
     current = value.currentReaderResult;
     yield result;
   }
-};
+}

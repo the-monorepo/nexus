@@ -105,7 +105,6 @@ export const createPlugin = (contextOptions?) => {
       chalk.whiteBright.bold('Time:   ') +
         chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`),
     );
-
   };
 
   const plugins: PartialTestHookOptions = {

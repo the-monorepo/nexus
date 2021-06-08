@@ -1,2 +1,2 @@
-export { parseFormatObject } from './parseFormatObject.ts'
-export { parseFormatObjects } from './parseFormatObjects.ts'
+export { parseFormatObject } from './parseFormatObject.ts';
+export { parseFormatObjects } from './parseFormatObjects.ts';
