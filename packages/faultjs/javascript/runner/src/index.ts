@@ -490,7 +490,7 @@ export type RunOptions = {
   addons?: PartialTestHookOptions[];
   reporters?: PartialTestHookOptions[];
   workers?: number;
-  processOptions: ForkOptions;
+  processOptions?: ForkOptions;
   testerOptions?: any;
   fileBufferCount?: number | null;
   timeout?: number;

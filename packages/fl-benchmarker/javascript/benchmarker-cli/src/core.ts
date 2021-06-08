@@ -7,11 +7,7 @@ import chalk from 'chalk';
 import * as micromatch from 'micromatch';
 
 import { createPlugin } from '@fault/addon-sbfl';
-import {
-  readCoverageFile,
-  getTotalExecutedStatements,
-  ExpressionLocation,
-} from '@fault/istanbul-util';
+import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
 import { convertFileFaultDataToFaults, ScorelessFault } from '@fault/record-faults';
 import * as flRunner from '@fault/runner';
 import { barinel } from '@fault/sbfl-barinel';
@@ -43,17 +39,6 @@ export const normalizeKeyPath = (projectDir: string, sourcePath: string) => {
   return normalize(resolve(projectDir, sourcePath)).replace(/\\+/g, '\\');
 };
 
-export const mostSpecificFaultKey = (
-  projectDir: string,
-  fault: ScorelessFault,
-): string => {
-  let lastKey: string = undefined as any;
-  for (const key of faultKeys(projectDir, fault)) {
-    lastKey = key;
-  }
-  return lastKey;
-};
-
 export function* faultKeys(
   projectDir: string,
   fault: ScorelessFault,
@@ -69,6 +54,17 @@ export function* faultKeys(
     }
   }
 }
+
+export const mostSpecificFaultKey = (
+  projectDir: string,
+  fault: ScorelessFault,
+): string => {
+  let lastKey: string = undefined as any;
+  for (const key of faultKeys(projectDir, fault)) {
+    lastKey = key;
+  }
+  return lastKey;
+};
 
 export const isWithinLocation = (
   projectDir: string,
@@ -229,11 +225,12 @@ export const run = async () => {
       testOptions === undefined ? {} : testOptions;
     const optionsEnv = projectConfig.env ? projectConfig.env : {};
 
-    const testMatch = (projectConfig.testMatch
-      ? Array.isArray(projectConfig.testMatch)
-        ? projectConfig.testMatch
-        : [projectConfig.testMatch]
-      : ['**/*.test.{js,jsx,ts,tsx}']
+    const testMatch = (
+      projectConfig.testMatch
+        ? Array.isArray(projectConfig.testMatch)
+          ? projectConfig.testMatch
+          : [projectConfig.testMatch]
+        : ['**/*.test.{js,jsx,ts,tsx}']
     ).map((filePath) => resolve(projectDir, filePath).replace(/\\+/g, '/'));
 
     const projectOutput = {};
@@ -309,6 +306,7 @@ export const run = async () => {
             mapToIstanbul: true,
             console: true,
             babelOptions,
+            processOptions: {},
             // allowPartialTestRuns: sandbox,
           }),
         ],
