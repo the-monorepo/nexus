@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 const { readFile } = require('fs/promises');
 const { join } = require('path');
 

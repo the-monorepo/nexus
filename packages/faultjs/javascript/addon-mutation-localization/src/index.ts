@@ -942,22 +942,6 @@ export const executeInstructions = (
   asts: Map<string, t.File>,
   instructions: Iterable<Instruction<any>>,
 ): void => {
-  console.log(
-    [...instructions].map((instruction) => {
-      const type = instruction.type;
-      const [filePath, dependencies] = [...instruction.conflictDependencies][0];
-      return [
-        type,
-        ...dependencies.writes
-          .map((path) =>
-            path.find(
-              (parentPath) => parentPath.node !== null && parentPath.node.loc != null,
-            ),
-          )
-          .map((path) => locationToKeyIncludingEnd(filePath, path.node.loc)),
-      ];
-    }),
-  );
   [...instructions]
     .map((instruction) =>
       instruction.mutations.map((mutation) => ({
@@ -1323,7 +1307,6 @@ export const pathsToAccessInfo = (
 };
 export const collectParentIdentifierInfo = (path: NodePath) => {
   path = innerMostMemberExpression(path);
-  //console.log('collect');
   const accesses: AccessInfo[] = [];
 
   let current = path;
@@ -1361,8 +1344,6 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
       }
     }
     current = current.parentPath;
-    //console.log(current.type, current.node.name)
-    //console.log(accesses.map(access => access.name));
   } while (
     current != null &&
     (current.isIdentifier() ||
@@ -1376,9 +1357,9 @@ export const collectParentIdentifierInfo = (path: NodePath) => {
       index: temp.index,
       sequence: accesses,
     };
-    //console.log(temp.identifier.type, temp.index);
+
   }
-  //console.log(accesses);
+
   return accesses;
 };
 
@@ -1421,9 +1402,9 @@ export const getReplacementIdentifierNode = (
 ): AccessInfo | null => {
   const accessSequence = identifierInfo.sequence;
   const index = identifierInfo.index;
-  //console.log('comparing', accessSequence.map(a => [a.type, a.name]), otherSequence.map(a => [a.type, a.name]));
+
   if (index >= otherSequence.length) {
-    //console.log('sequence too short', index, otherSequence.length);
+
     return null;
   }
   let i = 0;
@@ -1436,11 +1417,11 @@ export const getReplacementIdentifierNode = (
   }
 
   if (i !== index) {
-    //console.log(`i stopped at ${i} - Needed ${index}, skipping`)
+
     // Perfect match, skip
     return null;
   }
-  //console.log(`Mismatch at ${i}, continuing`)
+
 
   let j = i + 1;
   while (
@@ -1452,7 +1433,7 @@ export const getReplacementIdentifierNode = (
   }
 
   if (j < accessSequence.length) {
-    //console.log(`Double mismatch at ${j}, stopping`)
+
     // This means there's at least 2 mismatches. Skip.
     return null;
   }
@@ -1499,8 +1480,8 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           blocks.push([]);
         }
         if (path.isIdentifier()) {
-          //console.log();
-          //console.log('traverse', path.node.name, path.key);
+
+
           const previousPaths: string[] = [];
 
           if (path.node[IDENTIFIER_INFO] === undefined) {
@@ -1510,7 +1491,7 @@ export const replaceIdentifierFactory = new SimpleInstructionFactory(
           }
 
           if (!(path.parentPath.isVariableDeclarator() && path.key === 'id')) {
-            //console.log(path.node.name, path.node.loc)
+
             const identifierInfo: IdentifierInfo = path.node[IDENTIFIER_INFO];
 
             const parentDeclarator = path.find(
@@ -1856,7 +1837,7 @@ export const addInstructionsToCoverageMap = (
   coverageObjs: Map<string, Map<string, CoveragePathObj>>,
 ) => {
   for (const instruction of allInstructions) {
-    console.log(instruction.type);
+
     for (const [filePath, fileDependencies] of instruction.typedDependencies) {
       const fileObjMap = coverageObjs.get(filePath)!;
       if (fileObjMap === undefined) {
@@ -2687,7 +2668,7 @@ export const shouldFinishMutations = (
       .map((instruction) => instructionEvaluations.get(instruction)!.mutationEvaluations)
       .some(hasPromisingEvaluation)
   ) {
-    //console.log('No promising instruction evaluations')
+
     return true;
   }
 
@@ -2702,7 +2683,7 @@ export const shouldFinishMutations = (
   if (
     !allDependencyEvaluations.some((nodeEval) => hasPromisingNodeEvaluation(nodeEval))
   ) {
-    //console.log('No promsiing node evalations')
+
     return true;
   }
 
@@ -2727,12 +2708,12 @@ export const createDefaultIsFinishedFn = ({
     }
 
     if (durationThreshold !== undefined && testerResults.duration >= durationThreshold) {
-      console.log('a');
+
       return true;
     }
 
     if (mutationThreshold !== undefined && mutationCount >= mutationThreshold) {
-      console.log('b');
+
       return true;
     }
 
@@ -3029,7 +3010,7 @@ export const initialiseEvaluationMaps = (
     // Wouldn't exist if there's a indirect dependency in a file that's excluded from babel istanbul coverage
     const fileCoverageMap = coverageInfoMap.get(filePath)!;
     for (const writePath of fileDependencies.writes) {
-      //console.log(pathToKey(writePath));
+
       let coverageInfo: CoveragePathObj | null = null;
       writePath.find((parentPath) => {
         if (parentPath.node.loc == null) {
@@ -3037,7 +3018,7 @@ export const initialiseEvaluationMaps = (
         }
 
         const key = coverageKey(parentPath.node.loc);
-        //console.log(key);
+
         const candidateInfo = fileCoverageMap.get(key);
         if (candidateInfo === undefined) {
           return false;
@@ -3128,7 +3109,7 @@ export const getDependencyPaths = (paths: Iterable<NodePath>): NodePath[] => {
 
     /* TODO: This is pretty confusing but the reason this check exists is because in places like:
       const a = 0, b = 0, c = 0;
-      There's 3 coverage 'statements' in istanbul but it doesn't count the 'const' keyword. Thus, we just skip adding 
+      There's 3 coverage 'statements' in istanbul but it doesn't count the 'const' keyword. Thus, we just skip adding
       evaluations to the 'const' node since it isn't associated with any of the 3 statements (thus it would end up associating with the parent statement).
       A better alternative would be to ensure that FaultJS knows to associate the 'const' keyword/variable declaration keyword with the declarator nodes/paths
     */
@@ -3196,7 +3177,7 @@ export const overwriteWithMutatedAst = async (
   filePath: string,
   mutatedAsts: Map<string, t.File>,
 ): Promise<any> => {
-  console.log('reading', filePath);
+
   const originalCodeText = await readFile(filePath, 'utf8');
   const ast = mutatedAsts.get(filePath)!;
   const { code } = generate(
@@ -3209,7 +3190,7 @@ export const overwriteWithMutatedAst = async (
     },
     originalCodeText,
   );
-  console.log('overwriting', filePath);
+
   await writeFile(filePath, code, { encoding: 'utf8' });
 };
 
@@ -3560,7 +3541,7 @@ export const createPlugin = ({
       console.error(originalPathToCopyPath);
       throw new Error(`Copied/cached path for ${filePath} was ${copyPath}`);
     }
-    console.log('copying', copyPath, filePath);
+
     await copyFile(copyPath, filePath);
   };
 
@@ -3574,7 +3555,7 @@ export const createPlugin = ({
       const fileId = copyFileId++;
       const copyPath = resolve(copyTempDir, fileId.toString());
       originalPathToCopyPath.set(filePath, copyPath);
-      console.log('writing', filePath, copyPath);
+
       return copyFile(filePath, copyPath);
     }
     return Promise.resolve();
@@ -3585,7 +3566,7 @@ export const createPlugin = ({
     mutationEvaluation: MutationEvaluation,
   ) => {
     if (previousInstructions !== null) {
-      console.log({ ...mutationEvaluation, instructions: undefined });
+
       if (previousInstructions.length >= 2) {
         if (evaluationChangedOrImprovedErrorOrCrashed(mutationEvaluation)) {
           addSplittedInstructionBlock(instructionQueue, previousInstructions);
@@ -3637,7 +3618,7 @@ export const createPlugin = ({
   };
 
   const runInstruction = async (tester: TesterResults) => {
-    console.log('Processing instruction');
+
     const count = instructionBlocksToMaxInstructionsLeft(instructionQueue);
     let instructionCount = 0;
     let nonFinishingInstructionCount = 0;
@@ -3648,10 +3629,6 @@ export const createPlugin = ({
       }
     }
 
-    console.log(
-      `Left: ${count} mutations, ${instructionCount} instructions, ${instructionQueue.length} blocks, ${nonFinishingInstructionCount} non-finising instructions`,
-    );
-
     if (instructionQueue.length <= 0) {
       finished = true;
       return false;
@@ -3660,7 +3637,7 @@ export const createPlugin = ({
     const instructions = instructionQueue.pop()!;
     previousInstructions = instructions;
 
-    //console.log('processing')
+
 
     const newAstMap = codeMapToAstMap(codeMap, babelOptions);
     executeInstructions(newAstMap, instructions);
@@ -3675,7 +3652,7 @@ export const createPlugin = ({
         solutionCounter,
       )
     ) {
-      console.log('finished');
+
       // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
       finished = true;
       return false;
@@ -3684,7 +3661,7 @@ export const createPlugin = ({
     mutationCount++;
 
     const mutatedFilePaths = getAffectedFilePaths(instructions);
-    console.log(mutatedFilePaths);
+
     await Promise.all(
       mutatedFilePaths.map((filePath) =>
         createTempCopyOfFileIfItDoesntExist(filePath).then(() =>
@@ -3713,7 +3690,7 @@ export const createPlugin = ({
         if (finished) {
           return null;
         }
-        //console.log('finished all files')
+
         if (firstRun) {
           firstTesterResults = tester;
           firstRun = false;
@@ -3729,7 +3706,7 @@ export const createPlugin = ({
           const locations: Location[] = [];
           const failingLocations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-            //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
+
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -3762,14 +3739,10 @@ export const createPlugin = ({
             ),
           ]);
           testAstMap = codeMapToAstMap(testCodeMap, babelOptions);
-          console.log('gathering instructions');
+
           const allInstructions = [
             ...gatherInstructions(instructionFactories, originalAstMap),
           ];
-          console.log(
-            'instructions',
-            allInstructions.map((a) => a.type),
-          );
 
           const fullCoverageObjs = findWidenedCoveragePaths(
             originalAstMap,
@@ -3777,9 +3750,7 @@ export const createPlugin = ({
             testInfoMap,
           );
           addInstructionsToCoverageMap(allInstructions, fullCoverageObjs);
-          console.log();
-          console.log();
-          console.log();
+
           coverageObjs = new Map(
             [...fullCoverageObjs]
               .map(([filePath, objs]): [string, Map<string, CoveragePathObj>] => [
@@ -3840,11 +3811,6 @@ export const createPlugin = ({
             ),
           );
 
-          console.log(
-            'sorted instructions',
-            sortedInstructions.map((a) => a.type),
-          );
-
           const organizedInstructions = organizeInstructions(sortedInstructions);
           instructionQueue = createInstructionQueue(
             nodeInfoMap,
@@ -3860,11 +3826,6 @@ export const createPlugin = ({
             ),
           );
 
-          if (instructionQueue.length > 0) {
-            console.log('Pushing instruction');
-          } else {
-            console.log('Skipping instruction');
-          }
         } else {
           const differenceBetweenResults = differenceInTesterResults(
             firstTesterResults,
@@ -3946,8 +3907,8 @@ export const createPlugin = ({
         return { rerun, allow: true };
       },
       complete: async (tester: FinalTesterResults) => {
-        console.log('complete');
-        console.log(`Mutations attempted: ${mutationsAttempted}`);
+
+
         await writeFile(
           resolve(faultFileDir, 'mutations-attempted.txt'),
           mutationsAttempted.toString(),
@@ -3956,7 +3917,6 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map((copyPath) => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
 
-        // console.log(failingLocationKeys);
         const faults = mutationEvalatuationMapToFaults(
           nodeInfoMap,
           instructionEvaluations,

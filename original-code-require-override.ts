@@ -22,7 +22,7 @@ for (const dir of packageDirs) {
     accessSync(jsonFilePath, constants.R_OK);
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log(err);
+    console.error(err);
     continue;
   }
 

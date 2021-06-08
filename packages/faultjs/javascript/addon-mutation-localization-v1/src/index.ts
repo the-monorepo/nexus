@@ -645,11 +645,7 @@ class DeleteStatementInstruction implements Instruction {
     const statements = this.statementBlocks.pop()!;
     this.lastProcessedStatementBlock = statements;
     this.recalculateMutationResults();
-    console.log(
-      `${statements.statements.length} left in statement & ${
-        this.statementBlocks.length + 1
-      } blocks left`,
-    );
+
     const sortedStatements = [...statements.statements].sort((a, b) => {
       const comparison = a.filePath.localeCompare(b.filePath);
       if (comparison !== 0) {
@@ -697,12 +693,7 @@ class DeleteStatementInstruction implements Instruction {
       const node = path.node;
       const parentPath = path.parentPath;
       const parentNode = parentPath!.node;
-      console.log(
-        `${locationToKeyIncludingEnd(statement.filePath, statement.location)}`,
-        statement.index,
-        parentNode.type,
-        node.type,
-      );
+
       if (statement.type !== STATEMENT) {
         if (!path.isIfStatement()) {
           throw new Error(
@@ -1652,7 +1643,7 @@ async function identifyUnknownInstruction(
       exit,
     });
   }
-  //console.log(nodePaths);
+
   const statements: StatementInformation[] = [];
   for (const filePath of filePaths) {
     const expressionKeys: Set<string> = new Set(
@@ -1667,7 +1658,7 @@ async function identifyUnknownInstruction(
           }
         }),
     );
-    //console.log(expressionKeys);
+
     let insideImportantStatementCount = 0;
     const currentStatementStack: StatementInformation[][] = [[]];
     const enter = (path: NodePath) => {
@@ -1693,7 +1684,7 @@ async function identifyUnknownInstruction(
             ['consequent', 'alternate'].includes(path.key))) &&
         node.loc
       ) {
-        //console.log('statement', expressionKey(filePath, node), currentStatementStack.length, node[TOTAL_NODES])
+
         currentStatementStack[currentStatementStack.length - 1].push({
           index: path.key,
           type: path.isIfStatement() ? IF_TRUE : STATEMENT,
@@ -1718,7 +1709,7 @@ async function identifyUnknownInstruction(
       }
 
       if (isStatementContainer(path)) {
-        //console.log('block', node.type, currentStatementStack.length);
+
         currentStatementStack.push([]);
       }
 
@@ -1804,10 +1795,7 @@ async function identifyUnknownInstruction(
       statementBlocks.push(statementBlock.splice(mid));
     }
   }
-  console.log(
-    'statement blocks',
-    statementBlocks.map((statementBlock) => statementBlock.length),
-  );
+
   return statementBlocks;
 }
 
@@ -2364,7 +2352,6 @@ export const createDefaultIsFinishedFn = ({
       durationThreshold !== undefined &&
       finishData.testerResults.duration >= durationThreshold
     ) {
-      console.log('a');
       return true;
     }
 
@@ -2372,13 +2359,11 @@ export const createDefaultIsFinishedFn = ({
       mutationThreshold !== undefined &&
       finishData.mutationCount >= mutationThreshold
     ) {
-      console.log('b');
       return true;
     }
 
     // TODO: Should just never add them to the queue in the first place
     if (finishOnPassDerviedNonFunctionInstructions && data.derivedFromPassingTest) {
-      console.log('c');
       return true;
     }
 
@@ -2409,7 +2394,6 @@ export const createDefaultIsFinishedFn = ({
           return improved || nothingChangedInNonDeleteStatement;
         });
         if (!containsUsefulMutations) {
-          console.log('d');
           return true;
         }
       }
@@ -2580,13 +2564,12 @@ export const createPlugin = ({
     cache: AstCache,
   ) => {
     if (previousInstruction !== null) {
-      console.log(mutationEvaluation);
       const previousMutationResults = previousInstruction.instruction.mutationResults;
 
       // Revert all mutated files
       await Promise.all(Object.keys(previousMutationResults.locations).map(resetFile));
 
-      //console.log(locationToKey(previousInstruction.data.location.filePath, previousInstruction.data.location), { ...mutationEvaluation, mutations: undefined });
+
 
       if (!(previousInstruction.instruction instanceof DeleteStatementInstruction)) {
         previousInstruction.data.mutationEvaluations.push(mutationEvaluation);
@@ -2634,29 +2617,25 @@ export const createPlugin = ({
   };
 
   const runInstruction = async (tester: TesterResults, cache: AstCache) => {
-    console.log('Processing instruction');
     let count = 0;
     for (const instruction of instructionQueue.unsortedIterator()) {
       count += instruction.instruction.mutationsLeft;
     }
-    console.log(`${count} instructions`);
 
     if (instructionQueue.length <= 0) {
       finished = true;
       return false;
     }
 
-    console.log('set peaking');
     const instruction = instructionQueue.peek()!;
-    console.log(instruction.instruction.type);
+
     previousInstruction = instruction;
 
-    //console.log('processing')
+
 
     await instruction.instruction.process(instruction.data, cache);
 
     if (isFinishedFn(instruction, { mutationCount, testerResults: tester })) {
-      console.log('finished');
       // Avoids evaluation the same instruction twice if another addon requires a rerun of tests
       finished = true;
       return false;
@@ -2667,7 +2646,7 @@ export const createPlugin = ({
     mutationCount++;
 
     const mutatedFilePaths = Object.keys(mutationResults.locations);
-    console.log(mutatedFilePaths);
+
     await Promise.all(
       mutatedFilePaths.map((filePath) => createTempCopyOfFileIfItDoesntExist(filePath)),
     );
@@ -2710,7 +2689,7 @@ export const createPlugin = ({
         if (finished) {
           return null;
         }
-        //console.log('finished all files')
+
         const cache = createAstCache(babelOptions);
         if (firstRun) {
           firstTesterResults = tester;
@@ -2725,10 +2704,9 @@ export const createPlugin = ({
           }
           const failedCoverage = failedCoverageMap.data;
           const statements: StatementBlock[] = [];
-          console.log('failing coverage');
           const locations: Location[] = [];
           for (const [coveragePath, fileCoverage] of Object.entries(failedCoverage)) {
-            //console.log('failing', coveragePath, micromatch.isMatch(coveragePath, resolvedIgnoreGlob));
+
             if (micromatch.isMatch(coveragePath, resolvedIgnoreGlob)) {
               continue;
             }
@@ -2814,15 +2792,12 @@ export const createPlugin = ({
           }
 
           if (statements.length > 0) {
-            console.log('Pushing instruction');
             instructionQueue.push(
               createInstructionHolder(
                 new DeleteStatementInstruction(statements, RETRIES),
                 false,
               ),
             );
-          } else {
-            console.log('Skipping instruction');
           }
         } else {
           const mutationEvaluation = evaluateNewMutation(
@@ -2837,7 +2812,6 @@ export const createPlugin = ({
               (result) => result.data.file,
             );
             previousRunWasPartial = false;
-            console.log('proceeding with full test run');
             return testsToBeRerun;
           }
 
@@ -2871,7 +2845,6 @@ export const createPlugin = ({
           return;
         }
         if (allowPartialTestRuns) {
-          console.log('Running partial test run');
           previousRunWasPartial = true;
           return [...failingTestFiles];
         } else {
@@ -2920,8 +2893,6 @@ export const createPlugin = ({
         return { rerun, allow: true };
       },
       complete: async (tester: FinalTesterResults) => {
-        console.log('complete');
-        console.log(`Mutations attempted: ${mutationsAttempted}`);
         await writeFile(
           resolve(faultFileDir, 'mutations-attempted.txt'),
           mutationsAttempted.toString(),
@@ -2930,7 +2901,6 @@ export const createPlugin = ({
           [...originalPathToCopyPath.values()].map((copyPath) => unlink(copyPath)),
         ).then(() => rmdir(copyTempDir));
 
-        console.log(failingLocationKeys);
         const locationEvaluationsThatArentEmpty: Map<
           string,
           LocationEvaluation

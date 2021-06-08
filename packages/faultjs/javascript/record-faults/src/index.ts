@@ -1,3 +1,6 @@
+// TODO: Maybe disable this rule for this package
+/* eslint-disable no-console */
+
 import { mkdirSync } from 'fs';
 import { readFile } from 'fs/promises';
 import { dirname, relative } from 'path';
@@ -60,7 +63,7 @@ export const sortBySuspciousness = (faults: Fault[]) => {
     if (a.score > b.score) {
       return -1;
     }
-    console.log(a, b);
+
     throw createComparisonError(a, b);
   });
 };

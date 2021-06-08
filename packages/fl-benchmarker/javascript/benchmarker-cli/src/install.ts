@@ -1,3 +1,5 @@
+// TODO: Maybe disable this rule for this package
+/* eslint-disable no-console */
 import { spawn } from 'child_process';
 
 import { resolve } from 'path';
