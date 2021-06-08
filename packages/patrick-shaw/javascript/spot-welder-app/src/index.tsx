@@ -8,7 +8,7 @@ import {
   callbackConverter,
   latestValueStore,
   map,
-  forEach
+  forEach,
 } from '@pipelines/core-2';
 
 import styles from './index.scss';
@@ -51,7 +51,11 @@ const createUSBConnectButton = ({ onDevice }) => {
     onDevice(device);
   };
 
-  const USBConnectButton = () => <button $$click={onSelectUSBClick} type="submit">Select USB</button>;
+  const USBConnectButton = () => (
+    <button $$click={onSelectUSBClick} type="submit">
+      Select USB
+    </button>
+  );
 
   return USBConnectButton;
 };
@@ -61,7 +65,7 @@ const rawDevices = callbackBroadcasterConverter<[any]>();
 const devicesWithInitial = (async function* deviceGenerator() {
   try {
     const initialDevices = await navigator.usb.getDevices();
-    for(const device of initialDevices) {
+    for (const device of initialDevices) {
       if (device.productId === 29987) {
         yield device;
       } else {
@@ -86,7 +90,7 @@ let selectedDevice = null;
       try {
         await selectedDevice.reset();
         await selectedDevice.close();
-      } catch(err){
+      } catch (err) {
         console.error(err);
       }
     }
@@ -136,21 +140,21 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
         return Number.parseInt(e.target.value);
       }),
       defaultValue,
-    )
+    ),
   );
 
   const RangeSlider = ({ children, ...other }: RangeSliderProps) => (
-    <label class={styles.locals.rangeLabel}>
+    <label className={styles.locals.rangeLabel}>
       {children}
-      <div class={styles.locals.inputContainer}>
+      <div className={styles.locals.inputContainer}>
         <input
           {...other}
           type="range"
-          class={styles.locals.rangeInput}
+          className={styles.locals.rangeInput}
           $$input={durationState.callback}
           value={defaultValue}
         />
-        <span class={styles.locals.inputValue} watch_$textContent={durations} />
+        <span className={styles.locals.inputValue} watch_$textContent={durations} />
       </div>
     </label>
   );
@@ -187,15 +191,13 @@ const createSpotWelderForm = () => {
   const spotWelderTriggers = map(submissions, async ([e]) => {
     e.preventDefault();
 
-    const [
-      firstPulseDuration,
-      pulseGapDuration,
-      secondPulseDuration,
-    ] = await Promise.all([
-      mostRecentFirstPulseDuration(),
-      mostRecentPulseGapDuration(),
-      mostRecentSecondPulseDuration(),
-    ]);
+    const [firstPulseDuration, pulseGapDuration, secondPulseDuration] = await Promise.all(
+      [
+        mostRecentFirstPulseDuration(),
+        mostRecentPulseGapDuration(),
+        mostRecentSecondPulseDuration(),
+      ],
+    );
 
     return {
       firstPulseDuration,
@@ -213,47 +215,46 @@ const createSpotWelderForm = () => {
   (async () => {
     for await (const [e] of demos) {
       e.preventDefault();
-      const [
-        firstPulseDuration,
-        pulseGapDuration,
-        secondPulseDuration,
-      ] = await Promise.all([
-        mostRecentFirstPulseDuration(),
-        mostRecentPulseGapDuration(),
-        mostRecentSecondPulseDuration(),
-      ]);
+      const [firstPulseDuration, pulseGapDuration, secondPulseDuration] =
+        await Promise.all([
+          mostRecentFirstPulseDuration(),
+          mostRecentPulseGapDuration(),
+          mostRecentSecondPulseDuration(),
+        ]);
 
       const lowSound = audioCtx.createOscillator();
       lowSound.frequency.setValueAtTime(220, 0);
       lowSound.connect(volume);
       lowSound.start();
-      await new Promise(resolve => setTimeout(resolve, firstPulseDuration));
+      await new Promise((resolve) => setTimeout(resolve, firstPulseDuration));
       lowSound.disconnect();
 
-      await new Promise(resolve => setTimeout(resolve, pulseGapDuration));
+      await new Promise((resolve) => setTimeout(resolve, pulseGapDuration));
 
       const highSound = audioCtx.createOscillator();
       highSound.frequency.setValueAtTime(440, 0);
       highSound.connect(volume);
       highSound.start();
-      await new Promise(resolve => setTimeout(resolve, secondPulseDuration));
+      await new Promise((resolve) => setTimeout(resolve, secondPulseDuration));
       highSound.disconnect();
     }
   })();
 
-  const recognition = new (globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition)();
+  const recognition = new (globalThis.SpeechRecognition ||
+    globalThis.webkitSpeechRecognition)();
   recognition.continuous = true;
   recognition.lang = navigator.languages[0];
   recognition.interimResults = false;
 
-  const speechRecognitionList = new (globalThis.SpeechGrammarList || globalThis.webkitSpeechGrammarList)();
+  const speechRecognitionList = new (globalThis.SpeechGrammarList ||
+    globalThis.webkitSpeechGrammarList)();
   speechRecognitionList.addFromString('start', 1);
   recognition.grammars = speechRecognitionList;
 
   recognition.maxAlternatives = 1;
 
   recognition.start();
-  recognition.onresult = function(event) {
+  recognition.onresult = function (event) {
     // TODO: Totally hacky - Doesn't account for multiple words
     const speechResult = event.results[event.resultIndex];
     if (speechResult.length > 1 && speechResult.isFinal) {
@@ -267,17 +268,17 @@ const createSpotWelderForm = () => {
   };
   recognition.onend = () => {
     recognition.start();
-  }
+  };
   recognition.onspeechend = () => {
     console.log('ended');
   };
-  recognition.onnomatch = function(event) {
+  recognition.onnomatch = function (event) {
     console.log('No speech result');
-  }
+  };
 
   const Form = ({ disabled }) => (
     <>
-      <form $$submit={submissions.callback} class={styles.locals.form}>
+      <form $$submit={submissions.callback} className={styles.locals.form}>
         <FirstPulseSlider min={1} max={300}>
           First pulse duration
         </FirstPulseSlider>
@@ -290,9 +291,7 @@ const createSpotWelderForm = () => {
         <button type="submit" $disabled={disabled}>
           Fire
         </button>
-        <button $$click={demos.callback}>
-          Demo
-        </button>
+        <button $$click={demos.callback}>Demo</button>
       </form>
     </>
   );
@@ -339,7 +338,9 @@ let transferring = false;
       rerender();
     }
   }
-})();{}
+})();
+{
+}
 
 const USBInfo = () => (
   <section>
@@ -347,7 +348,7 @@ const USBInfo = () => (
     <ConnectButton />
     {selectedDevice !== null ? <DisconnectButton /> : null}
   </section>
-)
+);
 
 const App = () => (
   <>

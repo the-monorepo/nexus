@@ -93,7 +93,7 @@ export function mergeHooks<H extends HookSchema>(
     | HookCallback
   )[];
   if (Array.isArray(value)) {
-    const arr = (value as any) as [H | null | HookCallbackFactory, MergeOptions];
+    const arr = value as any as [H | null | HookCallbackFactory, MergeOptions];
     const options: MergeOptions = arr[1];
     const callHooks = options.yield
       ? function* callHooks(...params) {

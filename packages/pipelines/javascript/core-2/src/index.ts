@@ -1,13 +1,14 @@
 import { createPayload, createFailure, hasFailure, Result } from '@resultful/result';
 
 class Mapper<I, O> implements AsyncIterable<O>, AsyncIterator<O> {
-  constructor(private readonly iterator: AsyncIterator<I>, private readonly mapFn: (i: I) => O) {
-
-  }
+  constructor(
+    private readonly iterator: AsyncIterator<I>,
+    private readonly mapFn: (i: I) => O,
+  ) {}
 
   async next(v) {
     const i = await this.iterator.next(v);
-    if(i.done) {
+    if (i.done) {
       return i;
     }
 
@@ -51,7 +52,9 @@ class IteratorResultEmitter<T> implements AsyncIterableIterator<T> {
     if (this.buffer.length >= 1) {
       return this.buffer.shift()!;
     } else {
-      return await new Promise<IteratorResult<T>>((resolve) => this.waitingQueue.push(resolve));
+      return await new Promise<IteratorResult<T>>((resolve) =>
+        this.waitingQueue.push(resolve),
+      );
     }
   }
 
@@ -86,7 +89,7 @@ class Emitter<T> implements AsyncIterableIterator<T> {
   }
 
   get queueLength() {
-    return this.internalEmitter.queueLength
+    return this.internalEmitter.queueLength;
   }
 
   get bufferLength() {
@@ -118,7 +121,7 @@ class Broadcaster<T> implements AsyncIterableIterator<T> {
   private constructor(
     private readonly iterator: AsyncIterator<T>,
     private readonly broadcasters: Broadcaster<T>[],
-    protected readonly buffer: Promise<IteratorResult<T>>[]
+    protected readonly buffer: Promise<IteratorResult<T>>[],
   ) {
     broadcasters.push(this);
   }
@@ -177,7 +180,7 @@ export type RecursiveAsyncIterable<T> = AsyncIterable<RecursiveAsyncIterable<T>>
 
 export async function* flat<A>(
   iterable: AsyncIterable<RecursiveAsyncIterable<A>>,
-  depth: number = 1,
+  depth = 1,
   // TODO: Need better types
 ): AsyncIterable<RecursiveAsyncIterable<A>> {
   if (depth <= 0) {
@@ -195,11 +198,7 @@ export async function* flat<A>(
   }
 }
 
-export async function* slice<T>(
-  iterable: AsyncIterable<T>,
-  start: number = 0,
-  end?: number,
-) {
+export async function* slice<T>(iterable: AsyncIterable<T>, start = 0, end?: number) {
   const iterator = iterable[Symbol.asyncIterator]();
   for (let i = 0; i < start; i++) {
     const result = await iterator.next();
@@ -239,7 +238,7 @@ export const indexOf = async <T>(iterable: AsyncIterable<T>, value: T) => {
 export async function* fill<T>(
   iterable: AsyncIterable<T>,
   value: T,
-  start: number = 0,
+  start = 0,
   end?: number,
 ) {
   const iterator = iterable[Symbol.asyncIterator]();
@@ -376,7 +375,7 @@ export const every = async <T>(
 
 export const includes = async <T>(
   iterable: AsyncIterable<T>,
-  value: T
+  value: T,
 ): Promise<boolean> => some(iterable, (v) => v === value);
 
 export async function* concat<T>(...iterables: AsyncIterable<T>[]) {
@@ -398,7 +397,7 @@ export async function* filter<T>(
 
 export const delay = <T extends AsyncIterable<any>>(iterable: T, ms: number): T => {
   return interleaveBail(interval(ms), iterable);
-}
+};
 
 /**
  * @param iterables Merges these iterables into a single iterable. This "merged" iterable will
@@ -434,7 +433,7 @@ class Buffered<T> implements AsyncIterableIterator<T> {
     resolve: (v: IteratorResult<T>) => any;
     reject: (err: unknown) => any;
   }[] = [];
-  private done: boolean = false;
+  private done = false;
 
   constructor(
     iterable: AsyncIterable<T>,
@@ -543,7 +542,7 @@ export function latestValueStore<T>(asyncIterable: AsyncIterable<T>): GetLatestV
  * @internal Method name subject to change
  */
 export const arrayFrom = async <T>(iterable: AsyncIterable<T>): Promise<T[]> => {
-  let array: T[] = [];
+  const array: T[] = [];
 
   for await (const v of iterable) {
     array.push(v);
@@ -569,7 +568,7 @@ async function* internalInterleaveBail<T extends AsyncIterator<any>[]>(...iterat
 /**
  * @internal Method name subject to change
  */
- export async function* interleaveBail<T extends AsyncIterable<T>[]>(...iterables: T) {
+export async function* interleaveBail<T extends AsyncIterable<T>[]>(...iterables: T) {
   const iterators = iterables.map((iterable) => iterable[Symbol.asyncIterator]());
   return yield* internalInterleaveBail(...iterators);
 }
@@ -577,11 +576,11 @@ async function* internalInterleaveBail<T extends AsyncIterator<any>[]>(...iterat
 /**
  * @internal Method name subject to change
  */
- export async function* interleave<T>(...iterables: AsyncIterable<T>[]) {
-  let returnValues: T[] = [];
+export async function* interleave<T>(...iterables: AsyncIterable<T>[]) {
+  const returnValues: T[] = [];
   let iterators = iterables.map((iterable) => iterable[Symbol.asyncIterator]());
 
-  while(iterators.length >= 0) {
+  while (iterators.length >= 0) {
     const { returnValue, remaining } = yield* internalInterleaveBail(...iterators);
     returnValues.push(returnValue);
     iterators = remaining;

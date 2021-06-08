@@ -79,7 +79,10 @@ export const createOutput = (outputDir) => {
 
 export const defaultLinks = [openSansUrl, materialIconsUrl, normalizeCssUrl];
 
-export const createHtmlWebpackPlugin = ({ title = 'TODO: Title', links = defaultLinks } = {}) => {
+export const createHtmlWebpackPlugin = ({
+  title = 'TODO: Title',
+  links = defaultLinks,
+} = {}) => {
   return new HtmlWebpackPlugin({
     inject: true,
     template: resolve(__dirname, 'template.html'),
@@ -150,7 +153,14 @@ export const sassModulesRule = {
   use: [require.resolve('style-loader'), cssModuleLoader, sassLoader],
 };
 
-export const recommendedRules = [svgRule, sassModulesRule, cssRule, fileJsonRule, sourceMapRule, babelRule];
+export const recommendedRules = [
+  svgRule,
+  sassModulesRule,
+  cssRule,
+  fileJsonRule,
+  sourceMapRule,
+  babelRule,
+];
 
 export const webcomponentsSassModulesRule = {
   test: /\.(sass|scss)$/,
@@ -158,4 +168,7 @@ export const webcomponentsSassModulesRule = {
   use: [cssModuleLoader, sassLoader],
 };
 
-export const recommendedWebcomponentRules = [webcomponentsSassModulesRule, ...recommendedRules.filter(rule => rule !== sassModulesRule)];
+export const recommendedWebcomponentRules = [
+  webcomponentsSassModulesRule,
+  ...recommendedRules.filter((rule) => rule !== sassModulesRule),
+];

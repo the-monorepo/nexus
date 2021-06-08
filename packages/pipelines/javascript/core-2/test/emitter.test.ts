@@ -1,4 +1,4 @@
-import { emitter, arrayFrom } from '../src/index.ts'
+import { emitter, arrayFrom } from '../src/index.ts';
 
 it(emitter.name, async () => {
   const myEmitter = emitter<number>();

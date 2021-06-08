@@ -20,7 +20,10 @@ export const overrideUtilInspectStyle = () => {
 };
 
 export const defaultFormatTimestamp = (date: Date) => {
-  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+  return `${date.getHours().toString().padStart(2, '0')}:${date
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
 };
 
 const createLevelAlignmentPadding = (levelTag: string) => {
@@ -50,20 +53,26 @@ const createConsoleArgs = (
 
   const extraArgs: any[] = [];
   if (customOptions.formatTimestamp !== null) {
-    const timestamp = customOptions.formatTimestamp(new Date);
+    const timestamp = customOptions.formatTimestamp(new Date());
     extraArgs.push(useColors ? chalk.grey(timestamp) : timestamp);
   }
 
   const padding = createLevelAlignmentPadding(level);
 
   const levelPrefix = (() => {
-    switch(level) {
-      case 'info': return 'ℹ️'
-      case 'error': return '❌'
-      case 'warn': return '⚠️';
-      case 'log': return '💬';
-      case 'debug': return '🔎';
-      default: return 'unknown';
+    switch (level) {
+      case 'info':
+        return 'ℹ️';
+      case 'error':
+        return '❌';
+      case 'warn':
+        return '⚠️';
+      case 'log':
+        return '💬';
+      case 'debug':
+        return '🔎';
+      default:
+        return 'unknown';
     }
   })();
 

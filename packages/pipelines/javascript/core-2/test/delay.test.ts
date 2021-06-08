@@ -1,1 +1,1 @@
-import { delay } from '../src/index.ts'
+import { delay } from '../src/index.ts';

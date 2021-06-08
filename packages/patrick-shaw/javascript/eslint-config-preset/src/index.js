@@ -17,10 +17,7 @@ const cinderExtends = ['@pshaw/eslint-config-plugin-cinder'];
 
 const reactExtends = ['@pshaw/eslint-config-plugin-react'];
 
-const commonPlugins = [
-  '@typescript-eslint/eslint-plugin',
-  'eslint-plugin-react',
-];
+const commonPlugins = ['@typescript-eslint/eslint-plugin', 'eslint-plugin-react'];
 
 const cinderConfig = {
   files: ['*.{ts,tsx,js,jsx}'],

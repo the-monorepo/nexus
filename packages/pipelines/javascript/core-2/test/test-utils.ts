@@ -1,10 +1,10 @@
-import { map } from '../src/index.ts'
-import { returnOne } from './test-utils.ts'
+import { map } from '../src/index.ts';
+import { returnOne } from './test-utils.ts';
 
 export async function* infiniteCounter() {
   let i = 0;
 
-  while(true) {
+  while (true) {
     yield i++;
   }
 }
@@ -23,13 +23,15 @@ export async function* threeCountersCountingThreeEach() {
   }
 }
 
-export const itPreservesReturnValue = <T>(map: (i: AsyncIterable<T>) => AsyncIterable<T>) => {
+export const itPreservesReturnValue = <T>(
+  map: (i: AsyncIterable<T>) => AsyncIterable<T>,
+) => {
   it('preserves the return value', async () => {
     const iterable = map(returnOne());
-    let i = iterable[Symbol.iterator]();
+    const i = iterable[Symbol.iterator]();
 
     let current = await i.next();
-    while(!current.done) {
+    while (!current.done) {
       current = await i.next();
     }
 
