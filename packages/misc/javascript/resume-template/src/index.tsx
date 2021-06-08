@@ -1,3 +1,3 @@
-export * from './components.ts'
-import Resume from './components.ts'
+export * from './components.tsx'
+import Resume from './components.tsx'
 export default Resume;

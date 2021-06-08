@@ -2,8 +2,6 @@ import { createStyleRoot } from '@contextual-documents/classname-picker';
 import * as t from '@contextual-documents/html-symbols';
 import styles from '@pshaw/contextual-documents-scss';
 
-console.log(styles);
-
 const styleRoot = createStyleRoot(
   t.section(styles.section1)(
     t.h1(styles.section1h1)(),

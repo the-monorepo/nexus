@@ -1,3 +1,5 @@
+// TODO: Remove eslint disable rule after MVP
+/* eslint-disable no-console */
 import * as cinder from 'cinder';
 import { render } from 'cinder';
 

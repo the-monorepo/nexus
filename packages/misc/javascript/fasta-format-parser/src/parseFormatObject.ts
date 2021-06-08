@@ -130,26 +130,21 @@ export const typeToMetadata = (type: FormatTypes.FormatType, initialReaderResult
 };
 
 export const parseFormatObject = async (fastaReaderStart: AsyncIterableIterator<string>) => {
-  console.log('type');
   const typeResult = await nextString(fastaReaderStart);
   if (!isSuccess(typeResult)) {
     return typeResult;
   }
-  console.log('type info', typeResult)
   const typeInfo = valueOf(typeResult);
 
   const type = typeInfo.value as FormatTypes.FormatType;
 
-  console.log(type);
   // TODO: remove currentReaderReslt from this function
   const metadataResult = typeToMetadata(type, typeInfo.currentReaderResult);
-  console.log('metadata', metadataResult)
 
   if (!isSuccess(metadataResult)) {
     return metadataResult;
   }
 
-  console.log('parse');
   const metadataInfo = valueOf(metadataResult);
 
   return parsePartialStringOnlyFormatObject(metadataInfo, typeInfo.currentReaderResult, fastaReaderStart);

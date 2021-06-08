@@ -1,3 +1,5 @@
+// TODO: Remove no-console at some point
+/* eslint-disable no-console */
 import * as cinder from 'cinder';
 
 import {
@@ -59,7 +61,6 @@ const rawDevices = callbackBroadcasterConverter<[any]>();
 const devicesWithInitial = (async function* deviceGenerator() {
   try {
     const initialDevices = await navigator.usb.getDevices();
-    console.log('initial', initialDevices);
     for(const device of initialDevices) {
       if (device.productId === 29987) {
         yield device;
@@ -81,12 +82,10 @@ const devicesWithInitial = (async function* deviceGenerator() {
 let selectedDevice = null;
 (async () => {
   for await (const device of devicesWithInitial) {
-    console.log('DEVICE SEELCTED', device, selectedDevice);
     if (selectedDevice !== null) {
       try {
         await selectedDevice.reset();
         await selectedDevice.close();
-        console.log('reset');
       } catch(err){
         console.error(err);
       }
@@ -198,8 +197,6 @@ const createSpotWelderForm = () => {
       mostRecentSecondPulseDuration(),
     ]);
 
-    console.log(firstPulseDuration, pulseGapDuration, secondPulseDuration);
-
     return {
       firstPulseDuration,
       pulseGapDuration,
@@ -215,7 +212,6 @@ const createSpotWelderForm = () => {
   const demos = callbackBroadcasterConverter<[Event]>();
   (async () => {
     for await (const [e] of demos) {
-      console.log({ e});
       e.preventDefault();
       const [
         firstPulseDuration,
@@ -258,7 +254,6 @@ const createSpotWelderForm = () => {
 
   recognition.start();
   recognition.onresult = function(event) {
-    console.log(event);
     // TODO: Totally hacky - Doesn't account for multiple words
     const speechResult = event.results[event.resultIndex];
     if (speechResult.length > 1 && speechResult.isFinal) {

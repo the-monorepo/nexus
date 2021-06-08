@@ -30,7 +30,6 @@ const DISCONNECTED_CALLBACK_FIELD = 'disconnectedCallback';
 const overrideSuperIfAvailable = (clazz, functionName: string | symbol, extendedFn) => {
   const property = Object.getOwnPropertyDescriptor(clazz.prototype, functionName);
 
-  console.log(clazz.name, functionName, property);
   Object.defineProperty(clazz.prototype, functionName, {
     configurable: true,
     writable: false,
@@ -153,7 +152,6 @@ const createContext = (contextName?: string) => {
             },
             set: function (value) {
               this[symbol] = value;
-              console.log('setting', value, 'for consumers:', this[CONSUMERS]);
               for (const consumer of this[CONSUMERS]) {
                 consumer[SET_CONSUMER_VALUE](value, this);
               }

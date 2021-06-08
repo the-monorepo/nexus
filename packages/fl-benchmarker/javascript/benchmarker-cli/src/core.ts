@@ -335,8 +335,6 @@ export const run = async () => {
       projectOutput[name] = examScore;
     }
 
-    console.log(projectOutput);
-
     const faultResultsPath = resolve(projectDir, 'fault-results.json');
     await writeJson(faultResultsPath, projectOutput, undefined, 2);
   };

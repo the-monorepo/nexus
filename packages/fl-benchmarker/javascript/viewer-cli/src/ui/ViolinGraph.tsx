@@ -202,7 +202,6 @@ const HorizontalSvgViolin = ({ class: className, id }: SvgViolinProps) => {
   ]);
 
   const ar = axisBottom(x);
-  console.log('???????', ar);
 
   return (
     <div class={previousStyles.violin}>

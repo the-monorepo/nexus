@@ -1,3 +1,5 @@
+// TODO: Maybe disable this rule for this package
+/* eslint-disable no-console */
 import { relative, dirname, basename, join } from 'path';
 
 import chalk from 'chalk';
@@ -103,7 +105,7 @@ export const createPlugin = (contextOptions?) => {
       chalk.whiteBright.bold('Time:   ') +
         chalk.yellowBright(`${(Math.round(duration) / 1000).toString()}s`),
     );
-    //console.log(faults);
+
   };
 
   const plugins: PartialTestHookOptions = {

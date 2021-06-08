@@ -7,7 +7,7 @@ import { findModule } from '../findModule.ts'
 export function defaultModuleAction(moduleName: string) {
   const result = findModule(moduleName);
 
-  console.log(`Using module '${chalk.cyanBright(result.name)}'`);
+
 
   const stdin = process.openStdin();
   stdin.on('data', (input) => {

@@ -261,7 +261,6 @@ export const renderComponentResultNoSet = <C, V, N extends Node>(
   container: Node,
   before: Node | null,
 ): RenderResult<C, N> => {
-  console.log(renderInfo, container, before);
   const blueprint = renderInfo.blueprint;
   const data = blueprint.mount(renderInfo.value, container, before);
   return renderResult(blueprint.id, data, blueprint.unmount);
@@ -461,7 +460,6 @@ const mapBlueprint: GenericBlueprint<
 class DynamicSection implements Field {
   private readonly state: (RenderResult<unknown> | undefined)[];
   constructor(private readonly el: Node, private readonly before: Node, length: number) {
-    console.log(el, before);
     this.state = new Array(length).fill(undefined);
   }
 
@@ -474,12 +472,10 @@ class DynamicSection implements Field {
   }
 
   init(fieldValues, v) {
-    console.log('init', fieldValues);
     return this.update(fieldValues, v);
   }
 
   update(fieldValues, v) {
-    console.log('update', fieldValues);
     const container = this.el;
     let before = this.before;
     let f = 0;

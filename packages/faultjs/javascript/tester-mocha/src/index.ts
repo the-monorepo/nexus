@@ -86,7 +86,6 @@ export const initialize = async (options: Options) => {
             } else {
               await client.submitFileResult({ duration, key, testPath });
             }
-            console.log(duration, endTime, startTime);
           }
         } else {
           // Sort tests alphabetically

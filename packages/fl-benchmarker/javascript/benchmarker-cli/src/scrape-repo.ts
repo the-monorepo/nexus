@@ -1,3 +1,6 @@
+// TODO: Maybe disable this rule for this package
+/* eslint-disable no-console */
+
 /**
  * This is a little utility tool for finding relevant pull requests faster.
  */
