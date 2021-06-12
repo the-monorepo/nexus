@@ -8,6 +8,13 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "misc/page-breaker-chrome"
   },
+  "types": "./src/index.tsx",
+  "module": "./esm/index.tsx",
+  "main": "./commonjs/index.tsx",
+  ".": {
+    "import": "./esm/index.tsx",
+    "require": "./commonjs/index.tsx"
+  },
   "dependencies": {
     "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements",
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",

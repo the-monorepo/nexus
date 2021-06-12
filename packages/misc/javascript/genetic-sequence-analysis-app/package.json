@@ -3,9 +3,13 @@
   "private": true,
   "description": "A few tools that might help with analysis for (very specific) genetic sequences in apps",
   "version": "1.0.0",
-  "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
+  "types": "./src/index.tsx",
+  "module": "./esm/index.tsx",
+  "main": "./commonjs/index.tsx",
+  ".": {
+    "import": "./esm/index.tsx",
+    "require": "./commonjs/index.tsx"
+  },
   "files": [
     "commonjs",
     "src",
