@@ -195,12 +195,13 @@ const copyEsm = () => {
   return copyPipes(packagesSrcAssetStream(), l, 'esm');
 };
 
-const touch = () => through.obj( function( file, enc, cb ) {
-  if ( file.stat ) {
-    file.stat.atime = file.stat.mtime = file.stat.ctime = new Date();
-  }
-  cb( null, file );
-});
+const touch = () =>
+  through.obj(function (file, enc, cb) {
+    if (file.stat) {
+      file.stat.atime = file.stat.mtime = file.stat.ctime = new Date();
+    }
+    cb(null, file);
+  });
 
 const copy = parallel(copyScript, copyEsm);
 
@@ -255,10 +256,10 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
     .pipe(touch());
 };
 
-const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
+const scriptTranspileStream = async (stream, wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
     await transpilePipes(
-      packagesSrcCodeStream(),
+      stream,
       {
         envName: process.env.NODE_ENV ?? 'development',
       },
@@ -266,13 +267,13 @@ const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
       'cjs',
       chalk.rgb(200, 255, 100),
     ),
-  ).pipe(gulp.dest('.'));
+  );
 };
 
-const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
+const esmTranspileStream = async (stream, wrapStreamFn = (stream) => stream) => {
   return wrapStreamFn(
     await transpilePipes(
-      packagesSrcCodeStream(),
+      stream,
       {
         envName: `${process.env.NODE_ENV ?? 'development'}-esm`,
       },
@@ -281,14 +282,6 @@ const esmTranspileStream = async (wrapStreamFn = (stream) => stream) => {
       chalk.rgb(255, 200, 100),
     ),
   ).pipe(gulp.dest('.'));
-};
-
-const transpileScript = () => {
-  return scriptTranspileStream();
-};
-
-const transpileEsm = () => {
-  return esmTranspileStream();
 };
 
 const prettierPipes = async (stream) => {
@@ -322,8 +315,20 @@ const printFriendlyAbsoluteDir = (dir) => {
   return relative(join(__dirname), dir);
 };
 
-const transpile = parallel(transpileScript, transpileEsm);
-task('transpile', 'Transpiles source code', transpile);
+const transpile = async () => {
+  const stream = packagesSrcCodeStream();
+  const streams = await Promise.all([
+    scriptTranspileStream(stream),
+    esmTranspileStream(stream),
+  ]);
+
+  const dest = gulp.dest('.');
+
+  return await Promise.all(
+    streams.map((aStream) => aStream.pipe(dest)).map(oldStreamToPromise),
+  );
+};
+task('transpile', transpile);
 
 const writeme = async () => {
   const { default: writeReadmeFromPackageDir } = await import('@writeme/core');
@@ -477,13 +482,14 @@ const getFaultLocalizationAddon = async () => {
               }
             };
             const rejectOnStreamError = (stream) => stream.on('error', reject);
-            scriptTranspileStream(rejectOnStreamError).then((stream) =>
+            const codeStream = packagesSrcCodeStream();
+            scriptTranspileStream(codeStream, rejectOnStreamError).then((stream) =>
               stream.on('end', () => {
                 scriptFinish = true;
                 checkToFinish();
               }),
             );
-            esmTranspileStream(rejectOnStreamError).then((stream) =>
+            esmTranspileStream(codeStream, rejectOnStreamError).then((stream) =>
               stream.on('end', () => {
                 esmFinish = true;
                 checkToFinish();

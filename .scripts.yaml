@@ -71,6 +71,7 @@ test:
 clean:
   task: run:buildplan clean
 transpile:
+  description: Transpiles source code
   task: run:buildplan transpile
 build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
