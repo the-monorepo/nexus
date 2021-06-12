@@ -195,6 +195,13 @@ const copyEsm = () => {
   return copyPipes(packagesSrcAssetStream(), l, 'esm');
 };
 
+const touch = () => through.obj( function( file, enc, cb ) {
+  if ( file.stat ) {
+    file.stat.atime = file.stat.mtime = file.stat.ctime = new Date();
+  }
+  cb( null, file );
+});
+
 const copy = parallel(copyScript, copyEsm);
 
 const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn) => {
@@ -244,7 +251,8 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
       }),
     )
     .pipe(sourcemaps.mapSources((filePath) => filePath.replace(/.*\/src\//g, '../src/')))
-    .pipe(sourcemaps.write('.', undefined));
+    .pipe(sourcemaps.write('.', undefined))
+    .pipe(touch());
 };
 
 const scriptTranspileStream = async (wrapStreamFn = (stream) => stream) => {
