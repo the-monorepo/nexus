@@ -23,11 +23,17 @@ install-osx:
 
 # Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
 # FIXME: Find an alternative to mv that would work for default Windows machines
-recompile-scriptplan: |
+recompile-scriptplan-release: |
     cargo +nightly build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
     cargo +nightly build --release --bins --target x86_64-apple-darwin --package scriptplan
     mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
     mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
+recompile-scriptplan-debug: |
+    cargo +nightly build --bins --target x86_64-pc-windows-gnu --package scriptplan
+    cargo +nightly build --bins --target x86_64-apple-darwin --package scriptplan
+    mv ./target/x86_64-pc-windows-gnu/debug/scriptplan.exe ./scriptplan.exe
+    mv ./target/x86_64-apple-darwin/debug/scriptplan ./scriptplan
+
 
 node-base: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
 run:buildplan:
