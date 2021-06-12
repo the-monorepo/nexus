@@ -73,7 +73,7 @@
     "gulp-plumber": "^1.2.1",
     "gulp-prettier": "^3.0.0",
     "gulp-rename": "^2.0.0",
-    "gulp-sourcemaps": "^2.6.5",
+    "gulp-sourcemaps": "^3.0.0",
     "gulp-transform": "^3.0.5",
     "gulp-typescript": "^6.0.0-alpha.1",
     "husky": "^4.2.5",
