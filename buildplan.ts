@@ -185,25 +185,36 @@ const copyPipes = (stream, l, dir) => {
     .pipe(gulp.dest('.'));
 };
 
-const copyScript = () => {
-  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(200, 255, 100)('lib'));
-  return copyPipes(packagesSrcAssetStream(), l, 'commonjs');
-};
-
-const copyEsm = () => {
-  const l = logger.child(chalk.yellowBright('copy'), chalk.rgb(255, 200, 100)('esm'));
-  return copyPipes(packagesSrcAssetStream(), l, 'esm');
-};
-
 const touch = () =>
-  through.obj(function (file, enc, cb) {
+  through.obj(function (file, _, cb) {
     if (file.stat) {
       file.stat.atime = file.stat.mtime = file.stat.ctime = new Date();
     }
     cb(null, file);
   });
 
-const copy = parallel(copyScript, copyEsm);
+const copy = async () => {
+  const stream = packagesSrcAssetStream();
+
+  const libLogger = logger.child(
+    chalk.yellowBright('copy'),
+    chalk.rgb(200, 255, 100)('lib'),
+  );
+  const esmLoger = logger.child(
+    chalk.yellowBright('copy'),
+    chalk.rgb(255, 200, 100)('esm'),
+  );
+
+  const streams = [
+    copyPipes(stream, libLogger, 'commonjs'),
+    copyPipes(stream, esmLoger, 'esm'),
+  ];
+
+  return Promise.all(
+    streams.map((aStream) => aStream.pipe(gulp.dest('.'))).map(oldStreamToPromise),
+  );
+};
+task('copy', copy);
 
 const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn) => {
   const sourcemaps = await import('gulp-sourcemaps');
@@ -256,34 +267,6 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
     .pipe(touch());
 };
 
-const scriptTranspileStream = async (stream, wrapStreamFn = (stream) => stream) => {
-  return wrapStreamFn(
-    await transpilePipes(
-      stream,
-      {
-        envName: process.env.NODE_ENV ?? 'development',
-      },
-      'commonjs',
-      'cjs',
-      chalk.rgb(200, 255, 100),
-    ),
-  );
-};
-
-const esmTranspileStream = async (stream, wrapStreamFn = (stream) => stream) => {
-  return wrapStreamFn(
-    await transpilePipes(
-      stream,
-      {
-        envName: `${process.env.NODE_ENV ?? 'development'}-esm`,
-      },
-      'esm',
-      undefined,
-      chalk.rgb(255, 200, 100),
-    ),
-  ).pipe(gulp.dest('.'));
-};
-
 const prettierPipes = async (stream) => {
   const { default: prettier } = await import('gulp-prettier');
   const l = logger.child(chalk.magentaBright('prettier'));
@@ -317,15 +300,32 @@ const printFriendlyAbsoluteDir = (dir) => {
 
 const transpile = async () => {
   const stream = packagesSrcCodeStream();
+
+  const baseEnv = process.env.NODE_ENV ?? 'development';
+
   const streams = await Promise.all([
-    scriptTranspileStream(stream),
-    esmTranspileStream(stream),
+    transpilePipes(
+      stream,
+      {
+        envName: baseEnv,
+      },
+      'commonjs',
+      'cjs',
+      chalk.rgb(200, 255, 100),
+    ),
+    transpilePipes(
+      stream,
+      {
+        envName: `${baseEnv}-esm`,
+      },
+      'esm',
+      undefined,
+      chalk.rgb(255, 200, 100),
+    ),
   ]);
 
-  const dest = gulp.dest('.');
-
   return await Promise.all(
-    streams.map((aStream) => aStream.pipe(dest)).map(oldStreamToPromise),
+    streams.map((aStream) => aStream.pipe(gulp.dest('.'))).map(oldStreamToPromise),
   );
 };
 task('transpile', transpile);
