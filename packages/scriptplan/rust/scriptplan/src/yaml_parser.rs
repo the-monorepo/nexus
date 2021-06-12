@@ -53,6 +53,17 @@ fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
             first: obj.remove(0),
             rest: obj,
           }))))
+        } else if let Some(parallel_yaml) = hash.get(&Yaml::from_str("parallel")) {
+          let mut obj = Vec::new();
+          let yaml_list = parallel_yaml.as_vec().unwrap();
+          for sub_yaml in yaml_list {
+            let task = parse_task(sub_yaml)?;
+            obj.push(task);
+          }
+          Ok(Script::Group(Box::new(CommandGroup::Parallel(ScriptGroup {
+            first: obj.remove(0),
+            rest: obj,
+          }))))
         } else {
           panic!("should never happen");
         }

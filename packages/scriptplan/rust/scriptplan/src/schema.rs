@@ -3,14 +3,16 @@ use conch_parser::lexer::Lexer;
 use conch_parser::parse::Parser;
 
 use conch_runtime::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
-use conch_runtime::spawn::sequence;
+use conch_runtime::spawn::{subshell, sequence_slice, sequence_exact, sequence};
 use conch_runtime::ExitStatus;
 
 use std::collections::VecDeque;
 
-
+use std::future::Future;
 use std::rc::Rc;
 use std::sync::Arc;
+
+use futures::future::join_all;
 
 use async_trait::async_trait;
 use async_recursion::async_recursion;
@@ -71,11 +73,11 @@ impl Command {
             ..DefaultEnvConfigArc::new().unwrap()
         });
 
-        let cmds = parser.into_iter().map(|x| x.unwrap());
+        let cmds = parser.into_iter().map(|x| x.unwrap()).collect::<Vec<_>>();
 
-        let env_future_result = sequence(cmds, &mut env).await;
+        let env_future_result = subshell(sequence_slice(&cmds), &mut env).await;
 
-        let status = env_future_result.unwrap().await;
+        let status = env_future_result;
 
         drop(env);
 
@@ -110,8 +112,21 @@ impl CommandGroup {
     async fn run(&self, parser: &impl ScriptParser, args: VarArgs) -> Result<ExitStatus, ()> {
       // TODO: Figure out what to do with args
         match self {
-            Self::Parallel(_group) => {
-                todo!();
+            Self::Parallel(group) => {
+                let mut promises = Vec::<_>::new();
+                promises.push(group.first.run(parser, args.clone()));
+                for script in &group.rest {
+                  promises.push(script.run(parser, args.clone()));
+                }
+
+                let results = join_all(promises).await;
+
+                let mut status = ExitStatus::Code(0);
+                for exit_status in results {
+                  status = merge_status(status, exit_status.unwrap());
+                }
+
+                return Ok(status);
             }
             Self::Series(group) => {
                 let mut final_status = group.first.run(parser, args.clone()).await.unwrap();
