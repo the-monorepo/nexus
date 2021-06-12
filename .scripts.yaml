@@ -73,12 +73,13 @@ clean:
 transpile:
   description: Transpiles source code
   task: run:buildplan transpile
+copy: run:buildplan copy
 build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
   series:
     - parallel:
-      - task: run:buildplan transpile
-      - task: run:buildplan copy
+      - task: transpile
+      - task: copy
   # - task: build:rust
     - task: writeme
 build:node:
@@ -112,7 +113,32 @@ serve:particle-sensor-app:
 serve:spot-welder-app:
   task: serve --name='spot-welder-app'
 precommit:
-  task: run:buildplan precommit
+  description: Run this before your commit to prevent trivial build errors (like linting/formatting) from failing your build
+  series:
+    - parallel:
+      - series:
+        - task: format-staged
+        - task: transpile
+      - task: copy
+    - task: writeme
+prepublish:
+  description: Run this before publishing any packages
+  series:
+    - parallel:
+      - task: clean
+      - task: format
+    - parallel:
+      - task: transpile
+      - task: copy
+      - task: test
+    - parallel:
+      - task: webpack
+      - task: check-types
+      - task: writeme
+check-types:
+  description: Run TypeScript validation
+  task: run:buildplan check-types
+
 update-yarn: |
     yarn set version berry
     yarn add @yarnpkg/pnpify

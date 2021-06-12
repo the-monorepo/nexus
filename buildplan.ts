@@ -516,9 +516,6 @@ const testNoBuild = async () => {
 
 task('test', 'Runs unit tests (without building)', testNoBuild);
 
-const precommit = series(parallel(series(formatStaged, transpile), copy), writeme);
-task('precommit', "This'll run when you commit", precommit);
-
 const webpackCompilers = async () => {
   const { default: minimist } = await import('minimist');
   const { webpack } = await import('@pshaw/webpack');
@@ -652,14 +649,6 @@ const bundleWebpack = async () => {
 };
 
 task('webpack', 'Bundke all Webpack-bundled packages', bundleWebpack);
-
-const prepublish = series(
-  parallel(clean, format),
-  parallel(transpile, copy, testNoBuild),
-  parallel(bundleWebpack, checkTypes, writeme),
-);
-
-task('prepublish', 'Runs before you publish code', prepublish);
 
 const serveBundles = async () => {
   const { WebpackDevServer } = await import('@pshaw/webpack');
