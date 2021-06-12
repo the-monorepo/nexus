@@ -342,15 +342,6 @@ const writeme = async () => {
 };
 task('writeme', 'Generates README doco', writeme);
 
-const buildSource = parallel(copy, transpile);
-
-const build = series(buildSource, writeme);
-task(
-  'build',
-  'Builds everything required to run packages other than certain slow (bundled) packages',
-  build,
-);
-
 const watch = async () => {
   // TODO: Never resolves :3 (on purpose but should find a better way)
   return gulp.watch(
