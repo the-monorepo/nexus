@@ -42,11 +42,10 @@ run:buildplan:
 format:javascript:
   task: run:buildplan format
 # TODO: Should be a part of format:rust but errors out ATM
-format:rust:fix:
-  series: |
-    cargo +nightly fix
-    git add .
-    git commit -m "Ran format:rust:fix"
+format:rust:fix: |
+  cargo +nightly fix
+  git add .
+  git commit -m "Ran format:rust:fix"
 format:rust:fmt: cargo +nightly fmt
 format:rust:
   series:
@@ -116,25 +115,26 @@ precommit:
   description: Run this before your commit to prevent trivial build errors (like linting/formatting) from failing your build
   series:
     - parallel:
-      - series:
-        - task: format-staged
-        - task: transpile
+      - task: transpile
+      - task: format-staged
       - task: copy
     - task: writeme
 prepublish:
   description: Run this before publishing any packages
   series:
+    - task: clean
     - parallel:
-      - task: clean
       - task: format
-    - parallel:
-      - task: transpile
-      - task: copy
-      - task: test
-    - parallel:
-      - task: webpack
-      - task: check-types
-      - task: writeme
+      - series:
+        - parallel:
+          - task: transpile
+            # ESLint preset config is currently a JS file
+          - task: copy
+        - parallel:
+          - task: test
+          - task: webpack
+          - task: check-types
+          - task: writeme
 check-types:
   description: Run TypeScript validation
   task: run:buildplan check-types
