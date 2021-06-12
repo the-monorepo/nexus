@@ -56,7 +56,7 @@ pub type VarArgs = VecDeque<Arc<String>>;
 
 impl Command {
     pub async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
-        let command_str = self.command_str.to_string() + " \"$@\"";
+        let command_str = self.command_str.trim_end().to_string() + " \"$@\"";
 
         let lex = Lexer::new(command_str.chars());
 
@@ -115,13 +115,12 @@ impl CommandGroup {
             }
             Self::Series(group) => {
                 let mut final_status = group.first.run(parser, args.clone()).await.unwrap();
-
                 for script in &group.rest {
                   if !final_status.success() {
                     return Ok(final_status);
                   }
                   let status = script.run(parser, args.clone()).await.unwrap();
-                    final_status = status;
+                  final_status = merge_status(status, final_status);
                 }
 
                 return Ok(final_status);
