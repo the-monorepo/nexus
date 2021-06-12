@@ -11,8 +11,7 @@
     "preset"
   ],
   "version": "1.4.3",
-  "module": "./esm/index.json",
-  "main": "./commonjs/index.json",
+  "main": "./src/index.json",
   "files": [
     "commonjs",
     "src",

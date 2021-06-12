@@ -10,8 +10,7 @@
     "preset"
   ],
   "version": "1.4.3-0",
-  "module": "./esm/index.js",
-  "main": "./commonjs/index.js",
+  "main": "./src/index.json",
   "files": [
     "commonjs",
     "src",
