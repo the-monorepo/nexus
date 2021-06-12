@@ -5,30 +5,23 @@ use clap::{App, SubCommand};
 
 use schema::ScriptParser;
 
-
 use std::collections::VecDeque;
 
 use std::fs;
 
-
 use std::path::Path;
 
-
-use yaml_rust::{YamlLoader};
+use yaml_rust::YamlLoader;
 
 use conch_runtime::ExitStatus;
 
 use schema::Runnable;
 
-
-
 use std::sync::Arc;
-
-
 
 use std::process::exit;
 
-use yaml_parser::{create_scriptplan};
+use yaml_parser::create_scriptplan;
 
 #[tokio::main]
 async fn main() {
@@ -45,11 +38,11 @@ async fn main() {
     let scriptplan = create_scriptplan(map);
 
     for task in scriptplan.tasks.keys() {
-      let subcommand = SubCommand::with_name(task)
-        .setting(clap::AppSettings::TrailingVarArg)
-        .setting(clap::AppSettings::TrailingValues)
-        .arg(clap::Arg::with_name("other").multiple(true).hidden(true));
-      app = app.subcommand(subcommand);
+        let subcommand = SubCommand::with_name(task)
+            .setting(clap::AppSettings::TrailingVarArg)
+            .setting(clap::AppSettings::TrailingValues)
+            .arg(clap::Arg::with_name("other").multiple(true).hidden(true));
+        app = app.subcommand(subcommand);
     }
 
     let matches = app.get_matches();
@@ -68,7 +61,12 @@ async fn main() {
             }
         })();
 
-        let status = scriptplan.parse(root_task.name.as_str()).unwrap().run(&scriptplan, user_vars_iter).await.unwrap();
+        let status = scriptplan
+            .parse(root_task.name.as_str())
+            .unwrap()
+            .run(&scriptplan, user_vars_iter)
+            .await
+            .unwrap();
 
         exit_with_status(status);
     }

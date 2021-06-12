@@ -1,4 +1,3 @@
-
 use yaml_rust::yaml::Hash;
 use yaml_rust::Yaml;
 
@@ -14,24 +13,21 @@ use shellwords::split;
 use crate::schema::ScriptGroup;
 use crate::schema::ScriptParser;
 use crate::schema::VarArgs;
-use crate::schema::{Script, Alias, CommandGroup};
-
-
+use crate::schema::{Alias, CommandGroup, Script};
 
 impl Script {
-  fn parse_command(command_str: &str) -> Script {
-    Script::Command(command_str.into())
-  }
+    fn parse_command(command_str: &str) -> Script {
+        Script::Command(command_str.into())
+    }
 
-  fn parse_alias(alias_str: &str) -> Script {
-    let mut words: Vec<_> = split(alias_str).unwrap();
-    Script::Alias(Alias {
-      task: words.remove(0),
-      args: words.into_iter().map(|string| Arc::new(string)).collect(),
-    })
-  }
+    fn parse_alias(alias_str: &str) -> Script {
+        let mut words: Vec<_> = split(alias_str).unwrap();
+        Script::Alias(Alias {
+            task: words.remove(0),
+            args: words.into_iter().map(|string| Arc::new(string)).collect(),
+        })
+    }
 }
-
 
 fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
     if let Some(command_str) = yaml.as_str() {
@@ -43,29 +39,31 @@ fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
         } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
             return Ok(Script::parse_command(command_str.as_str().unwrap()));
         } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("series")) {
-          let mut obj = Vec::new();
-          let yaml_list = serial_yaml.as_vec().unwrap();
-          for sub_yaml in yaml_list {
-            let task = parse_task(sub_yaml)?;
-            obj.push(task);
-          }
-          Ok(Script::Group(Box::new(CommandGroup::Series(ScriptGroup {
-            first: obj.remove(0),
-            rest: obj,
-          }))))
+            let mut obj = Vec::new();
+            let yaml_list = serial_yaml.as_vec().unwrap();
+            for sub_yaml in yaml_list {
+                let task = parse_task(sub_yaml)?;
+                obj.push(task);
+            }
+            Ok(Script::Group(Box::new(CommandGroup::Series(ScriptGroup {
+                first: obj.remove(0),
+                rest: obj,
+            }))))
         } else if let Some(parallel_yaml) = hash.get(&Yaml::from_str("parallel")) {
-          let mut obj = Vec::new();
-          let yaml_list = parallel_yaml.as_vec().unwrap();
-          for sub_yaml in yaml_list {
-            let task = parse_task(sub_yaml)?;
-            obj.push(task);
-          }
-          Ok(Script::Group(Box::new(CommandGroup::Parallel(ScriptGroup {
-            first: obj.remove(0),
-            rest: obj,
-          }))))
+            let mut obj = Vec::new();
+            let yaml_list = parallel_yaml.as_vec().unwrap();
+            for sub_yaml in yaml_list {
+                let task = parse_task(sub_yaml)?;
+                obj.push(task);
+            }
+            Ok(Script::Group(Box::new(CommandGroup::Parallel(
+                ScriptGroup {
+                    first: obj.remove(0),
+                    rest: obj,
+                },
+            ))))
         } else {
-          panic!("should never happen");
+            panic!("should never happen");
         }
     } else {
         panic!("should never happen");
@@ -88,9 +86,9 @@ fn create_lazy_task(yaml: &Yaml) -> LazyTask {
 }
 impl LazyTask<'_> {
     fn parse(&self) -> Result<Rc<Script>, ()> {
-      let mut yaml_or_task = self.yaml_or_task.borrow_mut();
+        let mut yaml_or_task = self.yaml_or_task.borrow_mut();
         if let YamlOrTask::NotLoaded(ref yaml) = yaml_or_task.deref() {
-          *yaml_or_task = YamlOrTask::Loaded(Rc::new(parse_task(yaml).unwrap()));
+            *yaml_or_task = YamlOrTask::Loaded(Rc::new(parse_task(yaml).unwrap()));
         }
         if let YamlOrTask::Loaded(ref script) = yaml_or_task.deref() {
             return Ok(script.clone());
@@ -105,14 +103,11 @@ pub struct YamlScriptParser<'a> {
 }
 
 pub fn create_scriptplan(yaml_object: &Hash) -> YamlScriptParser {
-  YamlScriptParser {
+    YamlScriptParser {
         tasks: yaml_object
             .iter()
             .map(|(yaml_name, yaml_value)| {
-                return (
-                    yaml_name.as_str().unwrap(),
-                    create_lazy_task(yaml_value),
-                );
+                return (yaml_name.as_str().unwrap(), create_lazy_task(yaml_value));
             })
             .collect(),
     }
@@ -120,11 +115,14 @@ pub fn create_scriptplan(yaml_object: &Hash) -> YamlScriptParser {
 
 impl ScriptParser for YamlScriptParser<'_> {
     fn parse(&self, task_name: &str) -> Result<Rc<Script>, ()> {
-        self.tasks.get(task_name).expect(format!("The task {} does not exist", task_name).as_str()).parse()
+        self.tasks
+            .get(task_name)
+            .expect(format!("The task {} does not exist", task_name).as_str())
+            .parse()
     }
 }
 
 pub struct CompiledScript {
-  args: VarArgs,
-  script: Rc<Script>,
+    args: VarArgs,
+    script: Rc<Script>,
 }
