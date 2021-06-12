@@ -37,10 +37,10 @@ format:javascript:
   task: run:buildplan format
 # TODO: Should be a part of format:rust but errors out ATM
 format:rust:fix:
-  series:
-    - cargo +nightly fix
-    - git add .
-    - git commit -m "Ran format:rust:fix"
+  series: |
+    cargo +nightly fix
+    git add .
+    git commit -m "Ran format:rust:fix"
 format:rust:fmt: cargo +nightly fmt
 format:rust:
   series:
@@ -55,7 +55,7 @@ format:
 format-staged:javascript:
   task: run:buildplan format-staged
 format-staged:
-  task: Corrects any automatically fixable linter warnings or errors. Note that this command will overwrite files without creating a backup.
+  description: Corrects any automatically fixable linter warnings or errors. Note that this command will overwrite files without creating a backup.
   series:
     - task: format-staged:javascript
     - task: format:rust
