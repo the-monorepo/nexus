@@ -472,31 +472,7 @@ const getFaultLocalizationAddon = async () => {
         },
         ignoreGlob: flIgnoreGlob,
         mapToIstanbul: true,
-        onMutation: () => {
-          return new Promise<void>((resolve, reject) => {
-            let scriptFinish = false;
-            let esmFinish = false;
-            const checkToFinish = () => {
-              if (scriptFinish && esmFinish) {
-                resolve();
-              }
-            };
-            const rejectOnStreamError = (stream) => stream.on('error', reject);
-            const codeStream = packagesSrcCodeStream();
-            scriptTranspileStream(codeStream, rejectOnStreamError).then((stream) =>
-              stream.on('end', () => {
-                scriptFinish = true;
-                checkToFinish();
-              }),
-            );
-            esmTranspileStream(codeStream, rejectOnStreamError).then((stream) =>
-              stream.on('end', () => {
-                esmFinish = true;
-                checkToFinish();
-              }),
-            );
-          });
-        },
+        onMutation: transpile,
       });
     }
   }
