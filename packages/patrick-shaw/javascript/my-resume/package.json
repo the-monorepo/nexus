@@ -8,6 +8,13 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "misc/my-resume"
   },
+  "types": "./src/index.tsx",
+  "module": "./esm/index.tsx",
+  "main": "./commonjs/index.tsx",
+  ".": {
+    "import": "./esm/index.tsx",
+    "require": "./commonjs/index.tsx"
+  },
   "scripts": {
     "pdf": "babel-node ./commonjs/to-pdf.ts"
   },
