@@ -3,43 +3,43 @@ module.exports = {
     overrides: [
       {
         category: 'Cinder',
-        test: './packages/cinder/*/',
+        test: './packages/cinder/javascript/*/',
       },
       {
         category: 'Build tooling',
-        test: ['./packages/{pipelines,buildplan}/*', './misc/stream-*/*'],
+        test: ['./packages/{pipelines,buildplan}/javascript/*', './misc/stream-*/*'],
       },
       {
         category: 'Contextual documents',
-        test: './packages/contextual-documents/*',
+        test: './packages/contextual-documents/javascript/*',
       },
       {
         category: 'By Example',
-        test: './packages/byexample/*',
+        test: './packages/byexample/javascript/*',
       },
       {
         category: 'Documentation',
-        test: './packages/{build-packages,misc,writeme}/{writeme-*,markdown-util}',
+        test: './packages/{build-packages,misc,writeme}/javascript{writeme-*,markdown-util}',
       },
       {
         category: 'Logging',
-        test: './packages/{build-packages,misc}/{winston-formats,logger}',
+        test: './packages/{build-packages,misc}/javascript{winston-formats,logger}',
       },
       {
         category: 'ESLint',
-        test: './packages/patrick-shaw/eslint-*',
+        test: './packages/patrick-shaw/javascript/eslint-*',
       },
       {
         category: 'TSLint',
-        test: './packages/patrick-shaw/tslint-*',
+        test: './packages/patrick-shaw/javascript/tslint-*',
       },
       {
         category: 'FaultJS',
-        test: './packages/faultjs/*',
+        test: './packages/faultjs/javascript/*',
       },
       {
         category: 'Personal (Patrick Shaw)',
-        test: './packages/patrick-shaw/*',
+        test: './packages/patrick-shaw/javascript/*',
       },
     ],
   },

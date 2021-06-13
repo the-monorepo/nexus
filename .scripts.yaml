@@ -1,0 +1,145 @@
+install-osx:brew: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+install-osx:node: |
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+    nvm install
+    nvm use
+    npm install --global yarn
+    yarn install
+install-osx:rust: |
+    brew install llvm
+    ln -s /usr/local/opt/llvm/bin/lld-link ~/bin/link.exe
+
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+    rustup +nightly target add x86_64-pc-windows-gnu
+    rustup +nightly target add x86_64-apple-darwin
+
+install-osx:
+  series:
+    - task: install-osx:brew
+    - task: install-osx:node
+    - task: install-osx:rust
+    - task: create-ssl-certificate-osx
+
+# Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
+# FIXME: Find an alternative to mv that would work for default Windows machines
+recompile-scriptplan-release: |
+    cargo +nightly build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
+    cargo +nightly build --release --bins --target x86_64-apple-darwin --package scriptplan
+    mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
+    mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
+recompile-scriptplan-debug: |
+    cargo +nightly build --bins --target x86_64-pc-windows-gnu --package scriptplan
+    cargo +nightly build --bins --target x86_64-apple-darwin --package scriptplan
+    mv ./target/x86_64-pc-windows-gnu/debug/scriptplan.exe ./scriptplan.exe
+    mv ./target/x86_64-apple-darwin/debug/scriptplan ./scriptplan
+
+
+node-base: node --require ./.pnp.js --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
+run:buildplan:
+  task: node-base buildplan.ts
+
+format:javascript:
+  task: run:buildplan format
+# TODO: Should be a part of format:rust but errors out ATM
+format:rust:fix: cargo +nightly fix
+format:rust:fmt: cargo +nightly fmt
+format:rust:
+  series:
+   - task: format:rust:fix
+   - task: format:rust:fmt
+format:
+  description: Formats all your source code files
+  parallel:
+    - task: format:rust
+    - task: format:javascript
+
+format-staged:javascript:
+  task: run:buildplan format-staged
+format-staged:
+  description: Corrects any automatically fixable linter warnings or errors. Note that this command will overwrite files without creating a backup.
+  parallel:
+    - task: format-staged:javascript
+    - task: format:rust
+
+test:
+  task: run:buildplan test
+clean:
+  task: run:buildplan clean
+transpile:
+  description: Transpiles source code
+  task: run:buildplan transpile
+copy:
+  task: run:buildplan copy
+build:
+  description: Builds everything required to run packages other than certain slow (bundled) packages
+  series:
+    - parallel:
+      - task: transpile
+      - task: copy
+  # - task: build:rust
+    - task: writeme
+build:node:
+  task: run:buildplan build
+# FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
+#build:rust:
+#  script: cargo +nightly build
+build-all:
+  description: Build literally everything including things that require bundling (slower)
+  series:
+    - task: build
+    - task: webpack
+watch:
+  description: Like build but continuously watches for changes
+  task: run:buildplan watch
+writeme:
+  description: Generates README doco
+  task: run:buildplan writeme
+webpack:
+  task: run:buildplan webpack
+serve:
+  task: run:buildplan serve
+serve:my-resume:
+  task: serve --name='my-resume'
+serve:page-breaker:
+  task: serve --name='page-breaker'
+serve:genetic-sequence-analysis-app:
+  task: serve --name='genetic-sequence-analysis-app'
+serve:particle-sensor-app:
+  task: serve --name='particle-sensor-app'
+serve:spot-welder-app:
+  task: serve --name='spot-welder-app'
+precommit:
+  description: Run this before your commit to prevent trivial build errors (like linting/formatting) from failing your build
+  series:
+    - parallel:
+      - task: transpile
+      - task: format-staged
+      - task: copy
+    - task: writeme
+prepublish:
+  description: Run this before publishing any packages
+  series:
+    - task: clean
+    - parallel:
+      - task: format
+      - series:
+        - parallel:
+          - task: transpile
+            # ESLint preset config is currently a JS file
+          - task: copy
+        - parallel:
+          - task: test
+          - task: webpack
+          - task: check-types
+          - task: writeme
+check-types:
+  description: Run TypeScript validation
+  task: run:buildplan check-types
+
+update-yarn: |
+    yarn set version berry
+    yarn add @yarnpkg/pnpify
+    yarn install
+    yarn pnpify --sdk
+create-ssl-certificate-osx: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt

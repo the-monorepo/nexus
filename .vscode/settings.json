@@ -12,6 +12,10 @@
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "stylelint.stylelintPath": ".yarn/sdks/stylelint/lib/index.js",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[rust]": {
+    "editor.defaultFormatter": "matklad.rust-analyzer"
+  },
   "files.associations": {
     "array": "cpp",
     "iterator": "cpp",

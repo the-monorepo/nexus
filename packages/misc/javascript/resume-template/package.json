@@ -1,0 +1,31 @@
+{
+  "name": "@pshaw/resume-template",
+  "version": "1.1.4-0",
+  "description": "A template you can use to generate resumes",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/resume-template"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./commonjs/index.tsx",
+  "module": "./esm/index.tsx",
+  "dependencies": {
+    "@types/classnames": "^2.2.10",
+    "@types/date-fns": "^2.6.0",
+    "cinder": "workspace:packages/cinder/javascript/cinder",
+    "classnames": "^2.2.6",
+    "date-fns": "^2.15.0",
+    "mobx": "^5.15.6"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

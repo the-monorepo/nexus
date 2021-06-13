@@ -1,0 +1,30 @@
+{
+  "name": "@pshaw/page-breaker-chrome",
+  "version": "1.0.1-0",
+  "description": "An assortment of tools that lets you test how robust your CSS handles less common inputs including right-to-left, special unicode markup, long words and more.",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "misc/page-breaker-chrome"
+  },
+  "types": "./src/index.tsx",
+  "module": "./esm/index.tsx",
+  "main": "./commonjs/index.tsx",
+  ".": {
+    "import": "./esm/index.tsx",
+    "require": "./commonjs/index.tsx"
+  },
+  "dependencies": {
+    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements",
+    "@polymer/iron-flex-layout": "^3.0.1",
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
+    "@types/chrome": "^0.0.122",
+    "cinder": "workspace:packages/cinder/javascript/cinder",
+    "classnames": "^2.2.6",
+    "core-js": "^3.10.1",
+    "mobx": "^5.15.6",
+    "unstyled": "workspace:packages/misc/javascript/unstyled",
+    "xy-ui": "^1.10.0"
+  }
+}
