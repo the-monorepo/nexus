@@ -18,11 +18,11 @@
   "exports": {
     ".": {
       "import": "./esm/index.ts",
-      "node": "./commonjs/index.ts"
+      "require": "./commonjs/index.ts"
     },
     "./webpack": {
       "import": "./common/webpack.ts",
-      "node": "./commonjs/webpack.ts"
+      "require": "./commonjs/webpack.ts"
     }
   },
   "license": "MIT",

@@ -4849,34 +4849,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["@polymer/iron-a11y-announcer", [
-        ["npm:3.2.0", {
-          "packageLocation": "./.yarn/cache/@polymer-iron-a11y-announcer-npm-3.2.0-807f56c935-0e43a833fa.zip/node_modules/@polymer/iron-a11y-announcer/",
-          "packageDependencies": [
-            ["@polymer/iron-a11y-announcer", "npm:3.2.0"],
-            ["@polymer/polymer", "npm:3.4.1"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["@polymer/iron-a11y-keys-behavior", [
         ["npm:3.0.1", {
           "packageLocation": "./.yarn/cache/@polymer-iron-a11y-keys-behavior-npm-3.0.1-83bada471c-94d2c35d97.zip/node_modules/@polymer/iron-a11y-keys-behavior/",
           "packageDependencies": [
             ["@polymer/iron-a11y-keys-behavior", "npm:3.0.1"],
-            ["@polymer/polymer", "npm:3.4.1"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["@polymer/iron-autogrow-textarea", [
-        ["npm:3.0.3", {
-          "packageLocation": "./.yarn/cache/@polymer-iron-autogrow-textarea-npm-3.0.3-1e633024cc-54900a3b74.zip/node_modules/@polymer/iron-autogrow-textarea/",
-          "packageDependencies": [
-            ["@polymer/iron-autogrow-textarea", "npm:3.0.3"],
-            ["@polymer/iron-behaviors", "npm:3.0.1"],
-            ["@polymer/iron-flex-layout", "npm:3.0.1"],
-            ["@polymer/iron-validatable-behavior", "npm:3.0.1"],
             ["@polymer/polymer", "npm:3.4.1"]
           ],
           "linkType": "HARD",
@@ -4925,33 +4902,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["@polymer/iron-input", [
-        ["npm:3.0.1", {
-          "packageLocation": "./.yarn/cache/@polymer-iron-input-npm-3.0.1-aecef979a9-70dcc4b8a1.zip/node_modules/@polymer/iron-input/",
-          "packageDependencies": [
-            ["@polymer/iron-input", "npm:3.0.1"],
-            ["@polymer/iron-a11y-announcer", "npm:3.2.0"],
-            ["@polymer/iron-validatable-behavior", "npm:3.0.1"],
-            ["@polymer/polymer", "npm:3.4.1"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["@polymer/iron-meta", [
         ["npm:3.0.1", {
           "packageLocation": "./.yarn/cache/@polymer-iron-meta-npm-3.0.1-022fa7d018-05e6cd9cb7.zip/node_modules/@polymer/iron-meta/",
           "packageDependencies": [
             ["@polymer/iron-meta", "npm:3.0.1"],
-            ["@polymer/polymer", "npm:3.4.1"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["@polymer/iron-range-behavior", [
-        ["npm:3.0.1", {
-          "packageLocation": "./.yarn/cache/@polymer-iron-range-behavior-npm-3.0.1-98ef6539a0-ebab83145f.zip/node_modules/@polymer/iron-range-behavior/",
-          "packageDependencies": [
-            ["@polymer/iron-range-behavior", "npm:3.0.1"],
             ["@polymer/polymer", "npm:3.4.1"]
           ],
           "linkType": "HARD",
@@ -4976,35 +4931,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@polymer/iron-behaviors", "npm:3.0.1"],
             ["@polymer/iron-checked-element-behavior", "npm:3.0.1"],
             ["@polymer/paper-ripple", "npm:3.0.2"],
-            ["@polymer/polymer", "npm:3.4.1"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["@polymer/paper-input", [
-        ["npm:3.2.1", {
-          "packageLocation": "./.yarn/cache/@polymer-paper-input-npm-3.2.1-3057332fc9-ccce28b046.zip/node_modules/@polymer/paper-input/",
-          "packageDependencies": [
-            ["@polymer/paper-input", "npm:3.2.1"],
-            ["@polymer/iron-a11y-keys-behavior", "npm:3.0.1"],
-            ["@polymer/iron-autogrow-textarea", "npm:3.0.3"],
-            ["@polymer/iron-behaviors", "npm:3.0.1"],
-            ["@polymer/iron-form-element-behavior", "npm:3.0.1"],
-            ["@polymer/iron-input", "npm:3.0.1"],
-            ["@polymer/paper-styles", "npm:3.0.1"],
-            ["@polymer/polymer", "npm:3.4.1"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["@polymer/paper-progress", [
-        ["npm:3.0.1", {
-          "packageLocation": "./.yarn/cache/@polymer-paper-progress-npm-3.0.1-4e695f752e-ddc9737d8a.zip/node_modules/@polymer/paper-progress/",
-          "packageDependencies": [
-            ["@polymer/paper-progress", "npm:3.0.1"],
-            ["@polymer/iron-flex-layout", "npm:3.0.1"],
-            ["@polymer/iron-range-behavior", "npm:3.0.1"],
-            ["@polymer/paper-styles", "npm:3.0.1"],
             ["@polymer/polymer", "npm:3.4.1"]
           ],
           "linkType": "HARD",
@@ -5276,13 +5202,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@pshaw/page-breaker-chrome", "workspace:packages/misc/javascript/page-breaker-chrome"],
             ["@contextual-documents/html-elements", "workspace:packages/contextual-documents/javascript/html-elements"],
+            ["@polymer/iron-flex-layout", "npm:3.0.1"],
             ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/javascript/contextual-documents"],
             ["@types/chrome", "npm:0.0.122"],
             ["cinder", "workspace:packages/cinder/javascript/cinder"],
             ["classnames", "npm:2.3.1"],
             ["core-js", "npm:3.12.1"],
             ["mobx", "npm:5.15.7"],
-            ["paper-range-slider", "npm:3.0.0"],
             ["unstyled", "workspace:packages/misc/javascript/unstyled"],
             ["xy-ui", "npm:1.10.2"]
           ],
@@ -16975,7 +16901,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["genetic-sequencing-analysis-app", "workspace:packages/misc/javascript/genetic-sequence-analysis-app"],
             ["@polymer/paper-radio-button", "npm:3.0.1"],
+            ["@pshaw/contextual-documents", "workspace:packages/patrick-shaw/javascript/contextual-documents"],
             ["@types/jest", "npm:26.0.23"],
+            ["cinder", "workspace:packages/cinder/javascript/cinder"],
             ["core-js", "npm:3.12.1"],
             ["fasta-format-parser", "workspace:packages/misc/javascript/fasta-format-parser"],
             ["jest-mock", "npm:26.6.2"],
@@ -22787,24 +22715,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/pako-npm-1.0.11-b8f1b69d3e-71c60150b6.zip/node_modules/pako/",
           "packageDependencies": [
             ["pako", "npm:1.0.11"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["paper-range-slider", [
-        ["npm:3.0.0", {
-          "packageLocation": "./.yarn/cache/paper-range-slider-npm-3.0.0-ea64ac3eec-3320406e02.zip/node_modules/paper-range-slider/",
-          "packageDependencies": [
-            ["paper-range-slider", "npm:3.0.0"],
-            ["@polymer/iron-a11y-keys-behavior", "npm:3.0.1"],
-            ["@polymer/iron-behaviors", "npm:3.0.1"],
-            ["@polymer/iron-flex-layout", "npm:3.0.1"],
-            ["@polymer/iron-form-element-behavior", "npm:3.0.1"],
-            ["@polymer/paper-behaviors", "npm:3.0.1"],
-            ["@polymer/paper-input", "npm:3.2.1"],
-            ["@polymer/paper-progress", "npm:3.0.1"],
-            ["@polymer/paper-styles", "npm:3.0.1"],
-            ["@polymer/polymer", "npm:3.4.1"]
           ],
           "linkType": "HARD",
         }]

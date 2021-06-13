@@ -20,6 +20,16 @@
   "main": "./commonjs/index.ts",
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./esm/index.ts",
+      "require": "./commonjs/index.ts"
+    },
+    "./register": {
+      "import": "./esm/register.ts",
+      "require": "./commonjs/register.ts"
+    }
+  },
   "dependencies": {
     "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/javascript/classname-picker",
     "@contextual-documents/element": "workspace:packages/contextual-documents/javascript/element",
