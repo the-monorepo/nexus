@@ -10,9 +10,10 @@ import * as cinder from 'cinder';
 import './globals.scss';
 import styles from './styles.scss';
 
-import '@pshaw/contextual-documents/esm/register';
+import '@pshaw/contextual-documents/register';
 
-import 'paper-range-slider';
+/* TODO: ModuleNotFoundError: Module not found: Error: Can't resolve '@polymer/iron-flex-layout/iron-flex-layout.js' in '/Users/pshaw/code/monorepo/.yarn/cache/@polymer-paper-input-npm-3.2.1-3057332fc9-ccce28b046.zip/node_modules/@polymer/paper-input' 0 ModuleNotFoundError: Module not found: Error: Can't resolve '@polymer/iron-flex-layout/iron-flex-layout.js' in '/Users/pshaw/code/monorepo/.yarn/cache/@polymer-paper-input-npm-3.2.1-3057332fc9-ccce28b046.zip/node_modules/@polymer/paper-input',ModuleNotFoundError: Module not found: Error: Can't resolve '@polymer/iron-range-behavior/iron-range-behavior.js' in '/Users/pshaw/code/monorepo/.yarn/cache/paper-range-slider-npm-3.0.0-ea64ac3eec-3320406e02.zip/node_modules/paper-range-slider' */
+// import 'paper-range-slider';
 import 'xy-ui/components/xy-checkbox';
 import 'xy-ui/components/xy-input';
 import 'xy-ui/components/xy-button';

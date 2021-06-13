@@ -71,12 +71,12 @@ module.exports = (api) => {
     },
     overrides: [
       {
-        test: ['./packages/**/javascript/*.react.tsx'],
+        test: ['./packages/*/javascript/**/*.react.tsx'],
         plugins,
         presets: presets.concat(['@babel/preset-typescript', '@babel/preset-react']),
       },
       {
-        test: ['./packages/**/javascript/*.tsx'],
+        test: ['./packages/*/javascript/**/*.tsx'],
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
           [

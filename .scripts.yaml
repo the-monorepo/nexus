@@ -72,7 +72,8 @@ clean:
 transpile:
   description: Transpiles source code
   task: run:buildplan transpile
-copy: run:buildplan copy
+copy:
+  task: run:buildplan copy
 build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
   series:

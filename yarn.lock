@@ -2656,16 +2656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymer/iron-a11y-announcer@npm:^3.0.0-pre.26":
-  version: 3.2.0
-  resolution: "@polymer/iron-a11y-announcer@npm:3.2.0"
-  dependencies:
-    "@polymer/polymer": ^3.0.0
-  checksum: 0e43a833fa4a254e39603250d8c3e1f52e2eba8561b9c1a49f5e7a457fc41f8a35698cbcb23a522864423c3de296c62c9eaf6566e9446111e055a343cf7e3840
-  languageName: node
-  linkType: hard
-
-"@polymer/iron-a11y-keys-behavior@npm:^3.0.0-pre.26, @polymer/iron-a11y-keys-behavior@npm:^3.0.1":
+"@polymer/iron-a11y-keys-behavior@npm:^3.0.0-pre.26":
   version: 3.0.1
   resolution: "@polymer/iron-a11y-keys-behavior@npm:3.0.1"
   dependencies:
@@ -2674,19 +2665,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymer/iron-autogrow-textarea@npm:^3.0.0-pre.26":
-  version: 3.0.3
-  resolution: "@polymer/iron-autogrow-textarea@npm:3.0.3"
-  dependencies:
-    "@polymer/iron-behaviors": ^3.0.0-pre.26
-    "@polymer/iron-flex-layout": ^3.0.0-pre.26
-    "@polymer/iron-validatable-behavior": ^3.0.0-pre.26
-    "@polymer/polymer": ^3.0.0
-  checksum: 54900a3b740025348493262196ccb323a6c9c938c2cc610c03a0e21ec0fbabb03655ac5f4fe6d1640325c0646006a140d74dc6df4bc1864ecd82c5100478b8ad
-  languageName: node
-  linkType: hard
-
-"@polymer/iron-behaviors@npm:^3.0.0-pre.26, @polymer/iron-behaviors@npm:^3.0.1":
+"@polymer/iron-behaviors@npm:^3.0.0-pre.26":
   version: 3.0.1
   resolution: "@polymer/iron-behaviors@npm:3.0.1"
   dependencies:
@@ -2716,23 +2695,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymer/iron-form-element-behavior@npm:^3.0.0-pre.26, @polymer/iron-form-element-behavior@npm:^3.0.1":
+"@polymer/iron-form-element-behavior@npm:^3.0.0-pre.26":
   version: 3.0.1
   resolution: "@polymer/iron-form-element-behavior@npm:3.0.1"
   dependencies:
     "@polymer/polymer": ^3.0.0
   checksum: 5609d503af97836f7d519f9abbe0d5ce332d6e5b41f3dfe2a9f329a32e3ecea8fc8418d1d600081722ada65c61a4c2a95b5ae98adef82fb628b5ddb66c7b2ce0
-  languageName: node
-  linkType: hard
-
-"@polymer/iron-input@npm:^3.0.0-pre.26":
-  version: 3.0.1
-  resolution: "@polymer/iron-input@npm:3.0.1"
-  dependencies:
-    "@polymer/iron-a11y-announcer": ^3.0.0-pre.26
-    "@polymer/iron-validatable-behavior": ^3.0.0-pre.26
-    "@polymer/polymer": ^3.0.0
-  checksum: 70dcc4b8a1fc7bfe016fd57d7a178725b37ac7f0572af5676e34d5d8295b8c92ceeb0cb47b6dbc3279e0e9a07b478ef9deaf6d508ca2ca067b0128165003f56c
   languageName: node
   linkType: hard
 
@@ -2742,15 +2710,6 @@ __metadata:
   dependencies:
     "@polymer/polymer": ^3.0.0
   checksum: 05e6cd9cb78796f221c530d5c88e412b0543f0956a1c73e71e3b60eb63d3f06e694949ca2deb920e82983c3445cc60c891d066968c16bd3d0953273fedeae347
-  languageName: node
-  linkType: hard
-
-"@polymer/iron-range-behavior@npm:^3.0.0-pre.26":
-  version: 3.0.1
-  resolution: "@polymer/iron-range-behavior@npm:3.0.1"
-  dependencies:
-    "@polymer/polymer": ^3.0.0
-  checksum: ebab83145f536964b21ac4590f1f31a1f95e1608ed04bb7b64b2e6efea5b0d81459b485f118e8af886d19e8728e9587ec5555b307992a64147ec5452ef2ebe50
   languageName: node
   linkType: hard
 
@@ -2764,7 +2723,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymer/paper-behaviors@npm:^3.0.0-pre.27, @polymer/paper-behaviors@npm:^3.0.1":
+"@polymer/paper-behaviors@npm:^3.0.0-pre.27":
   version: 3.0.1
   resolution: "@polymer/paper-behaviors@npm:3.0.1"
   dependencies:
@@ -2773,33 +2732,6 @@ __metadata:
     "@polymer/paper-ripple": ^3.0.0-pre.26
     "@polymer/polymer": ^3.0.0
   checksum: 428c2e39d4f46a2ebb159b3e829c35bd077e003aca5376c09d6477c1be43ac1cd3c130538f089f25d2ee20510c9df2aa055527c5816902fe37e4a5907d3f78a5
-  languageName: node
-  linkType: hard
-
-"@polymer/paper-input@npm:^3.0.1":
-  version: 3.2.1
-  resolution: "@polymer/paper-input@npm:3.2.1"
-  dependencies:
-    "@polymer/iron-a11y-keys-behavior": ^3.0.0-pre.26
-    "@polymer/iron-autogrow-textarea": ^3.0.0-pre.26
-    "@polymer/iron-behaviors": ^3.0.0-pre.26
-    "@polymer/iron-form-element-behavior": ^3.0.0-pre.26
-    "@polymer/iron-input": ^3.0.0-pre.26
-    "@polymer/paper-styles": ^3.0.0-pre.26
-    "@polymer/polymer": ^3.0.0
-  checksum: ccce28b046c947c9e3b261db7914fb551787bf2f90cc3f4740c0539bc8def1da4835bbd83b806db4f4dc9502750bc72f858dbc5fa86788a35aa90337276446a5
-  languageName: node
-  linkType: hard
-
-"@polymer/paper-progress@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@polymer/paper-progress@npm:3.0.1"
-  dependencies:
-    "@polymer/iron-flex-layout": ^3.0.0-pre.26
-    "@polymer/iron-range-behavior": ^3.0.0-pre.26
-    "@polymer/paper-styles": ^3.0.0-pre.26
-    "@polymer/polymer": ^3.0.0
-  checksum: ddc9737d8a5d2e0440c1dc4f6157bdae9857d8e96c17e9dd6ddaef034b05fc501b2e53956f4e901a942b3dea1e09e6d88513afe9bb480c106fc6c669b5d748ac
   languageName: node
   linkType: hard
 
@@ -2826,7 +2758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymer/paper-styles@npm:^3.0.0-pre.26, @polymer/paper-styles@npm:^3.0.1":
+"@polymer/paper-styles@npm:^3.0.0-pre.26":
   version: 3.0.1
   resolution: "@polymer/paper-styles@npm:3.0.1"
   dependencies:
@@ -2837,7 +2769,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymer/polymer@npm:^3.0.0, @polymer/polymer@npm:^3.0.5":
+"@polymer/polymer@npm:^3.0.0":
   version: 3.4.1
   resolution: "@polymer/polymer@npm:3.4.1"
   dependencies:
@@ -3000,13 +2932,13 @@ __metadata:
   resolution: "@pshaw/page-breaker-chrome@workspace:packages/misc/javascript/page-breaker-chrome"
   dependencies:
     "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements"
+    "@polymer/iron-flex-layout": ^3.0.1
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents"
     "@types/chrome": ^0.0.122
     cinder: "workspace:packages/cinder/javascript/cinder"
     classnames: ^2.2.6
     core-js: ^3.10.1
     mobx: ^5.15.6
-    paper-range-slider: ^3.0.0
     unstyled: "workspace:packages/misc/javascript/unstyled"
     xy-ui: ^1.10.0
   languageName: unknown
@@ -11095,7 +11027,9 @@ fsevents@~2.3.1:
   resolution: "genetic-sequencing-analysis-app@workspace:packages/misc/javascript/genetic-sequence-analysis-app"
   dependencies:
     "@polymer/paper-radio-button": ^3.0.1
+    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents"
     "@types/jest": ^26.0.10
+    cinder: "workspace:packages/cinder/javascript/cinder"
     core-js: ^3.10.1
     fasta-format-parser: "workspace:packages/misc/javascript/fasta-format-parser"
     jest-mock: ^26.3.0
@@ -16244,23 +16178,6 @@ fsevents@~2.3.1:
   version: 1.0.11
   resolution: "pako@npm:1.0.11"
   checksum: 71c60150b68220ec52a404f3c39a4ed38f750e42452b88fe0eb2e6b5c98e91f73f706444359b097aca1e6db83ef8fef50b5a9ec100e30a606cda6da8d45e5439
-  languageName: node
-  linkType: hard
-
-"paper-range-slider@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "paper-range-slider@npm:3.0.0"
-  dependencies:
-    "@polymer/iron-a11y-keys-behavior": ^3.0.1
-    "@polymer/iron-behaviors": ^3.0.1
-    "@polymer/iron-flex-layout": ^3.0.1
-    "@polymer/iron-form-element-behavior": ^3.0.1
-    "@polymer/paper-behaviors": ^3.0.1
-    "@polymer/paper-input": ^3.0.1
-    "@polymer/paper-progress": ^3.0.1
-    "@polymer/paper-styles": ^3.0.1
-    "@polymer/polymer": ^3.0.5
-  checksum: 3320406e0227573d5c1ad9b66a4ce6f3ba9bb246f6984cc9d07100d84f4d03191ca428797063f84a300af7f9551d53f715225a58a176cd26dbb6c95de2846ffb
   languageName: node
   linkType: hard
 

@@ -17,13 +17,13 @@
   },
   "dependencies": {
     "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements",
+    "@polymer/iron-flex-layout": "^3.0.1",
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
     "@types/chrome": "^0.0.122",
     "cinder": "workspace:packages/cinder/javascript/cinder",
     "classnames": "^2.2.6",
     "core-js": "^3.10.1",
     "mobx": "^5.15.6",
-    "paper-range-slider": "^3.0.0",
     "unstyled": "workspace:packages/misc/javascript/unstyled",
     "xy-ui": "^1.10.0"
   }

@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import { join, resolve } from 'path';
 
 import {
   createHtmlWebpackPlugin,
@@ -11,11 +11,13 @@ import {
   distPath,
 } from '@pshaw/webpack';
 
+const projectResolve = (projectDirPath, packageDir) => join(projectDirPath, 'javascript', packageDir);
+
 const packagesDir = resolve(__dirname, './packages');
 const miscDir = resolve(packagesDir, './misc');
 const patrickShawDir = resolve(packagesDir, './patrick-shaw');
-const pageBreakerDir = resolve(miscDir, 'page-breaker-chrome');
-const resumeDir = resolve(patrickShawDir, 'my-resume');
+const pageBreakerDir = projectResolve(miscDir, 'page-breaker-chrome');
+const resumeDir = projectResolve(patrickShawDir, 'my-resume');
 
 const createDistOutput = (packageDir: string) => {
   return createOutput(distPath(packageDir));
@@ -78,7 +80,7 @@ const resumeConfig: Configuration = {
   },
 };
 
-const geneticSequenceAnalysisAppDir = resolve(miscDir, 'genetic-sequence-analysis-app');
+const geneticSequenceAnalysisAppDir = projectResolve(miscDir, 'genetic-sequence-analysis-app');
 const geneticSequenceAnalysisApp: Configuration = {
   name: 'genetic-sequence-analysis-app',
   target: 'web',
@@ -111,7 +113,7 @@ const geneticSequenceAnalysisApp: Configuration = {
   },
 };
 
-const particleSensorAppDir = resolve(patrickShawDir, 'particle-sensor-app');
+const particleSensorAppDir = projectResolve(patrickShawDir, 'particle-sensor-app');
 const particleSensorApp: Configuration = {
   name: 'particle-sensor-app',
   target: 'web',
@@ -144,7 +146,7 @@ const particleSensorApp: Configuration = {
   },
 };
 
-const spotWelderSensorAppDir = resolve(patrickShawDir, 'spot-welder-app');
+const spotWelderSensorAppDir = projectResolve(patrickShawDir, 'spot-welder-app');
 const spotWelderApp: Configuration = {
   name: 'spot-welder-app',
   target: 'web',
