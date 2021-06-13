@@ -11,7 +11,8 @@ import {
   distPath,
 } from '@pshaw/webpack';
 
-const projectResolve = (projectDirPath, packageDir) => join(projectDirPath, 'javascript', packageDir);
+const projectResolve = (projectDirPath, packageDir) =>
+  join(projectDirPath, 'javascript', packageDir);
 
 const packagesDir = resolve(__dirname, './packages');
 const miscDir = resolve(packagesDir, './misc');
@@ -80,7 +81,10 @@ const resumeConfig: Configuration = {
   },
 };
 
-const geneticSequenceAnalysisAppDir = projectResolve(miscDir, 'genetic-sequence-analysis-app');
+const geneticSequenceAnalysisAppDir = projectResolve(
+  miscDir,
+  'genetic-sequence-analysis-app',
+);
 const geneticSequenceAnalysisApp: Configuration = {
   name: 'genetic-sequence-analysis-app',
   target: 'web',
