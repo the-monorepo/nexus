@@ -22,15 +22,14 @@ module.exports = {
       "mocha": true,
   },
   "parserOptions": {
-    "ecmaVersion": 9,
+    "ecmaVersion": 12,
     "sourceType": "module",
     "ecmaFeatures": {
       "modules": true,
-      "jsx": true
+      "jsx": true,
     }
   },
   "settings": {
-    "import/extensions": config.codeExtensions.map(extension => `.${extension}`),
     "import/resolver": {
       "node": {
         "extensions": config.codeExtensions.map(extension => `.${extension}`),
@@ -41,7 +40,7 @@ module.exports = {
     ...commonRules,
   },
   "overrides": [{
-    "files": ["./packages/faultjs/**", './packages/fl-benchmarker/**'],
+    "files": ["./packages/faultjs/javascript/**", './packages/fl-benchmarker/javascript/**'],
     "rules": {
       ...commonRules,
       "no-console": "off",
@@ -54,13 +53,13 @@ module.exports = {
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
-    "files": ["**/test/**", "packages/build-packages/**", "**/*.config.js", '.eslintrc.cjs'],
+    "files": ["**/test/**", "packages/build-packages/javascript/**", "**/*.config.js", '.eslintrc.cjs'],
     "rules": {
       ...commonRules,
       "@typescript-eslint/no-var-requires": "off"
     }
   }, {
-    "files": ["packages/misc/jest-mock-functions/**"],
+    "files": ["packages/misc/javascript/jest-mock-functions/**"],
     "env": {
       "jest": true
     },

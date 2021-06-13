@@ -21,6 +21,7 @@
     "declarationMap": true,
     "sourceMap": true
   },
+  "typings": ["./global.d.ts"],
   "exclude": [
     "**/.yarn/**",
     "**/node_modules",

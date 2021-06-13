@@ -7,13 +7,12 @@ module.exports = (api) => {
 
   const classPropertyPlugin = [
     '@babel/plugin-proposal-class-properties',
-    { loose: true },
+    { loose: false },
   ];
 
   const plugins = [
-    '@babel/plugin-proposal-optional-chaining',
-    ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
     classPropertyPlugin,
+    ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
     '@babel/plugin-transform-strict-mode',
   ];
   if (test) {
@@ -23,7 +22,7 @@ module.exports = (api) => {
         {
           useInlineSourceMaps: true,
           include: config.buildableSourceFileGlobs,
-          exclude: '.yarn/**',
+          exclude: ['.yarn/**', '.pnp.js', '.pnp.cjs'],
         },
       ],
       'rewiremock/babel',
@@ -33,33 +32,51 @@ module.exports = (api) => {
     [
       '@babel/preset-env',
       {
-        // TODO: Remove this in once Babel 8 is implemented
+        shippedProposals: true,
+        // TODO: Remove this once Babel 8 is implemented
         bugfixes: true,
         modules: usingEsm ? false : 'commonjs',
         // useBuiltIns: 'usage',
         // corejs: '3',
         targets: {
-          node: production ? '10' : 'current',
+          node: production ? '12' : 'current',
           esmodules: usingEsm,
         },
       },
     ],
   ];
   return {
-    presets: presets.concat(['@babel/preset-typescript']),
+    presets: [...presets, '@babel/preset-typescript'],
     plugins,
+    assumptions: {
+      constantReexports: true,
+      constantSuper: true,
+      enumerableModuleMeta: false,
+      ignoreFunctionLength: false,
+      //ignoreToPrimitiveHint:
+      iterableIsArray: false,
+      //mutableTemplateObject:
+      noClassCalls: true,
+      noDocumentAll: true,
+      noNewArrows: true,
+      objectRestNoSymbols: false,
+      //privateFieldsAsProperties:
+      pureGetters: false,
+      setClassMethods: false,
+      setComputedProperties: true,
+      setPublicClassFields: false,
+      //setSpreadProperties:
+      //skipForOfIteratorClosing:
+      //superIsCallableConstructor:
+    },
     overrides: [
       {
-        test: [
-          './packages/**/*.react.tsx'
-        ],
+        test: ['./packages/*/javascript/**/*.react.tsx'],
         plugins,
-        presets: presets.concat(['@babel/preset-typescript', '@babel/preset-react'])
+        presets: presets.concat(['@babel/preset-typescript', '@babel/preset-react']),
       },
       {
-        test: [
-          './packages/**/*.tsx',
-        ],
+        test: ['./packages/*/javascript/**/*.tsx'],
         plugins: plugins.concat(['@babel/plugin-syntax-jsx', 'cinder/babel']),
         presets: [
           [

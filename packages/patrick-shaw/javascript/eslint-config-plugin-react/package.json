@@ -1,0 +1,31 @@
+{
+  "name": "@pshaw/eslint-config-plugin-react",
+  "description": "A pratical React style preset for ESLint",
+  "keywords": [
+    "config",
+    "eslint",
+    "javasript",
+    "react",
+    "style",
+    "lint",
+    "preset"
+  ],
+  "version": "1.4.2",
+  "main": "./src/index.json",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "patrick-shaw/eslint-config-plugin-react"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
+}

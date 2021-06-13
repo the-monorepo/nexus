@@ -14,27 +14,23 @@ module.exports.extra = {
 
 module.exports.extraBuildIgnoreGlobs = pshawConfig.extraBuildIgnoreGlobs;
 
-module.exports.extraFormatIgnoreGlobs = [
-  ...pshawConfig.extraFormatIgnoreGlobs,
-];
+module.exports.extraFormatIgnoreGlobs = [...pshawConfig.extraFormatIgnoreGlobs];
 
 module.exports.extraBuildArtifactGlobs = pshawConfig.extraBuildArtifactGlobs;
 
-module.exports.extraTestIgnoreGlobs = [
-  ...pshawConfig.extraTestIgnoreGlobs,
-];
+module.exports.extraTestIgnoreGlobs = [...pshawConfig.extraTestIgnoreGlobs];
 
 module.exports.serve = {
   servers: {
     servers: [
       {
-        input: './packages/faultjs/fault-benchmark/src/frontend/index.tsx',
+        input: './packages/faultjs/javascript/benchmark/src/frontend/index.tsx',
       },
       {
-        input: './packages/patrick-shaw/my-resume/src/index.tsx',
+        input: './packages/patrick-shaw/javascript/my-resume/src/index.tsx',
       },
       {
-        input: './packages/misc/page-breaker-chrome/src/index.tsx',
+        input: './packages/misc/javascript/page-breaker-chrome/src/index.tsx',
       },
     ],
   },
