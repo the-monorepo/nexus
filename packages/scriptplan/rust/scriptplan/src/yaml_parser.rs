@@ -4,6 +4,8 @@ use yaml_rust::Yaml;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
+use std::convert::TryFrom;
+use std::convert::TryInto;
 use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -29,6 +31,24 @@ impl Script {
     }
 }
 
+impl TryFrom<&Yaml> for ScriptGroup {
+  type Error = ();
+  fn try_from(yaml: &Yaml) -> Result<ScriptGroup, Self::Error> {
+    let mut obj = Vec::new();
+    let yaml_list = yaml.as_vec().ok_or(())?;
+    for sub_yaml in yaml_list {
+        let task = parse_task(sub_yaml)?;
+        obj.push(task);
+    }
+    Ok(ScriptGroup {
+        bail: false,
+        first: obj.remove(0),
+        rest: obj,
+    })
+  }
+
+}
+
 fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
     if let Some(command_str) = yaml.as_str() {
         return Ok(Script::parse_command(command_str));
@@ -39,29 +59,9 @@ fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
         } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
             return Ok(Script::parse_command(command_str.as_str().unwrap()));
         } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("series")) {
-            let mut obj = Vec::new();
-            let yaml_list = serial_yaml.as_vec().unwrap();
-            for sub_yaml in yaml_list {
-                let task = parse_task(sub_yaml)?;
-                obj.push(task);
-            }
-            Ok(Script::Group(Box::new(CommandGroup::Series(ScriptGroup {
-                first: obj.remove(0),
-                rest: obj,
-            }))))
+            Ok(Script::Group(Box::new(CommandGroup::Series(serial_yaml.try_into()?))))
         } else if let Some(parallel_yaml) = hash.get(&Yaml::from_str("parallel")) {
-            let mut obj = Vec::new();
-            let yaml_list = parallel_yaml.as_vec().unwrap();
-            for sub_yaml in yaml_list {
-                let task = parse_task(sub_yaml)?;
-                obj.push(task);
-            }
-            Ok(Script::Group(Box::new(CommandGroup::Parallel(
-                ScriptGroup {
-                    first: obj.remove(0),
-                    rest: obj,
-                },
-            ))))
+            Ok(Script::Group(Box::new(CommandGroup::Parallel(parallel_yaml.try_into()?))))
         } else {
             panic!("should never happen");
         }
