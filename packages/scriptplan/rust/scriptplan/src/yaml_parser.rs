@@ -79,11 +79,14 @@ pub struct LazyTask<'a> {
     yaml_or_task: RefCell<YamlOrTask<'a>>,
 }
 
-fn create_lazy_task(yaml: &Yaml) -> LazyTask {
-    LazyTask {
+impl<'a> From<&'a Yaml> for LazyTask<'a> {
+    fn from(yaml: &'a Yaml) -> Self {
+      LazyTask {
         yaml_or_task: RefCell::new(YamlOrTask::NotLoaded(yaml)),
+      }
     }
 }
+
 impl LazyTask<'_> {
     fn parse(&self) -> Result<Rc<Script>, ()> {
         let mut yaml_or_task = self.yaml_or_task.borrow_mut();
@@ -107,7 +110,7 @@ pub fn create_scriptplan(yaml_object: &Hash) -> YamlScriptParser {
         tasks: yaml_object
             .iter()
             .map(|(yaml_name, yaml_value)| {
-                return (yaml_name.as_str().unwrap(), create_lazy_task(yaml_value));
+                return (yaml_name.as_str().unwrap(), yaml_value.into());
             })
             .collect(),
     }
