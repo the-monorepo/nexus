@@ -105,16 +105,19 @@ pub struct YamlScriptParser<'a> {
     pub tasks: HashMap<&'a str, LazyTask<'a>>,
 }
 
-impl<'a> From<&'a Hash> for YamlScriptParser<'a> {
-    fn from(yaml_object: &'a Hash) -> Self {
-      YamlScriptParser {
-        tasks: yaml_object
-            .iter()
-            .map(|(yaml_name, yaml_value)| {
-                return (yaml_name.as_str().unwrap(), yaml_value.into());
-            })
-            .collect(),
-      }
+impl<'a> TryFrom<&'a Hash> for YamlScriptParser<'a> {
+    type Error = ();
+
+    fn try_from(yaml_object: &'a Hash) -> Result<Self, Self::Error> {
+      let tasks_result: Result<HashMap<&'a str, LazyTask<'a>, _>, _> = yaml_object
+        .iter()
+        .map(|(yaml_name, yaml_value)| -> Result<_, Self::Error> {
+          return Ok((yaml_name.as_str().ok_or(())?, yaml_value.into()));
+        })
+        .collect();
+      Ok(YamlScriptParser {
+        tasks: tasks_result?,
+      })
     }
 }
 
