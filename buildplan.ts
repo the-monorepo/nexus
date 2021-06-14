@@ -21,7 +21,7 @@ import { createSrcDirSwapper } from './buildplan/utils/path.ts';
 import transpile from './buildplan/transpile';
 
 import { parallel, task, oldStreamToPromise } from './buildplan/utils/gulp-wrappers.ts';
-import { packagesSrcAssetStream, packagesSrcCodeStagedStream, packagesSrcCodeStream } from './buildplan/utils/path.ts';
+import { packagesSrcAssetStream } from './buildplan/utils/path.ts';
 import { simplePipeLogger } from './buildplan/utils/simplePipeLogger.ts';
 
 
@@ -173,46 +173,12 @@ task(
   formatStaged,
 );
 
-let withTypeCheckPipes = async (stream) => {
-  const gulpTypescript = await import('gulp-typescript');
+task('check-types', 'Run TypeScript type checking', require.resolve('./buildplan/checkTypes.ts'));
 
-  const tsProjectPromise = (async () => {
-    const typescript = await import('typescript');
-    const tsProject = await gulpTypescript.createProject('tsconfig.json', {
-      typescript,
-    });
-
-    return tsProject;
-  })();
-
-  withTypeCheckPipes = async (stream) => {
-    const tsProject = await tsProjectPromise;
-    return stream.pipe(tsProject(gulpTypescript.reporter.defaultReporter()));
-  };
-
-  return withTypeCheckPipes(stream);
-};
-
-const checkTypes = async () => {
-  return withTypeCheckPipes(
-    packagesSrcCodeStream([
-      ...config.buildableSourceCodeGlobs,
-      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-    ]),
-  );
-};
-checkTypes.description =
-  'Runs the TypeScript type checker on the codebase, displaying the output. This will display any ' +
-  'serious errors in the code, such as invalid syntax or the use of incorrect types.';
-task('check-types', 'Run TypeScript type checking', checkTypes);
-
-const checkTypesStaged = async () => {
-  return withTypeCheckPipes(await packagesSrcCodeStagedStream());
-};
 task(
   'check-types-staged',
   'Run TypeScript type checking against files being staged in Git',
-  checkTypesStaged,
+  require.resolve('./buildplan/checkTypesStaged.ts'),
 );
 
 task('test', 'Runs unit tests (without building)', require.resolve('./buildplan/test.ts'));
