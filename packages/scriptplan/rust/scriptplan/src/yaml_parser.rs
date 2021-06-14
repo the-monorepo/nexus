@@ -105,14 +105,16 @@ pub struct YamlScriptParser<'a> {
     pub tasks: HashMap<&'a str, LazyTask<'a>>,
 }
 
-pub fn create_scriptplan(yaml_object: &Hash) -> YamlScriptParser {
-    YamlScriptParser {
+impl<'a> From<&'a Hash> for YamlScriptParser<'a> {
+    fn from(yaml_object: &'a Hash) -> Self {
+      YamlScriptParser {
         tasks: yaml_object
             .iter()
             .map(|(yaml_name, yaml_value)| {
                 return (yaml_name.as_str().unwrap(), yaml_value.into());
             })
             .collect(),
+      }
     }
 }
 
