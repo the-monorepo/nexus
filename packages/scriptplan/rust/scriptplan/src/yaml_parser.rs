@@ -37,7 +37,7 @@ impl TryFrom<&Yaml> for ScriptGroup {
     let mut obj = Vec::new();
     let yaml_list = yaml.as_vec().ok_or(())?;
     for sub_yaml in yaml_list {
-        let task = parse_task(sub_yaml)?;
+        let task = sub_yaml.try_into()?;
         obj.push(task);
     }
     Ok(ScriptGroup {
@@ -46,27 +46,30 @@ impl TryFrom<&Yaml> for ScriptGroup {
         rest: obj,
     })
   }
-
 }
 
-fn parse_task(yaml: &Yaml) -> Result<Script, ()> {
-    if let Some(command_str) = yaml.as_str() {
+impl TryFrom<&Yaml> for Script {
+    type Error = ();
+
+    fn try_from(yaml: &Yaml) -> Result<Self, Self::Error> {
+      if let Some(command_str) = yaml.as_str() {
         return Ok(Script::parse_command(command_str));
-    } else if let Some(hash) = yaml.as_hash() {
-        if let Some(task) = hash.get(&Yaml::from_str("task")) {
-            // TODO: Need a splitn
-            return Ok(Script::parse_alias(task.as_str().unwrap()));
-        } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
-            return Ok(Script::parse_command(command_str.as_str().unwrap()));
-        } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("series")) {
-            Ok(Script::Group(Box::new(CommandGroup::Series(serial_yaml.try_into()?))))
-        } else if let Some(parallel_yaml) = hash.get(&Yaml::from_str("parallel")) {
-            Ok(Script::Group(Box::new(CommandGroup::Parallel(parallel_yaml.try_into()?))))
-        } else {
-            panic!("should never happen");
-        }
-    } else {
-        panic!("should never happen");
+      } else if let Some(hash) = yaml.as_hash() {
+          if let Some(task) = hash.get(&Yaml::from_str("task")) {
+              // TODO: Need a splitn
+              return Ok(Script::parse_alias(task.as_str().unwrap()));
+          } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
+              return Ok(Script::parse_command(command_str.as_str().unwrap()));
+          } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("series")) {
+              Ok(Script::Group(Box::new(CommandGroup::Series(serial_yaml.try_into()?))))
+          } else if let Some(parallel_yaml) = hash.get(&Yaml::from_str("parallel")) {
+              Ok(Script::Group(Box::new(CommandGroup::Parallel(parallel_yaml.try_into()?))))
+          } else {
+              panic!("should never happen");
+          }
+      } else {
+          panic!("should never happen");
+      }
     }
 }
 
@@ -91,7 +94,7 @@ impl LazyTask<'_> {
     fn parse(&self) -> Result<Rc<Script>, ()> {
         let mut yaml_or_task = self.yaml_or_task.borrow_mut();
         if let YamlOrTask::NotLoaded(ref yaml) = yaml_or_task.deref() {
-            *yaml_or_task = YamlOrTask::Loaded(Rc::new(parse_task(yaml).unwrap()));
+            *yaml_or_task = YamlOrTask::Loaded(Rc::new((*yaml).try_into()?));
         }
         if let YamlOrTask::Loaded(ref script) = yaml_or_task.deref() {
             return Ok(script.clone());
