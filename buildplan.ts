@@ -15,13 +15,13 @@ import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';
 import through from 'through2';
 
 import config from '@monorepo/config';
-import logger from './buildplan/utils/logger';
+import logger from './buildplan/utils/logger.ts';
 
 import filter from 'stream-filter-glob';
 
 import { run } from '@buildplan/core';
 
-import { parallel, task, oldStreamToPromise } from './buildplan/utils/gulp-wrappers';
+import { parallel, task, oldStreamToPromise } from './buildplan/utils/gulp-wrappers.ts';
 
 const swapSrcWith = (srcPath, newDirName) => {
   // Should look like /packages/<package-name>/javascript/src/<rest-of-the-path>
@@ -433,70 +433,6 @@ const testNoBuild = async () => {
 
 task('test', 'Runs unit tests (without building)', testNoBuild);
 
-const webpackCompilers = async () => {
-  const { default: minimist } = await import('minimist');
-  const { webpack } = await import('@pshaw/webpack');
-  const { isMatch } = await import('micromatch');
-  const { default: webpackConfigs } = await import('./webpack.config');
-  const { existsSync } = await import('fs');
-  const { readFile } = await import('fs/promises');
-
-  const args = minimist(process.argv.slice(2));
-
-  const {
-    name = ['*'],
-    mode = (process.env.NODE_ENV ?? 'development') === 'production' ? 'prod' : 'dev',
-    http = false,
-  } = args;
-
-  const httpsConfig = await (async () => {
-    if (http) {
-      return undefined;
-    }
-
-    const existsThenRead = async (path: string) => {
-      if (!existsSync(path)) {
-        // TODO: Need a better message
-        throw new Error(
-          `${path} is missing. Please create a ${path} or run with --http flag`,
-        );
-      }
-
-      return await readFile(path);
-    };
-
-    const [key, crt] = await Promise.all([
-      existsThenRead('./localhost.key'),
-      existsThenRead('./localhost.crt'),
-    ]);
-
-    return {
-      key,
-      cert: crt,
-    };
-  })();
-
-  const names = Array.isArray(name) ? name : [name];
-
-  return webpackConfigs
-    .filter((config) => isMatch(config.name, names))
-    .map((config) => {
-      const mergedConfig = {
-        mode: mode === 'prod' ? 'production' : 'development',
-        ...config,
-        devServer: {
-          https: config.devServer.https ?? httpsConfig,
-          ...config.devServer,
-        },
-      };
-      return {
-        config: mergedConfig,
-        // TODO: Fix
-        compiler: webpack(mergedConfig as any),
-      };
-    });
-};
-
 // From: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
 const humanReadableFileSize = (size: number) => {
   const i = Math.floor(Math.log(size) / Math.log(1024));
@@ -567,24 +503,5 @@ const bundleWebpack = async () => {
 
 task('webpack', 'Bundke all Webpack-bundled packages', bundleWebpack);
 
-const serveBundles = async () => {
-  const { WebpackDevServer } = await import('@pshaw/webpack');
-  const compilers = await webpackCompilers();
-  let port = 3000;
-  const l = logger.child(chalk.magentaBright('webpack'));
-  for (const { compiler, config } of compilers) {
-    const mergedDevServerConfig = config.devServer;
-    const server = new WebpackDevServer(compiler as any, mergedDevServerConfig);
-    const serverPort = config.devServer.port !== undefined ? config.devServer.port : port;
-    server.listen(serverPort, 'localhost', () => {
-      l.info(
-        `Serving '${chalk.cyanBright(config.name)}' on port ${chalk.cyanBright(
-          serverPort.toString(),
-        )}...`,
-      );
-    });
-    port++;
-  }
-};
-task('serve', 'Serves Webpack bundled packages', serveBundles);
+task('serve', 'Serves Webpack bundled packages', require.resolve('./buildplan/serve.ts'));
 run();
