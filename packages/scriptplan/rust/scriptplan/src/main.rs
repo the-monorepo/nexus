@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 use std::process::exit;
 
-use yaml_parser::create_scriptplan;
+use yaml_parser::YamlScriptParser;
 
 #[tokio::main]
 async fn main() {
@@ -35,7 +35,7 @@ async fn main() {
 
     let map = doc.as_hash().unwrap();
 
-    let scriptplan = create_scriptplan(map);
+    let scriptplan = YamlScriptParser::from(map);
 
     for task in scriptplan.tasks.keys() {
         let subcommand = SubCommand::with_name(task)
