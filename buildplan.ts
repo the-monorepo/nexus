@@ -12,71 +12,16 @@ import changed from 'gulp-changed';
 import rename from 'gulp-rename';
 
 import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';
-import streamToPromise from 'stream-to-promise';
 import through from 'through2';
-
-import {
-  task as buildplanTask,
-  run,
-  series as buildplanSeries,
-  parallel as buildplanParallel,
-  TASK_INFO,
-} from '@buildplan/core';
 
 import config from '@monorepo/config';
 import logger from './buildplan/utils/logger';
 
 import filter from 'stream-filter-glob';
 
-const oldStreamToPromise = async (something) => {
-  const value = await something;
-  if (
-    value !== undefined &&
-    value !== null &&
-    value.constructor !== undefined &&
-    value.constructor.name === 'Pumpify'
-  ) {
-    return streamToPromise(value);
-  }
+import { run } from '@buildplan/core';
 
-  return value;
-};
-
-const task = (name: string, descriptionOrCallback, callbackOrUndefined?) => {
-  const callback =
-    callbackOrUndefined === undefined ? descriptionOrCallback : callbackOrUndefined;
-  const wrapped = { [name]: () => oldStreamToPromise(callback()) }[name];
-  if (callback[TASK_INFO] !== undefined) {
-    wrapped[TASK_INFO] = callback[TASK_INFO];
-  }
-  return buildplanTask(
-    name,
-    callbackOrUndefined !== undefined ? descriptionOrCallback : '',
-    callback,
-  );
-};
-
-const series = (...tasks) =>
-  buildplanSeries(
-    ...tasks.map((aTask) => {
-      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
-      if (aTask[TASK_INFO] !== undefined) {
-        wrapped[TASK_INFO] = aTask[TASK_INFO];
-      }
-      return wrapped;
-    }),
-  );
-
-const parallel = (...tasks) =>
-  buildplanParallel(
-    ...tasks.map((aTask) => {
-      const wrapped = { [aTask.name]: () => oldStreamToPromise(aTask()) }[aTask.name];
-      if (aTask[TASK_INFO] !== undefined) {
-        wrapped[TASK_INFO] = aTask[TASK_INFO];
-      }
-      return wrapped;
-    }),
-  );
+import { parallel, task, oldStreamToPromise } from './buildplan/utils/gulp-wrappers';
 
 const swapSrcWith = (srcPath, newDirName) => {
   // Should look like /packages/<package-name>/javascript/src/<rest-of-the-path>
