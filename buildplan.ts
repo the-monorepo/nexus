@@ -24,7 +24,7 @@ import {
 } from '@buildplan/core';
 
 import config from '@monorepo/config';
-import logger from './buildplan/logger';
+import logger from './buildplan/utils/logger';
 
 import filter from 'stream-filter-glob';
 
