@@ -1,6 +1,6 @@
 import writeReadmeFromPackageDir from '@writeme/core';
 import chalk from 'chalk';
-import logger from './utils/logger';
+import logger from './utils/logger.ts';
 
 import { join, relative, resolve } from 'path';
 
