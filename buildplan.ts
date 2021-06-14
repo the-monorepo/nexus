@@ -24,7 +24,7 @@ import {
 } from '@buildplan/core';
 
 import config from '@monorepo/config';
-import createLogger from '@pshaw/logger';
+import logger from './buildplan/logger';
 
 import filter from 'stream-filter-glob';
 
@@ -91,8 +91,6 @@ const swapSrcWith = (srcPath, newDirName) => {
 const createSrcDirSwapper = (dir) => {
   return (srcPath) => swapSrcWith(srcPath, dir);
 };
-
-const logger = createLogger();
 
 const packagesSrcAssetStream = (options?) => {
   console.log([
@@ -295,13 +293,6 @@ const formatPipes = async (stream) => {
   return await prettierPipes(await lintPipes(stream, { fix: true }));
 };
 
-const printFriendlyAbsoluteDir = (dir) => {
-  if (relative(dir, __dirname) === '') {
-    return '.';
-  }
-  return relative(join(__dirname), dir);
-};
-
 const transpile = async () => {
   const stream = packagesSrcCodeStream();
 
@@ -334,30 +325,7 @@ const transpile = async () => {
 };
 task('transpile', transpile);
 
-const writeme = async () => {
-  const { default: writeReadmeFromPackageDir } = await import('@writeme/core');
-  const l = logger.child(chalk.greenBright('writeme'));
-  await writeReadmeFromPackageDir(__dirname, {
-    before: {
-      genReadme: async ({ packageDir }) => {
-        l.info(`Generating '${chalk.cyanBright(printFriendlyAbsoluteDir(packageDir))}'`);
-      },
-    },
-    after: {
-      readConfig: async ({ config, configPath }) => {
-        if (!config) {
-          l.warn(`Missing '${chalk.cyanBright(printFriendlyAbsoluteDir(configPath))}'`);
-        }
-      },
-    },
-    on: {
-      error: async (err) => {
-        l.error(err.stack);
-      },
-    },
-  });
-};
-task('writeme', 'Generates README doco', writeme);
+task('writeme', 'Generates README doco', require.resolve('./buildplan/writeme.ts'));
 
 const watch = async () => {
   // TODO: Never resolves :3 (on purpose but should find a better way)

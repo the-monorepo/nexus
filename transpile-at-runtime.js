@@ -25,6 +25,9 @@ register({
         case 'buildplan.ts':
           return true;
         default: {
+          if (relativePath.startsWith('buildplan')) {
+            return true;
+          }
           return isMatch(relativePath);
         }
       }
