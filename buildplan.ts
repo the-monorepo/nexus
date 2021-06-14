@@ -1,18 +1,14 @@
 import 'source-map-support/register';
 
-import { join, sep, relative } from 'path';
-
 import chalk from 'chalk';
 
 import gulp from 'gulp';
 
-import gulpPlumber from 'gulp-plumber';
 import changed from 'gulp-changed';
 
 import rename from 'gulp-rename';
 
 import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';
-import through from 'through2';
 
 import config from '@monorepo/config';
 import logger from './buildplan/utils/logger.ts';
@@ -21,63 +17,13 @@ import filter from 'stream-filter-glob';
 
 import { run } from '@buildplan/core';
 
+import { createSrcDirSwapper } from './buildplan/utils/path.ts';
+import transpile from './buildplan/transpile';
+
 import { parallel, task, oldStreamToPromise } from './buildplan/utils/gulp-wrappers.ts';
+import { packagesSrcAssetStream, packagesSrcCodeStagedStream, packagesSrcCodeStream } from './buildplan/utils/path.ts';
+import { simplePipeLogger } from './buildplan/utils/simplePipeLogger.ts';
 
-const swapSrcWith = (srcPath, newDirName) => {
-  // Should look like /packages/<package-name>/javascript/src/<rest-of-the-path>
-  srcPath = relative(__dirname, srcPath);
-  const parts = srcPath.split(sep);
-  // Swap out src for the new dir name
-  parts[4] = newDirName;
-  const resultingPath = join(...parts);
-  return resultingPath;
-};
-
-const createSrcDirSwapper = (dir) => {
-  return (srcPath) => swapSrcWith(srcPath, dir);
-};
-
-const packagesSrcAssetStream = (options?) => {
-  console.log([
-    ...config.buildableSourceAssetGlobs,
-    ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-  ]);
-  return gulp.src(
-    [
-      ...config.buildableSourceAssetGlobs,
-      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-    ],
-    {
-      base: '.',
-      nodir: true,
-      ...options,
-    },
-  );
-};
-
-const packagesSrcCodeStream = (options?) => {
-  return gulp.src(
-    [
-      ...config.buildableSourceCodeGlobs,
-      ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-    ],
-    {
-      base: `.`,
-      nodir: true,
-      ...options,
-    },
-  );
-};
-
-const packagesSrcCodeStagedStream = async (options?) => {
-  return gulp
-    .src(await getStagableFiles(), {
-      base: `.`,
-      nodir: true,
-      ...options,
-    })
-    .pipe(filter(config.buildableSourceCodeGlobs, config.buildableIgnoreGlobs));
-};
 
 const formatStream = (options?) =>
   gulp.src(
@@ -105,13 +51,6 @@ const formatStagedStream = async () => {
   return stagedStream.pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
 };
 
-const simplePipeLogger = (l) => {
-  return through.obj((file, enc, callback) => {
-    l.info(`'${chalk.cyanBright(file.relative)}'`);
-    callback(null, file);
-  });
-};
-
 const clean = async () => {
   const { default: del } = await import('del');
   await del(config.buildArtifactGlobs);
@@ -131,14 +70,6 @@ const copyPipes = (stream, l, dir) => {
     )
     .pipe(gulp.dest('.'));
 };
-
-const touch = () =>
-  through.obj(function (file, _, cb) {
-    if (file.stat) {
-      file.stat.atime = file.stat.mtime = file.stat.ctime = new Date();
-    }
-    cb(null, file);
-  });
 
 const copy = async () => {
   const stream = packagesSrcAssetStream();
@@ -162,57 +93,6 @@ const copy = async () => {
   );
 };
 task('copy', copy);
-
-const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn) => {
-  const sourcemaps = await import('gulp-sourcemaps');
-  const { transformAsync: bableTransform } = await import('@babel/core');
-  const { default: applySourceMap } = await import('vinyl-sourcemaps-apply');
-
-  const l = logger.child(chalk.blueBright('transpile'), chalkFn(logName));
-  const renamePath = createSrcDirSwapper(dir);
-
-  return stream
-    .pipe(gulpPlumber({ errorHandler: (err) => l.exception(err) }))
-    .pipe(
-      changed('.', {
-        transformPath: renamePath,
-      }),
-    )
-    .pipe(simplePipeLogger(l))
-    .pipe(sourcemaps.init())
-    .pipe(
-      through.obj(async function (file, _, done) {
-        try {
-          // Copied from https://github.com/babel/gulp-babel/blob/master/index.js
-          const { code, map } = await bableTransform(file.contents.toString(), {
-            ...babelOptions,
-            filename: file.path,
-            filenameRelative: file.relative,
-            sourceMap: Boolean(file.sourceMap),
-            sourceFileName: file.relative,
-          });
-
-          file.contents = Buffer.from(code);
-
-          map.file = file.relative;
-          applySourceMap(file, map);
-
-          done(null, file);
-        } catch (err) {
-          done(err);
-        }
-      }),
-    )
-    .pipe(
-      rename((filePath) => {
-        filePath.dirname = renamePath(filePath.dirname);
-        return filePath;
-      }),
-    )
-    .pipe(sourcemaps.mapSources((filePath) => filePath.replace(/.*\/src\//g, '../src/')))
-    .pipe(sourcemaps.write('.', undefined))
-    .pipe(touch());
-};
 
 const prettierPipes = async (stream) => {
   const { default: prettier } = await import('gulp-prettier');
@@ -238,37 +118,7 @@ const formatPipes = async (stream) => {
   return await prettierPipes(await lintPipes(stream, { fix: true }));
 };
 
-const transpile = async () => {
-  const stream = packagesSrcCodeStream();
-
-  const baseEnv = process.env.NODE_ENV ?? 'development';
-
-  const streams = await Promise.all([
-    transpilePipes(
-      stream,
-      {
-        envName: baseEnv,
-      },
-      'commonjs',
-      'cjs',
-      chalk.rgb(200, 255, 100),
-    ),
-    transpilePipes(
-      stream,
-      {
-        envName: `${baseEnv}-esm`,
-      },
-      'esm',
-      undefined,
-      chalk.rgb(255, 200, 100),
-    ),
-  ]);
-
-  return await Promise.all(
-    streams.map((aStream) => aStream.pipe(gulp.dest('.'))).map(oldStreamToPromise),
-  );
-};
-task('transpile', transpile);
+task('transpile', require.resolve('./buildplan/transpile.ts'));
 
 task('writeme', 'Generates README doco', require.resolve('./buildplan/writeme.ts'));
 
@@ -365,143 +215,9 @@ task(
   checkTypesStaged,
 );
 
-const flIgnoreGlob =
-  'packages/faultjs/javascript/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+task('test', 'Runs unit tests (without building)', require.resolve('./buildplan/test.ts'));
 
-const getFaultLocalizationAddon = async () => {
-  switch (config.extra.flMode) {
-    default:
-    case 'sbfl': {
-      const { default: createAddon } = await import('@fault/addon-sbfl');
-      const { default: dstar } = await import('@fault/sbfl-dstar');
-      return createAddon({
-        scoringFn: dstar,
-        faultFilePath: true,
-        console: true,
-      });
-    }
-    case 'mbfl': {
-      const { default: createAddon } = await import('@fault/addon-mutation-localization');
-      return createAddon({
-        babelOptions: {
-          plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
-          sourceType: 'module',
-        },
-        ignoreGlob: flIgnoreGlob,
-        mapToIstanbul: true,
-        onMutation: transpile,
-      });
-    }
-  }
-};
-
-const testNoBuild = async () => {
-  const runner = await import('@fault/runner');
-  const flAddon = await getFaultLocalizationAddon();
-  const { default: minimist } = await import('minimist');
-
-  const args = minimist(process.argv.slice(3));
-
-  const { _: paths } = args;
-
-  const passed = await runner.run({
-    tester: '@fault/tester-mocha',
-    testMatch:
-      paths.length >= 1
-        ? paths
-        : [
-            ...config.testableGlobs,
-            ...config.testableIgnoreGlobs.map((glob) => `!${glob}`),
-          ],
-    addons: [flAddon],
-    processOptions: {
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-      },
-    },
-    setupFiles: ['./test/helpers/globals.js'],
-    testerOptions: {
-      sandbox: true,
-    },
-    timeout: 20000,
-  });
-  if (!passed) {
-    process.exitCode = 1;
-  }
-};
-
-task('test', 'Runs unit tests (without building)', testNoBuild);
-
-// From: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
-const humanReadableFileSize = (size: number) => {
-  const i = Math.floor(Math.log(size) / Math.log(1024));
-  const humanReadableValue = size / Math.pow(1024, i);
-  const roundedHumanReadableString = humanReadableValue.toFixed(2);
-  return `${roundedHumanReadableString} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
-};
-
-const bundleWebpack = async () => {
-  const compilers = await webpackCompilers();
-
-  const compilersStatsPromises = compilers.map((info) => {
-    return new Promise<any>((resolve, reject) => {
-      info.compiler.run((err, stats) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(stats);
-        }
-      });
-    });
-  });
-
-  const l = logger.child(chalk.magentaBright('webpack'));
-  for await (const stats of compilersStatsPromises) {
-    const compilation = stats.compilation;
-    const timeTaken = (stats.endTime - stats.startTime) / 1000;
-
-    const messages: string[] = [];
-
-    const filesMessage = Object.values<any>(compilation.assets)
-      .map(
-        (asset) =>
-          ` - ${chalk.cyanBright(asset.existsAt)} ${chalk.magentaBright(
-            humanReadableFileSize(asset.size()),
-          )}`,
-      )
-      .join('\n');
-    const bundleMessage = `Bundled: '${chalk.cyanBright(
-      `${compilation.name}`,
-    )}' ${chalk.magentaBright(`${timeTaken} s`)}`;
-    messages.push(bundleMessage, filesMessage);
-
-    if (stats.hasWarnings()) {
-      messages.push(
-        `${compilation.warnings.length} warnings:`,
-        compilation.warnings
-          .map((warning) => warning.stack)
-          .map(chalk.yellowBright)
-          .join('\n\n'),
-      );
-    }
-
-    if (stats.hasErrors()) {
-      messages.push(
-        `${compilation.errors.length} errors:`,
-        compilation.errors
-          .map(chalk.redBright)
-          .map((error) => (error.stack !== undefined ? error.stack : error))
-          .join('\n\n'),
-      );
-    }
-    const outputMessage = messages.join('\n');
-
-    l.info(outputMessage);
-  }
-};
-
-task('webpack', 'Bundke all Webpack-bundled packages', bundleWebpack);
+task('webpack', 'Bundke all Webpack-bundled packages', require.resolve('./buildplan/webpack.ts'));
 
 task('serve', 'Serves Webpack bundled packages', require.resolve('./buildplan/serve.ts'));
 run();
