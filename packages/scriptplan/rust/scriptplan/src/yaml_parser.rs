@@ -108,10 +108,10 @@ pub struct YamlScriptParser<'a> {
     pub tasks: HashMap<&'a str, LazyTask<'a>>,
 }
 
-impl<'a> TryFrom<&'a Hash> for YamlScriptParser<'a> {
+impl<'a> TryFrom<Hash> for YamlScriptParser<'a> {
     type Error = ();
 
-    fn try_from(yaml_object: &'a Hash) -> Result<Self, Self::Error> {
+    fn try_from(yaml_object: Hash) -> Result<Self, Self::Error> {
       let tasks_result: Result<HashMap<&'a str, LazyTask<'a>, _>, _> = yaml_object
         .iter()
         .map(|(yaml_name, yaml_value)| -> Result<_, Self::Error> {
@@ -131,9 +131,4 @@ impl ScriptParser for YamlScriptParser<'_> {
             .expect(format!("The task {} does not exist", task_name).as_str())
             .parse()
     }
-}
-
-pub struct CompiledScript {
-    args: VarArgs,
-    script: Rc<Script>,
 }
