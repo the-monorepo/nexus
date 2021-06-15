@@ -1,5 +1,5 @@
 import config from '@monorepo/config';
-import { packagesSrcCodeStream } from './utils/path';
+import { packagesSrcCodeStream } from './utils/path.ts';
 import { withTypeCheckPipes } from './pipes/withTypeCheckPipes.ts';
 
 export const description = `Runs the TypeScript type checker on the codebase, displaying the output. This will display any
