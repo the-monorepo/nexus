@@ -13,8 +13,6 @@ import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';
 import config from '@monorepo/config';
 import logger from './buildplan/utils/logger.ts';
 
-import filter from 'stream-filter-glob';
-
 import { run } from '@buildplan/core';
 
 import { createSrcDirSwapper } from './buildplan/utils/path.ts';
@@ -24,14 +22,7 @@ import { parallel, task, oldStreamToPromise } from './buildplan/utils/gulp-wrapp
 import { packagesSrcAssetStream } from './buildplan/utils/path.ts';
 import { simplePipeLogger } from './buildplan/utils/simplePipeLogger.ts';
 
-
-
-
-const clean = async () => {
-  const { default: del } = await import('del');
-  await del(config.buildArtifactGlobs);
-};
-task('clean', 'Cleans up generated files', clean);
+task('clean', 'Cleans up generated files', require.resolve('./buildplan/clean.ts'));
 
 const copyPipes = (stream, l, dir) => {
   const renamePath = createSrcDirSwapper(dir);
