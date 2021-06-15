@@ -2,35 +2,34 @@ import config from '@monorepo/config';
 import transpile from './transpile.ts';
 
 const flIgnoreGlob =
-'packages/faultjs/javascript/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
+  'packages/faultjs/javascript/{fault-messages,fault-tester-mocha,fault-addon-mutation-localization,fault-istanbul-util,fault-runner,fault-addon-hook-schema,hook-schema,fault-record-faults,fault-addon-istanbul,fault-types}/**/*';
 
 const getFaultLocalizationAddon = async () => {
-switch (config.extra.flMode) {
-  default:
-  case 'sbfl': {
-    const { default: createAddon } = await import('@fault/addon-sbfl');
-    const { default: dstar } = await import('@fault/sbfl-dstar');
-    return createAddon({
-      scoringFn: dstar,
-      faultFilePath: true,
-      console: true,
-    });
+  switch (config.extra.flMode) {
+    default:
+    case 'sbfl': {
+      const { default: createAddon } = await import('@fault/addon-sbfl');
+      const { default: dstar } = await import('@fault/sbfl-dstar');
+      return createAddon({
+        scoringFn: dstar,
+        faultFilePath: true,
+        console: true,
+      });
+    }
+    case 'mbfl': {
+      const { default: createAddon } = await import('@fault/addon-mutation-localization');
+      return createAddon({
+        babelOptions: {
+          plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
+          sourceType: 'module',
+        },
+        ignoreGlob: flIgnoreGlob,
+        mapToIstanbul: true,
+        onMutation: transpile,
+      });
+    }
   }
-  case 'mbfl': {
-    const { default: createAddon } = await import('@fault/addon-mutation-localization');
-    return createAddon({
-      babelOptions: {
-        plugins: ['jsx', 'typescript', 'exportDefaultFrom', 'classProperties'],
-        sourceType: 'module',
-      },
-      ignoreGlob: flIgnoreGlob,
-      mapToIstanbul: true,
-      onMutation: transpile,
-    });
-  }
-}
 };
-
 
 const test = async () => {
   const runner = await import('@fault/runner');
