@@ -19,10 +19,6 @@ export const createSrcDirSwapper = (dir) => {
 };
 
 export const packagesSrcAssetStream = (options?) => {
-  console.log([
-    ...config.buildableSourceAssetGlobs,
-    ...config.buildableIgnoreGlobs.map((glob) => `!${glob}`),
-  ]);
   return gulp.src(
     [
       ...config.buildableSourceAssetGlobs,
