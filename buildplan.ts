@@ -84,29 +84,7 @@ task('watch', 'Like build but continuously watches for changes', watch);
 
 // task("default", 'Alias for build', build);
 
-const formatPrettier = async () => {
-  return (await prettierPipes(formatStream())).pipe(gulp.dest('.'));
-};
-task('format:prettier', formatPrettier);
-
-const formatStagedPrettier = async () => {
-  return (await prettierPipes(await formatStagedStream())).pipe(gulp.dest('.'));
-};
-task('format-staged:prettier', formatStagedPrettier);
-
-const formatStagedLint = async () => {
-  return lintPipes(await formatStagedStream(), { fix: true });
-};
-formatStagedLint.description =
-  'Corrects any automatically fixable linter warnings or errors. Note that this command will ' +
-  'overwrite files without creating a backup.';
-task('format-staged:lint', formatStagedLint);
-
 task('format', 'Formats all your source code files', require.resolve('./buildplan/format.ts'));
-
-const formatStaged = async () => {
-  return (await formatPipes(await formatStagedStream())).pipe(gulp.dest('.'));
-};
 task(
   'formatStaged',
   "Formats all your source code that's currently staging in Git",
