@@ -6,7 +6,7 @@ import filter from 'stream-filter-glob';
 
 const swapSrcWith = (srcPath, newDirName) => {
   // Should look like /packages/<package-name>/javascript/src/<rest-of-the-path>
-  srcPath = relative(__dirname, srcPath);
+  srcPath = relative(join(__dirname, '../..'), srcPath);
   const parts = srcPath.split(sep);
   // Swap out src for the new dir name
   parts[4] = newDirName;
