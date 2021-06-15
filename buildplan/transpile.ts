@@ -1,18 +1,18 @@
 import chalk from 'chalk';
 
 import logger from './utils/logger.ts';
-import { createSrcDirSwapper } from './utils/path';
+import { createSrcDirSwapper } from './utils/path.ts';
 import gulpPlumber from 'gulp-plumber';
 import changed from 'gulp-changed';
 
 import rename from 'gulp-rename';
 
-import { packagesSrcCodeStream } from './utils/path';
-import { simplePipeLogger } from './utils/simplePipeLogger';
+import { packagesSrcCodeStream } from './utils/path.ts';
+import { simplePipeLogger } from './utils/simplePipeLogger.ts';
 import through from 'through2';
 
 import gulp from 'gulp';
-import { oldStreamToPromise } from './utils/gulp-wrappers';
+import { oldStreamToPromise } from './utils/gulp-wrappers.ts';
 
 const touch = () =>
   through.obj(function (file, _, cb) {
