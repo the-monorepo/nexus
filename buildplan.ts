@@ -25,31 +25,7 @@ import { packagesSrcAssetStream } from './buildplan/utils/path.ts';
 import { simplePipeLogger } from './buildplan/utils/simplePipeLogger.ts';
 
 
-const formatStream = (options?) =>
-  gulp.src(
-    [
-      ...config.formatableGlobs,
-      ...config.formatableIgnoreGlobs.map((glob) => `!${glob}`),
-    ],
-    {
-      base: '.',
-      nodir: true,
-      ...options,
-    },
-  );
 
-const formatStagedStream = async () => {
-  const { Readable } = await import('stream');
-  const stagedPaths = await getStagableFiles();
-  const stagedStream =
-    stagedPaths.length > 0
-      ? gulp.src(stagedPaths, {
-          base: '.',
-          nodir: true,
-        })
-      : Readable.from([]);
-  return stagedStream.pipe(filter(config.formatableGlobs, config.formatableIgnoreGlobs));
-};
 
 const clean = async () => {
   const { default: del } = await import('del');
@@ -94,30 +70,6 @@ const copy = async () => {
 };
 task('copy', copy);
 
-const prettierPipes = async (stream) => {
-  const { default: prettier } = await import('gulp-prettier');
-  const l = logger.child(chalk.magentaBright('prettier'));
-  return stream.pipe(simplePipeLogger(l)).pipe(prettier());
-};
-
-const lintPipes = async (stream, lintOptions) => {
-  const { default: eslint } = await import('gulp-eslint');
-
-  const l = logger.child(chalk.magentaBright('eslint'));
-  return (
-    stream
-      .pipe(simplePipeLogger(l))
-      .pipe(eslint(lintOptions))
-      .pipe(eslint.format('unix'))
-      // TODO: Need to halt build process/throw error
-      .pipe(eslint.failAfterError())
-  );
-};
-
-const formatPipes = async (stream) => {
-  return await prettierPipes(await lintPipes(stream, { fix: true }));
-};
-
 task('transpile', require.resolve('./buildplan/transpile.ts'));
 
 task('writeme', 'Generates README doco', require.resolve('./buildplan/writeme.ts'));
@@ -159,18 +111,15 @@ formatStagedLint.description =
   'overwrite files without creating a backup.';
 task('format-staged:lint', formatStagedLint);
 
-const format = async () => {
-  return (await formatPipes(formatStream())).pipe(gulp.dest('.'));
-};
-task('format', 'Formats all your source code files', format);
+task('format', 'Formats all your source code files', require.resolve('./buildplan/format.ts'));
 
 const formatStaged = async () => {
   return (await formatPipes(await formatStagedStream())).pipe(gulp.dest('.'));
 };
 task(
-  'format-staged',
+  'formatStaged',
   "Formats all your source code that's currently staging in Git",
-  formatStaged,
+  require.resolve('./buildplan/formatStaged.ts'),
 );
 
 task('check-types', 'Run TypeScript type checking', require.resolve('./buildplan/checkTypes.ts'));
