@@ -37,4 +37,6 @@ const writeme = async () => {
   });
 };
 
+export const description = 'Generates README doco';
+
 export default writeme;
