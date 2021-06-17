@@ -5,7 +5,7 @@ import logger from './utils/logger.ts';
 
 import { join, relative, resolve } from 'path';
 
-const rootDir = resolve(__dirname, '..');
+const rootDir = process.cwd();
 
 const printFriendlyAbsoluteDir = (dir) => {
   if (relative(dir, rootDir) === '') {
