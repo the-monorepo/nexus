@@ -4,6 +4,7 @@
     "esbenp.prettier-vscode",
     "arcanis.vscode-zipfs",
     "stylelint.vscode-stylelint",
-    "matklad.rust-analyzer"
+    "matklad.rust-analyzer",
+    "denoland.vscode-deno"
   ]
 }
