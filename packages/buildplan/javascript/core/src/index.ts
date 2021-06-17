@@ -157,10 +157,19 @@ export const task: TaskFn = (
       ? (descriptionOrCallback as TaskCallback)
       : callbackOrUndefined;
 
+  // TODO: Better names
+  const realCallback =
+    typeof callback === 'string'
+      ? async () => {
+          const { default: run } = await import(callback);
+          return run();
+        }
+      : callback;
+
   return createTask(
     name,
     callbackOrUndefined !== undefined ? (descriptionOrCallback as string) : '-',
-    callback,
+    realCallback,
   );
 };
 

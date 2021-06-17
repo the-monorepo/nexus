@@ -87,6 +87,7 @@ impl Command {
 
 #[derive(Debug)]
 pub struct ScriptGroup {
+    pub bail: bool,
     // Enforces that there's always at least 1 script
     pub first: Script,
     pub rest: Vec<Script>,
@@ -119,6 +120,10 @@ impl CommandGroup {
                     promises.push(script.run(parser, args.clone()));
                 }
 
+                if group.bail {
+                  println!("Warning: Bail in parallel groups are currently not supported");
+                }
+
                 let results = join_all(promises).await;
 
                 let mut status = ExitStatus::Code(0);
@@ -131,7 +136,7 @@ impl CommandGroup {
             Self::Series(group) => {
                 let mut final_status = group.first.run(parser, args.clone()).await.unwrap();
                 for script in &group.rest {
-                    if !final_status.success() {
+                    if !final_status.success() && group.bail {
                         return Ok(final_status);
                     }
                     let status = script.run(parser, args.clone()).await.unwrap();
