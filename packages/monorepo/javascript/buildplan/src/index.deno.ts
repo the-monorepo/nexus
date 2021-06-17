@@ -1,5 +1,3 @@
-import 'source-map-support/register.js';
-
 import { run } from '@buildplan/core';
 
 import { task } from './tasks/utils/gulp-wrappers.ts';
