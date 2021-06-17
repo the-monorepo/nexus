@@ -1,4 +1,4 @@
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 
 import fs from 'fs/promises';
 import { resolve, basename } from 'path';

@@ -4,7 +4,7 @@
 /**
  * This is a little utility tool for finding relevant pull requests faster.
  */
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import fs from 'fs';
 import { resolve } from 'path';
 

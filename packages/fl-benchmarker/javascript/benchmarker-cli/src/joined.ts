@@ -1,4 +1,4 @@
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import { readFile } from 'fs/promises';
 import { readJson } from '@pshaw/fs';
 import { resolve } from 'path';
