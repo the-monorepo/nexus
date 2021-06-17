@@ -7,9 +7,16 @@
   "module": "./esm/index.ts",
   "main": "./commonjs/index.ts",
   "exports": {
-    "monorepo-original": "./src/index.ts",
-    "import": "./esm/index.ts",
-    "require": "./commonjs/index.ts"
+    ".": {
+      "monorepo-original": "./src/index.ts",
+      "import": "./esm/index.ts",
+      "require": "./commonjs/index.ts"
+    },
+    "./deno": {
+      "monorepo-original": "./src/index.deno.ts",
+      "import": "./esm/index.deno.ts",
+      "require": "./commonjs/index.deno.ts"
+    }
   },
   "files": [
     "commonjs",
