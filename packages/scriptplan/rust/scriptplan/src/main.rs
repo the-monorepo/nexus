@@ -7,6 +7,8 @@ use schema::ScriptParser;
 
 use std::collections::VecDeque;
 
+use std::convert::TryFrom;
+use std::convert::TryInto;
 use std::fs;
 
 use std::path::Path;
@@ -21,21 +23,21 @@ use std::sync::Arc;
 
 use std::process::exit;
 
-use yaml_parser::create_scriptplan;
+use yaml_parser::YamlScriptParser;
 
 #[tokio::main]
 async fn main() {
     let path = Path::new("./.scripts.yaml");
     let s = fs::read_to_string(path).unwrap();
 
-    let docs = YamlLoader::load_from_str(&s).unwrap();
-    let doc = &docs[0];
+    let mut docs = YamlLoader::load_from_str(&s).unwrap();
+    let doc = docs.remove(0);
 
     let mut app = App::new("Scriptplan");
 
-    let map = doc.as_hash().unwrap();
+    let map = doc.into_hash().unwrap();
 
-    let scriptplan = create_scriptplan(map);
+    let scriptplan = YamlScriptParser::try_from(map).unwrap();
 
     for task in scriptplan.tasks.keys() {
         let subcommand = SubCommand::with_name(task)

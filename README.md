@@ -24,7 +24,6 @@ Version | Package | Description
 3.1.4-0 | [`@writeme/core`](packages/writeme/javascript/core/README.md) | A readme generator
 1.0.0-alpha.2 | [`cinder`](packages/cinder/javascript/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 1.6.2-0 | [`css-color-checker`](packages/misc/javascript/css-color-checker/README.md) | Library for determining the CSS color format of string values
-1.0.0-alpha.0 | [`custom-element`](packages/misc/javascript/custom-element/README.md) | TODO
 1.0.0-alpha.0 | [`dom-context`](packages/misc/javascript/dom-context/README.md) | A React Context API-like context API for web components
 2.2.4-0 | [`hook-schema`](packages/misc/javascript/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
 1.0.0-alpha.1 | [`ipc-fifo-processor`](packages/misc/javascript/ipc-fifo-processor/README.md) | Makes IPC connections appear FIFO
