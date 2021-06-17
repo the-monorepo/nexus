@@ -1,4 +1,4 @@
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 
 import { resolve, normalize } from 'path';
 
