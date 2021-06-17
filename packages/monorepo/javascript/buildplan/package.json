@@ -1,0 +1,70 @@
+{
+  "name": "@monorepo/buildplan",
+  "private": true,
+  "description": "TODO",
+  "version": "1.0.0",
+  "types": "./src/index.ts",
+  "module": "./esm/index.ts",
+  "main": "./commonjs/index.ts",
+  "exports": {
+    "monorepo-original": "./src/index.ts",
+    "import": "./esm/index.ts",
+    "require": "./commonjs/index.ts"
+  },
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "monorepo/javascript/buildplan"
+  },
+  "keywords": [
+    "FASTA",
+    "genetics",
+    "typescript",
+    "app"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.14.6",
+    "@buildplan/core": "workspace:packages/buildplan/javascript/core",
+    "@fault/addon-mutation-localization": "workspace:packages/faultjs/javascript/addon-mutation-localization",
+    "@fault/addon-sbfl": "workspace:packages/faultjs/javascript/addon-sbfl",
+    "@fault/runner": "workspace:packages/faultjs/javascript/runner",
+    "@fault/sbfl-dstar": "workspace:packages/faultjs/javascript/sbfl-dstar",
+    "@fault/tester-mocha": "workspace:packages/faultjs/javascript/tester-mocha",
+    "@fl-benchmarker/viewer-cli": "workspace:packages/fl-benchmarker/javascript/viewer-cli",
+    "@monorepo/config": "workspace:packages/build-packages/javascript/monorepo-config",
+    "@pshaw/logger": "workspace:packages/misc/javascript/logger",
+    "@pshaw/markdown-util": "workspace:packages/misc/javascript/markdown-util",
+    "@pshaw/webpack": "workspace:packages/patrick-shaw/javascript/webpack",
+    "@writeme/core": "workspace:packages/writeme/javascript/core",
+    "chalk": "^4.1.0",
+    "del": "^5.1.0",
+    "globby": "^11.0.1",
+    "gulp": "^4.0.2",
+    "gulp-changed": "^4.0.2",
+    "gulp-eslint": "^6.0.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-prettier": "^3.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-transform": "^3.0.5",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "lint-staged": "^10.2.11",
+    "micromatch": "^4.0.4",
+    "minimist": "^1.2.5",
+    "plugin-error": "^1.0.1",
+    "prettier": "^2.3.1",
+    "source-map-support": "^0.5.19",
+    "stream-filter-glob": "workspace:packages/misc/javascript/stream-filter-glob",
+    "stream-to-promise": "^3.0.0",
+    "through2": "^4.0.2",
+    "typescript": "^4.3.2",
+    "vinyl-sourcemaps-apply": "^0.2.1"
+  }
+}

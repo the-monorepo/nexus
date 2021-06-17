@@ -1,11 +1,13 @@
-import webpackConfigs from '../../webpack.config.ts';
 import minimist from 'minimist';
 import { webpack } from '@pshaw/webpack';
 import { isMatch } from 'micromatch';
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
+import { resolve } from 'path';
 
 export const webpackCompilers = async () => {
+  const { default: webpackConfigs } = await import(resolve(process.cwd(), 'webpack.config.ts'));
+
   const args = minimist(process.argv.slice(2));
 
   const {
