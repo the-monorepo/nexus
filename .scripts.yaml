@@ -48,7 +48,7 @@ recompile-scriptplan-debug: |
     mv ./target/x86_64-apple-darwin/debug/scriptplan ./scriptplan
 
 
-node-base: node --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
+node-base: yarn node --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
 run:buildplan:
   task: node-base buildplan.ts
 
@@ -56,7 +56,7 @@ deno-run: deno run --config ./tsconfig.deno.json
 run:buildplan:deno:
   task: deno-run --allow-read --allow-write --import-map=local.import-map.json ./buildplan.deno.ts
 generate:import-maps:
-  task: deno-run --allow-read --allow-write ./generate-import-map.ts
+  task: node-base generate-import-map.ts
 
 format:javascript:
   task: run:buildplan format
