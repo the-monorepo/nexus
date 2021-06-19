@@ -95,6 +95,24 @@ const tryResolvePackage = (packageName: string, cwd: string) => {
   }
 };
 
+const entryPointsFromPackageJson = (json: Record<string, any>, packageName: string, packageDir: string) => {
+  if (json.exports !== undefined) {
+    if (json.exports.import !== undefined) {
+      return exportsToScopeEntries(packageName, packageDir, json.exports.import);
+    } else if (json.exports.default !== undefined) {
+      return exportsToScopeEntries(packageName, packageDir, json.exports.default);
+    }
+    return [];
+  } else {
+    const main = json.module ?? json.main;
+    const mappings: [string, string][] = (main === undefined ? [] : [[packageName, join(packageDir, main)]]);
+    return [
+      // E.g. @x/y
+      [packageName + '/', packageDir + '/'],
+      ...mappings,
+    ]
+  }
+};
 const importCache = new Map();
 const addImportsFromPackageName = (packageName: string, cwd: string) => {
   const key = packageName + '_' + cwd;
@@ -115,30 +133,13 @@ const addImportsFromPackageName = (packageName: string, cwd: string) => {
 
       const packageDir = dirname(packageJsonPath);
 
-      const mainEntrypoints = ((): [string, string][] => {
-        if (json.exports !== undefined) {
-          if (json.exports.import !== undefined) {
-            return exportsToScopeEntries(packageName, packageDir, json.exports.import);
-          } else if (json.exports.default !== undefined) {
-            return exportsToScopeEntries(packageName, packageDir, json.exports.default);
-          }
-          return [];
-        } else {
-          const main = json.module ?? json.main;
-          const mappings: [string, string][] = (main === undefined ? [] : [[packageName, join(packageDir, main)]]);
-          return [
-            // E.g. @x/y
-            [packageName + '/', dirname(packageJsonPath)],
-            ...mappings,
-          ]
-        }
-      })();
+
 
       await addImportsFromDependencies(json.dependencies, packageDir);
 
       scopes[cwd] = {
         ...scopes[cwd],
-        ...Object.fromEntries(mainEntrypoints),
+        ...Object.fromEntries(entryPointsFromPackageJson(json, packageName, packageDir)),
       };
     } catch (err) {
       if (err.code === 'MODULE_NOT_FOUND') {
