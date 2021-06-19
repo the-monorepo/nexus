@@ -6,7 +6,7 @@ import { task } from './tasks/utils/gulp-wrappers.ts';
 
 task('clean', 'Cleans up generated files', require.resolve('./tasks/clean.ts'));
 
-task('copy', require.resolve('./tasks/copy'));
+task('copy', require.resolve('./tasks/copy.ts'));
 
 task('transpile', require.resolve('./tasks/transpile.ts'));
 
