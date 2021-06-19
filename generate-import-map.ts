@@ -166,8 +166,7 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
   });
   (async () => {
     try {
-      // TODO: Account for getting to the root path
-      while (true) {
+      do {
         if (packageJsonCache.has(current)) {
           const value = await packageJsonCache.get(current)!;
           resolve(value);
@@ -188,7 +187,7 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
           }
         }
         current = dirname(current);
-      }
+      } while (current !== '/' && current !== '.')
     } catch(err) {
       reject(err);
       throw err;
