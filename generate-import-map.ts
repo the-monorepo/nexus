@@ -98,9 +98,6 @@ const tryResolvePackage = (packageName: string, cwd: string) => {
 const importCache = new Map();
 const addImportsFromPackageName = (packageName: string, cwd: string) => {
   const key = packageName + '_' + cwd;
-  if (packageName === '@fl-benchmarker/viewer-cli') {
-    debugger;
-  }
   if (importCache.has(key)) {
     console.log('reusing', packageName, cwd, importCache.size);
     const value = importCache.get(key)!;
