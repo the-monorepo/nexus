@@ -81,6 +81,20 @@ const readJson = (aPath: string) => {
   return parsed;
 };
 
+const tryResolvePackage = (packageName: string, cwd: string) => {
+  try {
+    Object.keys(require.cache).forEach(function(key) {
+      delete require.cache[key];
+    });
+    return require.resolve(packageName, { paths: [cwd] });
+  } catch (err) {
+    if (err.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+      return err.message.replace(/^.* in /, '');
+    }
+    throw err;
+  }
+};
+
 const importCache = new Map();
 const addImportsFromPackageName = (packageName: string, cwd: string) => {
   const key = packageName + '_' + cwd;
@@ -97,19 +111,7 @@ const addImportsFromPackageName = (packageName: string, cwd: string) => {
 
   const promise = (async () => {
     try {
-      const aPath = await (() => {
-        try {
-          Object.keys(require.cache).forEach(function(key) {
-            delete require.cache[key];
-          });
-          return require.resolve(packageName, { paths: [cwd] });
-        } catch (err) {
-          if (err.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
-            return err.message.replace(/^.* in /, '');
-          }
-          throw err;
-        }
-      })();
+      const aPath = tryResolvePackage(packageName, cwd);
       const packageJsonPath = await findAssociatedPackageJsonForPath(aPath);
 
       const json = await readJson(packageJsonPath);
