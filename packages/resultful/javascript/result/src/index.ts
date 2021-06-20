@@ -192,7 +192,7 @@ export type ValueOf<R extends TypedResultfulSchema> = R extends PayloadResult<in
   ? E
   : never;
 export type ValueOfFn = <R extends Result<any, any>>(result: R) => ValueOf<R>;
-export const valueOf: ValueOfFn = <P, E, EX>(result: Result<P, E>): P | E | EX => {
+export const valueOf: ValueOfFn = <P, E>(result: Result<P, E>): P | E => {
   return transform(result, {
     payload: (payload) => payload,
     failure: (failure) => failure,
