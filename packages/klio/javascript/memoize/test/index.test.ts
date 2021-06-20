@@ -51,4 +51,24 @@ describe(memoize.name, () => {
 
     expect(fn(1, 2, 3)).resolves.toBe(memoizedFn(1, 2, 3));
   });
+
+  it('thrown errors are also memoized', () => {
+    const memoizeDoThrow = memoize((value: any) => {
+      throw value;
+    });
+
+    const catchError = (fn) => {
+      try {
+        fn();
+        throw new Error('Expected to throw');
+      } catch(err){
+        return err;
+      }
+    };
+
+    const ref = {};
+    expect(catchError(() => memoizeDoThrow(1))).toBe(catchError(() => memoizeDoThrow(1)));
+    expect(catchError(() => memoizeDoThrow(1))).not.toBe(catchError(() => memoizeDoThrow(2)));
+    expect(catchError(() => memoizeDoThrow(ref))).toBe(catchError(() => memoizeDoThrow(ref)));
+  });
 });

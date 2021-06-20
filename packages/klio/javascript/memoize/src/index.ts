@@ -1,3 +1,5 @@
+import { createFailure, createPayload, hasFailure, Result } from '@resultful/result';
+
 export interface Cache<K, V> extends Pick<Map<K, V>, 'set' | 'get'> {};
 export interface CacheConstructor<K, V> {
   new(): Cache<K, V>
@@ -23,7 +25,7 @@ type Node<K, T> = {
 type ItemOfArray<T> = T extends Array<infer K> ? K : never;
 
 const memoize = <A extends any[], R>(fn: (...args: A) => R, ConstructorForCache: CacheConstructor<any, any> = Map): ((...args: A) => R) => {
-  const rootNode: Node<ItemOfArray<A>, R> =  {
+  const rootNode: Node<ItemOfArray<A>, Result<R, any>> =  {
     cache: undefined,
     value: {
       isNone: true,
@@ -32,7 +34,7 @@ const memoize = <A extends any[], R>(fn: (...args: A) => R, ConstructorForCache:
   };
 
   const memoized = (...args: A): R => {
-    let current: Node<ItemOfArray<A>, R> = rootNode;
+    let current: Node<ItemOfArray<A>, Result<R, any>> = rootNode;
     let i = 0;
     while (i < args.length) {
       const key = args[i];
@@ -48,7 +50,7 @@ const memoize = <A extends any[], R>(fn: (...args: A) => R, ConstructorForCache:
           return maybeNextNode;
         }
 
-        const newNode: Node<ItemOfArray<A>, R> = {
+        const newNode: Node<ItemOfArray<A>, Result<R, any>> = {
           cache: undefined,
           value: {
             isNone: true,
@@ -65,13 +67,25 @@ const memoize = <A extends any[], R>(fn: (...args: A) => R, ConstructorForCache:
     }
 
     if (current.value.isNone) {
+      const result = (() => {
+        try {
+          const value = fn(...args);
+          return createPayload(value);
+        } catch(err) {
+          return createFailure(err);
+        }
+      })();
       current.value = {
         isNone: false,
-        value: fn(...args),
+        value: result
       };
     }
 
-    return current.value.value;
+    if (hasFailure(current.value.value)) {
+      throw current.value.value.failure;
+    }
+
+    return current.value.value.payload;
   };
 
   return memoized;
