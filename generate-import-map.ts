@@ -38,7 +38,7 @@ const addImportsFromDependencies = async (
       }
       seen.add(key);
       try {
-        stack.push(await addImportsFromPackageName(packageName, currentCwd));
+        stack.unshift(await addImportsFromPackageName(packageName, currentCwd));
       } catch(err) {
         throw err;
       }
@@ -73,10 +73,19 @@ const tryResolvePackage = (packageName: string, cwd: string) => {
 
 const entryPointsFromPackageJson = (json: Record<string, any>, packageName: string, packageDir: string) => {
   if (json.exports !== undefined) {
-    if (json.exports.import !== undefined) {
-      return exportsToScopeEntries(packageName, packageDir, json.exports.import);
-    } else if (json.exports.default !== undefined) {
-      return exportsToScopeEntries(packageName, packageDir, json.exports.default);
+    if (typeof json.exports === 'string') {
+      return [
+        [packageName, join(packageDir, json.exports)]
+      ];;
+    } else {
+      const fileSpecificImports = Object.fromEntries(Object.entries(json.exports).filter(([key]) => key.startsWith('.')).map(([relativeFilePath, value]: any) => {
+        return [relativeFilePath, value.import ?? value.default];
+      }).filter(([, value]) => value !== undefined));
+      return [
+        ...exportsToScopeEntries(packageName, packageDir, json.exports.default ?? {}),
+        ...exportsToScopeEntries(packageName, packageDir, json.exports.import ?? {}),
+        ...exportsToScopeEntries(packageName, packageDir, fileSpecificImports),
+      ];
     }
     return [];
   } else {
