@@ -58,6 +58,7 @@ export const initialize = async (options: Options) => {
     if (running) {
       return;
     }
+
     running = true;
 
     return (async () => {
@@ -71,6 +72,8 @@ export const initialize = async (options: Options) => {
 
             clearCache();
 
+            console.log('running', testPath);
+
             globalThis.beforeTestCoverage = cloneCoverage(globalThis[COVERAGE_KEY]);
             const startTime = Date.now();
 
@@ -81,11 +84,10 @@ export const initialize = async (options: Options) => {
             const duration = endTime - startTime;
 
             if (resultful.hasUnknownFailure(result)) {
-              console.error(result.exception);
+              console.error(result.failure.unknown);
               process.exitCode = 1;
-            } else {
-              await client.submitFileResult({ duration, key, testPath });
             }
+            await client.submitFileResult({ duration, key, testPath });
           }
         } else {
           // Sort tests alphabetically
@@ -100,7 +102,7 @@ export const initialize = async (options: Options) => {
           const result = await runMochaInstance(mochaInstance);
 
           if (resultful.hasUnknownFailure(result)) {
-            console.error(result.exception);
+            console.error(result.failure.unknown);
             process.exitCode = 1;
           } else {
             for (const { testPath, key } of data.testsToRun) {
