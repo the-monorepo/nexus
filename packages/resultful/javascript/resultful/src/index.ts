@@ -23,9 +23,9 @@ export { createPayload, hasPayload };
 export const createUnknownFailure = (value: unknown) => createFailure(createUnknown(value));
 export const createErrorFailure = <E>(value: E) => createFailure(createError(value));
 
-export const hasUnknownFailure = <R extends TypedObjectSchema>(value: R) => hasFailure(value) && hasUnknown(value);
+export const hasUnknownFailure = <R extends TypedObjectSchema>(value: R) => hasFailure(value) && hasUnknown(value.failure);
 
-export const hasErrorFailure = <R extends TypedObjectSchema>(value: R) => hasFailure(value) && hasError(value);
+export const hasErrorFailure = <R extends TypedObjectSchema>(value: R) => hasFailure(value) && hasError(value.failure);
 
 export const transform = <R extends Result<any, Failure<any>>>(result: R, { payload, error, unknown }) => transformResult(result, {
   payload,

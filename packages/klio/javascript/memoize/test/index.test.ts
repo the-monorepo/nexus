@@ -42,9 +42,13 @@ describe(memoize.name, () => {
   });
 
   it('the memoized function behaves similar (enough) to the original function', () => {
-    const fn = (a, b, c) => `${a}_${b}_${c}`;
+    const fn = async (a, b?, c?) => `${a}_${b}_${c}`;
     const memoizedFn = memoize(fn);
 
-    expect(fn(1, 2, 3)).toBe(memoizedFn(1, 2, 3));
+    expect(fn('a')).resolves.toBe(memoizedFn('a'));
+    expect(fn('a', 'b')).resolves.toBe(memoizedFn('a', 'b'));
+    expect(fn('a', 'b', 'c')).resolves.toBe(memoizedFn('a', 'b', 'c'));
+
+    expect(fn(1, 2, 3)).resolves.toBe(memoizedFn(1, 2, 3));
   });
 });
