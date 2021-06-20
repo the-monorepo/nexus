@@ -40,7 +40,7 @@ const addImportsFromDependencies = async (
       try {
         stack.push(await addImportsFromPackageName(packageName, currentCwd));
       } catch(err) {
-        console.error(err);
+        throw err;
       }
     }
   }
@@ -110,7 +110,6 @@ const addImportsFromPackageName = async (packageName: string, cwd: string) => {
       // TODO: Clean this up
       return { dependencies: {}, cwd: "shouldn't be needed" };
     }
-    console.error(err, packageName, [cwd]);
     throw err;
   }
 };
@@ -142,7 +141,6 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
           }
         } catch (err) {
           if (err.code !== 'ENOTDIR' && err.code !== 'ENOENT' && err.code !== 'EISDIR') {
-            console.error(err);
             throw err;
           }
         }
@@ -163,7 +161,6 @@ const main = async () => {
       await readFile(join(__dirname, 'package.json'), 'utf8'),
     );
     await addImportsFromDependencies(rootPackageJson.dependencies, __dirname);
-    console.log({ scopes });
 
     await writeFile(
       'local.import-map.json',
@@ -171,7 +168,7 @@ const main = async () => {
       'utf8',
     );
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
