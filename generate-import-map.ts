@@ -1,8 +1,20 @@
 import { readFile, writeFile, stat } from 'fs/promises';
-import { dirname, join } from 'path';
+import { dirname, join, relative, normalize } from 'path';
 
 const imports: Record<string, string> = {};
 const scopes: Record<string, Record<string, string>> = {};
+
+const normalizeToRelative = (path: string) => {
+  const normalized = normalize(path);
+  return /^\.*\//.test(normalized) ? normalized : './' + normalized;
+};
+const resolveForImportKey = (path: string) => {
+  return normalizeToRelative(relative(process.cwd(), path) + '/');
+};
+
+const resolveForImportAliasPath = (path: string) => {
+  return normalizeToRelative(relative(process.cwd(), path));
+};
 
 const exportsToScopeEntries = (
   packageName: string,
@@ -10,14 +22,14 @@ const exportsToScopeEntries = (
   exportValue: string | Record<string, string>,
 ): [string, string][] => {
   if (typeof exportValue === 'string') {
-    return [[packageName, join(packageDir, exportValue)]];
+    return [[packageName, resolveForImportAliasPath(join(packageDir, exportValue))]];
   } else {
     return Object.entries(exportValue).map(([relativeEntrypoint, relativeMapping]) => {
       const packageEntrypoint = join(packageName, relativeEntrypoint);
 
       const mapping = join(packageDir, relativeMapping);
 
-      return [packageEntrypoint, mapping];
+      return [packageEntrypoint, resolveForImportAliasPath(mapping)];
     });
   }
 };
@@ -38,7 +50,8 @@ const addImportsFromDependencies = async (
       }
       seen.add(key);
       try {
-        stack.unshift(await addImportsFromPackageName(packageName, currentCwd));
+        const importInfo =await addImportsFromPackageName(packageName, currentCwd);
+        stack.unshift(importInfo);
       } catch(err) {
         throw err;
       }
@@ -75,7 +88,7 @@ const entryPointsFromPackageJson = (json: Record<string, any>, packageName: stri
   if (json.exports !== undefined) {
     if (typeof json.exports === 'string') {
       return [
-        [packageName, join(packageDir, json.exports)]
+        [packageName, resolveForImportAliasPath(join(packageDir, json.exports))]
       ];;
     } else {
       const fileSpecificImports = Object.fromEntries(Object.entries(json.exports).filter(([key]) => key.startsWith('.')).map(([relativeFilePath, value]: any) => {
@@ -90,10 +103,10 @@ const entryPointsFromPackageJson = (json: Record<string, any>, packageName: stri
     return [];
   } else {
     const main = json.module ?? json.main;
-    const mappings: [string, string][] = (main === undefined ? [] : [[packageName, join(packageDir, main)]]);
+    const mappings: [string, string][] = (main === undefined ? [] : [[packageName, resolveForImportAliasPath(join(packageDir, main))]]);
     return [
       // E.g. @x/y
-      [packageName + '/', packageDir + '/'],
+      [packageName + '/', resolveForImportAliasPath(packageDir) + '/'],
       ...mappings,
     ]
   }
@@ -107,8 +120,9 @@ const addImportsFromPackageName = async (packageName: string, cwd: string) => {
 
     const packageDir = dirname(packageJsonPath);
 
-    scopes[cwd] = {
-      ...scopes[cwd],
+    const importMapCwd = resolveForImportKey(cwd);
+    scopes[importMapCwd] = {
+      ...scopes[importMapCwd],
       ...Object.fromEntries(entryPointsFromPackageJson(json, packageName, packageDir)),
     };
 
