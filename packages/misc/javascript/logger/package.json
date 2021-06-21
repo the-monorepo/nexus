@@ -10,7 +10,7 @@
   "types": "./src/index.ts",
   "exports": {
     "monorepo-original": "./src/index.ts",
-    "deno": "./index.deno.ts",
+    "deno": "./esm/index.deno.ts",
     "import": "./esm/index.ts",
     "require": "./commonjs/index.ts"
   },
