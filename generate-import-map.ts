@@ -100,9 +100,9 @@ const entryPointsFromPackageJson = (json: Record<string, any>, packageName: stri
         return [relativeFilePath, value.deno ?? value.import ?? value.default];
       }).filter(([, value]) => value !== undefined));
       return [
-        ...exportsToScopeEntries(packageName, packageDir, json.exports.deno ?? {}),
          ...exportsToScopeEntries(packageName, packageDir, json.exports.default ?? {}),
         ...exportsToScopeEntries(packageName, packageDir, json.exports.import ?? {}),
+        ...exportsToScopeEntries(packageName, packageDir, json.exports.deno ?? {}),
         ...exportsToScopeEntries(packageName, packageDir, fileSpecificImports),
       ];
     }
