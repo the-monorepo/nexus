@@ -16,20 +16,24 @@ const resolveForImportAliasPath = (path: string) => {
   return normalizeToRelative(relative(process.cwd(), path));
 };
 
+const requireResolveForImportAliasPath = (path: string, requireCwd: string) => {
+  return resolveForImportAliasPath(require.resolve(path, { paths: [requireCwd] }));
+};
+
 const exportsToScopeEntries = (
   packageName: string,
   packageDir: string,
   exportValue: string | Record<string, string>,
 ): [string, string][] => {
   if (typeof exportValue === 'string') {
-    return [[packageName, resolveForImportAliasPath(join(packageDir, exportValue))]];
+    return [[packageName, requireResolveForImportAliasPath(join(packageDir, exportValue), packageDir)]];
   } else {
     return Object.entries(exportValue).map(([relativeEntrypoint, relativeMapping]) => {
       const packageEntrypoint = join(packageName, relativeEntrypoint);
 
       const mapping = join(packageDir, relativeMapping);
 
-      return [packageEntrypoint, resolveForImportAliasPath(mapping)];
+      return [packageEntrypoint, requireResolveForImportAliasPath(mapping, packageDir)];
     });
   }
 };
@@ -88,7 +92,7 @@ const entryPointsFromPackageJson = (json: Record<string, any>, packageName: stri
   if (json.exports !== undefined) {
     if (typeof json.exports === 'string') {
       return [
-        [packageName, resolveForImportAliasPath(join(packageDir, json.exports))]
+        [packageName, requireResolveForImportAliasPath(join(packageDir, json.exports), packageDir)]
       ];;
     } else {
       // TODO: Don't hardcode deno into this script
@@ -102,10 +106,9 @@ const entryPointsFromPackageJson = (json: Record<string, any>, packageName: stri
         ...exportsToScopeEntries(packageName, packageDir, fileSpecificImports),
       ];
     }
-    return [];
   } else {
     const main = json.module ?? json.main;
-    const mappings: [string, string][] = (main === undefined ? [] : [[packageName, resolveForImportAliasPath(join(packageDir, main))]]);
+    const mappings: [string, string][] = (main === undefined ? [] : [[packageName, requireResolveForImportAliasPath(join(packageDir, main), packageDir)]]);
     return [
       // E.g. @x/y
       [packageName + '/', resolveForImportAliasPath(packageDir) + '/'],
