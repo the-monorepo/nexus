@@ -91,11 +91,13 @@ const entryPointsFromPackageJson = (json: Record<string, any>, packageName: stri
         [packageName, resolveForImportAliasPath(join(packageDir, json.exports))]
       ];;
     } else {
+      // TODO: Don't hardcode deno into this script
       const fileSpecificImports = Object.fromEntries(Object.entries(json.exports).filter(([key]) => key.startsWith('.')).map(([relativeFilePath, value]: any) => {
-        return [relativeFilePath, value.import ?? value.default];
+        return [relativeFilePath, value.deno ?? value.import ?? value.default];
       }).filter(([, value]) => value !== undefined));
       return [
-        ...exportsToScopeEntries(packageName, packageDir, json.exports.default ?? {}),
+        ...exportsToScopeEntries(packageName, packageDir, json.exports.deno ?? {}),
+         ...exportsToScopeEntries(packageName, packageDir, json.exports.default ?? {}),
         ...exportsToScopeEntries(packageName, packageDir, json.exports.import ?? {}),
         ...exportsToScopeEntries(packageName, packageDir, fileSpecificImports),
       ];
