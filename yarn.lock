@@ -2811,6 +2811,7 @@ __metadata:
     stream-to-promise: ^3.0.0
     through2: ^4.0.2
     typescript: ^4.3.2
+    vinyl: ^2.2.1
     vinyl-sourcemaps-apply: ^0.2.1
   languageName: unknown
   linkType: soft
@@ -21486,7 +21487,7 @@ typescript@^4.3.2:
   languageName: node
   linkType: hard
 
-"vinyl@npm:^2.0.0, vinyl@npm:^2.2.0":
+"vinyl@npm:^2.0.0, vinyl@npm:^2.2.0, vinyl@npm:^2.2.1":
   version: 2.2.1
   resolution: "vinyl@npm:2.2.1"
   dependencies:

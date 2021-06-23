@@ -14,6 +14,8 @@ import through from 'through2';
 import gulp from 'gulp';
 import { oldStreamToPromise } from './utils/gulp-wrappers.ts';
 
+import Vinyl from 'vinyl';
+
 const touch = () =>
   through.obj(function (file, _, cb) {
     if (file.stat) {
@@ -51,12 +53,20 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
             sourceFileName: file.relative,
           });
 
-          file.contents = Buffer.from(code);
+          const newFile = new Vinyl({
+            ...file,
+            contents: Buffer.from(code),
+          });
 
-          map.file = file.relative;
-          applySourceMap(file, map);
+          map.file = newFile.relative;
 
-          done(null, file);
+          applySourceMap(newFile, map);
+
+          try {
+            done(null, newFile);
+          } catch(doneErr) {
+            console.error(doneErr);
+          }
         } catch (err) {
           done(err);
         }
@@ -64,8 +74,10 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
     )
     .pipe(
       rename((filePath) => {
-        filePath.dirname = renamePath(filePath.dirname);
-        return filePath;
+        return {
+          ...filePath,
+          dirname: renamePath(filePath.dirname),
+        };
       }),
     )
     .pipe(sourcemaps.mapSources((filePath) => filePath.replace(/.*\/src\//g, '../src/')))
