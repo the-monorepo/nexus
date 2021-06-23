@@ -4,6 +4,16 @@ import { dirname, join, relative, normalize } from 'path';
 const imports: Record<string, string> = {};
 const scopes: Record<string, Record<string, string>> = {};
 
+const exportValueJoin = (...args) => {
+  const joined = join(...args);
+
+  if (args[args.length - 1].endsWith('/') && !joined.endsWith('/')) {
+    return joined + '/';
+  } else {
+    return joined;
+  }
+};
+
 const normalizeToRelative = (path: string) => {
   const normalized = normalize(path);
   return /^\.*\//.test(normalized) ? normalized : './' + normalized;
@@ -13,29 +23,18 @@ const resolveForImportKey = (path: string) => {
 };
 
 const resolveForImportAliasPath = (path: string) => {
-  return normalizeToRelative(relative(process.cwd(), path));
+  const normalized = normalizeToRelative(relative(process.cwd(), path));
+  if (path.endsWith('/')) {
+    return normalized + '/';
+  }
+  return normalized;
 };
 
 const requireResolveForImportAliasPath = (path: string, requireCwd: string) => {
-  return resolveForImportAliasPath(require.resolve(path, { paths: [requireCwd] }));
-};
-
-const exportsToScopeEntries = (
-  packageName: string,
-  packageDir: string,
-  exportValue: string | Record<string, string>,
-): [string, string][] => {
-  if (typeof exportValue === 'string') {
-    return [[packageName, requireResolveForImportAliasPath(join(packageDir, exportValue), packageDir)]];
-  } else {
-    return Object.entries(exportValue).map(([relativeEntrypoint, relativeMapping]) => {
-      const packageEntrypoint = join(packageName, relativeEntrypoint);
-
-      const mapping = join(packageDir, relativeMapping);
-
-      return [packageEntrypoint, requireResolveForImportAliasPath(mapping, packageDir)];
-    });
+  if (path.endsWith('/')) {
+    return resolveForImportAliasPath(path);
   }
+  return resolveForImportAliasPath(require.resolve(path, { paths: [requireCwd] }));
 };
 
 const addImportsFromDependencies = async (
@@ -44,7 +43,7 @@ const addImportsFromDependencies = async (
 ) => {
   let stack = [{ dependencies, cwd }];
   const seen: Set<string> = new Set();
-  while(stack.length > 0) {
+  while (stack.length > 0) {
     const popped = stack.pop()!;
     const { dependencies: deps, cwd: currentCwd } = popped;
     for (const packageName of Object.keys(deps)) {
@@ -54,9 +53,9 @@ const addImportsFromDependencies = async (
       }
       seen.add(key);
       try {
-        const importInfo =await addImportsFromPackageName(packageName, currentCwd);
+        const importInfo = await addImportsFromPackageName(packageName, currentCwd);
         stack.unshift(importInfo);
-      } catch(err) {
+      } catch (err) {
         throw err;
       }
     }
@@ -76,7 +75,7 @@ const readJson = async (aPath: string) => {
 
 const tryResolvePackage = (packageName: string, cwd: string) => {
   try {
-    Object.keys(require.cache).forEach(function(key) {
+    Object.keys(require.cache).forEach(function (key) {
       delete require.cache[key];
     });
     return require.resolve(packageName, { paths: [cwd] });
@@ -88,32 +87,104 @@ const tryResolvePackage = (packageName: string, cwd: string) => {
   }
 };
 
-const entryPointsFromPackageJson = (json: Record<string, any>, packageName: string, packageDir: string) => {
-  if (json.exports !== undefined) {
-    if (typeof json.exports === 'string') {
-      return [
-        [packageName, requireResolveForImportAliasPath(join(packageDir, json.exports), packageDir)]
-      ];;
-    } else {
-      // TODO: Don't hardcode deno into this script
-      const fileSpecificImports = Object.fromEntries(Object.entries(json.exports).filter(([key]) => key.startsWith('.')).map(([relativeFilePath, value]: any) => {
-        return [relativeFilePath, value.deno ?? value.import ?? value.default];
-      }).filter(([, value]) => value !== undefined));
-      return [
-         ...exportsToScopeEntries(packageName, packageDir, json.exports.default ?? {}),
-        ...exportsToScopeEntries(packageName, packageDir, json.exports.import ?? {}),
-        ...exportsToScopeEntries(packageName, packageDir, json.exports.deno ?? {}),
-        ...exportsToScopeEntries(packageName, packageDir, fileSpecificImports),
-      ];
+interface RecursiveArray<T> extends Array<RecursiveArray<T> | T> {}
+interface RecursiveRecord<T> extends Record<string, RecursiveRecord<T> | T> {}
+
+type ExportMapping =
+  | RecursiveArray<ExportMapping>
+  | RecursiveRecord<ExportMapping>
+  | string;
+
+const exportMappingToPath = (mapping: ExportMapping): string | undefined => {
+  if (typeof mapping === 'string') {
+    return mapping;
+  } else if (Array.isArray(mapping)) {
+    for (const subMapping of mapping) {
+      const entrypoint = exportMappingToPath(subMapping);
+      if (entrypoint !== undefined) {
+        return entrypoint;
+      }
     }
   } else {
+    const chosenExportMapping = mapping.deno ?? mapping.import ?? mapping.default
+
+    if (chosenExportMapping !== undefined) {
+      return exportMappingToPath(chosenExportMapping);
+    }
+  }
+
+  return undefined;
+};
+
+type Exports = Record<string, ExportMapping> | ExportMapping;
+
+const exportsToEntrypoints = (
+  exportsObject: Exports,
+  packageName: string,
+  packageDir: string,
+): [string, string][] => {
+  const isMultiMappings = Object.keys(exportsObject).every((key) => key.startsWith('.'));
+
+  if (isMultiMappings) {
+    return Object.entries(exportsObject)
+      .map(([key, exportsValue]) => {
+        const mapped = exportMappingToPath(exportsValue);
+
+        if (mapped === undefined) {
+          return undefined;
+        }
+
+        try {
+          return [join(packageName, key), requireResolveForImportAliasPath(exportValueJoin(packageDir, mapped), packageDir)] as [string, string];
+        } catch (err) {
+          console.error(err);
+          return undefined;
+        }
+      })
+      .filter((value): value is Exclude<typeof value, undefined> => value !== undefined);
+  } else {
+    const mapped = exportMappingToPath(exportsObject);
+
+    if (mapped === undefined) {
+      return [];
+    }
+
+    try {
+      return [[packageName, requireResolveForImportAliasPath(exportValueJoin(packageDir, mapped), packageDir)]];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
+};
+
+const entryPointsFromPackageJson = (
+  json: Record<string, any>,
+  packageName: string,
+  packageDir: string,
+) => {
+  if (json.exports !== undefined) {
+    return exportsToEntrypoints(
+      json.exports,
+      packageName,
+      packageDir,
+    );
+  } else {
     const main = json.module ?? json.main;
-    const mappings: [string, string][] = (main === undefined ? [] : [[packageName, requireResolveForImportAliasPath(join(packageDir, main), packageDir)]]);
+    const mappings: [string, string][] =
+      main === undefined
+        ? []
+        : [
+            [
+              packageName,
+              requireResolveForImportAliasPath(join(packageDir, main), packageDir),
+            ],
+          ];
     return [
       // E.g. @x/y
       [packageName + '/', resolveForImportAliasPath(packageDir) + '/'],
       ...mappings,
-    ]
+    ];
   }
 };
 const addImportsFromPackageName = async (packageName: string, cwd: string) => {
@@ -135,6 +206,14 @@ const addImportsFromPackageName = async (packageName: string, cwd: string) => {
     return { dependencies: json.dependencies ?? {}, cwd: packageDir };
   } catch (err) {
     if (err.code === 'MODULE_NOT_FOUND') {
+      if (!packageName.startsWith('@types')) {
+        // TODO: Should be a way of disabling this
+        // @types/ files have main: ""
+        console.error(
+          `Tried to resolve '${packageName}' at '${cwd}' but received ${err.code}`,
+          err,
+        );
+      }
       // TODO: Clean this up
       return { dependencies: {}, cwd: "shouldn't be needed" };
     }
@@ -173,8 +252,8 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
           }
         }
         current = dirname(current);
-      } while (current !== '/' && current !== '.')
-    } catch(err) {
+      } while (current !== '/' && current !== '.');
+    } catch (err) {
       reject(err);
       throw err;
     }
