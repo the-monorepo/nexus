@@ -12,6 +12,7 @@ Version | Package | Description
 1.0.0-alpha.2 | [`@cinderjs/hooks`](packages/cinder/javascript/hooks/README.md) | Cinder hooks
 1.0.0-alpha.1 | [`@fl-benchmarker/benchmarker-cli`](packages/fl-benchmarker/javascript/benchmarker-cli/README.md) | Benchmark your fault localization techniques
 1.0.0-alpha.1 | [`@fl-benchmarker/viewer-cli`](packages/fl-benchmarker/javascript/viewer-cli/README.md) | View your benchmarking results
+1.0.0-alpha.1 | [`@klio/memoize`](packages/klio/javascript/memoize/README.md) | Memoize a function
 1.4.3 | [`@pshaw/convict-util`](packages/misc/javascript/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/javascript/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/javascript/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
