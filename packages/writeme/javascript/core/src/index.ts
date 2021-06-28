@@ -1,5 +1,6 @@
 /* eslint-disable require-atomic-updates */
-import { writeFile, readFile } from 'fs/promises';
+import { writeFile } from 'fs/promises';
+import { readJson } from '@pshaw/fs';
 
 import { join, relative, resolve } from 'path';
 
@@ -174,10 +175,7 @@ function genReadme({
 }
 
 async function readPackageJson(packageDir) {
-  const packageJsonText = await readFile(join(packageDir, 'package.json'), {
-    encoding: 'utf-8',
-  });
-  return JSON.parse(packageJsonText);
+  return await readJson(join(packageDir, 'package.json'));
 }
 
 export type MissingFileCallback = (configPath: string) => any;

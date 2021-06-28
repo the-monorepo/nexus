@@ -5604,6 +5604,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@writeme/core@workspace:packages/writeme/javascript/core"
   dependencies:
+    "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs"
     "@pshaw/markdown-util": "workspace:packages/misc/javascript/markdown-util"
     "@types/node": ^14.6.0
     fs-extra: ^9.0.1
