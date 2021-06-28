@@ -18,9 +18,7 @@
         "@pshaw/eslint-config-plugin-cinder",
 
         "@pshaw/eslint-config-plugin-typescript",
-        "prettier",
-        "prettier/@typescript-eslint",
-        "prettier/react"
+        "prettier"
       ]
     },
     {
@@ -41,9 +39,7 @@
         "@pshaw/eslint-config-plugin-react",
 
         "@pshaw/eslint-config-plugin-typescript",
-        "prettier",
-        "prettier/@typescript-eslint",
-        "prettier/react"
+        "prettier"
       ]
     }
   ]
