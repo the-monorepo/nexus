@@ -27,6 +27,7 @@
   },
   "sideEffects": false,
   "dependencies": {
+    "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs",
     "fs-extra": "^9.0.1",
     "globby": "^11.0.1",
     "hook-schema": "^2.2.4-0"
