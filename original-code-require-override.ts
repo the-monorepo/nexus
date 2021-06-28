@@ -1,64 +1,65 @@
 // Note: Needs to be before transpilation hook because of cinder/babel
 
-import { readFileSync, accessSync, constants } from 'fs';
+import { readFileSync } from 'fs';
 
 import Module from 'module';
 
-import { join, resolve } from 'path';
+import { dirname, join, resolve } from 'path';
 
 import globby from 'globby';
 
 import config from '@monorepo/config';
 
-const packageDirs = globby.sync(config.workspaces, {
-  onlyDirectories: true,
+const packageJsonDirs = globby.sync(config.workspaces.map(workspacePath => join(workspacePath, 'package.json')), {
+  onlyFiles: true,
 });
 
 const workspacedPackageNames = new Map();
-for (const dir of packageDirs) {
-  const jsonFilePath = join(dir, 'package.json');
+for (const jsonFilePath of packageJsonDirs) {
+  const dir = dirname(jsonFilePath);
 
   try {
-    accessSync(jsonFilePath, constants.R_OK);
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    continue;
-  }
-  const json = JSON.parse(readFileSync(jsonFilePath, 'utf8'));
+    const json = JSON.parse(readFileSync(jsonFilePath, 'utf8'));
 
-  if (json.exports === undefined || typeof json.exports === 'string') {
-    continue;
-  }
+    if (json.exports === undefined || typeof json.exports === 'string') {
+      continue;
+    }
 
-  const monorepoOriginalPath = json.exports['monorepo-original'];
-  if (monorepoOriginalPath !== undefined) {
-    if (typeof monorepoOriginalPath === 'string') {
-      const mappedResolvedRequirePath = resolve(dir, monorepoOriginalPath);
-      workspacedPackageNames.set(json.name, mappedResolvedRequirePath);
+    const monorepoOriginalPath = json.exports['monorepo-original'];
+    if (monorepoOriginalPath !== undefined) {
+      if (typeof monorepoOriginalPath === 'string') {
+        const mappedResolvedRequirePath = resolve(dir, monorepoOriginalPath);
+        workspacedPackageNames.set(json.name, mappedResolvedRequirePath);
+      } else {
+        for (const [relativeRequirePath, mappedRequirePath] of Object.entries<string>(
+          monorepoOriginalPath,
+        )) {
+          const packageResolvedRequirePath = join(json.name, relativeRequirePath);
+          const mappedResolvedRequirePath = resolve(dir, mappedRequirePath);
+          workspacedPackageNames.set(packageResolvedRequirePath, mappedResolvedRequirePath);
+        }
+      }
     } else {
-      for (const [relativeRequirePath, mappedRequirePath] of Object.entries<string>(
-        monorepoOriginalPath,
+      for (const [relativeRequirePath, mappings] of Object.entries<string>(
+        json.exports,
       )) {
+        const mappedRequirePath = mappings['monorepo-original'];
+
+        if (mappedRequirePath === undefined) {
+          continue;
+        }
+
         const packageResolvedRequirePath = join(json.name, relativeRequirePath);
         const mappedResolvedRequirePath = resolve(dir, mappedRequirePath);
         workspacedPackageNames.set(packageResolvedRequirePath, mappedResolvedRequirePath);
       }
     }
-  } else {
-    for (const [relativeRequirePath, mappings] of Object.entries<string>(
-      json.exports,
-    )) {
-      const mappedRequirePath = mappings['monorepo-original'];
-
-      if (mappedRequirePath === undefined) {
-        continue;
-      }
-
-      const packageResolvedRequirePath = join(json.name, relativeRequirePath);
-      const mappedResolvedRequirePath = resolve(dir, mappedRequirePath);
-      workspacedPackageNames.set(packageResolvedRequirePath, mappedResolvedRequirePath);
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      // eslint-disable-next-line no-console
+      console.error(err);
     }
+    continue;
   }
 }
 
