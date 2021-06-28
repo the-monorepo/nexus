@@ -1,7 +1,7 @@
 import * as cinder from 'cinder';
 import { render, DomElement, UPDATE, MOUNT, UNMOUNT } from 'cinder';
 
-import { computed, observable, reaction, action } from 'mobx';
+import { observable, action } from 'mobx';
 
 import cx from 'classnames';
 
@@ -11,12 +11,9 @@ import {
   axisBottom,
   area,
   curveMonotoneY,
-  extent,
   mean,
   axisLeft,
   select,
-  group,
-  rollup,
   scaleBand,
 } from 'd3';
 
@@ -24,7 +21,6 @@ import * as previousStyles from './ViolinGraph.scss';
 import * as figureStyles from './figure.scss';
 import styles from './ViolinGraphElement.scss';
 
-import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts';
 import { autorun } from 'mobx';
 
 const kernelEpanechnikov = (bandwidth: number) => {
