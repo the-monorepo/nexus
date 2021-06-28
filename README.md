@@ -68,11 +68,11 @@ Version | Package | Description
 ### ESLint
 Version | Package | Description
 --- | --- | ---
-1.4.2 | [`@pshaw/eslint-config-core`](packages/patrick-shaw/javascript/eslint-config-core/README.md) | A pratical style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](packages/patrick-shaw/javascript/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-plugin-react`](packages/patrick-shaw/javascript/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
-1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](packages/patrick-shaw/javascript/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
-1.4.3-0 | [`@pshaw/eslint-config-preset`](packages/patrick-shaw/javascript/eslint-config-preset/README.md) | A pratical style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-core`](packages/monorepo/javascript/eslint-config-core/README.md) | A pratical style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](packages/monorepo/javascript/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
+1.4.2 | [`@pshaw/eslint-config-plugin-react`](packages/monorepo/javascript/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
+1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](packages/monorepo/javascript/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
+1.4.3-0 | [`@pshaw/eslint-config-preset`](packages/monorepo/javascript/eslint-config-preset/README.md) | A pratical style preset for ESLint
 
 ### FaultJS
 Version | Package | Description
@@ -101,11 +101,6 @@ Version | Package | Description
 1.0.0-alpha.0 | [`@pshaw/contextual-documents`](packages/patrick-shaw/javascript/contextual-documents/README.md) | A nice, sensible, web component based Contextual Document API
 1.0.0-alpha.0 | [`@pshaw/contextual-documents-scss`](packages/patrick-shaw/javascript/contextual-documents-scss/README.md) | SCSS files for @pshaw/contextual-documents-scss
 1.0.0-alpha.0 | [`@pshaw/contextual-documents-style-root`](packages/patrick-shaw/javascript/contextual-documents-style-root/README.md) | Contextual document style root for @pshaw/contextual-documents-scss
-1.4.2 | [`@pshaw/eslint-config-core`](packages/patrick-shaw/javascript/eslint-config-core/README.md) | A pratical style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-plugin-cinder`](packages/patrick-shaw/javascript/eslint-config-plugin-cinder/README.md) | A pratical Cinder style preset for ESLint
-1.4.2 | [`@pshaw/eslint-config-plugin-react`](packages/patrick-shaw/javascript/eslint-config-plugin-react/README.md) | A pratical React style preset for ESLint
-1.4.3 | [`@pshaw/eslint-config-plugin-typescript`](packages/patrick-shaw/javascript/eslint-config-plugin-typescript/README.md) | A pratical Typescript style preset for ESLint
-1.4.3-0 | [`@pshaw/eslint-config-preset`](packages/patrick-shaw/javascript/eslint-config-preset/README.md) | A pratical style preset for ESLint
 1.4.2 | [`@pshaw/monorepo-config`](packages/patrick-shaw/javascript/monorepo-config/README.md) | My @monorepo/config preset settings
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](packages/patrick-shaw/javascript/typography-scss/README.md) | Nice typograhpy SCSS package
 1.4.2 | [`@pshaw/webpack`](packages/patrick-shaw/javascript/webpack/README.md) | Some utilities for building webpack configs

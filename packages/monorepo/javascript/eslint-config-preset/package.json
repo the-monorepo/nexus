@@ -27,10 +27,10 @@
     "access": "public"
   },
   "dependencies": {
-    "@pshaw/eslint-config-core": "workspace:packages/patrick-shaw/javascript/eslint-config-core",
-    "@pshaw/eslint-config-plugin-cinder": "workspace:packages/patrick-shaw/javascript/eslint-config-plugin-cinder",
-    "@pshaw/eslint-config-plugin-react": "workspace:packages/patrick-shaw/javascript/eslint-config-plugin-react",
-    "@pshaw/eslint-config-plugin-typescript": "workspace:packages/patrick-shaw/javascript/eslint-config-plugin-typescript",
+    "@pshaw/eslint-config-core": "workspace:packages/monorepo/javascript/eslint-config-core",
+    "@pshaw/eslint-config-plugin-cinder": "workspace:packages/monorepo/javascript/eslint-config-plugin-cinder",
+    "@pshaw/eslint-config-plugin-react": "workspace:packages/monorepo/javascript/eslint-config-plugin-react",
+    "@pshaw/eslint-config-plugin-typescript": "workspace:packages/monorepo/javascript/eslint-config-plugin-typescript",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
     "eslint-config-prettier": "^6.11.0",

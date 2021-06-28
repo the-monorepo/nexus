@@ -27,7 +27,7 @@ module.exports = {
       },
       {
         category: 'ESLint',
-        test: './packages/patrick-shaw/javascript/eslint-*',
+        test: './packages/monorepo/javascript/eslint-*',
       },
       {
         category: 'TSLint',
