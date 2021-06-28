@@ -3,15 +3,16 @@ import { simplePipeLogger } from '../utils/simplePipeLogger';
 
 import logger from '../utils/logger';
 
+import prettier from 'gulp-prettier';
+
+import eslint from 'gulp-eslint';
+
 const prettierPipes = async (stream) => {
-  const { default: prettier } = await import('gulp-prettier');
   const l = logger.child(chalk.magentaBright('prettier'));
   return stream.pipe(simplePipeLogger(l)).pipe(prettier());
 };
 
 const lintPipes = async (stream, lintOptions) => {
-  const { default: eslint } = await import('gulp-eslint');
-
   const l = logger.child(chalk.magentaBright('eslint'));
   return (
     stream
