@@ -2,12 +2,10 @@ import chalk from 'chalk';
 
 import { extractTypeInfo } from '@byexample/types';
 
-import { findModule } from '../findModule.ts'
+import { findModule } from '../findModule.ts';
 
 export function defaultModuleAction(moduleName: string) {
   const result = findModule(moduleName);
-
-
 
   const stdin = process.openStdin();
   stdin.on('data', (input) => {

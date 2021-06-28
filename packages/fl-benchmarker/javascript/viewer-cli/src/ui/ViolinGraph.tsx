@@ -24,7 +24,7 @@ import * as previousStyles from './ViolinGraph.scss';
 import * as figureStyles from './figure.scss';
 import styles from './ViolinGraphElement.scss';
 
-import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts'
+import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts';
 import { autorun } from 'mobx';
 
 const kernelEpanechnikov = (bandwidth: number) => {
@@ -70,7 +70,7 @@ class FaultJSViolinElement extends DomElement {
     const techniqueAxisSelection = select(axisBottomElement);
 
     autorun(() => {
-      examScale.get().range([0, this.height.get()])
+      examScale.get().range([0, this.height.get()]);
     });
 
     autorun(() => {
@@ -93,7 +93,6 @@ class FaultJSViolinElement extends DomElement {
 
     const violinGroup = this.renderRoot.getElementById('violin-group');
     const violinGroupSelection = select(violinGroup);
-
 
     autorun(() => {
       violinGroup.innerHTML = '';
@@ -121,13 +120,15 @@ class FaultJSViolinElement extends DomElement {
 
         const violinArea = area()
           .y((d) => examScale.get()(d[0]))
-          .x0((d) => (Math.max(0, examDensityScale(d[1])) * bandwidth + bandwidth) / 2 + nameOffset)
+          .x0(
+            (d) =>
+              (Math.max(0, examDensityScale(d[1])) * bandwidth + bandwidth) / 2 +
+              nameOffset,
+          )
           .x1((d) => (-examDensityScale(d[1]) * bandwidth + bandwidth) / 2 + nameOffset)
           .curve(curveMonotoneY);
 
-        violinGroupSelection
-          .append('path')
-          .attr('d', violinArea(areaValues))
+        violinGroupSelection.append('path').attr('d', violinArea(areaValues));
       }
     });
 
@@ -141,8 +142,11 @@ class FaultJSViolinElement extends DomElement {
 
     const svg = this.renderRoot.getElementById('svg');
     autorun(() => {
-      svg.setAttribute('viewBox', `-25 -5 ${this.width.get() + 25} ${this.height.get() + 25}`)
-    })
+      svg.setAttribute(
+        'viewBox',
+        `-25 -5 ${this.width.get() + 25} ${this.height.get() + 25}`,
+      );
+    });
 
     autorun(() => {
       axisBottomElement.setAttribute('transform', `translate(0, ${this.height.get()})`);
@@ -160,16 +164,16 @@ class FaultJSViolinElement extends DomElement {
     return (
       <>
         <style>{styles.toString()}</style>
-        <div id="container" class={styles.locals.container}>
+        <div id="container" className={styles.locals.container}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             id="svg"
-            fill-rule="evenodd"
-            class={styles.locals.svg}
+            fillRule="evenodd"
+            className={styles.locals.svg}
             preserveAspectRatio="none"
             fill="000"
           >
-            <g id="violin-group"/>
+            <g id="violin-group" />
             <g id="axis-left" />
             <g id="axis-bottom" />
           </svg>
@@ -202,14 +206,13 @@ const HorizontalSvgViolin = ({ class: className, id }: SvgViolinProps) => {
   ]);
 
   return (
-    <div class={previousStyles.violin}>
+    <div className={previousStyles.violin}>
       <svg
         preserveAspectRatio="none"
         viewBox="0 -1 1 2"
-        class={cx(previousStyles.svg, previousStyles.horizontal, className)}
+        className={cx(previousStyles.svg, previousStyles.horizontal, className)}
         id={id}
       >
-
         <path d={d} />
       </svg>
     </div>
@@ -217,7 +220,7 @@ const HorizontalSvgViolin = ({ class: className, id }: SvgViolinProps) => {
 };
 
 const Label = ({ children }) => (
-  <label class={cx(previousStyles.label)}>{children}</label>
+  <label className={cx(previousStyles.label)}>{children}</label>
 );
 
 export type ViolinGraphProps = {
@@ -228,22 +231,22 @@ export const ViolinGraph = ({ flow = 'row', class: className }: ViolinGraphProps
   const SvgViolinWithCorrectFlow = HorizontalSvgViolin;
   return (
     <>
-      <figure class={cx(previousStyles.figure, previousStyles[flow], className)}>
-        <figcaption class={figureStyles.caption}>EXAM score</figcaption>
+      <figure className={cx(previousStyles.figure, previousStyles[flow], className)}>
+        <figcaption className={figureStyles.caption}>EXAM score</figcaption>
         <Label>Test</Label>
-        <div class={cx(figureStyles.scale, figureStyles.vertical)}></div>
+        <div className={cx(figureStyles.scale, figureStyles.vertical)}></div>
         <SvgViolinWithCorrectFlow />
         <Label>Rawr</Label>
         <SvgViolinWithCorrectFlow />
         <Label>Asasaf</Label>
         <SvgViolinWithCorrectFlow />
-        <div class={cx(figureStyles.scale, figureStyles.horizontal)}></div>
+        <div className={cx(figureStyles.scale, figureStyles.horizontal)}></div>
       </figure>
     </>
   );
 };
 
 <>
-  <div class={cx(figureStyles.discreteScale, figureStyles.vertical)}></div>
-  <div class={cx(figureStyles.discreteScale, figureStyles.horizontal)}></div>
+  <div className={cx(figureStyles.discreteScale, figureStyles.vertical)}></div>
+  <div className={cx(figureStyles.discreteScale, figureStyles.horizontal)}></div>
 </>;

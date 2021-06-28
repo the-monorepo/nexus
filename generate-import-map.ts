@@ -8,7 +8,7 @@ const exportValueJoin = (...args) => {
   const joined = join(...args);
 
   if (args[args.length - 1].endsWith('/') && !joined.endsWith('/')) {
-    return joined + '/';
+    return `${joined}/`;
   } else {
     return joined;
   }
@@ -16,16 +16,16 @@ const exportValueJoin = (...args) => {
 
 const normalizeToRelative = (path: string) => {
   const normalized = normalize(path);
-  return /^\.*\//.test(normalized) ? normalized : './' + normalized;
+  return /^\.*\//.test(normalized) ? normalized : `./${normalized}`;
 };
 const resolveForImportKey = (path: string) => {
-  return normalizeToRelative(relative(process.cwd(), path) + '/');
+  return normalizeToRelative(`${relative(process.cwd(), path)}/`);
 };
 
 const resolveForImportAliasPath = (path: string) => {
   const normalized = normalizeToRelative(relative(process.cwd(), path));
   if (path.endsWith('/')) {
-    return normalized + '/';
+    return `${normalized}/`;
   }
   return normalized;
 };
@@ -41,7 +41,7 @@ const addImportsFromDependencies = async (
   dependencies: Record<string, string> | undefined = {},
   cwd: string,
 ) => {
-  let stack = [{ dependencies, cwd }];
+  const stack = [{ dependencies, cwd }];
   const seen: Set<string> = new Set();
   while (stack.length > 0) {
     const popped = stack.pop()!;
@@ -87,8 +87,8 @@ const tryResolvePackage = (packageName: string, cwd: string) => {
   }
 };
 
-interface RecursiveArray<T> extends Array<RecursiveArray<T> | T> {}
-interface RecursiveRecord<T> extends Record<string, RecursiveRecord<T> | T> {}
+type RecursiveArray<T> = {} & Array<RecursiveArray<T> | T>;
+type RecursiveRecord<T> = {} & Record<string, RecursiveRecord<T> | T>;
 
 type ExportMapping =
   | RecursiveArray<ExportMapping>
@@ -106,7 +106,7 @@ const exportMappingToPath = (mapping: ExportMapping): string | undefined => {
       }
     }
   } else {
-    const chosenExportMapping = mapping.deno ?? mapping.import ?? mapping.default
+    const chosenExportMapping = mapping.deno ?? mapping.import ?? mapping.default;
 
     if (chosenExportMapping !== undefined) {
       return exportMappingToPath(chosenExportMapping);
@@ -135,7 +135,13 @@ const exportsToEntrypoints = (
         }
 
         try {
-          return [join(packageName, key), requireResolveForImportAliasPath(exportValueJoin(packageDir, mapped), packageDir)] as [string, string];
+          return [
+            join(packageName, key),
+            requireResolveForImportAliasPath(
+              exportValueJoin(packageDir, mapped),
+              packageDir,
+            ),
+          ] as [string, string];
         } catch (err) {
           console.error(err);
           return undefined;
@@ -150,7 +156,15 @@ const exportsToEntrypoints = (
     }
 
     try {
-      return [[packageName, requireResolveForImportAliasPath(exportValueJoin(packageDir, mapped), packageDir)]];
+      return [
+        [
+          packageName,
+          requireResolveForImportAliasPath(
+            exportValueJoin(packageDir, mapped),
+            packageDir,
+          ),
+        ],
+      ];
     } catch (err) {
       console.error(err);
       return [];
@@ -164,11 +178,7 @@ const entryPointsFromPackageJson = (
   packageDir: string,
 ) => {
   if (json.exports !== undefined) {
-    return exportsToEntrypoints(
-      json.exports,
-      packageName,
-      packageDir,
-    );
+    return exportsToEntrypoints(json.exports, packageName, packageDir);
   } else {
     const main = json.module ?? json.main;
     const mappings: [string, string][] =
@@ -182,7 +192,7 @@ const entryPointsFromPackageJson = (
           ];
     return [
       // E.g. @x/y
-      [packageName + '/', resolveForImportAliasPath(packageDir) + '/'],
+      [`${packageName}/`, `${resolveForImportAliasPath(packageDir)}/`],
       ...mappings,
     ];
   }

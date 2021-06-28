@@ -1,5 +1,5 @@
-import * as ResultTypes from './types.ts'
-import { PAYLOAD, FAILURE } from './types.ts'
+import * as ResultTypes from './types.ts';
+import { PAYLOAD, FAILURE } from './types.ts';
 import {
   TransformTypedObject,
   Include,
@@ -49,8 +49,7 @@ export type Result<PayloadType, FailureType> =
  */
 export const hasFailure = <R extends TypedObjectSchema>(
   result: R,
-): result is Include<R, TypeHolder<typeof FAILURE>> =>
-  result.type === FAILURE;
+): result is Include<R, TypeHolder<typeof FAILURE>> => result.type === FAILURE;
 
 /**
  * Check if a result is a {@link PayloadResult}.
@@ -59,8 +58,7 @@ export const hasFailure = <R extends TypedObjectSchema>(
  */
 export const hasPayload = <R extends TypedObjectSchema>(
   result: R,
-): result is Include<R, TypeHolder<typeof PAYLOAD>> =>
-  result.type === PAYLOAD;
+): result is Include<R, TypeHolder<typeof PAYLOAD>> => result.type === PAYLOAD;
 
 export type CreatePayloadFn = {
   <P>(payload: P): PayloadResult<P>;
@@ -107,12 +105,9 @@ export type FullHandleOptions<P, E, PR, ER> = HandlePayloadOptions<P, PR> &
 
 export type HandleOptions<P, E, PR, ER> = Partial<FullHandleOptions<P, E, PR, ER>>;
 
-export type FullOptionsBasedOnResult<
-  R extends TypedResultfulSchema,
-  PR,
-  FR
-> = OptionIfTypeElseEmpty<R, typeof PAYLOAD, 'payload', PR> &
-  OptionIfTypeElseEmpty<R, typeof FAILURE, 'failure', FR>;
+export type FullOptionsBasedOnResult<R extends TypedResultfulSchema, PR, FR> =
+  OptionIfTypeElseEmpty<R, typeof PAYLOAD, 'payload', PR> &
+    OptionIfTypeElseEmpty<R, typeof FAILURE, 'failure', FR>;
 
 export type OptionsBasedOnResult<R extends TypedResultfulSchema, PR, ER> = Partial<
   FullOptionsBasedOnResult<R, PR, ER>
@@ -120,25 +115,23 @@ export type OptionsBasedOnResult<R extends TypedResultfulSchema, PR, ER> = Parti
 
 export type HandledPayloadResult<
   R extends TypedObjectSchema,
-  O extends TransformOptionsSchema
+  O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'payload', typeof PAYLOAD>;
 
 export type HandledFailureResult<
   R extends TypedObjectSchema,
-  O extends TransformOptionsSchema
+  O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'failure', typeof FAILURE>;
 
-export type HandledResult<
-  R extends TypedObjectSchema,
-  O extends TransformOptionsSchema
-> = HandledPayloadResult<R, O> | HandledFailureResult<R, O>;
+export type HandledResult<R extends TypedObjectSchema, O extends TransformOptionsSchema> =
+  HandledPayloadResult<R, O> | HandledFailureResult<R, O>;
 
 export type TransformFn = {
   <R extends TypedResultfulSchema>(result: R, options?: undefined): typeof result;
   <
     R extends TypedResultfulSchema,
     O extends OptionsBasedOnResult<R, any, any> &
-      Record<string | number | symbol, unknown>
+      Record<string | number | symbol, unknown>,
   >(
     result: R,
     options: O,
@@ -179,7 +172,7 @@ export type HandleFn = {
   <
     R extends TypedResultfulSchema,
     O extends OptionsBasedOnResult<R, any, any> &
-      Record<string | number | symbol, unknown>
+      Record<string | number | symbol, unknown>,
   >(
     result: R,
     options: O,

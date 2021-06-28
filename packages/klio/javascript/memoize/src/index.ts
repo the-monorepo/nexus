@@ -1,8 +1,8 @@
 import { createFailure, createPayload, hasFailure, Result } from '@resultful/result';
 
-export interface Cache<K, V> extends Pick<Map<K, V>, 'set' | 'get'> {};
-export interface CacheConstructor<K, V> {
-  new(): Cache<K, V>
+export type Cache<K, V> = {} & Pick<Map<K, V>, 'set' | 'get'>;
+export type CacheConstructor<K, V> = {
+  new (): Cache<K, V>;
 };
 
 type None = {
@@ -24,13 +24,16 @@ type Node<K, T> = {
 
 type ItemOfArray<T> = T extends Array<infer K> ? K : never;
 
-const memoize = <A extends any[], R>(fn: (...args: A) => R, ConstructorForCache: CacheConstructor<any, any> = Map): ((...args: A) => R) => {
-  const rootNode: Node<ItemOfArray<A>, Result<R, any>> =  {
+const memoize = <A extends any[], R>(
+  fn: (...args: A) => R,
+  ConstructorForCache: CacheConstructor<any, any> = Map,
+): ((...args: A) => R) => {
+  const rootNode: Node<ItemOfArray<A>, Result<R, any>> = {
     cache: undefined,
     value: {
       isNone: true,
       value: undefined,
-    }
+    },
   };
 
   const memoized = (...args: A): R => {
@@ -55,7 +58,7 @@ const memoize = <A extends any[], R>(fn: (...args: A) => R, ConstructorForCache:
           value: {
             isNone: true,
             value: undefined,
-          }
+          },
         };
         current.cache.set(key, newNode);
 
@@ -71,13 +74,13 @@ const memoize = <A extends any[], R>(fn: (...args: A) => R, ConstructorForCache:
         try {
           const value = fn(...args);
           return createPayload(value);
-        } catch(err) {
+        } catch (err) {
           return createFailure(err);
         }
       })();
       current.value = {
         isNone: false,
-        value: result
+        value: result,
       };
     }
 
