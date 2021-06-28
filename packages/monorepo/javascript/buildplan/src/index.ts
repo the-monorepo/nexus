@@ -43,11 +43,7 @@ task(
   require.resolve('./tasks/checkTypesStaged.ts'),
 );
 
-task(
-  'test',
-  'Runs unit tests (without building)',
-  require.resolve('./tasks/test.ts'),
-);
+task('test', 'Runs unit tests (without building)', require.resolve('./tasks/test.ts'));
 
 task(
   'webpack',

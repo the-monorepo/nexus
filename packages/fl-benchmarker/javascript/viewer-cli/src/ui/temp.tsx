@@ -56,26 +56,42 @@ const onBandwidthChange = action((e) => {
 
 const onResolutionChange = action((e) => {
   resolution.set(e.target.value);
-})
+});
 
 const App = () => (
-  <main class={styles.main}>
-    <style>
-      {styles.toString()}
-    </style>
-    <div class={styles.locals.graph}>
-      <faultjs-violin $dataMap={dataMap} $bandwidth={kernalBandwidth.get()} $resolution={resolution.get()}/>
+  <main className={styles.main}>
+    <style>{styles.toString()}</style>
+    <div className={styles.locals.graph}>
+      <faultjs-violin
+        $dataMap={dataMap}
+        $bandwidth={kernalBandwidth.get()}
+        $resolution={resolution.get()}
+      />
     </div>
-    <label for="bandwidth">Bandwidth: {kernalBandwidth.get()}</label>
-    <input id="bandwidth" step="0.001" min="0" max="1" type="range" $$input={onBandwidthChange}/>
-    <label for="resolution">Resolution: {resolution.get()}</label>
-    <input id="resolution" step="1" min="1" max="50" type="range" $$input={onResolutionChange}/>
+    <label htmlFor="bandwidth">Bandwidth: {kernalBandwidth.get()}</label>
+    <input
+      id="bandwidth"
+      step="0.001"
+      min="0"
+      max="1"
+      type="range"
+      $$input={onBandwidthChange}
+    />
+    <label htmlFor="resolution">Resolution: {resolution.get()}</label>
+    <input
+      id="resolution"
+      step="1"
+      min="1"
+      max="50"
+      type="range"
+      $$input={onResolutionChange}
+    />
   </main>
 );
 
 const rerender = () => render(<App />, document.getElementById('root'));
 
 autorun(() => {
-  console.log('rerender', __FAULT_BENCHMARKER_DATA__)
+  console.log('rerender', __FAULT_BENCHMARKER_DATA__);
   rerender();
 });

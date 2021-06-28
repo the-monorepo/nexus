@@ -24,31 +24,28 @@ type ProjectResult = {
 const algorithmNames = Object.keys(
   benchmarkResults.average !== undefined ? benchmarkResults.average : {},
 );
-const projectResults: ProjectResult[] = (benchmarkResults.projects !== undefined
-  ? benchmarkResults.projects
-  : []
+const projectResults: ProjectResult[] = (
+  benchmarkResults.projects !== undefined ? benchmarkResults.projects : []
 )
-  .map(
-    (project): ProjectResult => {
-      const results: Result[] = [];
-      for (const algorithmName of algorithmNames) {
-        results.push(project.results[algorithmName]);
-      }
-      const max = Math.max(
-        ...(results.filter((a) => a != null).map((a) => a.exam) as number[]),
-      );
-      const min = Math.min(
-        ...(results.filter((a) => a != null).map((a) => a.exam) as number[]),
-      );
-      return {
-        name: project.name,
-        artificial: project.artificial,
-        max: Number.isNaN(max) ? 1 : max,
-        min: Number.isNaN(min) ? 1 : min,
-        results,
-      };
-    },
-  )
+  .map((project): ProjectResult => {
+    const results: Result[] = [];
+    for (const algorithmName of algorithmNames) {
+      results.push(project.results[algorithmName]);
+    }
+    const max = Math.max(
+      ...(results.filter((a) => a != null).map((a) => a.exam) as number[]),
+    );
+    const min = Math.min(
+      ...(results.filter((a) => a != null).map((a) => a.exam) as number[]),
+    );
+    return {
+      name: project.name,
+      artificial: project.artificial,
+      max: Number.isNaN(max) ? 1 : max,
+      min: Number.isNaN(min) ? 1 : min,
+      results,
+    };
+  })
   .sort((a, b) => a.name.localeCompare(b.name));
 
 const TableHeader = () => (
@@ -206,25 +203,7 @@ const projectResultsToRankings = (
     );
   }
   for (const ranking of [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    20,
-    30,
-    40,
-    50,
-    60,
-    70,
-    80,
-    90,
-    100,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
   ]) {
     const algoRankings: number[] = algorithmNames.map((algorithmName, i) => {
       let count = 0;

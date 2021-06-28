@@ -236,17 +236,20 @@ async function testToPaths(packageDir: string, test: string | string[]) {
   // TODO: Hack cause globby doesn't work properly on absolute paths
   const relativePackageDir = toRelativeFromCwd(packageDir);
   const joinedGlobs = testToGlobs(test).map((glob) => join(relativePackageDir, glob));
-  const filePaths = await globby(joinedGlobs, { onlyDirectories: true, expandDirectories: false });
+  const filePaths = await globby(joinedGlobs, {
+    onlyDirectories: true,
+    expandDirectories: false,
+  });
   return filePaths;
 }
 
 const toRelativeFromCwd = (dir) => {
-  const path = relative(dir, process.cwd())
+  const path = relative(dir, process.cwd());
   if (path === '') {
     return '.';
   }
   return path;
-}
+};
 
 export async function genReadmeFromPackageDir(
   packageDir: string,
@@ -382,7 +385,7 @@ const writeReadmeFromPackageDir = async (
           },
         },
       },
-      h
+      h,
     ]),
   );
 };

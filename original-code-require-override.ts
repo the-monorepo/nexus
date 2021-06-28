@@ -10,9 +10,12 @@ import globby from 'globby';
 
 import config from '@monorepo/config';
 
-const packageJsonDirs = globby.sync(config.workspaces.map(workspacePath => join(workspacePath, 'package.json')), {
-  onlyFiles: true,
-});
+const packageJsonDirs = globby.sync(
+  config.workspaces.map((workspacePath) => join(workspacePath, 'package.json')),
+  {
+    onlyFiles: true,
+  },
+);
 
 const workspacedPackageNames = new Map();
 for (const jsonFilePath of packageJsonDirs) {
@@ -36,7 +39,10 @@ for (const jsonFilePath of packageJsonDirs) {
         )) {
           const packageResolvedRequirePath = join(json.name, relativeRequirePath);
           const mappedResolvedRequirePath = resolve(dir, mappedRequirePath);
-          workspacedPackageNames.set(packageResolvedRequirePath, mappedResolvedRequirePath);
+          workspacedPackageNames.set(
+            packageResolvedRequirePath,
+            mappedResolvedRequirePath,
+          );
         }
       }
     } else {

@@ -5,8 +5,8 @@ import {
   isString,
   isFunction,
   isNumber,
-} from '../../src/type-checks.ts'
-import { typeValues } from '../inputs/typeValues.ts'
+} from '../../src/type-checks.ts';
+import { typeValues } from '../inputs/typeValues.ts';
 function testTypeCheckWithtypes(name, validValues, typeCheck) {
   describe(name, () => {
     validValues.forEach((key) =>

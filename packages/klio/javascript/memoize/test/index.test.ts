@@ -13,7 +13,7 @@ describe(memoize.name, () => {
     });
 
     it('single arg', () => {
-      const testFn = memoize((_) => (new Set()));
+      const testFn = memoize((_) => new Set());
 
       const testValue = testFn();
       expect(testValue).toBe(testFn());
@@ -21,7 +21,7 @@ describe(memoize.name, () => {
     });
 
     it('multiple args', () => {
-      const testFn = memoize((_, __) => ([]));
+      const testFn = memoize((_, __) => []);
 
       const testValue = testFn();
       expect(testValue).toBe(testFn());
@@ -61,14 +61,18 @@ describe(memoize.name, () => {
       try {
         fn();
         throw new Error('Expected to throw');
-      } catch(err){
+      } catch (err) {
         return err;
       }
     };
 
     const ref = {};
     expect(catchError(() => memoizeDoThrow(1))).toBe(catchError(() => memoizeDoThrow(1)));
-    expect(catchError(() => memoizeDoThrow(1))).not.toBe(catchError(() => memoizeDoThrow(2)));
-    expect(catchError(() => memoizeDoThrow(ref))).toBe(catchError(() => memoizeDoThrow(ref)));
+    expect(catchError(() => memoizeDoThrow(1))).not.toBe(
+      catchError(() => memoizeDoThrow(2)),
+    );
+    expect(catchError(() => memoizeDoThrow(ref))).toBe(
+      catchError(() => memoizeDoThrow(ref)),
+    );
   });
 });

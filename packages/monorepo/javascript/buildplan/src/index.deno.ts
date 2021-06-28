@@ -24,11 +24,7 @@ task(
 
 // task("default", 'Alias for build', build);
 
-task(
-  'format',
-  'Formats all your source code files',
-  importResolve('./tasks/format.ts'),
-);
+task('format', 'Formats all your source code files', importResolve('./tasks/format.ts'));
 task(
   'formatStaged',
   "Formats all your source code that's currently staging in Git",
@@ -47,11 +43,7 @@ task(
   importResolve('./tasks/checkTypesStaged.ts'),
 );
 
-task(
-  'test',
-  'Runs unit tests (without building)',
-  importResolve('./tasks/test.ts'),
-);
+task('test', 'Runs unit tests (without building)', importResolve('./tasks/test.ts'));
 
 task(
   'webpack',

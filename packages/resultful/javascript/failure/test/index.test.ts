@@ -13,12 +13,12 @@ import {
   isNormal,
   handle,
   payload,
-  normal
-} from '../src/index.ts'
+  normal,
+} from '../src/index.ts';
 
 const successPayload = {
   type: ResultTypes.SUCCESS,
-  key: 'payload' as 'payload',
+  key: 'payload' as const,
   value: Symbol('success'),
   handleValue: Symbol('handled-success'),
   create: success,
@@ -42,7 +42,7 @@ const testInfoSet = {
   },
   error: {
     type: ResultTypes.ERROR,
-    key: 'error' as 'error',
+    key: 'error' as const,
     value: Symbol('error'),
     handleValue: Symbol('handled-error'),
     create: error,
@@ -53,7 +53,7 @@ const testInfoSet = {
   },
   exception: {
     type: ResultTypes.EXCEPTION,
-    key: 'exception' as 'exception',
+    key: 'exception' as const,
     value: Symbol('exception'),
     handleValue: Symbol('handled-exception'),
     create: exception,

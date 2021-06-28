@@ -1,10 +1,10 @@
-import * as FailureTypes from './types.ts'
+import * as FailureTypes from './types.ts';
 import {
   ResultTransformer,
   TransformTypedObject,
   OptionIfTypeElseEmpty,
 } from '@resultful/utility-types';
-import { ERROR, UNKNOWN } from './types.ts'
+import { ERROR, UNKNOWN } from './types.ts';
 export { FailureTypes };
 
 export type ErrorFailure<ErrorType> = {
@@ -44,9 +44,7 @@ export const createError: CreateErrorFn = <E>(error: E): ErrorFailure<E> => ({
   unknown: undefined,
 });
 
-export const createUnknown: CreateUnknownFn = (
-  unknown: unknown,
-): UnknownFailure => ({
+export const createUnknown: CreateUnknownFn = (unknown: unknown): UnknownFailure => ({
   type: UNKNOWN,
   error: undefined,
   unknown,
@@ -77,25 +75,20 @@ export type TypedResultfulSchema = TypedObjectSchema & { [s: string]: any };
 
 export type HandledErrorResult<
   R extends TypedObjectSchema,
-  O extends TransformOptionsSchema
+  O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'payload', typeof ERROR>;
 
 export type HandledUnknownResult<
   R extends TypedObjectSchema,
-  O extends TransformOptionsSchema
+  O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'unknown', typeof UNKNOWN>;
 
-export type HandledResult<
-  R extends TypedObjectSchema,
-  O extends TransformOptionsSchema
-> = HandledErrorResult<R, O> | HandledUnknownResult<R, O>;
+export type HandledResult<R extends TypedObjectSchema, O extends TransformOptionsSchema> =
+  HandledErrorResult<R, O> | HandledUnknownResult<R, O>;
 
-export type FullOptionsBasedOnResult<
-  R extends TypedResultfulSchema,
-  ER,
-  UR
-> = OptionIfTypeElseEmpty<R, typeof ERROR, 'error', ER> &
-  OptionIfTypeElseEmpty<R, typeof UNKNOWN, 'unknown', UR>;
+export type FullOptionsBasedOnResult<R extends TypedResultfulSchema, ER, UR> =
+  OptionIfTypeElseEmpty<R, typeof ERROR, 'error', ER> &
+    OptionIfTypeElseEmpty<R, typeof UNKNOWN, 'unknown', UR>;
 
 export type OptionsBasedOnResult<R extends TypedResultfulSchema, ER, UR> = Partial<
   FullOptionsBasedOnResult<R, ER, UR>
@@ -106,7 +99,7 @@ export type TransformFn = {
   <
     R extends TypedResultfulSchema,
     O extends OptionsBasedOnResult<R, any, any> &
-      Record<string | number | symbol, unknown>
+      Record<string | number | symbol, unknown>,
   >(
     result: R,
     options: O,
@@ -147,7 +140,7 @@ export type HandleFn = {
   <
     R extends TypedResultfulSchema,
     O extends OptionsBasedOnResult<R, any, any> &
-      Record<string | number | symbol, unknown>
+      Record<string | number | symbol, unknown>,
   >(
     result: R,
     options: O,
