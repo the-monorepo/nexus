@@ -8,7 +8,7 @@ type ReadFileParams = Parameters<typeof readFile>;
 export const readJson = async (
   filePath: ReadFileParams[0],
   reviver?: ParseParams[1],
-  options?: ReadFileParams[1],
+  options?: Omit<ReadFileParams[1], 'encoding'>,
 ) => {
   const text = await readFile(filePath, {
     ...options,
@@ -25,7 +25,7 @@ export const writeJson = async (
   json: StringifyParams[0],
   replacer?: StringifyParams[1],
   space?: StringifyParams[2],
-  fsOptions?: WriteFileParams[1],
+  fsOptions?: Omit<WriteFileParams[1], 'encoding'>,
 ) => {
   const text = JSON.stringify(json, replacer, space);
   return await writeFile(filePath, text, { ...fsOptions, encoding: 'utf8' });
