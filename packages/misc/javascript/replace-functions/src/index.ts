@@ -5,10 +5,10 @@ export type RecursionOptionsObject = {
 
 export type RecursionOptions = RecursionOptionsObject | boolean;
 
-export type CreateReplacementValueFn<T> = (originalValue: Function) => T;
+export type CreateReplacementValueFn<T> = (originalValue: (...args: any[]) => any) => T;
 
 export type Replaced<T, R extends any> = {
-  [P in keyof T]: P extends Function ? R : T[P];
+  [P in keyof T]: P extends (...args: any[]) => any ? R : T[P];
 };
 
 function objectWithPrototypeFrom(obj) {

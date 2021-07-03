@@ -64,7 +64,7 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
 
           try {
             done(null, newFile);
-          } catch(doneErr) {
+          } catch (doneErr) {
             console.error(doneErr);
           }
         } catch (err) {

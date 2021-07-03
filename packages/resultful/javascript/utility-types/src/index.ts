@@ -37,4 +37,4 @@ export type OptionIfTypeElseEmpty<
       Include<R, TypeHolder<ResultType>>[ResultKey],
       HandlerReturnType
     >
-  : {};
+  : Record<string, never>;

@@ -2,11 +2,9 @@ import { parse } from '@babel/parser';
 
 import {
   compareMutationEvaluations,
-  compareEvaluationHeaps,
   compareInstruction,
   MutationEvaluation,
   InstructionEvaluation,
-  createInstructionEvaluation,
   Instruction,
   getAstPath,
   DependencyInfo,
@@ -31,12 +29,6 @@ const arrayToMutationEvaluation = (arr: any[]): MutationEvaluation => {
     errorsChanged: arr[4],
     crashed: false,
   };
-};
-
-const arrayToInstructionEvaluations = (arr: any[]): InstructionEvaluation => {
-  const nodeEvaluation = createInstructionEvaluation(0);
-  nodeEvaluation.mutationEvaluations.push(arrayToMutationEvaluation(arr));
-  return nodeEvaluation;
 };
 
 // Index representations:

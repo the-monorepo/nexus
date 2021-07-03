@@ -4,7 +4,6 @@ import * as t from '@babel/types';
 import {
   deleteStatementSequence,
   getAstPath,
-  Instruction,
   executeInstructions,
   getTraverseKeys,
   mutationWrapperToInstruction,

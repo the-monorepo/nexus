@@ -3,8 +3,8 @@ import * as cssColors from 'named-css-colors';
 import {
   generateCssColorFunctionInputs,
   ParameterFormat,
-} from './css-color-function-inputs.ts'
-import { TestInputs } from './test-inputs.ts'
+} from './css-color-function-inputs.ts';
+import { TestInputs } from './test-inputs.ts';
 function testInputs(valid: any[], invalid: any[]): TestInputs {
   return {
     valid: new Set(valid),

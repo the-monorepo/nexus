@@ -10,14 +10,16 @@
       ],
       "extends": [
         "eslint:recommended",
+
         "plugin:react/recommended",
+
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
+
         "@pshaw/eslint-config-core",
-
         "@pshaw/eslint-config-plugin-cinder",
-
         "@pshaw/eslint-config-plugin-typescript",
+
         "prettier"
       ]
     },
@@ -27,18 +29,21 @@
       ],
       "plugins": [
         "@typescript-eslint/eslint-plugin",
+
         "eslint-plugin-react"
       ],
       "extends": [
         "eslint:recommended",
+
         "plugin:react/recommended",
+
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
+
         "@pshaw/eslint-config-core",
-
         "@pshaw/eslint-config-plugin-react",
-
         "@pshaw/eslint-config-plugin-typescript",
+
         "prettier"
       ]
     }

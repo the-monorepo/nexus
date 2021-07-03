@@ -1,4 +1,4 @@
-/* eslint-disable no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { resolve } = require('path');
 
 const codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'cjs'];

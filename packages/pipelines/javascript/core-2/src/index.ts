@@ -551,7 +551,11 @@ export const arrayFrom = async <T>(iterable: AsyncIterable<T>): Promise<T[]> => 
   return array;
 };
 
-async function* internalInterleaveBail<T extends AsyncIterator<any>[]>(...iterators: T) {
+const internalInterleaveBail = async <T extends AsyncIterator<any>[]>(
+  ...iterators: T
+) => {
+  // TODO: Remove constant condition
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     for (const iterator of iterators) {
       const result = await iterator.next();
@@ -563,7 +567,7 @@ async function* internalInterleaveBail<T extends AsyncIterator<any>[]>(...iterat
       }
     }
   }
-}
+};
 
 /**
  * @internal Method name subject to change

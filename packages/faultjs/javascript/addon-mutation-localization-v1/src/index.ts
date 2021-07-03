@@ -6,16 +6,9 @@ import generate from '@babel/generator';
 import { parse, ParserOptions } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
 import traverse from '@babel/traverse';
-import {
-  File,
-  AssignmentExpression,
-  Expression,
-  BaseNode,
-  Statement,
-} from '@babel/types';
+import { File, BaseNode } from '@babel/types';
 import * as t from '@babel/types';
 
-import chalk from 'chalk';
 import del from 'del';
 import ErrorStackParser from 'error-stack-parser';
 import { createCoverageMap } from 'istanbul-lib-coverage';
@@ -26,7 +19,6 @@ import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
 import {
   reportFaults,
   Fault,
-  ScorelessFault,
   recordFaults,
   sortBySuspciousness,
 } from '@fault/record-faults';
@@ -688,7 +680,6 @@ class DeleteStatementInstruction implements Instruction {
       });
       // TODO: Pretty sure you'll only ever get 1 node path but should probably check to make sure
       const path = filteredNodePaths.pop()!;
-      const node = path.node;
       const parentPath = path.parentPath;
       const parentNode = parentPath!.node;
 
@@ -846,7 +837,7 @@ class RetryHandler {
   }
 }
 
-type CategoryData<T> = {} & (T | CategoryData<T>)[];
+type CategoryData<T> = (T | CategoryData<T>)[];
 const recursiveIncludes = (match: any, arr: any) => {
   if (match === arr) {
     return true;
@@ -2342,7 +2333,7 @@ export const createDefaultIsFinishedFn = ({
   finishOnPassDerviedNonFunctionInstructions = true,
 }: DefaultIsFinishedOptions = {}): IsFinishedFunction => {
   const isFinishedFn: IsFinishedFunction = (
-    { data, instruction }: InstructionHolder<any>,
+    { data }: InstructionHolder<any>,
     finishData: MiscFinishData,
   ): boolean => {
     if (
@@ -2611,11 +2602,6 @@ export const createPlugin = ({
   };
 
   const runInstruction = async (tester: TesterResults, cache: AstCache) => {
-    let count = 0;
-    for (const instruction of instructionQueue.unsortedIterator()) {
-      count += instruction.instruction.mutationsLeft;
-    }
-
     if (instructionQueue.length <= 0) {
       finished = true;
       return false;

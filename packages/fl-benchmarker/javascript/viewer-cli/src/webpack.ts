@@ -7,7 +7,7 @@ import {
 } from '@pshaw/webpack';
 import { DefinePlugin } from '@pshaw/webpack/webpack';
 
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync } from 'fs';
 
 export type CreateConfigOptions = {
   resultsDir: string;

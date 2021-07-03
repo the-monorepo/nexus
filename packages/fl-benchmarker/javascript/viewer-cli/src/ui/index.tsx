@@ -5,11 +5,6 @@ import * as cinder from 'cinder';
 
 import './styles.css';
 
-type Ranking = {
-  rank: number;
-  count: number;
-};
-
 type Result = {
   exam: number | undefined | null;
   rankings: number[];
@@ -95,7 +90,6 @@ const ProjectResult = (project: ProjectResultProps) => {
   );
 };
 
-type PercentageData = Record<string, unknown>;
 type ResultsTableProps = {
   projectResults: ProjectResultProps[];
   // TODO: Kind of hacked, refactor

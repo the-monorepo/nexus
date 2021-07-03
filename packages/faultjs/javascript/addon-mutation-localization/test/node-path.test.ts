@@ -74,7 +74,7 @@ it('instruction factory integration', () => {
   expect(astPath.isProgram()).toBe(true);
 
   let testPath: NodePath = null!;
-  let alternatePath: NodePath = null!;
+  //let alternatePath: NodePath = null!;
   const identifierPaths: NodePath[] = [];
   let nullPath: NodePath = null!;
   astPath.traverse({
@@ -82,9 +82,9 @@ it('instruction factory integration', () => {
       if (path.isIdentifier() && path.node.name === 'a') {
         identifierPaths.push(path);
       }
-      if (path.key === 'alternate') {
-        alternatePath = path;
-      }
+      //if (path.key === 'alternate') {
+      //  alternatePath = path;
+      //}
       if (path.isNullLiteral()) {
         nullPath = path;
       }

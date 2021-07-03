@@ -18,7 +18,7 @@ type PartialTestData = {
   coverage: Coverage;
 };
 
-type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => {};
+type SubmitHandle = (testData: PartialTestData, test: Mocha.Test, err?: any) => any;
 const commonTestHandle = (submitHandle: SubmitHandle) => {
   return (test: Mocha.Test, err) => {
     const coverage = subtractCoverage(

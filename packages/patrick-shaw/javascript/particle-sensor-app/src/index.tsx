@@ -1,7 +1,5 @@
 import * as cinder from 'cinder';
 
-import { createPayload, createFailure } from '@resultful/result';
-
 import { TimeLineChartElement } from './TimeLineChartElement.tsx';
 import { SensorPanelElement } from './SensorPanelElement.tsx';
 
@@ -22,12 +20,6 @@ const requestUSB = async () => {
 
   return device;
 };
-
-const USBError = ({ error }) =>
-  error !== undefined ? <section>{JSON.stringify(error, undefined, 2)}</section> : null;
-
-const USBView = ({ device }) =>
-  device !== undefined ? <section>Selected {device.productName}</section> : null;
 
 globalThis.customElements.define('sensor-panel', SensorPanelElement);
 

@@ -13,6 +13,7 @@ export async function* countToThree() {
   yield* [1, 2, 3];
 }
 
+// eslint-disable-next-line require-yield
 export async function* returnOne() {
   return 1;
 }

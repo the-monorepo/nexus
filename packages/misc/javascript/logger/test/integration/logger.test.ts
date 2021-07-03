@@ -3,8 +3,8 @@ import { Writable } from 'stream';
 import jest from 'jest-mock';
 import MockDate from 'mockdate';
 
-import createLogger from '../../src/index.ts'
-import { testCases } from '../util/testCases.ts'
+import createLogger from '../../src/index.ts';
+import { testCases } from '../util/testCases.ts';
 
 class MockedWriteable extends Writable {
   public readonly mockedWrite = jest.fn();
@@ -73,7 +73,8 @@ Object.keys(loggers).forEach((loggerName) => {
           // Set timezone to const value then adjust for timezone
           MockDate.set('2018-05-03T13:34:56z');
           const tempdate = new Date();
-          const adjustedTime = tempdate.getTime() + tempdate.getTimezoneOffset() * 60 * 1000;
+          const adjustedTime =
+            tempdate.getTime() + tempdate.getTimezoneOffset() * 60 * 1000;
           MockDate.set(adjustedTime);
           (log[levelName] as any)(...testCase.input);
           // TODO: Need to provide better isolation in FaultJS to avoid doing this

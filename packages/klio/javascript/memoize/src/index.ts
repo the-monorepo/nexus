@@ -1,6 +1,6 @@
 import { createFailure, createPayload, hasFailure, Result } from '@resultful/result';
 
-export type Cache<K, V> = {} & Pick<Map<K, V>, 'set' | 'get'>;
+export type Cache<K, V> = Pick<Map<K, V>, 'set' | 'get'>;
 export type CacheConstructor<K, V> = {
   new (): Cache<K, V>;
 };

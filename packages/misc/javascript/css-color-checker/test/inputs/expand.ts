@@ -1,5 +1,5 @@
-import { inputs } from './suites.ts'
-import { TestInputs } from './test-inputs.ts'
+import { inputs } from './suites.ts';
+import { TestInputs } from './test-inputs.ts';
 
 export function union<T>(...sets: Set<T>[]) {
   const unionSet: Set<T> = new Set();

@@ -1,4 +1,4 @@
-import { TestInputs } from './test-inputs.ts'
+import { TestInputs } from './test-inputs.ts';
 export type Bound = {
   value: number;
   inclusive: boolean;
@@ -61,7 +61,7 @@ export function generateCssColorFunctionInputs(
       const deltaSign: number = offsetDelta >= 0 ? correctDeltaSign : incorrectDeltaSign;
       const delta: number = deltaSign * Math.abs(offsetDelta);
       const value: number = bound.value + delta;
-      const valueString = value.toString()
+      const valueString = value.toString();
       decimalString =
         decimal === 'leading' ? valueString : valueString.replace(/^0+\./, '.');
     } else {

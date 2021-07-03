@@ -124,7 +124,7 @@ export const typeToMetadata = (
 
     case FormatTypes.TR:
       return success(FormatMetadata.TR);
-    default:
+    default: {
       const errorMessage = `${type} is not a recongized FASTA format`;
       return error({
         type: ErrorTypes.UNKNOWN_FASTA_FORMAT,
@@ -132,6 +132,7 @@ export const typeToMetadata = (
         message: errorMessage,
         currentReaderResult: initialReaderResult,
       });
+    }
   }
 };
 

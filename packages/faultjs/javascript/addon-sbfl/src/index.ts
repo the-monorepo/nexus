@@ -8,7 +8,7 @@ import { ExpressionLocation } from '@fault/istanbul-util';
 import { passFailStatsFromTests } from '@fault/localization-util';
 import { recordFaults, reportFaults, Fault } from '@fault/record-faults';
 import dStar from '@fault/sbfl-dstar';
-import { TestResult, TesterResults, FinalTesterResults } from '@fault/types';
+import { TestResult, FinalTesterResults } from '@fault/types';
 
 export type Stats = {
   passed: number;

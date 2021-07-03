@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 // TODO
 export const overrideUtilInspectStyle = () => {};
 

@@ -1,18 +1,12 @@
 import { parse } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
 
-import {
-  Instruction,
-  getAstPath,
-  initialiseEvaluationMaps,
-  pathToPrimaryKey,
-} from '../src/index.ts';
+import { Instruction, initialiseEvaluationMaps, pathToPrimaryKey } from '../src/index.ts';
 const code = 'let a = 0; 1 + 2; () => {}';
 const ast = parse(code);
 const filePath = 'test';
-const astMap = new Map([[filePath, ast]]);
 
-const createInstruction = (writes: NodePath[]): Instruction<any> =>
+const createInstruction = (): Instruction<any> =>
   new Instruction(
     Symbol(),
     new Map([

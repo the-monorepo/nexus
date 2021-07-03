@@ -28,7 +28,7 @@ export type Hooks<H extends HookSchema> = {
 type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
     ? RecursivePartial<U>[]
-    : T[P] extends object
+    : T[P] extends Record<string, any>
     ? RecursivePartial<T[P]>
     : T[P];
 };
