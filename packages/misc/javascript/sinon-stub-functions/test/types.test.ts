@@ -211,7 +211,7 @@ describe('only mocks functions', () => {
     const mockedArray = stubFunctions(anArray);
     // Check that the function (1st element) isn't the same function
     const aFunction = mockedArray.shift();
-    const originalFunction: Function = anArray[0] as Function;
+    const originalFunction: () => void = anArray[0];
     expect(aFunction()).not.toBe(originalFunction());
     mockedArray.forEach((notAFunction, i) => {
       expect(notAFunction).toBe(anArray[i + 1]);
@@ -271,7 +271,7 @@ describe('can mock recursively', () => {
   });
   it('with array', () => {
     const mockedArray = stubFunctions([anArray], true);
-    const originalFunction = anArray[0] as Function;
+    const originalFunction = anArray[0] as () => any;
     expect(mockedArray[0][0]()).not.toBe(originalFunction());
   });
 });

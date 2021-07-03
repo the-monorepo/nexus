@@ -1,4 +1,4 @@
-import { countToThree, itPreservesReturnValue } from './test-utils.ts';
+import { countToThree } from './test-utils.ts';
 import { map, arrayFrom } from '../src/index.ts';
 
 it('1, 2, 3 -> 2, 4, 6', () =>

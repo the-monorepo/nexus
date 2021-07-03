@@ -3,7 +3,7 @@ import chalk from 'chalk';
 
 import logger from './utils/logger.ts';
 
-import { join, relative, resolve } from 'path';
+import { join, relative } from 'path';
 
 const rootDir = process.cwd();
 

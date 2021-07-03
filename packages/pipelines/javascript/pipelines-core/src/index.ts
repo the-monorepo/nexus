@@ -71,6 +71,6 @@ export async function* readFrom(baseDir: '.', globs: string[] | string) {
 }
 
 export async function* writeTo(
-  iterable: PipelinesIterable<ReadFileObject<string>>,
+  iterable: PipelinesIterable<ReadFileObject>,
   baseDir: '.',
 ) {}

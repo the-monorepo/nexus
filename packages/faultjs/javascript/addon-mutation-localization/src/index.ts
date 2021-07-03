@@ -6,7 +6,6 @@ import {
   rmdir,
   mkdir,
   copyFile,
-  accessSync,
 } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join, resolve, basename, normalize } from 'path';
@@ -16,26 +15,18 @@ import { parse, ParserOptions } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
-import { File, AssignmentExpression, Expression, Statement } from '@babel/types';
+import { File } from '@babel/types';
 
-import chalk from 'chalk';
 import del from 'del';
 import ErrorStackParser from 'error-stack-parser';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import * as micromatch from 'micromatch';
 
 import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import { gatherFileResults, ExpressionResult, FileResult } from '@fault/addon-sbfl';
-import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
+import { ExpressionLocation } from '@fault/istanbul-util';
 
 import { passFailStatsFromTests, Stats } from '@fault/localization-util';
-import {
-  reportFaults,
-  Fault,
-  ScorelessFault,
-  recordFaults,
-  sortBySuspciousness,
-} from '@fault/record-faults';
+import { reportFaults, Fault, recordFaults } from '@fault/record-faults';
 import dstar from '@fault/sbfl-dstar';
 import {
   TesterResults,
@@ -198,20 +189,6 @@ const fileLocationEquals = (
   return loc1.filePath === loc2.filePath && expressionLocationEquals(loc1, loc2);
 };
 
-const findNodePathsWithLocation = (ast: t.File, location: ExpressionLocation) => {
-  const nodePaths: NodePath[] = [];
-  traverse(ast, {
-    enter(path) {
-      const loc1 = location;
-      const loc2 = path.node.loc;
-      if (expressionLocationEquals(loc1, loc2)) {
-        nodePaths.push(path);
-      }
-    },
-  });
-  return nodePaths;
-};
-
 export const binaryOperationCategories = [
   ['>>', '>>>'],
   ['<', '<<'],
@@ -233,8 +210,6 @@ export const binaryOperationCategories = [
   [[['**', '*'], ['%'], ['/', '*'], ['-', '+']]],
 ];
 
-const ASSIGNMENT = Symbol('assignment');
-
 const changedOrImprovedError = (evaluation: MutationEvaluation) => {
   return (
     !evaluation.crashed &&
@@ -255,7 +230,7 @@ const evaluationDidNothingBad = (evaluation: MutationEvaluation) => {
   );
 };
 
-export type CategoryData<T> = {} & Array<T | CategoryData<T>>;
+export type CategoryData<T> = Array<T | CategoryData<T>>;
 const recursiveIncludes = (match: any, arr: any) => {
   if (match === arr) {
     return true;
@@ -297,7 +272,7 @@ type Mutation<D, S> = {
 };
 
 // TODO: nodePath should be a NodePath or NodePath[] - cbs fixing all the type errors
-type ValueFromPathFn<D, T, F> = (data: D, nodePath: any) => F;
+type ValueFromPathFn<D, T = any, F> = (data: D, nodePath: T) => F;
 
 type GetFnKey<T> = Parameters<NodePath<T>['get']>[0];
 
@@ -306,8 +281,6 @@ type SetFnNode<T> = Parameters<NodePath<T>['set']>[1];
 
 type SetDataFnKey<T> = Parameters<NodePath<T>['setData']>[0];
 type SetDataFnValue<T> = Parameters<NodePath<T>['setData']>[1];
-
-type ReplaceWithFnReplacement<T> = Parameters<NodePath<T>['replaceWith']>[0];
 
 type TraverseKey = number | string;
 
@@ -868,7 +841,7 @@ const createFilePathToCodeMap = async (
   return new Map(entries);
 };
 
-const isParentOrChild = (path1: NodePath<any>, path2: NodePath<any>) => {
+/*const isParentOrChild = (path1: NodePath<any>, path2: NodePath<any>) => {
   // TODO: Could be faster
   const keys1 = getTraverseKeys(path1);
   const keys2 = getTraverseKeys(path2);
@@ -913,7 +886,7 @@ const isConflictingDependencies = (
     }
   }
   return false;
-};
+};*/
 
 const organizeInstructions = (instructions: Iterable<Instruction<any>>) => {
   return [...instructions].map((instruction) => [instruction]);
@@ -1372,7 +1345,7 @@ const accessInfoMatchExcludingName = (info1: AccessInfo, info2: AccessInfo) => {
       return info1.argCount === other.argCount;
     }
     case FUNCTION_ACCESS: {
-      const other = info2 as FunctionAccessInfo;
+      const other = info2 as () => voidAccessInfo;
       return info1.argCount === other.argCount;
     }
     case MEMBER_ACCESS: {
@@ -1820,8 +1793,6 @@ const instructionTypeImportance: Map<symbol, number> = new Map(
     .reverse()
     .map((symbol, i) => [symbol, i]),
 );
-
-const RETRIES = 1;
 
 export const addInstructionsToCoverageMap = (
   allInstructions: Instruction<any>[],
@@ -2613,7 +2584,7 @@ export type PluginOptions = {
   ignoreGlob?: string[] | string;
   onMutation?: (mutatatedFiles: string[]) => any;
   isFinishedFn?: IsFinishedFunction;
-  mapToIstanbul?: boolean;
+  //mapToIstanbul?: boolean;
 };
 
 type DefaultIsFinishedOptions = {
@@ -3027,19 +2998,6 @@ export const initialiseEvaluationMaps = (
   }
 };
 
-const blockLengthToTotalDivisions = (n: number) => n * 2 - 1;
-const instructionBlocksToMaxInstructionsLeft = (
-  blocks: Iterable<Queue<Instruction<any>>>,
-) => {
-  let total = 0;
-  for (const block of blocks) {
-    total += blockLengthToTotalDivisions(block.length);
-    for (const instruction of block) {
-      total += instruction.variants === undefined ? 0 : instruction.variants.length - 1;
-    }
-  }
-  return total;
-};
 //let a = 1;
 //let b = a;
 //let c = b + 1;*/
@@ -3481,8 +3439,8 @@ export const createPlugin = ({
   ignoreGlob = [],
   onMutation = () => {},
   isFinishedFn = createDefaultIsFinishedFn(),
-  mapToIstanbul = false,
-}: PluginOptions): PartialTestHookOptions => {
+}: //mapToIstanbul = false,
+PluginOptions): PartialTestHookOptions => {
   let solutionCounter = 0;
   const solutionsDir = resolve(faultFileDir, 'solutions');
 
@@ -3595,16 +3553,6 @@ export const createPlugin = ({
   };
 
   const runInstruction = async (tester: TesterResults) => {
-    const count = instructionBlocksToMaxInstructionsLeft(instructionQueue);
-    let instructionCount = 0;
-    let nonFinishingInstructionCount = 0;
-    for (const block of instructionQueue) {
-      instructionCount += block.length;
-      if (!shouldFinishMutations(block, instructionEvaluations, nodeInfoMap)) {
-        nonFinishingInstructionCount += block.length;
-      }
-    }
-
     if (instructionQueue.length <= 0) {
       finished = true;
       return false;
@@ -3728,14 +3676,14 @@ export const createPlugin = ({
               .map(([filePath, objs]): [string, Map<string, CoveragePathObj>] => [
                 filePath,
                 new Map(
-                  [...objs].filter(([key, obj]) => {
+                  [...objs].filter(([, obj]) => {
                     return failingLocations.some((failingLocation) =>
                       fileLocationEquals(obj.originalLocation, failingLocation),
                     );
                   }),
                 ),
               ])
-              .filter(([filePath, objs]) => objs.size > 0),
+              .filter(([, objs]) => objs.size > 0),
           );
 
           const relevantInstructions: Set<Instruction<any>> = new Set();
@@ -3877,7 +3825,7 @@ export const createPlugin = ({
 
         return { rerun, allow: true };
       },
-      complete: async (tester: FinalTesterResults) => {
+      complete: async (_: FinalTesterResults) => {
         await writeFile(
           resolve(faultFileDir, 'mutations-attempted.txt'),
           mutationsAttempted.toString(),

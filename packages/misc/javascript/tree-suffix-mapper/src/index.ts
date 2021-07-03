@@ -5,7 +5,7 @@ export type SuffixNode<K, V> = {
   suffixes: SuffixMap<K, V>;
 };
 
-export type SuffixMap<K, V> = {} & Map<K, SuffixNode<K, V>>;
+export type SuffixMap<K, V> = Map<K, SuffixNode<K, V>>;
 
 export type GetKeyFn<T, K> = (node: T) => K;
 

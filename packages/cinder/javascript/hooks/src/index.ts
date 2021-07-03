@@ -2,7 +2,7 @@ import { createBlueprint, componentResult, renderValue, FC } from '@cinder/core'
 
 let currentHooks: any[] | undefined = undefined;
 let currentHookIndex = 0;
-const requestRerender: undefined | Function<any> = undefined;
+const requestRerender: undefined | ((...vars: any[]) => any) = undefined;
 
 export type HookDefinition = {
   mount();

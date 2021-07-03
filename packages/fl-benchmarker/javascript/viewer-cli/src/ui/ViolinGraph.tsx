@@ -1,11 +1,10 @@
 import * as cinder from 'cinder';
-import { render, DomElement, UPDATE, MOUNT, UNMOUNT } from 'cinder';
+import { DomElement, UPDATE, MOUNT, UNMOUNT } from 'cinder';
 
 import { observable, action } from 'mobx';
 
 import cx from 'classnames';
 
-import * as d3 from 'd3';
 import {
   scaleLinear,
   axisBottom,

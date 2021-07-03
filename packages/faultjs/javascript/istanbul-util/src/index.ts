@@ -1,5 +1,3 @@
-import { readFile } from 'fs/promises';
-
 import { CoverageMapData } from 'istanbul-lib-coverage';
 
 export const cloneCoverage = (coverage) => {

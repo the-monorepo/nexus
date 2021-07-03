@@ -1,6 +1,6 @@
 import { defaultTypeTests } from './defaultTypeTests.ts';
 import { runTypeTests } from './runTypeTests.ts';
-import { DefaultTypeInfo, DefaultType } from './type-info-types.ts';
+import { DefaultTypeInfo } from './type-info-types.ts';
 
 export function extractTypeInfo<T>(
   examples: T[] | T,

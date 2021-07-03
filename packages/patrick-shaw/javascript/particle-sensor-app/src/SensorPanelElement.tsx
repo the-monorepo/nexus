@@ -1,6 +1,5 @@
 import * as cinder from 'cinder';
 import styles from './SensorPanelElement.scss';
-console.log(styles);
 
 export type ParticleData = {
   PM_SP_UG_1_0: number;
@@ -109,7 +108,6 @@ export class SensorPanelElement extends cinder.DomElement<any, any> {
   }
 
   render() {
-    console.log(this.data);
     const dataClient = {
       interfaces: [
         {

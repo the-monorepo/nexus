@@ -297,6 +297,7 @@ export const run = async () => {
     for (const { name, path } of mutationPlugins.filter(
       (config) => config.skipEvaluation !== true,
     )) {
+      const flRunner = await import(path);
       await flRunner.run({
         ...commonRunnerOptions,
         addons: [

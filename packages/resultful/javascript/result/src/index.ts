@@ -142,7 +142,7 @@ export type TransformFn = {
  * This is exactly the same as {@link handle} except there is no try { ... } catch { ... } wrapper around the handlers.
  * This may improve performance but removes the guarentee that nothing will ever be thrown by the handle function.
  */
-export const transform: TransformFn = <P, E, EX, PR, ER>(
+export const transform: TransformFn = <P, E, PR, ER>(
   result: Result<P, E>,
   handlers: HandleOptions<P, E, PR, ER> = {},
 ) => {

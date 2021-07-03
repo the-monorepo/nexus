@@ -226,7 +226,6 @@ const createStateClient = (
     addInitialTests,
   };
 };
-type StateClient = ReturnType<typeof createStateClient>;
 
 const createWorkers = (
   tester: string,

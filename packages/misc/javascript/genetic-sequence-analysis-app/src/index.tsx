@@ -15,6 +15,7 @@ const App = () => (
       $$click={async (e) => {
         e.preventDefault();
         for await (const value of parseFormatObjects(test())) {
+          // eslint-disable-next-line no-console
           console.log(value);
         }
       }}

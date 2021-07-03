@@ -452,7 +452,7 @@ class ChildrenField implements Field {
     }
   }
 }
-export const children = <C, V>(el: Node, before: Node | null): ChildrenField => {
+export const children = (el: Node, before: Node | null): ChildrenField => {
   return new ChildrenField(el, before);
 };
 type FieldFactory = <E extends Node = any>(root: E) => readonly Field[];

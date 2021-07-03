@@ -52,12 +52,8 @@ const addImportsFromDependencies = async (
         continue;
       }
       seen.add(key);
-      try {
-        const importInfo = await addImportsFromPackageName(packageName, currentCwd);
-        stack.unshift(importInfo);
-      } catch (err) {
-        throw err;
-      }
+      const importInfo = await addImportsFromPackageName(packageName, currentCwd);
+      stack.unshift(importInfo);
     }
   }
   /*await Promise.allSettled(
@@ -87,8 +83,8 @@ const tryResolvePackage = (packageName: string, cwd: string) => {
   }
 };
 
-type RecursiveArray<T> = {} & Array<RecursiveArray<T> | T>;
-type RecursiveRecord<T> = {} & Record<string, RecursiveRecord<T> | T>;
+type RecursiveArray<T> = Array<RecursiveArray<T> | T>;
+type RecursiveRecord<T> = Record<string, RecursiveRecord<T> | T>;
 
 type ExportMapping =
   | RecursiveArray<ExportMapping>

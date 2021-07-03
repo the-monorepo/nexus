@@ -54,10 +54,10 @@ export type RunTestsData = {
 };
 export type RunTestsPayload = Payload<typeof IPC.TEST_FILE, RunTestsData>;
 
-export type StopWorkerData = {};
+export type StopWorkerData = Record<string, never>;
 export type StopWorkerResult = Payload<typeof IPC.STOP_WORKER, StopWorkerData>;
 
-export type NoMoreTestsForWorkerData = {};
+export type NoMoreTestsForWorkerData = Record<string, never>;
 export type NoMoreTestsForWorkerResult = Payload<
   typeof IPC.NO_MORE_TESTS_FOR_WORKER,
   NoMoreTestsForWorkerData
@@ -68,7 +68,7 @@ export type StoppedWorkerData = {
 };
 export type StoppedWorkerResult = Payload<typeof IPC.STOPPED_WORKER, StoppedWorkerData>;
 
-export type TestTakingTooLongData = {};
+export type TestTakingTooLongData = Record<string, never>;
 export type TestTakingTooLongResult = Payload<
   typeof IPC.TEST_TAKING_TOO_LONG,
   TestTakingTooLongData

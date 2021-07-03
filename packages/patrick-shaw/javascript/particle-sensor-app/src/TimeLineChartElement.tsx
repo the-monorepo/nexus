@@ -1,31 +1,21 @@
 import * as cinder from 'cinder';
-import { render, DomElement, UPDATE, MOUNT, UNMOUNT } from 'cinder';
+import { DomElement, UPDATE, MOUNT, UNMOUNT } from 'cinder';
 
-import { computed, observable, reaction, action } from 'mobx';
-
-import cx from 'classnames';
+import { observable, action } from 'mobx';
 
 import * as d3 from 'd3';
 import {
   scaleLinear,
   axisBottom,
-  area,
   curveMonotoneX,
-  extent,
-  mean,
   axisLeft,
   timeFormat,
   scaleTime,
   select,
-  group,
-  rollup,
-  scaleBand,
 } from 'd3';
 
-import * as figureStyles from './figure.scss';
 import styles from './TimeLineGraph.scss';
 
-import { COLUMN, ROW, LayoutFlow } from './LayoutFlows.ts';
 import { autorun } from 'mobx';
 
 export class TimeLineChartElement extends DomElement {
@@ -138,8 +128,6 @@ export class TimeLineChartElement extends DomElement {
       const interfaces = this.dataClient.interfaces;
 
       for (const aInterface of interfaces) {
-        const name = aInterface.name;
-
         chartGroupSelection
           .append('path')
           .datum(aInterface.data)
@@ -208,7 +196,3 @@ export class TimeLineChartElement extends DomElement {
     );
   }
 }
-
-const Label = ({ children }) => (
-  <label className={cx(previousStyles.label)}>{children}</label>
-);

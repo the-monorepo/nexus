@@ -2,14 +2,7 @@
 /* eslint-disable no-console */
 import * as cinder from 'cinder';
 
-import {
-  broadcaster,
-  zip,
-  callbackConverter,
-  latestValueStore,
-  map,
-  forEach,
-} from '@pipelines/core-2';
+import { broadcaster, callbackConverter, latestValueStore, map } from '@pipelines/core-2';
 
 import styles from './index.scss';
 
@@ -80,33 +73,6 @@ const devicesWithInitial = (async function* deviceGenerator() {
 
   for await (const [device] of rawDevices) {
     yield device;
-  }
-})();
-
-let selectedDevice = null;
-(async () => {
-  for await (const device of devicesWithInitial) {
-    if (selectedDevice !== null) {
-      try {
-        await selectedDevice.reset();
-        await selectedDevice.close();
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    if (device !== null) {
-      try {
-        await claimUSB(device);
-        selectedDevice = device;
-      } catch (err) {
-        console.error(err);
-        device.close();
-        selectedDevice = null;
-      }
-    } else {
-      selectedDevice = null;
-    }
-    rerender();
   }
 })();
 
@@ -272,7 +238,7 @@ const createSpotWelderForm = () => {
   recognition.onspeechend = () => {
     console.log('ended');
   };
-  recognition.onnomatch = function (event) {
+  recognition.onnomatch = () => {
     console.log('No speech result');
   };
 
@@ -339,8 +305,6 @@ let transferring = false;
     }
   }
 })();
-{
-}
 
 const USBInfo = () => (
   <section>
@@ -365,3 +329,31 @@ const rootElement = document.getElementById('root');
 const rerender = () => cinder.render(<App />, rootElement);
 
 rerender();
+
+// TODO: Type this properly
+let selectedDevice: any = null;
+(async () => {
+  for await (const device of devicesWithInitial) {
+    if (selectedDevice !== null) {
+      try {
+        await selectedDevice.reset();
+        await selectedDevice.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (device !== null) {
+      try {
+        await claimUSB(device);
+        selectedDevice = device;
+      } catch (err) {
+        console.error(err);
+        device.close();
+        selectedDevice = null;
+      }
+    } else {
+      selectedDevice = null;
+    }
+    rerender();
+  }
+})();

@@ -8,8 +8,6 @@ export async function* parseFormatObjects(reader: AsyncIterableIterator<string>)
       current = await reader.next();
     }
 
-    console.log('here');
-
     const result = await parseFormatObject(reader);
     const value = valueOf(result);
     if (value.currentReaderResult === null) {

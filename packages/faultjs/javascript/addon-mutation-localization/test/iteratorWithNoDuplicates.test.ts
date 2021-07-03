@@ -11,7 +11,7 @@ describe('iteratorWithNoDuplicates', () => {
       { a: 3, b: 3 },
       { a: 4, b: 3 },
     ];
-    const [item1, item2, item3, item4] = expectedArr;
+    const [item1, item2] = expectedArr;
     expect([...iteratorWithNoDuplicates(expectedArr, (item) => item.b)]).toEqual([
       item1,
       item2,

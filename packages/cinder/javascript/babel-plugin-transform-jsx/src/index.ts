@@ -212,15 +212,6 @@ export default declare((api, options) => {
     );
   };
 
-  /*const isStatic = value => {
-    return (
-      value &&
-      (isLiteral(value) ||
-        t.isArrowFunctionExpression(value) ||
-        t.isFunctionExpression(value))
-    );
-  };*/
-
   const fieldType = (name: string) => {
     if (/^watch_/.test(name)) {
       return ASYNC_ITERATOR_TYPE;
@@ -230,20 +221,6 @@ export default declare((api, options) => {
       return PROPERTY_TYPE;
     } else {
       return ATTRIBUTE_TYPE;
-    }
-  };
-
-  const findProgramAndOuterPath = (path: tr.NodePath) => {
-    const parent = path.parentPath;
-    if (!parent) {
-      return { program: path };
-    } else {
-      const result = findProgramAndOuterPath(parent);
-      if (result.path) {
-        return result;
-      } else {
-        return { program: result.program, path: path };
-      }
     }
   };
 
@@ -320,7 +297,7 @@ export default declare((api, options) => {
             valuePath,
           ),
         };
-      case PROPERTY_TYPE:
+      case PROPERTY_TYPE: {
         const key = cleanFieldName(nodePathName);
         const setterId = (() => {
           if (setterMap.has(key)) {
@@ -353,6 +330,7 @@ export default declare((api, options) => {
           expression: valueExpressionFromJsxAttributeValue(valuePath),
           key,
         };
+      }
       default:
         return {
           type,
@@ -605,7 +583,7 @@ export default declare((api, options) => {
 
   const htmlFromNode = (node: Node): string => {
     switch (node.type) {
-      case ELEMENT_TYPE:
+      case ELEMENT_TYPE: {
         const tag: string = node.tag;
         const attributeString: string = (
           node.fields.filter(
@@ -622,6 +600,7 @@ export default declare((api, options) => {
         return `<${tag}${
           attributeString !== '' ? ` ${attributeString}` : ''
         }>${childrenString}</${tag}>`;
+      }
       case TEXT_TYPE:
         return node.text;
       default:
@@ -861,7 +840,7 @@ export default declare((api, options) => {
 
   function* yieldFieldValuesFromNode(node: Node): Generator<t.Node | null> {
     switch (node.type) {
-      case ELEMENT_TYPE:
+      case ELEMENT_TYPE: {
         for (const field of node.fields) {
           const value = fieldValueFromElementFieldData(field);
           if (value === null) {
@@ -873,10 +852,12 @@ export default declare((api, options) => {
           yield* yieldFieldValuesFromNode(childNode);
         }
         break;
-      case DYNAMIC_TYPE:
+      }
+      case DYNAMIC_TYPE: {
         yield node.expression.node;
         break;
-      case SUBCOMPONENT_TYPE:
+      }
+      case SUBCOMPONENT_TYPE: {
         const objectProperties: any[] = [];
         for (const field of node.fields) {
           switch (field.type) {
@@ -927,6 +908,7 @@ export default declare((api, options) => {
           jsxIdentifierOrNamespaceToNonJsxSyntax(node.nameExpression),
           t.objectExpression(objectProperties),
         ]);
+      }
     }
   }
 
