@@ -37,7 +37,7 @@ async fn main() {
 
     let map = doc.into_hash().unwrap();
 
-    let scriptplan = YamlScriptParser::try_from(map).unwrap();
+    let scriptplan = YamlScriptParser::try_from(&map).unwrap();
 
     for task in scriptplan.tasks.keys() {
         let subcommand = SubCommand::with_name(task)
