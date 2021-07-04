@@ -16,17 +16,6 @@ install-osx:rust: |
     rustup +nightly target add x86_64-pc-windows-gnu
     rustup +nightly target add x86_64-apple-darwin
 
-rawr: |
-  sleep $1
-  echo $1
-
-something:
-  parallel:
-    - task: rawr 1
-    - task: rawr 2
-    - task: rawr 1
-
-
 install-osx:
   series:
     - task: install-osx:brew
