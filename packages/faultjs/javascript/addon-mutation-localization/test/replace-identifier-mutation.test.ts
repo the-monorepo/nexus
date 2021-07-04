@@ -1,7 +1,6 @@
 import {
   getReplacementIdentifierNode,
   AccessInfo,
-  IdentifierInfo,
   MEMBER_ACCESS,
   FUNCTION_ACCESS,
   CONSTRUCTOR_ACCESS,

@@ -2708,7 +2708,6 @@ const getAffectedFilePaths = (instructions: Queue<Instruction<any>>): string[] =
   return filePaths;
 };
 
-type LocationKey = string;
 const faultFileName = 'faults.json';
 
 export function* iteratorWithNoDuplicates<T>(

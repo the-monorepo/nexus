@@ -154,7 +154,7 @@ function extractKnobInfo(examples, Component = {}) {
   return typeInfo;
 }
 
-export function knobified(example, typeInfo, options: any = {}) {
+export function knobified(example, typeInfo, _options: any = {}) {
   const { types, nullCount, undefinedCount } = typeInfo;
   if (types.length <= 0) {
     return;

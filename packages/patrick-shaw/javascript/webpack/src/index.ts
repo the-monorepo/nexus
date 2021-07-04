@@ -14,8 +14,6 @@ import CopyPlugin from 'copy-webpack-plugin';
 
 import webpack from 'webpack';
 
-import { codeExtensions } from '@pshaw/monorepo-config';
-
 export { BundleAnalyzerPlugin };
 
 export { WebpackDevServer };

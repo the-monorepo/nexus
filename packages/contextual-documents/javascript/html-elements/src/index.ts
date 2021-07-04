@@ -18,9 +18,9 @@ import type { StyleRoot } from '@contextual-documents/element';
 
 export type { StyleRoot };
 
-export type HTMLContextualTaggedElement = {
-  constructor(styleRoot: StyleRoot, styles: string);
-} & ContextualElement;
+export interface HTMLContextualTaggedElement extends ContextualElement {
+  new (styleRoot: StyleRoot, styles: string);
+}
 
 export class H1Element extends ContextualElement {
   constructor(styleRoot: StyleRoot, styles: string) {

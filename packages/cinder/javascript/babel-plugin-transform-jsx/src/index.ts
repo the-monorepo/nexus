@@ -782,7 +782,7 @@ export default declare((api, options) => {
     for (const node of nodes) {
       switch (node.type) {
         case TEXT_TYPE:
-        case ELEMENT_TYPE:
+        case ELEMENT_TYPE: {
           const dynamicExpression = dynamicFieldExpression(
             rootId,
             node.id,
@@ -806,6 +806,7 @@ export default declare((api, options) => {
             }
           }
           break;
+        }
         case SUBCOMPONENT_TYPE:
         case DYNAMIC_TYPE:
           previousConsecutiveDynamicNodeCount++;
