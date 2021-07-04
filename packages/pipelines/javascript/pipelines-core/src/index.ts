@@ -70,7 +70,7 @@ export async function* readFrom(baseDir: '.', globs: string[] | string) {
   yield* files.map((file) => new ReadFileObject(url.pathToFileURL(file)));
 }
 
-export async function* writeTo(
+/*export async function* writeTo(
   iterable: PipelinesIterable<ReadFileObject>,
   baseDir: '.',
-) {}
+) {}*/

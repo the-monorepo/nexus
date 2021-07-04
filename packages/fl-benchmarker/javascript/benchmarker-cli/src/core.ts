@@ -297,11 +297,11 @@ export const run = async () => {
     for (const { name, path } of mutationPlugins.filter(
       (config) => config.skipEvaluation !== true,
     )) {
-      const flRunner = await import(path);
+      const addon = await import(path);
       await flRunner.run({
         ...commonRunnerOptions,
         addons: [
-          require(path).default({
+          addon.default({
             faultFileDir: faultFileDir(projectDir, name),
             ignoreGlob,
             mapToIstanbul: true,

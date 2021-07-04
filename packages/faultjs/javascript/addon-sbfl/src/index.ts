@@ -160,7 +160,7 @@ export const filterOutUnexecutedResults = (
           }),
         },
       ])
-      .filter(([filePath, result]) => result.expressions.length > 0),
+      .filter(([_, result]) => result.expressions.length > 0),
   );
 };
 

@@ -292,6 +292,10 @@ let transferring = false;
       }
       await selectedDevice.transferOut(2, transferOutDataView.buffer);
       const { data: transferInData, status } = await selectedDevice.transferIn(2, 64);
+      if (status !== 'ok') {
+        // TODO: Don't "throw" the error
+        throw new Error(`Status was ${status}`);
+      }
       const weldStatus = transferInData.getUint8(0, true);
       if (weldStatus > 0) {
         alert(`Error: Received spot weld status "${weldStatus}"`);
