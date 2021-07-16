@@ -32,15 +32,9 @@ console.log(payloadResult.payload, errorResult.failure);
 
 // You can then use any of the following to differentiate between error types:
 // Prints: true false false
-console.log(
-  hasPayload(payloadResult),
-  hasFailure(errorResult),
-); // Aliases for resultful.hasSuccess include: resultful.isPayload resultful.isNormal
+console.log(hasPayload(payloadResult), hasFailure(errorResult)); // Aliases for resultful.hasSuccess include: resultful.isPayload resultful.isNormal
 // Prints: false true false
-console.log(
-  hasPayload(payloadResult),
-  hasFailure(errorResult),
-);
+console.log(hasPayload(payloadResult), hasFailure(errorResult));
 
 // You can also handle results via handle:
 /*
@@ -51,7 +45,8 @@ console.log(
 const handlers = {
   payload: (payload, result) =>
     payload === payloadResult.payload && result === payloadResult,
-  failure: (failure, result) => failure === payloadResult.failure && result === errorResult,
+  failure: (failure, result) =>
+    failure === payloadResult.failure && result === errorResult,
 };
 // Prints: true
 console.log(transform(payloadResult, handlers));

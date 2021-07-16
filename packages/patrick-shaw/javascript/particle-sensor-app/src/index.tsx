@@ -56,13 +56,13 @@ const onAddUSB = async () => {
 };
 
 const App = () => (
-  <main className={styles.locals.main}>
+  <main class={styles.locals.main}>
     <style>{styles.toString()}</style>
     <section>
       <button $$click={onAddUSB}>Add USB</button>
       <button $$click={onMockAddUSB}>Add Mock USB</button>
     </section>
-    <section className={styles.locals.devices}>
+    <section class={styles.locals.devices}>
       {[...devices].map((device) => (
         <sensor-panel $device={device} />
       ))}

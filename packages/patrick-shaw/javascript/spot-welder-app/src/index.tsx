@@ -110,17 +110,17 @@ export const createRangeSlider = ({ defaultValue }: RangeSliderInput) => {
   );
 
   const RangeSlider = ({ children, ...other }: RangeSliderProps) => (
-    <label className={styles.locals.rangeLabel}>
+    <label class={styles.locals.rangeLabel}>
       {children}
-      <div className={styles.locals.inputContainer}>
+      <div class={styles.locals.inputContainer}>
         <input
           {...other}
           type="range"
-          className={styles.locals.rangeInput}
+          class={styles.locals.rangeInput}
           $$input={durationState.callback}
           value={defaultValue}
         />
-        <span className={styles.locals.inputValue} watch_$textContent={durations} />
+        <span class={styles.locals.inputValue} watch_$textContent={durations} />
       </div>
     </label>
   );
@@ -244,7 +244,7 @@ const createSpotWelderForm = () => {
 
   const Form = ({ disabled }) => (
     <>
-      <form $$submit={submissions.callback} className={styles.locals.form}>
+      <form $$submit={submissions.callback} class={styles.locals.form}>
         <FirstPulseSlider min={1} max={300}>
           First pulse duration
         </FirstPulseSlider>

@@ -159,12 +159,12 @@ class FaultJSViolinElement extends DomElement {
     return (
       <>
         <style>{styles.toString()}</style>
-        <div id="container" className={styles.locals.container}>
+        <div id="container" class={styles.locals.container}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             id="svg"
             fillRule="evenodd"
-            className={styles.locals.svg}
+            class={styles.locals.svg}
             preserveAspectRatio="none"
             fill="000"
           >
@@ -201,11 +201,11 @@ const HorizontalSvgViolin = ({ class: className, id }: SvgViolinProps) => {
   ]);
 
   return (
-    <div className={previousStyles.violin}>
+    <div class={previousStyles.violin}>
       <svg
         preserveAspectRatio="none"
         viewBox="0 -1 1 2"
-        className={cx(previousStyles.svg, previousStyles.horizontal, className)}
+        class={cx(previousStyles.svg, previousStyles.horizontal, className)}
         id={id}
       >
         <path d={d} />
@@ -215,7 +215,7 @@ const HorizontalSvgViolin = ({ class: className, id }: SvgViolinProps) => {
 };
 
 const Label = ({ children }) => (
-  <label className={cx(previousStyles.label)}>{children}</label>
+  <label class={cx(previousStyles.label)}>{children}</label>
 );
 
 export type ViolinGraphProps = {
@@ -226,22 +226,22 @@ export const ViolinGraph = ({ flow = 'row', class: className }: ViolinGraphProps
   const SvgViolinWithCorrectFlow = HorizontalSvgViolin;
   return (
     <>
-      <figure className={cx(previousStyles.figure, previousStyles[flow], className)}>
-        <figcaption className={figureStyles.caption}>EXAM score</figcaption>
+      <figure class={cx(previousStyles.figure, previousStyles[flow], className)}>
+        <figcaption class={figureStyles.caption}>EXAM score</figcaption>
         <Label>Test</Label>
-        <div className={cx(figureStyles.scale, figureStyles.vertical)}></div>
+        <div class={cx(figureStyles.scale, figureStyles.vertical)}></div>
         <SvgViolinWithCorrectFlow />
         <Label>Rawr</Label>
         <SvgViolinWithCorrectFlow />
         <Label>Asasaf</Label>
         <SvgViolinWithCorrectFlow />
-        <div className={cx(figureStyles.scale, figureStyles.horizontal)}></div>
+        <div class={cx(figureStyles.scale, figureStyles.horizontal)}></div>
       </figure>
     </>
   );
 };
 
 <>
-  <div className={cx(figureStyles.discreteScale, figureStyles.vertical)}></div>
-  <div className={cx(figureStyles.discreteScale, figureStyles.horizontal)}></div>
+  <div class={cx(figureStyles.discreteScale, figureStyles.vertical)}></div>
+  <div class={cx(figureStyles.discreteScale, figureStyles.horizontal)}></div>
 </>;

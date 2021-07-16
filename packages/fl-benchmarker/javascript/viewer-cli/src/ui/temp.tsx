@@ -59,16 +59,16 @@ const onResolutionChange = action((e) => {
 });
 
 const App = () => (
-  <main className={styles.main}>
+  <main class={styles.main}>
     <style>{styles.toString()}</style>
-    <div className={styles.locals.graph}>
+    <div class={styles.locals.graph}>
       <faultjs-violin
         $dataMap={dataMap}
         $bandwidth={kernalBandwidth.get()}
         $resolution={resolution.get()}
       />
     </div>
-    <label htmlFor="bandwidth">Bandwidth: {kernalBandwidth.get()}</label>
+    <label for="bandwidth">Bandwidth: {kernalBandwidth.get()}</label>
     <input
       id="bandwidth"
       step="0.001"
@@ -77,7 +77,7 @@ const App = () => (
       type="range"
       $$input={onBandwidthChange}
     />
-    <label htmlFor="resolution">Resolution: {resolution.get()}</label>
+    <label for="resolution">Resolution: {resolution.get()}</label>
     <input
       id="resolution"
       step="1"

@@ -141,7 +141,7 @@ export class SensorPanelElement extends cinder.DomElement<any, any> {
         <style>{styles.toString()}</style>
         <section>
           <p>Selected {this.device.productName}</p>
-          <section className={styles.locals.chartContainer}>
+          <section class={styles.locals.chartContainer}>
             <time-line-chart $device={this.device} $dataClient={dataClient} />
           </section>
         </section>

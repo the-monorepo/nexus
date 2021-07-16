@@ -40,15 +40,18 @@ export class TimeLineChartElement extends DomElement {
 
   [MOUNT]() {
     super[MOUNT]();
-    const yScale = observable.box(scaleLinear().domain([0, 1]).nice());
+    const yScale = observable.box({ rawr: scaleLinear().domain([0, 1]).nice() });
+    const rawr = yScale;
+    console.log({ rawr: rawr.get().rawr });
     const yAxis = observable.box(axisLeft(yScale.get()));
 
     const xAxisElement = this.renderRoot.getElementById('axis-bottom');
     const yAxisSelection = select(this.renderRoot.getElementById('axis-left'));
 
     const xScale = observable.box(scaleTime().domain([0, Date.now()]).nice());
+
     const xAxis = observable.box(
-      axisBottom(xScale.get()).tickFormat(timeFormat('%I:%M:%S')),
+      axisBottom(xScale.get()).tickFormat(timeFormat('%H:%M:%S')),
     );
     const xAxisSelection = select(xAxisElement);
 
@@ -87,6 +90,7 @@ export class TimeLineChartElement extends DomElement {
     });
 
     autorun(() => {
+      console.log(yScale.get()())
       yScale.get().range([this.height.get(), 0]);
     });
 
@@ -177,12 +181,12 @@ export class TimeLineChartElement extends DomElement {
     return (
       <>
         <style>{styles.toString()}</style>
-        <div id="container" className={styles.locals.container}>
+        <div id="container" class={styles.locals.container}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             id="svg"
             fillRule="evenodd"
-            className={styles.locals.svg}
+            class={styles.locals.svg}
             preserveAspectRatio="none"
             fill="000"
             overflow="visible"
