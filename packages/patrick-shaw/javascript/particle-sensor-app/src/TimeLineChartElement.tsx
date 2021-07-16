@@ -40,18 +40,16 @@ export class TimeLineChartElement extends DomElement {
 
   [MOUNT]() {
     super[MOUNT]();
-    const yScale = observable.box({ rawr: scaleLinear().domain([0, 1]).nice() });
-    const rawr = yScale;
-    console.log({ rawr: rawr.get().rawr });
-    const yAxis = observable.box(axisLeft(yScale.get()));
+    const yScale = scaleLinear().domain([0, 1]).nice();
+    const yAxis = observable.box(axisLeft(yScale));
 
     const xAxisElement = this.renderRoot.getElementById('axis-bottom');
     const yAxisSelection = select(this.renderRoot.getElementById('axis-left'));
 
-    const xScale = observable.box(scaleTime().domain([0, Date.now()]).nice());
+    const xScale = scaleTime().domain([0, Date.now()]).nice();
 
     const xAxis = observable.box(
-      axisBottom(xScale.get()).tickFormat(timeFormat('%H:%M:%S')),
+      axisBottom(xScale).tickFormat(timeFormat('%H:%M:%S')),
     );
     const xAxisSelection = select(xAxisElement);
 
@@ -90,20 +88,19 @@ export class TimeLineChartElement extends DomElement {
     });
 
     autorun(() => {
-      console.log(yScale.get()())
-      yScale.get().range([this.height.get(), 0]);
+      yScale.range([this.height.get(), 0]);
     });
 
     autorun(() => {
-      yScale.get().domain([0, maxY.get()]).nice();
+      yScale.domain([0, maxY.get()]).nice();
     });
 
     autorun(() => {
-      xScale.get().domain([minX.get(), maxX.get()]).nice();
+      xScale.domain([minX.get(), maxX.get()]).nice();
     });
 
     autorun(() => {
-      xScale.get().range([0, this.width.get()]);
+      xScale.range([0, this.width.get()]);
     });
 
     autorun(() => {
@@ -142,8 +139,8 @@ export class TimeLineChartElement extends DomElement {
             'd',
             d3
               .line()
-              .y((d) => yScale.get()(d.y))
-              .x((d) => xScale.get()(d.x))
+              .y((d) => yScale(d.y))
+              .x((d) => xScale(d.x))
               .curve(curveMonotoneX),
           );
       }
