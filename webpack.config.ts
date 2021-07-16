@@ -32,7 +32,7 @@ const createDistOutput = (packageDir: string) => {
 const pageBreakerFrontendConfig: Configuration = {
   name: 'page-breaker',
   target: 'web',
-  devtool: 'source-map',
+  devtool: 'eval-source-map',
   module: {
     rules: recommendedRules,
   },
@@ -88,7 +88,7 @@ const geneticSequenceAnalysisAppDir = projectResolve(
 const geneticSequenceAnalysisApp: Configuration = {
   name: 'genetic-sequence-analysis-app',
   target: 'web',
-  devtool: 'source-map',
+  devtool: 'eval-source-map',
   module: {
     rules: recommendedRules,
   },
@@ -121,7 +121,7 @@ const particleSensorAppDir = projectResolve(patrickShawDir, 'particle-sensor-app
 const particleSensorApp: Configuration = {
   name: 'particle-sensor-app',
   target: 'web',
-  devtool: 'source-map',
+  devtool: 'eval-source-map',
   module: {
     rules: recommendedWebcomponentRules,
   },
@@ -154,7 +154,7 @@ const spotWelderSensorAppDir = projectResolve(patrickShawDir, 'spot-welder-app')
 const spotWelderApp: Configuration = {
   name: 'spot-welder-app',
   target: 'web',
-  devtool: 'source-map',
+  devtool: 'eval-source-map',
   module: {
     rules: recommendedWebcomponentRules,
   },
