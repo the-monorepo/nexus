@@ -3272,7 +3272,7 @@ __metadata:
     classnames: ^2.2.6
     core-js: ^3.10.1
     d3: ^6.5.0
-    mobx: ^6.1.8
+    mobx: ^6.3.2
     unstyled: "workspace:packages/misc/javascript/unstyled"
   languageName: unknown
   linkType: soft
@@ -15467,6 +15467,13 @@ fsevents@~2.3.1:
   version: 6.3.1
   resolution: "mobx@npm:6.3.1"
   checksum: f48b8872eab3fb373862e9642d57088ec29fa183c885872ca7b486b6ca6669440ba18f7cd1d4e46b3d436ff74e0aac117bacd71063305a35cf9a749d68232084
+  languageName: node
+  linkType: hard
+
+"mobx@npm:^6.3.2":
+  version: 6.3.2
+  resolution: "mobx@npm:6.3.2"
+  checksum: 1611aa8cba7b9270b67c663f1a9250da4198afc75ea2a18a920292778a2ac3027bb963885a180fafdee616796b1c2044fdb50bd1f13f4b9fe34d9685efa62f02
   languageName: node
   linkType: hard
 

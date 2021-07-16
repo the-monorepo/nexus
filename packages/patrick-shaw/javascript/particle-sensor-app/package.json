@@ -23,7 +23,7 @@
     "classnames": "^2.2.6",
     "core-js": "^3.10.1",
     "d3": "^6.5.0",
-    "mobx": "^6.1.8",
+    "mobx": "^6.3.2",
     "unstyled": "workspace:packages/misc/javascript/unstyled"
   }
 }
