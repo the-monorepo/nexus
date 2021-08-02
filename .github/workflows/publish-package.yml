@@ -16,7 +16,7 @@ jobs:
       with:
         node-version: 14
     - run: yarn install --immutable
-    - run: yarn run:buildplan prepublish
+    - run: ./scriptplan-linux-gnu run:buildplan prepublish
     - run: yarn version check
     - run: yarn version apply
       env:

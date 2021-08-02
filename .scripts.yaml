@@ -15,6 +15,10 @@ install-osx:rust: |
 
     rustup +nightly target add x86_64-pc-windows-gnu
     rustup +nightly target add x86_64-apple-darwin
+    rustup +nightly target add x86_64-unknown-linux-gnu
+
+    brew tap SergioBenitez/osxct
+    brew install x86_64-unknown-linux-gnu
 
 install-osx:
   series:
@@ -28,13 +32,18 @@ install-osx:
 recompile-scriptplan-release: |
     cargo +nightly build --release --bins --target x86_64-pc-windows-gnu --package scriptplan
     cargo +nightly build --release --bins --target x86_64-apple-darwin --package scriptplan
+    cargo +nightly build --release --bins --target x86_64-unknown-linux-gnu --package scriptplan
     mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
     mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
+    mv ./target/x86_64-unknown-linux-gnu/release/scriptplan ./scriptplan-linux-gnu
+
 recompile-scriptplan-debug: |
     cargo +nightly build --bins --target x86_64-pc-windows-gnu --package scriptplan
     cargo +nightly build --bins --target x86_64-apple-darwin --package scriptplan
+    cargo +nightly build --bins --target x86_64-unknown-linux-gnu --package scriptplan
     mv ./target/x86_64-pc-windows-gnu/debug/scriptplan.exe ./scriptplan.exe
     mv ./target/x86_64-apple-darwin/debug/scriptplan ./scriptplan
+    mv ./target/x86_64-unknown-linux-gnu/debug/scriptplan ./scriptplan-linux-gnu
 
 
 node-base: yarn node --require=./transpile-at-runtime.js --require=./original-code-require-override.ts

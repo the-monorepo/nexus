@@ -7,11 +7,21 @@ env:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          -
+            id: ubuntu-latest
+            scriptplan-path: ./scriptplan-linux-gnu
+          -
+            id: macos-latest
+            scriptplan-path: ./scriptplan
+          -
+            id: windows-latest
+            scriptplan-path: .\scriptplan.exe
         node-version: [14.x]
+
+    runs-on: ${{ matrix.os.id }}
 
     steps:
     - uses: actions/checkout@v2
@@ -20,5 +30,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn install --immutable
-    - run: yarn build
-    - run: yarn test
+    - run: ${{matrix.os.scriptplan-path}} build
+    - run: ${{matrix.os.scriptplan-path}} test
