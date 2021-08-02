@@ -19,7 +19,6 @@ Version | Package | Description
 2.0.5-0 | [`@pshaw/logger`](packages/misc/javascript/logger/README.md) | A preformatted, opinionated logger
 1.4.3 | [`@pshaw/markdown-util`](packages/misc/javascript/markdown-util/README.md) | A helper package for writing markdown files
 1.1.4-0 | [`@pshaw/resume-template`](packages/misc/javascript/resume-template/README.md) | A template you can use to generate resumes
-0.0.11 | [`@resultful/failure`](packages/resultful/javascript/failure/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 0.0.11 | [`@resultful/result`](packages/resultful/javascript/result/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 0.0.4 | [`@resultful/utility-types`](packages/resultful/javascript/utility-types/README.md) | String constants for the different result types returned by resultful
 3.1.4-0 | [`@writeme/core`](packages/writeme/javascript/core/README.md) | A readme generator
