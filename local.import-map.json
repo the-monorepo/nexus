@@ -433,6 +433,7 @@
       "vinyl-sourcemaps-apply": "./node_modules/vinyl-sourcemaps-apply/index.js"
     },
     "./packages/pipelines/javascript/pipelines-core/": {
+      "globby/": "./packages/pipelines/javascript/pipelines-core/node_modules/globby/",
       "web-streams-polyfill/": "./node_modules/web-streams-polyfill/",
       "web-streams-polyfill": "./node_modules/web-streams-polyfill/dist/polyfill.mjs"
     },
@@ -445,10 +446,10 @@
       "@pshaw/eslint-config-plugin-react": "./packages/monorepo/javascript/eslint-config-plugin-react/src/index.json",
       "@pshaw/eslint-config-plugin-typescript/": "./packages/monorepo/javascript/eslint-config-plugin-typescript/",
       "@pshaw/eslint-config-plugin-typescript": "./packages/monorepo/javascript/eslint-config-plugin-typescript/src/index.json",
-      "@typescript-eslint/eslint-plugin/": "./node_modules/@typescript-eslint/eslint-plugin/",
-      "@typescript-eslint/eslint-plugin": "./node_modules/@typescript-eslint/eslint-plugin/dist/index.js",
-      "@typescript-eslint/parser/": "./node_modules/@typescript-eslint/parser/",
-      "@typescript-eslint/parser": "./node_modules/@typescript-eslint/parser/dist/index.js",
+      "@typescript-eslint/eslint-plugin/": "./packages/monorepo/javascript/eslint-config-preset/node_modules/@typescript-eslint/eslint-plugin/",
+      "@typescript-eslint/eslint-plugin": "./packages/monorepo/javascript/eslint-config-preset/node_modules/@typescript-eslint/eslint-plugin/dist/index.js",
+      "@typescript-eslint/parser/": "./packages/monorepo/javascript/eslint-config-preset/node_modules/@typescript-eslint/parser/",
+      "@typescript-eslint/parser": "./packages/monorepo/javascript/eslint-config-preset/node_modules/@typescript-eslint/parser/dist/index.js",
       "eslint-config-prettier/": "./node_modules/eslint-config-prettier/",
       "eslint-plugin-react/": "./node_modules/eslint-plugin-react/",
       "eslint-plugin-react": "./node_modules/eslint-plugin-react/index.js"
@@ -497,8 +498,8 @@
       "core-js": "./node_modules/core-js/index.js",
       "d3/": "./node_modules/d3/",
       "d3": "./node_modules/d3/index.js",
-      "mobx/": "./node_modules/mobx/",
-      "mobx": "./node_modules/mobx/dist/mobx.esm.js",
+      "mobx/": "./packages/patrick-shaw/javascript/particle-sensor-app/node_modules/mobx/",
+      "mobx": "./packages/patrick-shaw/javascript/particle-sensor-app/node_modules/mobx/dist/mobx.esm.js",
       "unstyled/": "./packages/misc/javascript/unstyled/",
       "unstyled": "./packages/misc/javascript/unstyled/esm/index.ts"
     },
@@ -632,16 +633,14 @@
       "@storybook/core-server": "./node_modules/@storybook/core-server/dist/esm/index.js"
     },
     "./node_modules/@typescript-eslint/eslint-plugin/": {
-      "@typescript-eslint/experimental-utils/": "./node_modules/@typescript-eslint/experimental-utils/",
-      "@typescript-eslint/experimental-utils": "./node_modules/@typescript-eslint/experimental-utils/dist/index.js",
-      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/scope-manager/",
-      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/scope-manager/dist/index.js",
+      "@typescript-eslint/experimental-utils/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/experimental-utils/",
+      "@typescript-eslint/experimental-utils": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/experimental-utils/dist/index.js",
+      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/scope-manager/",
+      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/scope-manager/dist/index.js",
       "debug/": "./node_modules/debug/",
       "debug": "./node_modules/debug/src/index.js",
       "functional-red-black-tree/": "./node_modules/functional-red-black-tree/",
       "functional-red-black-tree": "./node_modules/functional-red-black-tree/rbtree.js",
-      "lodash/": "./node_modules/lodash/",
-      "lodash": "./node_modules/lodash/lodash.js",
       "regexpp/": "./node_modules/regexpp/",
       "regexpp": "./node_modules/regexpp/index.js",
       "semver/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/semver/",
@@ -649,12 +648,12 @@
       "tsutils/": "./node_modules/tsutils/"
     },
     "./node_modules/@typescript-eslint/parser/": {
-      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/scope-manager/",
-      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/scope-manager/dist/index.js",
-      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
-      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
-      "@typescript-eslint/typescript-estree/": "./node_modules/@typescript-eslint/typescript-estree/",
-      "@typescript-eslint/typescript-estree": "./node_modules/@typescript-eslint/typescript-estree/dist/index.js",
+      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/scope-manager/",
+      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/scope-manager/dist/index.js",
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/typescript-estree/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/typescript-estree/",
+      "@typescript-eslint/typescript-estree": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/typescript-estree/dist/index.js",
       "debug/": "./node_modules/debug/",
       "debug": "./node_modules/debug/src/index.js"
     },
@@ -1732,6 +1731,8 @@
       "chalk": "./node_modules/chalk/source/index.js"
     },
     "./packages/writeme/javascript/core/": {
+      "@pshaw/fs/": "./packages/misc/javascript/pshaw-fs/",
+      "@pshaw/fs": "./packages/misc/javascript/pshaw-fs/esm/index.ts",
       "fs-extra/": "./node_modules/fs-extra/",
       "fs-extra": "./node_modules/fs-extra/lib/index.js",
       "globby/": "./node_modules/globby/",
@@ -1911,8 +1912,40 @@
       "source-map/": "./node_modules/vinyl-sourcemaps-apply/node_modules/source-map/",
       "source-map": "./node_modules/vinyl-sourcemaps-apply/node_modules/source-map/source-map.js"
     },
-    "./node_modules/eslint-config-prettier/": {
-      "get-stdin/": "./node_modules/eslint-config-prettier/node_modules/get-stdin/"
+    "./packages/pipelines/javascript/pipelines-core/node_modules/globby/": {
+      "array-union/": "./node_modules/array-union/",
+      "dir-glob/": "./node_modules/dir-glob/",
+      "fast-glob/": "./node_modules/fast-glob/",
+      "fast-glob": "./node_modules/fast-glob/out/index.js",
+      "ignore/": "./node_modules/ignore/",
+      "merge2/": "./node_modules/merge2/",
+      "merge2": "./node_modules/merge2/index.js",
+      "slash/": "./node_modules/slash/"
+    },
+    "./packages/monorepo/javascript/eslint-config-preset/node_modules/@typescript-eslint/eslint-plugin/": {
+      "@typescript-eslint/experimental-utils/": "./node_modules/@typescript-eslint/experimental-utils/",
+      "@typescript-eslint/experimental-utils": "./node_modules/@typescript-eslint/experimental-utils/dist/index.js",
+      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/scope-manager/",
+      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/scope-manager/dist/index.js",
+      "debug/": "./node_modules/debug/",
+      "debug": "./node_modules/debug/src/index.js",
+      "functional-red-black-tree/": "./node_modules/functional-red-black-tree/",
+      "functional-red-black-tree": "./node_modules/functional-red-black-tree/rbtree.js",
+      "regexpp/": "./node_modules/regexpp/",
+      "regexpp": "./node_modules/regexpp/index.js",
+      "semver/": "./packages/monorepo/javascript/eslint-config-preset/node_modules/semver/",
+      "semver": "./packages/monorepo/javascript/eslint-config-preset/node_modules/semver/index.js",
+      "tsutils/": "./node_modules/tsutils/"
+    },
+    "./packages/monorepo/javascript/eslint-config-preset/node_modules/@typescript-eslint/parser/": {
+      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/scope-manager/",
+      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/scope-manager/dist/index.js",
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/typescript-estree/": "./node_modules/@typescript-eslint/typescript-estree/",
+      "@typescript-eslint/typescript-estree": "./node_modules/@typescript-eslint/typescript-estree/dist/index.js",
+      "debug/": "./node_modules/debug/",
+      "debug": "./node_modules/debug/src/index.js"
     },
     "./packages/misc/javascript/resume-template/": {
       "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
@@ -3183,23 +3216,23 @@
       "webpack-virtual-modules/": "./node_modules/webpack-virtual-modules/",
       "webpack-virtual-modules": "./node_modules/webpack-virtual-modules/index.js"
     },
-    "./node_modules/@typescript-eslint/experimental-utils/": {
-      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/scope-manager/",
-      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/scope-manager/dist/index.js",
-      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
-      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
-      "@typescript-eslint/typescript-estree/": "./node_modules/@typescript-eslint/typescript-estree/",
-      "@typescript-eslint/typescript-estree": "./node_modules/@typescript-eslint/typescript-estree/dist/index.js",
+    "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/experimental-utils/": {
+      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/scope-manager/",
+      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/scope-manager/dist/index.js",
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/typescript-estree/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/typescript-estree/",
+      "@typescript-eslint/typescript-estree": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/typescript-estree/dist/index.js",
       "eslint-scope/": "./node_modules/eslint-scope/",
       "eslint-scope": "./node_modules/eslint-scope/lib/index.js",
-      "eslint-utils": "./node_modules/@typescript-eslint/experimental-utils/node_modules/eslint-utils/index.mjs",
-      "eslint-utils/package.json": "./node_modules/@typescript-eslint/experimental-utils/node_modules/eslint-utils/package.json"
+      "eslint-utils": "./node_modules/eslint-utils/index.mjs",
+      "eslint-utils/package.json": "./node_modules/eslint-utils/package.json"
     },
-    "./node_modules/@typescript-eslint/scope-manager/": {
-      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
-      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
-      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/visitor-keys/",
-      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/visitor-keys/dist/index.js"
+    "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/scope-manager/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/visitor-keys/",
+      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/visitor-keys/dist/index.js"
     },
     "./node_modules/@typescript-eslint/eslint-plugin/node_modules/semver/": {
       "lru-cache/": "./node_modules/lru-cache/",
@@ -3209,18 +3242,24 @@
       "tslib": "./node_modules/tslib/modules/index.js",
       "tslib/": "./node_modules/tslib/"
     },
-    "./node_modules/@typescript-eslint/typescript-estree/": {
-      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
-      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
-      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/visitor-keys/",
-      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/visitor-keys/dist/index.js",
+    "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/scope-manager/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/visitor-keys/",
+      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/visitor-keys/dist/index.js"
+    },
+    "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/typescript-estree/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/visitor-keys/",
+      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/visitor-keys/dist/index.js",
       "debug/": "./node_modules/debug/",
       "debug": "./node_modules/debug/src/index.js",
       "globby/": "./node_modules/globby/",
       "is-glob/": "./node_modules/is-glob/",
       "is-glob": "./node_modules/is-glob/index.js",
-      "semver/": "./node_modules/@typescript-eslint/typescript-estree/node_modules/semver/",
-      "semver": "./node_modules/@typescript-eslint/typescript-estree/node_modules/semver/index.js",
+      "semver/": "./node_modules/@typescript-eslint/parser/node_modules/semver/",
+      "semver": "./node_modules/@typescript-eslint/parser/node_modules/semver/index.js",
       "tsutils/": "./node_modules/tsutils/"
     },
     "./node_modules/@yarnpkg/core/": {
@@ -4540,8 +4579,8 @@
       "doctrine": "./node_modules/doctrine/lib/doctrine.js",
       "eslint-scope/": "./node_modules/eslint-scope/",
       "eslint-scope": "./node_modules/eslint-scope/lib/index.js",
-      "eslint-utils/": "./node_modules/eslint-utils/",
-      "eslint-utils": "./node_modules/eslint-utils/index.mjs",
+      "eslint-utils/": "./node_modules/gulp-eslint/node_modules/eslint-utils/",
+      "eslint-utils": "./node_modules/gulp-eslint/node_modules/eslint-utils/index.mjs",
       "eslint-visitor-keys/": "./node_modules/eslint-visitor-keys/",
       "eslint-visitor-keys": "./node_modules/eslint-visitor-keys/lib/index.js",
       "espree/": "./node_modules/gulp-eslint/node_modules/espree/",
@@ -4779,6 +4818,42 @@
       "process-nextick-args": "./node_modules/process-nextick-args/index.js",
       "readable-stream/": "./node_modules/readable-stream/",
       "readable-stream": "./node_modules/readable-stream/readable.js"
+    },
+    "./node_modules/@typescript-eslint/experimental-utils/": {
+      "@typescript-eslint/scope-manager/": "./node_modules/@typescript-eslint/scope-manager/",
+      "@typescript-eslint/scope-manager": "./node_modules/@typescript-eslint/scope-manager/dist/index.js",
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/typescript-estree/": "./node_modules/@typescript-eslint/typescript-estree/",
+      "@typescript-eslint/typescript-estree": "./node_modules/@typescript-eslint/typescript-estree/dist/index.js",
+      "eslint-scope/": "./node_modules/eslint-scope/",
+      "eslint-scope": "./node_modules/eslint-scope/lib/index.js",
+      "eslint-utils": "./node_modules/eslint-utils/index.mjs",
+      "eslint-utils/package.json": "./node_modules/eslint-utils/package.json"
+    },
+    "./node_modules/@typescript-eslint/scope-manager/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/visitor-keys/",
+      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/visitor-keys/dist/index.js"
+    },
+    "./packages/monorepo/javascript/eslint-config-preset/node_modules/semver/": {
+      "lru-cache/": "./node_modules/lru-cache/",
+      "lru-cache": "./node_modules/lru-cache/index.js"
+    },
+    "./node_modules/@typescript-eslint/typescript-estree/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/visitor-keys/",
+      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/visitor-keys/dist/index.js",
+      "debug/": "./node_modules/debug/",
+      "debug": "./node_modules/debug/src/index.js",
+      "globby/": "./node_modules/globby/",
+      "is-glob/": "./node_modules/is-glob/",
+      "is-glob": "./node_modules/is-glob/index.js",
+      "semver/": "./node_modules/@typescript-eslint/typescript-estree/node_modules/semver/",
+      "semver": "./node_modules/@typescript-eslint/typescript-estree/node_modules/semver/index.js",
+      "tsutils/": "./node_modules/tsutils/"
     },
     "./node_modules/accepts/": {
       "mime-types/": "./node_modules/mime-types/",
@@ -7238,21 +7313,41 @@
       "debug/": "./node_modules/webpack-virtual-modules/node_modules/debug/",
       "debug": "./node_modules/webpack-virtual-modules/node_modules/debug/src/index.js"
     },
-    "./node_modules/@typescript-eslint/experimental-utils/node_modules/eslint-utils/": {
-      "eslint-visitor-keys/": "./node_modules/@typescript-eslint/experimental-utils/node_modules/eslint-visitor-keys/",
-      "eslint-visitor-keys": "./node_modules/@typescript-eslint/experimental-utils/node_modules/eslint-visitor-keys/lib/index.js"
+    "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/typescript-estree/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/dist/index.js",
+      "@typescript-eslint/visitor-keys/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/visitor-keys/",
+      "@typescript-eslint/visitor-keys": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/visitor-keys/dist/index.js",
+      "debug/": "./node_modules/debug/",
+      "debug": "./node_modules/debug/src/index.js",
+      "globby/": "./node_modules/globby/",
+      "is-glob/": "./node_modules/is-glob/",
+      "is-glob": "./node_modules/is-glob/index.js",
+      "semver/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/semver/",
+      "semver": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/semver/index.js",
+      "tsutils/": "./node_modules/tsutils/"
     },
-    "./node_modules/@typescript-eslint/visitor-keys/": {
-      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
-      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
-      "eslint-visitor-keys/": "./node_modules/@typescript-eslint/visitor-keys/node_modules/eslint-visitor-keys/",
-      "eslint-visitor-keys": "./node_modules/@typescript-eslint/visitor-keys/node_modules/eslint-visitor-keys/lib/index.js"
+    "./node_modules/eslint-utils/": {
+      "eslint-visitor-keys/": "./node_modules/eslint-utils/node_modules/eslint-visitor-keys/",
+      "eslint-visitor-keys": "./node_modules/eslint-utils/node_modules/eslint-visitor-keys/lib/index.js"
+    },
+    "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/visitor-keys/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/@typescript-eslint/types/dist/index.js",
+      "eslint-visitor-keys/": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/eslint-visitor-keys/",
+      "eslint-visitor-keys": "./node_modules/@typescript-eslint/eslint-plugin/node_modules/eslint-visitor-keys/lib/index.js"
     },
     "./node_modules/lru-cache/": {
       "yallist/": "./node_modules/yallist/",
       "yallist": "./node_modules/yallist/yallist.js"
     },
-    "./node_modules/@typescript-eslint/typescript-estree/node_modules/semver/": {
+    "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/visitor-keys/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/parser/node_modules/@typescript-eslint/types/dist/index.js",
+      "eslint-visitor-keys/": "./node_modules/@typescript-eslint/parser/node_modules/eslint-visitor-keys/",
+      "eslint-visitor-keys": "./node_modules/@typescript-eslint/parser/node_modules/eslint-visitor-keys/lib/index.js"
+    },
+    "./node_modules/@typescript-eslint/parser/node_modules/semver/": {
       "lru-cache/": "./node_modules/lru-cache/",
       "lru-cache": "./node_modules/lru-cache/index.js"
     },
@@ -8308,7 +8403,7 @@
       "which/": "./node_modules/gulp-eslint/node_modules/which/",
       "which": "./node_modules/gulp-eslint/node_modules/which/which.js"
     },
-    "./node_modules/eslint-utils/": {
+    "./node_modules/gulp-eslint/node_modules/eslint-utils/": {
       "eslint-visitor-keys/": "./node_modules/eslint-visitor-keys/",
       "eslint-visitor-keys": "./node_modules/eslint-visitor-keys/lib/index.js"
     },
@@ -8533,6 +8628,16 @@
       "string_decoder/": "././",
       "util-deprecate/": "./node_modules/util-deprecate/",
       "util-deprecate": "./node_modules/util-deprecate/node.js"
+    },
+    "./node_modules/@typescript-eslint/visitor-keys/": {
+      "@typescript-eslint/types/": "./node_modules/@typescript-eslint/types/",
+      "@typescript-eslint/types": "./node_modules/@typescript-eslint/types/dist/index.js",
+      "eslint-visitor-keys/": "./node_modules/@typescript-eslint/visitor-keys/node_modules/eslint-visitor-keys/",
+      "eslint-visitor-keys": "./node_modules/@typescript-eslint/visitor-keys/node_modules/eslint-visitor-keys/lib/index.js"
+    },
+    "./node_modules/@typescript-eslint/typescript-estree/node_modules/semver/": {
+      "lru-cache/": "./node_modules/lru-cache/",
+      "lru-cache": "./node_modules/lru-cache/index.js"
     },
     "./node_modules/body-parser/node_modules/debug/": {
       "ms/": "./node_modules/body-parser/node_modules/ms/",
