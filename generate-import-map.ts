@@ -102,7 +102,7 @@ const exportMappingToPath = (mapping: ExportMapping): string | undefined => {
       }
     }
   } else {
-    const chosenExportMapping = mapping.deno ?? mapping.import ?? mapping.default;
+    const chosenExportMapping = mapping['monorepo-original-deno'] ?? mapping['monorepo-original'] ?? mapping.deno ?? mapping.import ?? mapping.default;
 
     if (chosenExportMapping !== undefined) {
       return exportMappingToPath(chosenExportMapping);

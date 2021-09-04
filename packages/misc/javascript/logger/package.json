@@ -9,6 +9,7 @@
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
   "exports": {
+    "monorepo-original-deno": "./src/index.deno.ts",
     "monorepo-original": "./src/index.ts",
     "deno": "./esm/index.deno.ts",
     "import": "./esm/index.ts",
