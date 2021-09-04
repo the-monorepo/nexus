@@ -2,7 +2,7 @@ import { run } from '@buildplan/core';
 
 import { task } from './tasks/utils/gulp-wrappers.ts';
 
-import { resolve } from 'https://deno.land/std@0.99.0/path/mod.ts';
+import { resolve } from 'https://deno.land/std@0.106.0/path/mod.ts';
 
 const __dirname = new URL('.', import.meta.url).pathname;
 
