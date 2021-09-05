@@ -30,6 +30,8 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
+.idea/
+
 .cache
 packages/*/javascript/*/commonjs/
 packages/*/javascript/*/esm/
