@@ -28,7 +28,7 @@ section table {
 
 * {
   color: var(--dark-primary);
-  font-family: "Open Sans", sans-serif;
+  font-family: "Inter", sans-serif;
   margin: 0;
   padding: 0;
 }
