@@ -310,30 +310,6 @@ let transferring = false;
   }
 })();
 
-const USBInfo = () => (
-  <section>
-    <USBSelection device={selectedDevice} />
-    <ConnectButton />
-    {selectedDevice !== null ? <DisconnectButton /> : null}
-  </section>
-);
-
-const App = () => (
-  <>
-    <style>{styles.toString()}</style>
-    <main>
-      <USBInfo />
-      <Form disabled={transferring} />
-      {transferring ? 'Transferring' : undefined}
-    </main>
-  </>
-);
-
-const rootElement = document.getElementById('root');
-const rerender = () => cinder.render(<App />, rootElement);
-
-rerender();
-
 // TODO: Type this properly
 let selectedDevice: any = null;
 (async () => {
@@ -361,3 +337,27 @@ let selectedDevice: any = null;
     rerender();
   }
 })();
+
+const USBInfo = () => (
+  <section>
+    <USBSelection device={selectedDevice} />
+    <ConnectButton />
+    {selectedDevice !== null ? <DisconnectButton /> : null}
+  </section>
+);
+
+const App = () => (
+  <>
+    <style>{styles.toString()}</style>
+    <main>
+      <USBInfo />
+      <Form disabled={transferring} />
+      {transferring ? 'Transferring' : undefined}
+    </main>
+  </>
+);
+
+const rootElement = document.getElementById('root');
+const rerender = () => cinder.render(<App />, rootElement);
+
+rerender();
