@@ -15842,6 +15842,8 @@ fsevents@~2.3.1:
 "node-import-map-generator@workspace:packages/misc/javascript/node-import-map-generator":
   version: 0.0.0-use.local
   resolution: "node-import-map-generator@workspace:packages/misc/javascript/node-import-map-generator"
+  dependencies:
+    yargs: ^17.1.1
   bin:
     node-import-map-generator: ./commonjs/index.ts
   languageName: unknown
@@ -22338,6 +22340,21 @@ typescript@^4.3.2:
     y18n: ^4.0.0
     yargs-parser: ^18.1.2
   checksum: dbf687d6b938f01bbf11e158dde6df906282b70cd9295af0217ee8cefbd83ad09d49fa9458d0d5325b0e66f03df954a38986db96f91e5b46ccdbbaf9a0157b23
+  languageName: node
+  linkType: hard
+
+"yargs@npm:^17.1.1":
+  version: 17.1.1
+  resolution: "yargs@npm:17.1.1"
+  dependencies:
+    cliui: ^7.0.2
+    escalade: ^3.1.1
+    get-caller-file: ^2.0.5
+    require-directory: ^2.1.1
+    string-width: ^4.2.0
+    y18n: ^5.0.5
+    yargs-parser: ^20.2.2
+  checksum: c2a16b61eb0db8882becd0aa382a5c59b87afcd17b35dd7077b3c9d83f77a3ad3de1526e4f1cf940f9481d7ce537e883af7c16879c33258724a09bc43a04e8ea
   languageName: node
   linkType: hard
 
