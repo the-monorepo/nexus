@@ -29,6 +29,7 @@ Version | Package | Description
 1.0.0-alpha.1 | [`ipc-fifo-processor`](packages/misc/javascript/ipc-fifo-processor/README.md) | Makes IPC connections appear FIFO
 4.0.0 | [`jest-mock-functions`](packages/misc/javascript/jest-mock-functions/README.md) | Mock all functions inside an array or object literal with Jest
 1.6.1 | [`named-css-colors`](packages/misc/javascript/named-css-colors/README.md) | Package of named CSS colors and their values
+1.0.0-alpha.0 | [`node-import-map-generator`](packages/misc/javascript/node-import-map-generator/README.md) | Generate import nodes from package.json dependencies
 1.0.0 | [`nucleotide-bases`](packages/misc/javascript/nucleotide-bases/README.md) | A helper package for nucleotide bases
 4.0.0 | [`replace-functions`](packages/misc/javascript/replace-functions/README.md) | Mock all functions inside an array or object literal
 0.0.11 | [`resultful`](packages/resultful/javascript/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.

@@ -86,12 +86,11 @@ transpile:
   task: run:buildplan transpile
 copy:
   task: run:buildplan copy
-build:import-maps:
-  task: node-base build-import-map.ts
+build:import-maps: yarn run node-import-map-generator
 build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
   parallel:
-    - task: node-base build-import-map.ts
+    - task: build:import-maps
     - series:
       - parallel:
         - task: transpile

@@ -269,11 +269,12 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
 };
 
 const main = async () => {
+  const entryPath = process.cwd();
   try {
     const rootPackageJson = JSON.parse(
-      await readFile(join(__dirname, 'package.json'), 'utf8'),
+      await readFile(join(entryPath, 'package.json'), 'utf8'),
     );
-    await addImportsFromDependencies(rootPackageJson.dependencies, __dirname);
+    await addImportsFromDependencies(rootPackageJson.dependencies, entryPath);
 
     await writeFile(
       'local.import-map.json',
