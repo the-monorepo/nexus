@@ -898,6 +898,12 @@
       "yargs-unparser/": "./node_modules/yargs-unparser/",
       "yargs-unparser": "./node_modules/yargs-unparser/index.js"
     },
+    "./packages/misc/javascript/node-import-map-generator/": {
+      "yargs/package.json": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/package.json",
+      "yargs": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/index.mjs",
+      "yargs/helpers": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/helpers/helpers.mjs",
+      "yargs/yargs": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/yargs"
+    },
     "./node_modules/react/": {
       "loose-envify/": "./node_modules/loose-envify/",
       "loose-envify": "./node_modules/loose-envify/index.js",
@@ -3760,6 +3766,18 @@
       "flat/": "./node_modules/flat/",
       "flat": "./node_modules/flat/index.js",
       "is-plain-obj/": "./node_modules/is-plain-obj/"
+    },
+    "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/": {
+      "cliui": "./node_modules/cliui/index.mjs",
+      "escalade": "./node_modules/escalade/dist/index.mjs",
+      "escalade/sync": "./node_modules/escalade/sync/index.mjs",
+      "get-caller-file/": "./node_modules/get-caller-file/",
+      "get-caller-file": "./node_modules/get-caller-file/index.js",
+      "require-directory/": "./node_modules/require-directory/",
+      "require-directory": "./node_modules/require-directory/index.js",
+      "string-width/": "./node_modules/string-width/",
+      "y18n": "./packages/misc/javascript/node-import-map-generator/node_modules/y18n/index.mjs",
+      "yargs-parser": "./node_modules/yargs-parser/build/lib/index.js"
     },
     "./node_modules/loose-envify/": {
       "js-tokens/": "./node_modules/js-tokens/"
