@@ -89,13 +89,13 @@ copy:
 build:import-maps: yarn run node-import-map-generator
 build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
-  parallel:
-    - task: build:import-maps
-    - series:
-      - parallel:
-        - task: transpile
-        - task: copy
-    # - task: build:rust
+  series:
+    - parallel:
+      - task: transpile
+      - task: copy
+  # - task: build:rust
+    - parallel:
+      - task: build:import-maps
       - task: writeme
 build:node:
   task: run:buildplan build
