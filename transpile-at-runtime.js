@@ -23,7 +23,7 @@ register({
         case 'webpack.config.ts':
         case 'original-code-require-override.ts':
         case 'buildplan.ts':
-        case 'generate-import-map.ts':
+        case 'build-import-map.ts':
           return true;
         default: {
           if (relativePath.startsWith('buildplan')) {
