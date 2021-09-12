@@ -52,7 +52,7 @@ run:buildplan:
 
 deno-run: deno run --config ./tsconfig.deno.json
 run:buildplan:deno:
-  task: deno-run --allow-read --allow-write --import-map=local.import-map.json ./buildplan.deno.ts
+  task: deno-run --allow-read --allow-write --import-map=node.import-map.json ./buildplan.deno.ts
 
 format:javascript:
   task: run:buildplan format
