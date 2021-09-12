@@ -40,7 +40,7 @@ export type TaskExceptionInfo = {
 export type TaskExceptionHandler = (taskException: TaskExceptionInfo) => any;
 
 const defaultExceptionHandler = ({ exception, taskName }: TaskExceptionInfo) => {
-  log.exception(
+  log.error(
     `An expected error occurred in the '${chalk.cyanBright(taskName)}' task`,
     exception,
   );
