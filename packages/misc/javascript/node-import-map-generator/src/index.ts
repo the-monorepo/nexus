@@ -1,6 +1,8 @@
 import { readFile, writeFile, stat } from 'fs/promises';
 import { dirname, join, relative, normalize } from 'path';
 
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 const imports: Record<string, string> = {};
 const scopes: Record<string, Record<string, string>> = {};
 
@@ -269,21 +271,39 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
 };
 
 const main = async () => {
-  const entryPath = process.cwd();
-  try {
-    const rootPackageJson = JSON.parse(
-      await readFile(join(entryPath, 'package.json'), 'utf8'),
-    );
-    await addImportsFromDependencies(rootPackageJson.dependencies, entryPath);
+  yargs(hideBin(process.argv))
+    .command({
+      command: '*',
+      builder: (builder) => builder.option('input-path',  {
+        alias: 'i',
+        type: 'string',
+        default: join(process.cwd(), 'package.json')
+      }).option('output-path', {
+        alias: 'o',
+        type: 'string',
+        default: join(process.cwd(), 'node.import-map.json')
+      }),
+      handler: async ({
+        inputPath,
+        outputPath,
+      }) => {
+        const entryPath = dirname(inputPath);
+        try {
+          const rootPackageJson = JSON.parse(
+            await readFile(inputPath, 'utf8'),
+          );
+          await addImportsFromDependencies(rootPackageJson.dependencies, entryPath);
 
-    await writeFile(
-      'local.import-map.json',
-      JSON.stringify({ imports, scopes }, undefined, 2),
-      'utf8',
-    );
-  } catch (err) {
-    console.error(err);
-  }
+          await writeFile(
+            outputPath,
+            JSON.stringify({ imports, scopes }, undefined, 2),
+            'utf8',
+          );
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }).argv
 };
 
 main();
