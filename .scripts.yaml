@@ -53,8 +53,8 @@ run:buildplan:
 deno-run: deno run --config ./tsconfig.deno.json
 run:buildplan:deno:
   task: deno-run --allow-read --allow-write --import-map=local.import-map.json ./buildplan.deno.ts
-generate:import-maps:
-  task: node-base generate-import-map.ts
+build:import-maps:
+  task: node-base build-import-map.ts
 
 format:javascript:
   task: run:buildplan format
