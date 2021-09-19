@@ -17,6 +17,9 @@ install-osx:rust: |
     rustup +nightly target add x86_64-apple-darwin
     rustup +nightly target add x86_64-unknown-linux-gnu
 
+    rustup +nightly target add avr-unknown-unknown
+    rustup +nightly target add wasm32-unknown-unknown
+
     brew tap SergioBenitez/osxct
     brew install x86_64-unknown-linux-gnu
 
@@ -100,8 +103,8 @@ build:
 build:node:
   task: run:buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
-#build:rust:
-#  script: cargo +nightly build
+build:rust:
+  script: cargo +nightly build
 build-all:
   description: Build literally everything including things that require bundling (slower)
   series:

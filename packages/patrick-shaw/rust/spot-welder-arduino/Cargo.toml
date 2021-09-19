@@ -14,3 +14,7 @@ avr-device = "0.3"
 [dependencies.arduino-uno]
 git = "https://github.com/rahix/avr-hal"
 rev = "a20277873a8102998d5fd69743771bd8c0aa9423"
+
+[build]
+# Default target
+target = "avr-unknown-unknown"
