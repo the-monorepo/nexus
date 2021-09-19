@@ -1,13 +1,14 @@
-use wasm_bindgen::prelude::*;
-
-trait Component<I, O> {
-  fn mount(&self) -> O;
+trait Updater<I> {
   fn update(&self, input: I);
   fn unmount(&self);
 }
 
+trait Mounter<I, O> {
+  fn mount(&self) -> dyn Updater<O>;
+}
+
 trait Blueprint<I, O> {
-  fn create(&self) -> dyn Component<I, O>;
+  fn create(&self) -> dyn Mounter<I, O>;
 }
 
 trait Renderer {
