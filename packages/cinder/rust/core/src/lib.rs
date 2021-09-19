@@ -11,7 +11,7 @@ trait Blueprint<I, O> {
 }
 
 trait Renderer {
-  fn renderString(&mut self, value: &str);
+  fn render_string(&mut self, value: &str);
 }
 
 pub struct DomRenderer {
@@ -19,7 +19,7 @@ pub struct DomRenderer {
 }
 
 impl Renderer for DomRenderer {
-  fn renderString(&mut self, value: &str) {
+  fn render_string(&mut self, value: &str) {
 
   }
 }
