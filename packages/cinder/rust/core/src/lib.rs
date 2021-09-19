@@ -15,7 +15,7 @@ trait Renderer {
 }
 
 #[wasm_bindgen]
-pub fn render() {
+pub fn create_dom_renderer() {
     // Use `web_sys`'s global `window` function to get a handle on the global
     // window object.
     let window = web_sys::window().expect("no global `window` exists");
