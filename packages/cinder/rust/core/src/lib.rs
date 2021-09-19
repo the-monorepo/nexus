@@ -3,12 +3,13 @@ trait Updater<I> {
   fn unmount(&self);
 }
 
-trait Mounter<I, O> {
-  fn mount(&self) -> dyn Updater<O>;
+trait Mounter<I, UO, U : Updater<UO>> {
+  fn mount(&self) -> U;
 }
 
-trait Blueprint<I, O> {
-  fn create(&self) -> dyn Mounter<I, O>;
+
+trait Blueprint<I, UO, U : Updater<UO>, M : Mounter<I, UO, U>> {
+  fn create(&self) -> M;
 }
 
 trait Renderer {
