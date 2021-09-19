@@ -1,23 +1,13 @@
 #![no_std]
 #![no_main]
 
-type Unmount<I> = Fn(I);
-
-type Update<I> = Fn(I) -> (Update<I>, Unmount<I>);
-
-type Mount<I, O> = Fn(I, O) -> (Update<O>, Unmount<O>);
-
-trait Blueprint<M: Mount<_, _>> {
-  fn clone() -> M;
+trait Component<I, O> {
+  fn mount(&self) -> O;
+  fn update(&self, input: I);
+  fn unmount(&self);
 }
-
-trait Node {
-
-}
-
-type Remove = Fn(Node);
-trait Client {
-  fn push(node: Node) -> Remove;
+trait Blueprint<I, O> {
+  fn create(&self) -> dyn Component<I, O>;
 }
 
 pub fn renderString(value: &str, container: ) -> Client {
