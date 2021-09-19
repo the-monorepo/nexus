@@ -14,8 +14,19 @@ trait Renderer {
   fn renderString(&mut self, value: &str);
 }
 
-#[wasm_bindgen]
-pub fn create_dom_renderer() {
+pub struct DomRenderer {
+  container: web_sys::Node,
+}
+
+impl Renderer for DomRenderer {
+  fn renderString(&mut self, value: &str) {
+
+  }
+}
+
+pub fn create_dom_renderer(container: web_sys::Node) -> DomRenderer {
+  return DomRenderer { container };
+  /*
     // Use `web_sys`'s global `window` function to get a handle on the global
     // window object.
     let window = web_sys::window().expect("no global `window` exists");
@@ -27,4 +38,5 @@ pub fn create_dom_renderer() {
     val.set_text_content(Some("Hello from Rust!"));
 
     body.append_child(&val).unwrap();
+  */
 }
