@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "./packages/scriptplan/rust/scriptplan"
+    "./packages/patrick-shaw/rust/spot-welder-arduino"
 ]
 
 # TODO: Copied from Arduino, should probably not be just called "dev"/"release"

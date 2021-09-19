@@ -4,8 +4,8 @@ type Update<I> = Fn(I) -> (Update<I>, Unmount<I>);
 
 type Mount<I, O> = Fn(I, O) -> (Update<O>, Unmount<O>);
 
-type Blueprint<M: Mount<_, _>> {
-  clone() -> Mount;
+trait Blueprint<M: Mount<_, _>> {
+  fn clone() -> M;
 }
 
 trait Node {
@@ -17,6 +17,6 @@ trait Client {
   fn push(node: Node) -> Remove;
 }
 
-pub fn render() {
+pub fn renderString(value: &str, container: ) -> Client {
 
 }
