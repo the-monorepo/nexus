@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 #![feature(abi_avr_interrupt)]
-#![feature(const_fn)]
 mod pulse_data;
 use arduino_uno::{
     hal::port::{
@@ -170,6 +169,12 @@ impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CL
     }
 }
 
+#[cfg(target_arch = "avr")]
+fn main() -> ! {
+  panic!("This app is only designed to be run on AVR devices!");
+}
+
+#[cfg(target_arch = "avr")]
 #[arduino_uno::entry]
 fn main() -> ! {
     let peripherals = arduino_uno::Peripherals::take().unwrap();
