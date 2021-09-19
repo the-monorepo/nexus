@@ -32,11 +32,11 @@
       "@byexample/storybook-knobified": "./packages/byexample/javascript/storybook-knobified/commonjs/index.ts",
       "@byexample/types/": "./packages/byexample/javascript/types/",
       "@byexample/types": "./packages/byexample/javascript/types/commonjs/index.ts",
-      "@monorepo/buildplan": "./packages/monorepo/javascript/buildplan/esm/index.ts",
-      "@monorepo/buildplan/deno": "./packages/monorepo/javascript/buildplan/esm/index.deno.ts",
+      "@monorepo/buildplan": "./packages/monorepo/javascript/buildplan/src/index.ts",
+      "@monorepo/buildplan/deno": "./packages/monorepo/javascript/buildplan/src/index.deno.ts",
       "@monorepo/config/": "./packages/build-packages/javascript/monorepo-config/",
       "@monorepo/config": "./packages/build-packages/javascript/monorepo-config/src/index.js",
-      "@pipelines/core": "./packages/pipelines/javascript/pipelines-core/esm/index.ts",
+      "@pipelines/core": "./packages/pipelines/javascript/pipelines-core/src/index.ts",
       "@pshaw/eslint-config-core/": "./packages/monorepo/javascript/eslint-config-core/",
       "@pshaw/eslint-config-core": "./packages/monorepo/javascript/eslint-config-core/src/index.json",
       "@pshaw/eslint-config-preset/": "./packages/monorepo/javascript/eslint-config-preset/",
@@ -66,8 +66,8 @@
       "@yarnpkg/pnpify": "./node_modules/@yarnpkg/pnpify/lib/index.js",
       "babel-plugin-istanbul/": "./node_modules/babel-plugin-istanbul/",
       "babel-plugin-istanbul": "./node_modules/babel-plugin-istanbul/lib/index.js",
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "core-js/": "./node_modules/core-js/",
       "core-js": "./node_modules/core-js/index.js",
       "eslint/": "./node_modules/eslint/",
@@ -86,6 +86,8 @@
       "mocha/": "./node_modules/mocha/",
       "node-fetch/": "./node_modules/node-fetch/",
       "node-fetch": "./node_modules/node-fetch/lib/index.mjs",
+      "node-import-map-generator/": "./packages/misc/javascript/node-import-map-generator/",
+      "node-import-map-generator": "./packages/misc/javascript/node-import-map-generator/esm/index.ts",
       "prettier/": "./node_modules/prettier/",
       "prettier": "./node_modules/prettier/index.js",
       "react/": "./node_modules/react/",
@@ -367,7 +369,7 @@
     "./packages/monorepo/javascript/buildplan/": {
       "@babel/core/": "./packages/monorepo/javascript/buildplan/node_modules/@babel/core/",
       "@babel/core": "./packages/monorepo/javascript/buildplan/node_modules/@babel/core/lib/index.js",
-      "@buildplan/core": "./packages/buildplan/javascript/core/esm/index.ts",
+      "@buildplan/core": "./packages/buildplan/javascript/core/src/index.ts",
       "@fault/addon-mutation-localization/": "./packages/faultjs/javascript/addon-mutation-localization/",
       "@fault/addon-mutation-localization": "./packages/faultjs/javascript/addon-mutation-localization/esm/index.ts",
       "@fault/addon-sbfl/": "./packages/faultjs/javascript/addon-sbfl/",
@@ -382,7 +384,7 @@
       "@fl-benchmarker/viewer-cli": "./packages/fl-benchmarker/javascript/viewer-cli/esm/index.ts",
       "@monorepo/config/": "./packages/build-packages/javascript/monorepo-config/",
       "@monorepo/config": "./packages/build-packages/javascript/monorepo-config/src/index.js",
-      "@pshaw/logger": "./packages/misc/javascript/logger/esm/index.deno.ts",
+      "@pshaw/logger": "./packages/misc/javascript/logger/src/index.deno.ts",
       "@pshaw/markdown-util/": "./packages/misc/javascript/markdown-util/",
       "@pshaw/markdown-util": "./packages/misc/javascript/markdown-util/esm/index.ts",
       "@pshaw/webpack": "./packages/patrick-shaw/javascript/webpack/esm/index.ts",
@@ -420,7 +422,7 @@
       "prettier": "./node_modules/prettier/index.js",
       "source-map-support/": "./node_modules/source-map-support/",
       "source-map-support": "./node_modules/source-map-support/source-map-support.js",
-      "stream-filter-glob": "./packages/misc/javascript/stream-filter-glob/esm/index.ts",
+      "stream-filter-glob": "./packages/misc/javascript/stream-filter-glob/src/index.ts",
       "stream-to-promise/": "./node_modules/stream-to-promise/",
       "stream-to-promise": "./node_modules/stream-to-promise/index.js",
       "through2/": "./packages/monorepo/javascript/buildplan/node_modules/through2/",
@@ -455,11 +457,11 @@
       "eslint-plugin-react": "./node_modules/eslint-plugin-react/index.js"
     },
     "./packages/patrick-shaw/javascript/my-resume/": {
-      "@pshaw/logger": "./packages/misc/javascript/logger/esm/index.deno.ts",
+      "@pshaw/logger": "./packages/misc/javascript/logger/src/index.deno.ts",
       "@pshaw/resume-template/": "./packages/misc/javascript/resume-template/",
       "@pshaw/resume-template": "./packages/misc/javascript/resume-template/esm/index.tsx",
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "core-js/": "./node_modules/core-js/",
       "core-js": "./node_modules/core-js/index.js",
       "express/": "./node_modules/express/",
@@ -471,8 +473,8 @@
       "@contextual-documents/html-elements": "./packages/contextual-documents/javascript/html-elements/esm/index.ts",
       "@pshaw/contextual-documents": "./packages/patrick-shaw/javascript/contextual-documents/esm/index.ts",
       "@pshaw/contextual-documents/register": "./packages/patrick-shaw/javascript/contextual-documents/esm/register.ts",
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "classnames/": "./node_modules/classnames/",
       "classnames": "./node_modules/classnames/index.js",
       "core-js/": "./node_modules/core-js/",
@@ -489,9 +491,9 @@
       "@contextual-documents/html-elements": "./packages/contextual-documents/javascript/html-elements/esm/index.ts",
       "@pshaw/contextual-documents": "./packages/patrick-shaw/javascript/contextual-documents/esm/index.ts",
       "@pshaw/contextual-documents/register": "./packages/patrick-shaw/javascript/contextual-documents/esm/register.ts",
-      "@resultful/result": "./packages/resultful/javascript/result/esm/index.ts",
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "@resultful/result": "./packages/resultful/javascript/result/src/index.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "classnames/": "./node_modules/classnames/",
       "classnames": "./node_modules/classnames/index.js",
       "core-js/": "./node_modules/core-js/",
@@ -506,12 +508,12 @@
     "./packages/patrick-shaw/javascript/spot-welder-app/": {
       "@contextual-documents/html-elements/": "./packages/contextual-documents/javascript/html-elements/",
       "@contextual-documents/html-elements": "./packages/contextual-documents/javascript/html-elements/esm/index.ts",
-      "@pipelines/core-2": "./packages/pipelines/javascript/core-2/esm/index.ts",
+      "@pipelines/core-2": "./packages/pipelines/javascript/core-2/src/index.ts",
       "@pshaw/contextual-documents": "./packages/patrick-shaw/javascript/contextual-documents/esm/index.ts",
       "@pshaw/contextual-documents/register": "./packages/patrick-shaw/javascript/contextual-documents/esm/register.ts",
-      "@resultful/result": "./packages/resultful/javascript/result/esm/index.ts",
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "@resultful/result": "./packages/resultful/javascript/result/src/index.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "classnames/": "./node_modules/classnames/",
       "classnames": "./node_modules/classnames/index.js",
       "core-js/": "./node_modules/core-js/",
@@ -816,8 +818,8 @@
       "@polymer/paper-radio-button": "./node_modules/@polymer/paper-radio-button/paper-radio-button.js",
       "@pshaw/contextual-documents": "./packages/patrick-shaw/javascript/contextual-documents/esm/index.ts",
       "@pshaw/contextual-documents/register": "./packages/patrick-shaw/javascript/contextual-documents/esm/register.ts",
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "core-js/": "./node_modules/core-js/",
       "core-js": "./node_modules/core-js/index.js",
       "fasta-format-parser/": "./packages/misc/javascript/fasta-format-parser/",
@@ -895,6 +897,12 @@
       "yargs-parser": "./node_modules/mocha/node_modules/yargs-parser/build/lib/index.js",
       "yargs-unparser/": "./node_modules/yargs-unparser/",
       "yargs-unparser": "./node_modules/yargs-unparser/index.js"
+    },
+    "./packages/misc/javascript/node-import-map-generator/": {
+      "yargs/package.json": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/package.json",
+      "yargs": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/index.mjs",
+      "yargs/helpers": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/helpers/helpers.mjs",
+      "yargs/yargs": "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/yargs"
     },
     "./node_modules/react/": {
       "loose-envify/": "./node_modules/loose-envify/",
@@ -1608,7 +1616,7 @@
       "source-map": "./packages/monorepo/javascript/buildplan/node_modules/@babel/core/node_modules/source-map/source-map.js"
     },
     "./packages/buildplan/javascript/core/": {
-      "@pshaw/logger": "./packages/misc/javascript/logger/esm/index.deno.ts",
+      "@pshaw/logger": "./packages/misc/javascript/logger/src/index.deno.ts",
       "chalk/": "./node_modules/chalk/",
       "chalk": "./node_modules/chalk/source/index.js",
       "yargs/package.json": "./node_modules/yargs/package.json",
@@ -1695,7 +1703,7 @@
       "@fault/messages": "./packages/faultjs/javascript/messages/esm/index.ts",
       "@fault/types/": "./packages/faultjs/javascript/types/",
       "@fault/types": "./packages/faultjs/javascript/types/esm/index.ts",
-      "resultful": "./packages/resultful/javascript/resultful/esm/index.ts"
+      "resultful": "./packages/resultful/javascript/resultful/src/index.ts"
     },
     "./packages/fl-benchmarker/javascript/viewer-cli/": {
       "@babel/core/": "./node_modules/@babel/core/",
@@ -1704,7 +1712,7 @@
       "@pshaw/contextual-documents/register": "./packages/patrick-shaw/javascript/contextual-documents/esm/register.ts",
       "@pshaw/fs/": "./packages/misc/javascript/pshaw-fs/",
       "@pshaw/fs": "./packages/misc/javascript/pshaw-fs/esm/index.ts",
-      "@pshaw/logger": "./packages/misc/javascript/logger/esm/index.deno.ts",
+      "@pshaw/logger": "./packages/misc/javascript/logger/src/index.deno.ts",
       "@pshaw/webpack": "./packages/patrick-shaw/javascript/webpack/esm/index.ts",
       "chalk/": "./node_modules/chalk/",
       "chalk": "./node_modules/chalk/source/index.js",
@@ -1712,8 +1720,8 @@
       "chart.js": "./node_modules/chart.js/dist/Chart.js",
       "chartjs-chart-box-and-violin-plot/": "./node_modules/chartjs-chart-box-and-violin-plot/",
       "chartjs-chart-box-and-violin-plot": "./node_modules/chartjs-chart-box-and-violin-plot/build/Chart.BoxPlot.esm.js",
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "classnames/": "./node_modules/classnames/",
       "classnames": "./node_modules/classnames/index.js",
       "d3/": "./node_modules/d3/",
@@ -1948,8 +1956,8 @@
       "debug": "./node_modules/debug/src/index.js"
     },
     "./packages/misc/javascript/resume-template/": {
-      "cinder": "./packages/cinder/javascript/cinder/esm/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/esm/babel.ts",
+      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
+      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
       "classnames/": "./node_modules/classnames/",
       "classnames": "./node_modules/classnames/index.js",
       "date-fns/": "./node_modules/date-fns/",
@@ -2038,7 +2046,7 @@
       "@pshaw/contextual-documents-scss": "./packages/patrick-shaw/javascript/contextual-documents-scss/src/index.scss"
     },
     "./packages/resultful/javascript/result/": {
-      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/esm/index.ts"
+      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/src/index.ts"
     },
     "./node_modules/d3/": {
       "d3-array/": "./node_modules/d3-array/",
@@ -2103,7 +2111,7 @@
       "d3-zoom": "./node_modules/d3-zoom/src/index.js"
     },
     "./packages/pipelines/javascript/core-2/": {
-      "@resultful/result": "./packages/resultful/javascript/result/esm/index.ts",
+      "@resultful/result": "./packages/resultful/javascript/result/src/index.ts",
       "web-streams-polyfill/": "./node_modules/web-streams-polyfill/",
       "web-streams-polyfill": "./node_modules/web-streams-polyfill/dist/polyfill.mjs"
     },
@@ -3660,7 +3668,7 @@
       "@polymer/paper-radio-button": "./node_modules/@polymer/paper-radio-button/paper-radio-button.js",
       "replace-functions/": "./packages/misc/javascript/replace-functions/",
       "replace-functions": "./packages/misc/javascript/replace-functions/esm/index.ts",
-      "resultful": "./packages/resultful/javascript/resultful/esm/index.ts"
+      "resultful": "./packages/resultful/javascript/resultful/src/index.ts"
     },
     "./node_modules/dir-glob/": {
       "path-type/": "./node_modules/path-type/"
@@ -3758,6 +3766,18 @@
       "flat/": "./node_modules/flat/",
       "flat": "./node_modules/flat/index.js",
       "is-plain-obj/": "./node_modules/is-plain-obj/"
+    },
+    "./packages/misc/javascript/node-import-map-generator/node_modules/yargs/": {
+      "cliui": "./node_modules/cliui/index.mjs",
+      "escalade": "./node_modules/escalade/dist/index.mjs",
+      "escalade/sync": "./node_modules/escalade/sync/index.mjs",
+      "get-caller-file/": "./node_modules/get-caller-file/",
+      "get-caller-file": "./node_modules/get-caller-file/index.js",
+      "require-directory/": "./node_modules/require-directory/",
+      "require-directory": "./node_modules/require-directory/index.js",
+      "string-width/": "./node_modules/string-width/",
+      "y18n": "./packages/misc/javascript/node-import-map-generator/node_modules/y18n/index.mjs",
+      "yargs-parser": "./node_modules/yargs-parser/build/lib/index.js"
     },
     "./node_modules/loose-envify/": {
       "js-tokens/": "./node_modules/js-tokens/"
@@ -4378,9 +4398,9 @@
       "ipc-fifo-processor": "./packages/misc/javascript/ipc-fifo-processor/esm/index.ts"
     },
     "./packages/resultful/javascript/resultful/": {
-      "@resultful/failure": "./packages/resultful/javascript/failure/esm/index.ts",
-      "@resultful/result": "./packages/resultful/javascript/result/esm/index.ts",
-      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/esm/index.ts"
+      "@resultful/failure": "./packages/resultful/javascript/failure/src/index.ts",
+      "@resultful/result": "./packages/resultful/javascript/result/src/index.ts",
+      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/src/index.ts"
     },
     "./node_modules/chart.js/": {
       "chartjs-color/": "./node_modules/chartjs-color/",
@@ -8086,7 +8106,7 @@
       "@pshaw/keyed-binary-heap": "./packages/misc/javascript/keyed-binary-heap/esm/index.ts"
     },
     "./packages/resultful/javascript/failure/": {
-      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/esm/index.ts"
+      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/src/index.ts"
     },
     "./node_modules/chartjs-color/": {
       "color-convert/": "./node_modules/color-convert/",

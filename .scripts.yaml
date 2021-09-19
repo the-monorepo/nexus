@@ -56,8 +56,6 @@ run:buildplan:
 deno-run: deno run --config ./tsconfig.deno.json
 run:buildplan:deno:
   task: deno-run --allow-read --allow-write --import-map=local.import-map.json ./buildplan.deno.ts
-generate:import-maps:
-  task: node-base generate-import-map.ts
 
 format:javascript:
   task: run:buildplan format
@@ -91,6 +89,7 @@ transpile:
   task: run:buildplan transpile
 copy:
   task: run:buildplan copy
+build:import-maps: yarn run node-import-map-generator
 build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
   series:
@@ -98,7 +97,9 @@ build:
       - task: transpile
       - task: copy
   # - task: build:rust
-    - task: writeme
+    - parallel:
+      - task: build:import-maps
+      - task: writeme
 build:node:
   task: run:buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)

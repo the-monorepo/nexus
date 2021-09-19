@@ -65,6 +65,7 @@
     "micromatch": "^4.0.2",
     "mocha": "^8.1.1",
     "node-fetch": "^2.6.1",
+    "node-import-map-generator": "workspace:packages/misc/javascript/node-import-map-generator",
     "prettier": "^2.3.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
