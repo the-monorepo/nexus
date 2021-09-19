@@ -10,6 +10,10 @@ trait Blueprint<I, O> {
   fn create(&self) -> dyn Component<I, O>;
 }
 
+trait Renderer {
+  fn renderString(&mut self, value: &str);
+}
+
 #[wasm_bindgen]
 pub fn render() {
     // Use `web_sys`'s global `window` function to get a handle on the global
