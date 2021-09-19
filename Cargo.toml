@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "./packages/scriptplan/rust/scriptplan"
+    "./packages/scriptplan/rust/scriptplan",
+    "./packages/cinder/rust/core"
 ]
 
 # TODO: Copied from Arduino, should probably not be just called "dev"/"release"
