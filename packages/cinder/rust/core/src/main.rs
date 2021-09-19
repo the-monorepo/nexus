@@ -1,3 +1,6 @@
+#![no_std]
+#![no_main]
+
 type Unmount<I> = Fn(I);
 
 type Update<I> = Fn(I) -> (Update<I>, Unmount<I>);
