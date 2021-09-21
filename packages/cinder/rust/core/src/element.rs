@@ -26,6 +26,12 @@ enum ElementFieldEnum {
 
 impl<'a> Mounter<Vec<ElementFieldEnum>, ElementDomUpdater> for ElementDomMounter {
   fn mount(self, container: &mut web_sys::Node, before: &web_sys::Node) -> ElementDomUpdater {
+    let document = web_sys::window().unwrap().document().unwrap();
+    let cloned = document.import_node_with_deep(&self.template, true).unwrap();
+    // const fields = fieldFactory(cloned);
+    // initialDomFieldSetter(fields, fieldValues);
+    container.insert_before(&cloned, Some(before)).unwrap();
+    //return renderData(cloned, fields);
     todo!();
   }
 }
