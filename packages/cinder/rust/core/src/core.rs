@@ -1,6 +1,6 @@
 pub trait Updater<I> {
   fn update(&mut self, input: I);
-  fn unmount(&mut self);
+  fn unmount(self);
 }
 
 pub trait Mounter<UO, U : Updater<UO>> {
