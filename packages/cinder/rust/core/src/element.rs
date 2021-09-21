@@ -4,7 +4,11 @@ struct ElementDomBlueprint {
 
 }
 
-impl Blueprint<&str, Vec<ElementFieldEnum>, ElementDomUpdater, ElementDomMounter> for ElementDomBlueprint {
+trait ElementField {
+  fn update(&mut self);
+}
+
+impl<E : ElementField> Blueprint<&str, Vec<&mut E>, ElementDomUpdater, ElementDomMounter> for ElementDomBlueprint {
   fn create(&mut self, html: &str) -> ElementDomMounter {
     let document = web_sys::window().unwrap().document().unwrap();
     let template = document.create_element("template").unwrap();
@@ -20,11 +24,7 @@ struct ElementDomMounter {
   template: web_sys::Element,
 }
 
-enum ElementFieldEnum {
-
-}
-
-impl<'a> Mounter<Vec<ElementFieldEnum>, ElementDomUpdater> for ElementDomMounter {
+impl<E : ElementField> Mounter<Vec<&mut E>, ElementDomUpdater> for ElementDomMounter {
   fn mount(self, container: &mut web_sys::Node, before: &web_sys::Node) -> ElementDomUpdater {
     let document = web_sys::window().unwrap().document().unwrap();
     let cloned = document.import_node_with_deep(&self.template, true).unwrap();
@@ -40,8 +40,11 @@ struct ElementDomUpdater {
 
 }
 
-impl Updater<Vec<ElementFieldEnum>> for ElementDomUpdater {
-  fn update(&mut self, fields: Vec<ElementFieldEnum>) {
+impl<E : ElementField> Updater<Vec<&mut E>> for ElementDomUpdater {
+  fn update(&mut self, fields: Vec<&mut E>) {
+    for field in fields {
+      field.update()
+    }
     todo!();
   }
 
