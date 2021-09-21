@@ -1,14 +1,30 @@
 use crate::core::*;
 
-struct ElementDomMounter {
+struct ElementDomBlueprint {
 
+}
+
+impl Blueprint<&str, Vec<ElementFieldEnum>, ElementDomUpdater, ElementDomMounter> for ElementDomBlueprint {
+  fn create(&mut self, html: &str) -> ElementDomMounter {
+    let document = web_sys::window().unwrap().document().unwrap();
+    let template = document.create_element("template").unwrap();
+    template.set_inner_html(html);
+
+    ElementDomMounter {
+      template
+    }
+  }
+}
+
+struct ElementDomMounter {
+  template: web_sys::Element,
 }
 
 enum ElementFieldEnum {
 
 }
 
-impl ElementDomMounter for Mounter<[ElementFieldEnum], ElementDomUpdater> {
+impl<'a> Mounter<Vec<ElementFieldEnum>, ElementDomUpdater> for ElementDomMounter {
   fn mount(self, container: &mut web_sys::Node, before: &web_sys::Node) -> ElementDomUpdater {
     todo!();
   }
@@ -18,8 +34,12 @@ struct ElementDomUpdater {
 
 }
 
-impl ElementDomUpdater for Updater<&'a str> {
-  fn update(self, fields: [ElementFieldEnum]) {
+impl Updater<Vec<ElementFieldEnum>> for ElementDomUpdater {
+  fn update(&mut self, fields: Vec<ElementFieldEnum>) {
+    todo!();
+  }
+
+  fn unmount(self) {
     todo!();
   }
 }
