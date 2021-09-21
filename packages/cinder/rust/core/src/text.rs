@@ -24,6 +24,7 @@ impl<'a> Updater<&'a str> for TextDomUpdater<'a> {
     }
 
     *self.text = input;
+    self.text_node.set_text_content(input);
   }
 
   fn unmount(&mut self) {
