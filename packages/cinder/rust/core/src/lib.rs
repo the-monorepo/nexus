@@ -2,6 +2,8 @@ use wasm_bindgen::prelude::*;
 use web_sys::Text;
 
 mod core;
+mod text;
+mod element;
 
 pub struct DomRenderer {
   container: web_sys::Node,
