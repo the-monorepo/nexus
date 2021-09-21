@@ -28,7 +28,7 @@ impl<'a> Updater<&'a str> for TextDomUpdater<'a> {
   }
 
   fn unmount(&mut self) {
-    todo!()
+    // NOOP
   }
 }
 
