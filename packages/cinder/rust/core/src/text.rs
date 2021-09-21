@@ -1,4 +1,4 @@
-use crate::text::*;
+use crate::core::*;
 
 struct TextDomBlueprint {
 
