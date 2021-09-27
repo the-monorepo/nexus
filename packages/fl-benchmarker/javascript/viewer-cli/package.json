@@ -38,7 +38,7 @@
     "benchmark"
   ],
   "dependencies": {
-    "@babel/core": "^7.14.3",
+    "@babel/core": "^7.15.5",
     "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
     "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs",
     "@pshaw/logger": "workspace:packages/misc/javascript/logger",

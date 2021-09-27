@@ -37,7 +37,7 @@
     "app"
   ],
   "dependencies": {
-    "@babel/core": "^7.14.6",
+    "@babel/core": "^7.15.5",
     "@buildplan/core": "workspace:packages/buildplan/javascript/core",
     "@fault/addon-mutation-localization": "workspace:packages/faultjs/javascript/addon-mutation-localization",
     "@fault/addon-sbfl": "workspace:packages/faultjs/javascript/addon-sbfl",

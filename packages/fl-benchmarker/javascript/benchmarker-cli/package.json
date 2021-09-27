@@ -34,9 +34,9 @@
     "benchmark"
   ],
   "dependencies": {
-    "@babel/core": "^7.14.3",
-    "@babel/parser": "^7.14.4",
-    "@babel/register": "^7.13.16",
+    "@babel/core": "^7.15.5",
+    "@babel/parser": "^7.15.7",
+    "@babel/register": "^7.15.3",
     "@fault/addon-sbfl": "workspace:packages/faultjs/javascript/addon-sbfl",
     "@fault/istanbul-util": "workspace:packages/faultjs/javascript/istanbul-util",
     "@fault/record-faults": "workspace:packages/faultjs/javascript/record-faults",
