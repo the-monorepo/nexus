@@ -217,7 +217,8 @@ export async function* slice<T>(iterable: AsyncIterable<T>, start = 0, end?: num
       yield result.value;
     }
   } else {
-    for (let i = await iterator.next(); i.done; i = await iterator.next()) {
+    for (let i = await iterator.next(); !i.done; i = await iterator.next()) {
+      console.log(i);
       yield i.value;
     }
   }

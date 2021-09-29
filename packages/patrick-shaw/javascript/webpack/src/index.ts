@@ -1,7 +1,6 @@
 import { resolve } from 'path';
 
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import fibers from 'fibers';
 import sass from 'sass';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
@@ -121,9 +120,6 @@ export const sassLoader = {
   options: {
     sourceMap: true,
     implementation: sass,
-    sassOptions: {
-      fiber: fibers,
-    },
   },
 };
 
