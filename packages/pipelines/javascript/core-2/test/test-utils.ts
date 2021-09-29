@@ -1,5 +1,4 @@
 import { map } from '../src/index.ts';
-import { returnOne } from './test-utils.ts';
 
 export async function* infiniteCounter() {
   let i = 0;
