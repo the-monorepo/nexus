@@ -11,14 +11,9 @@ nb = "0.1.2"
 ufmt = "0.1.0"
 embedded-hal = "0.2.3"
 
-[dependencies.arduino-hal]
+[dependencies.arduino-mega2560]
 git = "https://github.com/rahix/avr-hal"
-rev = "ac72adbe6db8900c41681b759ff62a11f2915916"
-features = ["arduino-mega2560"]
-
-[dependencies.avr-hal-generic]
-git = "https://github.com/rahix/avr-hal"
-rev = "ac72adbe6db8900c41681b759ff62a11f2915916"
+rev = "a20277873a8102998d5fd69743771bd8c0aa9423"
 
 # TODO: Copied from Arduino, should probably not be just called "dev"/"release"
 [profile.dev]
