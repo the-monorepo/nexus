@@ -15,6 +15,15 @@ avr-device = "0.3.1"
 git = "https://github.com/rahix/avr-hal"
 rev = "a20277873a8102998d5fd69743771bd8c0aa9423"
 
-[build]
-# Default target
-target = "avr-unknown-unknown"
+# TODO: Copied from Arduino, should probably not be just called "dev"/"release"
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "s"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+debug = true
+lto = true
+opt-level = "s"
