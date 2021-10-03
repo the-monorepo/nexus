@@ -9,7 +9,7 @@ publish = false
 panic-halt = "0.2.0"
 nb = "0.1.2"
 ufmt = "0.1.0"
-avr-device = "0.3"
+avr-device = "0.3.1"
 
 [dependencies.arduino-uno]
 git = "https://github.com/rahix/avr-hal"
