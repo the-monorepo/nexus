@@ -169,7 +169,7 @@ impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CL
     }
 }
 
-#[cfg(target_arch = "avr")]
+#[cfg(not(target_arch = "avr"))]
 fn main() -> ! {
   panic!("This app is only designed to be run on AVR devices!");
 }

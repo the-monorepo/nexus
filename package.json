@@ -2,7 +2,9 @@
   "name": "monorepo",
   "description": "An assortment of miscellaneous libraries - Saves me time on rewriting build tooling",
   "workspaces": [
-    "packages/*/javascript/*"
+    "packages/*/javascript/*",
+    "packages/patrick-shaw/rust/spot-welder-arduino",
+    "packages/patrick-shaw/rust/lifepo4-cell-charger"
   ],
   "private": true,
   "npmClient": "yarn",
