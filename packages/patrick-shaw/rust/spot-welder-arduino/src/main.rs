@@ -81,7 +81,7 @@ struct SpotWelderManagerState {
 }
 
 impl SpotWelderManagerState {
-    const fn from(pulse_millis_thresholds: PulseMilliThresholds) -> SpotWelderManagerState {
+    fn from(pulse_millis_thresholds: PulseMilliThresholds) -> SpotWelderManagerState {
         return SpotWelderManagerState {
             current_millis: pulse_millis_thresholds.start_millis,
             pulse_millis_thresholds,
@@ -96,7 +96,7 @@ struct SpotWelderManager<USART: UsartOps<RX, TX>, RX, TX, CLOCK> {
 }
 
 impl<USART: UsartOps<RX, TX>, RX, TX, CLOCK> SpotWelderManager<USART, RX, TX, CLOCK> {
-    const fn new(spot_welder_io: SpotWelderIO, serial: Usart<USART, RX, TX, CLOCK>) -> Self {
+    fn new(spot_welder_io: SpotWelderIO, serial: Usart<USART, RX, TX, CLOCK>) -> Self {
         SpotWelderManager {
             serial,
             spot_welder_io,
