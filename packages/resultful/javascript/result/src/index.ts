@@ -69,7 +69,7 @@ export type CreatePayloadFn = {
  * Use this to create a {@link PayloadResult} which signifies that something successful
  * has happened and your API has run as expected and has been consumed correctly (AKA the "happy path").
  */
-export const createPayload: CreatePayloadFn = <P>(payload: P): PayloadResult<P> => ({
+export const payload: CreatePayloadFn = <P>(payload: P): PayloadResult<P> => ({
   type: PAYLOAD,
   payload,
   failure: undefined,
@@ -83,7 +83,7 @@ export type CreateFailureFn = {
  * Use this to create an {@link FailureResult} which signifies that either your API has behaved erroneuously in some way but
  * you're aware that the failure can occur.
  */
-export const createFailure: CreateFailureFn = <E>(failure: E): FailureResult<E> => ({
+export const failure: CreateFailureFn = <E>(failure: E): FailureResult<E> => ({
   type: FAILURE,
   payload: undefined,
   failure: failure,
