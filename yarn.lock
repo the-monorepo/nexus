@@ -4293,6 +4293,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@resultful/failure-types@workspace:packages/resultful/javascript/failure-types":
+  version: 0.0.0-use.local
+  resolution: "@resultful/failure-types@workspace:packages/resultful/javascript/failure-types"
+  languageName: unknown
+  linkType: soft
+
 "@resultful/failure@workspace:packages/resultful/javascript/failure":
   version: 0.0.0-use.local
   resolution: "@resultful/failure@workspace:packages/resultful/javascript/failure"

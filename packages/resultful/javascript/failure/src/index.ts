@@ -4,7 +4,7 @@ import {
   TransformTypedObject,
   OptionIfTypeElseEmpty,
 } from '@resultful/utility-types';
-import { ERROR, UNKNOWN } from './types.ts';
+import { ERROR, UNKNOWN } from '@resultful/failure-types';
 export { FailureTypes };
 
 export type ErrorFailure<ErrorType> = {
@@ -25,7 +25,7 @@ export const hasError = <R extends TypedObjectSchema>(
   result: R,
 ): result is Include<R, TypeHolder<typeof ERROR>> => result.type === ERROR;
 
-export const hasUnknown = <R extends TypedObjectSchema>(
+export const hasUnknownBehaviour = <R extends TypedObjectSchema>(
   result: R,
 ): result is Include<R, TypeHolder<typeof UNKNOWN>> => result.type === UNKNOWN;
 
@@ -38,13 +38,13 @@ export type CreateErrorFn = {
 
 export type CreateUnknownFn = (unknown: unknown) => UnknownFailure;
 
-export const createError: CreateErrorFn = <E>(error: E): ErrorFailure<E> => ({
+export const error: CreateErrorFn = <E>(error: E): ErrorFailure<E> => ({
   type: ERROR,
   error,
   unknown: undefined,
 });
 
-export const createUnknown: CreateUnknownFn = (unknown: unknown): UnknownFailure => ({
+export const unknown: CreateUnknownFn = (unknown: unknown): UnknownFailure => ({
   type: UNKNOWN,
   error: undefined,
   unknown,
