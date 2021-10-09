@@ -33,29 +33,25 @@ async fn main() {
     let mut docs = YamlLoader::load_from_str(&s).unwrap();
     let doc = docs.remove(0);
 
-    let mut app = App::new("Scriptplan");
 
     let map = doc.into_hash().unwrap();
 
     let scriptplan = YamlScriptParser::try_from(&map).unwrap();
 
-    for task in scriptplan.tasks.keys() {
-        let subcommand = SubCommand::with_name(task)
-            .setting(clap::AppSettings::TrailingVarArg)
-            .setting(clap::AppSettings::TrailingValues)
-            .arg(clap::Arg::with_name("other").multiple(true).hidden(true));
-        app = app.subcommand(subcommand);
-    }
+    let app = scriptplan.tasks.keys().fold(App::new("Scriptplan"), |temp_app, task| {
+      temp_app.subcommand(
+      SubCommand::with_name(task)
+        .setting(clap::AppSettings::TrailingVarArg)
+        .setting(clap::AppSettings::TrailingValues)
+        .arg(clap::Arg::with_name("other").multiple(true).hidden(true)))
+    });
 
-    let matches = app.get_matches();
-
-    if let Some(ref root_task) = matches.subcommand {
+    if let Some(ref root_task) = app.get_matches().subcommand {
         let user_vars_iter: VecDeque<_> = (|| {
             if let Some(ref values) = root_task.matches.args.get("other") {
                 return values
                     .vals
                     .iter()
-                    .cloned()
                     .map(|x| Arc::new(x.to_str().unwrap().to_string()))
                     .collect();
             } else {
