@@ -93,18 +93,21 @@ impl TryFrom<&Yaml> for ScriptGroup<BashCommand> {
   type Error = ();
 
   fn try_from(yaml: &Yaml) -> Result<ScriptGroup<BashCommand>, Self::Error> {
-    let mut obj = Vec::new();
     let yaml_list = yaml.as_vec().ok_or(())?;
 
-    for sub_yaml in yaml_list {
-        let task = sub_yaml.try_into()?;
-        obj.push(task);
-    }
+    let mut scripts_iter = yaml_list.iter().map(|yaml| -> Result<Script<BashCommand>, ()> {
+      yaml.try_into()
+    });
+
+    let first = (scripts_iter.next().unwrap())?;
+
+    let scripts_result: Result<Vec<_>, _> = scripts_iter.collect();
+    let scripts = scripts_result?;
 
     Ok(ScriptGroup {
         bail: false,
-        first: obj.remove(0),
-        rest: obj,
+        first,
+        rest: scripts,
     })
   }
 }
