@@ -91,13 +91,16 @@ impl Script<BashCommand> {
 
 impl TryFrom<&Yaml> for ScriptGroup<BashCommand> {
   type Error = ();
+
   fn try_from(yaml: &Yaml) -> Result<ScriptGroup<BashCommand>, Self::Error> {
     let mut obj = Vec::new();
     let yaml_list = yaml.as_vec().ok_or(())?;
+
     for sub_yaml in yaml_list {
         let task = sub_yaml.try_into()?;
         obj.push(task);
     }
+
     Ok(ScriptGroup {
         bail: false,
         first: obj.remove(0),
@@ -151,13 +154,18 @@ impl<'a> From<&'a Yaml> for LazyTask<'a> {
 impl LazyTask<'_> {
     fn parse(&self) -> Result<Rc<Script<BashCommand>>, ()> {
         let mut yaml_or_task = self.yaml_or_task.borrow_mut();
-        if let YamlOrTask::NotLoaded(ref yaml) = yaml_or_task.deref() {
-            *yaml_or_task = YamlOrTask::Loaded(Rc::new((*yaml).try_into()?));
-        }
-        if let YamlOrTask::Loaded(ref script) = yaml_or_task.deref() {
+        match yaml_or_task.deref() {
+          &YamlOrTask::Loaded(ref script) => {
             return Ok(script.clone());
-        } else {
-            panic!("Shouldn't happen");
+          },
+          &YamlOrTask::NotLoaded(ref yaml) => {
+            let script: Rc<Script<BashCommand>> = Rc::new((*yaml).try_into()?);
+            let script_cell = script.clone();
+
+            *yaml_or_task = YamlOrTask::Loaded(script);
+
+            return Ok(script_cell);
+          }
         }
     }
 }
