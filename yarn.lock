@@ -4309,6 +4309,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@resultful/result-types@workspace:packages/resultful/javascript/result-types":
+  version: 0.0.0-use.local
+  resolution: "@resultful/result-types@workspace:packages/resultful/javascript/result-types"
+  languageName: unknown
+  linkType: soft
+
 "@resultful/result@workspace:packages/resultful/javascript/result":
   version: 0.0.0-use.local
   resolution: "@resultful/result@workspace:packages/resultful/javascript/result"
