@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "./packages/scriptplan/rust/scriptplan",
+    "./packages/scriptplan/rust/scriptplan-cli",
     "./packages/cinder/rust/core",
 ]
 
