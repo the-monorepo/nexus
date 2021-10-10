@@ -1,14 +1,7 @@
-use conch_parser::ast::builder::ArcBuilder;
-use conch_parser::lexer::Lexer;
-use conch_parser::parse::Parser;
-
-use conch_runtime::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
-use conch_runtime::spawn::{sequence, sequence_exact, sequence_slice, subshell};
 use conch_runtime::ExitStatus;
 
 use std::collections::VecDeque;
 
-use std::future::Future;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -18,10 +11,10 @@ use async_recursion::async_recursion;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait Runnable {
+pub trait Runnable<CommandGeneric : Command> {
     async fn run(
         &mut self,
-        runner: &mut impl ScriptParser,
+        runner: &mut impl ScriptParser<CommandGeneric>,
         args: &VarArgs,
     ) -> Result<ExitStatus, ()>;
 }
@@ -37,69 +30,27 @@ pub struct EnvVar {
     value: String, // TODO: Support expressions
 }
 
-#[derive(Debug)]
-pub struct Command {
-    pub command_str: String,
-}
-
-impl From<&str> for Command {
-    fn from(command_str: &str) -> Self {
-        Command::from(command_str.to_string())
-    }
-}
-
-impl From<String> for Command {
-    fn from(command_str: String) -> Self {
-        Command { command_str }
-    }
+#[async_trait]
+pub trait Command {
+    async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()>;
 }
 
 pub type VarArgs = VecDeque<Arc<String>>;
-
-impl Command {
-    pub async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
-        let command_str = self.command_str.trim_end().to_string() + " \"$@\"";
-
-        let lex = Lexer::new(command_str.chars());
-
-        let parser = Parser::with_builder(lex, ArcBuilder::new());
-
-        let mut args = ArgsEnv::new();
-        args.set_args(Arc::new(vars));
-
-        let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
-            interactive: true,
-            args_env: args,
-            ..DefaultEnvConfigArc::new().unwrap()
-        });
-
-        let cmds = parser.into_iter().map(|x| x.unwrap()).collect::<Vec<_>>();
-
-        let env_future_result = subshell(sequence_slice(&cmds), &mut env).await;
-
-        let status = env_future_result;
-
-        drop(env);
-
-        return Ok(status);
-    }
-}
-
 #[derive(Debug)]
-pub struct ScriptGroup {
+pub struct ScriptGroup<CommandGeneric : Command> {
     pub bail: bool,
     // Enforces that there's always at least 1 script
-    pub first: Script,
-    pub rest: Vec<Script>,
+    pub first: Script<CommandGeneric>,
+    pub rest: Vec<Script<CommandGeneric>>,
 }
 
 /**
  * TODO: Choose a better name
  */
 #[derive(Debug)]
-pub enum CommandGroup {
-    Parallel(ScriptGroup),
-    Series(ScriptGroup),
+pub enum CommandGroup<CommandGeneric : Command> {
+    Parallel(ScriptGroup<CommandGeneric>),
+    Series(ScriptGroup<CommandGeneric>),
 }
 
 fn merge_status(status1: ExitStatus, status2: ExitStatus) -> ExitStatus {
@@ -109,8 +60,8 @@ fn merge_status(status1: ExitStatus, status2: ExitStatus) -> ExitStatus {
     return status1;
 }
 
-impl CommandGroup {
-    async fn run(&self, parser: &impl ScriptParser, args: VarArgs) -> Result<ExitStatus, ()> {
+impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
+    async fn run(&self, parser: &impl ScriptParser<CommandGeneric>, args: VarArgs) -> Result<ExitStatus, ()> {
         // TODO: Figure out what to do with args
         match self {
             Self::Parallel(group) => {
@@ -159,15 +110,15 @@ pub struct Alias {
  * TODO: Choose a better name
  */
 #[derive(Debug)]
-pub enum Script {
-    Command(Command),
-    Group(Box<CommandGroup>),
+pub enum Script<CommandGeneric : Command> {
+    Command(CommandGeneric),
+    Group(Box<CommandGroup<CommandGeneric>>),
     Alias(Alias),
 }
 
-impl Script {
+impl<CommandGeneric : Command> Script<CommandGeneric> {
     #[async_recursion(?Send)]
-    pub async fn run(&self, parser: &impl ScriptParser, args: VarArgs) -> Result<ExitStatus, ()> {
+    pub async fn run(&self, parser: &impl ScriptParser<CommandGeneric>, args: VarArgs) -> Result<ExitStatus, ()> {
         match self {
             Script::Command(cmd) => cmd.run(args).await,
             Script::Group(group) => group.run(parser, args).await,
@@ -188,6 +139,6 @@ impl Script {
     }
 }
 
-pub trait ScriptParser {
-    fn parse(&self, task: &str) -> Result<Rc<Script>, ()>;
+pub trait ScriptParser<CommandGeneric : Command> {
+    fn parse(&self, task: &str) -> Result<Rc<Script<CommandGeneric>>, ()>;
 }
