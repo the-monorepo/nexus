@@ -1,4 +1,4 @@
-import * as FailureTypes from './types.ts';
+import * as FailureTypes from '@resultful/failure-types';
 import {
   ResultTransformer,
   TransformTypedObject,
