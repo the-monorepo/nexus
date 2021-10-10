@@ -63,7 +63,7 @@ for (const jsonFilePath of packageJsonDirs) {
   } catch (err) {
     if (err.code !== 'ENOENT') {
       // eslint-disable-next-line no-console
-      console.error(err);
+      console.error(`Failed to read ${jsonFilePath}\n`, err);
     }
     continue;
   }
