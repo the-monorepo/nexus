@@ -1,13 +1,13 @@
-install-osx:brew: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-install-osx:node: |
+install-osx.brew: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+install-osx.node: |
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
     nvm install
     nvm use
     npm install --global yarn
     yarn install
-install-osx:deno: |
+install-osx.deno: |
     brew install deno
-install-osx:rust: |
+install-osx.rust: |
     brew install llvm
     ln -s /usr/local/opt/llvm/bin/lld-link ~/bin/link.exe
 
@@ -26,9 +26,9 @@ install-osx:rust: |
 
 install-osx:
   series:
-    - task: install-osx:brew
-    - task: install-osx:node
-    - task: install-osx:rust
+    - task: install-osx.brew
+    - task: install-osx.node
+    - task: install-osx.rust
     - task: create-ssl-certificate-osx
 
 # Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
@@ -51,60 +51,60 @@ recompile-scriptplan-debug: |
 
 
 node-base: yarn node --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
-run:buildplan:
+buildplan:
   task: node-base buildplan.ts
 
 deno-run: deno run --config ./tsconfig.deno.json
-run:buildplan:deno:
+buildplan.deno:
   task: deno-run --allow-read --allow-write --import-map=node.import-map.json ./buildplan.deno.ts
 
-format:javascript:
-  task: run:buildplan format
-# TODO: Should be a part of format:rust but errors out ATM
-format:rust:fix: cargo +nightly fix
-format:rust:fmt: cargo +nightly fmt
-format:rust:
+format.javascript:
+  task: buildplan format
+# TODO: Should be a part of format.rust but errors out ATM
+format.rust.fix: cargo +nightly fix
+format.rust.fmt: cargo +nightly fmt
+format.rust:
   series:
-   - task: format:rust:fix
-   - task: format:rust:fmt
+   - task: format.rust.fix
+   - task: format.rust.fmt
 format:
   description: Formats all your source code files
   parallel:
-    - task: format:rust
-    - task: format:javascript
+    - task: format.rust
+    - task: format.javascript
 
-format-staged:javascript:
-  task: run:buildplan format-staged
+format-staged.javascript:
+  task: buildplan format-staged
 format-staged:
   description: Corrects any automatically fixable linter warnings or errors. Note that this command will overwrite files without creating a backup.
   parallel:
-    - task: format-staged:javascript
-    - task: format:rust
+    - task: format-staged.javascript
+    - task: format.rust
 
 test:
-  task: run:buildplan test
+  task: buildplan test
 clean:
-  task: run:buildplan clean
+  task: buildplan clean
 transpile:
   description: Transpiles source code
-  task: run:buildplan transpile
+  task: buildplan transpile
 copy:
-  task: run:buildplan copy
-build:import-maps: yarn run node-import-map-generator
+  task: buildplan copy
+build.import-maps: yarn run node-import-map-generator
 build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
   series:
     - parallel:
       - task: transpile
       - task: copy
-  # - task: build:rust
+  # - task: build.rust
     - parallel:
-      - task: build:import-maps
+      - task: build.import-maps
       - task: writeme
-build:node:
-  task: run:buildplan build
+build.node:
+  task: buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
-build:rust:
+build.rust:
   script: cargo +nightly build
 build-all:
   description: Build literally everything including things that require bundling (slower)
@@ -113,23 +113,23 @@ build-all:
     - task: webpack
 watch:
   description: Like build but continuously watches for changes
-  task: run:buildplan watch
+  task: buildplan watch
 writeme:
   description: Generates README doco
-  task: run:buildplan writeme
+  task: buildplan writeme
 webpack:
-  task: run:buildplan webpack
+  task: buildplan webpack
 serve:
-  task: run:buildplan serve
-serve:my-resume:
+  task: buildplan serve
+serve.my-resume:
   task: serve --name='my-resume'
-serve:page-breaker:
+serve.page-breaker:
   task: serve --name='page-breaker'
-serve:genetic-sequence-analysis-app:
+serve.genetic-sequence-analysis-app:
   task: serve --name='genetic-sequence-analysis-app'
-serve:particle-sensor-app:
+serve.particle-sensor-app:
   task: serve --name='particle-sensor-app'
-serve:spot-welder-app:
+serve.spot-welder-app:
   task: serve --name='spot-welder-app'
 precommit:
   description: Run this before your commit to prevent trivial build errors (like linting/formatting) from failing your build
@@ -157,7 +157,7 @@ prepublish:
           - task: writeme
 check-types:
   description: Run TypeScript validation
-  task: run:buildplan check-types
+  task: buildplan check-types
 
 update-yarn: |
     yarn set version berry
