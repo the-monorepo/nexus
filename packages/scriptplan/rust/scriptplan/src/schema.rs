@@ -11,26 +11,6 @@ use async_recursion::async_recursion;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait Runnable<CommandGeneric : Command> {
-    async fn run(
-        &mut self,
-        runner: &mut impl ScriptParser<CommandGeneric>,
-        args: &VarArgs,
-    ) -> Result<ExitStatus, ()>;
-}
-
-#[async_trait(?Send)]
-pub trait TaskRunner {
-    async fn run_task(&mut self, task: &str, args: &VarArgs) -> Result<ExitStatus, ()>;
-}
-
-#[derive(Debug)]
-pub struct EnvVar {
-    key: String,
-    value: String, // TODO: Support expressions
-}
-
-#[async_trait]
 pub trait Command {
     async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()>;
 }
