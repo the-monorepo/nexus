@@ -4129,12 +4129,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/lifepo4-cell-charger@workspace:packages/patrick-shaw/rust/lifepo4-cell-charger":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/lifepo4-cell-charger@workspace:packages/patrick-shaw/rust/lifepo4-cell-charger"
-  languageName: unknown
-  linkType: soft
-
 "@pshaw/logger@workspace:packages/misc/javascript/logger":
   version: 0.0.0-use.local
   resolution: "@pshaw/logger@workspace:packages/misc/javascript/logger"
@@ -4239,12 +4233,6 @@ __metadata:
     core-js: ^3.10.1
     mobx: ^6.1.8
     unstyled: "workspace:packages/misc/javascript/unstyled"
-  languageName: unknown
-  linkType: soft
-
-"@pshaw/spot-welder-arduino@workspace:packages/patrick-shaw/rust/spot-welder-arduino":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/spot-welder-arduino@workspace:packages/patrick-shaw/rust/spot-welder-arduino"
   languageName: unknown
   linkType: soft
 
