@@ -8,7 +8,6 @@ use schema::ScriptParser;
 use std::collections::VecDeque;
 
 use std::convert::TryFrom;
-use std::convert::TryInto;
 use std::fs;
 
 use std::path::Path;
@@ -16,8 +15,6 @@ use std::path::Path;
 use yaml_rust::YamlLoader;
 
 use conch_runtime::ExitStatus;
-
-use schema::Runnable;
 
 use std::sync::Arc;
 
