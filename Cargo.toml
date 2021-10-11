@@ -5,8 +5,3 @@ members = [
     "./packages/scriptplan/rust/bash",
     "./packages/cinder/rust/core",
 ]
-
-exclude = [
-    "./packages/patrick-shaw/rust/spot-welder-arduino",
-    "./packages/patrick-shaw/rust/lifepo4-cell-charger",
-]
