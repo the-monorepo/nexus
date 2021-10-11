@@ -27,6 +27,9 @@ use scriptplan_core::ScriptParser;
 use scriptplan_core::VarArgs;
 use scriptplan_core::{Alias, CommandGroup, Script};
 
+pub extern crate scriptplan_core;
+pub extern crate yaml_rust;
+
 #[derive(Debug)]
 pub struct BashCommand {
     pub command_str: String,
