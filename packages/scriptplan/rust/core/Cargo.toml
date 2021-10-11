@@ -2,7 +2,7 @@
 name = "scriptplan-core"
 version = "1.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 conch-runtime = { git = "https://github.com/ipetkov/conch-runtime" }
