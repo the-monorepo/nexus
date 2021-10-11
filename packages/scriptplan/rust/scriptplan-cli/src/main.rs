@@ -1,9 +1,8 @@
-mod schema;
 mod yaml_parser;
 
 use clap::{App, SubCommand};
 
-use schema::ScriptParser;
+use scriptplan_core::ScriptParser;
 
 use std::collections::VecDeque;
 
