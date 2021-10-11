@@ -47,10 +47,6 @@
       "@pshaw/my-resume": "./packages/patrick-shaw/javascript/my-resume/esm/index.tsx",
       "@pshaw/page-breaker-chrome/": "./packages/misc/javascript/page-breaker-chrome/",
       "@pshaw/page-breaker-chrome": "./packages/misc/javascript/page-breaker-chrome/esm/index.tsx",
-      "@pshaw/particle-sensor-app/": "./packages/patrick-shaw/javascript/particle-sensor-app/",
-      "@pshaw/particle-sensor-app": "./packages/patrick-shaw/javascript/particle-sensor-app/esm/index.tsx",
-      "@pshaw/spot-welder-app/": "./packages/patrick-shaw/javascript/spot-welder-app/",
-      "@pshaw/spot-welder-app": "./packages/patrick-shaw/javascript/spot-welder-app/esm/index.tsx",
       "@pshaw/webpack": "./packages/patrick-shaw/javascript/webpack/esm/index.ts",
       "@storybook/addon-actions/": "./node_modules/@storybook/addon-actions/",
       "@storybook/addon-actions": "./node_modules/@storybook/addon-actions/dist/esm/index.js",
@@ -485,43 +481,6 @@
       "unstyled": "./packages/misc/javascript/unstyled/esm/index.ts",
       "xy-ui/": "./node_modules/xy-ui/",
       "xy-ui": "./node_modules/xy-ui/index.js"
-    },
-    "./packages/patrick-shaw/javascript/particle-sensor-app/": {
-      "@contextual-documents/html-elements/": "./packages/contextual-documents/javascript/html-elements/",
-      "@contextual-documents/html-elements": "./packages/contextual-documents/javascript/html-elements/esm/index.ts",
-      "@pshaw/contextual-documents": "./packages/patrick-shaw/javascript/contextual-documents/esm/index.ts",
-      "@pshaw/contextual-documents/register": "./packages/patrick-shaw/javascript/contextual-documents/esm/register.ts",
-      "@resultful/result": "./packages/resultful/javascript/result/src/index.ts",
-      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
-      "classnames/": "./node_modules/classnames/",
-      "classnames": "./node_modules/classnames/index.js",
-      "core-js/": "./node_modules/core-js/",
-      "core-js": "./node_modules/core-js/index.js",
-      "d3/": "./node_modules/d3/",
-      "d3": "./node_modules/d3/index.js",
-      "mobx/": "./packages/patrick-shaw/javascript/particle-sensor-app/node_modules/mobx/",
-      "mobx": "./packages/patrick-shaw/javascript/particle-sensor-app/node_modules/mobx/dist/mobx.esm.js",
-      "unstyled/": "./packages/misc/javascript/unstyled/",
-      "unstyled": "./packages/misc/javascript/unstyled/esm/index.ts"
-    },
-    "./packages/patrick-shaw/javascript/spot-welder-app/": {
-      "@contextual-documents/html-elements/": "./packages/contextual-documents/javascript/html-elements/",
-      "@contextual-documents/html-elements": "./packages/contextual-documents/javascript/html-elements/esm/index.ts",
-      "@pipelines/core-2": "./packages/pipelines/javascript/core-2/src/index.ts",
-      "@pshaw/contextual-documents": "./packages/patrick-shaw/javascript/contextual-documents/esm/index.ts",
-      "@pshaw/contextual-documents/register": "./packages/patrick-shaw/javascript/contextual-documents/esm/register.ts",
-      "@resultful/result": "./packages/resultful/javascript/result/src/index.ts",
-      "cinder": "./packages/cinder/javascript/cinder/src/index.ts",
-      "cinder/babel": "./packages/cinder/javascript/cinder/src/babel.ts",
-      "classnames/": "./node_modules/classnames/",
-      "classnames": "./node_modules/classnames/index.js",
-      "core-js/": "./node_modules/core-js/",
-      "core-js": "./node_modules/core-js/index.js",
-      "mobx/": "./node_modules/mobx/",
-      "mobx": "./node_modules/mobx/dist/mobx.esm.js",
-      "unstyled/": "./packages/misc/javascript/unstyled/",
-      "unstyled": "./packages/misc/javascript/unstyled/esm/index.ts"
     },
     "./packages/patrick-shaw/javascript/webpack/": {
       "@pshaw/monorepo-config/": "./packages/patrick-shaw/javascript/monorepo-config/",
@@ -2005,76 +1964,6 @@
       "@contextual-documents/html-symbols": "./packages/contextual-documents/javascript/html-symbols/esm/index.ts",
       "@pshaw/contextual-documents-scss/": "./packages/patrick-shaw/javascript/contextual-documents-scss/",
       "@pshaw/contextual-documents-scss": "./packages/patrick-shaw/javascript/contextual-documents-scss/src/index.scss"
-    },
-    "./packages/resultful/javascript/result/": {
-      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/src/index.ts"
-    },
-    "./node_modules/d3/": {
-      "d3-array/": "./node_modules/d3-array/",
-      "d3-array": "./node_modules/d3-array/src/index.js",
-      "d3-axis/": "./node_modules/d3-axis/",
-      "d3-axis": "./node_modules/d3-axis/src/index.js",
-      "d3-brush/": "./node_modules/d3-brush/",
-      "d3-brush": "./node_modules/d3-brush/src/index.js",
-      "d3-chord/": "./node_modules/d3-chord/",
-      "d3-chord": "./node_modules/d3-chord/src/index.js",
-      "d3-color/": "./node_modules/d3-color/",
-      "d3-color": "./node_modules/d3-color/src/index.js",
-      "d3-contour/": "./node_modules/d3-contour/",
-      "d3-contour": "./node_modules/d3-contour/src/index.js",
-      "d3-delaunay/": "./node_modules/d3-delaunay/",
-      "d3-delaunay": "./node_modules/d3-delaunay/src/index.js",
-      "d3-dispatch/": "./node_modules/d3-dispatch/",
-      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
-      "d3-drag/": "./node_modules/d3-drag/",
-      "d3-drag": "./node_modules/d3-drag/src/index.js",
-      "d3-dsv/": "./node_modules/d3-dsv/",
-      "d3-dsv": "./node_modules/d3-dsv/src/index.js",
-      "d3-ease/": "./node_modules/d3-ease/",
-      "d3-ease": "./node_modules/d3-ease/src/index.js",
-      "d3-fetch/": "./node_modules/d3-fetch/",
-      "d3-fetch": "./node_modules/d3-fetch/src/index.js",
-      "d3-force/": "./node_modules/d3-force/",
-      "d3-force": "./node_modules/d3-force/src/index.js",
-      "d3-format/": "./node_modules/d3-format/",
-      "d3-format": "./node_modules/d3-format/src/index.js",
-      "d3-geo/": "./node_modules/d3-geo/",
-      "d3-geo": "./node_modules/d3-geo/src/index.js",
-      "d3-hierarchy/": "./node_modules/d3-hierarchy/",
-      "d3-hierarchy": "./node_modules/d3-hierarchy/src/index.js",
-      "d3-interpolate/": "./node_modules/d3-interpolate/",
-      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
-      "d3-path/": "./node_modules/d3-path/",
-      "d3-path": "./node_modules/d3-path/src/index.js",
-      "d3-polygon/": "./node_modules/d3-polygon/",
-      "d3-polygon": "./node_modules/d3-polygon/src/index.js",
-      "d3-quadtree/": "./node_modules/d3-quadtree/",
-      "d3-quadtree": "./node_modules/d3-quadtree/src/index.js",
-      "d3-random/": "./node_modules/d3-random/",
-      "d3-random": "./node_modules/d3-random/src/index.js",
-      "d3-scale/": "./node_modules/d3-scale/",
-      "d3-scale": "./node_modules/d3-scale/src/index.js",
-      "d3-scale-chromatic/": "./node_modules/d3-scale-chromatic/",
-      "d3-scale-chromatic": "./node_modules/d3-scale-chromatic/src/index.js",
-      "d3-selection/": "./node_modules/d3-selection/",
-      "d3-selection": "./node_modules/d3-selection/src/index.js",
-      "d3-shape/": "./node_modules/d3-shape/",
-      "d3-shape": "./node_modules/d3-shape/src/index.js",
-      "d3-time/": "./node_modules/d3-time/",
-      "d3-time": "./node_modules/d3-time/src/index.js",
-      "d3-time-format/": "./node_modules/d3-time-format/",
-      "d3-time-format": "./node_modules/d3-time-format/src/index.js",
-      "d3-timer/": "./node_modules/d3-timer/",
-      "d3-timer": "./node_modules/d3-timer/src/index.js",
-      "d3-transition/": "./node_modules/d3-transition/",
-      "d3-transition": "./node_modules/d3-transition/src/index.js",
-      "d3-zoom/": "./node_modules/d3-zoom/",
-      "d3-zoom": "./node_modules/d3-zoom/src/index.js"
-    },
-    "./packages/pipelines/javascript/core-2/": {
-      "@resultful/result": "./packages/resultful/javascript/result/src/index.ts",
-      "web-streams-polyfill/": "./node_modules/web-streams-polyfill/",
-      "web-streams-polyfill": "./node_modules/web-streams-polyfill/dist/polyfill.mjs"
     },
     "./packages/patrick-shaw/javascript/webpack/node_modules/babel-loader/": {
       "find-cache-dir/": "./packages/patrick-shaw/javascript/webpack/node_modules/find-cache-dir/",
@@ -4444,6 +4333,68 @@
       "@sgratzl/science/": "./node_modules/@sgratzl/science/",
       "@sgratzl/science": "./node_modules/@sgratzl/science/build/science.mjs"
     },
+    "./node_modules/d3/": {
+      "d3-array/": "./node_modules/d3-array/",
+      "d3-array": "./node_modules/d3-array/src/index.js",
+      "d3-axis/": "./node_modules/d3-axis/",
+      "d3-axis": "./node_modules/d3-axis/src/index.js",
+      "d3-brush/": "./node_modules/d3-brush/",
+      "d3-brush": "./node_modules/d3-brush/src/index.js",
+      "d3-chord/": "./node_modules/d3-chord/",
+      "d3-chord": "./node_modules/d3-chord/src/index.js",
+      "d3-color/": "./node_modules/d3-color/",
+      "d3-color": "./node_modules/d3-color/src/index.js",
+      "d3-contour/": "./node_modules/d3-contour/",
+      "d3-contour": "./node_modules/d3-contour/src/index.js",
+      "d3-delaunay/": "./node_modules/d3-delaunay/",
+      "d3-delaunay": "./node_modules/d3-delaunay/src/index.js",
+      "d3-dispatch/": "./node_modules/d3-dispatch/",
+      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
+      "d3-drag/": "./node_modules/d3-drag/",
+      "d3-drag": "./node_modules/d3-drag/src/index.js",
+      "d3-dsv/": "./node_modules/d3-dsv/",
+      "d3-dsv": "./node_modules/d3-dsv/src/index.js",
+      "d3-ease/": "./node_modules/d3-ease/",
+      "d3-ease": "./node_modules/d3-ease/src/index.js",
+      "d3-fetch/": "./node_modules/d3-fetch/",
+      "d3-fetch": "./node_modules/d3-fetch/src/index.js",
+      "d3-force/": "./node_modules/d3-force/",
+      "d3-force": "./node_modules/d3-force/src/index.js",
+      "d3-format/": "./node_modules/d3-format/",
+      "d3-format": "./node_modules/d3-format/src/index.js",
+      "d3-geo/": "./node_modules/d3-geo/",
+      "d3-geo": "./node_modules/d3-geo/src/index.js",
+      "d3-hierarchy/": "./node_modules/d3-hierarchy/",
+      "d3-hierarchy": "./node_modules/d3-hierarchy/src/index.js",
+      "d3-interpolate/": "./node_modules/d3-interpolate/",
+      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
+      "d3-path/": "./node_modules/d3-path/",
+      "d3-path": "./node_modules/d3-path/src/index.js",
+      "d3-polygon/": "./node_modules/d3-polygon/",
+      "d3-polygon": "./node_modules/d3-polygon/src/index.js",
+      "d3-quadtree/": "./node_modules/d3-quadtree/",
+      "d3-quadtree": "./node_modules/d3-quadtree/src/index.js",
+      "d3-random/": "./node_modules/d3-random/",
+      "d3-random": "./node_modules/d3-random/src/index.js",
+      "d3-scale/": "./node_modules/d3-scale/",
+      "d3-scale": "./node_modules/d3-scale/src/index.js",
+      "d3-scale-chromatic/": "./node_modules/d3-scale-chromatic/",
+      "d3-scale-chromatic": "./node_modules/d3-scale-chromatic/src/index.js",
+      "d3-selection/": "./node_modules/d3-selection/",
+      "d3-selection": "./node_modules/d3-selection/src/index.js",
+      "d3-shape/": "./node_modules/d3-shape/",
+      "d3-shape": "./node_modules/d3-shape/src/index.js",
+      "d3-time/": "./node_modules/d3-time/",
+      "d3-time": "./node_modules/d3-time/src/index.js",
+      "d3-time-format/": "./node_modules/d3-time-format/",
+      "d3-time-format": "./node_modules/d3-time-format/src/index.js",
+      "d3-timer/": "./node_modules/d3-timer/",
+      "d3-timer": "./node_modules/d3-timer/src/index.js",
+      "d3-transition/": "./node_modules/d3-transition/",
+      "d3-transition": "./node_modules/d3-transition/src/index.js",
+      "d3-zoom/": "./node_modules/d3-zoom/",
+      "d3-zoom": "./node_modules/d3-zoom/src/index.js"
+    },
     "./packages/fl-benchmarker/javascript/viewer-cli/node_modules/yargs/": {
       "cliui/": "./packages/fl-benchmarker/javascript/viewer-cli/node_modules/cliui/",
       "cliui": "./packages/fl-benchmarker/javascript/viewer-cli/node_modules/cliui/index.js",
@@ -5022,122 +4973,6 @@
       "@contextual-documents/matcher-info": "./packages/contextual-documents/javascript/matcher-info/esm/index.ts",
       "tree-suffix-mapper/": "./packages/misc/javascript/tree-suffix-mapper/",
       "tree-suffix-mapper": "./packages/misc/javascript/tree-suffix-mapper/esm/index.ts"
-    },
-    "./node_modules/d3-array/": {
-      "internmap/": "./node_modules/internmap/",
-      "internmap": "./node_modules/internmap/src/index.js"
-    },
-    "./node_modules/d3-brush/": {
-      "d3-dispatch/": "./node_modules/d3-dispatch/",
-      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
-      "d3-drag/": "./node_modules/d3-drag/",
-      "d3-drag": "./node_modules/d3-drag/src/index.js",
-      "d3-interpolate/": "./node_modules/d3-interpolate/",
-      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
-      "d3-selection/": "./node_modules/d3-selection/",
-      "d3-selection": "./node_modules/d3-selection/src/index.js",
-      "d3-transition/": "./node_modules/d3-transition/",
-      "d3-transition": "./node_modules/d3-transition/src/index.js"
-    },
-    "./node_modules/d3-chord/": {
-      "d3-path/": "./node_modules/d3-path/",
-      "d3-path": "./node_modules/d3-path/src/index.js"
-    },
-    "./node_modules/d3-contour/": {
-      "d3-array/": "./node_modules/d3-array/",
-      "d3-array": "./node_modules/d3-array/src/index.js"
-    },
-    "./node_modules/d3-delaunay/": {
-      "delaunator/": "./node_modules/delaunator/",
-      "delaunator": "./node_modules/delaunator/index.js"
-    },
-    "./node_modules/d3-drag/": {
-      "d3-dispatch/": "./node_modules/d3-dispatch/",
-      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
-      "d3-selection/": "./node_modules/d3-selection/",
-      "d3-selection": "./node_modules/d3-selection/src/index.js"
-    },
-    "./node_modules/d3-dsv/": {
-      "commander/": "./node_modules/commander/",
-      "commander": "./node_modules/commander/index.js",
-      "iconv-lite/": "./node_modules/iconv-lite/",
-      "iconv-lite": "./node_modules/iconv-lite/lib/index.js",
-      "rw/": "./node_modules/rw/",
-      "rw": "./node_modules/rw/index.js"
-    },
-    "./node_modules/d3-fetch/": {
-      "d3-dsv/": "./node_modules/d3-dsv/",
-      "d3-dsv": "./node_modules/d3-dsv/src/index.js"
-    },
-    "./node_modules/d3-force/": {
-      "d3-dispatch/": "./node_modules/d3-dispatch/",
-      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
-      "d3-quadtree/": "./node_modules/d3-quadtree/",
-      "d3-quadtree": "./node_modules/d3-quadtree/src/index.js",
-      "d3-timer/": "./node_modules/d3-timer/",
-      "d3-timer": "./node_modules/d3-timer/src/index.js"
-    },
-    "./node_modules/d3-geo/": {
-      "d3-array/": "./node_modules/d3-array/",
-      "d3-array": "./node_modules/d3-array/src/index.js"
-    },
-    "./node_modules/d3-interpolate/": {
-      "d3-color/": "./node_modules/d3-color/",
-      "d3-color": "./node_modules/d3-color/src/index.js"
-    },
-    "./node_modules/d3-scale/": {
-      "d3-array/": "./node_modules/d3-array/",
-      "d3-array": "./node_modules/d3-array/src/index.js",
-      "d3-format/": "./node_modules/d3-format/",
-      "d3-format": "./node_modules/d3-format/src/index.js",
-      "d3-interpolate/": "./node_modules/d3-interpolate/",
-      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
-      "d3-time/": "./node_modules/d3-time/",
-      "d3-time": "./node_modules/d3-time/src/index.js",
-      "d3-time-format/": "./node_modules/d3-time-format/",
-      "d3-time-format": "./node_modules/d3-time-format/src/index.js"
-    },
-    "./node_modules/d3-scale-chromatic/": {
-      "d3-color/": "./node_modules/d3-color/",
-      "d3-color": "./node_modules/d3-color/src/index.js",
-      "d3-interpolate/": "./node_modules/d3-interpolate/",
-      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js"
-    },
-    "./node_modules/d3-shape/": {
-      "d3-path/": "./node_modules/d3-path/",
-      "d3-path": "./node_modules/d3-path/src/index.js"
-    },
-    "./node_modules/d3-time/": {
-      "d3-array/": "./node_modules/d3-array/",
-      "d3-array": "./node_modules/d3-array/src/index.js"
-    },
-    "./node_modules/d3-time-format/": {
-      "d3-time/": "./node_modules/d3-time/",
-      "d3-time": "./node_modules/d3-time/src/index.js"
-    },
-    "./node_modules/d3-transition/": {
-      "d3-color/": "./node_modules/d3-color/",
-      "d3-color": "./node_modules/d3-color/src/index.js",
-      "d3-dispatch/": "./node_modules/d3-dispatch/",
-      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
-      "d3-ease/": "./node_modules/d3-ease/",
-      "d3-ease": "./node_modules/d3-ease/src/index.js",
-      "d3-interpolate/": "./node_modules/d3-interpolate/",
-      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
-      "d3-timer/": "./node_modules/d3-timer/",
-      "d3-timer": "./node_modules/d3-timer/src/index.js"
-    },
-    "./node_modules/d3-zoom/": {
-      "d3-dispatch/": "./node_modules/d3-dispatch/",
-      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
-      "d3-drag/": "./node_modules/d3-drag/",
-      "d3-drag": "./node_modules/d3-drag/src/index.js",
-      "d3-interpolate/": "./node_modules/d3-interpolate/",
-      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
-      "d3-selection/": "./node_modules/d3-selection/",
-      "d3-selection": "./node_modules/d3-selection/src/index.js",
-      "d3-transition/": "./node_modules/d3-transition/",
-      "d3-transition": "./node_modules/d3-transition/src/index.js"
     },
     "./packages/patrick-shaw/javascript/webpack/node_modules/find-cache-dir/": {
       "commondir/": "./node_modules/commondir/",
@@ -8494,10 +8329,129 @@
     "./packages/resultful/javascript/failure/": {
       "@resultful/utility-types": "./packages/resultful/javascript/utility-types/src/index.ts"
     },
+    "./packages/resultful/javascript/result/": {
+      "@resultful/utility-types": "./packages/resultful/javascript/utility-types/src/index.ts"
+    },
     "./node_modules/chartjs-color/": {
       "color-convert/": "./node_modules/color-convert/",
       "chartjs-color-string/": "./node_modules/chartjs-color-string/",
       "chartjs-color-string": "./node_modules/chartjs-color-string/color-string.js"
+    },
+    "./node_modules/d3-array/": {
+      "internmap/": "./node_modules/internmap/",
+      "internmap": "./node_modules/internmap/src/index.js"
+    },
+    "./node_modules/d3-brush/": {
+      "d3-dispatch/": "./node_modules/d3-dispatch/",
+      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
+      "d3-drag/": "./node_modules/d3-drag/",
+      "d3-drag": "./node_modules/d3-drag/src/index.js",
+      "d3-interpolate/": "./node_modules/d3-interpolate/",
+      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
+      "d3-selection/": "./node_modules/d3-selection/",
+      "d3-selection": "./node_modules/d3-selection/src/index.js",
+      "d3-transition/": "./node_modules/d3-transition/",
+      "d3-transition": "./node_modules/d3-transition/src/index.js"
+    },
+    "./node_modules/d3-chord/": {
+      "d3-path/": "./node_modules/d3-path/",
+      "d3-path": "./node_modules/d3-path/src/index.js"
+    },
+    "./node_modules/d3-contour/": {
+      "d3-array/": "./node_modules/d3-array/",
+      "d3-array": "./node_modules/d3-array/src/index.js"
+    },
+    "./node_modules/d3-delaunay/": {
+      "delaunator/": "./node_modules/delaunator/",
+      "delaunator": "./node_modules/delaunator/index.js"
+    },
+    "./node_modules/d3-drag/": {
+      "d3-dispatch/": "./node_modules/d3-dispatch/",
+      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
+      "d3-selection/": "./node_modules/d3-selection/",
+      "d3-selection": "./node_modules/d3-selection/src/index.js"
+    },
+    "./node_modules/d3-dsv/": {
+      "commander/": "./node_modules/commander/",
+      "commander": "./node_modules/commander/index.js",
+      "iconv-lite/": "./node_modules/iconv-lite/",
+      "iconv-lite": "./node_modules/iconv-lite/lib/index.js",
+      "rw/": "./node_modules/rw/",
+      "rw": "./node_modules/rw/index.js"
+    },
+    "./node_modules/d3-fetch/": {
+      "d3-dsv/": "./node_modules/d3-dsv/",
+      "d3-dsv": "./node_modules/d3-dsv/src/index.js"
+    },
+    "./node_modules/d3-force/": {
+      "d3-dispatch/": "./node_modules/d3-dispatch/",
+      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
+      "d3-quadtree/": "./node_modules/d3-quadtree/",
+      "d3-quadtree": "./node_modules/d3-quadtree/src/index.js",
+      "d3-timer/": "./node_modules/d3-timer/",
+      "d3-timer": "./node_modules/d3-timer/src/index.js"
+    },
+    "./node_modules/d3-geo/": {
+      "d3-array/": "./node_modules/d3-array/",
+      "d3-array": "./node_modules/d3-array/src/index.js"
+    },
+    "./node_modules/d3-interpolate/": {
+      "d3-color/": "./node_modules/d3-color/",
+      "d3-color": "./node_modules/d3-color/src/index.js"
+    },
+    "./node_modules/d3-scale/": {
+      "d3-array/": "./node_modules/d3-array/",
+      "d3-array": "./node_modules/d3-array/src/index.js",
+      "d3-format/": "./node_modules/d3-format/",
+      "d3-format": "./node_modules/d3-format/src/index.js",
+      "d3-interpolate/": "./node_modules/d3-interpolate/",
+      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
+      "d3-time/": "./node_modules/d3-time/",
+      "d3-time": "./node_modules/d3-time/src/index.js",
+      "d3-time-format/": "./node_modules/d3-time-format/",
+      "d3-time-format": "./node_modules/d3-time-format/src/index.js"
+    },
+    "./node_modules/d3-scale-chromatic/": {
+      "d3-color/": "./node_modules/d3-color/",
+      "d3-color": "./node_modules/d3-color/src/index.js",
+      "d3-interpolate/": "./node_modules/d3-interpolate/",
+      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js"
+    },
+    "./node_modules/d3-shape/": {
+      "d3-path/": "./node_modules/d3-path/",
+      "d3-path": "./node_modules/d3-path/src/index.js"
+    },
+    "./node_modules/d3-time/": {
+      "d3-array/": "./node_modules/d3-array/",
+      "d3-array": "./node_modules/d3-array/src/index.js"
+    },
+    "./node_modules/d3-time-format/": {
+      "d3-time/": "./node_modules/d3-time/",
+      "d3-time": "./node_modules/d3-time/src/index.js"
+    },
+    "./node_modules/d3-transition/": {
+      "d3-color/": "./node_modules/d3-color/",
+      "d3-color": "./node_modules/d3-color/src/index.js",
+      "d3-dispatch/": "./node_modules/d3-dispatch/",
+      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
+      "d3-ease/": "./node_modules/d3-ease/",
+      "d3-ease": "./node_modules/d3-ease/src/index.js",
+      "d3-interpolate/": "./node_modules/d3-interpolate/",
+      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
+      "d3-timer/": "./node_modules/d3-timer/",
+      "d3-timer": "./node_modules/d3-timer/src/index.js"
+    },
+    "./node_modules/d3-zoom/": {
+      "d3-dispatch/": "./node_modules/d3-dispatch/",
+      "d3-dispatch": "./node_modules/d3-dispatch/src/index.js",
+      "d3-drag/": "./node_modules/d3-drag/",
+      "d3-drag": "./node_modules/d3-drag/src/index.js",
+      "d3-interpolate/": "./node_modules/d3-interpolate/",
+      "d3-interpolate": "./node_modules/d3-interpolate/src/index.js",
+      "d3-selection/": "./node_modules/d3-selection/",
+      "d3-selection": "./node_modules/d3-selection/src/index.js",
+      "d3-transition/": "./node_modules/d3-transition/",
+      "d3-transition": "./node_modules/d3-transition/src/index.js"
     },
     "./packages/fl-benchmarker/javascript/viewer-cli/node_modules/cliui/": {
       "string-width/": "./node_modules/string-width/",
