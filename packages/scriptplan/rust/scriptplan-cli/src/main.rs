@@ -1,17 +1,11 @@
-mod yaml_parser;
-
 use clap::{App, SubCommand};
-
-use scriptplan_core::ScriptParser;
 
 use std::collections::VecDeque;
 
-use std::convert::TryFrom;
 use std::fs;
 
 use std::path::Path;
 
-use yaml_rust::YamlLoader;
 
 use conch_runtime::ExitStatus;
 
@@ -19,7 +13,10 @@ use std::sync::Arc;
 
 use std::process::exit;
 
-use yaml_parser::YamlScriptParser;
+use std::convert::TryFrom;
+use scriptplan_bash::YamlScriptParser;
+use scriptplan_bash::yaml_rust::YamlLoader;
+use scriptplan_bash::scriptplan_core::ScriptParser;
 
 #[tokio::main]
 async fn main() {
