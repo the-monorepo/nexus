@@ -6,7 +6,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use std::convert::TryFrom;
-use std::convert::TryInto;
 use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -22,11 +21,11 @@ use conch_runtime::spawn::{sequence_slice, subshell};
 
 use async_trait::async_trait;
 
-use crate::schema::Command;
-use crate::schema::ScriptGroup;
-use crate::schema::ScriptParser;
-use crate::schema::VarArgs;
-use crate::schema::{Alias, CommandGroup, Script};
+use scriptplan_core::Command;
+use scriptplan_core::ScriptGroup;
+use scriptplan_core::ScriptParser;
+use scriptplan_core::VarArgs;
+use scriptplan_core::{Alias, CommandGroup, Script};
 
 #[derive(Debug)]
 pub struct BashCommand {
@@ -75,66 +74,55 @@ impl Command for BashCommand {
     }
 }
 
-impl Script<BashCommand> {
-    fn parse_command(command_str: &str) -> Script<BashCommand> {
-        Script::Command(command_str.into())
-    }
-
-    fn parse_alias(alias_str: &str) -> Script<BashCommand> {
-        let mut words: Vec<_> = split(alias_str).unwrap();
-        Script::Alias(Alias {
-            task: words.remove(0),
-            args: words.into_iter().map(|string| Arc::new(string)).collect(),
-        })
-    }
+fn parse_command(command_str: &str) -> Script<BashCommand> {
+    Script::Command(command_str.into())
 }
 
-impl TryFrom<&Yaml> for ScriptGroup<BashCommand> {
-  type Error = ();
-
-  fn try_from(yaml: &Yaml) -> Result<ScriptGroup<BashCommand>, Self::Error> {
-    let yaml_list = yaml.as_vec().ok_or(())?;
-
-    let mut scripts_iter = yaml_list.iter().map(|yaml| -> Result<Script<BashCommand>, ()> {
-      yaml.try_into()
-    });
-
-    let first = (scripts_iter.next().unwrap())?;
-
-    let scripts_result: Result<Vec<_>, _> = scripts_iter.collect();
-    let scripts = scripts_result?;
-
-    Ok(ScriptGroup {
-        bail: false,
-        first,
-        rest: scripts,
+fn parse_alias(alias_str: &str) -> Script<BashCommand> {
+    let mut words: Vec<_> = split(alias_str).unwrap();
+    Script::Alias(Alias {
+        task: words.remove(0),
+        args: words.into_iter().map(|string| Arc::new(string)).collect(),
     })
-  }
 }
 
-impl TryFrom<&Yaml> for Script<BashCommand> {
-    type Error = ();
+fn yaml_to_group(yaml: &Yaml) -> Result<ScriptGroup<BashCommand>, ()> {
+  let yaml_list = yaml.as_vec().ok_or(())?;
 
-    fn try_from(yaml: &Yaml) -> Result<Self, Self::Error> {
-      if let Some(command_str) = yaml.as_str() {
-        return Ok(Script::parse_command(command_str));
-      } else if let Some(hash) = yaml.as_hash() {
-          if let Some(task) = hash.get(&Yaml::from_str("task")) {
-              // TODO: Need a splitn
-              return Ok(Script::parse_alias(task.as_str().unwrap()));
-          } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
-              return Ok(Script::parse_command(command_str.as_str().unwrap()));
-          } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("series")) {
-              Ok(Script::Group(Box::new(CommandGroup::Series(serial_yaml.try_into()?))))
-          } else if let Some(parallel_yaml) = hash.get(&Yaml::from_str("parallel")) {
-              Ok(Script::Group(Box::new(CommandGroup::Parallel(parallel_yaml.try_into()?))))
-          } else {
-              panic!("should never happen");
-          }
+  let mut scripts_iter = yaml_list.iter().map(yaml_to_script);
+
+  let first = (scripts_iter.next().unwrap())?;
+
+  let scripts_result: Result<Vec<_>, _> = scripts_iter.collect();
+  let scripts = scripts_result?;
+
+  Ok(ScriptGroup {
+      bail: false,
+      first,
+      rest: scripts,
+  })
+}
+
+
+fn yaml_to_script(yaml: &Yaml) -> Result<Script<BashCommand>, ()> {
+  if let Some(command_str) = yaml.as_str() {
+    return Ok(parse_command(command_str));
+  } else if let Some(hash) = yaml.as_hash() {
+      if let Some(task) = hash.get(&Yaml::from_str("task")) {
+          // TODO: Need a splitn
+          return Ok(parse_alias(task.as_str().unwrap()));
+      } else if let Some(command_str) = hash.get(&Yaml::from_str("script")) {
+          return Ok(parse_command(command_str.as_str().unwrap()));
+      } else if let Some(serial_yaml) = hash.get(&Yaml::from_str("series")) {
+          Ok(Script::Group(Box::new(CommandGroup::Series(yaml_to_group(serial_yaml)?))))
+      } else if let Some(parallel_yaml) = hash.get(&Yaml::from_str("parallel")) {
+          Ok(Script::Group(Box::new(CommandGroup::Parallel(yaml_to_group(parallel_yaml)?))))
       } else {
           panic!("should never happen");
       }
-    }
+  } else {
+      panic!("should never happen");
+  }
 }
 
 enum YamlOrTask<'a> {
@@ -162,7 +150,7 @@ impl LazyTask<'_> {
             return Ok(script.clone());
           },
           &YamlOrTask::NotLoaded(ref yaml) => {
-            let script: Rc<Script<BashCommand>> = Rc::new((*yaml).try_into()?);
+            let script: Rc<Script<BashCommand>> = Rc::new(yaml_to_script(*yaml)?);
             let script_cell = script.clone();
 
             *yaml_or_task = YamlOrTask::Loaded(script);
