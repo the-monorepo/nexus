@@ -17,7 +17,7 @@ use conch_parser::lexer::Lexer;
 use conch_parser::parse::Parser;
 
 use scriptplan_core::conch_runtime_pshaw::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
-use scriptplan_core::conch_runtime_pshaw::spawn::{sequence_slice, subshell};
+use scriptplan_core::conch_runtime_pshaw::spawn::{sequence};
 
 use async_trait::async_trait;
 
@@ -67,9 +67,9 @@ impl Command for BashCommand {
 
         let cmds = parser.into_iter().map(|x| x.unwrap()).collect::<Vec<_>>();
 
-        let env_future_result = subshell(sequence_slice(&cmds), &mut env).await;
+        let env_future_result = sequence(&cmds, &mut env).await;
 
-        let status = env_future_result;
+        let status = env_future_result.unwrap().await;
 
         drop(env);
 
