@@ -1,4 +1,4 @@
-use conch_runtime::ExitStatus;
+use scriptplan_core::conch_runtime_pshaw::ExitStatus;
 use yaml_rust::yaml::Hash;
 use yaml_rust::Yaml;
 
@@ -16,8 +16,8 @@ use conch_parser::ast::builder::ArcBuilder;
 use conch_parser::lexer::Lexer;
 use conch_parser::parse::Parser;
 
-use conch_runtime::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
-use conch_runtime::spawn::{sequence_slice, subshell};
+use scriptplan_core::conch_runtime_pshaw::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
+use scriptplan_core::conch_runtime_pshaw::spawn::{sequence_slice, subshell};
 
 use async_trait::async_trait;
 

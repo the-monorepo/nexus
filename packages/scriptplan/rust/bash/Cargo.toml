@@ -2,13 +2,13 @@
 name = "scriptplan-bash"
 version = "1.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
-edition = "2021"
+edition = "2018"
 
 [dependencies]
 yaml-rust = "0.4.5"
-conch-parser = { version = "0.1" }
-conch-runtime = { git = "https://github.com/ipetkov/conch-runtime" }
-shellwords = { version = "1.1.0" }
-async-trait = { version = "0.1.50" }
-futures = { version = "0.3.15" }
+conch-parser = "0.1.1"
+shellwords = "1.1.0"
+async-trait = "0.1.50"
+futures = "0.1.14"
 scriptplan-core = { path="../core", version = "1.0.0" }
+tokio-core  = "0.1.4"

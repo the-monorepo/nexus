@@ -2,12 +2,10 @@
 name = "scriptplan-cli"
 version = "1.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
-edition = "2021"
+edition = "2018"
 
 [dependencies]
 clap = "2.33.3"
-conch-parser = { version = "0.1" }
-conch-runtime = { git = "https://github.com/ipetkov/conch-runtime" }
 tokio = { version = "0.2", features = ["fs", "io-util", "process", "macros"] }
 shellwords = { version = "1.1.0" }
 async-trait = { version = "0.1.50" }
