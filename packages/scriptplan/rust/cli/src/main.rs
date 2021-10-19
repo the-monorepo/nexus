@@ -7,7 +7,7 @@ use std::fs;
 use std::path::Path;
 
 
-use conch_runtime::ExitStatus;
+use scriptplan_bash::scriptplan_core::conch_runtime_pshaw::ExitStatus;
 
 use std::sync::Arc;
 

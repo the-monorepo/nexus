@@ -1,7 +1,6 @@
-use conch_runtime::ExitStatus;
+use conch_runtime_pshaw::ExitStatus;
 
 use std::collections::VecDeque;
-
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -9,6 +8,8 @@ use futures::future::join_all;
 
 use async_recursion::async_recursion;
 use async_trait::async_trait;
+
+pub extern crate conch_runtime_pshaw;
 
 #[async_trait]
 pub trait Command {
@@ -103,11 +104,7 @@ impl<CommandGeneric : Command> Script<CommandGeneric> {
             Script::Command(cmd) => cmd.run(args).await,
             Script::Group(group) => group.run(parser, args).await,
             Script::Alias(alias) => {
-                let mut joined_args: VecDeque<Arc<String>> = args.into_iter().collect();
-
-                for arg in alias.args.iter().rev() {
-                    joined_args.push_front(arg.clone())
-                }
+              let joined_args: VecDeque<Arc<String>> = alias.args.iter().into_iter().map(|arg| arg.clone()).chain(args.into_iter()).collect();
 
                 parser
                     .parse(alias.task.as_str())
