@@ -3,6 +3,8 @@ name = "scriptplan-bash"
 version = "1.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2018"
+license = "MIT"
+description = "Use Bash as your scriptplan command parser"
 
 [dependencies]
 yaml-rust = "0.4.5"
