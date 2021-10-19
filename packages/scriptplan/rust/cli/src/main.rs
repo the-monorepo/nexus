@@ -20,7 +20,7 @@ use scriptplan_bash::scriptplan_core::ScriptParser;
 
 #[tokio::main]
 async fn main() {
-    let path = Path::new("./.scripts.yaml");
+    let path = Path::new("./scripts.yaml");
     let s = fs::read_to_string(path).unwrap();
 
     let mut docs = YamlLoader::load_from_str(&s).unwrap();
