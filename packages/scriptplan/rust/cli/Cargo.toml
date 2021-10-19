@@ -3,6 +3,8 @@ name = "scriptplan-cli"
 version = "1.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2018"
+license = "MIT"
+description = "A script CLI builder"
 
 [dependencies]
 clap = "2.33.3"
