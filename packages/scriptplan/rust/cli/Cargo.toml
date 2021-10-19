@@ -1,6 +1,10 @@
+[[bin]]
+name = "scriptplan"
+path = "src/main.rs"
+
 [package]
 name = "scriptplan-cli"
-version = "2.0.0"
+version = "3.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2018"
 license = "MIT"
