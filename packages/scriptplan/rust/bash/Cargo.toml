@@ -10,5 +10,5 @@ conch-parser = "0.1.1"
 shellwords = "1.1.0"
 async-trait = "0.1.50"
 futures = "0.1.14"
-scriptplan-core = { path="../core", version = "1.0.0" }
+scriptplan-core = { path="../core", version = "1.0.1" }
 tokio-core  = "0.1.4"
