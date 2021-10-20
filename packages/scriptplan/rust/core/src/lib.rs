@@ -1,7 +1,10 @@
 use std::collections::VecDeque;
+use std::slice::Iter;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::process::ExitStatus;
+use std::iter::{Chain, Iterator, Once};
+use std::vec::IntoIter;
 
 use futures::future::join_all;
 
@@ -20,6 +23,13 @@ pub struct ScriptGroup<CommandGeneric : Command> {
     // Enforces that there's always at least 1 script
     pub first: Script<CommandGeneric>,
     pub rest: Vec<Script<CommandGeneric>>,
+}
+
+impl<CommandGeneric : Command> ScriptGroup<CommandGeneric> {
+  fn iter(&self) -> Chain<Once<&Script<CommandGeneric>>, Iter<Script<CommandGeneric>>> {
+    let test =  std::iter::once(&self.first).chain(self.rest.iter());
+    return test;
+  }
 }
 
 /**
@@ -43,15 +53,23 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
         // TODO: Figure out what to do with args
         match self {
             Self::Parallel(group) => {
-                let mut promises = Vec::<_>::new();
-                promises.push(group.first.run(parser, args.clone()));
-                for script in &group.rest {
-                    promises.push(script.run(parser, args.clone()));
-                }
-
                 if group.bail {
                   println!("Warning: Bail in parallel groups are currently not supported");
                 }
+
+                let mut promises = Vec::<_>::new();
+
+                let mut iterator = group.iter();
+                let mut i = iterator.next();
+                let mut next = iterator.next();
+
+                while next.is_some() {
+                  promises.push(i.unwrap().run(parser, VecDeque::new()));
+                  i = next;
+                  next = iterator.next();
+                }
+
+                promises.push(i.unwrap().run(parser, args));
 
                 let results = join_all(promises).await;
 
@@ -68,16 +86,26 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
                 return Ok(status.unwrap());
             }
             Self::Series(group) => {
-                let mut final_status = group.first.run(parser, args.clone()).await.unwrap();
-                for script in &group.rest {
-                    if !final_status.success() && group.bail {
-                        return Ok(final_status);
-                    }
-                    let status = script.run(parser, args.clone()).await.unwrap();
-                    final_status = merge_status(status, final_status);
+                let mut iterator = group.iter();
+                let mut i = iterator.next();
+                let mut next = iterator.next();
+
+                let mut final_exit_status: Option<ExitStatus> = Option::None;
+
+                while next.is_some() {
+                  let exit_status = i.unwrap().run(parser, VecDeque::new()).await.unwrap();
+                  if let Some(status) = final_exit_status {
+                    final_exit_status = Some(merge_status(exit_status, status));
+                  } else {
+                    final_exit_status = Some(exit_status);
+                  }
+                  i = next;
+                  next = iterator.next();
                 }
 
-                return Ok(final_status);
+                final_exit_status = Some(merge_status(final_exit_status.unwrap(), i.unwrap().run(parser, args).await.unwrap()));
+
+                return Ok(final_exit_status.unwrap());
             }
         }
     }
