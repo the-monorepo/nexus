@@ -50,6 +50,7 @@ impl Command for BashCommand {
     async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
       let mut arg = String::from("");
       for i in vars {
+        arg += " ";
         arg += (*i).as_str();
       }
 
