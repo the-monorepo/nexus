@@ -35,9 +35,9 @@ recompile-scriptplan-release: |
     cargo +nightly build --release --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
     cargo +nightly build --release --bins --target x86_64-apple-darwin --package scriptplan-cli
     #cargo +nightly build --release --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
-    mv ./target/x86_64-pc-windows-gnu/release/scriptplan-cli.exe ./scriptplan.exe
-    mv ./target/x86_64-apple-darwin/release/scriptplan-cli ./scriptplan
-    #mv ./target/x86_64-unknown-linux-gnu/release/scriptplan-cli ./scriptplan-linux-gnu
+    mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
+    mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
+    #mv ./target/x86_64-unknown-linux-gnu/release/scriptplan ./scriptplan-linux-gnu
 
 recompile-scriptplan-debug: |
     cargo +nightly build --bins --target x86_64-pc-windows-gnu --package scriptplan-cli

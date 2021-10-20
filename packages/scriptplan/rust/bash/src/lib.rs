@@ -1,4 +1,3 @@
-use scriptplan_core::conch_runtime_pshaw::ExitStatus;
 use yaml_rust::yaml::Hash;
 use yaml_rust::Yaml;
 
@@ -7,25 +6,24 @@ use std::collections::HashMap;
 
 use std::convert::TryFrom;
 use std::ops::Deref;
+use std::process::Stdio;
 use std::rc::Rc;
 use std::sync::Arc;
 
 use shellwords::split;
 
-use conch_parser::ast::builder::ArcBuilder;
-use conch_parser::lexer::Lexer;
-use conch_parser::parse::Parser;
-
-use scriptplan_core::conch_runtime_pshaw::env::{ArgsEnv, DefaultEnvArc, DefaultEnvConfigArc, SetArgumentsEnvironment};
-use scriptplan_core::conch_runtime_pshaw::spawn::{sequence};
-
 use async_trait::async_trait;
+
+use std::process::{ExitStatus};
 
 use scriptplan_core::Command;
 use scriptplan_core::ScriptGroup;
 use scriptplan_core::ScriptParser;
 use scriptplan_core::VarArgs;
 use scriptplan_core::{Alias, CommandGroup, Script};
+
+use tokio;
+use tokio::io::AsyncWriteExt;
 
 pub extern crate scriptplan_core;
 pub extern crate yaml_rust;
@@ -50,30 +48,24 @@ impl From<String> for BashCommand {
 #[async_trait]
 impl Command for BashCommand {
     async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
-        let command_str = self.command_str.trim_end().to_string() + " \"$@\"";
+      let mut arg = String::from("");
+      for i in vars {
+        arg += (*i).as_str();
+      }
 
-        let lex = Lexer::new(command_str.chars());
+      let mut process = tokio::process::Command::new("bash")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::inherit())
+        .spawn()
+        .unwrap();
 
-        let parser = Parser::with_builder(lex, ArcBuilder::new());
+      process.stdin.take().unwrap().write_all((self.command_str.to_string() + arg.as_str()).as_bytes()).await.unwrap();
 
-        let mut args = ArgsEnv::new();
-        args.set_args(Arc::new(vars));
+      let output = process.wait_with_output().await.unwrap();
 
-        let mut env = DefaultEnvArc::with_config(DefaultEnvConfigArc {
-            interactive: true,
-            args_env: args,
-            ..DefaultEnvConfigArc::new().unwrap()
-        });
+      let status = output.status;
 
-        let cmds = parser.into_iter().map(|x| x.unwrap()).collect::<Vec<_>>();
-
-        let env_future_result = sequence(&cmds, &mut env).await;
-
-        let status = env_future_result.unwrap().await;
-
-        drop(env);
-
-        return Ok(status);
+      return Ok(status);
     }
 }
 

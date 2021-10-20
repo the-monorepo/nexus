@@ -7,11 +7,9 @@ use std::fs;
 use std::path::Path;
 
 
-use scriptplan_bash::scriptplan_core::conch_runtime_pshaw::ExitStatus;
-
 use std::sync::Arc;
 
-use std::process::exit;
+use std::process::{exit, ExitStatus};
 
 use std::convert::TryFrom;
 use scriptplan_bash::YamlScriptParser;
@@ -64,11 +62,6 @@ async fn main() {
 }
 
 fn exit_with_status(status: ExitStatus) -> ! {
-    let status = match status {
-        ExitStatus::Code(n) => n,
-        ExitStatus::Signal(n) => n + 128,
-    };
-
     // Have our shell exit with the result of the last command
-    exit(status);
+    exit(status.code().unwrap());
 }

@@ -1,15 +1,12 @@
-use conch_runtime_pshaw::ExitStatus;
-
 use std::collections::VecDeque;
 use std::rc::Rc;
 use std::sync::Arc;
+use std::process::ExitStatus;
 
 use futures::future::join_all;
 
 use async_recursion::async_recursion;
 use async_trait::async_trait;
-
-pub extern crate conch_runtime_pshaw;
 
 #[async_trait]
 pub trait Command {
@@ -58,12 +55,17 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
 
                 let results = join_all(promises).await;
 
-                let mut status = ExitStatus::Code(0);
-                for exit_status in results {
-                    status = merge_status(status, exit_status.unwrap());
+                let mut status = Option::None;
+                for exit_status_result in results {
+                  let exit_status = exit_status_result.unwrap();
+                  if let Some(current_status) = status {
+                    status = Some(merge_status(current_status, exit_status));
+                  } else {
+                    status = Some(exit_status);
+                  }
                 }
 
-                return Ok(status);
+                return Ok(status.unwrap());
             }
             Self::Series(group) => {
                 let mut final_status = group.first.run(parser, args.clone()).await.unwrap();
