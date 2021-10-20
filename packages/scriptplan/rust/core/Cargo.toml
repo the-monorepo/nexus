@@ -1,13 +1,12 @@
 [package]
 name = "scriptplan-core"
-version = "1.0.1"
+version = "2.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2018"
 license = "MIT"
 description = "Core schema for creating programatic script plans"
 
 [dependencies]
-conch-runtime-pshaw = { version = "0.1.6" }
 async-trait = { version = "0.1.50" }
 async-recursion = { version = "0.3.2" }
 futures = { version = "0.3.15" }
