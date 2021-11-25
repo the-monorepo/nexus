@@ -117,78 +117,10 @@ const geneticSequenceAnalysisApp: Configuration = {
   },
 };
 
-const particleSensorAppDir = projectResolve(patrickShawDir, 'particle-sensor-app');
-const particleSensorApp: Configuration = {
-  name: 'particle-sensor-app',
-  target: 'web',
-  devtool: 'eval-source-map',
-  module: {
-    rules: recommendedWebcomponentRules,
-  },
-  entry: resolve(particleSensorAppDir, 'src/index.tsx'),
-  output: createDistOutput(particleSensorAppDir),
-  plugins: [
-    createHtmlWebpackPlugin({
-      title: `Particle Sensor App`,
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: resolve(particleSensorAppDir, 'src/manifest.json'),
-          to: resolve(particleSensorAppDir, 'dist/manifest.json'),
-        },
-        {
-          from: resolve(particleSensorAppDir, 'src/icon.png'),
-          to: resolve(particleSensorAppDir, 'dist/icon.png'),
-        },
-      ],
-    }),
-  ],
-  devServer: {
-    port: 3014,
-    compress: true,
-  },
-};
-
-const spotWelderSensorAppDir = projectResolve(patrickShawDir, 'spot-welder-app');
-const spotWelderApp: Configuration = {
-  name: 'spot-welder-app',
-  target: 'web',
-  devtool: 'eval-source-map',
-  module: {
-    rules: recommendedWebcomponentRules,
-  },
-  entry: resolve(spotWelderSensorAppDir, 'src/index.tsx'),
-  output: createDistOutput(spotWelderSensorAppDir),
-  plugins: [
-    createHtmlWebpackPlugin({
-      title: `Particle Sensor App`,
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: resolve(spotWelderSensorAppDir, 'src/manifest.json'),
-          to: resolve(spotWelderSensorAppDir, 'dist/manifest.json'),
-        },
-        {
-          from: resolve(spotWelderSensorAppDir, 'src/icon.png'),
-          to: resolve(spotWelderSensorAppDir, 'dist/icon.png'),
-        },
-      ],
-    }),
-  ],
-  devServer: {
-    port: 3015,
-    compress: true,
-  },
-};
-
 const configs: Configuration[] = [
   resumeConfig,
   pageBreakerFrontendConfig,
   geneticSequenceAnalysisApp,
-  particleSensorApp,
-  spotWelderApp,
 ];
 
 export default configs;
