@@ -125,10 +125,6 @@ serve.page-breaker:
   task: serve --name='page-breaker'
 serve.genetic-sequence-analysis-app:
   task: serve --name='genetic-sequence-analysis-app'
-serve.particle-sensor-app:
-  task: serve --name='particle-sensor-app'
-serve.spot-welder-app:
-  task: serve --name='spot-welder-app'
 precommit:
   description: Run this before your commit to prevent trivial build errors (like linting/formatting) from failing your build
   series:
