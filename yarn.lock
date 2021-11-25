@@ -2,7 +2,7 @@
 # Manual changes might be lost - proceed with caution!
 
 __metadata:
-  version: 4
+  version: 5
   cacheKey: 8
 
 "@apidevtools/json-schema-ref-parser@npm:^9.0.6":
@@ -156,7 +156,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:7.14.3, @babel/core@npm:>=7.9.0, @babel/core@npm:^7.1.6, @babel/core@npm:^7.12.10, @babel/core@npm:^7.7.5":
+"@babel/core@npm:>=7.9.0, @babel/core@npm:^7.1.6, @babel/core@npm:^7.12.10, @babel/core@npm:^7.7.5":
   version: 7.14.3
   resolution: "@babel/core@npm:7.14.3"
   dependencies:
@@ -179,7 +179,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:7.15.5, @babel/core@npm:^7.15.5":
+"@babel/core@npm:^7.15.5":
   version: 7.15.5
   resolution: "@babel/core@npm:7.15.5"
   dependencies:
@@ -4185,28 +4185,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/particle-sensor-app@workspace:packages/patrick-shaw/javascript/particle-sensor-app":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/particle-sensor-app@workspace:packages/patrick-shaw/javascript/particle-sensor-app"
-  dependencies:
-    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements"
-    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents"
-    "@resultful/result": "workspace:packages/resultful/javascript/result"
-    cinder: "workspace:packages/cinder/javascript/cinder"
-    classnames: ^2.2.6
-    core-js: ^3.10.1
-    d3: ^6.5.0
-    mobx: ^6.3.2
-    unstyled: "workspace:packages/misc/javascript/unstyled"
-  languageName: unknown
-  linkType: soft
-
-"@pshaw/particle-sensor-arduino@workspace:packages/patrick-shaw/javascript/particle-sensor-arduino":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/particle-sensor-arduino@workspace:packages/patrick-shaw/javascript/particle-sensor-arduino"
-  languageName: unknown
-  linkType: soft
-
 "@pshaw/resume-template@workspace:packages/misc/javascript/resume-template":
   version: 0.0.0-use.local
   resolution: "@pshaw/resume-template@workspace:packages/misc/javascript/resume-template"
@@ -4217,22 +4195,6 @@ __metadata:
     classnames: ^2.2.6
     date-fns: ^2.15.0
     mobx: ^5.15.6
-  languageName: unknown
-  linkType: soft
-
-"@pshaw/spot-welder-app@workspace:packages/patrick-shaw/javascript/spot-welder-app":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/spot-welder-app@workspace:packages/patrick-shaw/javascript/spot-welder-app"
-  dependencies:
-    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements"
-    "@pipelines/core-2": "workspace:packages/pipelines/javascript/core-2"
-    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents"
-    "@resultful/result": "workspace:packages/resultful/javascript/result"
-    cinder: "workspace:packages/cinder/javascript/cinder"
-    classnames: ^2.2.6
-    core-js: ^3.10.1
-    mobx: ^6.1.8
-    unstyled: "workspace:packages/misc/javascript/unstyled"
   languageName: unknown
   linkType: soft
 
@@ -9945,7 +9907,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3@npm:^6.1.0, d3@npm:^6.5.0":
+"d3@npm:^6.1.0":
   version: 6.7.0
   resolution: "d3@npm:6.7.0"
   dependencies:
@@ -12321,25 +12283,26 @@ fsevents@^1.2.7:
     bindings: ^1.5.0
     nan: ^2.12.1
   checksum: ae855aa737aaa2f9167e9f70417cf6e45a5cd11918e1fee9923709a0149be52416d765433b4aeff56c789b1152e718cd1b13ddec6043b78cdda68260d86383c1
+  conditions: os=darwin
   languageName: node
   linkType: hard
 
 "fsevents@patch:fsevents@^1.2.7#~builtin<compat/fsevents>":
   version: 1.2.13
-  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#~builtin<compat/fsevents>::version=1.2.13&hash=1cc4b2"
+  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#~builtin<compat/fsevents>::version=1.2.13&hash=18f3a7"
   dependencies:
     bindings: ^1.5.0
     nan: ^2.12.1
-  checksum: b264407498db2cfdcc2a05287334a4160c985a88e4a989e2f2f8dcc6afc8b04a4fcd82c797266442452e11c1fb07d7747d138b078fe4bb1f8f4fd2a6f2484d7e
+  conditions: os=darwin
   languageName: node
   linkType: hard
 
 "fsevents@patch:fsevents@~2.3.1#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=1cc4b2"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
   dependencies:
     node-gyp: latest
-  checksum: 78db9daf1f6526a49cefee3917cc988f62dc7f25b5dd80ad6de4ffc4af7f0cab7491ac737626ff53e482a111bc53aac9e411fe3602458eca36f6a003ecf69c16
+  conditions: os=darwin
   languageName: node
   linkType: hard
 
@@ -12349,6 +12312,7 @@ fsevents@~2.3.1:
   dependencies:
     node-gyp: latest
   checksum: 97ade64e75091afee5265e6956cb72ba34db7819b4c3e94c431d4be2b19b8bb7a2d4116da417950c3425f17c8fe693d25e20212cac583ac1521ad066b77ae31f
+  conditions: os=darwin
   languageName: node
   linkType: hard
 
@@ -16438,17 +16402,10 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"mobx@npm:^6.0.1, mobx@npm:^6.1.8":
+"mobx@npm:^6.0.1":
   version: 6.3.1
   resolution: "mobx@npm:6.3.1"
   checksum: d425eaaab2be4f8fa8362a7c083845ce83947f9a62930a1b91f3a7007864a6ba27e4107a9d761abb2bdde7ad66fa7815bfb76ea91c4533169d5508a1e68677f5
-  languageName: node
-  linkType: hard
-
-"mobx@npm:^6.3.2":
-  version: 6.3.2
-  resolution: "mobx@npm:6.3.2"
-  checksum: da853901ddd9bc5347f778b1aebfcbf5215d0cb0909fa17a9580dec2915b034b385e8cea6f2a85bd917078a29fcbb129c28be10e61db06c59bd3c94ace15f4a9
   languageName: node
   linkType: hard
 
@@ -16529,8 +16486,6 @@ fsevents@~2.3.1:
     "@pshaw/monorepo-config": "workspace:packages/patrick-shaw/javascript/monorepo-config"
     "@pshaw/my-resume": "workspace:packages/patrick-shaw/javascript/my-resume"
     "@pshaw/page-breaker-chrome": "workspace:packages/misc/javascript/page-breaker-chrome"
-    "@pshaw/particle-sensor-app": "workspace:packages/patrick-shaw/javascript/particle-sensor-app"
-    "@pshaw/spot-welder-app": "workspace:packages/patrick-shaw/javascript/spot-welder-app"
     "@pshaw/webpack": "workspace:packages/patrick-shaw/javascript/webpack"
     "@storybook/addon-actions": ^6.0.16
     "@storybook/addon-knobs": ^6.0.16
@@ -19657,21 +19612,21 @@ resolve@^2.0.0-next.3:
 
 "resolve@patch:resolve@^1.1.6#~builtin<compat/resolve>, resolve@patch:resolve@^1.1.7#~builtin<compat/resolve>, resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.12.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.19.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.20.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.3.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.4.0#~builtin<compat/resolve>":
   version: 1.20.0
-  resolution: "resolve@patch:resolve@npm%3A1.20.0#~builtin<compat/resolve>::version=1.20.0&hash=00b1ff"
+  resolution: "resolve@patch:resolve@npm%3A1.20.0#~builtin<compat/resolve>::version=1.20.0&hash=07638b"
   dependencies:
     is-core-module: ^2.2.0
     path-parse: ^1.0.6
-  checksum: bed00be983cd20a8af0e7840664f655c4b269786dbd9595c5f156cd9d8a0050e65cdbbbdafc30ee9b6245b230c78a2c8ab6447a52545b582f476c29adb188cc5
+  checksum: a0dd7d16a8e47af23afa9386df2dff10e3e0debb2c7299a42e581d9d9b04d7ad5d2c53f24f1e043f7b3c250cbdc71150063e53d0b6559683d37f790b7c8c3cd5
   languageName: node
   linkType: hard
 
 "resolve@patch:resolve@^2.0.0-next.3#~builtin<compat/resolve>":
   version: 2.0.0-next.3
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.3#~builtin<compat/resolve>::version=2.0.0-next.3&hash=00b1ff"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.3#~builtin<compat/resolve>::version=2.0.0-next.3&hash=07638b"
   dependencies:
     is-core-module: ^2.2.0
     path-parse: ^1.0.6
-  checksum: eb88c5e53843bc022215744307a5f5664446c0fdb8f43c33456dce98d5ee6b3162d0cd0a177bb6f1c3d5c8bf01391ac7ab2de0e936e35318725fb40ba7efdaf6
+  checksum: 21684b4d99a4877337cdbd5484311c811b3e8910edb5d868eec85c6e6550b0f570d911f9a384f9e176172d6713f2715bd0b0887fa512cb8c6aeece018de6a9f8
   languageName: node
   linkType: hard
 
@@ -21943,11 +21898,11 @@ typescript@^4.3.2:
 
 "typescript@patch:typescript@^4.3.2#~builtin<compat/typescript>":
   version: 4.3.2
-  resolution: "typescript@patch:typescript@npm%3A4.3.2#~builtin<compat/typescript>::version=4.3.2&hash=32657b"
+  resolution: "typescript@patch:typescript@npm%3A4.3.2#~builtin<compat/typescript>::version=4.3.2&hash=ddd1e8"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 36508db49715350e06cbe5d9f2dca238023c16bbb46cf0de756e51675db7da6fb341d5f2ba020d5c1972c3dcde5a488b7799b21c445c2c6b36d3b2ac0ced53dd
+  checksum: 7ede84257208120b3e6bf5b7f512c1d173f49264e34388f1deb4b9a9cf67439aad7008cc1a3480ab048523ecd4f1974a95fbab638f44216478a625c768954c2a
   languageName: node
   linkType: hard
 
