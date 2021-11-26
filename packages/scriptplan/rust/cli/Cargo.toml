@@ -6,7 +6,7 @@ path = "src/main.rs"
 name = "scriptplan-cli"
 version = "5.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 description = "A script CLI builder"
 
