@@ -2,7 +2,7 @@
 name = "scriptplan-bash"
 version = "3.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 description = "Use Bash as your scriptplan command parser"
 
