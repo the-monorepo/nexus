@@ -46,7 +46,14 @@ report.*.*.*.*.*.json
 
 flamegraph.html
 
-.yarn/install-state.gz
+# Yarn PnP with Zero installs. See https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 localhost.crt
 localhost.key
