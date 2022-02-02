@@ -510,18 +510,7 @@ export const renderOrReuseComponentResult = <C, V, N extends Node>(
   }
 };
 
-// TODO: Pretty hacked together. Fix.
-const keyValueObjectArrayToObject = (entries: Record<number, [string, any]>) => {
-  console.log({ entries })
-  const object: any = {};
-  for(const [key, value] of Object.values(entries)) {
-    object[key] = value;
-  }
 
-  console.log({object});
-
-  return object;
-};
 type DynamicElementBlueprintProps<T> = {
   value: T;
   properties: any;
@@ -559,7 +548,7 @@ const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Eleme
   return blueprint;
 }
 
-const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((v) => document.createElement(v), (v) => [keyValueObjectArrayToObject(v)], (element) => [spread(element)]);
+const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((v) => document.createElement(v), (v) => [v], (element) => [spread(element)]);
 const dynamicElementBlueprint = createDynamicElementBlueprint<{ new ()}>((v) => new v(), ({ children, ...other }) => [other, children], (element) => [spread(element), children(element, null)]);
 
 export const validateComponent = (component, properties) => {

@@ -26,9 +26,8 @@ const Typography = ({ children }: any) => <p>{children}</p>;
 
 const Link = (props) => <Typography {...props} />;
 
-export class ResumeLinkText extends DomElement {
-  private href;
-  render() {
+export const ResumeLinkText = ({ href, children }) => {
+
     return (
       <>
         <style>{`
@@ -45,20 +44,18 @@ export class ResumeLinkText extends DomElement {
           }
         `}</style>
         <span class="webLink">
-          <slot />
+          {children}
         </span>
         {/*
           People who print the resume can't click on the link, obviously,
           so have to show the link as text
         */}
         <span class="printLink">
-          {this.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
+          {href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
         </span>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-resume-link', ResumeLinkText);
 
 type ContactProps = {
   icon: {
@@ -68,8 +65,8 @@ type ContactProps = {
   href: string;
   [s: string]: any;
 };
-class Contact extends DomElement {
-  render() {
+const Contact = ({ href, icon, children }) => {
+
     const color = theme.palette.getContrastText(theme.palette.primary.main);
     return (
       <>
@@ -85,18 +82,16 @@ class Contact extends DomElement {
             margin-right: 0.5em;
           }
           `}</style>
-        <EntryLink class="contact" $href={this.href}>
-          <img {...this.icon} aria-hidden class="icon" />
-          <ResumeLinkText $href={this.href}>
-            <slot />
+        <EntryLink class="contact" href={href}>
+          <img {...icon} aria-hidden class="icon" />
+          <ResumeLinkText href={href}>
+            {children}
           </ResumeLinkText>
         </EntryLink>
       </>
     );
-  }
 }
 
-globalThis.customElements.define('x-contact', Contact);
 
 type HeaderProps = {
   otherClasses: any;
@@ -112,8 +107,8 @@ const pageGridRule = `
   grid-gap: 24px;
 }
 `;
-class Header extends DomElement {
-  render() {
+const Header = ({ data, children }) => {
+
     const color = theme.palette.getContrastText(theme.palette.primary.main);
     return (
       <>
@@ -141,8 +136,8 @@ class Header extends DomElement {
         </style>
         <header class="header pageGrid">
           <div class="headingContainer">
-            <Typography $variant="h3" class="heading">
-              <slot />
+            <Typography variant="h3" class="heading">
+              {children}
             </Typography>
           </div>
           <section>
@@ -152,32 +147,30 @@ class Header extends DomElement {
                 </Contact>
               */}
             <Contact
-              $icon={{ src: envelope }}
-              $href={`mailto:${this.data.details.email}`}
+              icon={{ src: envelope }}
+              href={`mailto:${data.details.email}`}
             >
               Email
             </Contact>
-            <Contact $icon={{ src: linkedin }} $href={this.data.details.linkedin}>
+            <Contact icon={{ src: linkedin }} href={data.details.linkedin}>
               LinkedIn
             </Contact>
-            <Contact $icon={{ src: github }} $href={this.data.details.github}>
+            <Contact icon={{ src: github }} href={data.details.github}>
               Github
             </Contact>
           </section>
         </header>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-header', Header);
 
 type TopicProps = {
   heading: any;
   otherClasses: any;
   [s: string]: any;
 };
-class Topic extends DomElement {
-  render() {
+const Topic = ({ heading, children }) => {
+
     return (
       <>
         <style>{`
@@ -187,27 +180,25 @@ class Topic extends DomElement {
           `}</style>
         <section>
           <Typography
-            $variant="subtitle2"
-            $color="primary"
-            $component="h1"
-            // $color="textSecondary"
+            variant="subtitle2"
+            color="primary"
+            component="h1"
+            // color="textSecondary"
             class="heading"
           >
-            {this.heading}
+            {heading}
           </Typography>
-          <slot />
+          {children}
         </section>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-topic', Topic);
 
 type EntryTopicProps = {
   [s: string]: any;
 };
-class EntryTopic extends DomElement {
-  render() {
+const EntryTopic = ({ heading, children }) => {
+
     // TODO: Get rid of the !important at some point :P
     return (
       <>
@@ -216,14 +207,12 @@ class EntryTopic extends DomElement {
               margin-bottom: 24px !important;
             }
           `}</style>
-        <Topic class="entryTopic" $heading={this.heading}>
-          <slot />
+        <Topic class="entryTopic" heading={heading}>
+          {children}
         </Topic>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-entry-topic', EntryTopic);
 
 type EntryProps = {
   leftHeading?: string;
@@ -236,9 +225,7 @@ type EntryProps = {
   dateFormat?: string;
 };
 
-class Entry extends DomElement {
-  render() {
-    const dateFormat = this.dateFormat ? this.dateFormat : 'MMM YYYY';
+const Entry = ({ dateFormat = 'MMM yyyy', leftHeading, rightHeading, startDate, endDate, subtext, description, keyPoints, children }) => {
     return (
       <>
         <style>{`
@@ -253,38 +240,36 @@ class Entry extends DomElement {
                 }
           `}</style>
         <section>
-          {this.leftHeading ? (
-            <EntryHeading $component="h1" class="entryHeading leftHeading">
-              {this.leftHeading} /&nbsp;
+          {leftHeading ? (
+            <EntryHeading component="h1" class="entryHeading leftHeading">
+              {leftHeading} /&nbsp;
             </EntryHeading>
           ) : null}
-          <EntryHeading $component="h2" class="entryHeading">
-            {this.rightHeading}
+          <EntryHeading component="h2" class="entryHeading">
+            {rightHeading}
           </EntryHeading>
           {/*TODO: Subtext won't appear if no date*/}
-          {this.startDate || this.endDate ? (
-            <EntryText $component="p" $variant="caption" class="subtext">
+          {startDate || endDate ? (
+            <EntryText component="p" variant="caption" class="subtext">
               <DateRange
-                $start={this.startDate}
-                $end={this.endDate}
-                $format={dateFormat}
+                start={startDate}
+                end={endDate}
+                format={dateFormat}
               />
-              {this.subtext ? `, ${this.subtext}` : null}
+              {subtext ? `, ${subtext}` : null}
             </EntryText>
           ) : null}
-          <slot />
-          {this.description ? (
-            <EntryText $component="p" $color="textSecondary">
-              {this.description.replace(/\.?\s*$/, '.')}
+          {children}
+          {description ? (
+            <EntryText component="p" color="textSecondary">
+              {description.replace(/\.?\s*$/, '.')}
             </EntryText>
           ) : null}
-          <KeyPoints $component="p" $color="textSecondary" $keyPoints={this.keyPoints} />
+          <KeyPoints component="p" color="textSecondary" keyPoints={keyPoints} />
         </section>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-entry', Entry);
 
 type Grade = {
   gpa: number;
@@ -296,95 +281,79 @@ type Education = {
   grade: Grade;
 };
 type EducationEntryProps = { [s: string]: any } & Education;
-class EducationEntry extends DomElement {
-  render() {
+const EducationEntry = ({ school, course, grade, ...props }: EducationEntryProps) => {
+
     return (
       <Entry
-        $leftHeading={this.school}
-        $rightHeading={this.course}
-        $subtext={`GPA: ${this.grade.gpa}, WAM: ${this.grade.wam}`}
-        {...this.props}
+        leftHeading={school}
+        rightHeading={course}
+        subtext={`GPA: ${grade.gpa}, WAM: ${grade.wam}`}
+        {...props}
       />
     );
-  }
 }
-globalThis.customElements.define('x-education', EducationEntry);
 
 type DateRangeProps = {
   start?: Date;
   end?: Date;
   format?: string;
 };
-class DateRange extends DomElement {
-  render() {
+const DateRange = ({ start, format, end }) => {
+
     return (
       <>
-        {formatDate(this.start, this.format, { awareOfUnicodeTokens: true })}
-        {this.end !== undefined ? (
+        {formatDate(start, format, { awareOfUnicodeTokens: true })}
+        {end !== undefined ? (
           <>
             {' '}
             <span aria-label="to">-</span>{' '}
-            {this.end === null
+            {end === null
               ? 'Current'
-              : formatDate(this.end, this.format, {
+              : formatDate(end, format, {
                   awareOfUnicodeTokens: true,
                 })}
           </>
         ) : null}
       </>
     );
-  }
 }
-globalThis.customElements.define('x-date-range', DateRange);
 
 type EntryHeadingProps = {
   [s: string]: any;
 };
-class EntryHeading extends DomElement {
-  render() {
+const EntryHeading = (props) => {
+
     return (
-      <Typography $variant="subtitle1" $component="h1" {...this.props}>
-        <slot />
-      </Typography>
+      <Typography variant="subtitle1" component="h1" {...props}/>
     );
-  }
 }
-globalThis.customElements.define('x-entry-heading', EntryHeading);
 
 type EntryLinkProps = {
   [s: string]: any;
 };
-class EntryLink extends DomElement {
-  render() {
+const EntryLink = (props) => {
+
     return (
-      <Link $variant="caption" $color="secondary" {...this.props}>
-        <slot />
-      </Link>
+      <Link variant="caption" color="secondary" {...props}/>
     );
-  }
 }
 
-globalThis.customElements.define('x-entry-link', EntryLink);
 
 type EntryTextProps = {
   [s: string]: any;
 };
-class EntryText extends DomElement {
-  render() {
+const EntryText = (props) => {
+
     return (
-      <Typography $variant="caption" $color="textSecondary" {...this.props}>
-        <slot />
-      </Typography>
+      <Typography variant="caption" color="textSecondary" {...props}/>
     );
-  }
 }
-globalThis.customElements.define('x-entry-text', EntryText);
 
 type ListLabelProps = {
   [s: string]: any;
 };
-class ListLabel extends DomElement {
-  render() {
+const ListLabel = (props) => {
+
     return (
       <>
         <style>{`
@@ -392,18 +361,13 @@ class ListLabel extends DomElement {
               font-weight: ${theme.typography.fontWeightMedium};
             }
           `}</style>
-        <EntryText class="label" $color="textPrimary" {...this.props}>
-          <slot />
-        </EntryText>
+        <EntryText class="label" color="textPrimary" {...props}/>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-list-label', ListLabel);
 
-class LabeledList extends DomElement {
-  private items;
-  render() {
+const LabeledList = ({ items }) => {
+
     return (
       <>
         <style>
@@ -414,12 +378,12 @@ class LabeledList extends DomElement {
           `}
         </style>
         <div class="list">
-          {this.items.map(({ label, items }) => (
+          {items.map(({ label, items }) => (
             <p>
-              <ListLabel $component="span" style={`display: 'inline'`} $paragraph={false}>
+              <ListLabel component="span" style={`display: 'inline'`} paragraph={false}>
                 {label}:
               </ListLabel>{' '}
-              <EntryText $component="span" style={`display: 'inline'`} $paragraph={false}>
+              <EntryText component="span" style={`display: 'inline'`} paragraph={false}>
                 {skillsSentence(items)}
               </EntryText>
             </p>
@@ -427,50 +391,42 @@ class LabeledList extends DomElement {
         </div>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-labeled-list', LabeledList);
 
 type KeyPointItemProps = {
   [s: string]: any;
 };
-class KeyPoint extends DomElement {
-  render() {
+const KeyPoint = (props) => {
+
     return (
-      <EntryText $component="span" {...this.props}>
-        <slot />
-      </EntryText>
+      <EntryText component="span" {...props} />
     );
-  }
 }
-globalThis.customElements.define('x-key-point', KeyPoint);
 type KeyPointsProps = {
   keyPoints?: KeyPoint[];
   [s: string]: any;
 };
-class KeyPoints extends DomElement {
-  render() {
+const KeyPoints = ({ keyPoints, ...props }) => {
+
     return (
       <>
-        {this.keyPoints && this.keyPoints.length > 0 ? (
+        {keyPoints && keyPoints.length > 0 ? (
           <>
-            {this.keyPoints.slice(0, -1).map((keyPoint, index) => (
-              <KeyPoint {...this.props} $key={index}>
+            {keyPoints.slice(0, -1).map((keyPoint, index) => (
+              <KeyPoint {...props} key={index}>
                 {keyPoint}
               </KeyPoint>
             ))}
             {
-              <KeyPoint {...this.props} gutterBottom>
-                {this.keyPoints[this.keyPoints.length - 1]}
+              <KeyPoint {...props} gutterBottom>
+                {keyPoints[keyPoints.length - 1]}
               </KeyPoint>
             }
           </>
         ) : null}
       </>
     );
-  }
 }
-globalThis.customElements.define('x-key-points', KeyPoints);
 type Experience = {
   company: string;
   job: string;
@@ -479,21 +435,17 @@ type Experience = {
 type ExperienceEntryProps = {
   [s: string]: any;
 } & Experience;
-class ExperienceEntry extends DomElement {
-  render() {
+const ExperienceEntry = ({ company, job, ...props}) => {
+
     return (
       <Entry
-        $leftHeading={this.company}
-        $rightHeading={this.job}
-        $subtext={this.location}
-        {...this.props}
-      >
-        <slot />
-      </Entry>
+        leftHeading={company}
+        rightHeading={job}
+        subtext={location}
+        {...props}
+      />
     );
-  }
 }
-globalThis.customElements.define('x-experience', ExperienceEntry);
 
 type Volunteering = {
   organization: string;
@@ -503,7 +455,7 @@ type VolunteeringEntryProps = {
   [s: string]: any;
 } & Volunteering;
 const VolunteeringExperience = ({ organization, role, ...other }) => (
-  <Entry $leftHeading={organization} $rightHeading={role} {...other} />
+  <Entry leftHeading={organization} rightHeading={role} {...other} />
 );
 const listSentence = (items) =>
   [items.slice(0, -1).join(', '), items.slice(-1)[0]].join(
@@ -523,19 +475,17 @@ type Project = {
 type ProjectEntryProps = {
   [s: string]: any;
 } & Project;
-class ProjectEntry extends DomElement {
-  render() {
+const ProjectEntry = ({ name, ...props}) => {
+
     return (
       <Entry
-        $rightHeading={this.name}
-        {...this.props}
-        $startDate={undefined}
-        $endDate={undefined}
+        rightHeading={name}
+        {...props}
+        startDate={undefined}
+        endDate={undefined}
       />
     );
-  }
 }
-globalThis.customElements.define('x-project', ProjectEntry);
 
 type Hackathon = {
   hack?: string;
@@ -546,8 +496,8 @@ type Hackathon = {
 type HackathonEntryProps = {
   [s: string]: any;
 } & Hackathon;
-class HackathonEntry extends DomElement {
-  render() {
+const HackathonEntry = ({ event, hack, prize, }) => {
+
     return (
       <>
         <style>{`
@@ -556,39 +506,31 @@ class HackathonEntry extends DomElement {
           }
         `}</style>
         <Entry
-          {...this.props}
-          $leftHeading={this.event}
-          $rightHeading={this.hack}
-          $startDate={undefined}
-          $endDate={undefined}
+          leftHeading={event}
+          rightHeading={hack}
+          startDate={undefined}
+          endDate={undefined}
         >
-          <Typography $component="p" $variant="caption" class="prize">
-            <em>{this.prize}</em>
+          <Typography component="p" variant="caption" class="prize">
+            <em>{prize}</em>
           </Typography>
         </Entry>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-hackathon', HackathonEntry);
 
 type EntryData = any;
 type EntryMapperProps = {
   data: EntryData;
   [s: string]: any;
 };
-class EntryMapper extends DomElement {
-  render() {
-    console.log({ bleh: this.data });
+const EntryMapper = ({ data, Component }) => {
 
-    return this.data.map((item) => (
-      <this.Component
-        {...Object.entries(item).map(([key, value]) => [`$${key}`, value])}
+    return data.map((item) => (
+      <Component {...item}
       />
     ));
-  }
 }
-globalThis.customElements.define('x-entry-mapper', EntryMapper);
 
 type ResumeData = any;
 type PageProps = {
@@ -596,8 +538,8 @@ type PageProps = {
   [s: string]: any;
 };
 
-class Resume extends DomElement {
-  render() {
+const Resume = ({ data }) => {
+
     return (
       <>
         <style>{`
@@ -632,33 +574,31 @@ class Resume extends DomElement {
           }
           `}</style>
         <div class="pageGrid">
-          <Header class="header" $data={this.data}>
-            {this.data.details.name}
+          <Header class="header" data={data}>
+            {data.details.name}
           </Header>
           <main class="main">
-            <EntryTopic $heading="Experience">
-              <EntryMapper $Component={'x-experience'} $data={this.data.work} />
+            <EntryTopic heading="Experience">
+              <EntryMapper Component={ExperienceEntry} data={data.work} />
             </EntryTopic>
-            <EntryTopic $heading="Projects">
-              <EntryMapper $Component={'x-project'} $data={this.data.projects} />
+            <EntryTopic heading="Projects">
+              <EntryMapper Component={ProjectEntry} data={data.projects} />
             </EntryTopic>
           </main>
           <aside class="aside">
-            <EntryTopic $heading="Education">
-              <EntryMapper $Component={'x-education'} $data={this.data.education} />
+            <EntryTopic heading="Education">
+              <EntryMapper Component={EducationEntry} data={data.education} />
             </EntryTopic>
-            <EntryTopic $heading="Hackathons">
-              <EntryMapper $Component="x-hackathon" $data={this.data.hackathons} />
+            <EntryTopic heading="Hackathons">
+              <EntryMapper Component={HackathonEntry}data={data.hackathons} />
             </EntryTopic>
-            <EntryTopic $heading="Technical skills">
-              <LabeledList $items={this.data.technicalSkills} />
+            <EntryTopic heading="Technical skills">
+              <LabeledList items={data.technicalSkills} />
             </EntryTopic>
           </aside>
         </div>
       </>
     );
-  }
 }
-globalThis.customElements.define('x-resume', Resume);
 
 export default Resume;
