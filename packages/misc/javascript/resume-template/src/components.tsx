@@ -6,7 +6,7 @@ import envelope from './envelope.svg';
 import github from './github.svg';
 import linkedin from './linkedin.svg';
 import * as cinder from 'cinder';
-import { MobxElement } from 'cinder';
+import { DomElement } from 'cinder';
 
 const theme = {
   typography: {
@@ -26,7 +26,7 @@ const Typography = ({ children }: any) => <p>{children}</p>;
 
 const Link = (props) => <Typography {...props} />;
 
-export class ResumeLinkText extends MobxElement {
+export class ResumeLinkText extends DomElement {
   private href;
   render() {
     return (
@@ -52,7 +52,7 @@ export class ResumeLinkText extends MobxElement {
           so have to show the link as text
         */}
         <span class="printLink">
-          {this.props.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
+          {this.href.replace(/(https?:\/\/(www\.)?|mailto:)/, '')}
         </span>
       </>
     );
@@ -68,7 +68,7 @@ type ContactProps = {
   href: string;
   [s: string]: any;
 };
-class Contact extends MobxElement {
+class Contact extends DomElement {
   render() {
     const color = theme.palette.getContrastText(theme.palette.primary.main);
     return (
@@ -85,9 +85,9 @@ class Contact extends MobxElement {
             margin-right: 0.5em;
           }
           `}</style>
-        <EntryLink class="contact" href={this.props.href}>
-          <img {...this.props.icon} aria-hidden class="icon" />
-          <ResumeLinkText href={this.props.href}>
+        <EntryLink class="contact" $href={this.href}>
+          <img {...this.icon} aria-hidden class="icon" />
+          <ResumeLinkText $href={this.href}>
             <slot />
           </ResumeLinkText>
         </EntryLink>
@@ -112,7 +112,7 @@ const pageGridRule = `
   grid-gap: 24px;
 }
 `;
-class Header extends MobxElement {
+class Header extends DomElement {
   render() {
     const color = theme.palette.getContrastText(theme.palette.primary.main);
     return (
@@ -141,7 +141,7 @@ class Header extends MobxElement {
         </style>
         <header class="header pageGrid">
           <div class="headingContainer">
-            <Typography variant="h3" class="heading">
+            <Typography $variant="h3" class="heading">
               <slot />
             </Typography>
           </div>
@@ -152,15 +152,15 @@ class Header extends MobxElement {
                 </Contact>
               */}
             <Contact
-              icon={{ src: envelope }}
-              href={`mailto:${this.props.data.details.email}`}
+              $icon={{ src: envelope }}
+              $href={`mailto:${this.data.details.email}`}
             >
               Email
             </Contact>
-            <Contact icon={{ src: linkedin }} href={this.props.data.details.linkedin}>
+            <Contact $icon={{ src: linkedin }} $href={this.data.details.linkedin}>
               LinkedIn
             </Contact>
-            <Contact icon={{ src: github }} href={this.props.data.details.github}>
+            <Contact $icon={{ src: github }} $href={this.data.details.github}>
               Github
             </Contact>
           </section>
@@ -176,7 +176,7 @@ type TopicProps = {
   otherClasses: any;
   [s: string]: any;
 };
-class Topic extends MobxElement {
+class Topic extends DomElement {
   render() {
     return (
       <>
@@ -187,13 +187,13 @@ class Topic extends MobxElement {
           `}</style>
         <section>
           <Typography
-            variant="subtitle2"
-            color="primary"
-            component="h1"
-            // color="textSecondary"
+            $variant="subtitle2"
+            $color="primary"
+            $component="h1"
+            // $color="textSecondary"
             class="heading"
           >
-            {this.props.heading}
+            {this.heading}
           </Typography>
           <slot />
         </section>
@@ -206,7 +206,7 @@ globalThis.customElements.define('x-topic', Topic);
 type EntryTopicProps = {
   [s: string]: any;
 };
-class EntryTopic extends MobxElement {
+class EntryTopic extends DomElement {
   render() {
     // TODO: Get rid of the !important at some point :P
     return (
@@ -216,7 +216,7 @@ class EntryTopic extends MobxElement {
               margin-bottom: 24px !important;
             }
           `}</style>
-        <Topic class="entryTopic" heading={this.props.heading}>
+        <Topic class="entryTopic" $heading={this.heading}>
           <slot />
         </Topic>
       </>
@@ -236,9 +236,9 @@ type EntryProps = {
   dateFormat?: string;
 };
 
-class Entry extends MobxElement {
+class Entry extends DomElement {
   render() {
-    const dateFormat = this.props.dateFormat ? this.props.dateFormat : 'MMM YYYY';
+    const dateFormat = this.dateFormat ? this.dateFormat : 'MMM YYYY';
     return (
       <>
         <style>{`
@@ -253,36 +253,32 @@ class Entry extends MobxElement {
                 }
           `}</style>
         <section>
-          {this.props.leftHeading ? (
-            <EntryHeading component="h1" class="entryHeading leftHeading">
-              {this.props.leftHeading} /&nbsp;
+          {this.leftHeading ? (
+            <EntryHeading $component="h1" class="entryHeading leftHeading">
+              {this.leftHeading} /&nbsp;
             </EntryHeading>
           ) : null}
-          <EntryHeading component="h2" class="entryHeading">
-            {this.props.rightHeading}
+          <EntryHeading $component="h2" class="entryHeading">
+            {this.rightHeading}
           </EntryHeading>
           {/*TODO: Subtext won't appear if no date*/}
-          {this.props.startDate || this.props.endDate ? (
-            <EntryText component="p" variant="caption" class="subtext">
+          {this.startDate || this.endDate ? (
+            <EntryText $component="p" $variant="caption" class="subtext">
               <DateRange
-                start={this.props.startDate}
-                end={this.props.endDate}
-                format={dateFormat}
+                $start={this.startDate}
+                $end={this.endDate}
+                $format={dateFormat}
               />
-              {this.props.subtext ? `, ${this.props.subtext}` : null}
+              {this.subtext ? `, ${this.subtext}` : null}
             </EntryText>
           ) : null}
           <slot />
-          {this.props.description ? (
-            <EntryText component="p" color="textSecondary">
-              {this.props.description.replace(/\.?\s*$/, '.')}
+          {this.description ? (
+            <EntryText $component="p" $color="textSecondary">
+              {this.description.replace(/\.?\s*$/, '.')}
             </EntryText>
           ) : null}
-          <KeyPoints
-            component="p"
-            color="textSecondary"
-            keyPoints={this.props.keyPoints}
-          />
+          <KeyPoints $component="p" $color="textSecondary" $keyPoints={this.keyPoints} />
         </section>
       </>
     );
@@ -300,13 +296,13 @@ type Education = {
   grade: Grade;
 };
 type EducationEntryProps = { [s: string]: any } & Education;
-class EducationEntry extends MobxElement {
+class EducationEntry extends DomElement {
   render() {
     return (
       <Entry
-        leftHeading={this.props.school}
-        rightHeading={this.props.course}
-        subtext={`GPA: ${this.props.grade.gpa}, WAM: ${this.props.grade.wam}`}
+        $leftHeading={this.school}
+        $rightHeading={this.course}
+        $subtext={`GPA: ${this.grade.gpa}, WAM: ${this.grade.wam}`}
         {...this.props}
       />
     );
@@ -319,18 +315,18 @@ type DateRangeProps = {
   end?: Date;
   format?: string;
 };
-class DateRange extends MobxElement {
+class DateRange extends DomElement {
   render() {
     return (
       <>
-        {formatDate(this.props.start, this.props.format, { awareOfUnicodeTokens: true })}
-        {this.props.end !== undefined ? (
+        {formatDate(this.start, this.format, { awareOfUnicodeTokens: true })}
+        {this.end !== undefined ? (
           <>
             {' '}
             <span aria-label="to">-</span>{' '}
-            {this.props.end === null
+            {this.end === null
               ? 'Current'
-              : formatDate(this.props.end, this.props.format, {
+              : formatDate(this.end, this.format, {
                   awareOfUnicodeTokens: true,
                 })}
           </>
@@ -344,10 +340,10 @@ globalThis.customElements.define('x-date-range', DateRange);
 type EntryHeadingProps = {
   [s: string]: any;
 };
-class EntryHeading extends MobxElement {
+class EntryHeading extends DomElement {
   render() {
     return (
-      <Typography variant="subtitle1" component="h1" {...this.props}>
+      <Typography $variant="subtitle1" $component="h1" {...this.props}>
         <slot />
       </Typography>
     );
@@ -358,10 +354,10 @@ globalThis.customElements.define('x-entry-heading', EntryHeading);
 type EntryLinkProps = {
   [s: string]: any;
 };
-class EntryLink extends MobxElement {
+class EntryLink extends DomElement {
   render() {
     return (
-      <Link variant="caption" color="secondary" {...this.props}>
+      <Link $variant="caption" $color="secondary" {...this.props}>
         <slot />
       </Link>
     );
@@ -373,10 +369,10 @@ globalThis.customElements.define('x-entry-link', EntryLink);
 type EntryTextProps = {
   [s: string]: any;
 };
-class EntryText extends MobxElement {
+class EntryText extends DomElement {
   render() {
     return (
-      <Typography variant="caption" color="textSecondary" {...this.props}>
+      <Typography $variant="caption" $color="textSecondary" {...this.props}>
         <slot />
       </Typography>
     );
@@ -387,7 +383,7 @@ globalThis.customElements.define('x-entry-text', EntryText);
 type ListLabelProps = {
   [s: string]: any;
 };
-class ListLabel extends MobxElement {
+class ListLabel extends DomElement {
   render() {
     return (
       <>
@@ -396,7 +392,7 @@ class ListLabel extends MobxElement {
               font-weight: ${theme.typography.fontWeightMedium};
             }
           `}</style>
-        <EntryText class="label" color="textPrimary" {...this.props}>
+        <EntryText class="label" $color="textPrimary" {...this.props}>
           <slot />
         </EntryText>
       </>
@@ -405,7 +401,7 @@ class ListLabel extends MobxElement {
 }
 globalThis.customElements.define('x-list-label', ListLabel);
 
-class LabeledList extends MobxElement {
+class LabeledList extends DomElement {
   private items;
   render() {
     return (
@@ -418,12 +414,12 @@ class LabeledList extends MobxElement {
           `}
         </style>
         <div class="list">
-          {this.props.items.map(({ label, items }) => (
+          {this.items.map(({ label, items }) => (
             <p>
-              <ListLabel component="span" style={{ display: 'inline' }} paragraph={false}>
+              <ListLabel $component="span" style={`display: 'inline'`} $paragraph={false}>
                 {label}:
               </ListLabel>{' '}
-              <EntryText component="span" style={{ display: 'inline' }} paragraph={false}>
+              <EntryText $component="span" style={`display: 'inline'`} $paragraph={false}>
                 {skillsSentence(items)}
               </EntryText>
             </p>
@@ -438,10 +434,10 @@ globalThis.customElements.define('x-labeled-list', LabeledList);
 type KeyPointItemProps = {
   [s: string]: any;
 };
-class KeyPoint extends MobxElement {
+class KeyPoint extends DomElement {
   render() {
     return (
-      <EntryText component="span" {...this.props}>
+      <EntryText $component="span" {...this.props}>
         <slot />
       </EntryText>
     );
@@ -452,20 +448,20 @@ type KeyPointsProps = {
   keyPoints?: KeyPoint[];
   [s: string]: any;
 };
-class KeyPoints extends MobxElement {
+class KeyPoints extends DomElement {
   render() {
     return (
       <>
-        {this.props.keyPoints && this.props.keyPoints.length > 0 ? (
+        {this.keyPoints && this.keyPoints.length > 0 ? (
           <>
-            {this.props.keyPoints.slice(0, -1).map((keyPoint, index) => (
-              <KeyPoint {...this.props} key={index}>
+            {this.keyPoints.slice(0, -1).map((keyPoint, index) => (
+              <KeyPoint {...this.props} $key={index}>
                 {keyPoint}
               </KeyPoint>
             ))}
             {
               <KeyPoint {...this.props} gutterBottom>
-                {this.props.keyPoints[this.props.keyPoints.length - 1]}
+                {this.keyPoints[this.keyPoints.length - 1]}
               </KeyPoint>
             }
           </>
@@ -483,13 +479,13 @@ type Experience = {
 type ExperienceEntryProps = {
   [s: string]: any;
 } & Experience;
-class ExperienceEntry extends MobxElement {
+class ExperienceEntry extends DomElement {
   render() {
     return (
       <Entry
-        leftHeading={this.props.company}
-        rightHeading={this.props.job}
-        subtext={this.props.location}
+        $leftHeading={this.company}
+        $rightHeading={this.job}
+        $subtext={this.location}
         {...this.props}
       >
         <slot />
@@ -507,7 +503,7 @@ type VolunteeringEntryProps = {
   [s: string]: any;
 } & Volunteering;
 const VolunteeringExperience = ({ organization, role, ...other }) => (
-  <Entry leftHeading={organization} rightHeading={role} {...other} />
+  <Entry $leftHeading={organization} $rightHeading={role} {...other} />
 );
 const listSentence = (items) =>
   [items.slice(0, -1).join(', '), items.slice(-1)[0]].join(
@@ -527,14 +523,14 @@ type Project = {
 type ProjectEntryProps = {
   [s: string]: any;
 } & Project;
-class ProjectEntry extends MobxElement {
+class ProjectEntry extends DomElement {
   render() {
     return (
       <Entry
-        rightHeading={this.props.name}
+        $rightHeading={this.name}
         {...this.props}
-        startDate={undefined}
-        endDate={undefined}
+        $startDate={undefined}
+        $endDate={undefined}
       />
     );
   }
@@ -550,7 +546,7 @@ type Hackathon = {
 type HackathonEntryProps = {
   [s: string]: any;
 } & Hackathon;
-class HackathonEntry extends MobxElement {
+class HackathonEntry extends DomElement {
   render() {
     return (
       <>
@@ -561,13 +557,13 @@ class HackathonEntry extends MobxElement {
         `}</style>
         <Entry
           {...this.props}
-          leftHeading={this.props.event}
-          rightHeading={this.props.hack}
-          startDate={undefined}
-          endDate={undefined}
+          $leftHeading={this.event}
+          $rightHeading={this.hack}
+          $startDate={undefined}
+          $endDate={undefined}
         >
-          <Typography component="p" variant="caption" class="prize">
-            <em>{this.props.prize}</em>
+          <Typography $component="p" $variant="caption" class="prize">
+            <em>{this.prize}</em>
           </Typography>
         </Entry>
       </>
@@ -581,9 +577,15 @@ type EntryMapperProps = {
   data: EntryData;
   [s: string]: any;
 };
-class EntryMapper extends MobxElement {
+class EntryMapper extends DomElement {
   render() {
-    return this.props.data.map((item) => <this.props.Component {...item} />);
+    console.log({ bleh: this.data });
+
+    return this.data.map((item) => (
+      <this.Component
+        {...Object.entries(item).map(([key, value]) => [`$${key}`, value])}
+      />
+    ));
   }
 }
 globalThis.customElements.define('x-entry-mapper', EntryMapper);
@@ -594,7 +596,7 @@ type PageProps = {
   [s: string]: any;
 };
 
-class Resume extends MobxElement {
+class Resume extends DomElement {
   render() {
     return (
       <>
@@ -630,26 +632,26 @@ class Resume extends MobxElement {
           }
           `}</style>
         <div class="pageGrid">
-          <Header class="header" data={this.props.data}>
-            {this.props.data.details.name}
+          <Header class="header" $data={this.data}>
+            {this.data.details.name}
           </Header>
           <main class="main">
-            <EntryTopic heading="Experience">
-              <EntryMapper Component={ExperienceEntry} data={this.props.data.work} />
+            <EntryTopic $heading="Experience">
+              <EntryMapper $Component={'x-experience'} $data={this.data.work} />
             </EntryTopic>
-            <EntryTopic heading="Projects">
-              <EntryMapper Component={ProjectEntry} data={this.props.data.projects} />
+            <EntryTopic $heading="Projects">
+              <EntryMapper $Component={'x-project'} $data={this.data.projects} />
             </EntryTopic>
           </main>
           <aside class="aside">
-            <EntryTopic heading="Education">
-              <EntryMapper Component={EducationEntry} data={this.props.data.education} />
+            <EntryTopic $heading="Education">
+              <EntryMapper $Component={'x-education'} $data={this.data.education} />
             </EntryTopic>
-            <EntryTopic heading="Hackathons">
-              <EntryMapper Component={HackathonEntry} data={this.props.data.hackathons} />
+            <EntryTopic $heading="Hackathons">
+              <EntryMapper $Component="x-hackathon" $data={this.data.hackathons} />
             </EntryTopic>
-            <EntryTopic heading="Technical skills">
-              <LabeledList items={this.props.data.technicalSkills} />
+            <EntryTopic $heading="Technical skills">
+              <LabeledList $items={this.data.technicalSkills} />
             </EntryTopic>
           </aside>
         </div>
