@@ -516,14 +516,13 @@ type DynamicElementBlueprintProps<T> = {
   properties: any;
 };
 
-const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Element, transformProperties: (v) => any[], getFields: (element: Element) => readonly Field[]) => {
-  const mount = ({ value, properties }: DynamicElementBlueprintProps<T>, container, before) => {
+const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Element) => {
+  const mount = ({ value, properties: { children: childrenProps, ...other } }: DynamicElementBlueprintProps<T>, container, before) => {
     const element = createElementCallback(value);
 
-    const fields = getFields(element);
+    const fields = [spread(element), children(element, null)];
 
-    console.log({ properties });
-    initialDomFieldSetter(fields, transformProperties(properties));
+    initialDomFieldSetter(fields, [other, childrenProps]);
     container.insertBefore(element, before);
     return renderData(element, { fields, value });
   };
@@ -531,9 +530,9 @@ const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Eleme
   const blueprint = createBlueprint(
     mount,
     (state, values, container, before) => {
-      console.log({ values });
       if (state.state.value === values.value) {
-        domFieldSetter(renderData(state.first, state.state.fields), transformProperties(values.properties));
+        const { children: childrenProps, ...other } = values.properties;
+        domFieldSetter(renderData(state.first, state.state.fields), [other, childrenProps]);
       } else {
         domFieldUnmount(renderData(state.first, state.state.fields));
         state.first.remove();
