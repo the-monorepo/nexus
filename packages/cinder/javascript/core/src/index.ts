@@ -14,13 +14,16 @@ export type Unmount<C> = (cloneValue: C) => any;
 export type UnmountHolder<C> = {
   unmount: Unmount<C>;
 };
-export type StatelessComponentBlueprint<V, N extends Node, D = Unmount<any> | undefined> =
-  {
-    id: ID;
-    mount: MountFn<V, StatelessCloneInfo<N>>;
-    update: undefined;
-    unmount: D;
-  };
+export type StatelessComponentBlueprint<
+  V,
+  N extends Node,
+  D = Unmount<any> | undefined,
+> = {
+  id: ID;
+  mount: MountFn<V, StatelessCloneInfo<N>>;
+  update: undefined;
+  unmount: D;
+};
 export type StatefulComponentBlueprint<
   C,
   V,
@@ -35,8 +38,12 @@ export type StatefulComponentBlueprint<
 export type GenericBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
   | StatelessComponentBlueprint<V, N, D>
   | StatefulComponentBlueprint<C, V, N, D>;
-export type ComponentBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
-  GenericBlueprint<C, V, N, D>;
+export type ComponentBlueprint<
+  C,
+  V,
+  N extends Node = Node,
+  D = undefined | Unmount<C>,
+> = GenericBlueprint<C, V, N, D>;
 
 export type CreateBlueprintFunction = {
   <V, N extends Node>(
@@ -503,14 +510,61 @@ export const renderOrReuseComponentResult = <C, V, N extends Node>(
   }
 };
 
-export const validateComponent = (component, properties) => {
-  const result = component(properties);
-  if (result === undefined) {
-    throw new Error(
-      `The '${component.name}' component returned ${result} which is not a valid return value`,
-    );
+// TODO: Pretty hacked together. Fix.
+const keyValueObjectArrayToObject = (entries: Record<number, [string, any]>) => {
+  const object: any = {};
+  for(const [key, value] of Object.values(entries)) {
+    object[key] = value;
   }
-  return result;
+
+  console.log({object});
+
+  return object;
+};
+type DynamicElementBlueprintProps = {
+  tagName: string;
+  properties: any;
+};
+const mountDynamicElement = ({ tagName, properties }: DynamicElementBlueprintProps, container, before) => {
+  const element = document.createElement(tagName);
+
+  const fields = [spread(element)];
+
+  initialDomFieldSetter(fields, [keyValueObjectArrayToObject(properties)]);
+  container.insertBefore(element, before);
+  return renderData(element, { fields, tagName });
+};
+const dynamicElementBlueprint = createBlueprint(
+  mountDynamicElement,
+  (state, values, container, before) => {
+    if (state.state.tagName === values.tagName) {
+      domFieldSetter(renderData(state.first, state.state.fields), [keyValueObjectArrayToObject(values.properties)]);
+    } else {
+      domFieldUnmount(renderData(state.first, state.state.fields));
+      state.first.remove();
+      state.state = mountDynamicElement(values, container, before).state;
+    }
+  },
+  (state) => {
+    domFieldUnmount(state.fields);
+  },
+);
+
+export const validateComponent = (component, properties) => {
+  if (typeof component === 'string') {
+    console.log({ component, yas: properties })
+    return componentResult(dynamicElementBlueprint, { tagName: component, properties });
+  } else if (typeof component === 'function') {
+    const result = component(properties);
+    if (result === undefined) {
+      throw new Error(
+        `The '${component.name}' component returned ${result} which is not a valid return value`,
+      );
+    }
+    return result;
+  } else {
+    throw new Error(`${component} is an invalid component value`);
+  }
 };
 
 export const renderValue = (
@@ -660,7 +714,7 @@ const fieldInfoFromKey = (key: string) => {
 
 const applySpread = (el: Element, state, newValue) => {
   const newKeys = new Set();
-  for (const [prefixedKey, value] of Object.entries(newValue)) {
+  for (const [prefixedKey, value] of Object.entries(newValue ?? {})) {
     newKeys.add(prefixedKey);
     if (state[prefixedKey] !== value) {
       const { type, key } = fieldInfoFromKey(prefixedKey);
