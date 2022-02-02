@@ -527,14 +527,14 @@ type DynamicElementBlueprintProps<T> = {
   properties: any;
 };
 
-const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Element, transformProperties: (v) => Record<any, any>) => {
+const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Element, transformProperties: (v) => any[], getFields: (element: Element) => readonly Field[]) => {
   const mount = ({ value, properties }: DynamicElementBlueprintProps<T>, container, before) => {
     const element = createElementCallback(value);
 
-    const fields = [spread(element)];
+    const fields = getFields(element);
 
     console.log({ properties });
-    initialDomFieldSetter(fields, [transformProperties(properties)]);
+    initialDomFieldSetter(fields, transformProperties(properties));
     container.insertBefore(element, before);
     return renderData(element, { fields, value });
   };
@@ -544,7 +544,7 @@ const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Eleme
     (state, values, container, before) => {
       console.log({ values });
       if (state.state.value === values.value) {
-        domFieldSetter(renderData(state.first, state.state.fields), [transformProperties(values.properties)]);
+        domFieldSetter(renderData(state.first, state.state.fields), transformProperties(values.properties));
       } else {
         domFieldUnmount(renderData(state.first, state.state.fields));
         state.first.remove();
@@ -559,13 +559,13 @@ const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Eleme
   return blueprint;
 }
 
-const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((v) => document.createElement(v), (v) => keyValueObjectArrayToObject(v));
-const dynamicElementBlueprint = createDynamicElementBlueprint<{ new ()}>((v) => new v(), (v) => v);
+const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((v) => document.createElement(v), (v) => [keyValueObjectArrayToObject(v)], (element) => [spread(element)]);
+const dynamicElementBlueprint = createDynamicElementBlueprint<{ new ()}>((v) => new v(), ({ children, ...other }) => [other, children], (element) => [spread(element), children(element, null)]);
 
 export const validateComponent = (component, properties) => {
   if (typeof component === 'string') {
     return componentResult(dynamicTagNameBlueprint, { value: component, properties });
-  } else if (component.prototype instanceof HTMLElement) {
+  } else if (component?.prototype instanceof HTMLElement) {
     return componentResult(dynamicElementBlueprint, { value: component, properties });
   } else if (typeof component === 'function') {
     const result = component(properties);
