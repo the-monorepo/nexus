@@ -13,20 +13,20 @@ export const technicalSkills = [
   },
   {
     label: 'Technologies',
-    items: ['React', 'Node', 'Android', 'MongoDB', 'PostgreSQL', 'Spring'],
+    items: ['React', 'Node', 'Deno', 'Android', /* 'MongoDB' */, 'PostgreSQL', 'GraphQL', 'WebSocket', 'Spring'],
   },
   {
     label: 'Exposure to',
     items: [
-      'TensorFlow',
       'C/C++',
-      'Perl',
+      // 'Perl',
       'Bash',
       'Go',
-      'PHP',
-      'Wireshark',
-      'MATLAB',
+      // 'PHP',
+      // 'Wireshark',
+      // 'MATLAB',
       '.NET',
+      'TensorFlow',
     ],
   },
   {
@@ -34,9 +34,8 @@ export const technicalSkills = [
     items: [
       'Application development',
       'web',
-      'Android',
       'algorithms',
-      'machine learning',
+      'embedded systems'
     ],
   },
 ];
@@ -46,30 +45,30 @@ export const education = [
     school: 'Monash University',
     course: 'B. Soft. Eng.',
     grade: {
-      gpa: 3.39,
-      wam: 80.06,
+      gpa: 3.438,
+      wam: 81.089,
     },
-    description: 'Expected to graduate in November 2019',
+    description: 'First class honours. Researched automated repair and bug detection in JavaScript open source software.',
     startDate: new Date(2015, 2),
-    endDate: null,
+    endDate: new Date(2019, 11),
   },
-  /*{
-    school: 'East Doncaster Secondary College',
-    course: 'Victorian Certificate of Education (VCE)',
-    grade: 'ATAR: 93.60',
-    keyPoints: ['Expected to graduate in November 2019'],
-    startDate: new Date(),
-    endDate: new Date(),
-  },*/
 ];
 
 export const work = [
   {
     company: 'Atlassian',
+    job: 'Software Engineer',
+    location: 'Sydney',
+    description: "I integrated Stripe into Atlassian's products",
+    startDate: new Date(2020, 1),
+    endDate: null,
+  },
+  {
+    company: 'Atlassian',
     job: 'Intern developer',
     location: 'Sydney',
     description:
-      "I added analytics support to Atlassian's billing platform and " +
+      "I added analytics support to Atlassian's billing platform & " +
       'the ability to generate financial quotes to the service built in my previous internship. ' +
       'I also reduced the build time of a microservice from ~14 mins to ~4 mins.',
     startDate: new Date(2018, 10),
@@ -99,10 +98,10 @@ export const work = [
     company: 'ANZ',
     job: 'University placement',
     location: 'Melbourne',
-    description:
+    /*description:
       'I automated the migration of data into JIRA; parsing ~20000 records in total. ' +
       'I built social media sentiment analysis models with TensorFlow and analytics dashboards using React, Node and TypeScript. ' +
-      'I also ported JQuery+Handlebars components to React for ANZ.com.',
+      'I also ported JQuery+Handlebars components to React for ANZ.com.',*/
     startDate: new Date(2017, 6),
     endDate: new Date(2017, 10),
   },
@@ -168,7 +167,7 @@ export const projects = [
     startDate: new Date(),
     endDate: new Date(),
     description:
-      'Final year team project built for Telstra to manage OpenAPI specifications. Technologies used include Node, React, MobX and Typescript.',
+      'Final year university team project built for Telstra to manage OpenAPI specifications. Technologies used include Node, React, MobX and Typescript.',
     technologies: ['Node', 'React', 'MobX', 'TypeScript'],
   },
 ];
