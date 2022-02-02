@@ -25,10 +25,24 @@ export type Configuration = WebpackConfiguration & {
   devServer: WebpackDevServerConfiguration;
 };
 
-export const openSansUrl = 'https://fonts.googleapis.com/css?family=Open+Sans';
-export const materialIconsUrl = 'https://fonts.googleapis.com/icon?family=Material+Icons';
-export const normalizeCssUrl =
-  'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css';
+const styleSheet = (url, props = {}) =>HtmlWebpackPlugin.createHtmlTagObject(
+  'link',
+  { href: url, rel: 'stylesheet', ...props },
+  undefined,
+);
+
+const preconnect = (url, props = {}) => HtmlWebpackPlugin.createHtmlTagObject(
+  'link',
+  { href: url, rel: 'preconnect', ...props },
+  undefined,
+);
+
+export const gfontsPreconnect = preconnect('https://fonts.googleapis.com')
+export const gstaticPreconnect= preconnect('https://fonts.gstatic.com', { crossorigin: true });
+export const defaultFontStyleSheet = styleSheet('https://fonts.googleapis.com/css?family=Open+Sanshttps://fonts.googleapis.com/css2?family=Inter:wght@176&display=swap');
+export const materialIconsStyleSheet = styleSheet('https://fonts.googleapis.com/icon?family=Material+Icons');
+export const normalizeCssStyleSheet =styleSheet(
+  'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
 
 export const svgRule = {
   test: /\.svg$/,
@@ -74,24 +88,18 @@ export const createOutput = (outputDir) => {
   };
 };
 
-export const defaultLinks = [openSansUrl, materialIconsUrl, normalizeCssUrl];
+export const defaultHeadTags = [gfontsPreconnect, gstaticPreconnect, defaultFontStyleSheet, materialIconsStyleSheet, normalizeCssStyleSheet];
 
 export const createHtmlWebpackPlugin = ({
   title = 'TODO: Title',
-  links = defaultLinks,
+  headTags = defaultHeadTags,
 } = {}) => {
   return new HtmlWebpackPlugin({
     inject: true,
     template: resolve(__dirname, 'template.html'),
     title: title,
     tags: {
-      headTags: links.map((linkHref) =>
-        HtmlWebpackPlugin.createHtmlTagObject(
-          'link',
-          { href: linkHref, rel: 'stylesheet' },
-          undefined,
-        ),
-      ),
+      headTags: headTags,
     },
   });
 };
