@@ -1,4 +1,4 @@
-use clap::{App, SubCommand, Parser};
+use clap::{App, SubCommand};
 
 use std::collections::VecDeque;
 
@@ -15,25 +15,29 @@ use scriptplan_bash::yaml_rust::YamlLoader;
 use scriptplan_bash::YamlScriptParser;
 use std::convert::TryFrom;
 
-#[derive(Parser, Debug)]
-struct Cli {
-  #[clap()]
-  script_file: &str
-}
-
 #[tokio::main]
 async fn main() {
-    let scriptplan_app = App::new("Scriptplan CLI").arg(
+    let scriptplan_app = App::new("Scriptplan CLI")
+    .setting(clap::AppSettings::TrailingVarArg)
+    .setting(clap::AppSettings::TrailingValues)
+    .arg(
         clap::Arg::with_name("script-file")
             .short("s")
             .long("script-file")
             .takes_value(true)
             .default_value("./scripts.yaml"),
+    )
+    .arg(
+      clap::Arg::with_name("other")
+        .multiple(true)
+        .hidden(true)
     );
 
     let initial_matches = scriptplan_app.get_matches();
 
     let script_file = initial_matches.value_of("script-file").unwrap();
+
+    let other_args = initial_matches.values_of_os("other").unwrap();
 
     let path = Path::new(script_file);
     let s = fs::read_to_string(path).unwrap();
@@ -57,7 +61,7 @@ async fn main() {
             )
         });
 
-    if let Some(ref root_task) = app.get_matches().subcommand {
+    if let Some(ref root_task) = app.get_matches_from(other_args).subcommand {
         let user_vars_iter: VecDeque<_> = (|| {
             if let Some(ref values) = root_task.matches.args.get("other") {
                 return values
