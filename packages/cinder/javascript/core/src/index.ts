@@ -512,6 +512,7 @@ export const renderOrReuseComponentResult = <C, V, N extends Node>(
 
 // TODO: Pretty hacked together. Fix.
 const keyValueObjectArrayToObject = (entries: Record<number, [string, any]>) => {
+  console.log({ entries })
   const object: any = {};
   for(const [key, value] of Object.values(entries)) {
     object[key] = value;
@@ -521,39 +522,51 @@ const keyValueObjectArrayToObject = (entries: Record<number, [string, any]>) => 
 
   return object;
 };
-type DynamicElementBlueprintProps = {
-  tagName: string;
+type DynamicElementBlueprintProps<T> = {
+  value: T;
   properties: any;
 };
-const mountDynamicElement = ({ tagName, properties }: DynamicElementBlueprintProps, container, before) => {
-  const element = document.createElement(tagName);
 
-  const fields = [spread(element)];
+const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Element, transformProperties: (v) => Record<any, any>) => {
+  const mount = ({ value, properties }: DynamicElementBlueprintProps<T>, container, before) => {
+    const element = createElementCallback(value);
 
-  initialDomFieldSetter(fields, [keyValueObjectArrayToObject(properties)]);
-  container.insertBefore(element, before);
-  return renderData(element, { fields, tagName });
-};
-const dynamicElementBlueprint = createBlueprint(
-  mountDynamicElement,
-  (state, values, container, before) => {
-    if (state.state.tagName === values.tagName) {
-      domFieldSetter(renderData(state.first, state.state.fields), [keyValueObjectArrayToObject(values.properties)]);
-    } else {
-      domFieldUnmount(renderData(state.first, state.state.fields));
-      state.first.remove();
-      state.state = mountDynamicElement(values, container, before).state;
-    }
-  },
-  (state) => {
-    domFieldUnmount(state.fields);
-  },
-);
+    const fields = [spread(element)];
+
+    console.log({ properties });
+    initialDomFieldSetter(fields, [transformProperties(properties)]);
+    container.insertBefore(element, before);
+    return renderData(element, { fields, value });
+  };
+
+  const blueprint = createBlueprint(
+    mount,
+    (state, values, container, before) => {
+      console.log({ values });
+      if (state.state.value === values.value) {
+        domFieldSetter(renderData(state.first, state.state.fields), [transformProperties(values.properties)]);
+      } else {
+        domFieldUnmount(renderData(state.first, state.state.fields));
+        state.first.remove();
+        state.state = mount(values, container, before).state;
+      }
+    },
+    (state) => {
+      domFieldUnmount(state.fields);
+    },
+  );
+
+  return blueprint;
+}
+
+const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((v) => document.createElement(v), (v) => keyValueObjectArrayToObject(v));
+const dynamicElementBlueprint = createDynamicElementBlueprint<{ new ()}>((v) => new v(), (v) => v);
 
 export const validateComponent = (component, properties) => {
   if (typeof component === 'string') {
-    console.log({ component, yas: properties })
-    return componentResult(dynamicElementBlueprint, { tagName: component, properties });
+    return componentResult(dynamicTagNameBlueprint, { value: component, properties });
+  } else if (component.prototype instanceof HTMLElement) {
+    return componentResult(dynamicElementBlueprint, { value: component, properties });
   } else if (typeof component === 'function') {
     const result = component(properties);
     if (result === undefined) {
