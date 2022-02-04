@@ -25,7 +25,8 @@
     "cinder": "workspace:packages/cinder/javascript/cinder",
     "classnames": "^2.2.6",
     "date-fns": "^2.15.0",
-    "mobx": "^5.15.6"
+    "mobx": "^5.15.6",
+    "unstyled": "workspace:packages/misc/javascript/unstyled"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }
