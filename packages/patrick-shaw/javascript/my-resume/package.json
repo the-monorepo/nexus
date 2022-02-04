@@ -16,7 +16,7 @@
     "require": "./commonjs/index.tsx"
   },
   "scripts": {
-    "pdf": "babel-node ./commonjs/to-pdf.ts"
+    "pdf": "yarn node ./commonjs/to-pdf.ts"
   },
   "dependencies": {
     "@pshaw/logger": "workspace:packages/misc/javascript/logger",
