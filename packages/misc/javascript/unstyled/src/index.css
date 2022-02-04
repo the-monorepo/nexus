@@ -1,5 +1,9 @@
-body, h1, h2, h3, h4, h5, h6, button {
+a, body, h1, h2, h3, h4, h5, h6, button {
   all: unset;
+}
+
+a {
+  cursor: pointer;
 }
 
 address, article, aside, blockquote, details, dialog, dd, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, li, main, nav, ol, p, pre, section, table, ul {
