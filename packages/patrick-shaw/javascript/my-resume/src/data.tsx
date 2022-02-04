@@ -13,7 +13,7 @@ export const technicalSkills = [
   },
   {
     label: 'Technologies',
-    items: ['React', 'Node', 'Deno', 'Android', /* 'MongoDB' */, 'PostgreSQL', 'GraphQL', 'WebSocket', 'Spring'],
+    items: ['React', 'Node', /* 'Deno' */, 'Android', /* 'MongoDB', */ 'PostgreSQL', 'GraphQL', /*'WebSocket',*/ 'Spring', 'Terraform'],
   },
   {
     label: 'Exposure to',
@@ -25,6 +25,8 @@ export const technicalSkills = [
       // 'PHP',
       // 'Wireshark',
       // 'MATLAB',
+      'Rust',
+      //'WASM',
       '.NET',
       'TensorFlow',
     ],
@@ -32,10 +34,10 @@ export const technicalSkills = [
   {
     label: 'Interests',
     items: [
-      'Application development',
-      'web',
+      'Web',
       'algorithms',
-      'embedded systems'
+      'progressive web apps',
+      'embedded systems',
     ],
   },
 ];
@@ -46,11 +48,11 @@ export const education = [
     course: 'B. Soft. Eng.',
     grade: {
       gpa: 3.438,
-      wam: 81.089,
+      wam: 81.1,
     },
-    description: 'First class honours. Researched automated repair and bug detection in JavaScript open source software.',
+    description: 'Received first class honours. Researched & built an automated repair & bug detection algortihm for JavaScript called FaultJS.',
     startDate: new Date(2015, 2),
-    endDate: new Date(2019, 11),
+    endDate: new Date(2019, 10),
   },
 ];
 
@@ -58,9 +60,9 @@ export const work = [
   {
     company: 'Atlassian',
     job: 'Software Engineer',
-    location: 'Sydney',
-    description: "I integrated Stripe into Atlassian's products",
-    startDate: new Date(2020, 1),
+    location: 'Remote',
+    description: "Most notably, I integrated Stripe into Atlassian's products, added 3D Secure support & implemented analytics instrumentation, SLO/SLIs & general health monitoring for Atlassian's new billing console & shopping cart. I also run system design & coding interviews.",
+    startDate: new Date(2020, 0),
     endDate: null,
   },
   {
@@ -88,8 +90,8 @@ export const work = [
     job: 'Intern developer',
     location: 'Sydney',
     description:
-      'I built a microservice that all Atlassian products use to create commerce related emails & PDFs. ' +
-      'I also improved an entitlement data warehousing process from being a ~4 hour batch process to running in real-time.',
+      'I built a microservice that Atlassian products use to create billing related emails & PDFs. ' +
+      'I also improved a data warehousing process for entitlements from being a ~4 hour batch process to running in real-time.',
     technologies: ['Node', 'Spring', 'React'],
     startDate: new Date(2017, 10),
     endDate: new Date(2018, 1),
@@ -100,7 +102,7 @@ export const work = [
     location: 'Melbourne',
     /*description:
       'I automated the migration of data into JIRA; parsing ~20000 records in total. ' +
-      'I built social media sentiment analysis models with TensorFlow and analytics dashboards using React, Node and TypeScript. ' +
+      'I built social media sentiment analysis models with TensorFlow & analytics dashboards using React, Node & TypeScript. ' +
       'I also ported JQuery+Handlebars components to React for ANZ.com.',*/
     startDate: new Date(2017, 6),
     endDate: new Date(2017, 10),
@@ -151,7 +153,7 @@ export const volunteering = [
 ];
 
 export const projects = [
-  {
+  /*{
     name: 'Gecko Download Manager',
     types: new Set(['open-source']),
     startDate: new Date(),
@@ -160,14 +162,14 @@ export const projects = [
       'GeckoDM is a Chrome extension that downloads & organises lectures uploaded on Echo360 software. ' +
       'I wrote the proof of concept prototype.',
     technologies: ['JavaScript'],
-  },
+  },*/
   {
     name: 'OpenAPI Platform',
     types: new Set(['open-source']),
     startDate: new Date(),
     endDate: new Date(),
     description:
-      'Final year university team project built for Telstra to manage OpenAPI specifications. Technologies used include Node, React, MobX and Typescript.',
+      'Final year university team project built for Telstra to manage OpenAPI specifications. Technologies used include Node, React, MobX & Typescript.',
     technologies: ['Node', 'React', 'MobX', 'TypeScript'],
   },
 ];
@@ -181,10 +183,10 @@ export const hackathons = [
     event: 'Unihack Melb. 2018',
     startDate: new Date(2018),
     endDate: new Date(),
-    prize: '1st place, best design and best pitch winner',
+    prize: '1st place, best design & best pitch winner',
     description:
-      'MEDITrace is a symptomatic health tracker that integrates with the FitBit, Android and Bosch sensor data. \n' +
-      'I primarily worked on the UI and Firebase integration.',
+      'MEDITrace is a symptomatic health tracker that integrates with FitBit, Android & Bosch sensor data. \n' +
+      'I worked on the UI & Firebase integration.',
     technologies: ['React', 'JavaScript', 'Python', 'Android', 'Firebase'],
   },
   {
@@ -198,7 +200,7 @@ export const hackathons = [
     endDate: new Date(),
     description:
       'Seat.me is a platform that determines seat availability in train carriages & other spaces. \n' +
-      'I worked on creating the web app and its associated server-side logic.',
+      'I worked on creating the web app & its associated server-side logic.',
     technologies: [
       'Node',
       'React',
@@ -218,7 +220,7 @@ export const hackathons = [
     prize: 'Microsoft sponsored people’s choice winner',
     description:
       'Uptime is a machine learning model that predicts failures in mining machinery 20 minutes prior to failure. \n' +
-      'I worked on building and training a neural network.',
+      'I worked on building its neural network.',
     technologies: ['TensorFlow', 'Python'],
   },
 ];
