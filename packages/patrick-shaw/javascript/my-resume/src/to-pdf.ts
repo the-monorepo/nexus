@@ -8,10 +8,10 @@ const app = express();
 app.use('/', express.static('dist'));
 const PORT = 3000;
 app.listen(PORT, async () => {
-  l.info(`Listing on port ${PORT}`);
+  l.info(`Listening on port ${PORT}`);
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.goto('http://localhost:3000', { waitUntil: 'networkidle2' });
+  await page.goto('https://localhost:3000', { waitUntil: 'networkidle2' });
   const filename = 'resume.pdf';
   await page.pdf({ path: filename, format: 'A4', printBackground: true });
   l.info(`Saved PDF as ${filename}`);
