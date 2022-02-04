@@ -24,6 +24,6 @@
     "cinder": "workspace:packages/cinder/javascript/cinder",
     "core-js": "^3.10.1",
     "express": "^4.17.1",
-    "puppeteer": "^5.2.1"
+    "puppeteer": "^13.1.3"
   }
 }
