@@ -45,59 +45,64 @@ async fn main() {
     let script_file_result= fs::read_to_string(path);
 
     if let Ok(s) = script_file_result {
-        let mut docs = YamlLoader::load_from_str(&s).unwrap();
-        let doc = docs.remove(0);
+        let docs_result = YamlLoader::load_from_str(&s);
 
-        let map = doc.into_hash().unwrap();
+        if let Ok(mut docs) = docs_result {
+          let doc = docs.remove(0);
 
-        let scriptplan = YamlScriptParser::try_from(&map).unwrap();
+          let map = doc.into_hash().unwrap();
 
-        let new_app_name = format!("Scriptplan CLI (using \"{}\")", script_file);
+          let scriptplan = YamlScriptParser::try_from(&map).unwrap();
 
-        let app = scriptplan.tasks.keys().fold(
-            new_cli_app(new_app_name.as_str()).setting(
-                clap::AppSettings::SubcommandRequiredElseHelp
-                    | clap::AppSettings::DisableVersionFlag
-                    | clap::AppSettings::DisableHelpSubcommand
-            ),
-            |temp_app, task| {
-                temp_app.subcommand(
-                    App::new(task.to_string())
-                        .setting(
-                            clap::AppSettings::TrailingVarArg
-                                | clap::AppSettings::DisableHelpFlag
-                                | clap::AppSettings::DisableHelpSubcommand
-                                | clap::AppSettings::DisableVersionFlag
-                        )
-                        .arg(clap::Arg::new("EXTRA_ARGUMENTS").multiple_values(true)),
-                )
-            },
-        );
+          let new_app_name = format!("Scriptplan CLI (using \"{}\")", script_file);
 
-        let app_matches =  app.get_matches();
+          let app = scriptplan.tasks.keys().fold(
+              new_cli_app(new_app_name.as_str()).setting(
+                  clap::AppSettings::SubcommandRequiredElseHelp
+                      | clap::AppSettings::DisableVersionFlag
+                      | clap::AppSettings::DisableHelpSubcommand
+              ),
+              |temp_app, task| {
+                  temp_app.subcommand(
+                      App::new(task.to_string())
+                          .setting(
+                              clap::AppSettings::TrailingVarArg
+                                  | clap::AppSettings::DisableHelpFlag
+                                  | clap::AppSettings::DisableHelpSubcommand
+                                  | clap::AppSettings::DisableVersionFlag
+                          )
+                          .arg(clap::Arg::new("EXTRA_ARGUMENTS").multiple_values(true)),
+                  )
+              },
+          );
 
-        let task_subcommand = app_matches.subcommand();
+          let app_matches =  app.get_matches();
 
-        if let Some((name, root_task)) = task_subcommand {
-          let user_vars_iter: VecDeque<_> = (|| {
-              if let Some(values) = root_task.values_of("EXTRA_ARGUMENTS") {
-                  return values.map(|x| Arc::new(x.to_string())).collect();
-              } else {
-                  return VecDeque::new().into_iter().collect();
-              }
-          })();
+          let task_subcommand = app_matches.subcommand();
 
-          let status = scriptplan
-              .parse(name)
-              .unwrap()
-              .run(&scriptplan, user_vars_iter)
-              .await
-              .unwrap();
+          if let Some((name, root_task)) = task_subcommand {
+            let user_vars_iter: VecDeque<_> = (|| {
+                if let Some(values) = root_task.values_of("EXTRA_ARGUMENTS") {
+                    return values.map(|x| Arc::new(x.to_string())).collect();
+                } else {
+                    return VecDeque::new().into_iter().collect();
+                }
+            })();
 
-          exit_with_status(status);
+            let status = scriptplan
+                .parse(name)
+                .expect(format!("\"{}\" was a valid YAML file but Script plan still wasn't able to parse the \"{}\" task. Possible a bug.", script_file, name).as_str())
+                .run(&scriptplan, user_vars_iter)
+                .await
+                .unwrap();
+
+            exit_with_status(status);
+          }
+        } else {
+          println!("Unable to parse the script file \"{}\". Make sure the file contains valid YAML.", script_file);
         }
     } else {
-      println!("Script file \"{}\" does not exist", script_file);
+      println!("Could not find script file \"{}\". Make sure the file exists and this program has permission to read it.", script_file);
     }
 }
 
