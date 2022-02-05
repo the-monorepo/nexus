@@ -41,58 +41,63 @@ async fn main() {
     let script_file = initial_matches.value_of("script-file").unwrap();
 
     let path = Path::new(script_file);
-    let s = fs::read_to_string(path).unwrap();
 
-    let mut docs = YamlLoader::load_from_str(&s).unwrap();
-    let doc = docs.remove(0);
+    let script_file_result= fs::read_to_string(path);
 
-    let map = doc.into_hash().unwrap();
+    if let Ok(s) = script_file_result {
+        let mut docs = YamlLoader::load_from_str(&s).unwrap();
+        let doc = docs.remove(0);
 
-    let scriptplan = YamlScriptParser::try_from(&map).unwrap();
+        let map = doc.into_hash().unwrap();
 
-    let new_app_name = format!("Scriptplan CLI (using \"{}\")", script_file);
+        let scriptplan = YamlScriptParser::try_from(&map).unwrap();
 
-    let app = scriptplan.tasks.keys().fold(
-        new_cli_app(new_app_name.as_str()).setting(
-            clap::AppSettings::SubcommandRequiredElseHelp
-                | clap::AppSettings::DisableVersionFlag
-                | clap::AppSettings::DisableHelpSubcommand
-        ),
-        |temp_app, task| {
-            temp_app.subcommand(
-                App::new(task.to_string())
-                    .setting(
-                        clap::AppSettings::TrailingVarArg
-                            | clap::AppSettings::DisableHelpFlag
-                            | clap::AppSettings::DisableHelpSubcommand
-                            | clap::AppSettings::DisableVersionFlag
-                    )
-                    .arg(clap::Arg::new("EXTRA_ARGUMENTS").multiple_values(true)),
-            )
-        },
-    );
+        let new_app_name = format!("Scriptplan CLI (using \"{}\")", script_file);
 
-    let app_matches =  app.get_matches();
+        let app = scriptplan.tasks.keys().fold(
+            new_cli_app(new_app_name.as_str()).setting(
+                clap::AppSettings::SubcommandRequiredElseHelp
+                    | clap::AppSettings::DisableVersionFlag
+                    | clap::AppSettings::DisableHelpSubcommand
+            ),
+            |temp_app, task| {
+                temp_app.subcommand(
+                    App::new(task.to_string())
+                        .setting(
+                            clap::AppSettings::TrailingVarArg
+                                | clap::AppSettings::DisableHelpFlag
+                                | clap::AppSettings::DisableHelpSubcommand
+                                | clap::AppSettings::DisableVersionFlag
+                        )
+                        .arg(clap::Arg::new("EXTRA_ARGUMENTS").multiple_values(true)),
+                )
+            },
+        );
 
-    let task_subcommand = app_matches.subcommand();
+        let app_matches =  app.get_matches();
 
-    if let Some((name, root_task)) = task_subcommand {
-      let user_vars_iter: VecDeque<_> = (|| {
-          if let Some(values) = root_task.values_of("EXTRA_ARGUMENTS") {
-              return values.map(|x| Arc::new(x.to_string())).collect();
-          } else {
-              return VecDeque::new().into_iter().collect();
-          }
-      })();
+        let task_subcommand = app_matches.subcommand();
 
-      let status = scriptplan
-          .parse(name)
-          .unwrap()
-          .run(&scriptplan, user_vars_iter)
-          .await
-          .unwrap();
+        if let Some((name, root_task)) = task_subcommand {
+          let user_vars_iter: VecDeque<_> = (|| {
+              if let Some(values) = root_task.values_of("EXTRA_ARGUMENTS") {
+                  return values.map(|x| Arc::new(x.to_string())).collect();
+              } else {
+                  return VecDeque::new().into_iter().collect();
+              }
+          })();
 
-      exit_with_status(status);
+          let status = scriptplan
+              .parse(name)
+              .unwrap()
+              .run(&scriptplan, user_vars_iter)
+              .await
+              .unwrap();
+
+          exit_with_status(status);
+        }
+    } else {
+      println!("Script file \"{}\" does not exist", script_file);
     }
 }
 
