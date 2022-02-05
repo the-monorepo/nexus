@@ -1,4 +1,4 @@
-use clap::{App, SubCommand};
+use clap::{App};
 
 use std::collections::VecDeque;
 
@@ -19,18 +19,17 @@ use std::convert::TryFrom;
 async fn main() {
     let scriptplan_app = App::new("Scriptplan CLI")
     .setting(clap::AppSettings::TrailingVarArg)
-    .setting(clap::AppSettings::TrailingValues)
     .arg(
-        clap::Arg::with_name("script-file")
-            .short("s")
+        clap::Arg::new("script-file")
+            .short('s')
             .long("script-file")
             .takes_value(true)
             .default_value("./scripts.yaml"),
     )
     .arg(
-      clap::Arg::with_name("other")
-        .multiple(true)
-        .hidden(true)
+      clap::Arg::new("other")
+        .multiple_values(true)
+        .hide(true)
     );
 
     let initial_matches = scriptplan_app.get_matches();
@@ -52,22 +51,23 @@ async fn main() {
     let app = scriptplan
         .tasks
         .keys()
-        .fold(App::new("Scriptplan Tasks"), |temp_app, task| {
+        .fold(App::new("Scriptplan Tasks")
+        .setting(clap::AppSettings::NoBinaryName), |temp_app, task| {
             temp_app.subcommand(
-                SubCommand::with_name(task)
+                App::new(task.to_string())
                     .setting(clap::AppSettings::TrailingVarArg)
-                    .setting(clap::AppSettings::TrailingValues)
-                    .arg(clap::Arg::with_name("other").multiple(true).hidden(true)),
+                    .arg(clap::Arg::new("other").multiple_values(true).hide(true)),
             )
         });
 
-    if let Some(ref root_task) = app.get_matches_from(other_args).subcommand {
+    let app_matches = app.get_matches_from(other_args);
+
+    if let Some(name) = app_matches.subcommand_name() {
+        let root_task = app_matches.subcommand_matches(name).unwrap();
         let user_vars_iter: VecDeque<_> = (|| {
-            if let Some(ref values) = root_task.matches.args.get("other") {
+            if let Some(values) = root_task.values_of("other") {
                 return values
-                    .vals
-                    .iter()
-                    .map(|x| Arc::new(x.to_str().unwrap().to_string()))
+                    .map(|x| Arc::new(x.to_string()))
                     .collect();
             } else {
                 return VecDeque::new().into_iter().collect();
@@ -75,7 +75,7 @@ async fn main() {
         })();
 
         let status = scriptplan
-            .parse(root_task.name.as_str())
+            .parse(name)
             .unwrap()
             .run(&scriptplan, user_vars_iter)
             .await
