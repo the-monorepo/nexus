@@ -15,25 +15,27 @@ use scriptplan_bash::yaml_rust::YamlLoader;
 use scriptplan_bash::YamlScriptParser;
 use std::convert::TryFrom;
 
-fn new_cli_app<'a>() -> App<'a> {
-    App::new("Scriptplan CLI")
-        .setting(clap::AppSettings::TrailingVarArg)
-        .arg(
-            clap::Arg::new("script-file")
-                .short('s')
-                .long("script-file")
-                .takes_value(true)
-                .default_value("./scripts.yaml"),
-        )
+fn new_cli_app<'a>(name: &'a str) -> App<'a> {
+    App::new(name).arg(
+        clap::Arg::new("script-file")
+            .short('s')
+            .long("script-file")
+            .takes_value(true)
+            .default_value("./scripts.yaml"),
+    )
 }
 
 #[tokio::main]
 async fn main() {
-    let initial_matches = new_cli_app()
-        .setting(clap::AppSettings::DisableHelpSubcommand)
-        .setting(clap::AppSettings::DisableVersionFlag)
-        .setting(clap::AppSettings::AllowExternalSubcommands)
-        .arg(clap::Arg::new("TASK_COMMANDS").multiple_values(true))
+    let initial_matches = new_cli_app("Scriptplan CLI")
+        .setting(
+            clap::AppSettings::TrailingVarArg
+                | clap::AppSettings::DisableHelpSubcommand
+                | clap::AppSettings::DisableHelpFlag
+                | clap::AppSettings::DisableVersionFlag
+                | clap::AppSettings::AllowExternalSubcommands
+        )
+        .arg(clap::Arg::new("help").short('h').long("help").takes_value(false))
         .get_matches();
 
     let script_file = initial_matches.value_of("script-file").unwrap();
@@ -48,41 +50,49 @@ async fn main() {
 
     let scriptplan = YamlScriptParser::try_from(&map).unwrap();
 
+    let new_app_name = format!("Scriptplan CLI (using \"{}\")", script_file);
+
     let app = scriptplan.tasks.keys().fold(
-        new_cli_app()
-          .setting(clap::AppSettings::SubcommandRequiredElseHelp),
+        new_cli_app(new_app_name.as_str()).setting(
+            clap::AppSettings::SubcommandRequiredElseHelp
+                | clap::AppSettings::DisableVersionFlag
+                | clap::AppSettings::DisableHelpSubcommand
+        ),
         |temp_app, task| {
             temp_app.subcommand(
                 App::new(task.to_string())
-                    .setting(clap::AppSettings::TrailingVarArg)
-                    .setting(clap::AppSettings::DisableHelpSubcommand)
-                    .setting(clap::AppSettings::DisableVersionFlag)
+                    .setting(
+                        clap::AppSettings::TrailingVarArg
+                            | clap::AppSettings::DisableHelpFlag
+                            | clap::AppSettings::DisableHelpSubcommand
+                            | clap::AppSettings::DisableVersionFlag
+                    )
                     .arg(clap::Arg::new("EXTRA_ARGUMENTS").multiple_values(true)),
             )
         },
     );
 
-    // TODO: Would be nice if we didn't get_matches twice
-    let app_matches = app.get_matches();
+    let app_matches =  app.get_matches();
 
-    if let Some(name) = app_matches.subcommand_name() {
-        let root_task = app_matches.subcommand_matches(name).unwrap();
-        let user_vars_iter: VecDeque<_> = (|| {
-            if let Some(values) = root_task.values_of("EXTRA_ARGUMENTS") {
-                return values.map(|x| Arc::new(x.to_string())).collect();
-            } else {
-                return VecDeque::new().into_iter().collect();
-            }
-        })();
+    let task_subcommand = app_matches.subcommand();
 
-        let status = scriptplan
-            .parse(name)
-            .unwrap()
-            .run(&scriptplan, user_vars_iter)
-            .await
-            .unwrap();
+    if let Some((name, root_task)) = task_subcommand {
+      let user_vars_iter: VecDeque<_> = (|| {
+          if let Some(values) = root_task.values_of("EXTRA_ARGUMENTS") {
+              return values.map(|x| Arc::new(x.to_string())).collect();
+          } else {
+              return VecDeque::new().into_iter().collect();
+          }
+      })();
 
-        exit_with_status(status);
+      let status = scriptplan
+          .parse(name)
+          .unwrap()
+          .run(&scriptplan, user_vars_iter)
+          .await
+          .unwrap();
+
+      exit_with_status(status);
     }
 }
 

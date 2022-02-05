@@ -4,7 +4,6 @@ use std::rc::Rc;
 use std::sync::Arc;
 use std::process::ExitStatus;
 use std::iter::{Chain, Iterator, Once};
-use std::vec::IntoIter;
 
 use futures::future::join_all;
 
