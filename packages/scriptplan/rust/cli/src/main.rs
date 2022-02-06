@@ -94,7 +94,7 @@ async fn main() {
                 .expect(format!("\"{}\" was a valid YAML file but Script plan still wasn't able to parse the \"{}\" task. Possible a bug.", script_file, name).as_str())
                 .run(&scriptplan, user_vars_iter)
                 .await
-                .expect(format!("Tried to execute the task \"{}\" but it unexpectdly failed", name).as_str());
+                .expect(format!("Tried to execute the task \"{}\" but it unexpectedly failed", name).as_str());
 
             exit_with_status(status);
           }
