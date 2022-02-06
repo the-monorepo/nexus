@@ -15,6 +15,8 @@ use scriptplan_bash::yaml_rust::YamlLoader;
 use scriptplan_bash::YamlScriptParser;
 use std::convert::TryFrom;
 
+use ansi_term::{Style, Colour::{Purple, Cyan}};
+
 fn new_cli_app<'a>(name: &'a str) -> App<'a> {
     App::new(name).arg(
         clap::Arg::new("script-file")
@@ -27,6 +29,9 @@ fn new_cli_app<'a>(name: &'a str) -> App<'a> {
 
 #[tokio::main]
 async fn main() {
+  let file_style = Style::new().fg(Purple);
+  let task_style = Style::new().fg(Cyan);
+
     let initial_matches = new_cli_app("Scriptplan CLI")
         .setting(
             clap::AppSettings::TrailingVarArg
@@ -91,18 +96,18 @@ async fn main() {
 
             let status = scriptplan
                 .parse(name)
-                .expect(format!("\"{}\" was a valid YAML file but Script plan still wasn't able to parse the \"{}\" task. Possible a bug.", script_file, name).as_str())
+                .expect(format!("\"{}\" was a valid YAML file but Script plan still wasn't able to parse the \"{}\" task. Possible a bug.", file_style.paint(script_file), task_style.paint(name)).as_str())
                 .run(&scriptplan, user_vars_iter)
                 .await
-                .expect(format!("Tried to execute the task \"{}\" but it unexpectedly failed", name).as_str());
+                .expect(format!("Tried to execute the task \"{}\" but it unexpectedly failed", task_style.paint(name)).as_str());
 
             exit_with_status(status);
           }
         } else {
-          println!("Unable to parse the script file \"{}\". Make sure the file contains valid YAML.", script_file);
+          println!("Unable to parse the script file \"{}\". Make sure the file contains valid YAML.", file_style.paint(script_file));
         }
     } else {
-      println!("Could not find script file \"{}\". Make sure the file exists and this program has permission to read it.", script_file);
+      println!("Could not find script file \"{}\". Make sure the file exists and this program has permission to read it.", file_style.paint(script_file));
     }
 }
 

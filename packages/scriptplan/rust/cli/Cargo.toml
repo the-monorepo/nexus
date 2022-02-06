@@ -11,6 +11,7 @@ license = "MIT"
 description = "A script CLI builder"
 
 [dependencies]
+ansi_term = "0.12.1"
 clap = "3.0.14"
 tokio = { version = "1.1.2", features = ["fs", "io-util", "process", "macros", 'rt-multi-thread'] }
 shellwords = { version = "1.1.0" }
