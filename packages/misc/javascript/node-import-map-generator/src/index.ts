@@ -212,7 +212,7 @@ const addImportsFromPackageName = async (packageName: string, cwd: string) => {
 
     // Avoids deadlock
     return { dependencies: json.dependencies ?? {}, cwd: packageDir };
-  } catch (err) {
+  } catch (err: any) {
     if (err.code === 'MODULE_NOT_FOUND') {
       if (!packageName.startsWith('@types')) {
         // TODO: Should be a way of disabling this
@@ -254,7 +254,7 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
             resolve(packageJsonPath);
             return packageJsonPath;
           }
-        } catch (err) {
+        } catch (err: any) {
           if (err.code !== 'ENOTDIR' && err.code !== 'ENOENT' && err.code !== 'EISDIR') {
             throw err;
           }
@@ -286,7 +286,7 @@ const main = async () => {
       handler: async ({
         inputPath,
         outputPath,
-      }) => {
+      }: { inputPath: string, outputPath: string, 'input-path': string, 'output-path': string }) => {
         const entryPath = dirname(inputPath);
         try {
           const rootPackageJson = JSON.parse(
