@@ -108,5 +108,5 @@ async fn main() {
 
 fn exit_with_status(status: ExitStatus) -> ! {
     // Have our shell exit with the result of the last command
-    exit(status.code().unwrap());
+    exit(status.code().expect("Was unable to extract a status code out from program. Possible scriptplan bug."));
 }
