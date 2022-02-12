@@ -13,11 +13,11 @@ install-osx.rust: |
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-    rustup +nightly target add x86_64-pc-windows-gnu
-    rustup +nightly target add x86_64-apple-darwin
+    rustup target add x86_64-pc-windows-gnu
+    rustup target add x86_64-apple-darwin
 
-    rustup +nightly target add x86_64-unknown-linux-gnu
-    rustup +nightly target add wasm32-unknown-unknown
+    rustup target add x86_64-unknown-linux-gnu
+    rustup target add wasm32-unknown-unknown
 
     brew tap SergioBenitez/osxct
     brew install x86_64-unknown-linux-gnu
@@ -29,20 +29,28 @@ install-osx:
     - task: install-osx.rust
     - task: create-ssl-certificate-osx
 
+docker:
+  series:
+    - task: docker.build
+    - task: docker.run
+
+docker.build: docker build -t the-monorepo .
+docker.run: docker run --mount type=bind,source="$(pwd)",target=/app --rm -it the-monorepo bash
+
 # Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
 # FIXME: Find an alternative to mv that would work for default Windows machines
 recompile-scriptplan-release: |
-    cargo +nightly build --release --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
-    cargo +nightly build --release --bins --target x86_64-apple-darwin --package scriptplan-cli
-    #cargo +nightly build --release --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
+    cargo build --release --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
+    cargo build --release --bins --target x86_64-apple-darwin --package scriptplan-cli
+    #cargo build --release --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
     mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
     mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
-    #mv ./target/x86_64-unknown-linux-gnu/release/scriptplan ./scriptplan-linux-gnu
+    # mv ./target/x86_64-unknown-linux-gnu/release/scriptplan ./scriptplan-linux-gnu
 
 recompile-scriptplan-debug: |
-    cargo +nightly build --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
-    cargo +nightly build --bins --target x86_64-apple-darwin --package scriptplan-cli
-    #cargo +nightly build --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
+    cargo build --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
+    cargo build --bins --target x86_64-apple-darwin --package scriptplan-cli
+    #cargo build --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
     mv ./target/x86_64-pc-windows-gnu/debug/scriptplan-cli.exe ./scriptplan.exe
     mv ./target/x86_64-apple-darwin/debug/scriptplan-cli ./scriptplan
     #mv ./target/x86_64-unknown-linux-gnu/debug/scriptplan-cli ./scriptplan-linux
@@ -59,8 +67,8 @@ buildplan.deno:
 format.javascript:
   task: buildplan format
 # TODO: Should be a part of format.rust but errors out ATM
-format.rust.fix: cargo +nightly fix
-format.rust.fmt: cargo +nightly fmt
+format.rust.fix: cargo fix
+format.rust.fmt: cargo fmt
 format.rust:
   series:
    - task: format.rust.fix
@@ -103,7 +111,7 @@ build.node:
   task: buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
 build.rust:
-  script: cargo +nightly build
+  script: cargo build
 build-all:
   description: Build literally everything including things that require bundling (slower)
   series:
