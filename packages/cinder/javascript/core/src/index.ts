@@ -330,42 +330,42 @@ export const updateComponentResultsArray = <C, V, N extends Node>(
       // `null` means old part at tail has already been used
       // below; skip
       oldTail--;
-    } else if (results[oldHead]!.id === newComponentResults[newHead].blueprint.id) {
+    } else if (isReusableRenderResult(newComponentResults[newHead], results[oldHead]!)) {
       // Old head matches new head; update in place
-      newRenderResults[newHead] = renderOrReuseComponentResult(
+      newRenderResults[newHead] = replaceOldResult(
         newComponentResults[newHead],
-        results[oldHead]!,
         container,
+        results[oldHead]!,
         oldHead + 1 >= oldLength ? before : results[oldHead + 1]!.data.first,
       )!;
       oldHead++;
       newHead++;
-    } else if (results[oldTail]!.id === newComponentResults[newTail].blueprint.id) {
+    } else if (isReusableRenderResult(newComponentResults[newTail], results[oldTail]!)) {
       // Old tail matches new tail; update in place
-      newRenderResults[newTail] = renderOrReuseComponentResult(
+      newRenderResults[newTail] = replaceOldResult(
         newComponentResults[newTail],
-        results[oldTail]!,
         container,
+        results[oldTail]!,
         oldTail + 1 >= oldLength ? before : results[oldTail + 1]!.data.first,
       )!;
       oldTail--;
       newTail--;
-    } else if (results[oldHead]!.id === newComponentResults[newTail].blueprint.id) {
+    } else if (isReusableRenderResult(newComponentResults[newTail], results[oldHead]!)) {
       // Old head matches new tail; update and move to new tail
-      newRenderResults[newTail] = renderOrReuseComponentResult(
+      newRenderResults[newTail] = replaceOldResult(
         newComponentResults[newTail],
-        results[oldHead]!,
         container,
+        results[oldHead]!,
         newTail + 1 < newLength ? newRenderResults[newTail + 1].data.first : before,
       )!;
       newTail--;
       oldHead++;
-    } else if (results[oldTail]!.id === newComponentResults[newHead].blueprint.id) {
+    } else if (isReusableRenderResult(newComponentResults[newHead], results[oldTail]!)) {
       // Old tail matches new head; update and move to new head
-      newRenderResults[newTail] = renderOrReuseComponentResult(
+      newRenderResults[newTail] = replaceOldResult(
         newComponentResults[newHead],
-        results[oldTail]!,
         container,
+        results[oldTail]!,
         results[oldHead]!.data.first,
       )!;
       newHead++;
@@ -387,14 +387,12 @@ export const updateComponentResultsArray = <C, V, N extends Node>(
     // Add parts for any remaining new values
     const insertAdditionalPartsBefore =
       newTail + 1 < newLength ? newRenderResults[newTail + 1].data.first : before;
-    let i = newHead;
-    while (i <= newTail) {
+    for (let i = newHead; i <= newTail; i++) {
       newRenderResults[i] = renderComponentResultNoSet(
         newComponentResults[i],
         container,
         insertAdditionalPartsBefore,
       );
-      i++;
     }
   }
   return newRenderResults;
@@ -538,7 +536,10 @@ const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Eleme
     (state, values, container, before) => {
       if (state.state.value === values.value) {
         const { children: childrenProps, ...other } = values.properties;
-        domFieldSetter(renderData(state.first, state.state.fields), [other, childrenProps]);
+        domFieldSetter(renderData(state.first, state.state.fields), [
+          other,
+          childrenProps,
+        ]);
       } else {
         domFieldUnmount(renderData(state.first, state.state.fields));
         state.first.remove();
