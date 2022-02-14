@@ -510,14 +510,20 @@ export const renderOrReuseComponentResult = <C, V, N extends Node>(
   }
 };
 
-
 type DynamicElementBlueprintProps<T> = {
   value: T;
   properties: any;
 };
 
 const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Element) => {
-  const mount = ({ value, properties: { children: childrenProps, ...other } }: DynamicElementBlueprintProps<T>, container, before) => {
+  const mount = (
+    {
+      value,
+      properties: { children: childrenProps, ...other },
+    }: DynamicElementBlueprintProps<T>,
+    container,
+    before,
+  ) => {
     const element = createElementCallback(value);
 
     const fields = [spread(element), children(element, null)];
@@ -545,10 +551,10 @@ const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Eleme
   );
 
   return blueprint;
-}
+};
 
-const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((v) => document.createElement(v), (v) => [v], (element) => [spread(element)]);
-const dynamicElementBlueprint = createDynamicElementBlueprint<{ new ()}>((v) => new v(), ({ children, ...other }) => [other, children], (element) => [spread(element), children(element, null)]);
+const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((tag) => document.createElement(tag));
+const dynamicElementBlueprint = createDynamicElementBlueprint<{ new () }>((Element) => new Element());
 
 export const validateComponent = (component, properties) => {
   if (typeof component === 'string') {
