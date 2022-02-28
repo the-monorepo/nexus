@@ -41,6 +41,25 @@ pub trait Recycler {
     >;
 }
 
+fn recycle_instruction<OldComponent, NewValue, Update, RecyclerGeneric>(
+    recycler: RecyclerGeneric,
+    new_value: NewValue,
+    old_end: End,
+    new_end: End,
+) -> Result<Instruction<OldComponent, NewValue, Update>, DoNotRecycle<OldComponent, NewValue>>
+where
+    Update: FnOnce(OldComponent, NewValue) -> OldComponent,
+    RecyclerGeneric: Recycler<OldComponent = OldComponent, NewValue = NewValue, Update = Update>,
+{
+    recycler.recycle(new_value).and_then(|recycle_result| {
+        Ok(Instruction::RecycleItem(RecycleInstruction {
+            old: old_end,
+            new: new_end,
+            recycle_result,
+        }))
+    })
+}
+
 pub enum End {
     Head,
     Tail,
@@ -111,12 +130,8 @@ where
 
         match (old_head_item_option, new_head_item_option) {
             (Some(old_head_item), Some(new_head_item)) => {
-                match old_head_item.recycle(new_head_item) {
-                    Ok(recycle_result) => Some(Instruction::RecycleItem(RecycleInstruction {
-                        old: End::Head,
-                        new: End::Head,
-                        recycle_result,
-                    })),
+                match recycle_instruction(old_head_item, new_head_item, End::Head, End::Head) {
+                    Ok(instruction) => Some(instruction),
                     Err(DoNotRecycle {
                         reconcile_payload:
                             ReconcilePayload {
@@ -128,17 +143,16 @@ where
                         if let Some(new_tail_item) = new_tail_item_option {
                             let old_tail_item_option = self.old_tail_take();
                             if let Some(old_tail_item) = old_tail_item_option {
-                                match old_tail_item.recycle(new_tail_item) {
-                                    Ok(recycle_result) => {
+                                match recycle_instruction(
+                                    old_tail_item,
+                                    new_tail_item,
+                                    End::Tail,
+                                    End::Tail,
+                                ) {
+                                    Ok(instruction) => {
                                         self.new_head = Some(new_head_item);
                                         self.old_head = Some(old_head_item);
-                                        return Some(Instruction::RecycleItem(
-                                            RecycleInstruction {
-                                                old: End::Tail,
-                                                new: End::Tail,
-                                                recycle_result,
-                                            },
-                                        ));
+                                        return Some(instruction);
                                     }
                                     Err(DoNotRecycle {
                                         reconcile_payload:
@@ -146,17 +160,16 @@ where
                                                 old_component: old_tail_item,
                                                 new_value: new_tail_item,
                                             },
-                                    }) => match old_tail_item.recycle(new_head_item) {
-                                        Ok(recycle_result) => {
+                                    }) => match recycle_instruction(
+                                        old_tail_item,
+                                        new_head_item,
+                                        End::Tail,
+                                        End::Head,
+                                    ) {
+                                        Ok(instruction) => {
                                             self.old_head = Some(old_head_item);
                                             self.new_tail = Some(new_tail_item);
-                                            return Some(Instruction::RecycleItem(
-                                                RecycleInstruction {
-                                                    old: End::Tail,
-                                                    new: End::Head,
-                                                    recycle_result,
-                                                },
-                                            ));
+                                            return Some(instruction);
                                         }
                                         Err(DoNotRecycle {
                                             reconcile_payload:
@@ -164,18 +177,17 @@ where
                                                     old_component: old_tail_item,
                                                     new_value: new_head_item,
                                                 },
-                                        }) => match old_head_item.recycle(new_tail_item) {
-                                            Ok(recycle_result) => {
+                                        }) => match recycle_instruction(
+                                            old_head_item,
+                                            new_tail_item,
+                                            End::Tail,
+                                            End::Head,
+                                        ) {
+                                            Ok(instruction) => {
                                                 self.old_tail = Some(old_tail_item);
                                                 self.new_head = Some(new_head_item);
 
-                                                return Some(Instruction::RecycleItem(
-                                                    RecycleInstruction {
-                                                        old: End::Tail,
-                                                        new: End::Head,
-                                                        recycle_result,
-                                                    },
-                                                ));
+                                                return Some(instruction);
                                             }
                                             Err(DoNotRecycle {
                                                 reconcile_payload:
