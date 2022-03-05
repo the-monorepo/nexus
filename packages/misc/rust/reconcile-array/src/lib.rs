@@ -5,6 +5,8 @@ pub struct ReconcileIterator<OldComponentsIterator, NewValuesIterator>
 where
     OldComponentsIterator: DoubleEndedIterator,
     NewValuesIterator: DoubleEndedIterator,
+    OldComponentsIterator::Item:
+        Recycler<OldComponent = OldComponentsIterator::Item, NewValue = NewValuesIterator::Item>,
 {
     old_iterator: OldComponentsIterator,
     new_iterator: NewValuesIterator,
@@ -14,7 +16,34 @@ where
     old_tail: Option<OldComponentsIterator::Item>,
 }
 
-struct ReconcilePayload<Component, Value> {
+impl<OldComponentsIterator, NewValuesIterator>
+    ReconcileIterator<OldComponentsIterator, NewValuesIterator>
+where
+    OldComponentsIterator: DoubleEndedIterator,
+    NewValuesIterator: DoubleEndedIterator,
+    OldComponentsIterator::Item:
+        Recycler<OldComponent = OldComponentsIterator::Item, NewValue = NewValuesIterator::Item>,
+{
+    fn new(
+        mut components: OldComponentsIterator,
+        mut values: NewValuesIterator,
+    ) -> ReconcileIterator<OldComponentsIterator, NewValuesIterator> {
+        let old_head = components.next();
+        let old_tail = components.next_back();
+        let new_head = values.next();
+        let new_tail = values.next_back();
+        ReconcileIterator {
+            old_iterator: components,
+            new_iterator: values,
+            old_head,
+            old_tail,
+            new_head,
+            new_tail,
+        }
+    }
+}
+
+pub struct ReconcilePayload<Component, Value> {
     old_component: Component,
     new_value: Value,
 }
@@ -23,71 +52,76 @@ pub struct DoNotRecycle<Component, Value> {
     reconcile_payload: ReconcilePayload<Component, Value>,
 }
 
-pub struct Recycled<Component, Value, Updater: FnOnce(Component, Value) -> Component> {
-    reconcile_payload: ReconcilePayload<Component, Value>,
-    update: Updater,
-}
-
 pub trait Recycler {
-    type OldComponent;
     type NewValue;
-    type Update: FnOnce(Self::OldComponent, Self::NewValue) -> Self::OldComponent;
+    type OldComponent;
+    type RecycledGeneric;
     fn recycle(
         self,
         new_value: Self::NewValue,
-    ) -> Result<
-        Recycled<Self::OldComponent, Self::NewValue, Self::Update>,
-        DoNotRecycle<Self::OldComponent, Self::NewValue>,
-    >;
+    ) -> Result<Self::RecycledGeneric, ReconcilePayload<Self::OldComponent, Self::NewValue>>;
 }
 
-fn recycle_instruction<OldComponent, NewValue, Update, RecyclerGeneric>(
+fn recycle_instruction<OldComponent, NewValue, RecycledGeneric, RecyclerGeneric>(
     recycler: RecyclerGeneric,
     new_value: NewValue,
     old_end: End,
     new_end: End,
-) -> Result<Instruction<OldComponent, NewValue, Update>, DoNotRecycle<OldComponent, NewValue>>
+) -> Result<
+    Instruction<OldComponent, NewValue, RecycledGeneric>,
+    ReconcilePayload<OldComponent, NewValue>,
+>
 where
-    Update: FnOnce(OldComponent, NewValue) -> OldComponent,
-    RecyclerGeneric: Recycler<OldComponent = OldComponent, NewValue = NewValue, Update = Update>,
+    RecyclerGeneric: Recycler<
+        OldComponent = OldComponent,
+        NewValue = NewValue,
+        RecycledGeneric = RecycledGeneric,
+    >,
 {
     recycler.recycle(new_value).and_then(|recycle_result| {
         Ok(Instruction::RecycleItem(RecycleInstruction {
-            old: old_end,
-            new: new_end,
+            position: Position {
+                old: old_end,
+                new: new_end,
+            },
             recycle_result,
         }))
     })
 }
 
+#[derive(PartialEq)]
 pub enum End {
     Head,
     Tail,
 }
 
-pub struct RecycleInstruction<
-    OldComponent,
-    NewValue,
-    Update: FnOnce(OldComponent, NewValue) -> OldComponent,
-> {
+pub struct Position {
     old: End,
     new: End,
-    recycle_result: Recycled<OldComponent, NewValue, Update>,
+}
+
+pub struct RecycleInstruction<RecycledGeneric> {
+    position: Position,
+    recycle_result: RecycledGeneric,
 }
 
 pub struct RemovalInstruction<T> {
+    end: End,
     component: T,
 }
 
-pub enum Instruction<Component, NewValue, Update: FnOnce(Component, NewValue) -> Component> {
-    RecycleItem(RecycleInstruction<Component, NewValue, Update>),
+pub enum Instruction<Component, NewValue, RecycledGeneric> {
+    RecycleItem(RecycleInstruction<RecycledGeneric>),
     RemoveItem(RemovalInstruction<Component>),
-    AddAllRemainingValues(),
-    RemoveAllRemainingComponents(),
+    AddAllRemainingValues(NewValue),
+    RemoveAllRemainingComponents(Component),
 }
 
 impl<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
     ReconcileIterator<OldComponentsIterator, NewValuesIterator>
+where
+    OldComponentsIterator::Item:
+        Recycler<OldComponent = OldComponentsIterator::Item, NewValue = NewValuesIterator::Item>,
 {
     fn new_head_take(&mut self) -> Option<NewValuesIterator::Item> {
         self.new_head.take().or_else(|| self.new_iterator.next())
@@ -110,39 +144,44 @@ impl<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedI
     }
 }
 
-impl<OldComponentsIterator, NewValuesIterator> Iterator
+impl<OldComponentsIterator, NewValuesIterator, RecyclerGeneric> Iterator
     for ReconcileIterator<OldComponentsIterator, NewValuesIterator>
 where
     OldComponentsIterator: DoubleEndedIterator,
     NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator::Item:
-        Recycler<OldComponent = OldComponentsIterator::Item, NewValue = NewValuesIterator::Item>,
+    OldComponentsIterator::Item: Recycler<
+        OldComponent = OldComponentsIterator::Item,
+        NewValue = NewValuesIterator::Item,
+        RecycledGeneric = RecyclerGeneric,
+    >,
 {
     type Item = Instruction<
         OldComponentsIterator::Item,
         NewValuesIterator::Item,
-        <OldComponentsIterator::Item as Recycler>::Update,
+        <OldComponentsIterator::Item as Recycler>::RecycledGeneric,
     >;
 
     fn next(&mut self) -> Option<Self::Item> {
+        println!("\nnext");
         let new_head_item_option = self.new_head_take();
         let old_head_item_option = self.old_head_take();
+        println!("{:?} {:?}", old_head_item_option.is_some(), new_head_item_option.is_some());
 
         match (old_head_item_option, new_head_item_option) {
             (Some(old_head_item), Some(new_head_item)) => {
                 match recycle_instruction(old_head_item, new_head_item, End::Head, End::Head) {
                     Ok(instruction) => Some(instruction),
-                    Err(DoNotRecycle {
-                        reconcile_payload:
-                            ReconcilePayload {
-                                old_component: old_head_item,
-                                new_value: new_head_item,
-                            },
+                    Err(ReconcilePayload {
+                        old_component: old_head_item,
+                        new_value: new_head_item,
                     }) => {
                         let new_tail_item_option = self.new_tail_take();
+                        println!("new tail {:?}", new_tail_item_option.is_some());
                         if let Some(new_tail_item) = new_tail_item_option {
                             let old_tail_item_option = self.old_tail_take();
+                            println!("old tail {:?}", old_tail_item_option.is_some());
                             if let Some(old_tail_item) = old_tail_item_option {
+
                                 match recycle_instruction(
                                     old_tail_item,
                                     new_tail_item,
@@ -154,12 +193,9 @@ where
                                         self.old_head = Some(old_head_item);
                                         return Some(instruction);
                                     }
-                                    Err(DoNotRecycle {
-                                        reconcile_payload:
-                                            ReconcilePayload {
-                                                old_component: old_tail_item,
-                                                new_value: new_tail_item,
-                                            },
+                                    Err(ReconcilePayload {
+                                        old_component: old_tail_item,
+                                        new_value: new_tail_item,
                                     }) => match recycle_instruction(
                                         old_tail_item,
                                         new_head_item,
@@ -171,50 +207,49 @@ where
                                             self.new_tail = Some(new_tail_item);
                                             return Some(instruction);
                                         }
-                                        Err(DoNotRecycle {
-                                            reconcile_payload:
-                                                ReconcilePayload {
-                                                    old_component: old_tail_item,
-                                                    new_value: new_head_item,
-                                                },
-                                        }) => match recycle_instruction(
-                                            old_head_item,
-                                            new_tail_item,
-                                            End::Tail,
-                                            End::Head,
-                                        ) {
-                                            Ok(instruction) => {
-                                                self.old_tail = Some(old_tail_item);
-                                                self.new_head = Some(new_head_item);
+                                        Err(ReconcilePayload {
+                                            old_component: old_tail_item,
+                                            new_value: new_head_item,
+                                        }) => {
+                                            match recycle_instruction(
+                                                old_head_item,
+                                                new_tail_item,
+                                                End::Head,
+                                                End::Tail,
+                                            ) {
+                                                Ok(instruction) => {
+                                                    self.old_tail = Some(old_tail_item);
+                                                    self.new_head = Some(new_head_item);
 
-                                                return Some(instruction);
-                                            }
-                                            Err(DoNotRecycle {
-                                                reconcile_payload:
-                                                    ReconcilePayload {
-                                                        old_component: old_head_item,
-                                                        new_value: new_tail_item,
-                                                    },
-                                            }) => {
-                                                self.old_tail = Some(old_tail_item);
-                                                self.new_head = Some(new_head_item);
-                                                self.new_tail = Some(new_tail_item);
+                                                    return Some(instruction);
+                                                }
+                                                Err(ReconcilePayload {
+                                                    old_component: old_head_item,
+                                                    new_value: new_tail_item,
+                                                }) => {
+                                                    self.old_tail = Some(old_tail_item);
+                                                    self.new_head = Some(new_head_item);
+                                                    self.new_tail = Some(new_tail_item);
 
-                                                return Some(Instruction::RemoveItem(
-                                                    RemovalInstruction {
-                                                        component: old_head_item,
-                                                    },
-                                                ));
+                                                    return Some(Instruction::RemoveItem(
+                                                        RemovalInstruction {
+                                                            component: old_head_item,
+                                                            end: End::Head,
+                                                        },
+                                                    ));
+                                                }
                                             }
-                                        },
+                                        }
                                     },
                                 }
                             } else {
                                 // There's only one component and target value left. They don't match. Remove the component. Target value will be added in the next iteration.
                                 // TODO: We can technically yield two values here. Check if we can use this knowledge to speed things up.
                                 self.new_head = Some(new_head_item);
+                                self.new_tail = Some(new_tail_item);
                                 return Some(Instruction::RemoveItem(RemovalInstruction {
                                     component: old_head_item,
+                                    end: End::Head,
                                 }));
                             }
                         } else {
@@ -222,15 +257,98 @@ where
                             self.new_head = Some(new_head_item);
                             return Some(Instruction::RemoveItem(RemovalInstruction {
                                 component: old_head_item,
+                                end: End::Head,
                             }));
                         }
                     }
                 }
             }
-            (Some(_), None) => Some(Instruction::AddAllRemainingValues()),
-            (None, Some(_)) => Some(Instruction::RemoveAllRemainingComponents()),
+            (Some(component), None) => Some(Instruction::RemoveAllRemainingComponents(component)),
+            (None, Some(value)) => Some(Instruction::AddAllRemainingValues(value)),
             (None, None) => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::{vec_deque, VecDeque};
+
+    use crate::{
+        DoNotRecycle, End, Instruction, ReconcileIterator, ReconcilePayload, Recycler,
+        RemovalInstruction,
+    };
+
+    struct TestUpdater {
+        component: u16,
+        value: u16,
+    }
+
+    impl<'a> Recycler for &'a i32 {
+        type OldComponent = Self;
+
+        type NewValue = &'a i32;
+
+        type RecycledGeneric = i32;
+
+        fn recycle(
+            self,
+            value: Self::NewValue,
+        ) -> Result<
+            Self::RecycledGeneric,
+            crate::ReconcilePayload<Self::OldComponent, Self::NewValue>,
+        > {
+            if self == value {
+                return Ok(self + value);
+            }
+
+            return Err(ReconcilePayload {
+                old_component: self,
+                new_value: value,
+            });
+        }
+    }
+
+    #[test]
+    fn it_works() {
+        let components = [1, 2, 3, 4];
+        const values: [i32; 5] = [1, 3, 2, 5, 4];
+
+        let mut iter = ReconcileIterator::new(
+          components.iter(),
+          values.iter()
+        );
+
+        let mut reconciled = [0; values.len()];
+        let mut tail = reconciled.len() - 1;
+        let mut head = 0;
+
+        for instruction in iter {
+            match instruction {
+                Instruction::RecycleItem(recycled) => {
+                  let old_index = if recycled.position.new == End::Head {
+                      let old_index = head;
+                      head += 1;
+                      old_index
+                  } else {
+                      let old_index = tail;
+                      tail -= 1;
+                      old_index
+                  };
+                  reconciled[old_index] = recycled.recycle_result;
+                },
+                Instruction::RemoveItem(_) => {
+                },
+                Instruction::AddAllRemainingValues(first) => {
+                  reconciled[head] = *first;
+                },
+                Instruction::RemoveAllRemainingComponents(_) => {
+
+                },
+            }
+        }
+
+        assert_eq!(reconciled, [2,6,4, 5,8])
     }
 }
 /*
