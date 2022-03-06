@@ -152,15 +152,15 @@ where
 
 struct CtVhState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
 {
-    new_head: NewValuesIterator::Item,
-    old_tail: OldComponentsIterator::Item,
+    component_tail: OldComponentsIterator::Item,
+    value_head: NewValuesIterator::Item,
     iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
 }
 
 struct ChVtState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
 {
-    old_head: OldComponentsIterator::Item,
-    new_tail: NewValuesIterator::Item,
+    component_head: OldComponentsIterator::Item,
+    value_tail: NewValuesIterator::Item,
     iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
 }
 
@@ -168,9 +168,9 @@ struct CtVhVtState<
     OldComponentsIterator: DoubleEndedIterator,
     NewValuesIterator: DoubleEndedIterator,
 > {
-    new_head: NewValuesIterator::Item,
-    old_tail: OldComponentsIterator::Item,
-    new_tail: NewValuesIterator::Item,
+    component_tail: OldComponentsIterator::Item,
+    value_head: NewValuesIterator::Item,
+    value_tail: NewValuesIterator::Item,
     iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
 }
 
@@ -211,8 +211,8 @@ enum ChVhNextState<
 
 struct ChVhState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
 {
-    old_head: OldComponentsIterator::Item,
-    new_head: NewValuesIterator::Item,
+    component_head: OldComponentsIterator::Item,
+    value_head: NewValuesIterator::Item,
     iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
 }
 
@@ -230,33 +230,33 @@ where
     fn check(
         mut self,
     ) -> EmptyStateNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
-        let old_head_option = self.iterators.components.next();
-        let new_head_option = self.iterators.values.next();
-        match (old_head_option, new_head_option) {
-            (Some(old_head), Some(new_head)) => match old_head.recycle(new_head) {
+        let component_head_option = self.iterators.components.next();
+        let value_head_option = self.iterators.values.next();
+        match (component_head_option, value_head_option) {
+            (Some(component_head), Some(value_head)) => match component_head.recycle(value_head) {
                 Ok(data) => {
                     EmptyStateNextState::Recycled(RecycledAndNextState { data, state: self })
                 }
                 Err(ReconcilePayload {
-                    old_component: old_head,
-                    new_value: new_head,
+                    old_component: component_head,
+                    new_value: value_head,
                 }) => EmptyStateNextState::NoMatch(ChVhState {
-                    old_head,
-                    new_head,
+                    component_head,
+                    value_head,
                     iterators: self.iterators,
                 }),
             },
-            (Some(old_head), None) => {
+            (Some(component_head), None) => {
                 EmptyStateNextState::Finish(FinalInstruction::RemoveAllRemainingComponents(
                     RemoveRemainingComponentsInstruction {
-                        first_component: old_head,
+                        first_component: component_head,
                         other_components: self.iterators.components,
                     },
                 ))
             }
-            (None, Some(new_head)) => EmptyStateNextState::Finish(
+            (None, Some(value_head)) => EmptyStateNextState::Finish(
                 FinalInstruction::AddAllRemainingValues(AddAllRemainingValuesInstruction {
-                    first_value: new_head,
+                    first_value: value_head,
                     other_values: self.iterators.values,
                 }),
             ),
@@ -277,47 +277,47 @@ where
     >,
 {
     fn check(mut self) -> ChVhNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
-        let old_tail_option = self.iterators.components.next();
-        let new_tail_option = self.iterators.values.next();
-        match (old_tail_option, new_tail_option) {
+        let component_tail_option = self.iterators.components.next();
+        let value_tail_option = self.iterators.values.next();
+        match (component_tail_option, value_tail_option) {
             (None, None) => todo!(),
             (None, Some(_)) => todo!(),
             (Some(_), None) => todo!(),
-            (Some(old_tail), Some(new_tail)) => match old_tail.recycle(new_tail) {
+            (Some(component_tail), Some(value_tail)) => match component_tail.recycle(value_tail) {
                 Ok(data) => ChVhNextState::RecycledVtCt(RecycledAndNextState { data, state: self }),
                 Err(ReconcilePayload {
-                    old_component: old_tail,
-                    new_value: new_tail,
-                }) => match self.old_head.recycle(new_tail) {
+                    old_component: component_tail,
+                    new_value: value_tail,
+                }) => match self.component_head.recycle(value_tail) {
                     Ok(data) => ChVhNextState::RecycledChVt(RecycledAndNextState {
                         data,
                         state: CtVhState {
                             iterators: self.iterators,
-                            old_tail,
-                            new_head: self.new_head,
+                            component_tail,
+                            value_head: self.value_head,
                         },
                     }),
                     Err(ReconcilePayload {
-                        old_component: old_head,
-                        new_value: new_tail,
-                    }) => match old_tail.recycle(self.new_head) {
+                        old_component: component_head,
+                        new_value: value_tail,
+                    }) => match component_tail.recycle(self.value_head) {
                         Ok(data) => ChVhNextState::RecycledCtVh(RecycledAndNextState {
                             data,
                             state: ChVtState {
                                 iterators: self.iterators,
-                                old_head,
-                                new_tail: new_tail,
+                                component_head,
+                                value_tail: value_tail,
                             },
                         }),
                         Err(ReconcilePayload {
-                            old_component: old_tail,
-                            new_value: new_head,
+                            old_component: component_tail,
+                            new_value: value_head,
                         }) => ChVhNextState::NoMatch(RemoveComponentAndNextState {
-                            component: old_head,
+                            component: component_head,
                             state: CtVhVtState {
-                                old_tail,
-                                new_head,
-                                new_tail,
+                                component_tail,
+                                value_head,
+                                value_tail,
                                 iterators: self.iterators,
                             },
                         }),
