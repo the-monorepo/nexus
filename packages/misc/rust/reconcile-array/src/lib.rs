@@ -2,29 +2,28 @@ use std::iter::DoubleEndedIterator;
 use std::iter::Iterator;
 use std::ops::Add;
 
-pub struct ReconcileIterator<OldComponentsIterator, NewValuesIterator>
+pub struct ReconcileIterator<ComponentsIterator, ValuesIterator>
 where
-    OldComponentsIterator: DoubleEndedIterator,
-    NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator::Item:
-        Recycler<OldComponent = OldComponentsIterator::Item, NewValue = NewValuesIterator::Item>,
+    ComponentsIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
+    ComponentsIterator::Item:
+        Recycler<Component = ComponentsIterator::Item, Value = ValuesIterator::Item>,
 {
-    old_iterator: OldComponentsIterator,
-    new_iterator: NewValuesIterator,
+    old_iterator: ComponentsIterator,
+    new_iterator: ValuesIterator,
 }
 
-impl<OldComponentsIterator, NewValuesIterator>
-    ReconcileIterator<OldComponentsIterator, NewValuesIterator>
+impl<ComponentsIterator, ValuesIterator> ReconcileIterator<ComponentsIterator, ValuesIterator>
 where
-    OldComponentsIterator: DoubleEndedIterator,
-    NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator::Item:
-        Recycler<OldComponent = OldComponentsIterator::Item, NewValue = NewValuesIterator::Item>,
+    ComponentsIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
+    ComponentsIterator::Item:
+        Recycler<Component = ComponentsIterator::Item, Value = ValuesIterator::Item>,
 {
     fn new(
-        mut components: OldComponentsIterator,
-        mut values: NewValuesIterator,
-    ) -> ReconcileIterator<OldComponentsIterator, NewValuesIterator> {
+        mut components: ComponentsIterator,
+        mut values: ValuesIterator,
+    ) -> ReconcileIterator<ComponentsIterator, ValuesIterator> {
         ReconcileIterator {
             old_iterator: components,
             new_iterator: values,
@@ -42,27 +41,24 @@ pub struct DoNotRecycle<Component, Value> {
 }
 
 pub trait Recycler {
-    type NewValue;
-    type OldComponent;
+    type Value;
+    type Component;
     type RecycledGeneric;
     fn recycle(
         self,
-        new_value: Self::NewValue,
-    ) -> Result<Self::RecycledGeneric, ReconcilePayload<Self::OldComponent, Self::NewValue>>;
+        new_value: Self::Value,
+    ) -> Result<Self::RecycledGeneric, ReconcilePayload<Self::Component, Self::Value>>;
 }
 
-fn recycle_instruction<OldComponent, NewValue, RecycledGeneric, RecyclerGeneric>(
+fn recycle_instruction<Component, Value, RecycledGeneric, RecyclerGeneric>(
     recycler: RecyclerGeneric,
-    new_value: NewValue,
+    new_value: Value,
     old_end: End,
     new_end: End,
-) -> Result<Instruction<OldComponent, RecycledGeneric>, ReconcilePayload<OldComponent, NewValue>>
+) -> Result<Instruction<Component, RecycledGeneric>, ReconcilePayload<Component, Value>>
 where
-    RecyclerGeneric: Recycler<
-        OldComponent = OldComponent,
-        NewValue = NewValue,
-        RecycledGeneric = RecycledGeneric,
-    >,
+    RecyclerGeneric:
+        Recycler<Component = Component, Value = Value, RecycledGeneric = RecycledGeneric>,
 {
     recycler.recycle(new_value).and_then(|recycle_result| {
         Ok(Instruction::RecycleItem(RecycleInstruction {
@@ -96,29 +92,29 @@ pub struct RemovalInstruction<T> {
     component: T,
 }
 
-pub struct AddAllRemainingValuesInstruction<NewValuesIterator>
+pub struct AddAllRemainingValuesInstruction<ValuesIterator>
 where
-    NewValuesIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
 {
-    first_value: NewValuesIterator::Item,
-    other_values: NewValuesIterator,
+    first_value: ValuesIterator::Item,
+    other_values: ValuesIterator,
 }
 
-pub struct RemoveRemainingComponentsInstruction<OldComponentsIterator>
+pub struct RemoveRemainingComponentsInstruction<ComponentsIterator>
 where
-    OldComponentsIterator: DoubleEndedIterator,
+    ComponentsIterator: DoubleEndedIterator,
 {
-    first_component: OldComponentsIterator::Item,
-    other_components: OldComponentsIterator,
+    first_component: ComponentsIterator::Item,
+    other_components: ComponentsIterator,
 }
 
-pub enum FinalInstruction<OldComponentsIterator, NewValuesIterator>
+pub enum FinalInstruction<ComponentsIterator, ValuesIterator>
 where
-    NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
+    ComponentsIterator: DoubleEndedIterator,
 {
-    RemoveAllRemainingComponents(RemoveRemainingComponentsInstruction<OldComponentsIterator>),
-    AddAllRemainingValues(AddAllRemainingValuesInstruction<NewValuesIterator>),
+    RemoveAllRemainingComponents(RemoveRemainingComponentsInstruction<ComponentsIterator>),
+    AddAllRemainingValues(AddAllRemainingValuesInstruction<ValuesIterator>),
     DoNothing(),
 }
 
@@ -127,9 +123,9 @@ pub enum Instruction<Component, RecycledGeneric> {
     RemoveItem(RemovalInstruction<Component>),
 }
 
-struct Iterators<OldComponentsIterator, NewValuesIterator> {
-    components: OldComponentsIterator,
-    values: NewValuesIterator,
+struct Iterators<ComponentsIterator, ValuesIterator> {
+    components: ComponentsIterator,
+    values: ValuesIterator,
 }
 
 struct RecycledAndNextState<RecycledGeneric, InstructionGeneric> {
@@ -142,94 +138,84 @@ struct RemoveComponentAndNextState<ComponentGeneric, StateGeneric> {
     state: StateGeneric,
 }
 
-struct EmptyState<OldComponentsIterator, NewValuesIterator>
+struct EmptyState<ComponentsIterator, ValuesIterator>
 where
-    NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
+    ComponentsIterator: DoubleEndedIterator,
 {
-    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+    iterators: Iterators<ComponentsIterator, ValuesIterator>,
 }
 
-struct CtVhState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
-{
-    component_tail: OldComponentsIterator::Item,
-    value_head: NewValuesIterator::Item,
-    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+struct CtVhState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
+    component_tail: ComponentsIterator::Item,
+    value_head: ValuesIterator::Item,
+    iterators: Iterators<ComponentsIterator, ValuesIterator>,
 }
 
-struct ChVtState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
-{
-    component_head: OldComponentsIterator::Item,
-    value_tail: NewValuesIterator::Item,
-    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+struct ChVtState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
+    component_head: ComponentsIterator::Item,
+    value_tail: ValuesIterator::Item,
+    iterators: Iterators<ComponentsIterator, ValuesIterator>,
 }
 
-struct CtVhVtState<
-    OldComponentsIterator: DoubleEndedIterator,
-    NewValuesIterator: DoubleEndedIterator,
-> {
-    component_tail: OldComponentsIterator::Item,
-    value_head: NewValuesIterator::Item,
-    value_tail: NewValuesIterator::Item,
-    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+struct CtVhVtState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
+    component_tail: ComponentsIterator::Item,
+    value_head: ValuesIterator::Item,
+    value_tail: ValuesIterator::Item,
+    iterators: Iterators<ComponentsIterator, ValuesIterator>,
 }
 
-enum EmptyStateNextState<OldComponentsIterator, NewValuesIterator, RecyclerGeneric>
+enum EmptyStateNextState<ComponentsIterator, ValuesIterator, RecyclerGeneric>
 where
-    NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
+    ComponentsIterator: DoubleEndedIterator,
 {
-    Finish(FinalInstruction<OldComponentsIterator, NewValuesIterator>),
-    Recycled(
-        RecycledAndNextState<RecyclerGeneric, EmptyState<OldComponentsIterator, NewValuesIterator>>,
-    ),
-    NoMatch(ChVhState<OldComponentsIterator, NewValuesIterator>),
+    Finish(FinalInstruction<ComponentsIterator, ValuesIterator>),
+    Recycled(RecycledAndNextState<RecyclerGeneric, EmptyState<ComponentsIterator, ValuesIterator>>),
+    NoMatch(ChVhState<ComponentsIterator, ValuesIterator>),
 }
 
 enum ChVhNextState<
-    OldComponentsIterator: DoubleEndedIterator,
-    NewValuesIterator: DoubleEndedIterator,
+    ComponentsIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
     RecycledGeneric,
 > {
-    Finish(FinalInstruction<OldComponentsIterator, NewValuesIterator>),
+    Finish(FinalInstruction<ComponentsIterator, ValuesIterator>),
     RecycledVtCt(
-        RecycledAndNextState<RecycledGeneric, ChVhState<OldComponentsIterator, NewValuesIterator>>,
+        RecycledAndNextState<RecycledGeneric, ChVhState<ComponentsIterator, ValuesIterator>>,
     ),
     RecycledChVt(
-        RecycledAndNextState<RecycledGeneric, CtVhState<OldComponentsIterator, NewValuesIterator>>,
+        RecycledAndNextState<RecycledGeneric, CtVhState<ComponentsIterator, ValuesIterator>>,
     ),
     RecycledCtVh(
-        RecycledAndNextState<RecycledGeneric, ChVtState<OldComponentsIterator, NewValuesIterator>>,
+        RecycledAndNextState<RecycledGeneric, ChVtState<ComponentsIterator, ValuesIterator>>,
     ),
     NoMatch(
         RemoveComponentAndNextState<
-            OldComponentsIterator::Item,
-            CtVhVtState<OldComponentsIterator, NewValuesIterator>,
+            ComponentsIterator::Item,
+            CtVhVtState<ComponentsIterator, ValuesIterator>,
         >,
     ),
 }
 
-struct ChVhState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
-{
-    component_head: OldComponentsIterator::Item,
-    value_head: NewValuesIterator::Item,
-    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+struct ChVhState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
+    component_head: ComponentsIterator::Item,
+    value_head: ValuesIterator::Item,
+    iterators: Iterators<ComponentsIterator, ValuesIterator>,
 }
 
-impl<OldComponentsIterator, NewValuesIterator, RecycledGeneric>
-    EmptyState<OldComponentsIterator, NewValuesIterator>
+impl<ComponentsIterator, ValuesIterator, RecycledGeneric>
+    EmptyState<ComponentsIterator, ValuesIterator>
 where
-    NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator: DoubleEndedIterator,
-    OldComponentsIterator::Item: Recycler<
-        OldComponent = OldComponentsIterator::Item,
-        NewValue = NewValuesIterator::Item,
+    ValuesIterator: DoubleEndedIterator,
+    ComponentsIterator: DoubleEndedIterator,
+    ComponentsIterator::Item: Recycler<
+        Component = ComponentsIterator::Item,
+        Value = ValuesIterator::Item,
         RecycledGeneric = RecycledGeneric,
     >,
 {
-    fn check(
-        mut self,
-    ) -> EmptyStateNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
+    fn check(mut self) -> EmptyStateNextState<ComponentsIterator, ValuesIterator, RecycledGeneric> {
         let component_head_option = self.iterators.components.next();
         let value_head_option = self.iterators.values.next();
         match (component_head_option, value_head_option) {
@@ -265,18 +251,18 @@ where
     }
 }
 
-impl<OldComponentsIterator, NewValuesIterator, RecycledGeneric>
-    ChVhState<OldComponentsIterator, NewValuesIterator>
+impl<ComponentsIterator, ValuesIterator, RecycledGeneric>
+    ChVhState<ComponentsIterator, ValuesIterator>
 where
-    NewValuesIterator: DoubleEndedIterator,
-    OldComponentsIterator: DoubleEndedIterator,
-    OldComponentsIterator::Item: Recycler<
-        OldComponent = OldComponentsIterator::Item,
-        NewValue = NewValuesIterator::Item,
+    ValuesIterator: DoubleEndedIterator,
+    ComponentsIterator: DoubleEndedIterator,
+    ComponentsIterator::Item: Recycler<
+        Component = ComponentsIterator::Item,
+        Value = ValuesIterator::Item,
         RecycledGeneric = RecycledGeneric,
     >,
 {
-    fn check(mut self) -> ChVhNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
+    fn check(mut self) -> ChVhNextState<ComponentsIterator, ValuesIterator, RecycledGeneric> {
         let component_tail_option = self.iterators.components.next();
         let value_tail_option = self.iterators.values.next();
         match (component_tail_option, value_tail_option) {
@@ -343,19 +329,17 @@ mod tests {
     }
 
     impl<'a> Recycler for &'a i32 {
-        type OldComponent = Self;
+        type Component = Self;
 
-        type NewValue = &'a i32;
+        type Value = &'a i32;
 
         type RecycledGeneric = i32;
 
         fn recycle(
             self,
-            value: Self::NewValue,
-        ) -> Result<
-            Self::RecycledGeneric,
-            crate::ReconcilePayload<Self::OldComponent, Self::NewValue>,
-        > {
+            value: Self::Value,
+        ) -> Result<Self::RecycledGeneric, crate::ReconcilePayload<Self::Component, Self::Value>>
+        {
             if self == value {
                 return Ok(self + value);
             }
