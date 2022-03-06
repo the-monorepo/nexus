@@ -1,5 +1,6 @@
 use std::iter::DoubleEndedIterator;
 use std::iter::Iterator;
+use std::ops::Add;
 
 pub struct ReconcileIterator<OldComponentsIterator, NewValuesIterator>
 where
@@ -95,6 +96,38 @@ pub struct RemovalInstruction<T> {
     component: T,
 }
 
+pub struct AddAllRemainingValuesInstruction<NewValuesIterator, DataGeneric>
+where
+    NewValuesIterator: DoubleEndedIterator,
+{
+    data: DataGeneric,
+    first_value: NewValuesIterator::Item,
+    other_values: NewValuesIterator,
+}
+
+pub struct RemoveRemainingComponentsInstruction<OldComponentsIterator, DataGeneric>
+where
+    OldComponentsIterator: DoubleEndedIterator,
+{
+    data: DataGeneric,
+    first_component: OldComponentsIterator::Item,
+    other_components: OldComponentsIterator,
+}
+
+pub struct DoNothingInstruction<DataGeneric> {
+  data: DataGeneric
+}
+
+pub enum FinalInstruction<OldComponentsIterator, NewValuesIterator, DataGeneric>
+where
+    NewValuesIterator: DoubleEndedIterator,
+    OldComponentsIterator: DoubleEndedIterator,
+{
+    RemoveAllRemainingComponents(RemoveRemainingComponentsInstruction<OldComponentsIterator, DataGeneric>),
+    AddAllRemainingValues(AddAllRemainingValuesInstruction<NewValuesIterator, DataGeneric>),
+    DoNothing(DoNothingInstruction<DataGeneric>),
+}
+
 pub enum Instruction<Component, RecycledGeneric> {
     RecycleItem(RecycleInstruction<RecycledGeneric>),
     RemoveItem(RemovalInstruction<Component>),
@@ -118,17 +151,13 @@ where
         mut self,
         aFn: ForEachGeneric,
         initial: D,
-    ) -> D {
+    ) -> FinalInstruction<OldComponentsIterator, NewValuesIterator, D> {
         let mut new_head: Option<NewValuesIterator::Item> = self.new_iterator.next();
         let mut new_tail: Option<NewValuesIterator::Item> = self.new_iterator.next_back();
         let mut old_head: Option<OldComponentsIterator::Item> = self.old_iterator.next();
         let mut old_tail: Option<OldComponentsIterator::Item> = self.old_iterator.next_back();
 
-        println!(
-            "{:?} {:?}",
-            old_head.is_some(),
-            new_head.is_some()
-        );
+        println!("{:?} {:?}", old_head.is_some(), new_head.is_some());
         let mut data = initial;
 
         loop {
@@ -142,10 +171,12 @@ where
                             old_component: old_head_item,
                             new_value: new_head_item,
                         }) => {
-                            let new_tail_item_option = new_tail.take().or_else(|| self.new_iterator.next_back());
+                            let new_tail_item_option =
+                                new_tail.take().or_else(|| self.new_iterator.next_back());
                             println!("new tail {:?}", new_tail_item_option.is_some());
                             if let Some(new_tail_item) = new_tail_item_option {
-                                let old_tail_item_option = old_tail.take().or_else(|| self.old_iterator.next_back());
+                                let old_tail_item_option =
+                                    old_tail.take().or_else(|| self.old_iterator.next_back());
                                 println!("old tail {:?}", old_tail_item_option.is_some());
                                 if let Some(old_tail_item) = old_tail_item_option {
                                     match recycle_instruction(
@@ -197,12 +228,15 @@ where
                                                         new_head = Some(new_head_item);
                                                         new_tail = Some(new_tail_item);
 
-                                                        data = aFn(Instruction::RemoveItem(
-                                                            RemovalInstruction {
-                                                                component: old_head_item,
-                                                                end: End::Head,
-                                                            },
-                                                        ), data);
+                                                        data = aFn(
+                                                            Instruction::RemoveItem(
+                                                                RemovalInstruction {
+                                                                    component: old_head_item,
+                                                                    end: End::Head,
+                                                                },
+                                                            ),
+                                                            data,
+                                                        );
                                                     }
                                                 }
                                             }
@@ -213,34 +247,49 @@ where
                                     // TODO: We can technically yield two values here. Check if we can use this knowledge to speed things up.
                                     new_head = Some(new_head_item);
                                     new_tail = Some(new_tail_item);
-                                    data = aFn(Instruction::RemoveItem(RemovalInstruction {
-                                        component: old_head_item,
-                                        end: End::Head,
-                                    }), data);
+                                    data = aFn(
+                                        Instruction::RemoveItem(RemovalInstruction {
+                                            component: old_head_item,
+                                            end: End::Head,
+                                        }),
+                                        data,
+                                    );
                                 }
                             } else {
                                 // At this point we know there's only one target value left. We already know it doesn't match the head component so delete the head component.
                                 new_head = Some(new_head_item);
-                                data = aFn(Instruction::RemoveItem(RemovalInstruction {
-                                    component: old_head_item,
-                                    end: End::Head,
-                                }), data);
+                                data = aFn(
+                                    Instruction::RemoveItem(RemovalInstruction {
+                                        component: old_head_item,
+                                        end: End::Head,
+                                    }),
+                                    data,
+                                );
                             }
                         }
                     }
                 }
                 (Some(component), None) => {
-                    break;
+                    return FinalInstruction::RemoveAllRemainingComponents(RemoveRemainingComponentsInstruction {
+                      data,
+                      first_component: component,
+                      other_components: self.old_iterator
+                    });
                 }
                 (None, Some(value)) => {
-                    break;
+                    return FinalInstruction::AddAllRemainingValues(AddAllRemainingValuesInstruction {
+                      data,
+                      first_value: value,
+                      other_values: self.new_iterator,
+                    });
                 }
                 (None, None) => {
-                    break;
+                    return FinalInstruction::DoNothing(DoNothingInstruction {
+                      data
+                    });
                 }
             }
         }
-        return data;
     }
 }
 
@@ -250,7 +299,7 @@ mod tests {
 
     use crate::{
         DoNotRecycle, End, Instruction, ReconcileIterator, ReconcilePayload, Recycler,
-        RemovalInstruction,
+        RemovalInstruction, FinalInstruction,
     };
 
     struct TestUpdater {
@@ -288,42 +337,61 @@ mod tests {
         let components = [1, 2, 3, 4];
         const values: [i32; 5] = [1, 3, 2, 5, 4];
 
-        let mut iter = ReconcileIterator::new(components.iter(), values.iter());
+        let iter = ReconcileIterator::new(components.iter(), values.iter());
 
         struct MyData {
-          reconciled: [i32; 5],
-          tail: usize,
-          head: usize,
+            reconciled: [i32; 5],
+            tail: usize,
+            head: usize,
         }
 
         let reconciled = [0; values.len()];
         let tail = reconciled.len() - 1;
         let head = 0;
         let mut data = MyData {
-          reconciled,
-          tail,
-          head,
+            reconciled,
+            tail,
+            head,
         };
 
-        data = iter.recycle_instructions(|instruction, mut data| match instruction {
-            Instruction::RecycleItem(recycled) => {
-                let old_index = if recycled.position.new == End::Head {
-                    let old_index = data.head;
-                    data.head += 1;
-                    old_index
-                } else {
-                    let old_index = data.tail;
-                    data.tail -= 1;
-                    old_index
-                };
-                data.reconciled[old_index] = recycled.recycle_result;
+        let output = iter.recycle_instructions(
+            |instruction, data| match instruction {
+                Instruction::RecycleItem(recycled) => {
+                    let old_index = if recycled.position.new == End::Head {
+                        let old_index = data.head;
+                        data.head += 1;
+                        old_index
+                    } else {
+                        let old_index = data.tail;
+                        data.tail -= 1;
+                        old_index
+                    };
+                    data.reconciled[old_index] = recycled.recycle_result;
 
-                return data;
+                    return data;
+                }
+                Instruction::RemoveItem(_) => data,
+            },
+            &mut data,
+        );
+
+        let reconciled = match output {
+          FinalInstruction::AddAllRemainingValues(instruction) => {
+            let data = instruction.data;
+            data.reconciled[head] = *instruction.first_value;
+            data.head += 1;
+            for value in instruction.other_values {
+              data.reconciled[head] = *value;
+              data.head += 1;
             }
-            Instruction::RemoveItem(_) => data
-        }, data);
 
-        assert_eq!(data.reconciled, [2, 6, 4, 5, 8])
+            data.reconciled
+          },
+          FinalInstruction::RemoveAllRemainingComponents(instruction) => instruction.data.reconciled,
+          FinalInstruction::DoNothing(instruction) => instruction.data.reconciled
+        };
+
+        assert_eq!(reconciled, [2, 6, 4, 5, 8])
     }
 }
 /*
