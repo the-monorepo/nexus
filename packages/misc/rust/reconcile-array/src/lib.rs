@@ -150,21 +150,21 @@ where
     iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
 }
 
-struct HnToState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
+struct CtVhState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
 {
     new_head: NewValuesIterator::Item,
     old_tail: OldComponentsIterator::Item,
     iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
 }
 
-struct HoTnState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
+struct ChVtState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
 {
     old_head: OldComponentsIterator::Item,
     new_tail: NewValuesIterator::Item,
     iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
 }
 
-struct HnToTnState<
+struct CtVhVtState<
     OldComponentsIterator: DoubleEndedIterator,
     NewValuesIterator: DoubleEndedIterator,
 > {
@@ -183,33 +183,33 @@ where
     Recycled(
         RecycledAndNextState<RecyclerGeneric, EmptyState<OldComponentsIterator, NewValuesIterator>>,
     ),
-    NoMatch(HnHoState<OldComponentsIterator, NewValuesIterator>),
+    NoMatch(ChVhState<OldComponentsIterator, NewValuesIterator>),
 }
 
-enum HnHoNextState<
+enum ChVhNextState<
     OldComponentsIterator: DoubleEndedIterator,
     NewValuesIterator: DoubleEndedIterator,
     RecycledGeneric,
 > {
     Finish(FinalInstruction<OldComponentsIterator, NewValuesIterator>),
-    RecycledTnTo(
-        RecycledAndNextState<RecycledGeneric, HnHoState<OldComponentsIterator, NewValuesIterator>>,
+    RecycledVtCt(
+        RecycledAndNextState<RecycledGeneric, ChVhState<OldComponentsIterator, NewValuesIterator>>,
     ),
-    RecycledHoTn(
-        RecycledAndNextState<RecycledGeneric, HnToState<OldComponentsIterator, NewValuesIterator>>,
+    RecycledChVt(
+        RecycledAndNextState<RecycledGeneric, CtVhState<OldComponentsIterator, NewValuesIterator>>,
     ),
-    RecycledHnTo(
-        RecycledAndNextState<RecycledGeneric, HoTnState<OldComponentsIterator, NewValuesIterator>>,
+    RecycledCtVh(
+        RecycledAndNextState<RecycledGeneric, ChVtState<OldComponentsIterator, NewValuesIterator>>,
     ),
     NoMatch(
         RemoveComponentAndNextState<
             OldComponentsIterator::Item,
-            HnToTnState<OldComponentsIterator, NewValuesIterator>,
+            CtVhVtState<OldComponentsIterator, NewValuesIterator>,
         >,
     ),
 }
 
-struct HnHoState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
+struct ChVhState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
 {
     old_head: OldComponentsIterator::Item,
     new_head: NewValuesIterator::Item,
@@ -240,7 +240,7 @@ where
                 Err(ReconcilePayload {
                     old_component: old_head,
                     new_value: new_head,
-                }) => EmptyStateNextState::NoMatch(HnHoState {
+                }) => EmptyStateNextState::NoMatch(ChVhState {
                     old_head,
                     new_head,
                     iterators: self.iterators,
@@ -266,7 +266,7 @@ where
 }
 
 impl<OldComponentsIterator, NewValuesIterator, RecycledGeneric>
-    HnHoState<OldComponentsIterator, NewValuesIterator>
+    ChVhState<OldComponentsIterator, NewValuesIterator>
 where
     NewValuesIterator: DoubleEndedIterator,
     OldComponentsIterator: DoubleEndedIterator,
@@ -276,7 +276,7 @@ where
         RecycledGeneric = RecycledGeneric,
     >,
 {
-    fn check(mut self) -> HnHoNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
+    fn check(mut self) -> ChVhNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
         let old_tail_option = self.iterators.components.next();
         let new_tail_option = self.iterators.values.next();
         match (old_tail_option, new_tail_option) {
@@ -284,14 +284,14 @@ where
             (None, Some(_)) => todo!(),
             (Some(_), None) => todo!(),
             (Some(old_tail), Some(new_tail)) => match old_tail.recycle(new_tail) {
-                Ok(data) => HnHoNextState::RecycledTnTo(RecycledAndNextState { data, state: self }),
+                Ok(data) => ChVhNextState::RecycledVtCt(RecycledAndNextState { data, state: self }),
                 Err(ReconcilePayload {
                     old_component: old_tail,
                     new_value: new_tail,
                 }) => match self.old_head.recycle(new_tail) {
-                    Ok(data) => HnHoNextState::RecycledHoTn(RecycledAndNextState {
+                    Ok(data) => ChVhNextState::RecycledChVt(RecycledAndNextState {
                         data,
-                        state: HnToState {
+                        state: CtVhState {
                             iterators: self.iterators,
                             old_tail,
                             new_head: self.new_head,
@@ -301,9 +301,9 @@ where
                         old_component: old_head,
                         new_value: new_tail,
                     }) => match old_tail.recycle(self.new_head) {
-                        Ok(data) => HnHoNextState::RecycledHnTo(RecycledAndNextState {
+                        Ok(data) => ChVhNextState::RecycledCtVh(RecycledAndNextState {
                             data,
-                            state: HoTnState {
+                            state: ChVtState {
                                 iterators: self.iterators,
                                 old_head,
                                 new_tail: new_tail,
@@ -312,9 +312,9 @@ where
                         Err(ReconcilePayload {
                             old_component: old_tail,
                             new_value: new_head,
-                        }) => HnHoNextState::NoMatch(RemoveComponentAndNextState {
+                        }) => ChVhNextState::NoMatch(RemoveComponentAndNextState {
                             component: old_head,
-                            state: HnToTnState {
+                            state: CtVhVtState {
                                 old_tail,
                                 new_head,
                                 new_tail,
@@ -508,10 +508,10 @@ export const updateComponentResultsArray = <C, V, N extends Node>(
   }
 
   if (oldHead <= oldTail) {
-    const firstToRemoveMarker = results[oldHead]!.data.first;
-    const lastToRemoveMarker =
+    const firstCtRemoveMarker = results[oldHead]!.data.first;
+    const lastCtRemoveMarker =
       newTail + 1 < newLength ? newRenderResults[newTail + 1]!.data.first : before;
-    removeUntilBefore(container, firstToRemoveMarker, lastToRemoveMarker);
+    removeUntilBefore(container, firstCtRemoveMarker, lastCtRemoveMarker);
   } else {
     // Add parts for any remaining new values
     const insertAdditionalPartsBefore =
