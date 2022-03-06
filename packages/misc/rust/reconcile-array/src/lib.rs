@@ -96,36 +96,30 @@ pub struct RemovalInstruction<T> {
     component: T,
 }
 
-pub struct AddAllRemainingValuesInstruction<NewValuesIterator, DataGeneric>
+pub struct AddAllRemainingValuesInstruction<NewValuesIterator>
 where
     NewValuesIterator: DoubleEndedIterator,
 {
-    data: DataGeneric,
     first_value: NewValuesIterator::Item,
     other_values: NewValuesIterator,
 }
 
-pub struct RemoveRemainingComponentsInstruction<OldComponentsIterator, DataGeneric>
+pub struct RemoveRemainingComponentsInstruction<OldComponentsIterator>
 where
     OldComponentsIterator: DoubleEndedIterator,
 {
-    data: DataGeneric,
     first_component: OldComponentsIterator::Item,
     other_components: OldComponentsIterator,
 }
 
-pub struct DoNothingInstruction<DataGeneric> {
-  data: DataGeneric
-}
-
-pub enum FinalInstruction<OldComponentsIterator, NewValuesIterator, DataGeneric>
+pub enum FinalInstruction<OldComponentsIterator, NewValuesIterator>
 where
     NewValuesIterator: DoubleEndedIterator,
     OldComponentsIterator: DoubleEndedIterator,
 {
-    RemoveAllRemainingComponents(RemoveRemainingComponentsInstruction<OldComponentsIterator, DataGeneric>),
-    AddAllRemainingValues(AddAllRemainingValuesInstruction<NewValuesIterator, DataGeneric>),
-    DoNothing(DoNothingInstruction<DataGeneric>),
+    RemoveAllRemainingComponents(RemoveRemainingComponentsInstruction<OldComponentsIterator>),
+    AddAllRemainingValues(AddAllRemainingValuesInstruction<NewValuesIterator>),
+    DoNothing(),
 }
 
 pub enum Instruction<Component, RecycledGeneric> {
@@ -133,162 +127,203 @@ pub enum Instruction<Component, RecycledGeneric> {
     RemoveItem(RemovalInstruction<Component>),
 }
 
-impl<OldComponentsIterator, NewValuesIterator, RecyclerGeneric>
-    ReconcileIterator<OldComponentsIterator, NewValuesIterator>
+struct Iterators<OldComponentsIterator, NewValuesIterator> {
+    components: OldComponentsIterator,
+    values: NewValuesIterator,
+}
+
+struct RecycledAndNextState<RecycledGeneric, InstructionGeneric> {
+    data: RecycledGeneric,
+    state: InstructionGeneric,
+}
+
+struct RemoveComponentAndNextState<ComponentGeneric, StateGeneric> {
+    component: ComponentGeneric,
+    state: StateGeneric,
+}
+
+struct EmptyState<OldComponentsIterator, NewValuesIterator>
 where
+    NewValuesIterator: DoubleEndedIterator,
+    OldComponentsIterator: DoubleEndedIterator,
+{
+    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+}
+
+struct HnToState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
+{
+    new_head: NewValuesIterator::Item,
+    old_tail: OldComponentsIterator::Item,
+    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+}
+
+struct HoTnState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
+{
+    old_head: OldComponentsIterator::Item,
+    new_tail: NewValuesIterator::Item,
+    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+}
+
+struct HnToTnState<
     OldComponentsIterator: DoubleEndedIterator,
     NewValuesIterator: DoubleEndedIterator,
+> {
+    new_head: NewValuesIterator::Item,
+    old_tail: OldComponentsIterator::Item,
+    new_tail: NewValuesIterator::Item,
+    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+}
+
+enum EmptyStateNextState<OldComponentsIterator, NewValuesIterator, RecyclerGeneric>
+where
+    NewValuesIterator: DoubleEndedIterator,
+    OldComponentsIterator: DoubleEndedIterator,
+{
+    Finish(FinalInstruction<OldComponentsIterator, NewValuesIterator>),
+    Recycled(
+        RecycledAndNextState<RecyclerGeneric, EmptyState<OldComponentsIterator, NewValuesIterator>>,
+    ),
+    NoMatch(HnHoState<OldComponentsIterator, NewValuesIterator>),
+}
+
+enum HnHoNextState<
+    OldComponentsIterator: DoubleEndedIterator,
+    NewValuesIterator: DoubleEndedIterator,
+    RecycledGeneric,
+> {
+    Finish(FinalInstruction<OldComponentsIterator, NewValuesIterator>),
+    RecycledTnTo(
+        RecycledAndNextState<RecycledGeneric, HnHoState<OldComponentsIterator, NewValuesIterator>>,
+    ),
+    RecycledHoTn(
+        RecycledAndNextState<RecycledGeneric, HnToState<OldComponentsIterator, NewValuesIterator>>,
+    ),
+    RecycledHnTo(
+        RecycledAndNextState<RecycledGeneric, HoTnState<OldComponentsIterator, NewValuesIterator>>,
+    ),
+    NoMatch(
+        RemoveComponentAndNextState<
+            OldComponentsIterator::Item,
+            HnToTnState<OldComponentsIterator, NewValuesIterator>,
+        >,
+    ),
+}
+
+struct HnHoState<OldComponentsIterator: DoubleEndedIterator, NewValuesIterator: DoubleEndedIterator>
+{
+    old_head: OldComponentsIterator::Item,
+    new_head: NewValuesIterator::Item,
+    iterators: Iterators<OldComponentsIterator, NewValuesIterator>,
+}
+
+impl<OldComponentsIterator, NewValuesIterator, RecycledGeneric>
+    EmptyState<OldComponentsIterator, NewValuesIterator>
+where
+    NewValuesIterator: DoubleEndedIterator,
+    OldComponentsIterator: DoubleEndedIterator,
     OldComponentsIterator::Item: Recycler<
         OldComponent = OldComponentsIterator::Item,
         NewValue = NewValuesIterator::Item,
-        RecycledGeneric = RecyclerGeneric,
+        RecycledGeneric = RecycledGeneric,
     >,
 {
-    fn recycle_instructions<
-        D,
-        ForEachGeneric: Fn(Instruction<OldComponentsIterator::Item, RecyclerGeneric>, D) -> D,
-    >(
+    fn check(
         mut self,
-        aFn: ForEachGeneric,
-        initial: D,
-    ) -> FinalInstruction<OldComponentsIterator, NewValuesIterator, D> {
-        let mut new_head: Option<NewValuesIterator::Item> = self.new_iterator.next();
-        let mut new_tail: Option<NewValuesIterator::Item> = self.new_iterator.next_back();
-        let mut old_head: Option<OldComponentsIterator::Item> = self.old_iterator.next();
-        let mut old_tail: Option<OldComponentsIterator::Item> = self.old_iterator.next_back();
-
-        println!("{:?} {:?}", old_head.is_some(), new_head.is_some());
-        let mut data = initial;
-
-        loop {
-            let old_head_item_option = old_head.take().or_else(|| self.old_iterator.next());
-            let new_head_item_option = new_head.take().or_else(|| self.new_iterator.next());
-            match (old_head_item_option, new_head_item_option) {
-                (Some(old_head_item), Some(new_head_item)) => {
-                    match recycle_instruction(old_head_item, new_head_item, End::Head, End::Head) {
-                        Ok(instruction) => data = aFn(instruction, data),
-                        Err(ReconcilePayload {
-                            old_component: old_head_item,
-                            new_value: new_head_item,
-                        }) => {
-                            let new_tail_item_option =
-                                new_tail.take().or_else(|| self.new_iterator.next_back());
-                            println!("new tail {:?}", new_tail_item_option.is_some());
-                            if let Some(new_tail_item) = new_tail_item_option {
-                                let old_tail_item_option =
-                                    old_tail.take().or_else(|| self.old_iterator.next_back());
-                                println!("old tail {:?}", old_tail_item_option.is_some());
-                                if let Some(old_tail_item) = old_tail_item_option {
-                                    match recycle_instruction(
-                                        old_tail_item,
-                                        new_tail_item,
-                                        End::Tail,
-                                        End::Tail,
-                                    ) {
-                                        Ok(instruction) => {
-                                            new_head = Some(new_head_item);
-                                            old_head = Some(old_head_item);
-                                            data = aFn(instruction, data);
-                                        }
-                                        Err(ReconcilePayload {
-                                            old_component: old_tail_item,
-                                            new_value: new_tail_item,
-                                        }) => match recycle_instruction(
-                                            old_tail_item,
-                                            new_head_item,
-                                            End::Tail,
-                                            End::Head,
-                                        ) {
-                                            Ok(instruction) => {
-                                                old_head = Some(old_head_item);
-                                                new_tail = Some(new_tail_item);
-                                                data = aFn(instruction, data);
-                                            }
-                                            Err(ReconcilePayload {
-                                                old_component: old_tail_item,
-                                                new_value: new_head_item,
-                                            }) => {
-                                                match recycle_instruction(
-                                                    old_head_item,
-                                                    new_tail_item,
-                                                    End::Head,
-                                                    End::Tail,
-                                                ) {
-                                                    Ok(instruction) => {
-                                                        old_tail = Some(old_tail_item);
-                                                        new_head = Some(new_head_item);
-
-                                                        data = aFn(instruction, data);
-                                                    }
-                                                    Err(ReconcilePayload {
-                                                        old_component: old_head_item,
-                                                        new_value: new_tail_item,
-                                                    }) => {
-                                                        old_tail = Some(old_tail_item);
-                                                        new_head = Some(new_head_item);
-                                                        new_tail = Some(new_tail_item);
-
-                                                        data = aFn(
-                                                            Instruction::RemoveItem(
-                                                                RemovalInstruction {
-                                                                    component: old_head_item,
-                                                                    end: End::Head,
-                                                                },
-                                                            ),
-                                                            data,
-                                                        );
-                                                    }
-                                                }
-                                            }
-                                        },
-                                    }
-                                } else {
-                                    // There's only one component and target value left. They don't match. Remove the component. Target value will be added in the next iteration.
-                                    // TODO: We can technically yield two values here. Check if we can use this knowledge to speed things up.
-                                    new_head = Some(new_head_item);
-                                    new_tail = Some(new_tail_item);
-                                    data = aFn(
-                                        Instruction::RemoveItem(RemovalInstruction {
-                                            component: old_head_item,
-                                            end: End::Head,
-                                        }),
-                                        data,
-                                    );
-                                }
-                            } else {
-                                // At this point we know there's only one target value left. We already know it doesn't match the head component so delete the head component.
-                                new_head = Some(new_head_item);
-                                data = aFn(
-                                    Instruction::RemoveItem(RemovalInstruction {
-                                        component: old_head_item,
-                                        end: End::Head,
-                                    }),
-                                    data,
-                                );
-                            }
-                        }
-                    }
+    ) -> EmptyStateNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
+        let old_head_option = self.iterators.components.next();
+        let new_head_option = self.iterators.values.next();
+        match (old_head_option, new_head_option) {
+            (Some(old_head), Some(new_head)) => match old_head.recycle(new_head) {
+                Ok(data) => {
+                    EmptyStateNextState::Recycled(RecycledAndNextState { data, state: self })
                 }
-                (Some(component), None) => {
-                    return FinalInstruction::RemoveAllRemainingComponents(RemoveRemainingComponentsInstruction {
-                      data,
-                      first_component: component,
-                      other_components: self.old_iterator
-                    });
-                }
-                (None, Some(value)) => {
-                    return FinalInstruction::AddAllRemainingValues(AddAllRemainingValuesInstruction {
-                      data,
-                      first_value: value,
-                      other_values: self.new_iterator,
-                    });
-                }
-                (None, None) => {
-                    return FinalInstruction::DoNothing(DoNothingInstruction {
-                      data
-                    });
-                }
+                Err(ReconcilePayload {
+                    old_component: old_head,
+                    new_value: new_head,
+                }) => EmptyStateNextState::NoMatch(HnHoState {
+                    old_head,
+                    new_head,
+                    iterators: self.iterators,
+                }),
+            },
+            (Some(old_head), None) => {
+                EmptyStateNextState::Finish(FinalInstruction::RemoveAllRemainingComponents(
+                    RemoveRemainingComponentsInstruction {
+                        first_component: old_head,
+                        other_components: self.iterators.components,
+                    },
+                ))
             }
+            (None, Some(new_head)) => EmptyStateNextState::Finish(
+                FinalInstruction::AddAllRemainingValues(AddAllRemainingValuesInstruction {
+                    first_value: new_head,
+                    other_values: self.iterators.values,
+                }),
+            ),
+            (None, None) => EmptyStateNextState::Finish(FinalInstruction::DoNothing()),
+        }
+    }
+}
+
+impl<OldComponentsIterator, NewValuesIterator, RecycledGeneric>
+    HnHoState<OldComponentsIterator, NewValuesIterator>
+where
+    NewValuesIterator: DoubleEndedIterator,
+    OldComponentsIterator: DoubleEndedIterator,
+    OldComponentsIterator::Item: Recycler<
+        OldComponent = OldComponentsIterator::Item,
+        NewValue = NewValuesIterator::Item,
+        RecycledGeneric = RecycledGeneric,
+    >,
+{
+    fn check(mut self) -> HnHoNextState<OldComponentsIterator, NewValuesIterator, RecycledGeneric> {
+        let old_tail_option = self.iterators.components.next();
+        let new_tail_option = self.iterators.values.next();
+        match (old_tail_option, new_tail_option) {
+            (None, None) => todo!(),
+            (None, Some(_)) => todo!(),
+            (Some(_), None) => todo!(),
+            (Some(old_tail), Some(new_tail)) => match old_tail.recycle(new_tail) {
+                Ok(data) => HnHoNextState::RecycledTnTo(RecycledAndNextState { data, state: self }),
+                Err(ReconcilePayload {
+                    old_component: old_tail,
+                    new_value: new_tail,
+                }) => match self.old_head.recycle(new_tail) {
+                    Ok(data) => HnHoNextState::RecycledHoTn(RecycledAndNextState {
+                        data,
+                        state: HnToState {
+                            iterators: self.iterators,
+                            old_tail,
+                            new_head: self.new_head,
+                        },
+                    }),
+                    Err(ReconcilePayload {
+                        old_component: old_head,
+                        new_value: new_tail,
+                    }) => match old_tail.recycle(self.new_head) {
+                        Ok(data) => HnHoNextState::RecycledHnTo(RecycledAndNextState {
+                            data,
+                            state: HoTnState {
+                                iterators: self.iterators,
+                                old_head,
+                                new_tail: new_tail,
+                            },
+                        }),
+                        Err(ReconcilePayload {
+                            old_component: old_tail,
+                            new_value: new_head,
+                        }) => HnHoNextState::NoMatch(RemoveComponentAndNextState {
+                            component: old_head,
+                            state: HnToTnState {
+                                old_tail,
+                                new_head,
+                                new_tail,
+                                iterators: self.iterators,
+                            },
+                        }),
+                    },
+                },
+            },
         }
     }
 }
@@ -298,8 +333,8 @@ mod tests {
     use std::collections::{vec_deque, VecDeque};
 
     use crate::{
-        DoNotRecycle, End, Instruction, ReconcileIterator, ReconcilePayload, Recycler,
-        RemovalInstruction, FinalInstruction,
+        DoNotRecycle, End, FinalInstruction, Instruction, ReconcileIterator, ReconcilePayload,
+        Recycler, RemovalInstruction,
     };
 
     struct TestUpdater {
@@ -354,6 +389,8 @@ mod tests {
             head,
         };
 
+        todo!();
+        /*
         let output = iter.recycle_instructions(
             |instruction, data| match instruction {
                 Instruction::RecycleItem(recycled) => {
@@ -376,22 +413,24 @@ mod tests {
         );
 
         let reconciled = match output {
-          FinalInstruction::AddAllRemainingValues(instruction) => {
-            let data = instruction.data;
-            data.reconciled[head] = *instruction.first_value;
-            data.head += 1;
-            for value in instruction.other_values {
-              data.reconciled[head] = *value;
-              data.head += 1;
-            }
+            FinalInstruction::AddAllRemainingValues(instruction) => {
+                let data = instruction.data;
+                data.reconciled[head] = *instruction.first_value;
+                data.head += 1;
+                for value in instruction.other_values {
+                    data.reconciled[head] = *value;
+                    data.head += 1;
+                }
 
-            data.reconciled
-          },
-          FinalInstruction::RemoveAllRemainingComponents(instruction) => instruction.data.reconciled,
-          FinalInstruction::DoNothing(instruction) => instruction.data.reconciled
+                data.reconciled
+            }
+            FinalInstruction::RemoveAllRemainingComponents(instruction) => {
+                instruction.data.reconciled
+            }
+            FinalInstruction::DoNothing(instruction) => instruction.data.reconciled,
         };
 
-        assert_eq!(reconciled, [2, 6, 4, 5, 8])
+        assert_eq!(reconciled, [2, 6, 4, 5, 8])*/
     }
 }
 /*
