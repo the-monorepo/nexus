@@ -146,6 +146,22 @@ where
     iterators: Iterators<ComponentsIterator, ValuesIterator>,
 }
 
+trait ComponentHeadHolder<Component> {
+  fn get_component_head(&self) -> Component;
+}
+
+trait ComponentTailHolder<Component> {
+  fn get_component_tail(&self) -> Component;
+}
+
+trait ValueHeadHolder<Value> {
+  fn get_value_head(&self) -> Value;
+}
+
+trait ValueTailHolder<Value> {
+  fn get_value_tail(&self) -> Value;
+}
+
 struct CtVhState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
     component_tail: ComponentsIterator::Item,
     value_head: ValuesIterator::Item,
@@ -165,6 +181,25 @@ struct CtVhVtState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: Doub
     iterators: Iterators<ComponentsIterator, ValuesIterator>,
 }
 
+struct ChCtVhState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
+  component_head: ComponentsIterator::Item,
+  component_tail: ComponentsIterator::Item,
+  value_head: ValuesIterator::Item,
+  iterators: Iterators<ComponentsIterator, ValuesIterator>,
+}
+
+struct ChVhVtState<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
+  component_head: ComponentsIterator::Item,
+  value_head: ValuesIterator::Item,
+  value_tail: ValuesIterator::Item,
+  iterators: Iterators<ComponentsIterator, ValuesIterator>,
+}
+
+struct DeleteAndAddValueInstruction<Component, Value> {
+  component: Component,
+  value: Value,
+}
+
 enum EmptyStateNextState<ComponentsIterator, ValuesIterator, RecyclerGeneric>
 where
     ValuesIterator: DoubleEndedIterator,
@@ -180,6 +215,9 @@ enum ChVhNextState<
     ValuesIterator: DoubleEndedIterator,
     RecycledGeneric,
 > {
+    NoMoreItems(DeleteAndAddValueInstruction<ComponentsIterator::Item, ValuesIterator::Item>),
+    OnlyComponentsRemaining(ChCtVhState<ComponentsIterator, ValuesIterator>),
+    OnlyValuesRemaining(ChVhVtState<ComponentsIterator, ValuesIterator>),
     Finish(FinalInstruction<ComponentsIterator, ValuesIterator>),
     RecycledVtCt(
         RecycledAndNextState<RecycledGeneric, ChVhState<ComponentsIterator, ValuesIterator>>,
@@ -262,13 +300,26 @@ where
         RecycledGeneric = RecycledGeneric,
     >,
 {
-    fn check(mut self) -> ChVhNextState<ComponentsIterator, ValuesIterator, RecycledGeneric> {
+    fn check_skip_chvh(mut self) -> ChVhNextState<ComponentsIterator, ValuesIterator, RecycledGeneric> {
         let component_tail_option = self.iterators.components.next();
         let value_tail_option = self.iterators.values.next();
         match (component_tail_option, value_tail_option) {
-            (None, None) => todo!(),
-            (None, Some(_)) => todo!(),
-            (Some(_), None) => todo!(),
+            (None, None) => ChVhNextState::NoMoreItems(DeleteAndAddValueInstruction {
+              component: self.component_head,
+              value: self.value_head,
+            }),
+            (None, Some(value_tail)) => ChVhNextState::OnlyValuesRemaining(ChVhVtState {
+              component_head: self.component_head,
+              value_head: self.value_head,
+              value_tail,
+              iterators: self.iterators,
+            }),
+            (Some(component_tail), None) => ChVhNextState::OnlyComponentsRemaining(ChCtVhState {
+              component_head: self.component_head,
+              component_tail,
+              value_head: self.value_head,
+              iterators: self.iterators,
+            }),
             (Some(component_tail), Some(value_tail)) => match component_tail.recycle(value_tail) {
                 Ok(data) => ChVhNextState::RecycledVtCt(RecycledAndNextState { data, state: self }),
                 Err(ReconcilePayload {
