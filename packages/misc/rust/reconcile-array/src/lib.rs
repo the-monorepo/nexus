@@ -26,7 +26,6 @@ pub struct Position {
     new: End,
 }
 
-
 pub struct RecycledAndNewState<RecycledGeneric, InstructionGeneric> {
     data: RecycledGeneric,
     state: InstructionGeneric,
@@ -34,7 +33,7 @@ pub struct RecycledAndNewState<RecycledGeneric, InstructionGeneric> {
 
 struct Nothing;
 
-struct HeadTail<Head, Tail> {
+pub struct HeadTail<Head, Tail> {
     head: Head,
     tail: Tail,
 }
@@ -45,28 +44,42 @@ impl<Head, Tail> HeadTail<Head, Tail> {
     }
 }
 
+trait TailTrait<Tail, TailObject> {
+    fn with_tail(self, tail: Tail) -> TailObject;
+
+    fn with_tail_option(self, tail_option: Option<Tail>) -> Result<TailObject, Self>
+    where
+        Self: Sized,
+    {
+        if let Some(tail) = tail_option {
+            Ok(self.with_tail(tail))
+        } else {
+            Err(self)
+        }
+    }
+}
+
+trait HeadTrait<Head, HeadObject> {
+    fn with_head(self, head: Head) -> HeadObject;
+
+    fn with_head_option(self, head_option: Option<Head>) -> Result<HeadObject, Self>
+    where
+        Self: Sized,
+    {
+        if let Some(head) = head_option {
+            Ok(self.with_head(head))
+        } else {
+            Err(self)
+        }
+    }
+}
+
 impl<Head> HeadTail<Head, Nothing> {
     fn head(head: Head) -> Self {
         HeadTail {
             head,
             tail: Nothing,
         }
-    }
-
-    fn with_tail<Tail>(self, tail: Tail) -> HeadTail<Head, Tail> {
-      HeadTail { head: self.head, tail }
-    }
-
-
-    fn with_tail_option<Tail>(self, tail_option: Option<Tail>) -> Result<HeadTail<Head, Tail>, Self> {
-      if let Some(tail) = tail_option {
-        Ok(HeadTail {
-          head: self.head,
-          tail,
-        })
-      } else {
-        Err(self)
-      }
     }
 }
 
@@ -77,107 +90,238 @@ impl<Tail> HeadTail<Nothing, Tail> {
             tail,
         }
     }
-
-    fn with_head<Head>(self, head: Head) -> HeadTail<Head, Tail> {
-      HeadTail { head,tail: self.tail }
-    }
-
-    fn with_head_option<Head>(self, head_option: Option<Head>) -> Result<HeadTail<Head, Tail>, Self> {
-      if let Some(head) = head_option {
-        Ok(HeadTail {
-          head,
-          tail: self.tail,
-        })
-      } else {
-        Err(self)
-      }
-    }
 }
 
-struct IteratorManager<IteratorGeneric : DoubleEndedIterator, HasNext> {
-  iterator: IteratorGeneric,
-  has_next: HasNext,
-}
-
-struct HeadTailManager<IteratorGeneric : DoubleEndedIterator, H, T, HasNext> {
-  iterator: IteratorManager<IteratorGeneric, HasNext>,
-  ends: HeadTail<H, T>,
-}
-
-impl<IteratorGeneric : DoubleEndedIterator, H> IteratorManager<IteratorGeneric, Allow> {
-  fn repopulate_t(self) -> Result<HeadTailManager<IteratorGeneric, H, IteratorGeneric::Item, Allow>, HeadTailManager<IteratorGeneric, H, Nothing, Nothing>> {
-    match self.iterator.next_back() {
-      Ok(head) => Ok()
-    }
-  }
-}
-
-impl<IteratorGeneric : DoubleEndedIterator, T> HeadTailManager<IteratorGeneric, Nothing, T, Slloe> {
-  fn repopulate_h(self) -> Result<HeadTailManager<IteratorGeneric, IteratorGeneric::Item, T, Allow>, HeadTailManager<IteratorGeneric, H, Nothing, Nothing>> {
-    self.ends.with_head_option(self.iterator.next_back())
-  }
-}
-
-struct ComponentState<C, CVh, CVt> {
-  component: C,
-  skip: HeadTail<CVh, CVt>,
-}
-
-impl<CH, CT> HeadTail<CH, CT>
-where
-    CH: Recycler<Component = CH>,
+impl<CurrentHead, Head, Tail> HeadTrait<Head, HeadTail<Head, Tail>>
+    for HeadTail<CurrentHead, Tail>
 {
-    fn recycle_head(
-        self,
-        value: CH::Value,
-    ) -> Result<RecycledAndNewState<CH::RecycledGeneric, HeadTail<Nothing, CT>>, (Self, CH::Value)>
-    {
-        self.head
-            .recycle(value)
-            .map(|data| RecycledAndNewState {
-                data,
-                state: HeadTail::tail(self.tail),
-            })
-            .map_err(|payload| {
-                (
-                    HeadTail::new(payload.old_component, self.tail),
-                    payload.new_value,
-                )
-            })
-    }
-}
-
-impl<CH, CT> HeadTail<CH, CT>
-where
-    CT: Recycler<Component = CT>,
-{
-    fn recycle_tail(
-        self,
-        value: CT::Value,
-    ) -> Result<RecycledAndNewState<CT::RecycledGeneric, HeadTail<CH, Nothing>>, (Self, CT::Value)>
-    {
-        self.tail
-            .recycle(value)
-            .map(|data| RecycledAndNewState {
-                data,
-                state: HeadTail::head(self.head),
-            })
-            .map_err(|payload| {
-                (
-                    HeadTail::new(self.head, payload.old_component),
-                    payload.new_value,
-                )
-            })
-    }
-}
-
-impl<CH, CT> HeadTail<CH, CT> {
-    fn with_values<VH, VT>(self, head: HeadTail<VH, VT>) -> ReconcileData<CH, CT, VH, VT> {
-        ReconcileData {
-            components: self,
-            values: head,
+    fn with_head(self, head: Head) -> HeadTail<Head, Tail> {
+        HeadTail {
+            head,
+            tail: self.tail,
         }
     }
+}
+impl<CurrentTail, Head, Tail> TailTrait<Tail, HeadTail<Head, Tail>>
+    for HeadTail<Head, CurrentTail>
+{
+    fn with_tail(self, tail: Tail) -> HeadTail<Head, Tail> {
+        HeadTail {
+            head: self.head,
+            tail,
+        }
+    }
+}
+
+struct IteratorManager<IteratorGeneric: DoubleEndedIterator, HasNext> {
+    iterator: IteratorGeneric,
+    has_next: HasNext,
+}
+
+struct IteratorResult<IteratorGeneric: DoubleEndedIterator> {
+    value: IteratorGeneric::Item,
+    manager: IteratorManager<IteratorGeneric, Allow>,
+}
+
+impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allow> {
+    fn repopulate<F: FnOnce(&mut IteratorGeneric) -> Option<IteratorGeneric::Item>>(
+        mut self,
+        next: F,
+    ) -> Result<IteratorResult<IteratorGeneric>, IteratorManager<IteratorGeneric, Nothing>> {
+        match next(&mut self.iterator) {
+            Some(value) => Ok(IteratorResult {
+                manager: IteratorManager {
+                    iterator: self.iterator,
+                    has_next: Allow,
+                },
+                value,
+            }),
+            None => Err(IteratorManager {
+                iterator: self.iterator,
+                has_next: Nothing,
+            }),
+        }
+    }
+
+    fn repopulate_t(
+        self,
+    ) -> Result<IteratorResult<IteratorGeneric>, IteratorManager<IteratorGeneric, Nothing>> {
+        self.repopulate(IteratorGeneric::next_back)
+    }
+
+    fn repopulate_h(
+        self,
+    ) -> Result<IteratorResult<IteratorGeneric>, IteratorManager<IteratorGeneric, Nothing>> {
+        self.repopulate(IteratorGeneric::next)
+    }
+}
+
+struct HeadTailManager<IteratorGeneric: DoubleEndedIterator, H, T, HasNext> {
+    iterator: IteratorManager<IteratorGeneric, HasNext>,
+    ends: HeadTail<H, T>,
+}
+
+fn map_ends_for_repopulate<
+    IteratorGeneric: DoubleEndedIterator,
+    H,
+    T,
+    H2,
+    T2,
+    M: FnOnce(HeadTail<H, T>, IteratorGeneric::Item) -> HeadTail<H2, T2>,
+>(
+    result: Result<IteratorResult<IteratorGeneric>, IteratorManager<IteratorGeneric, Nothing>>,
+    ends: HeadTail<H, T>,
+    map_end: M,
+) -> Result<
+    HeadTailManager<IteratorGeneric, H2, T2, Allow>,
+    HeadTailManager<IteratorGeneric, H, T, Nothing>,
+> {
+    match result {
+        Ok(result) => Ok(HeadTailManager {
+            ends: map_end(ends, result.value),
+            iterator: result.manager,
+        }),
+        Err(manager) => Err(HeadTailManager {
+            ends,
+            iterator: manager,
+        }),
+    }
+}
+
+impl<CVh, CVt> ComponentState<Nothing, CVh, CVt> {
+    fn new_component<C>(component: C) -> ComponentState<C, Allow, Allow> {
+        ComponentState {
+            component,
+            skip: HeadTail::new(Allow, Allow),
+        }
+    }
+}
+
+impl<C, CVt> ComponentState<C, Allow, CVt> {
+    fn skip_vh(self) -> ComponentState<C, Nothing, CVt> {
+        ComponentState {
+            component: self.component,
+            skip: self.skip.with_head(Nothing),
+        }
+    }
+}
+
+impl<C, CVt> ComponentState<C, Nothing, CVt> {
+    fn allow_vh(self) -> ComponentState<C, Allow, CVt> {
+        ComponentState {
+            component: self.component,
+            skip: self.skip.with_head(Allow),
+        }
+    }
+}
+
+impl<C, CVh> ComponentState<C, CVh, Allow> {
+    fn skip_vt(self) -> ComponentState<C, CVh, Nothing> {
+        ComponentState {
+            component: self.component,
+            skip: self.skip.with_tail(Nothing),
+        }
+    }
+}
+
+impl<C, CVh> ComponentState<C, CVh, Nothing> {
+    fn allow_vt(self) -> ComponentState<C, CVh, Allow> {
+        ComponentState {
+            component: self.component,
+            skip: self.skip.with_tail(Allow),
+        }
+    }
+}
+
+pub struct RemoveAndNextState<Component, State> {
+    component: Component,
+    state: State,
+}
+
+pub struct Data<
+    ComponentsIterator: DoubleEndedIterator,
+    ValuesIterator: DoubleEndedIterator,
+    RemainingItems,
+> {
+    components: ComponentsIterator,
+    values: ValuesIterator,
+    remaining_items: RemainingItems,
+}
+pub enum ReconcileInstruction<Component, RecycledGeneric, Next> {
+    RecycledItem(RecycledAndNewState<RecycledGeneric, Next>),
+    RemoveItem(RemoveAndNextState<Component, Next>),
+}
+
+pub enum Finished<ComponentsIterator: DoubleEndedIterator, ValuesIterator: DoubleEndedIterator> {
+    Empty(Data<ComponentsIterator, ValuesIterator, ()>),
+    C(Data<ComponentsIterator, ValuesIterator, ComponentsIterator::Item>),
+    CV(Data<ComponentsIterator, ValuesIterator, (ComponentsIterator::Item, ValuesIterator::Item)>),
+    ChCtV(
+        Data<
+            ComponentsIterator,
+            ValuesIterator,
+            (
+                HeadTail<ComponentsIterator::Item, ComponentsIterator::Item>,
+                ValuesIterator::Item,
+            ),
+        >,
+    ),
+    V(Data<ComponentsIterator, ValuesIterator, ValuesIterator::Item>),
+    CVhVt(
+        Data<
+            ComponentsIterator,
+            ValuesIterator,
+            (
+                ComponentsIterator::Item,
+                HeadTail<ValuesIterator::Item, ValuesIterator::Item>,
+            ),
+        >,
+    ),
+}
+
+struct NextReduced<F, R> {
+    finished: F,
+    reduced: R,
+}
+
+struct NextResult<Item, NextGeneric> {
+    item: Item,
+    next: NextGeneric,
+}
+
+trait RecursiveNext<Item, Finished> {
+    fn next(self) -> Result<NextResult<Item, Self>, Finished>
+    where
+        Self: Sized;
+
+    fn reduce_until_finished<R, F: Fn(R, Item) -> R>(
+        self,
+        reducer: F,
+        initial: R,
+    ) -> NextReduced<Finished, R>
+    where
+        Self: Sized,
+    {
+        let mut next_result = self.next();
+        let mut reduced = initial;
+
+        loop {
+            match next_result {
+                Ok(cont) => {
+                    reduced = reducer(reduced, cont.item);
+                    next_result = cont.next.next();
+                }
+                Err(finished) => return NextReduced { reduced, finished },
+            }
+        }
+    }
+}
+
+enum Void {}
+
+struct ComponentState<C, CVh, CVt> {
+    component: C,
+    skip: HeadTail<CVh, CVt>,
 }
 
 impl<D, S> RecycledAndNewState<D, S> {
@@ -192,120 +336,6 @@ impl<D, S> RecycledAndNewState<D, S> {
     }
 }
 
-struct ReconcileData<CH, CT, VH, VT> {
-    components: HeadTail<CH, CT>,
-    values: HeadTail<VH, VT>,
-}
-
-impl<CH, CT, VH, VT> ReconcileData<CH, CT, VH, VT>
-where
-    CH: Recycler<Component = CH, Value = VH>,
-{
-    fn recycle_chvh(
-        self,
-    ) -> Result<
-        RecycledAndNewState<CH::RecycledGeneric, ReconcileData<Nothing, CT, Nothing, VT>>,
-        ReconcileData<CH::Component, CT, CH::Value, VT>,
-    > {
-        self.components
-            .recycle_head(self.values.head)
-            .map(|recycled| {
-                recycled.map_state(move |components| ReconcileData {
-                    components,
-                    values: HeadTail::tail(self.values.tail),
-                })
-            })
-            .map_err(|(components, value_head)| {
-                components.with_values(HeadTail::new(value_head, self.values.tail))
-            })
-    }
-}
-
-impl<CH, CT, VH, VT> ReconcileData<CH, CT, VH, VT>
-where
-    CH: Recycler<Component = CH, Value = VT>,
-{
-    fn recycle_chvt(
-        self,
-    ) -> Result<
-        RecycledAndNewState<CH::RecycledGeneric, ReconcileData<Nothing, CT, VH, Nothing>>,
-        ReconcileData<CH::Component, CT, VH, CH::Value>,
-    > {
-        self.components
-            .recycle_head(self.values.tail)
-            .map(|recycled| {
-                recycled.map_state(move |components| ReconcileData {
-                    components,
-                    values: HeadTail::head(self.values.head),
-                })
-            })
-            .map_err(|(components, value_tail)| {
-                components.with_values(HeadTail::new(self.values.head, value_tail))
-            })
-    }
-}
-
-impl<CH, CT, VH, VT> ReconcileData<CH, CT, VH, VT>
-where
-    CT: Recycler<Component = CT, Value = VH>,
-{
-    fn recycle_ctvh(
-        self,
-    ) -> Result<
-        RecycledAndNewState<CT::RecycledGeneric, ReconcileData<CH, Nothing, Nothing, VT>>,
-        ReconcileData<CH, CT::Component, CT::Value, VT>,
-    > {
-        self.components
-            .recycle_tail(self.values.head)
-            .map(|recycled| {
-                recycled.map_state(move |components| ReconcileData {
-                    components,
-                    values: HeadTail::tail(self.values.tail),
-                })
-            })
-            .map_err(|(components, value_head)| {
-                components.with_values(HeadTail::new(value_head, self.values.tail))
-            })
-    }
-}
-
-impl<CH, CT, VH, VT> ReconcileData<CH, CT, VH, VT>
-where
-    CT: Recycler<Component = CT, Value = VT>,
-{
-    fn recycle_ctvt(
-        self,
-    ) -> Result<
-        RecycledAndNewState<CT::RecycledGeneric, ReconcileData<CH, Nothing, VH, Nothing>>,
-        ReconcileData<CH, CT::Component, VH, CT::Value>,
-    > {
-        self.components
-            .recycle_tail(self.values.tail)
-            .map(|recycled| {
-                recycled.map_state(move |components| ReconcileData {
-                    components,
-                    values: HeadTail::head(self.values.head),
-                })
-            })
-            .map_err(|(components, value_tail)| {
-                components.with_values(HeadTail::new(self.values.head, value_tail))
-            })
-    }
-}
-
-struct ComponentValue<C, V> {
-    component: C,
-    value: V,
-}
-
-impl<C, V> ComponentValue<C, V> {
-    fn new(component: C, value: V) -> ComponentValue<C, V> {
-        ComponentValue { component, value }
-    }
-}
-
-
-struct Skip;
 struct Allow;
 struct ReconcileState<
     ComponentsIterator: DoubleEndedIterator,
@@ -318,263 +348,44 @@ struct ReconcileState<
     Chvt,
     Ctvh,
     Ctvt,
+    ComponentsHasNext,
+    ValuesHasNext,
 > {
-  components: HeadTailManager<ComponentsIterator, ComponentState<CH, Chvh, Chvt>, ComponentState<CT, Ctvh, Ctvt>>,
-  values: HeadTailManager<ValuesIterator, VH, VT>,
-}
-
-impl<
-        ComponentsIterator: DoubleEndedIterator,
-        ValuesIterator: DoubleEndedIterator,
-        CH,
-        CT,
-        VH,
-        VT,
-        Chvh,
-        Chvt,
-        Ctvh,
-        Ctvt,
-    > ReconcileState<ComponentsIterator, ValuesIterator, CH, CT, VH, VT, Chvh, Chvt, Ctvh, Ctvt>
-{
-    fn new(
-        iterators: Iterators<ComponentsIterator, ValuesIterator>,
-        ends: ReconcileData<CH, CT, VH, VT>,
-        skip: SkipState<Chvh, Chvt, Ctvh, Ctvt>,
-    ) -> ReconcileState<ComponentsIterator, ValuesIterator, CH, CT, VH, VT, Chvh, Chvt, Ctvh, Ctvt>
-    {
-        ReconcileState {
-            iterators,
-            ends,
-            skip,
-        }
-    }
-}
-
-impl<
-        NextGeneric,
-        FinishedGeneric,
-        RS1: Next<NextGeneric = NextGeneric, Finished = FinishedGeneric>,
-        RS2: Next<NextGeneric = NextGeneric, Finished = FinishedGeneric>,
-    > Next
-    for Result<RS1, RS2>
-{
-  type NextGeneric = NextGeneric;
-  type Finished = FinishedGeneric;
-    fn next(
-        self,
-    ) -> Result<NextGeneric, FinishedGeneric>
-    {
-        self.map_or_else(|r| r.next(), |r| r.next())
-    }
-}
-
-trait IncompleteReconcileNext {
-  type RecycledGeneric;
-  fn next_recycler(self) -> Result<
-    RecycledAndNewState<Self::RecycledGeneric, RecyclerNext>,
-    RemoveAndNextState<Self::RecycledGeneric, >,
-  >;
-};
-
-impl<
-        ComponentsIterator: DoubleEndedIterator,
-        ValuesIterator: DoubleEndedIterator,
-        CH,
-        CT,
-        VH,
-        VT,
-        Chvt,
-        Ctvh,
-        Ctvt,
-    >
-    Next<
+    components: HeadTailManager<
         ComponentsIterator,
-        ValuesIterator,
-        CH::RecycledGeneric,
-        Result<
-            ReconcileState<
-                ComponentsIterator,
-                ValuesIterator,
-                Nothing,
-                CT,
-                Nothing,
-                VT,
-                Allow,
-                Allow,
-                Allow,
-                Ctvt,
-            >,
-            ReconcileState<
-                ComponentsIterator,
-                ValuesIterator,
-                CH,
-                CT,
-                VH,
-                VT,
-                Skip,
-                Chvt,
-                Ctvh,
-                Ctvt,
-            >,
-        >,
-    >
-    for ReconcileState<ComponentsIterator, ValuesIterator, CH, CT, VH, VT, Allow, Chvt, Ctvh, Ctvt>
-where
-    CH: Recycler<Component = CH, Value = VH>,
-{
-    type ComponentsIterator: DoubleEndedIterator;
-    fn next(
-        self,
-    ) -> ReconcileInstruction<
-        ComponentsIterator,
-        ValuesIterator,
-        CH::RecycledGeneric,
-        Result<
-            ReconcileState<
-                ComponentsIterator,
-                ValuesIterator,
-                Nothing,
-                CT,
-                Nothing,
-                VT,
-                Allow,
-                Allow,
-                Allow,
-                Ctvt,
-            >,
-            ReconcileState<
-                ComponentsIterator,
-                ValuesIterator,
-                CH::Component,
-                CT,
-                CH::Value,
-                VT,
-                Skip,
-                Chvt,
-                Ctvh,
-                Ctvt,
-            >,
-        >,
-    > {
-        match self.ends.recycle_chvh() {
-            Ok(recycled) => Ok(ReconcileInstruction::RecycledItem(recycled.map_state(
-                |ends| ReconcileState::new(self.iterators, ends, self.skip.new_ch().new_vh()),
-            ))),
-            Err(ends) => todo!()/*Err(ReconcileState::new(self.iterators, ends, self.skip.skip_chvh()).next())*/
-        }
-    }
+        ComponentState<CH, Chvh, Chvt>,
+        ComponentState<CT, Ctvh, Ctvt>,
+        ComponentsHasNext,
+    >,
+    values: HeadTailManager<ValuesIterator, VH, VT, ValuesHasNext>,
 }
 
-struct RemoveAndNextState<Component, State> {
-    component: Component,
-    state: State,
-}
-
-pub enum ReconcileInstruction<
+impl<
     ComponentsIterator: DoubleEndedIterator,
     ValuesIterator: DoubleEndedIterator,
-    RecycledGeneric,
-    Next,
-> {
-    FinishWithEmpty(Data<ComponentsIterator, ValuesIterator, Nothing, Nothing, Nothing, Nothing>),
-    FinishWithC(
-        Data<
-            ComponentsIterator,
-            ValuesIterator,
-            ComponentsIterator::Item,
-            Nothing,
-            Nothing,
-            Nothing,
-        >,
-    ),
-    FinishWithCV(
-        Data<
-            ComponentsIterator,
-            ValuesIterator,
-            ComponentsIterator::Item,
-            Nothing,
-            ValuesIterator::Item,
-            Nothing,
-        >,
-    ),
-    FinishWithChCtV(
-        Data<
-            ComponentsIterator,
-            ValuesIterator,
-            ComponentsIterator::Item,
-            ComponentsIterator::Item,
-            ValuesIterator::Item,
-            Nothing,
-        >,
-    ),
-    FinishWithV(
-        Data<ComponentsIterator, ValuesIterator, Nothing, Nothing, ValuesIterator::Item, Nothing>,
-    ),
-    FinishWithCVhVt(
-        Data<
-            ComponentsIterator,
-            ValuesIterator,
-            ComponentsIterator::Item,
-            Nothing,
-            ValuesIterator::Item,
-            ValuesIterator::Item,
-        >,
-    ),
-    RecycledItem(RecycledAndNewState<RecycledGeneric, Next>),
-    RemoveItem(RemoveAndNextState<ComponentsIterator::Item, Next>),
-}
-
-struct NextReduced<F, R> {
-  finished: F,
-  reduced: R,
-}
-
-struct NextResult<Item, NextGeneric> {
-  item: Item,
-  next: NextGeneric,
-}
-
-trait RecursiveNext {
-  type Item;
-  type Finished;
-  fn next(
-      self,
-  ) -> Result<NextResult<Self::Item, Self>, Self::Finished>;
-
-  fn reduce_until_finished<R, F : Fn(R, Self::Item) -> R>(
-    self,
-    reducer : F,
-    initial: R,
-  ) -> NextReduced<Self::Finished, R> {
-    let mut next_result = self.next();
-    let mut reduced = initial;
-
-    while let Ok(cont) = next_result {
-      reduced = reducer(reduced, cont.item);
-      next_result = cont.next.next();
-    }
-
-    let Err(finished) = next_result;
-
-    return NextReduced {
-      reduced,
-      finished
-    }
-  }
-}
-
-
-trait NextReconiliationInstruction<
-  ComponentsIterator,
-  ValuesIterator,
-> where
-ComponentsIterator : DoubleEndedIterator,
-ValuesIterator : DoubleEndedIterator,
-ComponentsIterator::Item : Recycler<Component = ComponentsIterator::Item, Value = ValuesIterator::Item> {
-  type NextGeneric;
-  fn next(
-      self,
-  ) -> ReconcileInstruction<ComponentsIterator, ValuesIterator, <ComponentsIterator::Item as Recycler>::RecycledGeneric, Self::NextGeneric>;
+    CT,
+    VT,
+    Chvt,
+    Ctvh,
+    Ctvt,
+    ComponentsHasNext,
+    ValuesHasNext,
+    Next 
+> RecursiveNext<ReconcileInstruction<ComponentsIterator::Item, <ComponentsIterator::Item as Recycler>::RecycledGeneric, Next>, Finished<ComponentsIterator, ValuesIterator>> for ReconcileState<
+    ComponentsIterator,
+    ValuesIterator,
+    ComponentsIterator::Item,
+    CT,
+    ValuesIterator::Item,
+    VT,
+    Allow,
+    Chvt,
+    Ctvh,
+    Ctvt,
+    ComponentsHasNext,
+    ValuesHasNext
+> where ComponentsIterator::Item : Recycler<Component = ComponentsIterator::Item, Value = ValuesIterator::Item> {
+    
 }
 
 #[cfg(test)]
