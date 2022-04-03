@@ -1,5 +1,4 @@
 use std::iter::DoubleEndedIterator;
-use std::iter::Iterator;
 
 pub struct ReconcilePayload<Component, Value> {
     old_component: Component,
@@ -8,12 +7,12 @@ pub struct ReconcilePayload<Component, Value> {
 
 pub trait Recycler {
     type Value;
-    type Component;
+    type NotRecycled;
     type RecycledGeneric;
     fn recycle(
         self,
         new_value: Self::Value,
-    ) -> Result<Self::RecycledGeneric, ReconcilePayload<Self::Component, Self::Value>>;
+    ) -> Result<Self::RecycledGeneric, Self::NotRecycled>;
 }
 #[derive(PartialEq)]
 pub enum End {
@@ -46,38 +45,173 @@ impl<Head, Tail> HeadTail<Head, Tail> {
 
 trait WithTailTrait<Tail> {
     type TailObject;
-    fn with_tail(self, tail: Tail) -> Self::TailObject;
+    fn merge_tail(self, tail: Tail) -> Self::TailObject;
 
-    fn with_tail_option(self, tail_option: Option<Tail>) -> Result<Self::TailObject, Self>
+    fn merge_tail_option(self, tail_option: Option<Tail>) -> Result<Self::TailObject, Self>
     where
         Self: Sized,
     {
         if let Some(tail) = tail_option {
-            Ok(self.with_tail(tail))
+            Ok(self.merge_tail(tail))
         } else {
             Err(self)
         }
     }
 }
 
-/*trait HeadWithTailTrait<Head, Tail> : WithHeadTrait<Head> + WithTailTrait<Tail>
-{
-}*/
+trait SplitTailTrait {
+    type Tail;
+    type TailObject;
+    fn split_tail(self) -> (Self::TailObject, Self::Tail);
+}
 
-trait WithHeadTrait<Head> {
+trait SplitHeadTrait {
+    type Head;
     type HeadObject;
-    fn with_head(self, head: Head) -> Self::HeadObject;
+    fn split_head(self) -> (Self::HeadObject, Self::Head);
+}
 
-    fn with_head_option(self, head_option: Option<Head>) -> Result<Self::HeadObject, Self>
+trait MergeTailTrait<Tail> {
+    type MergedObject;
+    fn merge_tail(self, tail: Tail) -> Self::MergedObject;
+
+    fn merge_head_option(self, tail_option: Option<Tail>) -> Result<Self::MergedObject, Self>
     where
         Self: Sized,
     {
-        if let Some(head) = head_option {
-            Ok(self.with_head(head))
+        if let Some(tail) = tail_option {
+            Ok(self.merge_tail(tail))
         } else {
             Err(self)
         }
     }
+}
+
+trait MergeHeadTrait<Head> {
+    type MergedObject;
+    fn merge_head(self, head: Head) -> Self::MergedObject;
+
+    fn merge_head_option(self, head_option: Option<Head>) -> Result<Self::MergedObject, Self>
+    where
+        Self: Sized,
+    {
+        if let Some(head) = head_option {
+            Ok(self.merge_head(head))
+        } else {
+            Err(self)
+        }
+    }
+}
+
+struct SplitMapped<M, R> {
+    mapped: M,
+    reduced: R,
+}
+
+trait SplitMappedHeadTrait<Head> {
+    type HeadObject;
+    fn split_map_head<M, R, F : FnOnce(Head) -> SplitMapped<M, R>>(self, aFn: F) -> SplitMapped<Self::HeadObject, R>;
+}
+
+trait SplitMappedTailTrait<Tail> {
+    type TailObject;
+    fn split_map_tail<M, R, F : FnOnce(Tail) -> SplitMapped<M, R>>(self, aFn: F) -> SplitMapped<Self::TailObject, R>;
+}
+
+trait MapHeadTrait<Head> {
+    type HeadObject;
+    fn map_head<F : FnOnce(Head) -> Self::HeadObject>(self, aFn: F) -> Self::HeadObject;
+}
+
+
+trait MapTailTrait<Tail> {
+    type TailObject;
+    fn map_tail<F : FnOnce(Tail) -> Self::TailObject>(self, aFn: F) -> Self::TailObject;
+}
+
+impl<Head, T : SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
+    type HeadObject = T::HeadObject;
+    fn map_head<F : FnOnce(Head) -> Self::HeadObject>(self, aFn: F) -> Self::HeadObject {
+        self.split_map_head(|head| SplitMapped { mapped: head, reduced: Nothing }).mapped
+    }Œ
+}
+
+impl<Tail, T : SplitMappedTailTrait<Tail>> MapTailTrait<Tail> for T  {
+    type TailObject = T::TailObject;
+    fn map_tail<F : FnOnce(Tail) -> Self::TailObject>(self, aFn: F) -> Self::TailObject {
+        self.split_map_tail(|tail| SplitMapped { mapped: tail, reduced: Nothing }).mapped
+    } 
+}
+
+/*
+impl<Head, T : MapHeadTrait<Head>> MergeHeadTrait<Head> for T {
+    type MergedObject = T::HeadObject;
+    fn merge_head(self, head: Head) -> Self::MergedObject {
+        self.map_head(|| head)
+    }
+}
+
+impl<Tail, T : MapTailTrait<Tail>> MergeTailTrait<Tail> for T {
+    type MergedObject = T::TailObject;
+    fn merge_tail(self, tail: Tail) -> Self::MergedObject {
+        self.map_head(|| tail)
+    }
+} */
+
+struct Pair<V, O> {
+    taken: V,
+    other: O,
+}
+
+trait RecycleHead {
+    type Value;
+    type RecycledSuccess;
+    type RecycledError;
+    fn recycle_head(self, value: Self::Value) -> Result<Self::RecycledSuccess, Self::RecycledError>;
+}
+
+
+trait RecycleTail {
+    type Value;
+    type RecycledSuccess;
+    type RecycledError;
+    fn recycle_tail(self, value: Self::Value) -> Result<Self::RecycledSuccess, Self::RecycledError>;
+}
+
+impl <T> RecycleHead for T
+where 
+T : SplitHeadTrait,
+T::Head : Recycler,
+T::HeadObject : MergeHeadTrait<<T::Head as Recycler>::NotRecycled> {
+    type Value = <T::Head as Recycler>::Value;
+    type RecycledSuccess = (<T::Head as Recycler>::RecycledGeneric, T::HeadObject);
+    type RecycledError = <T::HeadObject as MergeHeadTrait<<T::Head as Recycler>::NotRecycled>>::MergedObject;
+    fn recycle_head(self, value: <T::Head as Recycler>::Value) -> Result<Self::RecycledSuccess, Self::RecycledError> {
+        let (other, head) = self.split_head();
+        
+        match head.recycle(value) {
+            Ok(recycled) => Ok((recycled, other)),
+            Err(err) => Err(other.merge_head(head)),
+        }
+    }   
+}
+
+impl <T> RecycleTail for T
+where 
+T : SplitTailTrait,
+T::Tail : Recycler,
+T::TailObject : MergeTailTrait<<T::Tail as Recycler>::NotRecycled> {
+    type Value = <T::Tail as Recycler>::Value;
+    type RecycledSuccess = (<T::Tail as Recycler>::RecycledGeneric, T::TailObject);
+    type RecycledError = <T::TailObject as MergeTailTrait<<T::Tail as Recycler>::NotRecycled>>::MergedObject;
+    fn recycle_tail(self, value: <T::Tail as Recycler>::Value) -> Result<Self::RecycledSuccess, Self::RecycledError> {
+        let (other, tail) = self.split_tail();
+        
+        match tail.recycle(value) {
+            Ok(recycled) => Ok((recycled, other)),
+            Err(err) => Err(other.merge_tail(tail)),
+        }
+    }   
 }
 
 impl<Head> HeadTail<Head, Nothing> {
@@ -98,22 +232,23 @@ impl<Tail> HeadTail<Nothing, Tail> {
     }
 }
 
-impl<CurrentHead, Head, Tail> WithHeadTrait<Head>
+impl<CurrentHead, Head, Tail> MergeHeadTrait<Head>
     for HeadTail<CurrentHead, Tail>
 {
-    type HeadObject = HeadTail<Head, Tail>;
-    fn with_head(self, head: Head) -> HeadTail<Head, Tail> {
+    type MergedObject = HeadTail<Head, Tail>;
+    fn merge_head(self, head: Head) -> HeadTail<Head, Tail> {
         HeadTail {
             head,
             tail: self.tail,
         }
     }
 }
-impl<CurrentTail, Head, Tail> WithTailTrait<Tail>
+
+impl<CurrentTail, Head, Tail> MergeTailTrait<Tail>
     for HeadTail<Head, CurrentTail>
 {
-    type TailObject = HeadTail<Head, Tail>;
-    fn with_tail(self, tail: Tail) -> HeadTail<Head, Tail> {
+    type MergedObject = HeadTail<Head, Tail>;
+    fn merge_tail(self, tail: Tail) -> HeadTail<Head, Tail> {
         HeadTail {
             head: self.head,
             tail,
@@ -169,20 +304,14 @@ struct HeadTailManager<IteratorGeneric: DoubleEndedIterator, HeadTailGeneric, Ha
     ends: HeadTailGeneric,
 }
 
-impl<IteratorGeneric : DoubleEndedIterator, HeadTailGeneric, HasNext> HeadTailManager<IteratorGeneric, HeadTailGeneric, HasNext> {
-    fn recycle_vh(self) {
-        self.
-    }
-}
-
-impl<IteratorGeneric : DoubleEndedIterator, HeadGeneric : WithHeadTrait<IteratorGeneric::Item>> HeadTailManager<IteratorGeneric, HeadGeneric, Allow> {
+impl<IteratorGeneric : DoubleEndedIterator, HeadGeneric : MergeHeadTrait<IteratorGeneric::Item>> HeadTailManager<IteratorGeneric, HeadGeneric, Allow> {
     fn repopulate_h(
         self,
-    ) -> Result<HeadTailManager<IteratorGeneric, HeadGeneric::HeadObject, Allow>, HeadTailManager<IteratorGeneric, HeadGeneric, Nothing>> {
+    ) -> Result<HeadTailManager<IteratorGeneric, HeadGeneric::MergedObject, Allow>, HeadTailManager<IteratorGeneric, HeadGeneric, Nothing>> {
         match self.iterator.repopulate_h() {
             Ok(result) => Ok(HeadTailManager {
                 iterator: result.manager,
-                ends: self.ends.with_head(result.value),
+                ends: self.ends.merge_head(result.value),
             }),
             Err(manager) => Err(HeadTailManager {
                 iterator: manager,
@@ -199,7 +328,7 @@ impl<IteratorGeneric : DoubleEndedIterator, TailGeneric : WithTailTrait<Iterator
         match self.iterator.repopulate_t() {
             Ok(result) => Ok(HeadTailManager {
                 iterator: result.manager,
-                ends: self.ends.with_tail(result.value),
+                ends: self.ends.merge_tail(result.value),
             }),
             Err(manager) => Err(HeadTailManager {
                 iterator: manager,
@@ -225,12 +354,15 @@ impl<
     ChVt,
     CtVh,
     CtVt,
-> WithHeadTrait<CH> for Components<Nothing, CT, ChVh, ChVt, CtVh, CtVt> {
-    type HeadObject = Components<CH, CT, Allow, Allow, CtVh, CtVt>;
-    fn with_head(self, head: CH) {
-        Components {
-            head_tail: self.head_tail.with_head(ComponentState::component(head))
-        }
+> MergeHeadTrait<CH> for Components<Nothing, CT, ChVh, ChVt, CtVh, CtVt> {
+    type MergedObject = Components<CH, CT, Allow, Allow, CtVh, CtVt>;
+    fn merge_head(self, head: CH) -> Self::MergedObject {
+        let component = ComponentState::component(head);
+        let head_tail = self.head_tail.merge_head(component);
+        let components = Components {
+            head_tail
+        };
+        components
     }
 }
 
@@ -241,11 +373,11 @@ impl<
     ChVt,
     CtVh,
     CtVt,
-> WithTailTrait<CT> for Components<CH, Nothing, ChVh, ChVt, CtVh, CtVt> {
-    type TailObject = Components<CH, CT, ChVh, ChVt, Allow, Allow>;
-    fn with_tail(self, tail: CT) {
+> MergeTailTrait<CT> for Components<CH, Nothing, ChVh, ChVt, CtVh, CtVt> {
+    type MergedObject = Components<CH, CT, ChVh, ChVt, Allow, Allow>;
+    fn merge_tail(self, tail: CT) -> Self::MergedObject {
         Components {
-            head_tail: self.head_tail.with_tail(ComponentState::component(tail))
+            head_tail: self.head_tail.merge_tail(ComponentState::component(tail))
         }
     }
 }
@@ -271,7 +403,7 @@ where
             }),
             Err(err) => Err(ComponentState {
                 component: self.component,
-                skip: self.skip.with_head(Nothing),
+                skip: self.skip.merge_head(Nothing),
             }),
         }
     }
@@ -298,7 +430,7 @@ where
             }),
             Err(err) => Err(ComponentState {
                 component: self.component,
-                skip: self.skip.with_tail(Nothing),
+                skip: self.skip.merge_tail(Nothing),
             }),
         }
     }
@@ -308,7 +440,7 @@ impl<C, CVt> ComponentState<C, Allow, CVt> {
     fn skip_vh(self) -> ComponentState<C, Nothing, CVt> {
         ComponentState {
             component: self.component,
-            skip: self.skip.with_head(Nothing),
+            skip: self.skip.merge_head(Nothing),
         }
     }
 }
@@ -317,7 +449,7 @@ impl<C, CVt> ComponentState<C, Nothing, CVt> {
     fn allow_vh(self) -> ComponentState<C, Allow, CVt> {
         ComponentState {
             component: self.component,
-            skip: self.skip.with_head(Allow),
+            skip: self.skip.merge_head(Allow),
         }
     }
 }
@@ -326,7 +458,7 @@ impl<C, CVh> ComponentState<C, CVh, Allow> {
     fn skip_vt(self) -> ComponentState<C, CVh, Nothing> {
         ComponentState {
             component: self.component,
-            skip: self.skip.with_tail(Nothing),
+            skip: self.skip.merge_tail(Nothing),
         }
     }
 }
@@ -335,7 +467,7 @@ impl<C, CVh> ComponentState<C, CVh, Nothing> {
     fn allow_vt(self) -> ComponentState<C, CVh, Allow> {
         ComponentState {
             component: self.component,
-            skip: self.skip.with_tail(Allow),
+            skip: self.skip.merge_tail(Allow),
         }
     }
 }
@@ -477,136 +609,6 @@ struct ReconcileState<
     values: HeadTailManager<ValuesIterator, HeadTail<VH, VT>, ValuesHasNext>,
 }
 
-impl<
-        ComponentsIterator: DoubleEndedIterator,
-        ValuesIterator: DoubleEndedIterator,
-        Next,
-        CT,
-        VT,
-        Chvt,
-        Ctvh,
-        Ctvt,
-        ComponentsHasNext,
-        ValuesHasNext,
-    >
-    ReconcileState<
-        ComponentsIterator,
-        ValuesIterator,
-        ComponentsIterator::Item,
-        CT,
-        ValuesIterator::Item,
-        VT,
-        Allow,
-        Chvt,
-        Ctvh,
-        Ctvt,
-        ComponentsHasNext,
-        ValuesHasNext,
-    >
-where
-    ComponentsIterator::Item:
-        Recycler<Component = ComponentsIterator::Item, Value = ValuesIterator::Item>,
-    Next: RecursiveNext<
-        ReconcileInstruction<
-            ComponentsIterator::Item,
-            <ComponentsIterator::Item as Recycler>::RecycledGeneric,
-        >,
-        Finished<ComponentsIterator, ValuesIterator>,
-        Next,
-    >,
-{
-    fn recycle_vh(self) -> Result<
-        NextResult<
-            ReconcileInstruction<
-                <ComponentsIterator as Iterator>::Item,
-                <<ComponentsIterator as Iterator>::Item as Recycler>::RecycledGeneric,
-            >,
-            Next,
-        >,
-        Finished<ComponentsIterator, ValuesIterator>,
-    > {
-        match self.components.ends.head.recycle_vh(self.values.ends.head) {
-            Ok(recycled) => Ok(NextResult {
-                item: ReconcileInstruction::RecycledItem(recycled.data),
-                next: ReconcileState {
-                    components: HeadTailManager {
-                        iterator: self.components.iterator,
-                        ends: HeadTail {
-                            head: recycled.state,
-                            tail: self.components.ends.tail,
-                        },
-                    },
-                    values: HeadTailManager {
-                        iterator: self.values.iterator,
-                        ends: HeadTail {
-                            head: Nothing,
-                            tail: self.values.ends.tail,
-                        },
-                    },
-                },
-            }),
-            Err(err) => todo!(),
-        }   
-    }
-}
-
-
-impl<
-    ComponentsIterator: DoubleEndedIterator,
-    ValuesIterator: DoubleEndedIterator,
-    Next,
-    CT,
-    VH,
-    VT,
-    Chvh,
-    Chvt,
-    Ctvh,
-    Ctvt,
-    ValuesHasNext,
->
-    RecursiveNext<
-        ReconcileInstruction<
-            ComponentsIterator::Item,
-            <ComponentsIterator::Item as Recycler>::RecycledGeneric,
-        >,
-        Finished<ComponentsIterator, ValuesIterator>,
-        Next,
-    >
-    for ReconcileState<
-        ComponentsIterator,
-        ValuesIterator,
-        Nothing,
-        CT,
-        VH,
-        VT,
-        Chvh,
-        Chvt,
-        Ctvh,
-        Ctvt,
-        Allow,
-        ValuesHasNext,
-    >
-where
-    ComponentsIterator::Item:
-        Recycler<Component = ComponentsIterator::Item, Value = ValuesIterator::Item>,
-    Next: RecursiveNext<
-        ReconcileInstruction<
-            ComponentsIterator::Item,
-            <ComponentsIterator::Item as Recycler>::RecycledGeneric,
-        >,
-        Finished<ComponentsIterator, ValuesIterator>,
-        Next,
-    >,
-{
-    fn next(self) -> Result<NextResult<ReconcileInstruction<
-            ComponentsIterator::Item,
-            <ComponentsIterator::Item as Recycler>::RecycledGeneric,
-        >, Next>, Finished<ComponentsIterator, ValuesIterator>>
-    where
-        Self: Sized {
-        todo!()
-    }
-}
 
 #[cfg(test)]
 mod tests {
