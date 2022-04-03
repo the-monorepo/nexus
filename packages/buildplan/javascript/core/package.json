@@ -38,7 +38,7 @@
     "jest-mock": "^26.3.0"
   },
   "dependencies": {
-    "@pshaw/logger": "workspace:packages/misc/javascript/logger",
+    "@pshaw/logger": "workspace:*",
     "chalk": "^4.1.0",
     "yargs": "^16.1.1"
   }

@@ -34,7 +34,7 @@
     "regex"
   ],
   "dependencies": {
-    "@resultful/result": "workspace:packages/resultful/javascript/result",
+    "@resultful/result": "workspace:*",
     "web-streams-polyfill": "^3.0.0"
   },
   "devDependencies": {

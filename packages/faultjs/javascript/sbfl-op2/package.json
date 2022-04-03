@@ -26,6 +26,6 @@
     "op2"
   ],
   "dependencies": {
-    "@fault/types": "workspace:packages/faultjs/javascript/types"
+    "@fault/types": "workspace:*"
   }
 }

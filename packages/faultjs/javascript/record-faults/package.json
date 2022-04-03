@@ -23,8 +23,8 @@
     "fautltjs"
   ],
   "dependencies": {
-    "@fault/istanbul-util": "workspace:packages/faultjs/javascript/istanbul-util",
-    "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs",
+    "@fault/istanbul-util": "workspace:*",
+    "@pshaw/fs": "workspace:*",
     "chalk": "^4.1.0"
   }
 }

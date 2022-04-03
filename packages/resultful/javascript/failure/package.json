@@ -36,11 +36,11 @@
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
   "devDependencies": {
-    "@pshaw/markdown-util": "workspace:packages/misc/javascript/markdown-util",
+    "@pshaw/markdown-util": "workspace:*",
     "jest-mock": "^26.3.0"
   },
   "dependencies": {
-    "@resultful/failure-types": "workspace:^",
-    "@resultful/utility-types": "workspace:packages/resultful/javascript/utility-types"
+    "@resultful/failure-types": "workspace:*",
+    "@resultful/utility-types": "workspace:*"
   }
 }

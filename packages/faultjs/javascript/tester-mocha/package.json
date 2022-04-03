@@ -26,10 +26,10 @@
     "mocha"
   ],
   "dependencies": {
-    "@fault/istanbul-util": "workspace:packages/faultjs/javascript/istanbul-util",
-    "@fault/messages": "workspace:packages/faultjs/javascript/messages",
-    "@fault/types": "workspace:packages/faultjs/javascript/types",
-    "resultful": "workspace:packages/resultful/javascript/resultful"
+    "@fault/istanbul-util": "workspace:*",
+    "@fault/messages": "workspace:*",
+    "@fault/types": "workspace:*",
+    "resultful": "workspace:*"
   },
   "peerDependencies": {
     "mocha": "*"

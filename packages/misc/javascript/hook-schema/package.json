@@ -27,7 +27,7 @@
   "sideEffects": false,
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
   "devDependencies": {
-    "@pshaw/markdown-util": "workspace:packages/misc/javascript/markdown-util",
+    "@pshaw/markdown-util": "workspace:*",
     "jest-mock": "^26.3.0"
   }
 }

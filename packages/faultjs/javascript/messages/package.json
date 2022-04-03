@@ -22,7 +22,7 @@
     "ipc"
   ],
   "dependencies": {
-    "@fault/types": "workspace:packages/faultjs/javascript/types",
-    "ipc-fifo-processor": "workspace:packages/misc/javascript/ipc-fifo-processor"
+    "@fault/types": "workspace:*",
+    "ipc-fifo-processor": "workspace:*"
   }
 }

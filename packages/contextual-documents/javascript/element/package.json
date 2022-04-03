@@ -21,6 +21,6 @@
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@contextual-documents/suffix-element": "workspace:packages/contextual-documents/javascript/suffix-element"
+    "@contextual-documents/suffix-element": "workspace:*"
   }
 }

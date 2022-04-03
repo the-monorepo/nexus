@@ -21,7 +21,7 @@
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/javascript/classname-picker",
-    "dom-context": "workspace:packages/misc/javascript/dom-context"
+    "@contextual-documents/classname-picker": "workspace:*",
+    "dom-context": "workspace:*"
   }
 }

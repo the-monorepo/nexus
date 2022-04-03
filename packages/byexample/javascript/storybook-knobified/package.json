@@ -15,8 +15,8 @@
     "prop-types": "^15.6.2"
   },
   "dependencies": {
-    "@byexample/types": "workspace:packages/byexample/javascript/types",
-    "css-color-checker": "workspace:packages/misc/javascript/css-color-checker"
+    "@byexample/types": "workspace:*",
+    "css-color-checker": "workspace:*"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^6.0.16",

@@ -31,10 +31,10 @@
     }
   },
   "dependencies": {
-    "@contextual-documents/classname-picker": "workspace:packages/contextual-documents/javascript/classname-picker",
-    "@contextual-documents/element": "workspace:packages/contextual-documents/javascript/element",
-    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements",
-    "@contextual-documents/html-symbols": "workspace:packages/contextual-documents/javascript/html-symbols",
-    "@pshaw/contextual-documents-scss": "workspace:packages/patrick-shaw/javascript/contextual-documents-scss"
+    "@contextual-documents/classname-picker": "workspace:*",
+    "@contextual-documents/element": "workspace:*",
+    "@contextual-documents/html-elements": "workspace:*",
+    "@contextual-documents/html-symbols": "workspace:*",
+    "@pshaw/contextual-documents-scss": "workspace:*"
   }
 }

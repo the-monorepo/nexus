@@ -19,9 +19,9 @@
     "pdf": "yarn node ./commonjs/to-pdf.ts"
   },
   "dependencies": {
-    "@pshaw/logger": "workspace:packages/misc/javascript/logger",
-    "@pshaw/resume-template": "workspace:packages/misc/javascript/resume-template",
-    "cinder": "workspace:packages/cinder/javascript/cinder",
+    "@pshaw/logger": "workspace:*",
+    "@pshaw/resume-template": "workspace:*",
+    "cinder": "workspace:*",
     "core-js": "^3.10.1",
     "express": "^4.17.1",
     "puppeteer": "^13.1.3"

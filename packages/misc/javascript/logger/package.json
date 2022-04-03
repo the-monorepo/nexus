@@ -31,7 +31,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@pshaw/markdown-util": "workspace:packages/misc/javascript/markdown-util",
+    "@pshaw/markdown-util": "workspace:*",
     "jest-mock": "^26.3.0",
     "mockdate": "^3.0.2"
   },

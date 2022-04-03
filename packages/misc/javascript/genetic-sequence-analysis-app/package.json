@@ -30,11 +30,11 @@
   ],
   "dependencies": {
     "@polymer/paper-radio-button": "^3.0.1",
-    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
+    "@pshaw/contextual-documents": "workspace:*",
     "@types/jest": "^26.0.10",
-    "cinder": "workspace:packages/cinder/javascript/cinder",
+    "cinder": "workspace:*",
     "core-js": "^3.10.1",
-    "fasta-format-parser": "workspace:packages/misc/javascript/fasta-format-parser",
+    "fasta-format-parser": "workspace:*",
     "replace-functions": "^4.0.0"
   },
   "devDependencies": {

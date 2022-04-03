@@ -26,8 +26,8 @@
     "typescript"
   ],
   "dependencies": {
-    "@fault/addon-hook-schema": "workspace:packages/faultjs/javascript/addon-hook-schema",
-    "@fault/types": "workspace:packages/faultjs/javascript/types",
+    "@fault/addon-hook-schema": "workspace:*",
+    "@fault/types": "workspace:*",
     "istanbul-lib-coverage": "^3.0.0",
     "istanbul-lib-report": "^3.0.0",
     "istanbul-reports": "^3.0.2"

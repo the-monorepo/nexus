@@ -25,12 +25,12 @@
     "typescript"
   ],
   "dependencies": {
-    "@fault/addon-hook-schema": "workspace:packages/faultjs/javascript/addon-hook-schema",
-    "@fault/addon-istanbul": "workspace:packages/faultjs/javascript/addon-istanbul",
-    "@fault/istanbul-util": "workspace:packages/faultjs/javascript/istanbul-util",
-    "@fault/messages": "workspace:packages/faultjs/javascript/messages",
-    "@fault/types": "workspace:packages/faultjs/javascript/types",
-    "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs",
+    "@fault/addon-hook-schema": "workspace:*",
+    "@fault/addon-istanbul": "workspace:*",
+    "@fault/istanbul-util": "workspace:*",
+    "@fault/messages": "workspace:*",
+    "@fault/types": "workspace:*",
+    "@pshaw/fs": "workspace:*",
     "@types/node": "^14.6.0",
     "chalk": "^4.1.0",
     "globby": "^11.0.1",

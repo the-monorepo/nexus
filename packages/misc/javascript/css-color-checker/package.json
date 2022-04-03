@@ -31,6 +31,6 @@
     "jest-mock": "^26.3.0"
   },
   "dependencies": {
-    "named-css-colors": "workspace:packages/misc/javascript/named-css-colors"
+    "named-css-colors": "workspace:*"
   }
 }

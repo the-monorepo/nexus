@@ -36,7 +36,7 @@
   "devDependencies": {
     "@babel/parser": "^7.15.7",
     "@babel/types": "^7.15.6",
-    "@pipelines/core": "workspace:packages/pipelines/javascript/pipelines-core",
+    "@pipelines/core": "workspace:*",
     "@types/node": "^14.6.0"
   },
   "peerDependencies": {

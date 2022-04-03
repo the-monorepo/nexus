@@ -16,15 +16,15 @@
     "require": "./commonjs/index.tsx"
   },
   "dependencies": {
-    "@contextual-documents/html-elements": "workspace:packages/contextual-documents/javascript/html-elements",
+    "@contextual-documents/html-elements": "workspace:*",
     "@polymer/iron-flex-layout": "^3.0.1",
-    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
+    "@pshaw/contextual-documents": "workspace:*",
     "@types/chrome": "^0.0.122",
-    "cinder": "workspace:packages/cinder/javascript/cinder",
+    "cinder": "workspace:*",
     "classnames": "^2.2.6",
     "core-js": "^3.10.1",
     "mobx": "^5.15.6",
-    "unstyled": "workspace:packages/misc/javascript/unstyled",
+    "unstyled": "workspace:*",
     "xy-ui": "^1.10.0"
   }
 }
