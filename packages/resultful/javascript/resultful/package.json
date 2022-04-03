@@ -40,7 +40,7 @@
     "jest-mock": "^26.3.0"
   },
   "dependencies": {
-    "@resultful/failure": "workspace:packages/resultful/javascript/error",
+    "@resultful/failure": "workspace:packages/resultful/javascript/failure",
     "@resultful/result": "workspace:packages/resultful/javascript/result",
     "@resultful/utility-types": "workspace:packages/resultful/javascript/utility-types"
   }
