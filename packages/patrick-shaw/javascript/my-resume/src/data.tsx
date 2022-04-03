@@ -219,7 +219,7 @@ export const hackathons = [
     startDate: new Date(2017),
     prize: 'Microsoft sponsored people’s choice winner',
     description:
-      'Uptime is a machine learning model that predicts failures in mining machinery 20 minutes prior to failure. \n' +
+      'Uptime is a machine learning model that predicts failures in mining machinery 20 minutes prior to error. \n' +
       'I worked on building its neural network.',
     technologies: ['TensorFlow', 'Python'],
   },

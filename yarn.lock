@@ -4233,9 +4233,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@resultful/failure-types@workspace:packages/resultful/javascript/failure-types":
+"@resultful/failure-types@workspace:^, @resultful/failure-types@workspace:packages/resultful/javascript/failure-types":
   version: 0.0.0-use.local
   resolution: "@resultful/failure-types@workspace:packages/resultful/javascript/failure-types"
+  dependencies:
+    "@resultful/failure-types": "workspace:packages/resultful/javascript/failure-types"
   languageName: unknown
   linkType: soft
 
@@ -4244,12 +4246,13 @@ __metadata:
   resolution: "@resultful/failure@workspace:packages/resultful/javascript/failure"
   dependencies:
     "@pshaw/markdown-util": "workspace:packages/misc/javascript/markdown-util"
+    "@resultful/failure-types": "workspace:^"
     "@resultful/utility-types": "workspace:packages/resultful/javascript/utility-types"
     jest-mock: ^26.3.0
   languageName: unknown
   linkType: soft
 
-"@resultful/result-types@workspace:packages/resultful/javascript/result-types":
+"@resultful/result-types@workspace:^, @resultful/result-types@workspace:packages/resultful/javascript/result-types":
   version: 0.0.0-use.local
   resolution: "@resultful/result-types@workspace:packages/resultful/javascript/result-types"
   languageName: unknown
@@ -4260,6 +4263,7 @@ __metadata:
   resolution: "@resultful/result@workspace:packages/resultful/javascript/result"
   dependencies:
     "@pshaw/markdown-util": "workspace:packages/misc/javascript/markdown-util"
+    "@resultful/result-types": "workspace:^"
     "@resultful/utility-types": "workspace:packages/resultful/javascript/utility-types"
     jest-mock: ^26.3.0
   languageName: unknown

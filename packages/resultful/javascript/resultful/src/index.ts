@@ -1,39 +1,39 @@
 import {
-  createFailure,
-  createPayload,
-  hasFailure,
-  hasPayload,
+  failure,
+  ok,
+  isFailure,
+  isOk,
   Result,
   transform as transformResult,
 } from '@resultful/result';
 import {
-  createError,
-  createUnknown,
+  error,
+  unknown,
   Failure,
-  hasError,
-  hasUnknown,
+  isError,
+  isUnknown,
   transform as transformFailure,
 } from '@resultful/failure';
 import { TypedObjectSchema } from '@resultful/utility-types';
 
-export { createPayload, hasPayload };
+export { ok, isOk, error, unknown, failure };
 
-export const createUnknownFailure = (value: unknown) =>
-  createFailure(createUnknown(value));
-export const createErrorFailure = <E>(value: E) => createFailure(createError(value));
+export const unknownFailure = (value: unknown) =>
+  failure(unknown(value));
+export const errorFailure = <E>(value: E) => failure(error(value));
 
-export const hasUnknownFailure = <R extends TypedObjectSchema>(value: R) =>
-  hasFailure(value) && hasUnknown(value.failure);
+export const isUnknownFailure = <R extends TypedObjectSchema>(value: R) =>
+  isFailure(value) && isUnknown(value.failure);
 
-export const hasErrorFailure = <R extends TypedObjectSchema>(value: R) =>
-  hasFailure(value) && hasError(value.failure);
+export const isErrorFailure = <R extends TypedObjectSchema>(value: R) =>
+  isFailure(value) && isError(value.failure);
 
 export const transform = <R extends Result<any, Failure<any>>>(
   result: R,
-  { payload, error, unknown },
+  { ok, error, unknown },
 ) =>
   transformResult(result, {
-    payload,
+    ok,
     failure: (failureValue) =>
       transformFailure(failureValue, {
         error: (errorValue) => error(errorValue, failureValue, result),

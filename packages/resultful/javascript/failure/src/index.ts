@@ -1,11 +1,11 @@
-import * as FailureTypes from '@resultful/failure-types';
+export type { FailureType } from '@resultful/failure-types'
 import {
   ResultTransformer,
   TransformTypedObject,
   OptionIfTypeElseEmpty,
 } from '@resultful/utility-types';
 import { ERROR, UNKNOWN } from '@resultful/failure-types';
-export { FailureTypes };
+export { ERROR, UNKNOWN } from '@resultful/failure-types';
 
 export type ErrorFailure<ErrorType> = {
   type: typeof ERROR;
@@ -13,19 +13,19 @@ export type ErrorFailure<ErrorType> = {
   unknown: undefined;
 };
 
-export type UnknownFailure = {
+export type UnknownError = {
   type: typeof UNKNOWN;
   error: undefined;
   unknown: unknown;
 };
 
-export type Failure<ErrorType> = ErrorFailure<ErrorType> | UnknownFailure;
+export type Failure<ErrorType> = ErrorFailure<ErrorType> | UnknownError;
 
-export const hasError = <R extends TypedObjectSchema>(
+export const isError = <R extends TypedObjectSchema>(
   result: R,
 ): result is Include<R, TypeHolder<typeof ERROR>> => result.type === ERROR;
 
-export const hasUnknownBehaviour = <R extends TypedObjectSchema>(
+export const isUnknown = <R extends TypedObjectSchema>(
   result: R,
 ): result is Include<R, TypeHolder<typeof UNKNOWN>> => result.type === UNKNOWN;
 
@@ -36,7 +36,7 @@ export type CreateErrorFn = {
   (error?: undefined): ErrorFailure<undefined>;
 };
 
-export type CreateUnknownFn = (unknown: unknown) => UnknownFailure;
+export type CreateUnknownFn = (unknown: unknown) => UnknownError;
 
 export const error: CreateErrorFn = <E>(error: E): ErrorFailure<E> => ({
   type: ERROR,
@@ -44,14 +44,14 @@ export const error: CreateErrorFn = <E>(error: E): ErrorFailure<E> => ({
   unknown: undefined,
 });
 
-export const unknown: CreateUnknownFn = (unknown: unknown): UnknownFailure => ({
+export const unknown: CreateUnknownFn = (unknown: unknown): UnknownError => ({
   type: UNKNOWN,
   error: undefined,
   unknown,
 });
 
 export type ErrorHandler<A, R> = ResultTransformer<ErrorFailure<A>, A, R>;
-export type UnknownHandler<R> = ResultTransformer<UnknownFailure, unknown, R>;
+export type UnknownHandler<R> = ResultTransformer<UnknownError, unknown, R>;
 
 export type HandleErrorOptions<E, ER> = {
   error: ErrorHandler<E, ER>;
@@ -149,7 +149,7 @@ export type HandleFn = {
 
 export type ValueOf<R extends TypedResultfulSchema> = R extends ErrorFailure<infer E>
   ? E
-  : R extends UnknownFailure
+  : R extends UnknownError
   ? 1
   : never;
 const passThrough = <T>(value: T) => value;

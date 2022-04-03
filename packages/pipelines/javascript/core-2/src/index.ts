@@ -1,4 +1,4 @@
-import { createPayload, createFailure, hasFailure, Result } from '@resultful/result';
+import { failure, ok, isFailure, Result } from '@resultful/result';
 
 class Mapper<I, O> implements AsyncIterable<O>, AsyncIterator<O> {
   constructor(
@@ -127,10 +127,12 @@ class Broadcaster<T> implements AsyncIterableIterator<T> {
   }
 
   static create<T>(iterable: AsyncIterable<T>) {
+    console.log('create');
     return new Broadcaster(iterable[Symbol.asyncIterator](), [], []);
   }
 
   async next() {
+    console.log('next', 'buffer', this.buffer.length);
     if (this.buffer.length >= 1) {
       return this.buffer.shift()!;
     }
@@ -141,6 +143,7 @@ class Broadcaster<T> implements AsyncIterableIterator<T> {
       if (this === broadcaster) {
         continue;
       }
+      console.log('pushed', broadcaster.buffer.length);
       broadcaster.buffer.push(resultPromise);
     }
 
@@ -148,6 +151,7 @@ class Broadcaster<T> implements AsyncIterableIterator<T> {
   }
 
   [Symbol.asyncIterator]() {
+    console.log('new');
     return new Broadcaster(this.iterator, this.broadcasters, [...this.buffer]);
   }
 }
@@ -444,14 +448,14 @@ class Buffered<T> implements AsyncIterableIterator<T> {
       try {
         for await (const value of iterable) {
           if (this.queueLengthLength <= 0) {
-            buffer.push(createPayload(value));
+            buffer.push(ok(value));
           } else {
             this.waitingQueue.pop()!.resolve({ value, done: false });
           }
         }
       } catch (err) {
         if (this.queueLengthLength <= 0) {
-          buffer.push(createFailure(err));
+          buffer.push(failure(err));
         } else {
           this.waitingQueue.pop()!.reject(err);
         }
@@ -480,10 +484,10 @@ class Buffered<T> implements AsyncIterableIterator<T> {
   async next(): Promise<IteratorResult<T>> {
     if (this.buffer.length >= 1) {
       const result = this.buffer.shift()!;
-      if (hasFailure(result)) {
+      if (isFailure(result)) {
         throw result.failure;
       } else {
-        return { done: false, value: result.payload };
+        return { done: false, value: result.ok };
       }
     } else if (this.done) {
       return { done: this.done, value: undefined };

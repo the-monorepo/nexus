@@ -1,4 +1,4 @@
-import { success, error, isSuccess, valueOf } from 'resultful';
+import { ok, failure, isOk, valueOf } from 'resultful';
 
 import * as ErrorTypes from './ErrorTypes.ts';
 import * as FormatTypes from './FormatTypes.ts';
@@ -13,7 +13,7 @@ const nextString = async (
   let current = await reader.next();
 
   if (current.done) {
-    return error({
+    return failure({
       type: ErrorTypes.INVALID_FASTA_FORMAT,
       error: new Error(`Expected a string but iterable was already done`),
       userFriendlyMessage: 'FASTA finished early',
@@ -26,7 +26,7 @@ const nextString = async (
     current = await reader.next();
   }
 
-  return success({
+  return ok({
     value: aString,
     currentReaderResult: current,
   });
@@ -45,15 +45,15 @@ export const parsePartialStringOnlyFormatObject = async <
   for (const key of formatMetadata.keys) {
     // Note: this HAS to be sequential since we're dealing with streams
     const result = await nextString(fastaReaderAfterType);
-    if (!isSuccess(result)) {
+    if (!isOk(result)) {
       return result;
     }
-    sequenceMetadataEntries.push([key, result.payload.value]);
+    sequenceMetadataEntries.push([key, result.ok.value]);
   }
 
   const sequenceMetadata = Object.fromEntries(sequenceMetadataEntries);
 
-  return success({
+  return ok({
     formatMetadata,
     sequenceMetadata,
     currentReaderResult,
@@ -66,67 +66,67 @@ export const typeToMetadata = (
 ) => {
   switch (type) {
     case FormatTypes.LCL:
-      return success(FormatMetadata.LCL);
+      return ok(FormatMetadata.LCL);
 
     case FormatTypes.BBS:
-      return success(FormatMetadata.BBS);
+      return ok(FormatMetadata.BBS);
 
     case FormatTypes.BBM:
-      return success(FormatMetadata.BBM);
+      return ok(FormatMetadata.BBM);
 
     case FormatTypes.GIM:
-      return success(FormatMetadata.GIM);
+      return ok(FormatMetadata.GIM);
 
     case FormatTypes.GB:
-      return success(FormatMetadata.GB);
+      return ok(FormatMetadata.GB);
 
     case FormatTypes.EMB:
-      return success(FormatMetadata.EMB);
+      return ok(FormatMetadata.EMB);
 
     case FormatTypes.PIR:
-      return success(FormatMetadata.PIR);
+      return ok(FormatMetadata.PIR);
 
     case FormatTypes.SP:
-      return success(FormatMetadata.SP);
+      return ok(FormatMetadata.SP);
 
     case FormatTypes.PAT:
-      return success(FormatMetadata.PAT);
+      return ok(FormatMetadata.PAT);
 
     case FormatTypes.PGP:
-      return success(FormatMetadata.PGP);
+      return ok(FormatMetadata.PGP);
 
     case FormatTypes.REF:
-      return success(FormatMetadata.REF);
+      return ok(FormatMetadata.REF);
 
     case FormatTypes.GNL:
-      return success(FormatMetadata.GNL);
+      return ok(FormatMetadata.GNL);
 
     case FormatTypes.GI:
-      return success(FormatMetadata.GI);
+      return ok(FormatMetadata.GI);
 
     case FormatTypes.DBJ:
-      return success(FormatMetadata.DBJ);
+      return ok(FormatMetadata.DBJ);
 
     case FormatTypes.PRF:
-      return success(FormatMetadata.PRF);
+      return ok(FormatMetadata.PRF);
 
     case FormatTypes.PDB:
-      return success(FormatMetadata.PDB);
+      return ok(FormatMetadata.PDB);
 
     case FormatTypes.TPG:
-      return success(FormatMetadata.TPG);
+      return ok(FormatMetadata.TPG);
 
     case FormatTypes.TPE:
-      return success(FormatMetadata.TPE);
+      return ok(FormatMetadata.TPE);
 
     case FormatTypes.TPD:
-      return success(FormatMetadata.TPD);
+      return ok(FormatMetadata.TPD);
 
     case FormatTypes.TR:
-      return success(FormatMetadata.TR);
+      return ok(FormatMetadata.TR);
     default: {
       const errorMessage = `${type} is not a recongized FASTA format`;
-      return error({
+      return failure({
         type: ErrorTypes.UNKNOWN_FASTA_FORMAT,
         error: new Error(errorMessage),
         message: errorMessage,
@@ -140,7 +140,7 @@ export const parseFormatObject = async (
   fastaReaderStart: AsyncIterableIterator<string>,
 ) => {
   const typeResult = await nextString(fastaReaderStart);
-  if (!isSuccess(typeResult)) {
+  if (!isOk(typeResult)) {
     return typeResult;
   }
   const typeInfo = valueOf(typeResult);
@@ -150,7 +150,7 @@ export const parseFormatObject = async (
   // TODO: remove currentReaderReslt from this function
   const metadataResult = typeToMetadata(type, typeInfo.currentReaderResult);
 
-  if (!isSuccess(metadataResult)) {
+  if (!isOk(metadataResult)) {
     return metadataResult;
   }
 

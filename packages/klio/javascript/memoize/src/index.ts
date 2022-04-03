@@ -1,4 +1,4 @@
-import { createFailure, createPayload, hasFailure, Result } from '@resultful/result';
+import { failure, ok, isFailure, Result } from '@resultful/result';
 
 export type Cache<K, V> = Pick<Map<K, V>, 'set' | 'get'>;
 export type CacheConstructor<K, V> = {
@@ -73,9 +73,9 @@ const memoize = <A extends any[], R>(
       const result = (() => {
         try {
           const value = fn(...args);
-          return createPayload(value);
+          return ok(value);
         } catch (err) {
-          return createFailure(err);
+          return failure(err);
         }
       })();
       current.value = {
@@ -84,11 +84,11 @@ const memoize = <A extends any[], R>(
       };
     }
 
-    if (hasFailure(current.value.value)) {
+    if (isFailure(current.value.value)) {
       throw current.value.value.failure;
     }
 
-    return current.value.value.payload;
+    return current.value.value.ok;
   };
 
   return memoized;

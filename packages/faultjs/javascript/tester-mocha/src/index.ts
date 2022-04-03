@@ -83,7 +83,7 @@ export const initialize = async (options: Options) => {
             const endTime = Date.now();
             const duration = endTime - startTime;
 
-            if (resultful.hasUnknownFailure(result)) {
+            if (resultful.isUnknownFailure(result)) {
               console.error(result.failure.unknown);
               process.exitCode = 1;
             }
@@ -101,7 +101,7 @@ export const initialize = async (options: Options) => {
 
           const result = await runMochaInstance(mochaInstance);
 
-          if (resultful.hasUnknownFailure(result)) {
+          if (resultful.isUnknownFailure(result)) {
             console.error(result.failure.unknown);
             process.exitCode = 1;
           } else {

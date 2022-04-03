@@ -26,12 +26,12 @@ export const runMochaInstance = (
     try {
       mochaInstance.run((failures) => {
         if (failures) {
-          resolve(resultful.createErrorFailure(failures));
+          resolve(resultful.errorFailure(failures));
         } else {
-          resolve(resultful.createPayload(undefined));
+          resolve(resultful.ok);
         }
       });
     } catch (err) {
-      resolve(resultful.createUnknownFailure(err));
+      resolve(resultful.unknownError(err));
     }
   });
