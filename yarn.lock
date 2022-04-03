@@ -3651,6 +3651,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@klio/group@workspace:packages/klio/javascript/group":
+  version: 0.0.0-use.local
+  resolution: "@klio/group@workspace:packages/klio/javascript/group"
+  languageName: unknown
+  linkType: soft
+
 "@klio/memoize@workspace:packages/klio/javascript/memoize":
   version: 0.0.0-use.local
   resolution: "@klio/memoize@workspace:packages/klio/javascript/memoize"
