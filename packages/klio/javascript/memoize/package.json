@@ -17,31 +17,5 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "klio/javascript/memoize"
   },
-  "keywords": [
-    "testing",
-    "test",
-    "typescript",
-    "faultjs",
-    "fault-localization",
-    "debugging",
-    "benchmark"
-  ],
-  "dependencies": {
-    "@babel/core": "^7.15.5",
-    "@pshaw/contextual-documents": "workspace:packages/patrick-shaw/javascript/contextual-documents",
-    "@pshaw/fs": "workspace:packages/misc/javascript/pshaw-fs",
-    "@pshaw/logger": "workspace:packages/misc/javascript/logger",
-    "@pshaw/webpack": "workspace:packages/patrick-shaw/javascript/webpack",
-    "@types/d3": "^5.7.2",
-    "chalk": "^4.1.0",
-    "chart.js": "^2.9.3",
-    "chartjs-chart-box-and-violin-plot": "^2.3.0",
-    "cinder": "workspace:packages/cinder/javascript/cinder",
-    "classnames": "^2.2.6",
-    "d3": "^6.1.0",
-    "globby": "^11.0.1",
-    "mobx": "^6.0.1",
-    "xy-ui": "^1.10.0",
-    "yargs": "^15.4.1"
-  }
+  "keywords": []
 }

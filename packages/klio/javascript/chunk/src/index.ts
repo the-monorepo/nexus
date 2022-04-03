@@ -1,4 +1,4 @@
-export function* chunk<T>(iterable: Iterable<T>, chunkLength: number) {
+export function* chunk<T>(iterable: Iterable<T>, chunkLength: number): Iterable<T[]> {
   const iterator = iterable[Symbol.iterator]();
 
   let i = iterator.next();
