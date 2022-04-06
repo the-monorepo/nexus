@@ -4,6 +4,12 @@
 # - tell git to guess whether files are text or binary
 *                       text=auto eol=lf
 
+# Set Yarn to use LFS for bundled files
+/.yarn/releases/** binary
+/.yarn/cache/** binary
+/.yarn/plugins/** binary
+/.yarn/sdks/** binary
+
 /.yarn/** linguist-vendored
 /.pnp.* binary linguist-generated
 
