@@ -4,4 +4,7 @@
 # - tell git to guess whether files are text or binary
 *                       text=auto eol=lf
 
+/.yarn/** linguist-vendored
+/.pnp.* binary linguist-generated
+
 yarn.lock merge=yarn
