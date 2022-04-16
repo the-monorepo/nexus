@@ -15,7 +15,7 @@ yarn add @resultful/result
 ## How to use it
 
 ```typescript
-import { ok, failure, isOk, isFailure, transform } from '@resultful/result';
+import { ok, failure, isOk, isFailure, map } from '@resultful/result';
 
 // There are 2 types of 'results' you can create:
 const payloadResult = ok('put whatever you want in here'); // Aliases for resultful.ok include: resultful.ok resultful.normal
