@@ -104,9 +104,12 @@ export type FullHandleOptions<P, E, PR, ER> = HandleOkOptions<P, PR> &
 
 export type HandleOptions<P, E, PR, ER> = Partial<FullHandleOptions<P, E, PR, ER>>;
 
-export type FullOptionsBasedOnResult<R extends TypedResultfulSchema, PR, FR> =
-  OptionIfTypeElseEmpty<R, typeof OK, 'ok', PR> &
-    OptionIfTypeElseEmpty<R, typeof FAILURE, 'failure', FR>;
+export type FullOptionsBasedOnResult<
+  R extends TypedResultfulSchema,
+  PR,
+  FR,
+> = OptionIfTypeElseEmpty<R, typeof OK, 'ok', PR> &
+  OptionIfTypeElseEmpty<R, typeof FAILURE, 'failure', FR>;
 
 export type OptionsBasedOnResult<R extends TypedResultfulSchema, PR, ER> = Partial<
   FullOptionsBasedOnResult<R, PR, ER>
@@ -122,8 +125,10 @@ export type HandledFailureResult<
   O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'failure', typeof FAILURE>;
 
-export type HandledResult<R extends TypedObjectSchema, O extends TransformOptionsSchema> =
-  HandledOkResult<R, O> | HandledFailureResult<R, O>;
+export type HandledResult<
+  R extends TypedObjectSchema,
+  O extends TransformOptionsSchema,
+> = HandledOkResult<R, O> | HandledFailureResult<R, O>;
 
 export type TransformFn = {
   <R extends TypedResultfulSchema>(result: R, options?: undefined): typeof result;

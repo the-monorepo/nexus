@@ -7,7 +7,7 @@ export type RecursionOptions = RecursionOptionsObject | boolean;
 
 export type CreateReplacementValueFn<T> = (originalValue: (...args: any[]) => any) => T;
 
-export type Replaced<T, R extends any> = {
+export type Replaced<T, R> = {
   [P in keyof T]: P extends (...args: any[]) => any ? R : T[P];
 };
 

@@ -83,12 +83,17 @@ export type HandledUnknownResult<
   O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'unknown', typeof UNKNOWN>;
 
-export type HandledResult<R extends TypedObjectSchema, O extends TransformOptionsSchema> =
-  HandledErrorResult<R, O> | HandledUnknownResult<R, O>;
+export type HandledResult<
+  R extends TypedObjectSchema,
+  O extends TransformOptionsSchema,
+> = HandledErrorResult<R, O> | HandledUnknownResult<R, O>;
 
-export type FullOptionsBasedOnResult<R extends TypedResultfulSchema, ER, UR> =
-  OptionIfTypeElseEmpty<R, typeof ERROR, 'error', ER> &
-    OptionIfTypeElseEmpty<R, typeof UNKNOWN, 'unknown', UR>;
+export type FullOptionsBasedOnResult<
+  R extends TypedResultfulSchema,
+  ER,
+  UR,
+> = OptionIfTypeElseEmpty<R, typeof ERROR, 'error', ER> &
+  OptionIfTypeElseEmpty<R, typeof UNKNOWN, 'unknown', UR>;
 
 export type OptionsBasedOnResult<R extends TypedResultfulSchema, ER, UR> = Partial<
   FullOptionsBasedOnResult<R, ER, UR>

@@ -45,8 +45,8 @@ export type HookOptions<K extends HookSchema, O extends HookSchema> = {
   on?: RecursivePartial<Hooks<O>>;
 };
 
-export type HookOptionsOf<T extends any> = Parameters<T['withNoops']>[0];
-export type CompleteHookOptionsOf<T extends any> = ReturnType<T['withNoops']>;
+export type HookOptionsOf<T> = Parameters<T['withNoops']>[0];
+export type CompleteHookOptionsOf<T> = ReturnType<T['withNoops']>;
 
 export function defaultHook(): HookCallback {
   return async () => {};

@@ -73,8 +73,10 @@ describe.skip('sorting', () => {
 
   it(compareInstruction.name, () => {
     const nodeEvaluations: Map<string, NodeInformation> = new Map();
-    const instructionEvaluations: Map<Instruction<any>, InstructionEvaluation> =
-      new Map();
+    const instructionEvaluations: Map<
+      Instruction<any>,
+      InstructionEvaluation
+    > = new Map();
 
     const compareFn = (a, b) =>
       compareInstruction(nodeEvaluations, instructionEvaluations, a, b);

@@ -14,13 +14,16 @@ export type Unmount<C> = (cloneValue: C) => any;
 export type UnmountHolder<C> = {
   unmount: Unmount<C>;
 };
-export type StatelessComponentBlueprint<V, N extends Node, D = Unmount<any> | undefined> =
-  {
-    id: ID;
-    mount: MountFn<V, StatelessCloneInfo<N>>;
-    update: undefined;
-    unmount: D;
-  };
+export type StatelessComponentBlueprint<
+  V,
+  N extends Node,
+  D = Unmount<any> | undefined,
+> = {
+  id: ID;
+  mount: MountFn<V, StatelessCloneInfo<N>>;
+  update: undefined;
+  unmount: D;
+};
 export type StatefulComponentBlueprint<
   C,
   V,
@@ -35,8 +38,12 @@ export type StatefulComponentBlueprint<
 export type GenericBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
   | StatelessComponentBlueprint<V, N, D>
   | StatefulComponentBlueprint<C, V, N, D>;
-export type ComponentBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
-  GenericBlueprint<C, V, N, D>;
+export type ComponentBlueprint<
+  C,
+  V,
+  N extends Node = Node,
+  D = undefined | Unmount<C>,
+> = GenericBlueprint<C, V, N, D>;
 
 export type CreateBlueprintFunction = {
   <V, N extends Node>(
@@ -98,7 +105,7 @@ abstract class CachedField implements Field {
   }
 }
 
-class AsyncIteratorField<T extends any> extends CachedField {
+class AsyncIteratorField<T> extends CachedField {
   constructor(private readonly innerField: Field) {
     super();
   }

@@ -27,7 +27,7 @@ const lintPipes = async (stream, lintOptions) => {
   const l = logger.child(chalk.magentaBright('eslint'));
 
   const instance = new eslint.ESLint({ ...lintOptions, fix: false });
-  const reporter = await instance.loadFormatter();
+  const reporter = await instance.loadFormatter('unix');
 
   return stream.pipe(simplePipeLogger(l)).pipe(
     through2.obj(async (file, enc, callback) => {

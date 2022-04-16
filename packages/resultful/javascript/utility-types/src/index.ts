@@ -22,8 +22,12 @@ export type TransformTypedObject<
   : Include<ResultObjectType, TypeHolder<ResultType>>;
 
 export type ResultTransformer<T, V, R> = (value: V, result: T) => R;
-export type ResultTransformerOption<Key extends string | number | symbol, T, V, R> =
-  Record<Key, ResultTransformer<T, V, R>>;
+export type ResultTransformerOption<
+  Key extends string | number | symbol,
+  T,
+  V,
+  R,
+> = Record<Key, ResultTransformer<T, V, R>>;
 
 export type OptionIfTypeElseEmpty<
   R extends TypedResultfulSchema,
