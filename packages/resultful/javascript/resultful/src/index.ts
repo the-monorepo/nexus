@@ -18,8 +18,7 @@ import { TypedObjectSchema } from '@resultful/utility-types';
 
 export { ok, isOk, error, unknown, failure };
 
-export const unknownFailure = (value: unknown) =>
-  failure(unknown(value));
+export const unknownFailure = (value: unknown) => failure(unknown(value));
 export const errorFailure = <E>(value: E) => failure(error(value));
 
 export const isUnknownFailure = <R extends TypedObjectSchema>(value: R) =>

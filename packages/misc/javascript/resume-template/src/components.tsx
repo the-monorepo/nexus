@@ -35,8 +35,8 @@ const Typography = ({
   return (
     // TODO: For some reason transpilation for anything of the same length as "Component" if you don't have an alias, gets converted to HTML.
     <TextComponent
-    {...other}
-    class={cx(
+      {...other}
+      class={cx(
         clazz,
         styles.text,
         styles[`weight-${weight}`],
@@ -221,12 +221,26 @@ const Entry = ({
             {leftHeading} /&nbsp;{' '}
           </EntryHeading>
         ) : null}
-        <EntryHeading Component="h2" class={cx(styles.entryHeading, leftHeading === undefined ? styles.gutterTop : null)}>
+        <EntryHeading
+          Component="h2"
+          class={cx(
+            styles.entryHeading,
+            leftHeading === undefined ? styles.gutterTop : null,
+          )}
+        >
           {rightHeading}
         </EntryHeading>
         {/*TODO: Subtext won't appear if no date*/}
         {startDate || endDate ? (
-          <EntryText Component="p" variant="caption" class={description !== undefined || children !== undefined ? styles.subtextGutterBottom : null}>
+          <EntryText
+            Component="p"
+            variant="caption"
+            class={
+              description !== undefined || children !== undefined
+                ? styles.subtextGutterBottom
+                : null
+            }
+          >
             <DateRange start={startDate} end={endDate} format={dateFormat} />
             {subtext ? `, ${subtext}` : null}
           </EntryText>

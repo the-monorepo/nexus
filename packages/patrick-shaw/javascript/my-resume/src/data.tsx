@@ -13,7 +13,16 @@ export const technicalSkills = [
   },
   {
     label: 'Technologies',
-    items: ['React', 'Node', /* 'Deno' */, 'Android', /* 'MongoDB', */ 'PostgreSQL', 'GraphQL', /*'WebSocket',*/ 'Spring', 'Terraform'],
+    items: [
+      'React',
+      'Node' /* 'Deno' */,
+      ,
+      'Android',
+      /* 'MongoDB', */ 'PostgreSQL',
+      'GraphQL',
+      /*'WebSocket',*/ 'Spring',
+      'Terraform',
+    ],
   },
   {
     label: 'Exposure to',
@@ -33,12 +42,7 @@ export const technicalSkills = [
   },
   {
     label: 'Interests',
-    items: [
-      'Web',
-      'algorithms',
-      'progressive web apps',
-      'embedded systems',
-    ],
+    items: ['Web', 'algorithms', 'progressive web apps', 'embedded systems'],
   },
 ];
 
@@ -50,7 +54,8 @@ export const education = [
       gpa: 3.438,
       wam: 81.1,
     },
-    description: 'Received first class honours. Researched & built an automated repair & bug detection algortihm for JavaScript called FaultJS.',
+    description:
+      'Received first class honours. Researched & built an automated repair & bug detection algortihm for JavaScript called FaultJS.',
     startDate: new Date(2015, 2),
     endDate: new Date(2019, 10),
   },
@@ -61,7 +66,8 @@ export const work = [
     company: 'Atlassian',
     job: 'Software Engineer',
     location: 'Remote',
-    description: "Most notably, I integrated Stripe into Atlassian's products, added 3D Secure support & implemented analytics instrumentation, SLO/SLIs & general health monitoring for Atlassian's new billing console & shopping cart. I also run system design & coding interviews.",
+    description:
+      "Most notably, I integrated Stripe into Atlassian's products, added 3D Secure support & implemented analytics instrumentation, SLO/SLIs & general health monitoring for Atlassian's new billing console & shopping cart. I also run system design & coding interviews.",
     startDate: new Date(2020, 0),
     endDate: null,
   },

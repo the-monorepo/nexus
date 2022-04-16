@@ -4,7 +4,7 @@ export function* chunk<T>(iterable: Iterable<T>, chunkLength: number): Iterable<
   let i = iterator.next();
 
   let currentArray: T[] = [];
-  
+
   while (!i.done) {
     if (currentArray.length === chunkLength) {
       yield currentArray;

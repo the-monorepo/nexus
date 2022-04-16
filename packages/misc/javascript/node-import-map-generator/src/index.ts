@@ -104,7 +104,12 @@ const exportMappingToPath = (mapping: ExportMapping): string | undefined => {
       }
     }
   } else {
-    const chosenExportMapping = mapping['monorepo-original-deno'] ?? mapping['monorepo-original'] ?? mapping.deno ?? mapping.import ?? mapping.default;
+    const chosenExportMapping =
+      mapping['monorepo-original-deno'] ??
+      mapping['monorepo-original'] ??
+      mapping.deno ??
+      mapping.import ??
+      mapping.default;
 
     if (chosenExportMapping !== undefined) {
       return exportMappingToPath(chosenExportMapping);
@@ -271,39 +276,44 @@ const findAssociatedPackageJsonForPath = (filePath: string) => {
 };
 
 const main = async () => {
-  yargs(hideBin(process.argv))
-    .command({
-      command: '*',
-      builder: (builder) => builder.option('input-path',  {
-        alias: 'i',
-        type: 'string',
-        default: join(process.cwd(), 'package.json')
-      }).option('output-path', {
-        alias: 'o',
-        type: 'string',
-        default: join(process.cwd(), 'node.import-map.json')
-      }),
-      handler: async ({
-        inputPath,
-        outputPath,
-      }: { inputPath: string, outputPath: string, 'input-path': string, 'output-path': string }) => {
-        const entryPath = dirname(inputPath);
-        try {
-          const rootPackageJson = JSON.parse(
-            await readFile(inputPath, 'utf8'),
-          );
-          await addImportsFromDependencies(rootPackageJson.dependencies, entryPath);
+  yargs(hideBin(process.argv)).command({
+    command: '*',
+    builder: (builder) =>
+      builder
+        .option('input-path', {
+          alias: 'i',
+          type: 'string',
+          default: join(process.cwd(), 'package.json'),
+        })
+        .option('output-path', {
+          alias: 'o',
+          type: 'string',
+          default: join(process.cwd(), 'node.import-map.json'),
+        }),
+    handler: async ({
+      inputPath,
+      outputPath,
+    }: {
+      inputPath: string;
+      outputPath: string;
+      'input-path': string;
+      'output-path': string;
+    }) => {
+      const entryPath = dirname(inputPath);
+      try {
+        const rootPackageJson = JSON.parse(await readFile(inputPath, 'utf8'));
+        await addImportsFromDependencies(rootPackageJson.dependencies, entryPath);
 
-          await writeFile(
-            outputPath,
-            JSON.stringify({ imports, scopes }, undefined, 2),
-            'utf8',
-          );
-        } catch (err) {
-          console.error(err);
-        }
+        await writeFile(
+          outputPath,
+          JSON.stringify({ imports, scopes }, undefined, 2),
+          'utf8',
+        );
+      } catch (err) {
+        console.error(err);
       }
-    }).argv
+    },
+  }).argv;
 };
 
 main();

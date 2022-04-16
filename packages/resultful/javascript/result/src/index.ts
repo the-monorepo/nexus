@@ -39,9 +39,7 @@ export type FailureResult<FailureType> = {
   failure: FailureType;
 };
 
-export type Result<OkType, FailureType> =
-  | OkResult<OkType>
-  | FailureResult<FailureType>;
+export type Result<OkType, FailureType> = OkResult<OkType> | FailureResult<FailureType>;
 
 /**
  * Check if a result is a {@link FailureResult}.

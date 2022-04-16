@@ -1,4 +1,4 @@
-export type { FailureType } from '@resultful/failure-types'
+export type { FailureType } from '@resultful/failure-types';
 import {
   ResultTransformer,
   TransformTypedObject,

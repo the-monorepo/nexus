@@ -14,16 +14,13 @@ export type Unmount<C> = (cloneValue: C) => any;
 export type UnmountHolder<C> = {
   unmount: Unmount<C>;
 };
-export type StatelessComponentBlueprint<
-  V,
-  N extends Node,
-  D = Unmount<any> | undefined,
-> = {
-  id: ID;
-  mount: MountFn<V, StatelessCloneInfo<N>>;
-  update: undefined;
-  unmount: D;
-};
+export type StatelessComponentBlueprint<V, N extends Node, D = Unmount<any> | undefined> =
+  {
+    id: ID;
+    mount: MountFn<V, StatelessCloneInfo<N>>;
+    update: undefined;
+    unmount: D;
+  };
 export type StatefulComponentBlueprint<
   C,
   V,
@@ -38,12 +35,8 @@ export type StatefulComponentBlueprint<
 export type GenericBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
   | StatelessComponentBlueprint<V, N, D>
   | StatefulComponentBlueprint<C, V, N, D>;
-export type ComponentBlueprint<
-  C,
-  V,
-  N extends Node = Node,
-  D = undefined | Unmount<C>,
-> = GenericBlueprint<C, V, N, D>;
+export type ComponentBlueprint<C, V, N extends Node = Node, D = undefined | Unmount<C>> =
+  GenericBlueprint<C, V, N, D>;
 
 export type CreateBlueprintFunction = {
   <V, N extends Node>(
@@ -554,8 +547,12 @@ const createDynamicElementBlueprint = <T>(createElementCallback: (v: T) => Eleme
   return blueprint;
 };
 
-const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((tag) => document.createElement(tag));
-const dynamicElementBlueprint = createDynamicElementBlueprint<{ new () }>((Element) => new Element());
+const dynamicTagNameBlueprint = createDynamicElementBlueprint<string>((tag) =>
+  document.createElement(tag),
+);
+const dynamicElementBlueprint = createDynamicElementBlueprint<{ new () }>(
+  (Element) => new Element(),
+);
 
 export const validateComponent = (component, properties) => {
   if (typeof component === 'string') {

@@ -1,10 +1,4 @@
-import {
-  ok,
-  failure,
-  isOk,
-  isFailure,
-  transform,
-} from '@resultful/result';
+import { ok, failure, isOk, isFailure, transform } from '@resultful/result';
 
 // There are 2 types of 'results' you can create:
 const payloadResult = ok('put whatever you want in here'); // Aliases for resultful.ok include: resultful.ok resultful.normal
@@ -26,8 +20,7 @@ console.log(isOk(payloadResult), isFailure(failureResult));
  * That way you can chain resultful.handle calls if you need to
  */
 const handlers = {
-  ok: (payload, result) =>
-    payload === payloadResult.ok && result === payloadResult,
+  ok: (payload, result) => payload === payloadResult.ok && result === payloadResult,
   failure: (failure, result) =>
     failure === payloadResult.failure && result === failureResult,
 };

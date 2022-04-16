@@ -1,15 +1,15 @@
-# Group
+# Chunk
 
-Memoize a function
+Split an iterable into chunks
 
 ## Installation
 
 ```bash
-npm install --save @klio/group@1.0.0-alpha.1
+npm install --save @klio/chunk@1.0.0-alpha.1
 ```
 or
 ```bash
-yarn add @klio/group@1.0.0-alpha.1
+yarn add @klio/chunk@1.0.0-alpha.1
 ```
 
 ---
