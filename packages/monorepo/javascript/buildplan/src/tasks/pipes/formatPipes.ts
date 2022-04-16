@@ -26,7 +26,8 @@ const prettierPipes = async (stream) => {
 const lintPipes = async (stream, lintOptions) => {
   const l = logger.child(chalk.magentaBright('eslint'));
 
-  const instance = new eslint.ESLint(lintOptions);
+  const instance = new eslint.ESLint({ ...lintOptions, fix: false });
+  const reporter = await instance.loadFormatter();
 
   return stream.pipe(simplePipeLogger(l)).pipe(
     through2.obj(async (file, enc, callback) => {
@@ -39,10 +40,16 @@ const lintPipes = async (stream, lintOptions) => {
           l.warn(`Received ${results.length} ESLint results for a single file`);
         }
 
-        if (results[0].output !== undefined) {
+        if (results[0].output !== undefined && lintOptions.fix) {
           file.contents = Buffer.from(results[0].output, 'utf8');
         }
       }
+
+      const reportedText = await reporter.format(results);
+      if (reportedText.length > 0) {
+        process.stdout.write(`${reportedText}\n`);
+      }
+
       callback(undefined, file);
     }),
   );
