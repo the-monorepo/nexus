@@ -26,11 +26,6 @@ export const defaultFormatTimestamp = (date: Date) => {
     .padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
 };
 
-const createLevelAlignmentPadding = (levelTag: string) => {
-  const messageIndentation = 9;
-  return ' '.repeat(messageIndentation - levelTag.length);
-};
-
 const preformatArgs = (args: any, useColors: boolean) =>
   args.map((arg) => {
     if (arg instanceof Error) {
@@ -57,8 +52,6 @@ const createConsoleArgs = (
     extraArgs.push(useColors ? chalk.grey(timestamp) : timestamp);
   }
 
-  const padding = createLevelAlignmentPadding(level);
-
   const levelPrefix = (() => {
     switch (level) {
       case 'info':
@@ -72,13 +65,13 @@ const createConsoleArgs = (
       case 'debug':
         return '🔎';
       default:
-        return 'unknown';
+        return '❌';
     }
   })();
 
   return [
     ...extraArgs,
-    `${useColors ? levelColorFn(levelPrefix) : levelPrefix}${padding}`,
+    `${useColors ? levelColorFn(levelPrefix) : levelPrefix} `,
     ...(customOptions.tags.length > 0
       ? [customOptions.tags.map((tag) => `[${tag}]`).join('')]
       : []),
