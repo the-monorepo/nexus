@@ -30,9 +30,9 @@
     "@pshaw/eslint-config-core": "workspace:*",
     "@pshaw/eslint-config-plugin-cinder": "workspace:*",
     "@pshaw/eslint-config-plugin-react": "workspace:*",
-    "@pshaw/eslint-config-plugin-typescript": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^4.28.1",
-    "@typescript-eslint/parser": "^4.28.1",
+    "@pshaw/eslint-config-plugin-typescript": "workspace:^",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-react": "^7.24.0"
   },
