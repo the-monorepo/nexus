@@ -1469,18 +1469,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-proposal-pipeline-operator@npm:^7.15.0":
-  version: 7.15.0
-  resolution: "@babel/plugin-proposal-pipeline-operator@npm:7.15.0"
-  dependencies:
-    "@babel/helper-plugin-utils": ^7.14.5
-    "@babel/plugin-syntax-pipeline-operator": ^7.15.0
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: cf20936cb0ae0e76ebf9b4c9b367e6d86c01d4e01eb7a79bf2bf09cae05f7c1687730d2e0a7b300d2cf65f54531257c21239d5a10181c10b37f53e0d38c61376
-  languageName: node
-  linkType: hard
-
 "@babel/plugin-proposal-private-methods@npm:^7.12.1, @babel/plugin-proposal-private-methods@npm:^7.13.0":
   version: 7.13.0
   resolution: "@babel/plugin-proposal-private-methods@npm:7.13.0"
@@ -1774,17 +1762,6 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: eef94d53a1453361553c1f98b68d17782861a04a392840341bc91780838dd4e695209c783631cf0de14c635758beafb6a3a65399846ffa4386bff90639347f30
-  languageName: node
-  linkType: hard
-
-"@babel/plugin-syntax-pipeline-operator@npm:^7.15.0":
-  version: 7.15.0
-  resolution: "@babel/plugin-syntax-pipeline-operator@npm:7.15.0"
-  dependencies:
-    "@babel/helper-plugin-utils": ^7.14.5
-  peerDependencies:
-    "@babel/core": ^7.0.0-0
-  checksum: b4a77c8ad5d021c8c2670a38971aac0663f3133634e67b83bc2a3d950153bee6fc0c4e328c250a4db85d789ba47eaef63facd067b3ece8f5bfd6fd8f433e5c7c
   languageName: node
   linkType: hard
 
@@ -16401,7 +16378,6 @@ fsevents@~2.3.1:
     "@babel/plugin-proposal-class-properties": ^7.14.5
     "@babel/plugin-proposal-decorators": ^7.15.4
     "@babel/plugin-proposal-optional-chaining": ^7.14.5
-    "@babel/plugin-proposal-pipeline-operator": ^7.15.0
     "@babel/plugin-syntax-jsx": ^7.14.5
     "@babel/plugin-transform-strict-mode": ^7.14.5
     "@babel/preset-env": ^7.15.6

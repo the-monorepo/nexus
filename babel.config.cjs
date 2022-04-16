@@ -14,7 +14,6 @@ module.exports = (api) => {
     classPropertyPlugin,
     ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
     '@babel/plugin-transform-strict-mode',
-    ['@babel/plugin-proposal-pipeline-operator', { proposal: 'minimal' }],
   ];
   if (test) {
     plugins.push(
