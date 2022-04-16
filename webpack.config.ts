@@ -4,7 +4,7 @@ import {
   createHtmlWebpackPlugin,
   createBundleAnalyzerPlugin,
   recommendedRules,
-  recommendedWebcomponentRules,
+  //recommendedWebcomponentRules,
   createOutput,
   CopyPlugin,
   Configuration,

@@ -127,12 +127,10 @@ class Broadcaster<T> implements AsyncIterableIterator<T> {
   }
 
   static create<T>(iterable: AsyncIterable<T>) {
-    console.log('create');
     return new Broadcaster(iterable[Symbol.asyncIterator](), [], []);
   }
 
   async next() {
-    console.log('next', 'buffer', this.buffer.length);
     if (this.buffer.length >= 1) {
       return this.buffer.shift()!;
     }
@@ -143,7 +141,6 @@ class Broadcaster<T> implements AsyncIterableIterator<T> {
       if (this === broadcaster) {
         continue;
       }
-      console.log('pushed', broadcaster.buffer.length);
       broadcaster.buffer.push(resultPromise);
     }
 
@@ -151,7 +148,6 @@ class Broadcaster<T> implements AsyncIterableIterator<T> {
   }
 
   [Symbol.asyncIterator]() {
-    console.log('new');
     return new Broadcaster(this.iterator, this.broadcasters, [...this.buffer]);
   }
 }
@@ -222,7 +218,6 @@ export async function* slice<T>(iterable: AsyncIterable<T>, start = 0, end?: num
     }
   } else {
     for (let i = await iterator.next(); !i.done; i = await iterator.next()) {
-      console.log(i);
       yield i.value;
     }
   }

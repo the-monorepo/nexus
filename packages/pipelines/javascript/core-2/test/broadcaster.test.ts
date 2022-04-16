@@ -9,9 +9,7 @@ it(broadcaster.name, async () => {
 
   const a = broadcastIterable[Symbol.asyncIterator]();
 
-  console.log('wait');
   const result0a = await a.next();
-  console.log('done');
   expect(result0a.value).toBe(0);
 
   const b = a[Symbol.asyncIterator]();

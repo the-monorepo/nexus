@@ -15,8 +15,7 @@ export const technicalSkills = [
     label: 'Technologies',
     items: [
       'React',
-      'Node' /* 'Deno' */,
-      ,
+      'Node' /* 'Deno', */,
       'Android',
       /* 'MongoDB', */ 'PostgreSQL',
       'GraphQL',
