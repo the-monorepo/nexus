@@ -10,6 +10,6 @@ description = "Use Bash as your scriptplan command parser"
 yaml-rust = "0.4.5"
 shellwords = "1.1.0"
 async-trait = "0.1.50"
-futures = "0.1.14"
+futures = "0.3.21"
 scriptplan-core = { path="../core", version = "3.0.0" }
 tokio = { version = "1.1.2", features = ['process', 'rt', 'io-util'] }
