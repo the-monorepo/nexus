@@ -22,11 +22,11 @@
   "dependencies": {
     "@types/classnames": "^2.2.10",
     "@types/date-fns": "^2.6.0",
-    "cinder": "workspace:*",
+    "cinder": "workspace:^",
     "classnames": "^2.2.6",
     "date-fns": "^2.15.0",
     "mobx": "^5.15.6",
-    "unstyled": "workspace:*"
+    "unstyled": "workspace:^"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }

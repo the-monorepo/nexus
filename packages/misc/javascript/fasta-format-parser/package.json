@@ -27,7 +27,7 @@
     "@polymer/paper-radio-button": "^3.0.1",
     "@types/jest": "^26.0.10",
     "replace-functions": "^4.0.0",
-    "resultful": "workspace:*"
+    "resultful": "workspace:^"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",

@@ -21,7 +21,7 @@
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@contextual-documents/matcher-info": "workspace:*",
-    "tree-suffix-mapper": "workspace:*"
+    "@contextual-documents/matcher-info": "workspace:^",
+    "tree-suffix-mapper": "workspace:^"
   }
 }

@@ -31,10 +31,10 @@
     }
   },
   "dependencies": {
-    "@contextual-documents/classname-picker": "workspace:*",
-    "@contextual-documents/element": "workspace:*",
-    "@contextual-documents/html-elements": "workspace:*",
-    "@contextual-documents/html-symbols": "workspace:*",
-    "@pshaw/contextual-documents-scss": "workspace:*"
+    "@contextual-documents/classname-picker": "workspace:^",
+    "@contextual-documents/element": "workspace:^",
+    "@contextual-documents/html-elements": "workspace:^",
+    "@contextual-documents/html-symbols": "workspace:^",
+    "@pshaw/contextual-documents-scss": "workspace:^"
   }
 }

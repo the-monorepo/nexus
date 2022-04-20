@@ -14,6 +14,6 @@
   },
   "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da",
   "dependencies": {
-    "@byexample/types": "workspace:*"
+    "@byexample/types": "workspace:^"
   }
 }

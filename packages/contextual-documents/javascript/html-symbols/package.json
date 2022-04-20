@@ -21,6 +21,6 @@
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@contextual-documents/matcher-info": "workspace:*"
+    "@contextual-documents/matcher-info": "workspace:^"
   }
 }

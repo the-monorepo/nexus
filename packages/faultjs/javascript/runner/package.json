@@ -25,12 +25,12 @@
     "typescript"
   ],
   "dependencies": {
-    "@fault/addon-hook-schema": "workspace:*",
-    "@fault/addon-istanbul": "workspace:*",
-    "@fault/istanbul-util": "workspace:*",
-    "@fault/messages": "workspace:*",
-    "@fault/types": "workspace:*",
-    "@pshaw/fs": "workspace:*",
+    "@fault/addon-hook-schema": "workspace:^",
+    "@fault/addon-istanbul": "workspace:^",
+    "@fault/istanbul-util": "workspace:^",
+    "@fault/messages": "workspace:^",
+    "@fault/types": "workspace:^",
+    "@pshaw/fs": "workspace:^",
     "@types/node": "^14.6.0",
     "chalk": "^4.1.0",
     "globby": "^11.0.1",

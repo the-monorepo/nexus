@@ -27,11 +27,11 @@
     "sbfl"
   ],
   "dependencies": {
-    "@fault/addon-hook-schema": "workspace:*",
-    "@fault/istanbul-util": "workspace:*",
-    "@fault/localization-util": "workspace:*",
-    "@fault/record-faults": "workspace:*",
-    "@fault/sbfl-dstar": "workspace:*",
+    "@fault/addon-hook-schema": "workspace:^",
+    "@fault/istanbul-util": "workspace:^",
+    "@fault/localization-util": "workspace:^",
+    "@fault/record-faults": "workspace:^",
+    "@fault/sbfl-dstar": "workspace:^",
     "micromatch": "^4.0.2",
     "stacktrace-js": "^2.0.2"
   }

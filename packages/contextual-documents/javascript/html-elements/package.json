@@ -21,7 +21,7 @@
   "module": "./esm/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@contextual-documents/element": "workspace:*",
-    "@contextual-documents/html-symbols": "workspace:*"
+    "@contextual-documents/element": "workspace:^",
+    "@contextual-documents/html-symbols": "workspace:^"
   }
 }

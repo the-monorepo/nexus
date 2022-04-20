@@ -36,6 +36,6 @@
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
   "dependencies": {
-    "@resultful/failure-types": "workspace:*"
+    "@resultful/failure-types": "workspace:^"
   }
 }

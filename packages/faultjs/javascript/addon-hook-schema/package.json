@@ -24,7 +24,7 @@
     "utility"
   ],
   "dependencies": {
-    "hook-schema": "workspace:*",
+    "hook-schema": "workspace:^",
     "stacktrace-js": "^2.0.2"
   }
 }

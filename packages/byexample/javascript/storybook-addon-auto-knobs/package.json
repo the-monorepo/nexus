@@ -17,7 +17,7 @@
     "react-dom": "*"
   },
   "dependencies": {
-    "@byexample/storybook-knobified": "workspace:*"
+    "@byexample/storybook-knobified": "workspace:^"
   },
   "devDependencies": {
     "@babel/cli": "^7.15.7",

@@ -27,6 +27,6 @@
     "util"
   ],
   "dependencies": {
-    "@fault/types": "workspace:*"
+    "@fault/types": "workspace:^"
   }
 }

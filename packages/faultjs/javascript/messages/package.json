@@ -22,7 +22,7 @@
     "ipc"
   ],
   "dependencies": {
-    "@fault/types": "workspace:*",
-    "ipc-fifo-processor": "workspace:*"
+    "@fault/types": "workspace:^",
+    "ipc-fifo-processor": "workspace:^"
   }
 }

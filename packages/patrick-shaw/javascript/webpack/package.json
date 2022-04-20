@@ -37,7 +37,7 @@
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
   "dependencies": {
-    "@pshaw/monorepo-config": "workspace:*",
+    "@pshaw/monorepo-config": "workspace:^",
     "@types/webpack-dev-server": "^3.11.0",
     "babel-loader": "^8.1.0",
     "copy-webpack-plugin": "^8.1.1",

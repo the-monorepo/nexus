@@ -36,11 +36,11 @@
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
   "devDependencies": {
-    "@pshaw/markdown-util": "workspace:*",
+    "@pshaw/markdown-util": "workspace:^",
     "jest-mock": "^26.3.0"
   },
   "dependencies": {
-    "@resultful/result-types": "workspace:*",
-    "@resultful/utility-types": "workspace:*"
+    "@resultful/result-types": "workspace:^",
+    "@resultful/utility-types": "workspace:^"
   }
 }

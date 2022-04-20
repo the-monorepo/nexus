@@ -26,6 +26,6 @@
     "tarantula"
   ],
   "dependencies": {
-    "@fault/types": "workspace:*"
+    "@fault/types": "workspace:^"
   }
 }
