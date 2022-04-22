@@ -8,6 +8,7 @@
   "bin": {
     "fl-benchmarker-viewer": "./commonjs/bin.js"
   },
+  "private": true,
   "scripts": {
     "run-cli": "yarn node ./commonjs/bin.js --results-dir ./fl-benchmarker-results-example",
     "demo-serve": "yarn run-cli serve",

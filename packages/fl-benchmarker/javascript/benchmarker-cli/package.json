@@ -5,6 +5,7 @@
   "types": "./src/index.ts",
   "module": "./esm/index.ts",
   "main": "./commonjs/index.ts",
+  "private": true,
   "scripts": {
     "start": "yarn node --max-old-space-size=4096 ./commonjs/index.ts",
     "results": "yarn node ./commonjs/index.ts",
