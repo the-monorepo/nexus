@@ -1,26 +1,26 @@
 install-osx.brew: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 install-osx.node: |
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-    nvm install
-    nvm use
-    npm install --global yarn
-    yarn install
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+  nvm install
+  nvm use
+  npm install --global yarn
+  yarn install
 install-osx.deno: |
-    brew install deno
+  brew install deno
 install-osx.rust: |
-    brew install llvm
-    ln -s /usr/local/opt/llvm/bin/lld-link ~/bin/link.exe
+  brew install llvm
+  ln -s /usr/local/opt/llvm/bin/lld-link ~/bin/link.exe
 
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-    rustup target add x86_64-pc-windows-gnu
-    rustup target add x86_64-apple-darwin
+  rustup target add x86_64-pc-windows-gnu
+  rustup target add x86_64-apple-darwin
 
-    rustup target add x86_64-unknown-linux-gnu
-    rustup target add wasm32-unknown-unknown
+  rustup target add x86_64-unknown-linux-gnu
+  rustup target add wasm32-unknown-unknown
 
-    brew tap SergioBenitez/osxct
-    brew install x86_64-unknown-linux-gnu
+  brew tap SergioBenitez/osxct
+  brew install x86_64-unknown-linux-gnu
 
 install-osx:
   series:
@@ -40,20 +40,20 @@ docker.run: docker run --mount type=bind,source="$(pwd)",target=/app --rm -it th
 # Note: If you've broken scriptplan then you either rollback then rollback to the old scriptplan file or try run this script directly in the terminal
 # FIXME: Find an alternative to mv that would work for default Windows machines
 recompile-scriptplan-release: |
-    cargo build --release --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
-    cargo build --release --bins --target x86_64-apple-darwin --package scriptplan-cli
-    #cargo build --release --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
-    mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
-    mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
-    # mv ./target/x86_64-unknown-linux-gnu/release/scriptplan ./scriptplan-linux-gnu
+  cargo build --release --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
+  cargo build --release --bins --target x86_64-apple-darwin --package scriptplan-cli
+  #cargo build --release --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
+  mv ./target/x86_64-pc-windows-gnu/release/scriptplan.exe ./scriptplan.exe
+  mv ./target/x86_64-apple-darwin/release/scriptplan ./scriptplan
+  # mv ./target/x86_64-unknown-linux-gnu/release/scriptplan ./scriptplan-linux-gnu
 
 recompile-scriptplan-debug: |
-    cargo build --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
-    cargo build --bins --target x86_64-apple-darwin --package scriptplan-cli
-    #cargo build --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
-    mv ./target/x86_64-pc-windows-gnu/debug/scriptplan-cli.exe ./scriptplan.exe
-    mv ./target/x86_64-apple-darwin/debug/scriptplan-cli ./scriptplan
-    #mv ./target/x86_64-unknown-linux-gnu/debug/scriptplan-cli ./scriptplan-linux
+  cargo build --bins --target x86_64-pc-windows-gnu --package scriptplan-cli
+  cargo build --bins --target x86_64-apple-darwin --package scriptplan-cli
+  #cargo build --bins --target x86_64-unknown-linux-gnu --package scriptplan-cli
+  mv ./target/x86_64-pc-windows-gnu/debug/scriptplan-cli.exe ./scriptplan.exe
+  mv ./target/x86_64-apple-darwin/debug/scriptplan-cli ./scriptplan
+  #mv ./target/x86_64-unknown-linux-gnu/debug/scriptplan-cli ./scriptplan-linux
 
 node-base: yarn node --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
 buildplan:
@@ -70,8 +70,8 @@ format.rust.fix: cargo fix
 format.rust.fmt: cargo fmt
 format.rust:
   series:
-   - task: format.rust.fix
-   - task: format.rust.fmt
+    - task: format.rust.fix
+    - task: format.rust.fmt
 format:
   description: Formats all your source code files
   parallel:
@@ -100,12 +100,12 @@ build:
   description: Builds everything required to run packages other than certain slow (bundled) packages
   series:
     - parallel:
-      - task: transpile
-      - task: copy
-  # - task: build.rust
+        - task: transpile
+        - task: copy
+    # - task: build.rust
     - parallel:
-      - task: build.import-maps
-      - task: writeme
+        - task: build.import-maps
+        - task: writeme
 build.node:
   task: buildplan build
 # FIXME: Go figure out how to get AVR and the rest all the packages to play nicely together in a single cargo build (maybe it's impossible?)
@@ -136,36 +136,36 @@ precommit:
   description: Run this before your commit to prevent trivial build errors (like linting/formatting) from failing your build
   series:
     - parallel:
-      - task: transpile
-      - task: format-staged
-      - task: copy
+        - task: transpile
+        - task: format-staged
+        - task: copy
     - task: writeme
 prepublish:
   description: Run this before publishing any packages
   series:
     - task: clean
     - parallel:
-      - task: format
-      - series:
-        - parallel:
-          - task: transpile
-            # ESLint preset config is currently a JS file
-          - task: copy
-        - parallel:
-          - task: test
-          - task: webpack
-          - task: check-types
-          - task: writeme
+        - task: format
+        - series:
+            - parallel:
+                - task: transpile
+                  # ESLint preset config is currently a JS file
+                - task: copy
+            - parallel:
+                - task: test
+                - task: webpack
+                - task: check-types
+                - task: writeme
 check-types:
   description: Run TypeScript validation
   task: buildplan check-types
 
 update-yarn: |
-    yarn set version berry
-    yarn add @yarnpkg/pnpify
-    yarn install
-    yarn pnpify --sdk
+  yarn set version berry
+  yarn add @yarnpkg/sdks
+  yarn install
+  yarn run sdks
 
 update-browserslist: |
-    yarn dlx browserslist --update-db
+  yarn dlx browserslist --update-db
 create-ssl-certificate-osx: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
