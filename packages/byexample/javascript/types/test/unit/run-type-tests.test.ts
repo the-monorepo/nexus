@@ -1,4 +1,4 @@
-import jest from 'jest-mock';
+import * as jest from 'jest-mock';
 
 import { typeTest } from '../../src/TypeTest.ts';
 import { runTypeTests } from '../../src/runTypeTests.ts';

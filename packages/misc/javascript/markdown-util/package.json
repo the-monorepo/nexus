@@ -27,6 +27,6 @@
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",
   "devDependencies": {
     "rewiremock": "^3.14.3",
-    "sinon": "^9.0.3"
+    "sinon": "^13.0.2"
   }
 }

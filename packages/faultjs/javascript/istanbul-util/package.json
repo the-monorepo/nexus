@@ -25,8 +25,8 @@
     "typescript"
   ],
   "dependencies": {
-    "istanbul-lib-coverage": "^3.0.0",
+    "istanbul-lib-coverage": "^3.2.0",
     "istanbul-lib-report": "^3.0.0",
-    "istanbul-reports": "^3.0.2"
+    "istanbul-reports": "^3.1.4"
   }
 }

@@ -28,7 +28,7 @@
     "regex"
   ],
   "devDependencies": {
-    "jest-mock": "^26.3.0"
+    "jest-mock": "^27.5.1"
   },
   "dependencies": {
     "named-css-colors": "workspace:^"

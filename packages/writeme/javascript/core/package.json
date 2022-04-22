@@ -28,8 +28,8 @@
   "sideEffects": false,
   "dependencies": {
     "@pshaw/fs": "workspace:^",
-    "fs-extra": "^9.0.1",
-    "globby": "^11.0.1",
+    "fs-extra": "^10.1.0",
+    "globby": "^11.1.0",
     "hook-schema": "^2.2.4-0"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6",

@@ -1,6 +1,6 @@
 import { Writable } from 'stream';
 
-import jest from 'jest-mock';
+import * as jest from 'jest-mock';
 import MockDate from 'mockdate';
 
 import createLogger from '../../src/index.ts';

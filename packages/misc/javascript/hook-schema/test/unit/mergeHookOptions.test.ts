@@ -1,4 +1,4 @@
-import jest from 'jest-mock';
+import * as jest from 'jest-mock';
 
 import schema, { mergeHookOptions } from '../../src/index.ts';
 describe('mergeHookOptions', () => {

@@ -11,6 +11,6 @@
   "devPackage": false,
   "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da",
   "devDependencies": {
-    "jest-mock": "^26.3.0"
+    "jest-mock": "^27.5.1"
   }
 }

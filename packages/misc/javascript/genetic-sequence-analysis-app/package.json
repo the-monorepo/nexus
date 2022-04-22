@@ -33,12 +33,12 @@
     "@pshaw/contextual-documents": "workspace:^",
     "@types/jest": "^26.0.10",
     "cinder": "workspace:^",
-    "core-js": "^3.10.1",
+    "core-js": "^3.22.1",
     "fasta-format-parser": "workspace:^",
     "replace-functions": "^4.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
-    "jest-mock": "^26.3.0"
+    "jest-mock": "^27.5.1"
   }
 }

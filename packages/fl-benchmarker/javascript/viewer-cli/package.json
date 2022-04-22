@@ -44,15 +44,15 @@
     "@pshaw/logger": "workspace:^",
     "@pshaw/webpack": "workspace:^",
     "@types/d3": "^5.7.2",
-    "chalk": "^4.1.0",
-    "chart.js": "^2.9.3",
-    "chartjs-chart-box-and-violin-plot": "^2.3.0",
+    "chalk": "^4.1.2",
+    "chart.js": "^3.7.1",
+    "chartjs-chart-box-and-violin-plot": "^4.0.0",
     "cinder": "workspace:^",
-    "classnames": "^2.2.6",
-    "d3": "^6.1.0",
-    "globby": "^11.0.1",
-    "mobx": "^6.0.1",
-    "xy-ui": "^1.10.0",
-    "yargs": "^15.4.1"
+    "classnames": "^2.3.1",
+    "d3": "^7.4.4",
+    "globby": "^11.1.0",
+    "mobx": "^6.5.0",
+    "xy-ui": "^1.10.5",
+    "yargs": "^17.4.1"
   }
 }

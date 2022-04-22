@@ -35,11 +35,11 @@
   ],
   "devDependencies": {
     "@types/yargs": "^15.0.10",
-    "jest-mock": "^26.3.0"
+    "jest-mock": "^27.5.1"
   },
   "dependencies": {
     "@pshaw/logger": "workspace:^",
-    "chalk": "^4.1.0",
-    "yargs": "^16.1.1"
+    "chalk": "^4.1.2",
+    "yargs": "^17.4.1"
   }
 }

@@ -28,6 +28,10 @@ for (const jsonFilePath of packageJsonDirs) {
       continue;
     }
 
+    if (json.exports['module'] !== undefined) {
+      continue;
+    }
+
     const monorepoOriginalPath = json.exports['monorepo-original'];
     if (monorepoOriginalPath !== undefined) {
       if (typeof monorepoOriginalPath === 'string') {

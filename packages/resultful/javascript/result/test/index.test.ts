@@ -1,4 +1,4 @@
-import jest from 'jest-mock';
+import * as jest from 'jest-mock';
 
 import { failure, ok, isFailure, isOk, map, OK, FAILURE } from '../src/index.ts';
 

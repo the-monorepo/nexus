@@ -23,9 +23,9 @@
     "@types/classnames": "^2.2.10",
     "@types/date-fns": "^2.6.0",
     "cinder": "workspace:^",
-    "classnames": "^2.2.6",
-    "date-fns": "^2.15.0",
-    "mobx": "^5.15.6",
+    "classnames": "^2.3.1",
+    "date-fns": "^2.28.0",
+    "mobx": "^6.5.0",
     "unstyled": "workspace:^"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"

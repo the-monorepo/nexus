@@ -32,8 +32,8 @@
     "@fault/types": "workspace:^",
     "@pshaw/fs": "workspace:^",
     "@types/node": "^14.6.0",
-    "chalk": "^4.1.0",
-    "globby": "^11.0.1",
-    "istanbul-lib-coverage": "^3.0.0"
+    "chalk": "^4.1.2",
+    "globby": "^11.1.0",
+    "istanbul-lib-coverage": "^3.2.0"
   }
 }

@@ -32,6 +32,6 @@ export const runMochaInstance = (
         }
       });
     } catch (err) {
-      resolve(resultful.unknownError(err));
+      resolve(resultful.unknownFailure(err));
     }
   });

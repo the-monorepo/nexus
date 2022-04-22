@@ -32,9 +32,9 @@
     "@storybook/core": "^6.0.16",
     "@storybook/react": "^6.0.16",
     "@types/storybook__react": "^5.2.1",
-    "babel-loader": "^8.1.0",
+    "babel-loader": "^8.2.5",
     "react": "^16.13.1",
-    "webpack": "^5.0.0"
+    "webpack": "^5.72.0"
   },
   "gitHead": "90340d15fd0cb38238ff78c129d8263cd2d422da"
 }

@@ -35,6 +35,6 @@
   },
   "devDependencies": {
     "rewiremock": "^3.14.3",
-    "sinon": "^9.0.3"
+    "sinon": "^13.0.2"
   }
 }
