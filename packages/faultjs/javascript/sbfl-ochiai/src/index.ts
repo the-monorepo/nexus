@@ -1,9 +1,6 @@
 import type { Stats } from '@fault/types';
 
-const ochiai = (
-  codeElementTestStateCounts: Stats,
-  totalTestStateCounts: Stats,
-) => {
+const ochiai = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats) => {
   if (totalTestStateCounts.failed === 0) {
     return null;
   }

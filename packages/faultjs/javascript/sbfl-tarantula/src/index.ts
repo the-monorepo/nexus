@@ -1,9 +1,6 @@
 import type { Stats } from '@fault/types';
 
-const tarantula = (
-  codeElementTestStateCounts: Stats,
-  totalTestStateCounts: Stats,
-) => {
+const tarantula = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats) => {
   if (totalTestStateCounts.failed === 0) {
     return Number.NEGATIVE_INFINITY;
   }

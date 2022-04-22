@@ -1,10 +1,6 @@
 import type { Stats } from '@fault/types';
 
-const dStar = (
-  codeElementTestStateCounts: Stats,
-  totalTestStateCounts: Stats,
-  e = 2,
-) => {
+const dStar = (codeElementTestStateCounts: Stats, totalTestStateCounts: Stats, e = 2) => {
   if (
     codeElementTestStateCounts.passed +
       (totalTestStateCounts.failed - codeElementTestStateCounts.failed) ===

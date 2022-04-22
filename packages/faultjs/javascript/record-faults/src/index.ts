@@ -157,7 +157,7 @@ export const reportFaults = async (faults: Fault[]) => {
         (fault) =>
           fault.score !== null &&
           fault.score !== Number.NEGATIVE_INFINITY &&
-          fault.score !== Number.NaN,
+          !Number.isNaN(fault.score),
       )
       .sort((f1, f2) => f2.score! - f1.score!),
   ).slice(0, 10);
