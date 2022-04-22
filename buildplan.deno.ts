@@ -1,1 +1,1 @@
-import '@monorepo/buildplan/deno';
+import '@monorepo/buildplan';

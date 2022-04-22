@@ -10,12 +10,8 @@
     ".": {
       "monorepo-original": "./src/index.ts",
       "import": "./esm/index.ts",
-      "require": "./commonjs/index.ts"
-    },
-    "./deno": {
-      "monorepo-original": "./src/index.deno.ts",
-      "import": "./esm/index.deno.ts",
-      "require": "./commonjs/index.deno.ts"
+      "require": "./commonjs/index.ts",
+      "deno": "./esm/index.deno.ts"
     }
   },
   "files": [
