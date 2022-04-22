@@ -55,7 +55,6 @@ recompile-scriptplan-debug: |
     mv ./target/x86_64-apple-darwin/debug/scriptplan-cli ./scriptplan
     #mv ./target/x86_64-unknown-linux-gnu/debug/scriptplan-cli ./scriptplan-linux
 
-
 node-base: yarn node --require=./transpile-at-runtime.js --require=./original-code-require-override.ts
 buildplan:
   task: node-base buildplan.ts
@@ -166,4 +165,7 @@ update-yarn: |
     yarn add @yarnpkg/pnpify
     yarn install
     yarn pnpify --sdk
+
+update-browserslist: |
+    yarn dlx browserslist --update-db
 create-ssl-certificate-osx: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
