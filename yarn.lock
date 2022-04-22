@@ -4384,12 +4384,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pshaw/deque@workspace:packages/misc/javascript/deque":
-  version: 0.0.0-use.local
-  resolution: "@pshaw/deque@workspace:packages/misc/javascript/deque"
-  languageName: unknown
-  linkType: soft
-
 "@pshaw/eslint-config-core@workspace:^, @pshaw/eslint-config-core@workspace:packages/monorepo/javascript/eslint-config-core":
   version: 0.0.0-use.local
   resolution: "@pshaw/eslint-config-core@workspace:packages/monorepo/javascript/eslint-config-core"
