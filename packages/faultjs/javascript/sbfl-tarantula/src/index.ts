@@ -1,6 +1,6 @@
 import type { Stats } from '@fault/types';
 
-export const tarantula = (
+const tarantula = (
   codeElementTestStateCounts: Stats,
   totalTestStateCounts: Stats,
 ) => {

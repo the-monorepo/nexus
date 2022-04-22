@@ -1,6 +1,6 @@
 import type { Stats } from '@fault/types';
 
-export const dStar = (
+const dStar = (
   codeElementTestStateCounts: Stats,
   totalTestStateCounts: Stats,
   e = 2,

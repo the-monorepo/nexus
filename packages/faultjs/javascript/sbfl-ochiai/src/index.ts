@@ -1,6 +1,6 @@
 import type { Stats } from '@fault/types';
 
-export const ochiai = (
+const ochiai = (
   codeElementTestStateCounts: Stats,
   totalTestStateCounts: Stats,
 ) => {

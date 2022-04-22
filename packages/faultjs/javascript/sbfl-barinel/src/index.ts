@@ -1,5 +1,5 @@
 import type { Stats } from '@fault/types';
-export const barinel = (codeElementStats: Stats) => {
+const barinel = (codeElementStats: Stats) => {
   if (codeElementStats.passed + codeElementStats.failed === 0) {
     return null;
   }
