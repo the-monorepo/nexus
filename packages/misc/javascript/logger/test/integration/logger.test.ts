@@ -17,9 +17,7 @@ const levelName = 'info';
 const logLevelTag = 'ℹ️';
 function formatTester({ timestamp = '' }: any = {}) {
   return (expectedString) => {
-    // TODO: Remove magic number
-    const padding: string = ' '.repeat(7 - logLevelTag.length);
-    const output = `${timestamp}${logLevelTag}${padding} ${expectedString}\n`;
+    const output = `${timestamp}${logLevelTag} ${expectedString}\n`;
     return output;
   };
 }

@@ -29,7 +29,7 @@ export const defaultFormatTimestamp = (date: Date) => {
 const preformatArgs = (args: any, useColors: boolean) =>
   args.map((arg) => {
     if (arg instanceof Error) {
-      return `\n${util.inspect(arg, undefined, undefined, useColors)}`;
+      return util.inspect(arg, undefined, undefined, useColors);
     } else {
       return arg;
     }
@@ -71,7 +71,7 @@ const createConsoleArgs = (
 
   return [
     ...extraArgs,
-    `${useColors ? levelColorFn(levelPrefix) : levelPrefix} `,
+    useColors ? levelColorFn(levelPrefix) : levelPrefix,
     ...(customOptions.tags.length > 0
       ? [customOptions.tags.map((tag) => `[${tag}]`).join('')]
       : []),
