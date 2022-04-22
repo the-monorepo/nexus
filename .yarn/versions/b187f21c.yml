@@ -1,0 +1,6 @@
+releases:
+  "@fault/sbfl-barinel": major
+  "@fault/sbfl-dstar": major
+  "@fault/sbfl-ochiai": major
+  "@fault/sbfl-op2": major
+  "@fault/sbfl-tarantula": major
