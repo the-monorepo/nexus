@@ -5,6 +5,7 @@
     "arcanis.vscode-zipfs",
     "stylelint.vscode-stylelint",
     "matklad.rust-analyzer",
-    "denoland.vscode-deno"
+    "denoland.vscode-deno",
+    "bbenoist.Nix",
   ]
 }
