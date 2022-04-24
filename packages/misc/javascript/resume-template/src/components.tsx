@@ -26,10 +26,14 @@ const Typography = ({
       class={cx(
         clazz,
         styles.text,
-        styles[`weight-${weight}`],
-        styles[`variant-${variant}`],
-        styles[`color-${color}`],
-        styles[`backgroundContext-${backgroundContext}`],
+        weight !== undefined ? styles.weight : undefined,
+        styles[weight],
+        variant !== undefined ? styles.variant : undefined,
+        styles[variant],
+        color !== undefined ? styles.color : undefined,
+        styles[color],
+        backgroundContext !== undefined ? styles.backgroundContext : undefined,
+        styles[backgroundContext],
       )}
     >
       {children}
@@ -98,7 +102,7 @@ const Header = ({ data, children }) => {
     <>
       <header class={cx(styles.header, styles.pageGrid)}>
         <div class={styles.headingContainer}>
-          <Typography variant="h3" class={styles.heading} backgroundContext="primary">
+          <Typography variant="h3" Component="h1" class={styles.heading} backgroundContext="primary">
             {children}
           </Typography>
         </div>

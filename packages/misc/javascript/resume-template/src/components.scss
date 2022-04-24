@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $fontWeightMedium: 500;
 $colorPrimaryMain: rgb(65, 83, 175);
 $textColorPrimaryLight: #FFF;
@@ -8,56 +10,56 @@ $textColorTertiaryDark: rgba(0, 0, 0, 0.47);
 
 .text {
   color: $textColorPrimaryDark;
-  font-size: (12/16) + rem;
+  font-size: math.div(12, 16) + rem;
   letter-spacing: 0.25px;
-  &.variant-body2 {
+  &.variant.body2 {
     line-height: 1.5;
   }
-  &.weight-normal {
+  &.weight.normal {
     font-weight: normal;
   }
-  &.weight-medium {
+  &.weight.medium {
     font-weight: 600;
   }
-  &.variant-subtitle1 {
+  &.variant.subtitle1 {
     letter-spacing: 0;
     font-size: 1rem;
     font-weight: normal;
     letter-spacing: 0;
   }
 
-  &.variant-subtitle2 {
+  &.variant.subtitle2 {
     font-weight: $fontWeightMedium;
-    font-size: (14 / 16) + rem;
+    font-size: math.div(14, 16) + rem;
     letter-spacing: 0;
   }
 
-  &.variant-caption {
+  &.variant.caption {
     color: $textColorSecondaryDark;
-    font-size: (12/16) + rem;
+    font-size: math.div(12, 16) + rem;
   }
 
-  &.variant-h3 {
-    font-size: (48/16) + rem;
+  &.variant.h3 {
+    font-size: math.div(48, 16) + rem;
     letter-spacing: 0;
   }
 
-  &.backgroundContext-primary {
+  &.backgroundContext.primary {
     color: $textColorPrimaryLight;
   }
 
-  &.color-tertiary {
+  &.color.tertiary {
     color: $textColorTertiaryDark;
   }
-  &.color-secondary {
+  &.color.secondary {
     color: $textColorSecondaryDark;
-    &.backgroundContext-primary {
+    &.backgroundContext.primary {
       color: $textColorSecondaryLight;
     }
   }
-  &.color-primary {
+  &.color.primary {
     color: $textColorPrimaryDark;
-    &.backgroundContext-primary {
+    &.backgroundContext.primary {
       color: $textColorPrimaryLight;
     }
   }
