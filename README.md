@@ -6,12 +6,6 @@ An assortment of miscellaneous libraries - Saves me time on rewriting build tool
 
 Version | Package | Description
 --- | --- | ---
-1.0.0-alpha.2 | [`@cinderjs/babel-plugin-transform-jsx`](packages/cinder/javascript/babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
-1.0.0-alpha.2 | [`@cinderjs/core`](packages/cinder/javascript/core/README.md) | Cinder runtime
-1.0.0-alpha.2 | [`@cinderjs/element`](packages/cinder/javascript/element/README.md) | Cinder element
-1.0.0-alpha.2 | [`@cinderjs/hooks`](packages/cinder/javascript/hooks/README.md) | Cinder hooks
-1.0.0-alpha.1 | [`@fl-benchmarker/benchmarker-cli`](packages/fl-benchmarker/javascript/benchmarker-cli/README.md) | Benchmark your fault localization techniques
-1.0.0-alpha.1 | [`@fl-benchmarker/viewer-cli`](packages/fl-benchmarker/javascript/viewer-cli/README.md) | View your benchmarking results
 1.0.0-alpha.1 | [`@klio/chunk`](packages/klio/javascript/chunk/README.md) | Split an iterable into chunks
 1.0.0-alpha.1 | [`@klio/memoize`](packages/klio/javascript/memoize/README.md) | Memoize a function
 1.4.3 | [`@pshaw/convict-util`](packages/misc/javascript/convict-util/README.md) | A helper package for reading configs in using convict
@@ -26,7 +20,6 @@ Version | Package | Description
 0.0.11 | [`@resultful/result-types`](packages/resultful/javascript/result-types/README.md) | Resultful type symbols
 0.0.4 | [`@resultful/utility-types`](packages/resultful/javascript/utility-types/README.md) | String constants for the different result types returned by resultful
 3.1.4-0 | [`@writeme/core`](packages/writeme/javascript/core/README.md) | A readme generator
-1.0.0-alpha.2 | [`cinder`](packages/cinder/javascript/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 1.6.2-0 | [`css-color-checker`](packages/misc/javascript/css-color-checker/README.md) | Library for determining the CSS color format of string values
 1.0.0-alpha.0 | [`dom-context`](packages/misc/javascript/dom-context/README.md) | A React Context API-like context API for web components
 2.2.4-0 | [`hook-schema`](packages/misc/javascript/hook-schema/README.md) | A package for adding no operation (noop) hooks to incomplete hook objects
@@ -41,6 +34,15 @@ Version | Package | Description
 1.0.0-alpha.6 | [`stream-filter-glob`](packages/misc/javascript/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob
 1.0.0-alpha.0 | [`tree-suffix-mapper`](packages/misc/javascript/tree-suffix-mapper/README.md) | Maps suffixes of a tree to particular values
 1.0.0-alpha | [`unstyled`](packages/misc/javascript/unstyled/README.md) | An almost entirely blank canvas of CSS
+
+### Cinder
+Version | Package | Description
+--- | --- | ---
+1.0.0-alpha.2 | [`@cinderjs/babel-plugin-transform-jsx`](packages/cinder/javascript/babel-plugin-transform-jsx/README.md) | Convert JSX logic to cinder compatible JavaScript
+1.0.0-alpha.2 | [`@cinderjs/core`](packages/cinder/javascript/core/README.md) | Cinder runtime
+1.0.0-alpha.2 | [`@cinderjs/element`](packages/cinder/javascript/element/README.md) | Cinder element
+1.0.0-alpha.2 | [`@cinderjs/hooks`](packages/cinder/javascript/hooks/README.md) | Cinder hooks
+1.0.0-alpha.2 | [`cinder`](packages/cinder/javascript/cinder/README.md) | A compile/runtime hybrid DOM rendering framework
 
 ### Build tooling
 Version | Package | Description
