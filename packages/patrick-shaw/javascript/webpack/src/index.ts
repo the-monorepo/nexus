@@ -113,8 +113,24 @@ export const createHtmlWebpackPlugin = ({
     inject: true,
     template: resolve(__dirname, 'template.html'),
     title: title,
-    tags: {
-      headTags: headTags,
+    templateParameters: (compilation, assets, assetTags, options) => {
+      const first = assetTags.headTags.shift();
+
+      for (const headTag of headTags) {
+        headTag.toString = first.toString;
+      }
+
+      assetTags.headTags.push(...headTags);
+
+      return {
+        compilation: compilation,
+        webpackConfig: compilation.options,
+        htmlWebpackPlugin: {
+          tags: assetTags,
+          files: assets,
+          options: options,
+        },
+      };
     },
   });
 };
