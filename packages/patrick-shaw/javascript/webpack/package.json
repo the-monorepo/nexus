@@ -45,7 +45,7 @@
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "json-loader": "^0.5.7",
-    "sass": "^1.50.1",
+    "sass-embedded": "^1.50.1",
     "sass-loader": "^12.6.0",
     "source-map-loader": "^3.0.1",
     "style-loader": "^3.3.1",

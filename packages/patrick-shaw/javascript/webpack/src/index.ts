@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import sass from 'sass';
+import sass from 'sass-embedded';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 import type { Configuration as WebpackConfiguration } from 'webpack';
