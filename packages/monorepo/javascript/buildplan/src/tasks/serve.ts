@@ -10,15 +10,15 @@ const serveBundles = async () => {
   const l = logger.child(chalk.magentaBright('webpack'));
   for (const { compiler, config } of compilers) {
     const mergedDevServerConfig = config.devServer;
-    const server = new WebpackDevServer(compiler as any, mergedDevServerConfig);
+    const server = new WebpackDevServer(mergedDevServerConfig, compiler as any);
     const serverPort = config.devServer.port !== undefined ? config.devServer.port : port;
-    server.listen(serverPort, 'localhost', () => {
-      l.info(
-        `Serving '${chalk.cyanBright(config.name)}' on port ${chalk.cyanBright(
-          serverPort.toString(),
-        )}...`,
-      );
-    });
+    await server.start(serverPort, 'localhost');
+    l.info(
+      `Serving '${chalk.cyanBright(config.name)}' on port ${chalk.cyanBright(
+        serverPort.toString(),
+      )}...`,
+    );
+
     port++;
   }
 };

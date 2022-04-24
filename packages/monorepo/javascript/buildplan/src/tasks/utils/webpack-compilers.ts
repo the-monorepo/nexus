@@ -54,8 +54,12 @@ export const webpackCompilers = async () => {
         mode: mode === 'prod' ? 'production' : 'development',
         ...config,
         devServer: {
-          https: config.devServer.https ?? httpsConfig,
           ...config.devServer,
+          server: config.devServer.server ?? {
+            ...config.devServer.server,
+            type: 'https',
+            options: httpsConfig
+          },
         },
       };
       return {
