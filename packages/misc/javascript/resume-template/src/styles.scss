@@ -1,3 +1,8 @@
 * {
   font-family: 'Inter', sans-serif;
 }
+
+@page {
+  margin: 0;
+  print-color-adjust: exact;
+}
