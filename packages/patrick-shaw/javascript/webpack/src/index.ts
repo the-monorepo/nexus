@@ -150,6 +150,7 @@ export const cssModuleLoader = {
     esModule: true,
     modules: {
       localIdentName: '[name].[ext]__[local]--[hash:base64:5]',
+      namedExport: true,
     },
   },
 };
@@ -162,10 +163,17 @@ export const sassLoader = {
   },
 };
 
+export const styleLoader = {
+  loader: require.resolve('style-loader'),
+  options: {
+    esModule: true,
+  },
+};
+
 export const cssRule = {
   test: /\.css$/,
   exclude: /node_modules/,
-  use: [require.resolve('style-loader'), cssModuleLoader],
+  use: [styleLoader, cssModuleLoader],
 };
 
 export const inlineJsonRule = {
@@ -183,7 +191,7 @@ export const fileJsonRule = {
 export const sassModulesRule = {
   test: /\.(sass|scss)$/,
   exclude: /node_modules/,
-  use: [require.resolve('style-loader'), cssModuleLoader, sassLoader],
+  use: [styleLoader, cssModuleLoader, sassLoader],
 };
 
 export const recommendedRules = [
