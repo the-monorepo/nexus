@@ -8,19 +8,6 @@ import * as cinder from 'cinder';
 import { DomElement } from 'cinder';
 import cx from 'classnames';
 import * as styles from './components.scss';
-const theme = {
-  typography: {
-    fontWeightMedium: 500,
-  },
-  palette: {
-    primary: {
-      // TODO
-      main: '#FF0000',
-    },
-    // TODO
-    getContrastText: (x) => '#000000',
-  },
-};
 
 const Typography = ({
   children,
