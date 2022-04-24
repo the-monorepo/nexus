@@ -92,7 +92,7 @@ export const createOutput = (outputDir) => {
   return {
     filename: '[name].js',
     path: outputDir,
-    publicPath: '/',
+    publicPath: '',
     scriptType: 'module',
   };
 };
