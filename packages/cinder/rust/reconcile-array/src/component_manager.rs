@@ -37,13 +37,13 @@ impl<IteratorGeneric: DoubleEndedIterator> ComponentManager<IteratorGeneric, Hea
   }
 }
 
-impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: WithTailTrait<IteratorGeneric::Item>>
+impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: MergeTailTrait<IteratorGeneric::Item>>
   ComponentManager<IteratorGeneric, TailGeneric, Allow>
 {
   pub fn repopulate_t(
       self,
   ) -> Result<
-      ComponentManager<IteratorGeneric, TailGeneric::TailObject, Allow>,
+      ComponentManager<IteratorGeneric, TailGeneric::MergedObject, Allow>,
       ComponentManager<IteratorGeneric, TailGeneric, Nothing>,
   > {
       match self.iterator.repopulate_t() {

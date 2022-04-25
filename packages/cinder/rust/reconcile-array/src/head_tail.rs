@@ -21,22 +21,6 @@ impl HeadTail<Nothing, Nothing> {
     }
 }
 
-pub trait WithTailTrait<Tail> {
-    type TailObject;
-    fn merge_tail(self, tail: Tail) -> Self::TailObject;
-
-    fn merge_tail_option(self, tail_option: Option<Tail>) -> Result<Self::TailObject, Self>
-    where
-        Self: Sized,
-    {
-        if let Some(tail) = tail_option {
-            Ok(self.merge_tail(tail))
-        } else {
-            Err(self)
-        }
-    }
-}
-
 pub trait SplitTailTrait {
     type Tail;
     type TailObject;
