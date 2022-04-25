@@ -218,3 +218,23 @@ impl<Tail> HeadTail<Nothing, Tail> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn expect_head_tail_strings<'a, 'b>(head_tail: HeadTail<&'a str, &'b str>) {
+        assert_eq!(head_tail.head, "head");
+        assert_eq!(head_tail.tail, "tail");
+    }
+    
+    #[test]
+    fn new() {
+        expect_head_tail_strings(HeadTail::new("head", "tail"));
+    }
+
+    #[test]
+    fn merge_head() {
+        expect_head_tail_strings(HeadTail::head("head").merge_tail("tail"));
+    }
+}
