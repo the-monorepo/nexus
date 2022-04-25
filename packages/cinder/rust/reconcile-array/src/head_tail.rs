@@ -6,6 +6,9 @@ pub struct HeadTail<Head, Tail> {
     pub tail: Tail,
 }
 
+#[derive(Debug)]
+pub struct Nothing;
+
 impl<Head, Tail> HeadTail<Head, Tail> {
     pub fn new(head: Head, tail: Tail) -> Self {
         HeadTail { head, tail }
@@ -137,9 +140,6 @@ impl<Tail, T : MapTailTrait<Tail>> MergeTailTrait<Tail> for T {
         self.map_head(|| tail)
     }
 } */
-
-#[derive(Debug)]
-pub struct Nothing;
 
 impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
     type HeadObject = T::HeadObject;

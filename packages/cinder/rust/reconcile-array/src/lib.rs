@@ -3,7 +3,9 @@ use std::iter::DoubleEndedIterator;
 use reconcilable_trait::Reconcilable;
 
 mod head_tail;
+mod component_state;
 use head_tail::*;
+use component_state::*;
 
 pub struct ReconcilePayload<Component, Value> {
     old_component: Component,
@@ -123,140 +125,6 @@ impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: WithTailTrait<IteratorGe
     }
 }
 
-impl<C> ComponentState<C, Allow, Allow> {
-    fn component(component: C) -> ComponentState<C, Allow, Allow> {
-        ComponentState {
-            component,
-            skip: HeadTail::new(Allow, Allow),
-        }
-    }
-}
-
-impl<CH, CT, ChVh, ChVt, CtVh, CtVt> MergeHeadTrait<CH>
-    for Components<Nothing, CT, ChVh, ChVt, CtVh, CtVt>
-{
-    type MergedObject = Components<CH, CT, Allow, Allow, CtVh, CtVt>;
-    fn merge_head(self, head: CH) -> Self::MergedObject {
-        let component = ComponentState::component(head);
-        let head_tail = self.head_tail.merge_head(component);
-        let components = Components { head_tail };
-        components
-    }
-}
-
-impl<CH, CT, ChVh, ChVt, CtVh, CtVt> MergeTailTrait<CT>
-    for Components<CH, Nothing, ChVh, ChVt, CtVh, CtVt>
-{
-    type MergedObject = Components<CH, CT, ChVh, ChVt, Allow, Allow>;
-    fn merge_tail(self, tail: CT) -> Self::MergedObject {
-        Components {
-            head_tail: self.head_tail.merge_tail(ComponentState::component(tail)),
-        }
-    }
-}
-
-impl<C, CVt, Value> ComponentState<C, Allow, CVt>
-where
-    C: Reconcilable<Value = Value, Unreconciled = ReconcilePayload<C, Value>>,
-{
-    fn reconcile_vh(
-        self,
-        value: Value,
-    ) -> Result<
-        ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, Allow, CVt>>,
-        ReconciledAndNewState<Value, ComponentState<C, Nothing, CVt>>,
-    > {
-        match self.component.reconcile(value) {
-            Ok(reconciled) => Ok(ReconciledAndNewState {
-                data: reconciled,
-                state: ComponentState {
-                    component: Nothing,
-                    skip: self.skip,
-                },
-            }),
-            Err(err) => Err(ReconciledAndNewState {
-                data: err.new_value,
-                state: ComponentState {
-                    component: err.old_component,
-                    skip: self.skip.merge_head(Nothing),
-                },
-            }),
-        }
-    }
-}
-
-impl<C, CVh, Value> ComponentState<C, CVh, Allow>
-where
-    C: Reconcilable<Value = Value, Unreconciled = ReconcilePayload<C, Value>>,
-{
-    fn reconcile_vt(
-        self,
-        value: Value,
-    ) -> Result<
-        ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, CVh, Allow>>,
-        ReconciledAndNewState<Value, ComponentState<C, CVh, Nothing>>,
-    > {
-        match self.component.reconcile(value) {
-            Ok(reconciled) => Ok(ReconciledAndNewState {
-                data: reconciled,
-                state: ComponentState {
-                    component: Nothing,
-                    skip: self.skip,
-                },
-            }),
-            Err(err) => Err(ReconciledAndNewState {
-                data: err.new_value,
-                state: ComponentState {
-                    component: err.old_component,
-                    skip: self.skip.merge_tail(Nothing),
-                },
-            }),
-        }
-    }
-}
-
-impl<C, CVt> ComponentState<C, Allow, CVt> {
-    fn skip_vh(self) -> ComponentState<C, Nothing, CVt> {
-        ComponentState {
-            component: self.component,
-            skip: self.skip.merge_head(Nothing),
-        }
-    }
-}
-
-impl<C, CVt> ComponentState<C, Nothing, CVt> {
-    fn allow_vh(self) -> ComponentState<C, Allow, CVt> {
-        ComponentState {
-            component: self.component,
-            skip: self.skip.merge_head(Allow),
-        }
-    }
-}
-
-impl<C, CVh> ComponentState<C, CVh, Allow> {
-    fn skip_vt(self) -> ComponentState<C, CVh, Nothing> {
-        ComponentState {
-            component: self.component,
-            skip: self.skip.merge_tail(Nothing),
-        }
-    }
-}
-
-impl<C, CVh> ComponentState<C, CVh, Nothing> {
-    fn allow_vt(self) -> ComponentState<C, CVh, Allow> {
-        ComponentState {
-            component: self.component,
-            skip: self.skip.merge_tail(Allow),
-        }
-    }
-}
-
-impl ComponentState<Nothing, Nothing, Nothing> {
-    fn new_component<C>(self, component: C) -> ComponentState<C, Allow, Allow> {
-        ComponentState::component(component)
-    }
-}
-
 pub struct RemoveAndNextState<Component, State> {
     component: Component,
     state: State,
@@ -343,13 +211,31 @@ trait RecursiveNext<Item, Finished, Next: RecursiveNext<Item, Finished, Next>> {
 
 enum Void {}
 
-struct ComponentState<C, CVh, CVt> {
-    component: C,
-    skip: HeadTail<CVh, CVt>,
-}
-
 struct Components<CH, CT, ChVh, ChVt, CtVh, CtVt> {
     head_tail: HeadTail<ComponentState<CH, ChVh, ChVt>, ComponentState<CT, CtVh, CtVt>>,
+}
+
+impl<CH, CT, ChVh, ChVt, CtVh, CtVt> MergeHeadTrait<CH>
+  for Components<Nothing, CT, ChVh, ChVt, CtVh, CtVt>
+{
+  type MergedObject = Components<CH, CT, Allow, Allow, CtVh, CtVt>;
+  fn merge_head(self, head: CH) -> Self::MergedObject {
+      let component = ComponentState::component(head);
+      let head_tail = self.head_tail.merge_head(component);
+      let components = Components { head_tail };
+      components
+  }
+}
+
+impl<CH, CT, ChVh, ChVt, CtVh, CtVt> MergeTailTrait<CT>
+  for Components<CH, Nothing, ChVh, ChVt, CtVh, CtVt>
+{
+  type MergedObject = Components<CH, CT, ChVh, ChVt, Allow, Allow>;
+  fn merge_tail(self, tail: CT) -> Self::MergedObject {
+      Components {
+          head_tail: self.head_tail.merge_tail(ComponentState::component(tail)),
+      }
+  }
 }
 
 impl<D, S> ReconciledAndNewState<D, S> {
@@ -364,7 +250,6 @@ impl<D, S> ReconciledAndNewState<D, S> {
     }
 }
 
-struct Allow;
 struct ReconcileState<
     ComponentsIterator: DoubleEndedIterator,
     ValuesIterator: DoubleEndedIterator,
