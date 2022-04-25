@@ -291,7 +291,7 @@ mod tests {
 
     #[test]
     fn merge_head_none() {
-        expect_head_tail_strings(HeadTail::new("head", "tail").merge_head_option(None::<&'_ str>).unwrap_err());
+        assert_eq!(HeadTail::tail("tail").merge_head_option(None::<&'_ str>).unwrap_err(), HeadTail::tail("tail"));
     }
 
     #[test]
@@ -301,7 +301,7 @@ mod tests {
 
     #[test]
     fn merge_tail_none() {
-        expect_head_tail_strings(HeadTail::new("head", "tail").merge_tail_option(None::<&'_ str>).unwrap_err());
+        assert_eq!(HeadTail::head("head").merge_tail_option(None::<&'_ str>).unwrap_err(), HeadTail::head("head"));
     }
 
     #[test]
@@ -325,11 +325,11 @@ mod tests {
 
     #[test]
     fn drop_tail() {
-        assert_eq!(HeadTail::tail("tail").drop_tail(), HeadTail::nothing())
+        assert_eq!(HeadTail::tail("tail").drop_tail(), HeadTail::nothing());
     }
 
     #[test]
     fn drop_head() {
-        assert_eq!(HeadTail::head("head").drop_head(), HeadTail::nothing())
+        assert_eq!(HeadTail::head("head").drop_head(), HeadTail::nothing());
     }
 }
