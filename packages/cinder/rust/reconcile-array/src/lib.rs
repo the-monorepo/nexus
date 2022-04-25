@@ -31,26 +31,6 @@ struct Pair<V, O> {
     other: O,
 }
 
-impl<CurrentHead, Head, Tail> MergeHeadTrait<Head> for HeadTail<CurrentHead, Tail> {
-    type MergedObject = HeadTail<Head, Tail>;
-    fn merge_head(self, head: Head) -> HeadTail<Head, Tail> {
-        HeadTail {
-            head,
-            tail: self.tail,
-        }
-    }
-}
-
-impl<CurrentTail, Head, Tail> MergeTailTrait<Tail> for HeadTail<Head, CurrentTail> {
-    type MergedObject = HeadTail<Head, Tail>;
-    fn merge_tail(self, tail: Tail) -> HeadTail<Head, Tail> {
-        HeadTail {
-            head: self.head,
-            tail,
-        }
-    }
-}
-
 struct IteratorManager<IteratorGeneric: DoubleEndedIterator, HasNext> {
     iterator: IteratorGeneric,
     has_next: HasNext,
