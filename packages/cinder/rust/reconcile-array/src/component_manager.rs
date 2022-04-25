@@ -66,7 +66,13 @@ mod tests {
 
     #[test]
     fn todo() {  
-      let list = VecDeque::from([1, 2, 3]);  
-      ComponentManager::new(list.into_iter());
+      let list = VecDeque::from([1, 2, 3]);
+      let manager = ComponentManager::new(list.into_iter());
+      
+      let manager = manager.repopulate_t().unwrap();
+      assert_eq!(manager.ends.tail, 3);
+
+      let manager = manager.repopulate_h().unwrap();
+      assert_eq!(manager.ends.head, 1);
     }
 }
