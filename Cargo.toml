@@ -4,5 +4,6 @@ members = [
     "./packages/scriptplan/rust/core",
     "./packages/scriptplan/rust/bash",
     "./packages/cinder/rust/core",
-    "./packages/misc/rust/reconcile-array"
+    "./packages/cinder/rust/reconcilable-trait",
+    "./packages/cinder/rust/reconcile-array"
 ]

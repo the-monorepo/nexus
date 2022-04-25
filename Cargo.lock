@@ -350,8 +350,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "reconcilable-trait"
+version = "0.1.0"
+
+[[package]]
 name = "reconcile-array"
 version = "0.1.0"
+dependencies = [
+ "reconcilable-trait",
+]
 
 [[package]]
 name = "regex"

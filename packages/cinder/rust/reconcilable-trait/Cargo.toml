@@ -1,5 +1,5 @@
 [package]
-name = "reconcile-array"
+name = "reconcilable-trait"
 version = "0.1.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2021"

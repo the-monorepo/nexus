@@ -100,28 +100,6 @@ pub trait MapTailTrait<Tail> {
     fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, aFn: F) -> Self::TailObject;
 }
 
-impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
-    type HeadObject = T::HeadObject;
-    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, aFn: F) -> Self::HeadObject {
-        self.split_map_head(|head| SplitMapped {
-            mapped: head,
-            reduced: Nothing,
-        })
-        .mapped
-    }
-}
-
-impl<Tail, T: SplitMappedTailTrait<Tail>> MapTailTrait<Tail> for T {
-    type TailObject = T::TailObject;
-    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, aFn: F) -> Self::TailObject {
-        self.split_map_tail(|tail| SplitMapped {
-            mapped: tail,
-            reduced: Nothing,
-        })
-        .mapped
-    }
-}
-
 /*
 impl<Head, T : MapHeadTrait<Head>> MergeHeadTrait<Head> for T {
     type MergedObject = T::HeadObject;

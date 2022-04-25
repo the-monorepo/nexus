@@ -1,5 +1,7 @@
 use std::iter::DoubleEndedIterator;
 
+use reconcilable_trait::Reconcilable;
+
 mod head_tail;
 use head_tail::*;
   
@@ -8,12 +10,6 @@ pub struct ReconcilePayload<Component, Value> {
     new_value: Value,
 }
 
-pub trait Reconcilable {
-    type Value;
-    type Unreconciled;
-    type Reconciled;
-    fn reconcile(self, new_value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled>;
-}
 #[derive(PartialEq)]
 pub enum End {
     Head,
@@ -31,6 +27,29 @@ pub struct ReconciledAndNewState<Reconciled, InstructionGeneric> {
 }
 
 struct Nothing;
+
+impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
+    type HeadObject = T::HeadObject;
+    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, aFn: F) -> Self::HeadObject {
+        self.split_map_head(|head| SplitMapped {
+            mapped: head,
+            reduced: Nothing,
+        })
+        .mapped
+    }
+}
+
+impl<Tail, T: SplitMappedTailTrait<Tail>> MapTailTrait<Tail> for T {
+    type TailObject = T::TailObject;
+    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, aFn: F) -> Self::TailObject {
+        self.split_map_tail(|tail| SplitMapped {
+            mapped: tail,
+            reduced: Nothing,
+        })
+        .mapped
+    }
+}
+
 
 struct Pair<V, O> {
     taken: V,
@@ -57,12 +76,12 @@ impl<T> ReconcileHead for T
 where
     T: SplitHeadTrait,
     T::Head: Reconcilable,
-    T::HeadObject: MergeHeadTrait<<T::Head as Reconcilable>::NotReconciled>,
+    T::HeadObject: MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>,
 {
     type Value = <T::Head as Reconcilable>::Value;
     type ReconciledSuccess = (<T::Head as Reconcilable>::Reconciled, T::HeadObject);
     type ReconciledError =
-        <T::HeadObject as MergeHeadTrait<<T::Head as Reconcilable>::NotReconciled>>::MergedObject;
+        <T::HeadObject as MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>>::MergedObject;
     fn reconcile_head(
         self,
         value: <T::Head as Reconcilable>::Value,
@@ -80,12 +99,12 @@ impl<T> ReconcileTail for T
 where
     T: SplitTailTrait,
     T::Tail: Reconcilable,
-    T::TailObject: MergeTailTrait<<T::Tail as Reconcilable>::NotReconciled>,
+    T::TailObject: MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>,
 {
     type Value = <T::Tail as Reconcilable>::Value;
     type ReconciledSuccess = (<T::Tail as Reconcilable>::Reconciled, T::TailObject);
     type ReconciledError =
-        <T::TailObject as MergeTailTrait<<T::Tail as Reconcilable>::NotReconciled>>::MergedObject;
+        <T::TailObject as MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>>::MergedObject;
     fn reconcile_tail(
         self,
         value: <T::Tail as Reconcilable>::Value,
