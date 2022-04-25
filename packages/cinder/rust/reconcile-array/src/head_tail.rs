@@ -1,5 +1,6 @@
 use reconcilable_trait::Reconcilable;
 
+#[derive(Debug)]
 pub struct HeadTail<Head, Tail> {
     pub head: Head,
     pub tail: Tail,
@@ -43,7 +44,7 @@ pub trait MergeTailTrait<Tail> {
     type MergedObject;
     fn merge_tail(self, tail: Tail) -> Self::MergedObject;
 
-    fn merge_head_option(self, tail_option: Option<Tail>) -> Result<Self::MergedObject, Self>
+    fn merge_tail_option(self, tail_option: Option<Tail>) -> Result<Self::MergedObject, Self>
     where
         Self: Sized,
     {
@@ -102,6 +103,26 @@ pub trait MapTailTrait<Tail> {
     fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, a_fn: F) -> Self::TailObject;
 }
 
+impl<CurrentHead, Head, Tail> MergeHeadTrait<Head> for HeadTail<CurrentHead, Tail> {
+    type MergedObject = HeadTail<Head, Tail>;
+    fn merge_head(self, head: Head) -> HeadTail<Head, Tail> {
+        HeadTail {
+            head,
+            tail: self.tail,
+        }
+    }
+}
+
+impl<CurrentTail, Head, Tail> MergeTailTrait<Tail> for HeadTail<Head, CurrentTail> {
+    type MergedObject = HeadTail<Head, Tail>;
+    fn merge_tail(self, tail: Tail) -> HeadTail<Head, Tail> {
+        HeadTail {
+            head: self.head,
+            tail,
+        }
+    }
+}
+
 /*
 impl<Head, T : MapHeadTrait<Head>> MergeHeadTrait<Head> for T {
     type MergedObject = T::HeadObject;
@@ -117,6 +138,7 @@ impl<Tail, T : MapTailTrait<Tail>> MergeTailTrait<Tail> for T {
     }
 } */
 
+#[derive(Debug)]
 pub struct Nothing;
 
 impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
@@ -236,5 +258,30 @@ mod tests {
     #[test]
     fn merge_head() {
         expect_head_tail_strings(HeadTail::head("head").merge_tail("tail"));
+    }
+
+    #[test]
+    fn merge_tail() {
+        expect_head_tail_strings(HeadTail::tail("tail").merge_head("head"));
+    }
+
+    #[test]
+    fn merge_head_none() {
+        expect_head_tail_strings(HeadTail::new("head", "tail").merge_head_option(None::<&'_ str>).unwrap_err());
+    }
+
+    #[test]
+    fn merge_head_some() {
+        expect_head_tail_strings(HeadTail::tail("tail").merge_head_option(Some("head")).unwrap());
+    }
+
+    #[test]
+    fn merge_tail_none() {
+        expect_head_tail_strings(HeadTail::new("head", "tail").merge_tail_option(None::<&'_ str>).unwrap_err());
+    }
+
+    #[test]
+    fn merge_tail_some() {
+        expect_head_tail_strings(HeadTail::head("head").merge_tail_option(Some("tail")).unwrap());
     }
 }
