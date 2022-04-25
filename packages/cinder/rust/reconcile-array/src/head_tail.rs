@@ -25,12 +25,20 @@ pub trait SplitTailTrait {
     type Tail;
     type TailObject;
     fn split_tail(self) -> (Self::TailObject, Self::Tail);
+
+    fn drop_tail(self) -> Self::TailObject  where Self: Sized{
+        self.split_tail().0
+    }
 }
 
 pub trait SplitHeadTrait {
     type Head;
     type HeadObject;
     fn split_head(self) -> (Self::HeadObject, Self::Head);
+
+    fn drop_head(self) -> Self::HeadObject where Self: Sized {
+        self.split_head().0
+    }
 }
 
 pub trait MergeTailTrait<Tail> {

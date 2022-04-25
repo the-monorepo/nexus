@@ -41,7 +41,7 @@ where
               data: err.new_value,
               state: ComponentState {
                   component: err.old_component,
-                  skip: self.skip.merge_head(Nothing),
+                  skip: self.skip.drop_head(),
               },
           }),
       }
@@ -71,7 +71,7 @@ where
               data: err.new_value,
               state: ComponentState {
                   component: err.old_component,
-                  skip: self.skip.merge_tail(Nothing),
+                  skip: self.skip.drop_tail(),
               },
           }),
       }
@@ -82,7 +82,7 @@ impl<C, CVt> ComponentState<C, Allow, CVt> {
   pub fn skip_vh(self) -> ComponentState<C, Nothing, CVt> {
       ComponentState {
           component: self.component,
-          skip: self.skip.merge_head(Nothing),
+          skip: self.skip.drop_head(),
       }
   }
 }
@@ -100,7 +100,7 @@ impl<C, CVh> ComponentState<C, CVh, Allow> {
   pub fn skip_vt(self) -> ComponentState<C, CVh, Nothing> {
       ComponentState {
           component: self.component,
-          skip: self.skip.merge_tail(Nothing),
+          skip: self.skip.drop_tail(),
       }
   }
 }
