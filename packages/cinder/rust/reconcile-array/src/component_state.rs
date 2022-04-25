@@ -8,7 +8,7 @@ pub struct ComponentState<C, CVh, CVt> {
 }
 
 impl<C> ComponentState<C, Allow, Allow> {
-  fn component(component: C) -> ComponentState<C, Allow, Allow> {
+  pub fn component(component: C) -> ComponentState<C, Allow, Allow> {
       ComponentState {
           component,
           skip: HeadTail::new(Allow, Allow),
@@ -20,7 +20,7 @@ impl<C, CVt, Value> ComponentState<C, Allow, CVt>
 where
   C: Reconcilable<Value = Value, Unreconciled = ReconcilePayload<C, Value>>,
 {
-  fn reconcile_vh(
+  pub fn reconcile_vh(
       self,
       value: Value,
   ) -> Result<
@@ -50,7 +50,7 @@ impl<C, CVh, Value> ComponentState<C, CVh, Allow>
 where
   C: Reconcilable<Value = Value, Unreconciled = ReconcilePayload<C, Value>>,
 {
-  fn reconcile_vt(
+  pub fn reconcile_vt(
       self,
       value: Value,
   ) -> Result<
@@ -77,7 +77,7 @@ where
 }
 
 impl<C, CVt> ComponentState<C, Allow, CVt> {
-  fn skip_vh(self) -> ComponentState<C, Nothing, CVt> {
+  pub fn skip_vh(self) -> ComponentState<C, Nothing, CVt> {
       ComponentState {
           component: self.component,
           skip: self.skip.merge_head(Nothing),
@@ -86,7 +86,7 @@ impl<C, CVt> ComponentState<C, Allow, CVt> {
 }
 
 impl<C, CVt> ComponentState<C, Nothing, CVt> {
-  fn allow_vh(self) -> ComponentState<C, Allow, CVt> {
+  pub fn allow_vh(self) -> ComponentState<C, Allow, CVt> {
       ComponentState {
           component: self.component,
           skip: self.skip.merge_head(Allow),
@@ -95,7 +95,7 @@ impl<C, CVt> ComponentState<C, Nothing, CVt> {
 }
 
 impl<C, CVh> ComponentState<C, CVh, Allow> {
-  fn skip_vt(self) -> ComponentState<C, CVh, Nothing> {
+  pub fn skip_vt(self) -> ComponentState<C, CVh, Nothing> {
       ComponentState {
           component: self.component,
           skip: self.skip.merge_tail(Nothing),
@@ -104,7 +104,7 @@ impl<C, CVh> ComponentState<C, CVh, Allow> {
 }
 
 impl<C, CVh> ComponentState<C, CVh, Nothing> {
-  fn allow_vt(self) -> ComponentState<C, CVh, Allow> {
+  pub fn allow_vt(self) -> ComponentState<C, CVh, Allow> {
       ComponentState {
           component: self.component,
           skip: self.skip.merge_tail(Allow),
@@ -113,7 +113,7 @@ impl<C, CVh> ComponentState<C, CVh, Nothing> {
 }
 
 impl ComponentState<Nothing, Nothing, Nothing> {
-  fn new_component<C>(self, component: C) -> ComponentState<C, Allow, Allow> {
+  pub fn new_component<C>(self, component: C) -> ComponentState<C, Allow, Allow> {
       ComponentState::component(component)
   }
 }

@@ -4,8 +4,10 @@ use reconcilable_trait::Reconcilable;
 
 mod head_tail;
 mod component_state;
+mod iterator_manager;
 use head_tail::*;
 use component_state::*;
+use iterator_manager::*;
 
 pub struct ReconcilePayload<Component, Value> {
     old_component: Component,
@@ -31,49 +33,6 @@ pub struct ReconciledAndNewState<Reconciled, InstructionGeneric> {
 struct Pair<V, O> {
     taken: V,
     other: O,
-}
-
-struct IteratorManager<IteratorGeneric: DoubleEndedIterator, HasNext> {
-    iterator: IteratorGeneric,
-    has_next: HasNext,
-}
-
-struct IteratorResult<IteratorGeneric: DoubleEndedIterator> {
-    value: IteratorGeneric::Item,
-    manager: IteratorManager<IteratorGeneric, Allow>,
-}
-
-impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allow> {
-    fn repopulate<F: FnOnce(&mut IteratorGeneric) -> Option<IteratorGeneric::Item>>(
-        mut self,
-        next: F,
-    ) -> Result<IteratorResult<IteratorGeneric>, IteratorManager<IteratorGeneric, Nothing>> {
-        match next(&mut self.iterator) {
-            Some(value) => Ok(IteratorResult {
-                manager: IteratorManager {
-                    iterator: self.iterator,
-                    has_next: Allow,
-                },
-                value,
-            }),
-            None => Err(IteratorManager {
-                iterator: self.iterator,
-                has_next: Nothing,
-            }),
-        }
-    }
-
-    fn repopulate_t(
-        self,
-    ) -> Result<IteratorResult<IteratorGeneric>, IteratorManager<IteratorGeneric, Nothing>> {
-        self.repopulate(IteratorGeneric::next_back)
-    }
-
-    fn repopulate_h(
-        self,
-    ) -> Result<IteratorResult<IteratorGeneric>, IteratorManager<IteratorGeneric, Nothing>> {
-        self.repopulate(IteratorGeneric::next)
-    }
 }
 
 struct ComponentManager<IteratorGeneric: DoubleEndedIterator, HeadTailGeneric, HasNext> {
