@@ -2,7 +2,7 @@ use std::iter::DoubleEndedIterator;
 
 mod head_tail;
 use head_tail::*;
-
+  
 pub struct ReconcilePayload<Component, Value> {
     old_component: Component,
     new_value: Value,
@@ -25,7 +25,7 @@ pub struct Position {
     new: End,
 }
 
-pub struct RecycledAndNewState<Reconciled, InstructionGeneric> {
+pub struct ReconciledAndNewState<Reconciled, InstructionGeneric> {
     data: Reconciled,
     state: InstructionGeneric,
 }
@@ -37,63 +37,63 @@ struct Pair<V, O> {
     other: O,
 }
 
-trait RecycleHead {
+trait ReconcileHead {
     type Value;
-    type RecycledSuccess;
-    type RecycledError;
-    fn recycle_head(self, value: Self::Value)
-        -> Result<Self::RecycledSuccess, Self::RecycledError>;
+    type ReconciledSuccess;
+    type ReconciledError;
+    fn reconcile_head(self, value: Self::Value)
+        -> Result<Self::ReconciledSuccess, Self::ReconciledError>;
 }
 
-trait RecycleTail {
+trait ReconcileTail {
     type Value;
-    type RecycledSuccess;
-    type RecycledError;
-    fn recycle_tail(self, value: Self::Value)
-        -> Result<Self::RecycledSuccess, Self::RecycledError>;
+    type ReconciledSuccess;
+    type ReconciledError;
+    fn reconcile_tail(self, value: Self::Value)
+        -> Result<Self::ReconciledSuccess, Self::ReconciledError>;
 }
 
-impl<T> RecycleHead for T
+impl<T> ReconcileHead for T
 where
     T: SplitHeadTrait,
     T::Head: Reconcilable,
     T::HeadObject: MergeHeadTrait<<T::Head as Reconcilable>::NotReconciled>,
 {
     type Value = <T::Head as Reconcilable>::Value;
-    type RecycledSuccess = (<T::Head as Reconcilable>::Reconciled, T::HeadObject);
-    type RecycledError =
+    type ReconciledSuccess = (<T::Head as Reconcilable>::Reconciled, T::HeadObject);
+    type ReconciledError =
         <T::HeadObject as MergeHeadTrait<<T::Head as Reconcilable>::NotReconciled>>::MergedObject;
-    fn recycle_head(
+    fn reconcile_head(
         self,
         value: <T::Head as Reconcilable>::Value,
-    ) -> Result<Self::RecycledSuccess, Self::RecycledError> {
+    ) -> Result<Self::ReconciledSuccess, Self::ReconciledError> {
         let (other, head) = self.split_head();
 
         match head.reconcile(value) {
-            Ok(recycled) => Ok((recycled, other)),
+            Ok(reconciled) => Ok((reconciled, other)),
             Err(err) => Err(other.merge_head(head)),
         }
     }
 }
 
-impl<T> RecycleTail for T
+impl<T> ReconcileTail for T
 where
     T: SplitTailTrait,
     T::Tail: Reconcilable,
     T::TailObject: MergeTailTrait<<T::Tail as Reconcilable>::NotReconciled>,
 {
     type Value = <T::Tail as Reconcilable>::Value;
-    type RecycledSuccess = (<T::Tail as Reconcilable>::Reconciled, T::TailObject);
-    type RecycledError =
+    type ReconciledSuccess = (<T::Tail as Reconcilable>::Reconciled, T::TailObject);
+    type ReconciledError =
         <T::TailObject as MergeTailTrait<<T::Tail as Reconcilable>::NotReconciled>>::MergedObject;
-    fn recycle_tail(
+    fn reconcile_tail(
         self,
         value: <T::Tail as Reconcilable>::Value,
-    ) -> Result<Self::RecycledSuccess, Self::RecycledError> {
+    ) -> Result<Self::ReconciledSuccess, Self::ReconciledError> {
         let (other, tail) = self.split_tail();
 
         match tail.reconcile(value) {
-            Ok(recycled) => Ok((recycled, other)),
+            Ok(reconciled) => Ok((reconciled, other)),
             Err(err) => Err(other.merge_tail(tail)),
         }
     }
@@ -265,16 +265,16 @@ impl<C, CVt, Value> ComponentState<C, Allow, CVt>
 where
     C: Reconcilable<Value = Value>,
 {
-    fn recycle_vh(
+    fn reconcile_vh(
         self,
         value: Value,
     ) -> Result<
-        RecycledAndNewState<C::Reconciled, ComponentState<Nothing, Allow, CVt>>,
+        ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, Allow, CVt>>,
         ComponentState<C, Nothing, CVt>,
     > {
         match self.component.reconcile(value) {
-            Ok(recycled) => Ok(RecycledAndNewState {
-                data: recycled,
+            Ok(reconciled) => Ok(ReconciledAndNewState {
+                data: reconciled,
                 state: ComponentState {
                     component: Nothing,
                     skip: self.skip,
@@ -292,16 +292,16 @@ impl<C, CVh, Value> ComponentState<C, CVh, Allow>
 where
     C: Reconcilable<Value = Value>,
 {
-    fn recycle_vt(
+    fn reconcile_vt(
         self,
         value: Value,
     ) -> Result<
-        RecycledAndNewState<C::Reconciled, ComponentState<Nothing, CVh, Allow>>,
+        ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, CVh, Allow>>,
         ComponentState<C, CVh, Nothing>,
     > {
         match self.component.reconcile(value) {
-            Ok(recycled) => Ok(RecycledAndNewState {
-                data: recycled,
+            Ok(reconciled) => Ok(ReconciledAndNewState {
+                data: reconciled,
                 state: ComponentState {
                     component: Nothing,
                     skip: self.skip,
@@ -372,7 +372,7 @@ pub struct Data<
     remaining_items: RemainingItems,
 }
 pub enum ReconcileInstruction<Component, Reconciled> {
-    RecycledItem(Reconciled),
+    ReconciledItem(Reconciled),
     RemoveItem(Component),
 }
 
@@ -452,12 +452,12 @@ struct Components<CH, CT, ChVh, ChVt, CtVh, CtVt> {
     head_tail: HeadTail<ComponentState<CH, ChVh, ChVt>, ComponentState<CT, CtVh, CtVt>>,
 }
 
-impl<D, S> RecycledAndNewState<D, S> {
+impl<D, S> ReconciledAndNewState<D, S> {
     fn map_state<ReturnGeneric, F: FnOnce(S) -> ReturnGeneric>(
         self,
         mapper: F,
-    ) -> RecycledAndNewState<D, ReturnGeneric> {
-        RecycledAndNewState {
+    ) -> ReconciledAndNewState<D, ReturnGeneric> {
+        ReconciledAndNewState {
             data: self.data,
             state: mapper(self.state),
         }
@@ -492,7 +492,7 @@ mod tests {
     use std::collections::{vec_deque, VecDeque};
 
     use crate::{
-        DoNotRecycle, End, FinalInstruction, Instruction, ReconcileIterator, ReconcilePayload,
+        DoNotReconcile, End, FinalInstruction, Instruction, ReconcileIterator, ReconcilePayload,
         Reconcilable, RemovalInstruction,
     };
 
@@ -548,10 +548,10 @@ mod tests {
 
         todo!();
         /*
-        let output = iter.recycle_instructions(
+        let output = iter.reconcile_instructions(
             |instruction, data| match instruction {
-                Instruction::RecycleItem(recycled) => {
-                    let old_index = if recycled.position.new == End::Head {
+                Instruction::ReconcileItem(reconciled) => {
+                    let old_index = if reconciled.position.new == End::Head {
                         let old_index = data.head;
                         data.head += 1;
                         old_index
@@ -560,7 +560,7 @@ mod tests {
                         data.tail -= 1;
                         old_index
                     };
-                    data.reconciled[old_index] = recycled.recycle_result;
+                    data.reconciled[old_index] = reconciled.reconcile_result;
 
                     return data;
                 }
