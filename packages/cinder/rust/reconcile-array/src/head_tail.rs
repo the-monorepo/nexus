@@ -80,7 +80,7 @@ pub trait SplitMappedHeadTrait<Head> {
     type HeadObject;
     fn split_map_head<M, R, F: FnOnce(Head) -> SplitMapped<M, R>>(
         self,
-        aFn: F,
+        a_fn: F,
     ) -> SplitMapped<Self::HeadObject, R>;
 }
 
@@ -88,18 +88,18 @@ pub trait SplitMappedTailTrait<Tail> {
     type TailObject;
     fn split_map_tail<M, R, F: FnOnce(Tail) -> SplitMapped<M, R>>(
         self,
-        aFn: F,
+        a_fn: F,
     ) -> SplitMapped<Self::TailObject, R>;
 }
 
 pub trait MapHeadTrait<Head> {
     type HeadObject;
-    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, aFn: F) -> Self::HeadObject;
+    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, a_fn: F) -> Self::HeadObject;
 }
 
 pub trait MapTailTrait<Tail> {
     type TailObject;
-    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, aFn: F) -> Self::TailObject;
+    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, a_fn: F) -> Self::TailObject;
 }
 
 /*
@@ -122,7 +122,7 @@ pub struct Nothing;
 
 impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
     type HeadObject = T::HeadObject;
-    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, aFn: F) -> Self::HeadObject {
+    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, a_fn: F) -> Self::HeadObject {
         self.split_map_head(|head| SplitMapped {
             mapped: head,
             reduced: Nothing,
@@ -133,7 +133,7 @@ impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
 
 impl<Tail, T: SplitMappedTailTrait<Tail>> MapTailTrait<Tail> for T {
     type TailObject = T::TailObject;
-    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, aFn: F) -> Self::TailObject {
+    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, a_fn: F) -> Self::TailObject {
         self.split_map_tail(|tail| SplitMapped {
             mapped: tail,
             reduced: Nothing,
