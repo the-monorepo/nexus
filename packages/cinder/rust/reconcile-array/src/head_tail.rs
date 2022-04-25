@@ -231,6 +231,30 @@ impl<Tail> HeadTail<Nothing, Tail> {
     }
 }
 
+impl<Head, Tail> SplitTailTrait for HeadTail<Head, Tail> {
+    type Tail = Tail;
+    type TailObject = HeadTail<Head, Nothing>;
+
+    fn split_tail(self) -> (HeadTail<Head, Nothing>, Tail) {
+        return (
+            HeadTail::head(self.head),
+            self.tail,
+        )
+    }
+}
+
+impl<Head, Tail> SplitHeadTrait for HeadTail<Head, Tail> {
+    type Head = Head;
+    type HeadObject = HeadTail<Nothing, Tail>;
+
+    fn split_head(self) -> (HeadTail<Nothing, Tail>, Head) {
+        return (
+            HeadTail::tail(self.tail),
+            self.head,
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -273,5 +297,19 @@ mod tests {
     #[test]
     fn merge_tail_some() {
         expect_head_tail_strings(HeadTail::head("head").merge_tail_option(Some("tail")).unwrap());
+    }
+
+    #[test]
+    fn split_head() {
+        let (tail_only, head) = HeadTail::new("split", "tail").split_head();
+        assert_eq!(head, "split");
+        assert_eq!(tail_only.tail, "tail");
+    }
+
+    #[test]
+    fn split_tail() {
+        let (head_only, split_tail) = HeadTail::new("head", "split").split_tail();
+        assert_eq!(split_tail, "split");
+        assert_eq!(head_only.head, "head");
     }
 }
