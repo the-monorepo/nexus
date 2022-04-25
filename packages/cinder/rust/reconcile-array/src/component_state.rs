@@ -117,3 +117,21 @@ impl ComponentState<Nothing, Nothing, Nothing> {
       ComponentState::component(component)
   }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn smoke_test() {
+      // TODO: Tests could be more explicit
+      ComponentState::component(Nothing)
+          .skip_vt()
+          .skip_vh()
+          .new_component("replaced")
+          .skip_vt()
+          .skip_vh()
+          .allow_vt()
+          .allow_vh();
+    }
+}
