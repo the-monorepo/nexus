@@ -76,26 +76,26 @@ impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allo
     }
 }
 
-struct HeadTailManager<IteratorGeneric: DoubleEndedIterator, HeadTailGeneric, HasNext> {
+struct ComponentManager<IteratorGeneric: DoubleEndedIterator, HeadTailGeneric, HasNext> {
     iterator: IteratorManager<IteratorGeneric, HasNext>,
     ends: HeadTailGeneric,
 }
 
 impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeHeadTrait<IteratorGeneric::Item>>
-    HeadTailManager<IteratorGeneric, HeadGeneric, Allow>
+    ComponentManager<IteratorGeneric, HeadGeneric, Allow>
 {
     fn repopulate_h(
         self,
     ) -> Result<
-        HeadTailManager<IteratorGeneric, HeadGeneric::MergedObject, Allow>,
-        HeadTailManager<IteratorGeneric, HeadGeneric, Nothing>,
+        ComponentManager<IteratorGeneric, HeadGeneric::MergedObject, Allow>,
+        ComponentManager<IteratorGeneric, HeadGeneric, Nothing>,
     > {
         match self.iterator.repopulate_h() {
-            Ok(result) => Ok(HeadTailManager {
+            Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
                 ends: self.ends.merge_head(result.value),
             }),
-            Err(manager) => Err(HeadTailManager {
+            Err(manager) => Err(ComponentManager {
                 iterator: manager,
                 ends: self.ends,
             }),
@@ -104,20 +104,20 @@ impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeHeadTrait<IteratorG
 }
 
 impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: WithTailTrait<IteratorGeneric::Item>>
-    HeadTailManager<IteratorGeneric, TailGeneric, Allow>
+    ComponentManager<IteratorGeneric, TailGeneric, Allow>
 {
     fn repopulate_t(
         self,
     ) -> Result<
-        HeadTailManager<IteratorGeneric, TailGeneric::TailObject, Allow>,
-        HeadTailManager<IteratorGeneric, TailGeneric, Nothing>,
+        ComponentManager<IteratorGeneric, TailGeneric::TailObject, Allow>,
+        ComponentManager<IteratorGeneric, TailGeneric, Nothing>,
     > {
         match self.iterator.repopulate_t() {
-            Ok(result) => Ok(HeadTailManager {
+            Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
                 ends: self.ends.merge_tail(result.value),
             }),
-            Err(manager) => Err(HeadTailManager {
+            Err(manager) => Err(ComponentManager {
                 iterator: manager,
                 ends: self.ends,
             }),
@@ -264,10 +264,10 @@ struct ReconcileState<
     ComponentsHasNext,
     ValuesHasNext,
 > {
-    components: HeadTailManager<
+    components: ComponentManager<
         ComponentsIterator,
         Components<CH, CT, Chvh, Chvt, Ctvh, Ctvt>,
         ComponentsHasNext,
     >,
-    values: HeadTailManager<ValuesIterator, HeadTail<VH, VT>, ValuesHasNext>,
+    values: ComponentManager<ValuesIterator, HeadTail<VH, VT>, ValuesHasNext>,
 }
