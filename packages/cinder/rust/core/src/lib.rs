@@ -1,6 +1,3 @@
-use wasm_bindgen::prelude::*;
-use web_sys::Text;
-
 mod core;
 mod element;
 mod text;
@@ -10,7 +7,7 @@ pub struct DomRenderer {
 }
 
 impl core::Renderer for DomRenderer {
-    fn render_string(&mut self, value: &str) {
+    fn render_string(&mut self, _value: &str) {
         todo!();
     }
 }
