@@ -117,12 +117,11 @@ impl<Tail, T : MapTailTrait<Tail>> MergeTailTrait<Tail> for T {
     }
 } */
 
-
 pub struct Nothing;
 
 impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
     type HeadObject = T::HeadObject;
-    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, a_fn: F) -> Self::HeadObject {
+    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, _a_fn: F) -> Self::HeadObject {
         self.split_map_head(|head| SplitMapped {
             mapped: head,
             reduced: Nothing,
@@ -133,7 +132,7 @@ impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
 
 impl<Tail, T: SplitMappedTailTrait<Tail>> MapTailTrait<Tail> for T {
     type TailObject = T::TailObject;
-    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, a_fn: F) -> Self::TailObject {
+    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, _a_fn: F) -> Self::TailObject {
         self.split_map_tail(|tail| SplitMapped {
             mapped: tail,
             reduced: Nothing,
@@ -144,18 +143,16 @@ impl<Tail, T: SplitMappedTailTrait<Tail>> MapTailTrait<Tail> for T {
 
 pub trait ReconcileHead {
     type Value;
-    type ReconciledSuccess;
-    type ReconciledError;
-    fn reconcile_head(self, value: Self::Value)
-        -> Result<Self::ReconciledSuccess, Self::ReconciledError>;
+    type Reconciled;
+    type Unreconciled;
+    fn reconcile_head(self, value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled>;
 }
 
 pub trait ReconcileTail {
     type Value;
-    type ReconciledSuccess;
-    type ReconciledError;
-    fn reconcile_tail(self, value: Self::Value)
-        -> Result<Self::ReconciledSuccess, Self::ReconciledError>;
+    type Reconciled;
+    type Unreconciled;
+    fn reconcile_tail(self, value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled>;
 }
 
 impl<T> ReconcileHead for T
@@ -165,13 +162,13 @@ where
     T::HeadObject: MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>,
 {
     type Value = <T::Head as Reconcilable>::Value;
-    type ReconciledSuccess = (<T::Head as Reconcilable>::Reconciled, T::HeadObject);
-    type ReconciledError =
+    type Reconciled = (<T::Head as Reconcilable>::Reconciled, T::HeadObject);
+    type Unreconciled =
         <T::HeadObject as MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>>::MergedObject;
     fn reconcile_head(
         self,
         value: <T::Head as Reconcilable>::Value,
-    ) -> Result<Self::ReconciledSuccess, Self::ReconciledError> {
+    ) -> Result<Self::Reconciled, Self::Unreconciled> {
         let (other, head) = self.split_head();
 
         match head.reconcile(value) {
@@ -188,13 +185,13 @@ where
     T::TailObject: MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>,
 {
     type Value = <T::Tail as Reconcilable>::Value;
-    type ReconciledSuccess = (<T::Tail as Reconcilable>::Reconciled, T::TailObject);
-    type ReconciledError =
+    type Reconciled = (<T::Tail as Reconcilable>::Reconciled, T::TailObject);
+    type Unreconciled =
         <T::TailObject as MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>>::MergedObject;
     fn reconcile_tail(
         self,
         value: <T::Tail as Reconcilable>::Value,
-    ) -> Result<Self::ReconciledSuccess, Self::ReconciledError> {
+    ) -> Result<Self::Reconciled, Self::Unreconciled> {
         let (other, tail) = self.split_tail();
 
         match tail.reconcile(value) {

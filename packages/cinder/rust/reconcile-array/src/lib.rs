@@ -4,7 +4,7 @@ use reconcilable_trait::Reconcilable;
 
 mod head_tail;
 use head_tail::*;
-  
+
 pub struct ReconcilePayload<Component, Value> {
     old_component: Component,
     new_value: Value,
@@ -30,7 +30,6 @@ struct Pair<V, O> {
     taken: V,
     other: O,
 }
-
 
 impl<CurrentHead, Head, Tail> MergeHeadTrait<Head> for HeadTail<CurrentHead, Tail> {
     type MergedObject = HeadTail<Head, Tail>;
@@ -200,7 +199,7 @@ where
                 state: ComponentState {
                     component: err.old_component,
                     skip: self.skip.merge_head(Nothing),
-                }
+                },
             }),
         }
     }
@@ -230,7 +229,7 @@ where
                 state: ComponentState {
                     component: err.old_component,
                     skip: self.skip.merge_tail(Nothing),
-                }
+                },
             }),
         }
     }
@@ -413,8 +412,8 @@ mod tests {
     use std::collections::{vec_deque, VecDeque};
 
     use crate::{
-        DoNotReconcile, End, FinalInstruction, Instruction, ReconcileIterator, ReconcilePayload,
-        Reconcilable, RemovalInstruction,
+        DoNotReconcile, End, FinalInstruction, Instruction, Reconcilable, ReconcileIterator,
+        ReconcilePayload, RemovalInstruction,
     };
 
     struct TestUpdater {
