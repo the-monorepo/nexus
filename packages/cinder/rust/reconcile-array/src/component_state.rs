@@ -1,7 +1,9 @@
 use crate::*;
 
+#[derive(Debug)]
 pub struct Allow;
 
+#[derive(Debug)]
 pub struct ComponentState<C, CVh, CVt> {
   component: C,
   skip: HeadTail<CVh, CVt>,
