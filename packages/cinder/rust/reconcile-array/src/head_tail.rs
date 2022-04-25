@@ -15,6 +15,12 @@ impl<Head, Tail> HeadTail<Head, Tail> {
     }
 }
 
+impl HeadTail<Nothing, Nothing> {
+    pub fn nothing() -> HeadTail<Nothing, Nothing> {
+        return HeadTail::new(Nothing, Nothing);
+    }
+}
+
 pub trait WithTailTrait<Tail> {
     type TailObject;
     fn merge_tail(self, tail: Tail) -> Self::TailObject;

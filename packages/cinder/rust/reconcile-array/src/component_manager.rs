@@ -28,6 +28,15 @@ impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeHeadTrait<IteratorG
   }
 }
 
+impl<IteratorGeneric: DoubleEndedIterator> ComponentManager<IteratorGeneric, HeadTail<Nothing, Nothing>, Allow> {
+  pub fn new(iterator: IteratorGeneric) -> ComponentManager<IteratorGeneric, HeadTail<Nothing, Nothing>, Allow> {
+    return ComponentManager {
+      iterator: IteratorManager::new(iterator),
+      ends: HeadTail::nothing()
+    }
+  }
+}
+
 impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: WithTailTrait<IteratorGeneric::Item>>
   ComponentManager<IteratorGeneric, TailGeneric, Allow>
 {
@@ -48,4 +57,16 @@ impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: WithTailTrait<IteratorGe
           }),
       }
   }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::VecDeque;
+
+    #[test]
+    fn todo() {  
+      let list = VecDeque::from([1, 2, 3]);  
+      ComponentManager::new(list.into_iter());
+    }
 }
