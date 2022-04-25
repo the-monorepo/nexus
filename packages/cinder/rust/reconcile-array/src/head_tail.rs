@@ -1,12 +1,14 @@
 use reconcilable_trait::Reconcilable;
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub struct HeadTail<Head, Tail> {
     pub head: Head,
     pub tail: Tail,
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub struct Nothing;
 
 impl<Head, Tail> HeadTail<Head, Tail> {
@@ -311,13 +313,23 @@ mod tests {
     fn split_head() {
         let (tail_only, head) = HeadTail::new("split", "tail").split_head();
         assert_eq!(head, "split");
-        assert_eq!(tail_only.tail, "tail");
+        assert_eq!(tail_only, HeadTail::tail("tail"));
     }
 
     #[test]
     fn split_tail() {
         let (head_only, split_tail) = HeadTail::new("head", "split").split_tail();
         assert_eq!(split_tail, "split");
-        assert_eq!(head_only.head, "head");
+        assert_eq!(head_only, HeadTail::head("head"));
+    }
+
+    #[test]
+    fn drop_tail() {
+        assert_eq!(HeadTail::tail("tail").drop_tail(), HeadTail::nothing())
+    }
+
+    #[test]
+    fn drop_head() {
+        assert_eq!(HeadTail::head("head").drop_head(), HeadTail::nothing())
     }
 }
