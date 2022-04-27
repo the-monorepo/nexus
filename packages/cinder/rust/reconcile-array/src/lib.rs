@@ -2,14 +2,14 @@ use std::iter::DoubleEndedIterator;
 
 use reconcilable_trait::Reconcilable;
 
-mod head_tail;
-mod component_state;
-mod iterator_manager;
 mod component_manager;
-use head_tail::*;
-use component_state::*;
-use iterator_manager::*;
+mod component_state;
+mod head_tail;
+mod iterator_manager;
 use component_manager::*;
+use component_state::*;
+use head_tail::*;
+use iterator_manager::*;
 
 pub struct ReconcilePayload<Component, Value> {
     old_component: Component,
@@ -123,31 +123,30 @@ trait RecursiveNext<Item, Finished, Next: RecursiveNext<Item, Finished, Next>> {
 
 enum Void {}
 
-struct Components<CH, CT, ChVh, ChVt, CtVh, CtVt> {
-    head_tail: HeadTail<ComponentState<CH, ChVh, ChVt>, ComponentState<CT, CtVh, CtVt>>,
+struct Components<CH, CT, HeadSkipState, TailSkipState> {
+    head_tail: HeadTail<ComponentState<CH, HeadSkipState>, ComponentState<CT, TailSkipState>>,
 }
 
-impl<CH, CT, ChVh, ChVt, CtVh, CtVt> MergeHeadTrait<CH>
-  for Components<Nothing, CT, ChVh, ChVt, CtVh, CtVt>
+impl<CH, CT, HeadSkipState, TailSkipState> MergeHeadTrait<CH>
+    for Components<Nothing, CT, HeadSkipState, TailSkipState>
 {
-  type MergedObject = Components<CH, CT, Allow, Allow, CtVh, CtVt>;
-  fn merge_head(self, head: CH) -> Self::MergedObject {
-      let component = ComponentState::component(head);
-      let head_tail = self.head_tail.merge_head(component);
-      let components = Components { head_tail };
-      components
-  }
+    type MergedObject = Components<CH, CT, HeadTail<Allow, Allow>, TailSkipState>;
+    fn merge_head(self, head: CH) -> Self::MergedObject {
+        Components {
+            head_tail: self.head_tail.merge_head(ComponentState::component(head)),
+        }
+    }
 }
 
-impl<CH, CT, ChVh, ChVt, CtVh, CtVt> MergeTailTrait<CT>
-  for Components<CH, Nothing, ChVh, ChVt, CtVh, CtVt>
+impl<CH, CT, HeadSkipState, TailSkipState> MergeTailTrait<CT>
+    for Components<CH, Nothing, HeadSkipState, TailSkipState>
 {
-  type MergedObject = Components<CH, CT, ChVh, ChVt, Allow, Allow>;
-  fn merge_tail(self, tail: CT) -> Self::MergedObject {
-      Components {
-          head_tail: self.head_tail.merge_tail(ComponentState::component(tail)),
-      }
-  }
+    type MergedObject = Components<CH, CT, HeadSkipState, HeadTail<Allow, Allow>>;
+    fn merge_tail(self, tail: CT) -> Self::MergedObject {
+        Components {
+            head_tail: self.head_tail.merge_tail(ComponentState::component(tail)),
+        }
+    }
 }
 
 impl<D, S> ReconciledAndNewState<D, S> {
@@ -169,16 +168,14 @@ struct ReconcileState<
     CT,
     VH,
     VT,
-    Chvh,
-    Chvt,
-    Ctvh,
-    Ctvt,
+    HeadSkipState,
+    TailSkipState,
     ComponentsHasNext,
     ValuesHasNext,
 > {
     components: ComponentManager<
         ComponentsIterator,
-        Components<CH, CT, Chvh, Chvt, Ctvh, Ctvt>,
+        Components<CH, CT, HeadSkipState, TailSkipState>,
         ComponentsHasNext,
     >,
     values: ComponentManager<ValuesIterator, HeadTail<VH, VT>, ValuesHasNext>,
