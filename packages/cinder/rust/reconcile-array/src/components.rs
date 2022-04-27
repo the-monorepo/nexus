@@ -10,7 +10,7 @@ impl<CH, CT, HeadSkipState, TailSkipState> MergeHeadTrait<CH>
     type MergedObject = Components<CH, CT, HeadTail<Allow, Allow>, TailSkipState>;
     fn merge_head(self, head: CH) -> Self::MergedObject {
         Components {
-            head_tail: HeadTail::new(self.head_tail.head.merge(head), self.head_tail.tail),
+            head_tail: self.head_tail.map_head(|component| component.merge(head)),
         }
     }
 }
@@ -21,7 +21,7 @@ impl<CH, CT, HeadSkipState, TailSkipState> MergeTailTrait<CT>
     type MergedObject = Components<CH, CT, HeadSkipState, HeadTail<Allow, Allow>>;
     fn merge_tail(self, tail: CT) -> Self::MergedObject {
         Components {
-            head_tail: HeadTail::new(self.head_tail.head, self.head_tail.tail.merge(tail)),
+            head_tail: self.head_tail.map_tail(|component| component.merge(tail)),
         }
     }
 }
