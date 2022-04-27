@@ -42,8 +42,9 @@ where
                 data: err.new_value,
                 state: ComponentState {
                     component: err.old_component,
-                    skip: self.skip.drop_head(),
-                },
+                    skip: self.skip,
+                }
+                .skip_vh(),
             }),
         }
     }
@@ -73,8 +74,9 @@ where
                 data: err.new_value,
                 state: ComponentState {
                     component: err.old_component,
-                    skip: self.skip.drop_tail(),
-                },
+                    skip: self.skip,
+                }
+                .skip_vt(),
             }),
         }
     }
