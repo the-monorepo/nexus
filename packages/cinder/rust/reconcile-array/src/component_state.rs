@@ -82,6 +82,13 @@ where
     }
 }
 
+impl<SkipGeneric> ComponentState<Nothing, SkipGeneric> {
+    pub fn merge<C>(self, component: C) -> ComponentState<C, HeadTail<Allow, Allow>> {
+        // TODO: Should technically not create a totally separate component. Make use of traits to fix this
+        ComponentState::component(component)
+    }
+}
+
 impl<C, SplitHead: SplitHeadTrait> ComponentState<C, SplitHead> {
     pub fn skip_vh(self) -> ComponentState<C, SplitHead::HeadObject> {
         ComponentState {
