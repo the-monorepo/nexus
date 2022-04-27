@@ -1,14 +1,12 @@
 use reconcilable_trait::Reconcilable;
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct HeadTail<Head, Tail> {
     pub head: Head,
     pub tail: Tail,
 }
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Nothing;
 
 impl<Head, Tail> HeadTail<Head, Tail> {
@@ -28,7 +26,10 @@ pub trait SplitTailTrait {
     type TailObject;
     fn split_tail(self) -> (Self::TailObject, Self::Tail);
 
-    fn drop_tail(self) -> Self::TailObject  where Self: Sized{
+    fn drop_tail(self) -> Self::TailObject
+    where
+        Self: Sized,
+    {
         self.split_tail().0
     }
 }
@@ -38,7 +39,10 @@ pub trait SplitHeadTrait {
     type HeadObject;
     fn split_head(self) -> (Self::HeadObject, Self::Head);
 
-    fn drop_head(self) -> Self::HeadObject where Self: Sized {
+    fn drop_head(self) -> Self::HeadObject
+    where
+        Self: Sized,
+    {
         self.split_head().0
     }
 }
@@ -80,30 +84,14 @@ pub struct SplitMapped<M, R> {
     pub reduced: R,
 }
 
-pub trait SplitMappedHeadTrait<Head> {
-    type HeadObject;
-    fn split_map_head<M, R, F: FnOnce(Head) -> SplitMapped<M, R>>(
-        self,
-        a_fn: F,
-    ) -> SplitMapped<Self::HeadObject, R>;
+pub trait MapHeadTrait<Head, MappedValue> {
+    type MappedObject;
+    fn map_head<F: FnOnce(Head) -> MappedValue>(self, a_fn: F) -> Self::MappedObject;
 }
 
-pub trait SplitMappedTailTrait<Tail> {
-    type TailObject;
-    fn split_map_tail<M, R, F: FnOnce(Tail) -> SplitMapped<M, R>>(
-        self,
-        a_fn: F,
-    ) -> SplitMapped<Self::TailObject, R>;
-}
-
-pub trait MapHeadTrait<Head> {
-    type HeadObject;
-    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, a_fn: F) -> Self::HeadObject;
-}
-
-pub trait MapTailTrait<Tail> {
-    type TailObject;
-    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, a_fn: F) -> Self::TailObject;
+pub trait MapTailTrait<Tail, MappedValue> {
+    type MappedObject;
+    fn map_tail<F: FnOnce(Tail) -> MappedValue>(self, a_fn: F) -> Self::MappedObject;
 }
 
 impl<CurrentHead, Head, Tail> MergeHeadTrait<Head> for HeadTail<CurrentHead, Tail> {
@@ -126,40 +114,29 @@ impl<CurrentTail, Head, Tail> MergeTailTrait<Tail> for HeadTail<Head, CurrentTai
     }
 }
 
-/*
-impl<Head, T : MapHeadTrait<Head>> MergeHeadTrait<Head> for T {
-    type MergedObject = T::HeadObject;
-    fn merge_head(self, head: Head) -> Self::MergedObject {
-        self.map_head(|| head)
+impl<MappedValue, Head, T> MapHeadTrait<Head, MappedValue> for T
+where
+    T: SplitHeadTrait<Head = Head>,
+    T::HeadObject: MergeHeadTrait<MappedValue>,
+{
+    type MappedObject = <T::HeadObject as MergeHeadTrait<MappedValue>>::MergedObject;
+    fn map_head<F: FnOnce(Head) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
+        let (other, head) = self.split_head();
+        let mapped = a_fn(head);
+        other.merge_head(mapped)
     }
 }
 
-impl<Tail, T : MapTailTrait<Tail>> MergeTailTrait<Tail> for T {
-    type MergedObject = T::TailObject;
-    fn merge_tail(self, tail: Tail) -> Self::MergedObject {
-        self.map_head(|| tail)
-    }
-} */
-
-impl<Head, T: SplitMappedHeadTrait<Head>> MapHeadTrait<Head> for T {
-    type HeadObject = T::HeadObject;
-    fn map_head<F: FnOnce(Head) -> Self::HeadObject>(self, _a_fn: F) -> Self::HeadObject {
-        self.split_map_head(|head| SplitMapped {
-            mapped: head,
-            reduced: Nothing,
-        })
-        .mapped
-    }
-}
-
-impl<Tail, T: SplitMappedTailTrait<Tail>> MapTailTrait<Tail> for T {
-    type TailObject = T::TailObject;
-    fn map_tail<F: FnOnce(Tail) -> Self::TailObject>(self, _a_fn: F) -> Self::TailObject {
-        self.split_map_tail(|tail| SplitMapped {
-            mapped: tail,
-            reduced: Nothing,
-        })
-        .mapped
+impl<MappedValue, Tail, T> MapTailTrait<Tail, MappedValue> for T
+where
+    T: SplitTailTrait<Tail = Tail>,
+    T::TailObject: MergeTailTrait<MappedValue>,
+{
+    type MappedObject = <T::TailObject as MergeTailTrait<MappedValue>>::MergedObject;
+    fn map_tail<F: FnOnce(Tail) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
+        let (other, tail) = self.split_tail();
+        let mapped = a_fn(tail);
+        other.merge_tail(mapped)
     }
 }
 
@@ -246,10 +223,7 @@ impl<Head, Tail> SplitTailTrait for HeadTail<Head, Tail> {
     type TailObject = HeadTail<Head, Nothing>;
 
     fn split_tail(self) -> (HeadTail<Head, Nothing>, Tail) {
-        return (
-            HeadTail::head(self.head),
-            self.tail,
-        )
+        return (HeadTail::head(self.head), self.tail);
     }
 }
 
@@ -258,10 +232,7 @@ impl<Head, Tail> SplitHeadTrait for HeadTail<Head, Tail> {
     type HeadObject = HeadTail<Nothing, Tail>;
 
     fn split_head(self) -> (HeadTail<Nothing, Tail>, Head) {
-        return (
-            HeadTail::tail(self.tail),
-            self.head,
-        )
+        return (HeadTail::tail(self.tail), self.head);
     }
 }
 
@@ -273,7 +244,7 @@ mod tests {
         assert_eq!(head_tail.head, "head");
         assert_eq!(head_tail.tail, "tail");
     }
-    
+
     #[test]
     fn new() {
         expect_head_tail_strings(HeadTail::new("head", "tail"));
@@ -291,22 +262,40 @@ mod tests {
 
     #[test]
     fn merge_head_none() {
-        assert_eq!(HeadTail::tail("tail").merge_head_option(None::<&'_ str>).unwrap_err(), HeadTail::tail("tail"));
+        assert_eq!(
+            HeadTail::tail("tail")
+                .merge_head_option(None::<&'_ str>)
+                .unwrap_err(),
+            HeadTail::tail("tail")
+        );
     }
 
     #[test]
     fn merge_head_some() {
-        expect_head_tail_strings(HeadTail::tail("tail").merge_head_option(Some("head")).unwrap());
+        expect_head_tail_strings(
+            HeadTail::tail("tail")
+                .merge_head_option(Some("head"))
+                .unwrap(),
+        );
     }
 
     #[test]
     fn merge_tail_none() {
-        assert_eq!(HeadTail::head("head").merge_tail_option(None::<&'_ str>).unwrap_err(), HeadTail::head("head"));
+        assert_eq!(
+            HeadTail::head("head")
+                .merge_tail_option(None::<&'_ str>)
+                .unwrap_err(),
+            HeadTail::head("head")
+        );
     }
 
     #[test]
     fn merge_tail_some() {
-        expect_head_tail_strings(HeadTail::head("head").merge_tail_option(Some("tail")).unwrap());
+        expect_head_tail_strings(
+            HeadTail::head("head")
+                .merge_tail_option(Some("tail"))
+                .unwrap(),
+        );
     }
 
     #[test]
