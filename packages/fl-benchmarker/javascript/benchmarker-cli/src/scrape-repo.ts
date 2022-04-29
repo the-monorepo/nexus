@@ -12,7 +12,6 @@ import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import del from 'del';
 import * as git from 'isomorphic-git';
-import fetch from 'node-fetch';
 
 import createLogger from '@pshaw/logger';
 

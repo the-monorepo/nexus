@@ -11,7 +11,7 @@
     "results": "yarn node ./commonjs/index.ts",
     "build": "yarn start && yarn results",
     "report": "webpack-dev-server --watch --mode development",
-    "scrape-repo": "yarn node ./commonjs/index.ts"
+    "scrape-repo": "yarn node --experimental-fetch ./commonjs/index.ts"
   },
   "files": [
     "commonjs",
@@ -64,7 +64,6 @@
   "devDependencies": {
     "cross-spawn": "^7.0.3",
     "del": "^6.0.0",
-    "isomorphic-git": "^1.17.1",
-    "node-fetch": "^2.6.0"
+    "isomorphic-git": "^1.17.1"
   }
 }
