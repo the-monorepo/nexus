@@ -33,7 +33,7 @@ where
         ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitHead>>,
         ReconciledAndNewState<
             <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
-            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitHead::HeadObject>,
+            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitHead::Other>,
         >,
     > {
         match self.component.reconcile(value) {
@@ -74,7 +74,7 @@ where
         ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitTail>>,
         ReconciledAndNewState<
             <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
-            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitTail::TailObject>,
+            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitTail::Other>,
         >,
     > {
         match self.component.reconcile(value) {
@@ -109,7 +109,7 @@ impl<SkipGeneric> ComponentState<Nothing, SkipGeneric> {
 }
 
 impl<C, SplitHead: SplitHeadTrait> ComponentState<C, SplitHead> {
-    pub fn skip_vh(self) -> ComponentState<C, SplitHead::HeadObject> {
+    pub fn skip_vh(self) -> ComponentState<C, SplitHead::Other> {
         ComponentState {
             component: self.component,
             skip: self.skip.drop_head(),
@@ -127,7 +127,7 @@ impl<C, MergeHead: MergeHeadTrait<Allow>> ComponentState<C, MergeHead> {
 }
 
 impl<C, SplitTail: SplitTailTrait> ComponentState<C, SplitTail> {
-    pub fn skip_vt(self) -> ComponentState<C, SplitTail::TailObject> {
+    pub fn skip_vt(self) -> ComponentState<C, SplitTail::Other> {
         ComponentState {
             component: self.component,
             skip: self.skip.drop_tail(),

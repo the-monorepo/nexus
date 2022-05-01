@@ -23,10 +23,10 @@ impl HeadTail<Nothing, Nothing> {
 
 pub trait SplitTailTrait {
     type Tail;
-    type TailObject;
-    fn split_tail(self) -> (Self::TailObject, Self::Tail);
+    type Other;
+    fn split_tail(self) -> (Self::Other, Self::Tail);
 
-    fn drop_tail(self) -> Self::TailObject
+    fn drop_tail(self) -> Self::Other
     where
         Self: Sized,
     {
@@ -36,10 +36,10 @@ pub trait SplitTailTrait {
 
 pub trait SplitHeadTrait {
     type Head;
-    type HeadObject;
-    fn split_head(self) -> (Self::HeadObject, Self::Head);
+    type Other;
+    fn split_head(self) -> (Self::Other, Self::Head);
 
-    fn drop_head(self) -> Self::HeadObject
+    fn drop_head(self) -> Self::Other
     where
         Self: Sized,
     {
@@ -117,9 +117,9 @@ impl<CurrentTail, Head, Tail> MergeTailTrait<Tail> for HeadTail<Head, CurrentTai
 impl<MappedValue, Head, T> MapHeadTrait<Head, MappedValue> for T
 where
     T: SplitHeadTrait<Head = Head>,
-    T::HeadObject: MergeHeadTrait<MappedValue>,
+    T::Other: MergeHeadTrait<MappedValue>,
 {
-    type MappedObject = <T::HeadObject as MergeHeadTrait<MappedValue>>::MergedObject;
+    type MappedObject = <T::Other as MergeHeadTrait<MappedValue>>::MergedObject;
     fn map_head<F: FnOnce(Head) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
         let (other, head) = self.split_head();
         let mapped = a_fn(head);
@@ -130,9 +130,9 @@ where
 impl<MappedValue, Tail, T> MapTailTrait<Tail, MappedValue> for T
 where
     T: SplitTailTrait<Tail = Tail>,
-    T::TailObject: MergeTailTrait<MappedValue>,
+    T::Other: MergeTailTrait<MappedValue>,
 {
-    type MappedObject = <T::TailObject as MergeTailTrait<MappedValue>>::MergedObject;
+    type MappedObject = <T::Other as MergeTailTrait<MappedValue>>::MergedObject;
     fn map_tail<F: FnOnce(Tail) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
         let (other, tail) = self.split_tail();
         let mapped = a_fn(tail);
@@ -158,12 +158,12 @@ impl<T> ReconcileHead for T
 where
     T: SplitHeadTrait,
     T::Head: Reconcilable,
-    T::HeadObject: MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>,
+    T::Other: MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>,
 {
     type Value = <T::Head as Reconcilable>::Value;
-    type Reconciled = (<T::Head as Reconcilable>::Reconciled, T::HeadObject);
+    type Reconciled = (<T::Head as Reconcilable>::Reconciled, T::Other);
     type Unreconciled =
-        <T::HeadObject as MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>>::MergedObject;
+        <T::Other as MergeHeadTrait<<T::Head as Reconcilable>::Unreconciled>>::MergedObject;
     fn reconcile_head(
         self,
         value: <T::Head as Reconcilable>::Value,
@@ -181,12 +181,12 @@ impl<T> ReconcileTail for T
 where
     T: SplitTailTrait,
     T::Tail: Reconcilable,
-    T::TailObject: MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>,
+    T::Other: MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>,
 {
     type Value = <T::Tail as Reconcilable>::Value;
-    type Reconciled = (<T::Tail as Reconcilable>::Reconciled, T::TailObject);
+    type Reconciled = (<T::Tail as Reconcilable>::Reconciled, T::Other);
     type Unreconciled =
-        <T::TailObject as MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>>::MergedObject;
+        <T::Other as MergeTailTrait<<T::Tail as Reconcilable>::Unreconciled>>::MergedObject;
     fn reconcile_tail(
         self,
         value: <T::Tail as Reconcilable>::Value,
@@ -220,7 +220,7 @@ impl<Tail> HeadTail<Nothing, Tail> {
 
 impl<Head, Tail> SplitTailTrait for HeadTail<Head, Tail> {
     type Tail = Tail;
-    type TailObject = HeadTail<Head, Nothing>;
+    type Other = HeadTail<Head, Nothing>;
 
     fn split_tail(self) -> (HeadTail<Head, Nothing>, Tail) {
         return (HeadTail::head(self.head), self.tail);
@@ -229,7 +229,7 @@ impl<Head, Tail> SplitTailTrait for HeadTail<Head, Tail> {
 
 impl<Head, Tail> SplitHeadTrait for HeadTail<Head, Tail> {
     type Head = Head;
-    type HeadObject = HeadTail<Nothing, Tail>;
+    type Other = HeadTail<Nothing, Tail>;
 
     fn split_head(self) -> (HeadTail<Nothing, Tail>, Head) {
         return (HeadTail::tail(self.tail), self.head);
