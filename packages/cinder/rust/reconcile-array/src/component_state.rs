@@ -31,7 +31,7 @@ where
     C: Reconcilable<Value>,
     C::Unreconciled: SplitSource,
     <C::Unreconciled as SplitSource>::Other: SplitValue,
-    SplitHead: SplitHeadTrait,
+    SplitHead: SplitTrait<Head<Allow>>,
 {
     type Reconciled = ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitHead>>;
     type Unreconciled = ReconciledAndNewState<
@@ -74,7 +74,7 @@ where
     C: Reconcilable<Value>,
     C::Unreconciled: SplitSource,
     <C::Unreconciled as SplitSource>::Other: SplitValue,
-    SplitTail: SplitTailTrait,
+    SplitTail: SplitTrait<Tail<Allow>>,
 {
     type Reconciled = ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitTail>>;
     type Unreconciled = ReconciledAndNewState<
@@ -119,11 +119,12 @@ impl<SkipGeneric> ComponentState<Nothing, SkipGeneric> {
     }
 }
 
-impl<C, SplitHead: SplitHeadTrait> ComponentState<C, SplitHead> {
+impl<C, SplitHead: SplitTrait<Head<Allow>>> ComponentState<C, SplitHead> {
     pub fn skip_vh(self) -> ComponentState<C, SplitHead::Other> {
+        let (skip, Head(_)) = self.skip.split();
         ComponentState {
             component: self.component,
-            skip: self.skip.drop_head(),
+            skip,
         }
     }
 }
@@ -137,11 +138,12 @@ impl<C, MergeHead: MergeTrait<Head<Allow>>> ComponentState<C, MergeHead> {
     }
 }
 
-impl<C, SplitTail: SplitTailTrait> ComponentState<C, SplitTail> {
+impl<C, SplitTail: SplitTrait<Tail<Allow>>> ComponentState<C, SplitTail> {
     pub fn skip_vt(self) -> ComponentState<C, SplitTail::Other> {
+        let (skip, Tail(_)) = self.skip.split();
         ComponentState {
             component: self.component,
-            skip: self.skip.drop_tail(),
+            skip,
         }
     }
 }
