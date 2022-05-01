@@ -146,7 +146,7 @@ impl<C, MergeTail: MergeTailTrait<Allow>> ComponentState<C, MergeTail> {
 
 #[cfg(test)]
 mod tests {
-    use reconcilable_trait::mocks::AlwaysReconcileValue;
+    use reconcilable_trait::mocks::{ AlwaysReconcileValue, AlwaysUnreconcileValue };
 
     use super::*;
 
@@ -164,23 +164,49 @@ mod tests {
 
     #[test]
     fn reconcile_vh_success() {
+        let expected_value = 1;
         assert_eq!(
             ComponentState::component(AlwaysReconcileValue::<u32>::new())
-                .reconcile_vh(1)
+                .reconcile_vh(expected_value)
                 .unwrap()
                 .data,
-            1
+            expected_value
         );
     }
 
     #[test]
+    fn reconcile_vh_error() {
+        let expected_value = 1;
+        assert_eq!(
+            ComponentState::component(AlwaysUnreconcileValue::<u32>::new())
+                .reconcile_vh(expected_value)
+                .unwrap_err()
+                .data,
+            expected_value
+        )
+    }
+
+    #[test]
     fn reconcile_vt_success() {
+        let expected_value = 1;
         assert_eq!(
             ComponentState::component(AlwaysReconcileValue::<u32>::new())
-                .reconcile_vt(1)
+                .reconcile_vt(expected_value)
                 .unwrap()
                 .data,
-            1
+                expected_value
+        )
+    }
+
+    #[test]
+    fn reconcile_vt_error() {
+        let expected_value = 1;
+        assert_eq!(
+            ComponentState::component(AlwaysUnreconcileValue::<u32>::new())
+                .reconcile_vt(expected_value)
+                .unwrap_err()
+                .data,
+                expected_value
         )
     }
 }
