@@ -117,11 +117,11 @@ impl<C, SplitHead: SplitHeadTrait> ComponentState<C, SplitHead> {
     }
 }
 
-impl<C, MergeHead: MergeHeadTrait<Allow>> ComponentState<C, MergeHead> {
+impl<C, MergeHead: MergeTrait<Head<Allow>>> ComponentState<C, MergeHead> {
     pub fn allow_vh(self) -> ComponentState<C, MergeHead::MergedObject> {
         ComponentState {
             component: self.component,
-            skip: self.skip.merge_head(Allow),
+            skip: self.skip.merge(Head(Allow)),
         }
     }
 }
@@ -135,11 +135,11 @@ impl<C, SplitTail: SplitTailTrait> ComponentState<C, SplitTail> {
     }
 }
 
-impl<C, MergeTail: MergeTailTrait<Allow>> ComponentState<C, MergeTail> {
+impl<C, MergeTail: MergeTrait<Tail<Allow>>> ComponentState<C, MergeTail> {
     pub fn allow_vt(self) -> ComponentState<C, MergeTail::MergedObject> {
         ComponentState {
             component: self.component,
-            skip: self.skip.merge_tail(Allow),
+            skip: self.skip.merge(Tail(Allow)),
         }
     }
 }

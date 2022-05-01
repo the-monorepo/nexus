@@ -4,24 +4,24 @@ pub struct Components<CH, CT, HeadSkipState, TailSkipState> {
     head_tail: HeadTail<ComponentState<CH, HeadSkipState>, ComponentState<CT, TailSkipState>>,
 }
 
-impl<CH, CT, HeadSkipState, TailSkipState> MergeHeadTrait<CH>
+impl<CH, CT, HeadSkipState, TailSkipState> MergeTrait<Head<CH>>
     for Components<Nothing, CT, HeadSkipState, TailSkipState>
 {
     type MergedObject = Components<CH, CT, HeadTail<Allow, Allow>, TailSkipState>;
-    fn merge_head(self, head: CH) -> Self::MergedObject {
+    fn merge(self, head: Head<CH>) -> Self::MergedObject {
         Components {
-            head_tail: self.head_tail.map_head(|component| component.merge(head)),
+            head_tail: self.head_tail.map_head(|component| component.merge(head.0)),
         }
     }
 }
 
-impl<CH, CT, HeadSkipState, TailSkipState> MergeTailTrait<CT>
+impl<CH, CT, HeadSkipState, TailSkipState> MergeTrait<Tail<CT>>
     for Components<CH, Nothing, HeadSkipState, TailSkipState>
 {
     type MergedObject = Components<CH, CT, HeadSkipState, HeadTail<Allow, Allow>>;
-    fn merge_tail(self, tail: CT) -> Self::MergedObject {
+    fn merge(self, tail: Tail<CT>) -> Self::MergedObject {
         Components {
-            head_tail: self.head_tail.map_tail(|component| component.merge(tail)),
+            head_tail: self.head_tail.map_tail(|component| component.merge(tail.0)),
         }
     }
 }

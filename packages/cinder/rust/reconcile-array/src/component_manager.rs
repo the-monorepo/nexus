@@ -6,7 +6,7 @@ pub struct ComponentManager<IteratorGeneric: DoubleEndedIterator, HeadTailGeneri
     pub ends: HeadTailGeneric,
 }
 
-impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeHeadTrait<IteratorGeneric::Item>>
+impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeTrait<Head<IteratorGeneric::Item>>>
     ComponentManager<IteratorGeneric, HeadGeneric, Allow>
 {
     pub fn repopulate_h(
@@ -18,7 +18,7 @@ impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeHeadTrait<IteratorG
         match self.iterator.repopulate_h() {
             Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
-                ends: self.ends.merge_head(result.value),
+                ends: self.ends.merge(Head(result.value)),
             }),
             Err(manager) => Err(ComponentManager {
                 iterator: manager,
@@ -41,7 +41,7 @@ impl<IteratorGeneric: DoubleEndedIterator>
     }
 }
 
-impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: MergeTailTrait<IteratorGeneric::Item>>
+impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: MergeTrait<Tail<IteratorGeneric::Item>>>
     ComponentManager<IteratorGeneric, TailGeneric, Allow>
 {
     pub fn repopulate_t(
@@ -53,7 +53,7 @@ impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: MergeTailTrait<IteratorG
         match self.iterator.repopulate_t() {
             Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
-                ends: self.ends.merge_tail(result.value),
+                ends: self.ends.merge(Tail(result.value)),
             }),
             Err(manager) => Err(ComponentManager {
                 iterator: manager,
