@@ -1,8 +1,7 @@
-pub trait Reconcilable {
-    type Value;
+pub trait Reconcilable<Value> {
     type Unreconciled; // = Unchanged<Self, Self::Value>;
     type Reconciled;
-    fn reconcile(self, new_value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled>;
+    fn reconcile(self, new_value: Value) -> Result<Self::Reconciled, Self::Unreconciled>;
 }
 
 #[derive(Debug)]
@@ -77,13 +76,12 @@ pub mod mocks {
         }
     }
 
-    impl<T> Reconcilable for AlwaysReconcileValue<T> {
-        type Value = T;
+    impl<T> Reconcilable<T> for AlwaysReconcileValue<T> {
         type Unreconciled = Unchanged<Self, T>;
 
-        type Reconciled = Self::Value;
+        type Reconciled = T;
 
-        fn reconcile(self, new_value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled> {
+        fn reconcile(self, new_value: T) -> Result<Self::Reconciled, Self::Unreconciled> {
             Ok(new_value)
         }
     }
@@ -101,13 +99,12 @@ pub mod mocks {
         }
     }
 
-    impl<T> Reconcilable for AlwaysUnreconcileValue<T> {
-        type Value = T;
-        type Unreconciled = Unchanged<Self, Self::Value>;
+    impl<T> Reconcilable<T> for AlwaysUnreconcileValue<T> {
+        type Unreconciled = Unchanged<Self, T>;
 
         type Reconciled = Never;
 
-        fn reconcile(self, new_value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled> {
+        fn reconcile(self, new_value: T) -> Result<Self::Reconciled, Self::Unreconciled> {
             Err(Unchanged::new(self, new_value))
         }
     }

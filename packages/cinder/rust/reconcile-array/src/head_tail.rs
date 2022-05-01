@@ -1,4 +1,5 @@
 use reconcilable_trait::Reconcilable;
+use crate::*;
 
 #[derive(Debug, PartialEq)]
 pub struct HeadTail<HeadGeneric, TailGeneric> {
@@ -144,46 +145,44 @@ pub trait ReconcileTail {
     fn reconcile_tail(self, value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled>;
 }
 
-impl<T> ReconcileHead for T
+impl<T, Value> ComponentReconcilable<Head<Value>> for T
 where
     T: SplitHeadTrait,
-    T::HeadGeneric: Reconcilable,
-    T::Other: MergeTrait<Head<<T::HeadGeneric as Reconcilable>::Unreconciled>>,
+    T::HeadGeneric: Reconcilable<Value>,
+    T::Other: MergeTrait<Head<<T::HeadGeneric as Reconcilable<Value>>::Unreconciled>>,
 {
-    type Value = <T::HeadGeneric as Reconcilable>::Value;
-    type Reconciled = (<T::HeadGeneric as Reconcilable>::Reconciled, T::Other);
+    type Reconciled = (<T::HeadGeneric as Reconcilable<Value>>::Reconciled, T::Other);
     type Unreconciled =
-        <T::Other as MergeTrait<Head<<T::HeadGeneric as Reconcilable>::Unreconciled>>>::MergedObject;
-    fn reconcile_head(
+        <T::Other as MergeTrait<Head<<T::HeadGeneric as Reconcilable<Value>>::Unreconciled>>>::MergedObject;
+    fn reconcile(
         self,
-        value: <T::HeadGeneric as Reconcilable>::Value,
+        value: Head<Value>,
     ) -> Result<Self::Reconciled, Self::Unreconciled> {
         let (other, head) = self.split_head();
 
-        match head.reconcile(value) {
+        match head.reconcile(value.0) {
             Ok(reconciled) => Ok((reconciled, other)),
             Err(err) => Err(other.merge(Head(err))),
         }
     }
 }
 
-impl<T> ReconcileTail for T
+impl<T, Value> ComponentReconcilable<Tail<Value>> for T
 where
     T: SplitTailTrait,
-    T::TailGeneric: Reconcilable,
-    T::Other: MergeTrait<Tail<<T::TailGeneric as Reconcilable>::Unreconciled>>,
+    T::TailGeneric: Reconcilable<Value>,
+    T::Other: MergeTrait<Tail<<T::TailGeneric as Reconcilable<Value>>::Unreconciled>>,
 {
-    type Value = <T::TailGeneric as Reconcilable>::Value;
-    type Reconciled = (<T::TailGeneric as Reconcilable>::Reconciled, T::Other);
+    type Reconciled = (<T::TailGeneric as Reconcilable<Value>>::Reconciled, T::Other);
     type Unreconciled =
-        <T::Other as MergeTrait<Tail<<T::TailGeneric as Reconcilable>::Unreconciled>>>::MergedObject;
-    fn reconcile_tail(
+        <T::Other as MergeTrait<Tail<<T::TailGeneric as Reconcilable<Value>>::Unreconciled>>>::MergedObject;
+    fn reconcile(
         self,
-        value: <T::TailGeneric as Reconcilable>::Value,
+        value: Tail<Value>,
     ) -> Result<Self::Reconciled, Self::Unreconciled> {
         let (other, tail) = self.split_tail();
 
-        match tail.reconcile(value) {
+        match tail.reconcile(value.0) {
             Ok(reconciled) => Ok((reconciled, other)),
             Err(err) => Err(other.merge(Tail(err))),
         }

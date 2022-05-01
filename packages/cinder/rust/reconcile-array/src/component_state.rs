@@ -19,24 +19,33 @@ impl<C> ComponentState<C, HeadTail<Allow, Allow>> {
     }
 }
 
-impl<C, SplitHead> ComponentState<C, SplitHead>
+pub trait ComponentReconcilable<Value> {
+    type Unreconciled; // = Unchanged<Self, Self::Value>;
+    type Reconciled;
+    fn reconcile(self, new_value: Value) -> Result<Self::Reconciled, Self::Unreconciled>;
+}
+
+
+impl<C, SplitHead, Value> ComponentReconcilable<Head<Value>> for ComponentState<C, SplitHead>
 where
-    C: Reconcilable,
+    C: Reconcilable<Value>,
     C::Unreconciled: SplitSource,
     <C::Unreconciled as SplitSource>::Other: SplitValue,
     SplitHead: SplitHeadTrait,
 {
-    pub fn reconcile_vh(
+    type Reconciled = ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitHead>>;
+    type Unreconciled = ReconciledAndNewState<
+    <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
+    ComponentState<<C::Unreconciled as SplitSource>::Source, SplitHead::Other>,
+>;
+    fn reconcile(
         self,
-        value: C::Value,
+        value: Head<Value>,
     ) -> Result<
-        ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitHead>>,
-        ReconciledAndNewState<
-            <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
-            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitHead::Other>,
-        >,
+        Self::Reconciled,
+        Self::Unreconciled,
     > {
-        match self.component.reconcile(value) {
+        match self.component.reconcile(value.0) {
             Ok(reconciled) => Ok(ReconciledAndNewState {
                 data: reconciled,
                 state: ComponentState {
@@ -60,24 +69,26 @@ where
     }
 }
 
-impl<C, SplitTail> ComponentState<C, SplitTail>
+impl<C, SplitTail, Value> ComponentReconcilable<Tail<Value>> for ComponentState<C, SplitTail>
 where
-    C: Reconcilable,
+    C: Reconcilable<Value>,
     C::Unreconciled: SplitSource,
     <C::Unreconciled as SplitSource>::Other: SplitValue,
     SplitTail: SplitTailTrait,
 {
-    pub fn reconcile_vt(
+    type Reconciled = ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitTail>>;
+    type Unreconciled = ReconciledAndNewState<
+    <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
+    ComponentState<<C::Unreconciled as SplitSource>::Source, SplitTail::Other>,
+>;
+    fn reconcile(
         self,
-        value: C::Value,
+        value: Tail<Value>,
     ) -> Result<
-        ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitTail>>,
-        ReconciledAndNewState<
-            <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
-            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitTail::Other>,
-        >,
+        Self::Reconciled,
+        Self::Unreconciled,
     > {
-        match self.component.reconcile(value) {
+        match self.component.reconcile(value.0) {
             Ok(reconciled) => Ok(ReconciledAndNewState {
                 data: reconciled,
                 state: ComponentState {
@@ -167,7 +178,7 @@ mod tests {
         let expected_value = 1;
         assert_eq!(
             ComponentState::component(AlwaysReconcileValue::<u32>::new())
-                .reconcile_vh(expected_value)
+                .reconcile(Head(expected_value))
                 .unwrap()
                 .data,
             expected_value
@@ -179,7 +190,7 @@ mod tests {
         let expected_value = 1;
         assert_eq!(
             ComponentState::component(AlwaysUnreconcileValue::<u32>::new())
-                .reconcile_vh(expected_value)
+                .reconcile(Head(expected_value))
                 .unwrap_err()
                 .data,
             expected_value
@@ -191,7 +202,7 @@ mod tests {
         let expected_value = 1;
         assert_eq!(
             ComponentState::component(AlwaysReconcileValue::<u32>::new())
-                .reconcile_vt(expected_value)
+                .reconcile(Tail(expected_value))
                 .unwrap()
                 .data,
                 expected_value
@@ -203,7 +214,7 @@ mod tests {
         let expected_value = 1;
         assert_eq!(
             ComponentState::component(AlwaysUnreconcileValue::<u32>::new())
-                .reconcile_vt(expected_value)
+                .reconcile(Tail(expected_value))
                 .unwrap_err()
                 .data,
                 expected_value
