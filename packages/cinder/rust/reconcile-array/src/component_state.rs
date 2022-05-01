@@ -1,4 +1,5 @@
 use crate::*;
+use reconcilable_trait::{SplitSource, SplitValue, Unchanged};
 
 #[derive(Debug)]
 pub struct Allow;
@@ -18,17 +19,22 @@ impl<C> ComponentState<C, HeadTail<Allow, Allow>> {
     }
 }
 
-impl<C, SplitHead, Value> ComponentState<C, SplitHead>
+impl<C, SplitHead> ComponentState<C, SplitHead>
 where
-    C: Reconcilable<Value = Value, Unreconciled = ReconcilePayload<C, Value>>,
+    C: Reconcilable,
+    C::Unreconciled: SplitSource,
+    <C::Unreconciled as SplitSource>::Other: SplitValue,
     SplitHead: SplitHeadTrait,
 {
     pub fn reconcile_vh(
         self,
-        value: Value,
+        value: C::Value,
     ) -> Result<
         ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitHead>>,
-        ReconciledAndNewState<Value, ComponentState<C, SplitHead::HeadObject>>,
+        ReconciledAndNewState<
+            <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
+            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitHead::HeadObject>,
+        >,
     > {
         match self.component.reconcile(value) {
             Ok(reconciled) => Ok(ReconciledAndNewState {
@@ -38,29 +44,38 @@ where
                     skip: self.skip,
                 },
             }),
-            Err(err) => Err(ReconciledAndNewState {
-                data: err.new_value,
-                state: ComponentState {
-                    component: err.old_component,
-                    skip: self.skip,
-                }
-                .skip_vh(),
-            }),
+            Err(err) => {
+                let (source, err) = err.split_source();
+                let (value, _) = err.split_value();
+                return Err(ReconciledAndNewState {
+                    data: value,
+                    state: ComponentState {
+                        component: source,
+                        skip: self.skip,
+                    }
+                    .skip_vh(),
+                });
+            }
         }
     }
 }
 
-impl<C, SplitTail, Value> ComponentState<C, SplitTail>
+impl<C, SplitTail> ComponentState<C, SplitTail>
 where
-    C: Reconcilable<Value = Value, Unreconciled = ReconcilePayload<C, Value>>,
+    C: Reconcilable,
+    C::Unreconciled: SplitSource,
+    <C::Unreconciled as SplitSource>::Other: SplitValue,
     SplitTail: SplitTailTrait,
 {
     pub fn reconcile_vt(
         self,
-        value: Value,
+        value: C::Value,
     ) -> Result<
         ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitTail>>,
-        ReconciledAndNewState<Value, ComponentState<C, SplitTail::TailObject>>,
+        ReconciledAndNewState<
+            <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
+            ComponentState<<C::Unreconciled as SplitSource>::Source, SplitTail::TailObject>,
+        >,
     > {
         match self.component.reconcile(value) {
             Ok(reconciled) => Ok(ReconciledAndNewState {
@@ -70,14 +85,18 @@ where
                     skip: self.skip,
                 },
             }),
-            Err(err) => Err(ReconciledAndNewState {
-                data: err.new_value,
-                state: ComponentState {
-                    component: err.old_component,
-                    skip: self.skip,
-                }
-                .skip_vt(),
-            }),
+            Err(err) => {
+                let (source, err) = err.split_source();
+                let (value, _) = err.split_value();
+                return Err(ReconciledAndNewState {
+                    data: value,
+                    state: ComponentState {
+                        component: source,
+                        skip: self.skip,
+                    }
+                    .skip_vt(),
+                });
+            }
         }
     }
 }
@@ -127,10 +146,12 @@ impl<C, MergeTail: MergeTailTrait<Allow>> ComponentState<C, MergeTail> {
 
 #[cfg(test)]
 mod tests {
+    use reconcilable_trait::mocks::AlwaysReconcileValue;
+
     use super::*;
 
     #[test]
-    fn smoke_test() {
+    fn skip_smoke_test() {
         // TODO: Tests could be more explicit
         ComponentState::component(Nothing)
             .skip_vt()
@@ -139,5 +160,27 @@ mod tests {
             .allow_vh()
             .skip_vt()
             .skip_vh();
+    }
+
+    #[test]
+    fn reconcile_vh_success() {
+        assert_eq!(
+            ComponentState::component(AlwaysReconcileValue::<u32>::new())
+                .reconcile_vh(1)
+                .unwrap()
+                .data,
+            1
+        );
+    }
+
+    #[test]
+    fn reconcile_vt_success() {
+        assert_eq!(
+            ComponentState::component(AlwaysReconcileValue::<u32>::new())
+                .reconcile_vt(1)
+                .unwrap()
+                .data,
+            1
+        )
     }
 }

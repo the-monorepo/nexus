@@ -13,11 +13,6 @@ use components::*;
 use head_tail::*;
 use iterator_manager::*;
 
-pub struct ReconcilePayload<Component, Value> {
-    old_component: Component,
-    new_value: Value,
-}
-
 #[derive(PartialEq)]
 pub enum End {
     Head,
@@ -29,6 +24,7 @@ pub struct Position {
     new: End,
 }
 
+#[derive(Debug)]
 pub struct ReconciledAndNewState<Reconciled, InstructionGeneric> {
     data: Reconciled,
     state: InstructionGeneric,
