@@ -110,20 +110,6 @@ where
     }
 }
 
-pub trait ReconcileHead {
-    type Value;
-    type Reconciled;
-    type Unreconciled;
-    fn reconcile_head(self, value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled>;
-}
-
-pub trait ReconcileTail {
-    type Value;
-    type Reconciled;
-    type Unreconciled;
-    fn reconcile_tail(self, value: Self::Value) -> Result<Self::Reconciled, Self::Unreconciled>;
-}
-
 impl<T, Value> ComponentReconcilable<Head<Value>> for T
 where
     T: SplitTrait<Head<Value>>,
