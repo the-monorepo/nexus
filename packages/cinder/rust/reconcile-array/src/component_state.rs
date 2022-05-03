@@ -112,9 +112,9 @@ where
     }
 }
 
-impl<SkipGeneric> ComponentState<Nothing, SkipGeneric> {
-    pub fn merge<C>(self, component: C) -> ComponentState<C, HeadTail<Allow, Allow>> {
-        // TODO: Should technically not create a totally separate component. Make use of traits to fix this
+impl<Component, SkipGeneric> MergeTrait<Component> for ComponentState<Nothing, SkipGeneric> {
+    type MergedObject = ComponentState<Component, HeadTail<Allow, Allow>>;
+    fn merge(self, component: Component) -> ComponentState<Component, HeadTail<Allow, Allow>> {
         ComponentState::component(component)
     }
 }
