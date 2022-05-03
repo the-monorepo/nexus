@@ -110,10 +110,10 @@ where
     }
 }
 
-impl<T, Value> ComponentReconcilable<Head<Value>> for T
+struct ReconcileWrapper<T>(pub T);
+
+impl<Value: Reconcilable<Value>, T: SplitTrait<Head<Value>>> Reconcilable<Head<Value>> for ReconcileWrapper<T>
 where
-    T: SplitTrait<Head<Value>>,
-    Value: Reconcilable<Value>,
     T::Other: MergeTrait<Head<<Value as Reconcilable<Value>>::Unreconciled>>,
 {
     type Reconciled = (<Value as Reconcilable<Value>>::Reconciled, T::Other);
@@ -123,7 +123,7 @@ where
         self,
         value: Head<Value>,
     ) -> Result<Self::Reconciled, Self::Unreconciled> {
-        let (other, Head(head)) = self.split();
+        let (other, Head(head)) = self.0.split();
 
         match head.reconcile(value.0) {
             Ok(reconciled) => Ok((reconciled, other)),
@@ -132,7 +132,7 @@ where
     }
 }
 
-impl<T, Value> ComponentReconcilable<Tail<Value>> for T
+impl<T, Value> Reconcilable<Tail<Value>> for ReconcileWrapper<T>
 where
     T: SplitTrait<Tail<Value>>,
     Value: Reconcilable<Value>,
@@ -145,7 +145,7 @@ where
         self,
         value: Tail<Value>,
     ) -> Result<Self::Reconciled, Self::Unreconciled> {
-        let (other, Tail(tail)) = self.split();
+        let (other, Tail(tail)) = self.0.split();
 
         match tail.reconcile(value.0) {
             Ok(reconciled) => Ok((reconciled, other)),

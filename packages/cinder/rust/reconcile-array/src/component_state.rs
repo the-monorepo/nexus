@@ -19,14 +19,7 @@ impl<C> ComponentState<C, HeadTail<Allow, Allow>> {
     }
 }
 
-pub trait ComponentReconcilable<Value> {
-    type Unreconciled; // = Unchanged<Self, Self::Value>;
-    type Reconciled;
-    fn reconcile(self, new_value: Value) -> Result<Self::Reconciled, Self::Unreconciled>;
-}
-
-
-impl<C, SplitHead, Value> ComponentReconcilable<Head<Value>> for ComponentState<C, SplitHead>
+impl<C, SplitHead, Value> Reconcilable<Head<Value>> for ComponentState<C, SplitHead>
 where
     C: Reconcilable<Value>,
     C::Unreconciled: SplitSource,
@@ -69,7 +62,7 @@ where
     }
 }
 
-impl<C, SplitTail, Value> ComponentReconcilable<Tail<Value>> for ComponentState<C, SplitTail>
+impl<C, SplitTail, Value> Reconcilable<Tail<Value>> for ComponentState<C, SplitTail>
 where
     C: Reconcilable<Value>,
     C::Unreconciled: SplitSource,
