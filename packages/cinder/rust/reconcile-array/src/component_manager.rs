@@ -113,18 +113,6 @@ mod tests {
     use super::*;
     use std::collections::VecDeque;
     use reconcilable_trait::mocks::AlwaysReconcileValue;
-
-    #[test]
-    fn todo() {
-        let list = VecDeque::from([1, 2, 3]);
-        let manager = ComponentManager::new(list.into_iter());
-
-        let manager = manager.repopulate_t().unwrap();
-        assert_eq!(manager.ends.tail, 3);
-
-        let manager = manager.repopulate_h().unwrap();
-        assert_eq!(manager.ends.head, 1);
-    }
     
     #[test]
     fn todo_reconcile_h() {
@@ -140,5 +128,31 @@ mod tests {
         let manager = ComponentManager::new(list.into_iter());
 
         assert_eq!(manager.repopulate_t().unwrap().reconcile(Tail(4)).unwrap(), 4);
+    }
+
+    #[test]
+    fn repopulate_success() {
+        let list = VecDeque::from([1, 2, 3]);
+        let manager = ComponentManager::new(list.into_iter());
+
+        let manager = manager.repopulate_t().unwrap();
+        assert_eq!(manager.ends.tail, 3);
+
+        let manager = manager.repopulate_h().unwrap();
+        assert_eq!(manager.ends.head, 1);
+    }
+    
+    #[test]
+    fn repopulate_t_error_when_empty() {
+        let manager = ComponentManager::new(VecDeque::<AlwaysReconcileValue::<u32>>::from([]).into_iter());
+
+        manager.repopulate_t().unwrap_err();
+    }
+
+    #[test]
+    fn repopulate_h_error_when_empty() {
+        let manager = ComponentManager::new(VecDeque::<AlwaysReconcileValue::<u32>>::from([]).into_iter());
+
+        manager.repopulate_h().unwrap_err();
     }
 }
