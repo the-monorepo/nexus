@@ -62,7 +62,25 @@ pub trait MapTailTrait<Tail, MappedValue> {
 
 pub struct Head<H>(pub H);
 
+impl<Value, H : Reconcilable<Value>> Reconcilable<Value> for Head<H> {
+    type Reconciled = H::Reconciled;
+    type Unreconciled = H::Unreconciled;
+
+    fn reconcile(self, value: Value) -> Result<H::Reconciled, H::Unreconciled> {
+        self.0.reconcile(value)
+    }
+} 
+
 pub struct Tail<T>(pub T);
+
+impl<Value, T : Reconcilable<Value>> Reconcilable<Value> for Tail<T> {
+    type Reconciled = T::Reconciled;
+    type Unreconciled = T::Unreconciled;
+
+    fn reconcile(self, value: Value) -> Result<T::Reconciled, T::Unreconciled> {
+        self.0.reconcile(value)
+    }
+} 
 
 impl<CurrentHead, HeadGeneric, TailGeneric> MergeTrait<Head<HeadGeneric>> for HeadTail<CurrentHead, TailGeneric> {
     type MergedObject = HeadTail<HeadGeneric, TailGeneric>;
