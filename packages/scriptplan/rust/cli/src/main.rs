@@ -1,4 +1,4 @@
-use clap::App;
+use clap::Command;
 
 use std::collections::VecDeque;
 
@@ -20,8 +20,8 @@ use ansi_term::{
     Style,
 };
 
-fn new_cli_app<'a>(name: &'a str) -> App<'a> {
-    App::new(name).arg(
+fn new_cli_app<'a>(name: &'a str) -> Command<'a> {
+    Command::new(name).arg(
         clap::Arg::new("script-file")
             .short('s')
             .long("script-file")
@@ -36,13 +36,11 @@ async fn main() {
     let task_style = Style::new().fg(Cyan);
 
     let initial_matches = new_cli_app("Scriptplan CLI")
-        .setting(
-            clap::AppSettings::TrailingVarArg
-                | clap::AppSettings::DisableHelpSubcommand
-                | clap::AppSettings::DisableHelpFlag
-                | clap::AppSettings::DisableVersionFlag
-                | clap::AppSettings::AllowExternalSubcommands,
-        )
+        .trailing_var_arg(true)
+        .disable_help_subcommand(true)
+        .disable_help_flag(true)
+        .disable_version_flag(true)
+        .allow_external_subcommands(true)
         .arg(
             clap::Arg::new("help")
                 .short('h')
@@ -70,20 +68,19 @@ async fn main() {
             let new_app_name = format!("Scriptplan CLI (using \"{}\")", script_file);
 
             let app = scriptplan.tasks.keys().fold(
-                new_cli_app(new_app_name.as_str()).setting(
-                    clap::AppSettings::SubcommandRequiredElseHelp
-                        | clap::AppSettings::DisableVersionFlag
-                        | clap::AppSettings::DisableHelpSubcommand,
-                ),
+                new_cli_app(new_app_name.as_str())
+                    .subcommand_required(true)
+                    .arg_required_else_help(true)
+                    .disable_version_flag(true)
+                    .disable_help_subcommand(true)
+,
                 |temp_app, task| {
                     temp_app.subcommand(
-                        App::new(task.to_string())
-                            .setting(
-                                clap::AppSettings::TrailingVarArg
-                                    | clap::AppSettings::DisableHelpFlag
-                                    | clap::AppSettings::DisableHelpSubcommand
-                                    | clap::AppSettings::DisableVersionFlag,
-                            )
+                        Command::new(task.to_string())
+                        .trailing_var_arg(true)
+                        .disable_help_flag(true)
+                        .disable_help_subcommand(true)
+                        .disable_version_flag(true)
                             .arg(clap::Arg::new("EXTRA_ARGUMENTS").multiple_values(true)),
                     )
                 },
