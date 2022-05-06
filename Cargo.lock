@@ -398,7 +398,7 @@ dependencies = [
 
 [[package]]
 name = "scriptplan-cli"
-version = "5.1.1"
+version = "5.1.2"
 dependencies = [
  "ansi_term",
  "async-recursion",

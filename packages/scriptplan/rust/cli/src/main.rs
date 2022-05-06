@@ -1,4 +1,4 @@
-use clap::Command;
+use clap::{Command, CommandFactory};
 
 use std::collections::VecDeque;
 
@@ -72,16 +72,21 @@ async fn main() {
                     .subcommand_required(true)
                     .arg_required_else_help(true)
                     .disable_version_flag(true)
-                    .disable_help_subcommand(true)
-,
+                    .disable_help_subcommand(true),
                 |temp_app, task| {
                     temp_app.subcommand(
                         Command::new(task.to_string())
-                        .trailing_var_arg(true)
-                        .disable_help_flag(true)
-                        .disable_help_subcommand(true)
-                        .disable_version_flag(true)
-                            .arg(clap::Arg::new("EXTRA_ARGUMENTS").multiple_values(true)),
+                            .trailing_var_arg(true)
+                            .disable_help_flag(true)
+                            .disable_help_subcommand(true)
+                            .disable_version_flag(true)
+                            .allow_hyphen_values(true)
+                            .arg(
+                                clap::Arg::new("EXTRA_ARGUMENTS")
+                                    .multiple_values(true)
+                                    .allow_hyphen_values(true)
+                                    .use_value_delimiter(false)
+                            ),
                     )
                 },
             );
