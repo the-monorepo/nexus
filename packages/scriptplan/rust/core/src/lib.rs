@@ -25,9 +25,8 @@ pub struct ScriptGroup<CommandGeneric: Command> {
 }
 
 impl<CommandGeneric: Command> ScriptGroup<CommandGeneric> {
-    fn iter(&self) -> Chain<Once<&Script<CommandGeneric>>, Iter<Script<CommandGeneric>>> {
-        let test = std::iter::once(&self.first).chain(self.rest.iter());
-        return test;
+    fn iter(&self) -> Chain<Once<&'_ Script<CommandGeneric>>, Iter<'_, Script<CommandGeneric>>> {
+        std::iter::once(&self.first).chain(self.rest.iter())
     }
 }
 
