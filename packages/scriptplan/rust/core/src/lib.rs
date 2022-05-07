@@ -62,14 +62,14 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
 
                 let mut promises = Vec::<_>::new();
 
-                let mut iterator = group.iter();
-                let mut i = iterator.next();
-                let mut next = iterator.next();
+                let mut group_iter = group.iter();
+                let mut i = group_iter.next();
+                let mut next = group_iter.next();
 
                 while next.is_some() {
                     promises.push(i.unwrap().run(parser, VecDeque::new()));
                     i = next;
-                    next = iterator.next();
+                    next = group_iter.next();
                 }
 
                 promises.push(i.unwrap().run(parser, args));
@@ -89,9 +89,9 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
                 return Ok(status.unwrap());
             }
             Self::Series(group) => {
-                let mut iterator = group.iter();
-                let mut i = iterator.next();
-                let mut next = iterator.next();
+                let mut group_iter = group.iter();
+                let mut i = group_iter.next();
+                let mut next = group_iter.next();
 
                 let mut final_exit_status: Option<ExitStatus> = Option::None;
 
@@ -103,7 +103,7 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
                         final_exit_status = Some(exit_status);
                     }
                     i = next;
-                    next = iterator.next();
+                    next = group_iter.next();
                 }
 
                 final_exit_status = Some(merge_status(
