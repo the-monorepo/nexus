@@ -62,16 +62,15 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
                 let mut promises = Vec::<_>::new();
 
                 let mut group_iter = group.iter();
-                let mut i = group_iter.next();
-                let mut next = group_iter.next();
+                let mut command = group_iter.next().unwrap();
 
-                while next.is_some() {
-                    promises.push(i.unwrap().run(parser, VecDeque::new()));
-                    i = next;
-                    next = group_iter.next();
+                while let Some(next_command) = group_iter.next() {
+                    promises.push(command.run(parser, VecDeque::new()));
+
+                    command = next_command;
                 }
 
-                promises.push(i.unwrap().run(parser, args));
+                promises.push(command.run(parser, args));
 
                 let results = join_all(promises).await;
 
@@ -89,25 +88,23 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
             }
             Self::Series(group) => {
                 let mut group_iter = group.iter();
-                let mut i = group_iter.next();
-                let mut next = group_iter.next();
+                let mut command = group_iter.next().unwrap();
 
                 let mut final_exit_status: Option<ExitStatus> = Option::None;
 
-                while next.is_some() {
-                    let exit_status = i.unwrap().run(parser, VecDeque::new()).await.unwrap();
+                while let Some(next_command) = group_iter.next() {
+                    let exit_status = next_command.run(parser, VecDeque::new()).await.unwrap();
                     if let Some(status) = final_exit_status {
                         final_exit_status = Some(merge_status(exit_status, status));
                     } else {
                         final_exit_status = Some(exit_status);
                     }
-                    i = next;
-                    next = group_iter.next();
+                    command = next_command;
                 }
 
                 final_exit_status = Some(merge_status(
                     final_exit_status.unwrap(),
-                    i.unwrap().run(parser, args).await.unwrap(),
+                    command.run(parser, args).await.unwrap(),
                 ));
 
                 return Ok(final_exit_status.unwrap());
