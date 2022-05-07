@@ -6,6 +6,7 @@ use std::slice::Iter;
 use std::sync::Arc;
 
 use futures::future::join_all;
+use futures::join;
 
 use async_recursion::async_recursion;
 use async_trait::async_trait;
@@ -70,21 +71,25 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
                     command = next_command;
                 }
 
-                promises.push(command.run(parser, args));
+                let last_result = command.run(parser, args);
+                let (results, last) = join!(
+                    join_all(promises),
+                    last_result
+                );
 
-                let results = join_all(promises).await;
+                let final_status = results.into_iter().fold(
+                    last.unwrap(),
+                    |prev_exit_status, this_result| {
+                        if let Ok(current_status) = this_result {
+                            return merge_status(prev_exit_status, current_status);
+                        } else {
+                            // TODO: Do something with the error
+                            return prev_exit_status;
+                        }
+                    },
+                );
 
-                let mut status = Option::None;
-                for exit_status_result in results {
-                    let exit_status = exit_status_result.unwrap();
-                    if let Some(current_status) = status {
-                        status = Some(merge_status(current_status, exit_status));
-                    } else {
-                        status = Some(exit_status);
-                    }
-                }
-
-                return Ok(status.unwrap());
+                return Ok(final_status);
             }
             Self::Series(group) => {
                 let mut group_iter = group.iter();
