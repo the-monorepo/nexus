@@ -3,6 +3,7 @@ use yaml_rust::Yaml;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 use std::convert::TryFrom;
 use std::ops::Deref;
@@ -95,7 +96,7 @@ fn yaml_to_group(yaml: &Yaml) -> Result<ScriptGroup<BashCommand>, ()> {
 
     let first = (scripts_iter.next().unwrap())?;
 
-    let scripts_result: Result<Vec<_>, _> = scripts_iter.collect();
+    let scripts_result: Result<VecDeque<_>, _> = scripts_iter.collect();
     let scripts = scripts_result?;
 
     Ok(ScriptGroup {

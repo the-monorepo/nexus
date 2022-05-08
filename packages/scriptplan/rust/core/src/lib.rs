@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::iter::{Chain, Iterator, Once};
 use std::process::ExitStatus;
 use std::rc::Rc;
-use std::slice::Iter;
+use std::collections::vec_deque::Iter;
 use std::sync::Arc;
 
 use futures::future::join_all;
@@ -22,7 +22,7 @@ pub struct ScriptGroup<CommandGeneric: Command> {
     pub bail: bool,
     // Enforces that there's always at least 1 script
     pub first: Script<CommandGeneric>,
-    pub rest: Vec<Script<CommandGeneric>>,
+    pub rest: VecDeque<Script<CommandGeneric>>,
 }
 
 impl<CommandGeneric: Command> ScriptGroup<CommandGeneric> {
