@@ -91,28 +91,21 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
 
                 return Ok(final_status);
             }
-            Self::Series(group) => {
-                let mut group_iter = group.iter();
-                let mut command = group_iter.next().unwrap();
+            Self::Series(group) => {               
+                let mut rest_iter = group.rest.iter();
+                if let Some(last_command) = rest_iter.next_back() {
+                    let mut exit_status = group.first.run(parser, VecDeque::new()).await.unwrap();
 
-                let mut final_exit_status: Option<ExitStatus> = Option::None;
-
-                while let Some(next_command) = group_iter.next() {
-                    let exit_status = next_command.run(parser, VecDeque::new()).await.unwrap();
-                    if let Some(status) = final_exit_status {
-                        final_exit_status = Some(merge_status(exit_status, status));
-                    } else {
-                        final_exit_status = Some(exit_status);
+                    for command in rest_iter {
+                        exit_status = merge_status(exit_status, command.run(parser, VecDeque::new()).await.unwrap());
                     }
-                    command = next_command;
+
+                    exit_status = merge_status(exit_status, last_command.run(parser, args).await.unwrap());
+
+                    Ok(exit_status)
+                } else {
+                    Ok(group.first.run(parser, args).await.unwrap())
                 }
-
-                final_exit_status = Some(merge_status(
-                    final_exit_status.unwrap(),
-                    command.run(parser, args).await.unwrap(),
-                ));
-
-                return Ok(final_exit_status.unwrap());
             }
         }
     }
