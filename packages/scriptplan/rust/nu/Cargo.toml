@@ -1,0 +1,10 @@
+[package]
+name = "scriptplan-nu"
+version = "0.0.1"
+authors = ["Patrick Shaw <mail@patrickshaw.me>"]
+edition = "2021"
+license = "MIT"
+description = "Experimental Nu language parser and runtime for Scriptplan"
+
+[dependencies]
+scriptplan-core = { path="../core", version = "3.0.2" }

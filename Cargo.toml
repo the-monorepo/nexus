@@ -3,6 +3,7 @@ members = [
     "./packages/scriptplan/rust/cli",
     "./packages/scriptplan/rust/core",
     "./packages/scriptplan/rust/bash",
+    "./packages/scriptplan/rust/nu",
     "./packages/cinder/rust/core",
     "./packages/cinder/rust/reconcilable-trait",
     "./packages/cinder/rust/reconcile-array"
