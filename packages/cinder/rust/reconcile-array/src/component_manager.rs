@@ -20,7 +20,7 @@ impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeTrait<Head<Iterator
         ComponentManager<IteratorGeneric, HeadGeneric::MergedObject, Allow>,
         ComponentManager<IteratorGeneric, HeadGeneric, Nothing>,
     > {
-        match self.iterator.repopulate_h() {
+        match self.iterator.repopulate(Head(())) {
             Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
                 ends: self.ends.merge(Head(result.value)),
@@ -55,7 +55,7 @@ impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: MergeTrait<Tail<Iterator
         ComponentManager<IteratorGeneric, TailGeneric::MergedObject, Allow>,
         ComponentManager<IteratorGeneric, TailGeneric, Nothing>,
     > {
-        match self.iterator.repopulate_t() {
+        match self.iterator.repopulate(Tail(())) {
             Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
                 ends: self.ends.merge(Tail(result.value)),
