@@ -4,6 +4,11 @@ use reconcilable_trait::{SplitSource, SplitValue, Unchanged};
 #[derive(Debug)]
 pub struct Allow;
 
+/**
+ * At this layer, we add the first set of reconcile specific abstractions into the mix.
+ * Specifically, we add concepts of skipping/disabling reconciliation when it fails for a given value and
+ * renewing the skip state when fresh state is added to the head/tail of components.
+ */
 #[derive(Debug)]
 pub struct ComponentState<C, SkipGeneric> {
     component: C,

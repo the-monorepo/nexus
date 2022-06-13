@@ -1,6 +1,10 @@
 use reconcilable_trait::Reconcilable;
 use crate::*;
 
+/**
+ * Lowest level layer of reconiling an array. Pretty much all the work done in reconciling an array only requires referring to the 
+ * head and the tail so we've made traits to communicate that in a generic way.
+ */
 #[derive(Debug, PartialEq)]
 pub struct HeadTail<HeadGeneric, TailGeneric> {
     pub head: HeadGeneric,
@@ -60,8 +64,14 @@ pub trait MapTailTrait<Tail, MappedValue> {
     fn map_tail<F: FnOnce(Tail) -> MappedValue>(self, a_fn: F) -> Self::MappedObject;
 }
 
+/**
+ * Used to identify whether to operate on the head for head tail traits
+ */
 pub struct Head<H>(pub H);
 
+/**
+ * Small utility so you don't have to access Head's reconcile method directly
+ */
 impl<Value, H : Reconcilable<Value>> Reconcilable<Value> for Head<H> {
     type Reconciled = H::Reconciled;
     type Unreconciled = H::Unreconciled;
@@ -70,9 +80,14 @@ impl<Value, H : Reconcilable<Value>> Reconcilable<Value> for Head<H> {
         self.0.reconcile(value)
     }
 } 
-
+/**
+ * Used to identify whether to operate on the tail for head-tail traits
+ */
 pub struct Tail<T>(pub T);
 
+/**
+ * Small utility so you don't have to access Tail's reconcile method directly
+ */
 impl<Value, T : Reconcilable<Value>> Reconcilable<Value> for Tail<T> {
     type Reconciled = T::Reconciled;
     type Unreconciled = T::Unreconciled;

@@ -1,6 +1,9 @@
 use crate::*;
 use reconcilable_trait::Reconcilable;
 
+/**
+ * Handles the repopulation as well as tracking of whether to pop/shift off more component values
+ */
 #[derive(Debug)]
 pub struct ComponentManager<
     IteratorGeneric: DoubleEndedIterator,
@@ -11,19 +14,26 @@ pub struct ComponentManager<
     pub ends: HeadTailGeneric,
 }
 
-impl<IteratorGeneric: DoubleEndedIterator, HeadGeneric: MergeTrait<Head<IteratorGeneric::Item>>>
-    ComponentManager<IteratorGeneric, HeadGeneric, Allow>
+impl<
+    EndIdentifier,
+    IteratorGeneric,
+    EndGeneric
+> Repopulatable<IteratorGeneric, EndGeneric> for
+    ComponentManager<IteratorGeneric, EndGeneric, Allow>
+where IteratorGeneric : DoubleEndedIterator,
+    IteratorGeneric::Item : Repopulatable<IteratorGeneric, EndGeneric> + MergeTrait<Head<IteratorGeneric::Item>>
 {
-    pub fn repopulate_h(
+    fn repopulate<F : Fn(IteratorGeneric::Item) -> EndGeneric>(
         self,
+        wrap_with_identifier: F
     ) -> Result<
-        ComponentManager<IteratorGeneric, HeadGeneric::MergedObject, Allow>,
-        ComponentManager<IteratorGeneric, HeadGeneric, Nothing>,
+        ComponentManager<IteratorGeneric, EndGeneric::MergedObject, Allow>,
+        ComponentManager<IteratorGeneric, EndGeneric, Nothing>,
     > {
-        match self.iterator.repopulate(Head(())) {
+        match self.iterator.repopulate::<EndIdentifier>() {
             Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
-                ends: self.ends.merge(Head(result.value)),
+                ends: self.ends.merge(wrap_with_identifier(result.value)),
             }),
             Err(manager) => Err(ComponentManager {
                 iterator: manager,
@@ -119,7 +129,7 @@ mod tests {
         let list = VecDeque::from([AlwaysReconcileValue::<u32>::new()]);
         let manager = ComponentManager::new(list.into_iter());
 
-        assert_eq!(manager.repopulate_h().unwrap().reconcile(Head(4)).unwrap(), 4);
+        assert_eq!(manager.repopulate(Head(())).unwrap().reconcile(Head(4)).unwrap(), 4);
     }
 
     #[test]
@@ -127,7 +137,7 @@ mod tests {
         let list = VecDeque::from([AlwaysReconcileValue::<u32>::new()]);
         let manager = ComponentManager::new(list.into_iter());
 
-        assert_eq!(manager.repopulate_t().unwrap().reconcile(Tail(4)).unwrap(), 4);
+        assert_eq!(manager.repopulate(Tail(())).unwrap().reconcile(Tail(4)).unwrap(), 4);
     }
 
     #[test]
@@ -135,10 +145,10 @@ mod tests {
         let list = VecDeque::from([1, 2, 3]);
         let manager = ComponentManager::new(list.into_iter());
 
-        let manager = manager.repopulate_t().unwrap();
+        let manager = manager.repopulate(Head(())).unwrap();
         assert_eq!(manager.ends.tail, 3);
 
-        let manager = manager.repopulate_h().unwrap();
+        let manager = manager.repopulate(Tail(())).unwrap();
         assert_eq!(manager.ends.head, 1);
     }
     
@@ -146,13 +156,13 @@ mod tests {
     fn repopulate_t_error_when_empty() {
         let manager = ComponentManager::new(VecDeque::<AlwaysReconcileValue::<u32>>::from([]).into_iter());
 
-        manager.repopulate_t().unwrap_err();
+        manager.repopulate(Tail(())).unwrap_err();
     }
 
     #[test]
     fn repopulate_h_error_when_empty() {
         let manager = ComponentManager::new(VecDeque::<AlwaysReconcileValue::<u32>>::from([]).into_iter());
 
-        manager.repopulate_h().unwrap_err();
+        manager.repopulate(Head(())).unwrap_err();
     }
 }
