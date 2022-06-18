@@ -12,18 +12,19 @@ pub struct IteratorResult<IteratorGeneric: DoubleEndedIterator, ItemGeneric> {
     pub manager: IteratorManager<IteratorGeneric, Allow>
 }
 
-impl<IteratorGeneric: DoubleEndedIterator, EndWrappedGeneric> IteratorManager<IteratorGeneric, Allow> {
-    fn repopulate_base<F: FnOnce(&mut IteratorGeneric) -> Option<IteratorGeneric::Item>>(
+impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allow> {
+    fn repopulate_base<WR, F: FnOnce(&mut IteratorGeneric) -> Option<IteratorGeneric::Item>, W: FnOnce(IteratorGeneric::Item) -> WR>(
         mut self,
         next: F,
-    ) -> Result<IteratorResult<IteratorGeneric, EndWrappedGeneric>, IteratorManager<IteratorGeneric, Nothing>> {
+        wrap_value: W, 
+    ) -> Result<IteratorResult<IteratorGeneric, WR>, IteratorManager<IteratorGeneric, Nothing>> {
         match next(&mut self.iterator) {
             Some(value) => Ok(IteratorResult {
                 manager: IteratorManager {
                     iterator: self.iterator,
                     has_next: Allow,
                 },
-                value: value,
+                value: wrap_value(value),
             }),
             None => Err(IteratorManager {
                 iterator: self.iterator,
@@ -40,33 +41,38 @@ impl<IteratorGeneric: DoubleEndedIterator, EndWrappedGeneric> IteratorManager<It
     }
 }
 
-pub trait HeadTailRepopulate<IteratorGeneric: DoubleEndedIterator, EndIdentifier> {
-    fn repopulate(
-        self,
-    ) -> Result<IteratorResult<IteratorGeneric, EndIdentifier>, IteratorManager<IteratorGeneric, Nothing>>;
-}
-
-pub trait Repopulatable<IteratorGeneric: DoubleEndedIterator, EndIdentifier> {
-    type Value;
-    fn repopulate<F : Fn(IteratorGeneric::Item) -> EndIdentifier>(
+pub trait Repopulatable<OkGeneric, FailureGeneric, ItemGeneric, ResultValue> {
+    fn repopulate<F : FnOnce(ItemGeneric) -> ResultValue>(
         self,
         wrap_value: F
-    ) -> Result<IteratorResult<IteratorGeneric, Self::Value>, IteratorManager<IteratorGeneric, Nothing>>;
+    ) -> Result<OkGeneric, FailureGeneric>;
 }
 
-impl<IteratorGeneric: DoubleEndedIterator> HeadTailRepopulate<IteratorGeneric, Head<()>> for IteratorManager<IteratorGeneric, Allow> {
-    fn repopulate(
-        self
-    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
-        self.repopulate_base(Self::next)
+impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<
+    IteratorResult<IteratorGeneric, Head<IteratorGeneric::Item>>,
+    IteratorManager<IteratorGeneric, Nothing>,
+    IteratorGeneric::Item,
+    Head<IteratorGeneric::Item>
+> for IteratorManager<IteratorGeneric, Allow> {
+    fn repopulate<F : FnOnce(IteratorGeneric::Item) -> Head<IteratorGeneric::Item>>(
+        self,
+        wrap_value: F
+    ) -> Result<IteratorResult<IteratorGeneric, Head<IteratorGeneric::Item>>, IteratorManager<IteratorGeneric, Nothing>> {
+        self.repopulate_base(IteratorGeneric::next, wrap_value)
     }
 }
 
-impl<IteratorGeneric: DoubleEndedIterator> HeadTailRepopulate<IteratorGeneric, Tail<()>> for IteratorManager<IteratorGeneric, Allow> {
-    fn repopulate(
-        self
-    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
-        self.repopulate_base(IteratorGeneric::next_back)
+impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<
+    IteratorResult<IteratorGeneric, Tail<IteratorGeneric::Item>>,
+    IteratorManager<IteratorGeneric, Nothing>,
+    IteratorGeneric::Item,
+    Tail<IteratorGeneric::Item>
+> for IteratorManager<IteratorGeneric, Allow> {
+    fn repopulate<F : FnOnce(IteratorGeneric::Item) -> Tail<IteratorGeneric::Item>>(
+        self,
+        wrap_value: F
+    ) -> Result<IteratorResult<IteratorGeneric, Tail<IteratorGeneric::Item>>, IteratorManager<IteratorGeneric, Nothing>> {
+        self.repopulate_base(IteratorGeneric::next_back, wrap_value)
     }
 }
 
@@ -80,15 +86,15 @@ mod tests {
         let list = VecDeque::from([1, 2, 3]);
         let manager = IteratorManager::new(list.into_iter());
 
-        let head_result = manager.repopulate::<Head<()>>().unwrap();
-        assert_eq!(head_result.value, 1);
+        let head_result = manager.repopulate(Head::new).unwrap();
+        assert_eq!(head_result.value, Head(1));
 
-        let tail_result = head_result.manager.repopulate::<Tail<()>>().unwrap();
-        assert_eq!(tail_result.value, 3);
+        let tail_result = head_result.manager.repopulate(Tail::new).unwrap();
+        assert_eq!(tail_result.value, Tail(3));
 
-        let last_result = tail_result.manager.repopulate::<Head<()>>().unwrap();
-        assert_eq!(last_result.value, 2);
+        let last_result = tail_result.manager.repopulate(Head::new).unwrap();
+        assert_eq!(last_result.value, Head(2));
 
-        last_result.manager.repopulate(Head(())).unwrap_err();
+        last_result.manager.repopulate(Head::new).unwrap_err();
     }
 }

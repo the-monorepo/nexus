@@ -134,21 +134,18 @@ impl<D, S> ReconciledAndNewState<D, S> {
 }
 
 struct ReconcileState<
-    ComponentsIterator: DoubleEndedIterator,
-    ValuesIterator: DoubleEndedIterator,
+    ComponentsManagerGeneric,
+    ValuesManagerGeneric,
     CH,
     CT,
     VH,
     VT,
     HeadSkipState,
     TailSkipState,
-    ComponentsHasNext,
-    ValuesHasNext,
 > {
     components: ComponentManager<
-        ComponentsIterator,
-        Components<CH, CT, HeadSkipState, TailSkipState>,
-        ComponentsHasNext,
+        ComponentsManagerGeneric,
+        Components<CH, CT, HeadSkipState, TailSkipState>
     >,
-    values: ComponentManager<ValuesIterator, HeadTail<VH, VT>, ValuesHasNext>,
+    values: ComponentManager<ValuesManagerGeneric, HeadTail<VH, VT>>,
 }

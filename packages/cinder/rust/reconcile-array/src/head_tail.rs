@@ -53,21 +53,23 @@ pub struct SplitMapped<M, R> {
     pub reduced: R,
 }
 
-pub trait MapHeadTrait<Head, MappedValue> {
+pub trait MapTrait<Value, MappedValue> {
     type MappedObject;
-    fn map_head<F: FnOnce(Head) -> MappedValue>(self, a_fn: F) -> Self::MappedObject;
-}
-
-
-pub trait MapTailTrait<Tail, MappedValue> {
-    type MappedObject;
-    fn map_tail<F: FnOnce(Tail) -> MappedValue>(self, a_fn: F) -> Self::MappedObject;
+    fn map<F: FnOnce(Value) -> MappedValue>(self, wrap_value: F) -> Self::MappedObject;
 }
 
 /**
  * Used to identify whether to operate on the head for head tail traits
  */
-pub struct Head<H>(pub H);
+#[derive(PartialEq)]
+#[derive(Debug)]
+ pub struct Head<H = ()>(pub H);
+
+impl<T> Head<T> {
+    pub fn new(value: T) -> Head<T> {
+        Head(value)
+    }
+}
 
 /**
  * Small utility so you don't have to access Head's reconcile method directly
@@ -83,7 +85,15 @@ impl<Value, H : Reconcilable<Value>> Reconcilable<Value> for Head<H> {
 /**
  * Used to identify whether to operate on the tail for head-tail traits
  */
-pub struct Tail<T>(pub T);
+#[derive(PartialEq)]
+#[derive(Debug)]
+pub struct Tail<T = ()>(pub T);
+
+impl<T> Tail<T> {
+    pub fn new(value: T) -> Tail<T> {
+        Tail(value)
+    }
+}
 
 /**
  * Small utility so you don't have to access Tail's reconcile method directly
@@ -117,27 +127,27 @@ impl<CurrentTail, HeadGeneric, TailGeneric> MergeTrait<Tail<TailGeneric>> for He
     }
 }
 
-impl<MappedValue, Value, T> MapHeadTrait<Value, MappedValue> for T
+impl<MappedValue, Value, T> MapTrait<Head<Value>, MappedValue> for T
 where
     T: SplitTrait<Head<Value>>,
     T::Other: MergeTrait<Head<MappedValue>>,
 {
     type MappedObject = <T::Other as MergeTrait<Head<MappedValue>>>::MergedObject;
-    fn map_head<F: FnOnce(Value) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
-        let (other, Head(head)) = self.split();
+    fn map<F: FnOnce(Head<Value>) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
+        let (other, head) = self.split();
         let mapped = a_fn(head);
         other.merge(Head(mapped))
     }
 }
 
-impl<MappedValue, Value, T> MapTailTrait<Value, MappedValue> for T
+impl<MappedValue, Value, T> MapTrait<Tail<Value>, MappedValue> for T
 where
     T: SplitTrait<Tail<Value>>,
     T::Other: MergeTrait<Tail<MappedValue>>,
 {
     type MappedObject = <T::Other as MergeTrait<Tail<MappedValue>>>::MergedObject;
-    fn map_tail<F: FnOnce(Value) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
-        let (other, Tail(tail)) = self.split();
+    fn map<F: FnOnce(Tail<Value>) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
+        let (other, tail) = self.split();
         let mapped = a_fn(tail);
         other.merge(Tail(mapped))
     }

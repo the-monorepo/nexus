@@ -6,34 +6,45 @@ use reconcilable_trait::Reconcilable;
  */
 #[derive(Debug)]
 pub struct ComponentManager<
-    IteratorGeneric: DoubleEndedIterator,
-    HeadTailGeneric,
-    HasNext
+    ManagerGeneric,
+    HeadTailGeneric
 > {
-    pub iterator: IteratorManager<IteratorGeneric, HasNext>,
+    pub iterator: ManagerGeneric,
     pub ends: HeadTailGeneric,
 }
 
 impl<
-    EndIdentifier,
     IteratorGeneric,
-    EndGeneric
-> Repopulatable<IteratorGeneric, EndGeneric> for
-    ComponentManager<IteratorGeneric, EndGeneric, Allow>
-where IteratorGeneric : DoubleEndedIterator,
-    IteratorGeneric::Item : Repopulatable<IteratorGeneric, EndGeneric> + MergeTrait<Head<IteratorGeneric::Item>>
+    BeforeIteratorManagerGeneric,
+    WrappedValue,
+    EndsGeneric,
+> Repopulatable<
+    ComponentManager<IteratorManager<IteratorGeneric, Allow>, EndsGeneric::MergedObject>,
+    ComponentManager<IteratorManager<IteratorGeneric, Nothing>, EndsGeneric>,
+    IteratorGeneric::Item,
+    WrappedValue
+> for
+    ComponentManager<BeforeIteratorManagerGeneric, EndsGeneric> where
+    IteratorGeneric : DoubleEndedIterator,
+    BeforeIteratorManagerGeneric : Repopulatable<
+        IteratorResult<IteratorGeneric, WrappedValue>,
+        IteratorManager<IteratorGeneric, Nothing>,
+        IteratorGeneric::Item,
+        WrappedValue,
+    >,
+    EndsGeneric: MergeTrait<WrappedValue>
 {
-    fn repopulate<F : Fn(IteratorGeneric::Item) -> EndGeneric>(
+    fn repopulate<F : FnOnce(IteratorGeneric::Item) -> WrappedValue>(
         self,
         wrap_with_identifier: F
     ) -> Result<
-        ComponentManager<IteratorGeneric, EndGeneric::MergedObject, Allow>,
-        ComponentManager<IteratorGeneric, EndGeneric, Nothing>,
-    > {
-        match self.iterator.repopulate::<EndIdentifier>() {
+    ComponentManager<IteratorManager<IteratorGeneric, Allow>, EndsGeneric::MergedObject>,
+    ComponentManager<IteratorManager<IteratorGeneric, Nothing>, EndsGeneric>
+> {
+        match self.iterator.repopulate(wrap_with_identifier) {
             Ok(result) => Ok(ComponentManager {
                 iterator: result.manager,
-                ends: self.ends.merge(wrap_with_identifier(result.value)),
+                ends: self.ends.merge(result.value),
             }),
             Err(manager) => Err(ComponentManager {
                 iterator: manager,
@@ -43,12 +54,12 @@ where IteratorGeneric : DoubleEndedIterator,
     }
 }
 
-impl<IteratorGeneric: DoubleEndedIterator>
-    ComponentManager<IteratorGeneric, HeadTail<Nothing, Nothing>, Allow>
+impl<IteratorGeneric : DoubleEndedIterator>
+    ComponentManager<IteratorManager<IteratorGeneric, Allow>, HeadTail<Nothing, Nothing>>
 {
     pub fn new(
         iterator: IteratorGeneric,
-    ) -> ComponentManager<IteratorGeneric, HeadTail<Nothing, Nothing>, Allow> {
+    ) -> ComponentManager<IteratorManager<IteratorGeneric, Allow>, HeadTail<Nothing, Nothing>> {
         return ComponentManager {
             iterator: IteratorManager::new(iterator),
             ends: HeadTail::nothing(),
@@ -56,65 +67,23 @@ impl<IteratorGeneric: DoubleEndedIterator>
     }
 }
 
-impl<IteratorGeneric: DoubleEndedIterator, TailGeneric: MergeTrait<Tail<IteratorGeneric::Item>>>
-    ComponentManager<IteratorGeneric, TailGeneric, Allow>
-{
-    pub fn repopulate_t(
-        self,
-    ) -> Result<
-        ComponentManager<IteratorGeneric, TailGeneric::MergedObject, Allow>,
-        ComponentManager<IteratorGeneric, TailGeneric, Nothing>,
-    > {
-        match self.iterator.repopulate(Tail(())) {
-            Ok(result) => Ok(ComponentManager {
-                iterator: result.manager,
-                ends: self.ends.merge(Tail(result.value)),
-            }),
-            Err(manager) => Err(ComponentManager {
-                iterator: manager,
-                ends: self.ends,
-            }),
-        }
-    }
-}
-
 impl<
     Value,
-    IteratorGeneric : DoubleEndedIterator,
-    HeadGeneric : SplitTrait<Head<IteratorGeneric::Item>>
-> Reconcilable<Head<Value>> for ComponentManager<IteratorGeneric, HeadGeneric, Allow> where
-    IteratorGeneric::Item : Reconcilable<Value>,
+    ManagerGeneric,
+    EndsGeneric
+> Reconcilable<Value> for ComponentManager<ManagerGeneric, EndsGeneric> where
+    EndsGeneric : Reconcilable<Value>,
 {
-    type Reconciled = <IteratorGeneric::Item as Reconcilable<Value>>::Reconciled;
-    type Unreconciled = <IteratorGeneric::Item as Reconcilable<Value>>::Unreconciled;
+    type Reconciled = ComponentManager<ManagerGeneric, End>;
+    type Unreconciled = EndsGeneric::Unreconciled;
 
-    fn reconcile(self, value: Head<Value>) -> Result<
+    fn reconcile(self, value: Value) -> Result<
         Self::Reconciled,
         Self::Unreconciled
     > {
-        let (other, Head(head)) = self.ends.split();
+        let (other, head) = (self.ends as SplitTrait<EndsGeneric>).split();
 
-        head.reconcile(value.0)
-    }
-}
-
-impl<
-    Value,
-    IteratorGeneric : DoubleEndedIterator,
-    TailGeneric : SplitTrait<Tail<IteratorGeneric::Item>>
-> Reconcilable<Tail<Value>> for ComponentManager<IteratorGeneric, TailGeneric, Allow> where
-    IteratorGeneric::Item : Reconcilable<Value>,
-{
-    type Reconciled = <IteratorGeneric::Item as Reconcilable<Value>>::Reconciled;
-    type Unreconciled = <IteratorGeneric::Item as Reconcilable<Value>>::Unreconciled;
-
-    fn reconcile(self, value: Tail<Value>) -> Result<
-        Self::Reconciled,
-        Self::Unreconciled
-    > {
-        let (other, Tail(split)) = self.ends.split();
-
-        split.reconcile(value.0)
+        head.reconcile(value)
     }
 }
 
@@ -129,7 +98,7 @@ mod tests {
         let list = VecDeque::from([AlwaysReconcileValue::<u32>::new()]);
         let manager = ComponentManager::new(list.into_iter());
 
-        assert_eq!(manager.repopulate(Head(())).unwrap().reconcile(Head(4)).unwrap(), 4);
+        assert_eq!(manager.repopulate(Head::new).unwrap().reconcile(Head(4)).unwrap(), 4);
     }
 
     #[test]
@@ -137,7 +106,7 @@ mod tests {
         let list = VecDeque::from([AlwaysReconcileValue::<u32>::new()]);
         let manager = ComponentManager::new(list.into_iter());
 
-        assert_eq!(manager.repopulate(Tail(())).unwrap().reconcile(Tail(4)).unwrap(), 4);
+        assert_eq!(manager.repopulate(Tail::new).unwrap().reconcile(Tail(4)).unwrap(), 4);
     }
 
     #[test]
@@ -145,24 +114,24 @@ mod tests {
         let list = VecDeque::from([1, 2, 3]);
         let manager = ComponentManager::new(list.into_iter());
 
-        let manager = manager.repopulate(Head(())).unwrap();
-        assert_eq!(manager.ends.tail, 3);
+        let manager = manager.repopulate(Head::new).unwrap();
+        assert_eq!(manager.ends.tail, Head(3));
 
-        let manager = manager.repopulate(Tail(())).unwrap();
-        assert_eq!(manager.ends.head, 1);
+        let manager = manager.repopulate(Tail::new).unwrap();
+        assert_eq!(manager.ends.head, Tail(1));
     }
     
     #[test]
     fn repopulate_t_error_when_empty() {
         let manager = ComponentManager::new(VecDeque::<AlwaysReconcileValue::<u32>>::from([]).into_iter());
 
-        manager.repopulate(Tail(())).unwrap_err();
+        manager.repopulate(Tail::new).unwrap_err();
     }
 
     #[test]
     fn repopulate_h_error_when_empty() {
         let manager = ComponentManager::new(VecDeque::<AlwaysReconcileValue::<u32>>::from([]).into_iter());
 
-        manager.repopulate(Head(())).unwrap_err();
+        manager.repopulate(Head::new).unwrap_err();
     }
 }
