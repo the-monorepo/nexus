@@ -23,6 +23,8 @@ use scriptplan_core::ScriptParser;
 use scriptplan_core::VarArgs;
 use scriptplan_core::{Alias, CommandGroup, Script};
 
+use scriptplan_lang_utils::{has_parameters, apply_args};
+
 use tokio;
 use tokio::io::AsyncWriteExt;
 
@@ -49,23 +51,28 @@ impl From<String> for BashCommand {
 #[async_trait]
 impl Command for BashCommand {
     async fn run(&self, vars: VarArgs) -> Result<ExitStatus, ()> {
-        let mut arg = String::from("");
-        for i in vars {
-            arg += " ";
-            arg += (*i).as_str();
-        }
+        let has_params = self.command_str.contains("$");
 
+        let args: VecDeque<&str> = vars.iter().map(|x| (*x).as_str()).collect();
         let mut process = tokio::process::Command::new("bash")
             .stdin(Stdio::piped())
             .stdout(Stdio::inherit())
+            .env("PS0", "")
+            .env("PS1", "")
+            .env("PS2", "")
+            .arg("-s")
+            .arg("--")
+            .args(args)
             .spawn()
             .unwrap();
+
+        let spread_args = if has_params { "" } else { " $@" };
 
         process
             .stdin
             .take()
             .unwrap()
-            .write_all((self.command_str.to_string() + arg.as_str()).as_bytes())
+            .write_all((self.command_str.to_string() + spread_args).as_bytes())
             .await
             .unwrap();
 

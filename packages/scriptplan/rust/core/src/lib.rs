@@ -11,6 +11,8 @@ use futures::join;
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 
+use scriptplan_lang_utils::{has_parameters, apply_args};
+
 #[async_trait]
 pub trait Command {
     async fn run(&self, args: VarArgs) -> Result<ExitStatus, ()>;
@@ -52,9 +54,6 @@ fn merge_status(status1: ExitStatus, status2: ExitStatus) -> ExitStatus {
     return status1;
 }
 
-fn has_parameters(args: &VarArgs) -> bool {
-    args.iter().any(|arg| (*arg).contains("$"))
-}
 
 impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
     async fn run(
@@ -156,32 +155,7 @@ impl Alias {
             let has_params = has_parameters(&self.args);
 
             if has_params {
-                let mapped_args_joined_args: VecDeque<Arc<String>> = self
-                    .args
-                    .iter()
-                    .map(|arg| {
-                        let arc = arg.clone();
-                        let char_result = arc.chars().nth(0);
-                        if char_result.map_or_else(|| false, |c| c == '$') && arc.len() >= 2
-                        {
-                            let index_string_slice = &arc[1..arc.len()];
-                            if index_string_slice.chars().all(char::is_numeric) {
-                                let index = index_string_slice.parse().unwrap();
-                                if index < args.len() {
-                                    return args[index].clone();
-                                } else {
-                                    panic!("{} was not provided", index);
-                                }
-                            } else {
-                                return arc;
-                            }
-                        } else {
-                            return arc;
-                        }
-                    })
-                    .collect();
-
-                return mapped_args_joined_args;
+                apply_args(&self.args, &args)
             } else {
                 let joined_args: VecDeque<Arc<String>> = self
                     .args
