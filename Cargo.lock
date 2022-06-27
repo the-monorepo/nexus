@@ -386,7 +386,7 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "scriptplan-bash"
-version = "3.0.4"
+version = "5.0.0"
 dependencies = [
  "async-trait",
  "futures",
@@ -398,7 +398,7 @@ dependencies = [
 
 [[package]]
 name = "scriptplan-cli"
-version = "5.1.4"
+version = "7.0.0"
 dependencies = [
  "ansi_term",
  "async-recursion",
@@ -412,7 +412,7 @@ dependencies = [
 
 [[package]]
 name = "scriptplan-core"
-version = "3.0.3"
+version = "5.0.0"
 dependencies = [
  "async-recursion",
  "async-trait",

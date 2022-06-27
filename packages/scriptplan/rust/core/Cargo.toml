@@ -1,6 +1,6 @@
 [package]
 name = "scriptplan-core"
-version = "4.0.0"
+version = "5.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2021"
 license = "MIT"

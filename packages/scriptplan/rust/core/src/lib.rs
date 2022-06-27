@@ -52,12 +52,22 @@ fn merge_status(status1: ExitStatus, status2: ExitStatus) -> ExitStatus {
     return status1;
 }
 
+fn has_parameters(args: &VarArgs) -> bool {
+    args.iter().any(|arg| (*arg).contains("$"))
+}
+
 impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
     async fn run(
         &self,
         parser: &impl ScriptParser<CommandGeneric>,
         args: VarArgs,
     ) -> Result<ExitStatus, ()> {
+        async fn run_script<'a, CommandGeneric: Command>(script: &'a Script<CommandGeneric>, args: &VarArgs, parser: &impl ScriptParser<CommandGeneric>) -> Result<ExitStatus, ()> {
+            match script {
+                Script::Alias(alias) => alias.run(parser, if has_parameters(&alias.args) { clone_args(&args) } else { VecDeque::new( ) }).await,
+                default => default.run(parser, clone_args(&args)).await 
+            }
+        }
         // TODO: Figure out what to do with args
         match self {
             Self::Parallel(group) => {
@@ -71,12 +81,12 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
                 let mut command = group_iter.next().unwrap();
 
                 while let Some(next_command) = group_iter.next() {
-                    promises.push(command.run(parser, clone_args(&args)));
+                    promises.push(run_script(command, &args, parser));
 
                     command = next_command;
                 }
 
-                let last_result = command.run(parser, clone_args(&args));
+                let last_result = run_script(command, &args, parser);
                 let (results, last) = join!(join_all(promises), last_result);
 
                 let final_status =
@@ -96,23 +106,23 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
             Self::Series(group) => {
                 let mut rest_iter = group.rest.iter();
                 if let Some(last_command) = rest_iter.next_back() {
-                    let mut exit_status = group.first.run(parser, clone_args(&args)).await.unwrap();
+                    let mut exit_status = run_script(&group.first, &args, parser).await.unwrap();
 
                     for command in rest_iter {
                         exit_status = merge_status(
                             exit_status,
-                            command.run(parser, clone_args(&args)).await.unwrap(),
+                            run_script(&command, &args, parser).await.unwrap(),
                         );
                     }
 
                     exit_status = merge_status(
                         exit_status,
-                        last_command.run(parser, clone_args(&args)).await.unwrap(),
+                        run_script(last_command, &args, parser).await.unwrap(),
                     );
 
                     Ok(exit_status)
                 } else {
-                    Ok(group.first.run(parser, args).await.unwrap())
+                    Ok(run_script(&group.first, &args, parser).await.unwrap())
                 }
             }
         }
@@ -135,6 +145,64 @@ pub enum Script<CommandGeneric: Command> {
     Alias(Alias),
 }
 
+impl Alias {
+    #[async_recursion(?Send)]
+    pub async fn run<CommandGeneric : Command>(
+        &self,
+        parser: &impl ScriptParser<CommandGeneric>,
+        args: VarArgs,
+    ) -> Result<ExitStatus, ()> {
+        let final_args = (|| {
+            let has_params = has_parameters(&self.args);
+
+            if has_params {
+                let mapped_args_joined_args: VecDeque<Arc<String>> = self
+                    .args
+                    .iter()
+                    .map(|arg| {
+                        let arc = arg.clone();
+                        let char_result = arc.chars().nth(0);
+                        if char_result.map_or_else(|| false, |c| c == '$') && arc.len() >= 2
+                        {
+                            let index_string_slice = &arc[1..arc.len()];
+                            if index_string_slice.chars().all(char::is_numeric) {
+                                let index = index_string_slice.parse().unwrap();
+                                if index < args.len() {
+                                    return args[index].clone();
+                                } else {
+                                    panic!("{} was not provided", index);
+                                }
+                            } else {
+                                return arc;
+                            }
+                        } else {
+                            return arc;
+                        }
+                    })
+                    .collect();
+
+                return mapped_args_joined_args;
+            } else {
+                let joined_args: VecDeque<Arc<String>> = self
+                    .args
+                    .iter()
+                    .into_iter()
+                    .map(|arg| arg.clone())
+                    .chain(args.into_iter())
+                    .collect();
+
+                return joined_args;
+            }
+        })();
+
+        parser
+            .parse(self.task.as_str())
+            .unwrap()
+            .run(parser, final_args)
+            .await
+    }
+}
+
 impl<CommandGeneric: Command> Script<CommandGeneric> {
     #[async_recursion(?Send)]
     pub async fn run(
@@ -145,56 +213,7 @@ impl<CommandGeneric: Command> Script<CommandGeneric> {
         match self {
             Script::Command(cmd) => cmd.run(args).await,
             Script::Group(group) => group.run(parser, args).await,
-            Script::Alias(alias) => {
-                let final_args = (|| {
-                    let has_parameters = alias.args.iter().any(|arg| (*arg).contains("$"));
-
-                    if has_parameters {
-                        let mapped_args_joined_args: VecDeque<Arc<String>> = alias
-                            .args
-                            .iter()
-                            .map(|arg| {
-                                let arc = arg.clone();
-                                let char_result = arc.chars().nth(0);
-                                if char_result.map_or_else(|| false, |c| c == '$') && arc.len() >= 2
-                                {
-                                    let index_string_slice = &arc[1..arc.len()];
-                                    if index_string_slice.chars().all(char::is_numeric) {
-                                        let index = index_string_slice.parse().unwrap();
-                                        if index < args.len() {
-                                            return args[index].clone();
-                                        } else {
-                                            panic!("{} was not provided", index);
-                                        }
-                                    } else {
-                                        return arc;
-                                    }
-                                } else {
-                                    return arc;
-                                }
-                            })
-                            .collect();
-
-                        return mapped_args_joined_args;
-                    } else {
-                        let joined_args: VecDeque<Arc<String>> = alias
-                            .args
-                            .iter()
-                            .into_iter()
-                            .map(|arg| arg.clone())
-                            .chain(args.into_iter())
-                            .collect();
-
-                        return joined_args;
-                    }
-                })();
-
-                parser
-                    .parse(alias.task.as_str())
-                    .unwrap()
-                    .run(parser, final_args)
-                    .await
-            }
+            Script::Alias(alias) => alias.run(parser, args).await,
         }
     }
 }
