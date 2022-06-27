@@ -1,3 +1,5 @@
+use reconcilable_trait::Unchanged;
+
 use crate::*;
 
 #[derive(Debug)]
@@ -13,18 +15,17 @@ pub struct IteratorResult<IteratorGeneric: DoubleEndedIterator, ItemGeneric> {
 }
 
 impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allow> {
-    fn repopulate_base<WR, F: FnOnce(&mut IteratorGeneric) -> Option<IteratorGeneric::Item>, W: FnOnce(IteratorGeneric::Item) -> WR>(
+    fn repopulate_base<F: FnOnce(&mut IteratorGeneric) -> Option<IteratorGeneric::Item>>(
         mut self,
         next: F,
-        wrap_value: W, 
-    ) -> Result<IteratorResult<IteratorGeneric, WR>, IteratorManager<IteratorGeneric, Nothing>> {
+    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
         match next(&mut self.iterator) {
             Some(value) => Ok(IteratorResult {
                 manager: IteratorManager {
                     iterator: self.iterator,
                     has_next: Allow,
                 },
-                value: wrap_value(value),
+                value: value,
             }),
             None => Err(IteratorManager {
                 iterator: self.iterator,
@@ -41,40 +42,43 @@ impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allo
     }
 }
 
-pub trait Repopulatable<OkGeneric, FailureGeneric, ItemGeneric, ResultValue> {
-    fn repopulate<F : FnOnce(ItemGeneric) -> ResultValue>(
+pub trait Repopulatable<EndIdentifier> {
+    type OkGeneric;
+    type FailureGeneric;
+    fn repopulate(
         self,
-        wrap_value: F
-    ) -> Result<OkGeneric, FailureGeneric>;
+        identifier: EndIdentifier
+    ) -> Result<Self::OkGeneric, Self::FailureGeneric>;
 }
 
 impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<
-    IteratorResult<IteratorGeneric, Head<IteratorGeneric::Item>>,
-    IteratorManager<IteratorGeneric, Nothing>,
-    IteratorGeneric::Item,
-    Head<IteratorGeneric::Item>
+    Head
 > for IteratorManager<IteratorGeneric, Allow> {
-    fn repopulate<F : FnOnce(IteratorGeneric::Item) -> Head<IteratorGeneric::Item>>(
+    type OkGeneric = IteratorResult<IteratorGeneric, IteratorGeneric::Item>;
+    type FailureGeneric = IteratorManager<IteratorGeneric, Nothing>;
+
+    fn repopulate(
         self,
-        wrap_value: F
-    ) -> Result<IteratorResult<IteratorGeneric, Head<IteratorGeneric::Item>>, IteratorManager<IteratorGeneric, Nothing>> {
-        self.repopulate_base(IteratorGeneric::next, wrap_value)
+        identifier: Head
+    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
+        self.repopulate_base(IteratorGeneric::next)
     }
 }
 
 impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<
-    IteratorResult<IteratorGeneric, Tail<IteratorGeneric::Item>>,
-    IteratorManager<IteratorGeneric, Nothing>,
-    IteratorGeneric::Item,
-    Tail<IteratorGeneric::Item>
+    Tail
 > for IteratorManager<IteratorGeneric, Allow> {
-    fn repopulate<F : FnOnce(IteratorGeneric::Item) -> Tail<IteratorGeneric::Item>>(
+    type OkGeneric = IteratorResult<IteratorGeneric, IteratorGeneric::Item>;
+    type FailureGeneric = IteratorManager<IteratorGeneric, Nothing>;
+
+    fn repopulate(
         self,
-        wrap_value: F
-    ) -> Result<IteratorResult<IteratorGeneric, Tail<IteratorGeneric::Item>>, IteratorManager<IteratorGeneric, Nothing>> {
-        self.repopulate_base(IteratorGeneric::next_back, wrap_value)
+        identifier: Tail
+    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
+        self.repopulate_base(IteratorGeneric::next_back)
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -86,15 +90,15 @@ mod tests {
         let list = VecDeque::from([1, 2, 3]);
         let manager = IteratorManager::new(list.into_iter());
 
-        let head_result = manager.repopulate(Head::new).unwrap();
-        assert_eq!(head_result.value, Head(1));
+        let head_result = manager.repopulate(HEAD).unwrap();
+        assert_eq!(head_result.value, 1);
 
-        let tail_result = head_result.manager.repopulate(Tail::new).unwrap();
-        assert_eq!(tail_result.value, Tail(3));
+        let tail_result = head_result.manager.repopulate(TAIL).unwrap();
+        assert_eq!(tail_result.value, 3);
 
-        let last_result = tail_result.manager.repopulate(Head::new).unwrap();
-        assert_eq!(last_result.value, Head(2));
+        let last_result = tail_result.manager.repopulate(HEAD).unwrap();
+        assert_eq!(last_result.value, 2);
 
-        last_result.manager.repopulate(Head::new).unwrap_err();
+        last_result.manager.repopulate(HEAD).unwrap_err();
     }
 }

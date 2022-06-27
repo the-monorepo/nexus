@@ -58,12 +58,26 @@ pub trait MapTrait<Value, MappedValue> {
     fn map<F: FnOnce(Value) -> MappedValue>(self, wrap_value: F) -> Self::MappedObject;
 }
 
+pub trait Wrapper {
+    type Wrapped<T>;
+    fn wrap<T>(value: T) -> Self::Wrapped<T>;
+}
+
 /**
  * Used to identify whether to operate on the head for head tail traits
  */
 #[derive(PartialEq)]
 #[derive(Debug)]
- pub struct Head<H = ()>(pub H);
+pub struct Head<H = ()>(pub H);
+pub const HEAD: Head<()> = Head(());
+
+ impl<V> Wrapper for Head<V> {
+    type Wrapped<T> = Head<T>;
+
+    fn wrap<T>(value: T) -> Self::Wrapped<T> {
+        return Head(value);
+    }
+}
 
 impl<T> Head<T> {
     pub fn new(value: T) -> Head<T> {
@@ -88,6 +102,15 @@ impl<Value, H : Reconcilable<Value>> Reconcilable<Value> for Head<H> {
 #[derive(PartialEq)]
 #[derive(Debug)]
 pub struct Tail<T = ()>(pub T);
+pub const TAIL: Tail<()> = Tail(());
+
+impl<V> Wrapper for Tail<V> {
+    type Wrapped<T> = Tail<T>;
+
+    fn wrap<T>(value: T) -> Self::Wrapped<T> {
+        return Tail(value);
+    }
+}
 
 impl<T> Tail<T> {
     pub fn new(value: T) -> Tail<T> {
@@ -197,6 +220,14 @@ where
     }
 }
 
+impl<EndGeneric, HeadGeneric, TailGeneric> Reconcilable<Tail<EndGeneric>> for HeadTail<HeadGeneric, TailGeneric>
+where TailGeneric : Reconcilable<EndGeneric>
+{
+    type Reconciled = HeadTail<HeadGeneric, TailGeneric::Reconciled>;
+    type Unreconciled = Unchanged<HeadTail<>, EndGeneric::Unreconciled>;
+}
+
+
 impl<HeadGeneric> HeadTail<HeadGeneric, Nothing> {
     pub fn head(head: HeadGeneric) -> Self {
         HeadTail {
@@ -234,6 +265,7 @@ impl<Value, TailGeneric> SplitTrait<Head<Value>> for HeadTail<Value, TailGeneric
 #[cfg(test)]
 mod tests {
     use super::*;
+    use reconcilable_trait::mocks::AlwaysReconcileValue;
 
     fn expect_head_tail_strings<'a, 'b>(head_tail: HeadTail<&'a str, &'b str>) {
         assert_eq!(head_tail.head, "head");
@@ -305,5 +337,11 @@ mod tests {
         let (head_only, Tail(split_tail)) = HeadTail::new("head", "split").split();
         assert_eq!(split_tail, "split");
         assert_eq!(head_only, HeadTail::head("head"));
+    }
+
+    #[test]
+    fn reconcile_head() {
+        let reconciled = HeadTail::new(AlwaysReconcileValue::<u32>::new(), Nothing).reconcile(Head(1)).unwrap();
+        assert_eq!(reconciled, 1);
     }
 }

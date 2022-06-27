@@ -1,8 +1,8 @@
+use std::collections::vec_deque::Iter;
 use std::collections::VecDeque;
 use std::iter::{Chain, Iterator, Once};
 use std::process::ExitStatus;
 use std::rc::Rc;
-use std::collections::vec_deque::Iter;
 use std::sync::Arc;
 
 use futures::future::join_all;
@@ -29,6 +29,11 @@ impl<CommandGeneric: Command> ScriptGroup<CommandGeneric> {
     fn iter(&self) -> Chain<Once<&'_ Script<CommandGeneric>>, Iter<'_, Script<CommandGeneric>>> {
         std::iter::once(&self.first).chain(self.rest.iter())
     }
+}
+
+// TODO: Don't do this lol :3
+fn clone_args(args: &VarArgs) -> VarArgs {
+    return args.iter().map(|x| x.clone()).collect();
 }
 
 /**
@@ -66,41 +71,44 @@ impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
                 let mut command = group_iter.next().unwrap();
 
                 while let Some(next_command) = group_iter.next() {
-                    promises.push(command.run(parser, VecDeque::new()));
+                    promises.push(command.run(parser, clone_args(&args)));
 
                     command = next_command;
                 }
 
-                let last_result = command.run(parser, args);
-                let (results, last) = join!(
-                    join_all(promises),
-                    last_result
-                );
+                let last_result = command.run(parser, clone_args(&args));
+                let (results, last) = join!(join_all(promises), last_result);
 
-                let final_status = results.into_iter().fold(
-                    last.unwrap(),
-                    |prev_exit_status, this_result| {
-                        if let Ok(current_status) = this_result {
-                            return merge_status(prev_exit_status, current_status);
-                        } else {
-                            // TODO: Do something with the error
-                            return prev_exit_status;
-                        }
-                    },
-                );
+                let final_status =
+                    results
+                        .into_iter()
+                        .fold(last.unwrap(), |prev_exit_status, this_result| {
+                            if let Ok(current_status) = this_result {
+                                return merge_status(prev_exit_status, current_status);
+                            } else {
+                                // TODO: Do something with the error
+                                return prev_exit_status;
+                            }
+                        });
 
                 return Ok(final_status);
             }
-            Self::Series(group) => {               
+            Self::Series(group) => {
                 let mut rest_iter = group.rest.iter();
                 if let Some(last_command) = rest_iter.next_back() {
-                    let mut exit_status = group.first.run(parser, VecDeque::new()).await.unwrap();
+                    let mut exit_status = group.first.run(parser, clone_args(&args)).await.unwrap();
 
                     for command in rest_iter {
-                        exit_status = merge_status(exit_status, command.run(parser, VecDeque::new()).await.unwrap());
+                        exit_status = merge_status(
+                            exit_status,
+                            command.run(parser, clone_args(&args)).await.unwrap(),
+                        );
                     }
 
-                    exit_status = merge_status(exit_status, last_command.run(parser, args).await.unwrap());
+                    exit_status = merge_status(
+                        exit_status,
+                        last_command.run(parser, clone_args(&args)).await.unwrap(),
+                    );
 
                     Ok(exit_status)
                 } else {
@@ -138,18 +146,53 @@ impl<CommandGeneric: Command> Script<CommandGeneric> {
             Script::Command(cmd) => cmd.run(args).await,
             Script::Group(group) => group.run(parser, args).await,
             Script::Alias(alias) => {
-                let joined_args: VecDeque<Arc<String>> = alias
-                    .args
-                    .iter()
-                    .into_iter()
-                    .map(|arg| arg.clone())
-                    .chain(args.into_iter())
-                    .collect();
+                let final_args = (|| {
+                    let has_parameters = alias.args.iter().any(|arg| (*arg).contains("$"));
+
+                    if has_parameters {
+                        let mapped_args_joined_args: VecDeque<Arc<String>> = alias
+                            .args
+                            .iter()
+                            .map(|arg| {
+                                let arc = arg.clone();
+                                let char_result = arc.chars().nth(0);
+                                if char_result.map_or_else(|| false, |c| c == '$') && arc.len() >= 2
+                                {
+                                    let index_string_slice = &arc[1..arc.len()];
+                                    if index_string_slice.chars().all(char::is_numeric) {
+                                        let index = index_string_slice.parse().unwrap();
+                                        if index < args.len() {
+                                            return args[index].clone();
+                                        } else {
+                                            panic!("{} was not provided", index);
+                                        }
+                                    } else {
+                                        return arc;
+                                    }
+                                } else {
+                                    return arc;
+                                }
+                            })
+                            .collect();
+
+                        return mapped_args_joined_args;
+                    } else {
+                        let joined_args: VecDeque<Arc<String>> = alias
+                            .args
+                            .iter()
+                            .into_iter()
+                            .map(|arg| arg.clone())
+                            .chain(args.into_iter())
+                            .collect();
+
+                        return joined_args;
+                    }
+                })();
 
                 parser
                     .parse(alias.task.as_str())
                     .unwrap()
-                    .run(parser, joined_args)
+                    .run(parser, final_args)
                     .await
             }
         }

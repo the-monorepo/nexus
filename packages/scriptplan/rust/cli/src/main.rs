@@ -1,4 +1,4 @@
-use clap::{Command, CommandFactory};
+use clap::{Command};
 
 use std::collections::VecDeque;
 

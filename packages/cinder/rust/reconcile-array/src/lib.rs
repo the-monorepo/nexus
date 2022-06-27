@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use std::iter::DoubleEndedIterator;
 
 use reconcilable_trait::Reconcilable;
@@ -25,9 +26,9 @@ pub struct Position {
 }
 
 #[derive(Debug)]
-pub struct ReconciledAndNewState<Reconciled, InstructionGeneric> {
+pub struct ReconciledAndNewState<Reconciled, StateGeneric> {
     data: Reconciled,
-    state: InstructionGeneric,
+    state: StateGeneric,
 }
 
 struct Pair<V, O> {
