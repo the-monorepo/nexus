@@ -23,8 +23,6 @@ use scriptplan_core::ScriptParser;
 use scriptplan_core::VarArgs;
 use scriptplan_core::{Alias, CommandGroup, Script};
 
-use scriptplan_lang_utils::{has_parameters, apply_args};
-
 use tokio;
 use tokio::io::AsyncWriteExt;
 
