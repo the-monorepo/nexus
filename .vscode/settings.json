@@ -45,5 +45,8 @@
     "map": "cpp",
     "set": "cpp",
     "unordered_map": "cpp"
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
   }
 }

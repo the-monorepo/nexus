@@ -423,12 +423,14 @@ dependencies = [
 name = "scriptplan-nu"
 version = "0.0.1"
 dependencies = [
- "async-trait",
- "futures",
  "scriptplan-core",
- "shellwords",
- "tokio",
- "yaml-rust",
+]
+
+[[package]]
+name = "scriptplan-task-parser"
+version = "0.0.1"
+dependencies = [
+ "scriptplan-core",
 ]
 
 [[package]]

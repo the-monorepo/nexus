@@ -20,6 +20,7 @@ use ansi_term::{
     Style,
 };
 
+
 fn new_cli_app<'a>(name: &'a str) -> Command<'a> {
     Command::new(name).arg(
         clap::Arg::new("script-file")
