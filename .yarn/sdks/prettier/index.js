@@ -1,20 +1,3 @@
-#!/usr/bin/env node
-
-const {existsSync} = require(`fs`);
-const {createRequire, createRequireFromPath} = require(`module`);
-const {resolve} = require(`path`);
-
-const relPnpApiPath = "../../../.pnp.js";
-
-const absPnpApiPath = resolve(__dirname, relPnpApiPath);
-const absRequire = (createRequire || createRequireFromPath)(absPnpApiPath);
-
-if (existsSync(absPnpApiPath)) {
-  if (!process.versions.pnp) {
-    // Setup the environment to be able to require prettier/index.js
-    require(absPnpApiPath).setup();
-  }
-}
-
-// Defer to the real prettier/index.js your application uses
-module.exports = absRequire(`prettier/index.js`);
+version https://git-lfs.github.com/spec/v1
+oid sha256:2fd0586a03648869f65af8661c65f5c78a9bdf836a3369ef685c37113ea82516
+size 623

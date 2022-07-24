@@ -1,20 +1,3 @@
-#!/usr/bin/env node
-
-const {existsSync} = require(`fs`);
-const {createRequire, createRequireFromPath} = require(`module`);
-const {resolve} = require(`path`);
-
-const relPnpApiPath = "../../../../.pnp.js";
-
-const absPnpApiPath = resolve(__dirname, relPnpApiPath);
-const absRequire = (createRequire || createRequireFromPath)(absPnpApiPath);
-
-if (existsSync(absPnpApiPath)) {
-  if (!process.versions.pnp) {
-    // Setup the environment to be able to require eslint/lib/api.js
-    require(absPnpApiPath).setup();
-  }
-}
-
-// Defer to the real eslint/lib/api.js your application uses
-module.exports = absRequire(`eslint/lib/api.js`);
+version https://git-lfs.github.com/spec/v1
+oid sha256:bedad1e92f8a77d6248852c6935363be8b10402085e80d79aa7bbe3a42ebc785
+size 626
