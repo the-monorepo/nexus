@@ -1,7 +1,7 @@
 {
   "name": "@klio/chunk",
-  "version": "1.0.0-alpha.1",
-  "description": "Split an iterable into chunks",
+  "version": "1.0.0-alpha.2",
+  "description": "Split an iterator into chunked iterators",
   "types": "./src/index.ts",
   "module": "./esm/index.ts",
   "main": "./commonjs/index.ts",
