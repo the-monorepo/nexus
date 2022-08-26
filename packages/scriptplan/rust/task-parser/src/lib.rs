@@ -1,50 +1,49 @@
-use std::{str::Chars, iter::Enumerate, collections::VecDeque};
+use std::{collections::VecDeque, iter::Enumerate, str::Chars};
 
-struct Root {
+struct Root {}
 
-}
-
-struct Var {
-  
-}
+struct Var {}
 
 struct Completed;
 
 struct Pending;
 
 pub struct EndAtIdentifier<Identifier, Content, Consumer, State> {
-  start_identifier: Identifier,
-  content: Content,
-  end_identifer: Identifier,
-  nested_consumer: Option<Consumer>,
-  state: State,
+    start_identifier: Identifier,
+    content: Content,
+    end_identifer: Identifier,
+    nested_consumer: Option<Consumer>,
+    state: State,
 }
 
 pub enum EndAtIdentifierResult<Identifier, Content, Consumer> {
-  Completed(EndAtIdentifier<Identifier, Content, Consumer, Completed>),
-  Incomplete(EndAtIdentifier<Identifier, Content, Consumer, Pending>),
+    Completed(EndAtIdentifier<Identifier, Content, Consumer, Completed>),
+    Incomplete(EndAtIdentifier<Identifier, Content, Consumer, Pending>),
 }
 
-impl<I : std::cmp::PartialEq, Content: std::ops::Add<Output = I>> EndAtIdentifier<I, Content, Pending> {
-  pub fn consume(self, next: I) -> EndAtIdentifierResult<I, Content> {
-    if ()
-    if self.end_identifer == next {
-      EndAtIdentifierResult::Completed(EndAtIdentifier {
-        start_identifier: self.start_identifier,
-        content: self.content,
-        end_identifer: self.end_identifer,
-        nested_consumers: 
-        state: Completed
-      })
-    } else {
-      Next::End(EndAtIdentifier {
-        start_identifier: self.start_identifier,
-        content: self.content + next,
-        end_identifer: self.end_identifer,
-        state: Pending,
-      })
+impl<I: std::cmp::PartialEq, Content: std::ops::Add<Output = I>>
+    EndAtIdentifier<I, Content, Pending>
+{
+    pub fn consume(self, next: I) -> EndAtIdentifierResult<I, Content> {
+        if let Some(consumer) = self.nested_consumer {
+            EndAtIdentifier
+        }
+        if self.end_identifer == next {
+            EndAtIdentifierResult::Completed(EndAtIdentifier {
+                start_identifier: self.start_identifier,
+                content: self.content,
+                end_identifer: self.end_identifer,
+                nested_consumers: state: Completed,
+            })
+        } else {
+            Next::End(EndAtIdentifier {
+                start_identifier: self.start_identifier,
+                content: self.content + next,
+                end_identifer: self.end_identifer,
+                state: Pending,
+            })
+        }
     }
-  }
 }
 
 /*
@@ -57,7 +56,7 @@ impl<I : Iterator> TokenizerImpl<I> {
     TokenizerImpl {
       chars_iter
     }
-  } 
+  }
 }
 
 impl<I : Iterator> TokenizerImpl<I> {
