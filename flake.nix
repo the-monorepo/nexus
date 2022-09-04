@@ -35,6 +35,7 @@
             pkgs.nodejs
             pkgs.yarn
             pkgs.rust-bin.stable.latest.default
+            pkgs.openssl
 
             scriptplanPkg
           ];
