@@ -149,5 +149,3 @@ update-browserslist: |
   yarn dlx browserslist --update-db
 create-ssl-certificate: openssl req -x509 -config localhost.cnf -new -nodes -keyout localhost.key -out localhost.crt
 
-build-docker:
-  docker build 
