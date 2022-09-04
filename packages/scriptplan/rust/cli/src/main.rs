@@ -1,4 +1,4 @@
-use clap::{Command};
+use clap::Command;
 
 use std::collections::VecDeque;
 
@@ -19,7 +19,6 @@ use ansi_term::{
     Colour::{Cyan, Purple},
     Style,
 };
-
 
 fn new_cli_app<'a>(name: &'a str) -> Command<'a> {
     Command::new(name).arg(
@@ -86,7 +85,7 @@ async fn main() {
                                 clap::Arg::new("EXTRA_ARGUMENTS")
                                     .multiple_values(true)
                                     .allow_hyphen_values(true)
-                                    .use_value_delimiter(false)
+                                    .use_value_delimiter(false),
                             ),
                     )
                 },

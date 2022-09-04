@@ -11,7 +11,7 @@ use futures::join;
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 
-use scriptplan_lang_utils::{has_parameters, apply_args};
+use scriptplan_lang_utils::{apply_args, has_parameters};
 
 #[async_trait]
 pub trait Command {
@@ -54,17 +54,31 @@ fn merge_status(status1: ExitStatus, status2: ExitStatus) -> ExitStatus {
     return status1;
 }
 
-
 impl<CommandGeneric: Command> CommandGroup<CommandGeneric> {
     async fn run(
         &self,
         parser: &impl ScriptParser<CommandGeneric>,
         args: VarArgs,
     ) -> Result<ExitStatus, ()> {
-        async fn run_script<'a, CommandGeneric: Command>(script: &'a Script<CommandGeneric>, args: &VarArgs, parser: &impl ScriptParser<CommandGeneric>) -> Result<ExitStatus, ()> {
+        async fn run_script<'a, CommandGeneric: Command>(
+            script: &'a Script<CommandGeneric>,
+            args: &VarArgs,
+            parser: &impl ScriptParser<CommandGeneric>,
+        ) -> Result<ExitStatus, ()> {
             match script {
-                Script::Alias(alias) => alias.run(parser, if has_parameters(&alias.args) { clone_args(&args) } else { VecDeque::new( ) }).await,
-                default => default.run(parser, clone_args(&args)).await 
+                Script::Alias(alias) => {
+                    alias
+                        .run(
+                            parser,
+                            if has_parameters(&alias.args) {
+                                clone_args(&args)
+                            } else {
+                                VecDeque::new()
+                            },
+                        )
+                        .await
+                }
+                default => default.run(parser, clone_args(&args)).await,
             }
         }
         // TODO: Figure out what to do with args
@@ -146,7 +160,7 @@ pub enum Script<CommandGeneric: Command> {
 
 impl Alias {
     #[async_recursion(?Send)]
-    pub async fn run<CommandGeneric : Command>(
+    pub async fn run<CommandGeneric: Command>(
         &self,
         parser: &impl ScriptParser<CommandGeneric>,
         args: VarArgs,

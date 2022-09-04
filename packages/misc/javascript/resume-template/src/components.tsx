@@ -102,7 +102,12 @@ const Header = ({ data, children }) => {
     <>
       <header class={cx(styles.header, styles.pageGrid)}>
         <div class={styles.headingContainer}>
-          <Typography variant="h3" Component="h1" class={styles.heading} backgroundContext="primary">
+          <Typography
+            variant="h3"
+            Component="h1"
+            class={styles.heading}
+            backgroundContext="primary"
+          >
             {children}
           </Typography>
         </div>

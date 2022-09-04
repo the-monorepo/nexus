@@ -1,4 +1,7 @@
-export function* chunk<T>(iterator: Iterator<T>, chunkLength: number): Iterable<Iterable<T>> {
+export function* chunk<T>(
+  iterator: Iterator<T>,
+  chunkLength: number,
+): Iterable<Iterable<T>> {
   let i = iterator.next();
 
   let currentArray: T[] = [];
