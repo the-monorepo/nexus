@@ -6,5 +6,5 @@ members = [
     "./packages/scriptplan/rust/nu",
     "./packages/cinder/rust/core",
     "./packages/cinder/rust/reconcilable-trait",
-    "./packages/cinder/rust/reconcile-array"
+    #"./packages/cinder/rust/reconcile-array"
 ]

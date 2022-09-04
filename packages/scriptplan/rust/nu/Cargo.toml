@@ -7,4 +7,4 @@ license = "MIT"
 description = "Experimental Nu language parser and runtime for Scriptplan"
 
 [dependencies]
-scriptplan-core = { path="../core", version = "7.0.0" }
+scriptplan-core = { path="../core", version = "6.0.0" }

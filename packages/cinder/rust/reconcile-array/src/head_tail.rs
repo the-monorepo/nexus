@@ -220,12 +220,12 @@ where
     }
 }
 
-impl<EndGeneric, HeadGeneric, TailGeneric> Reconcilable<Tail<EndGeneric>> for HeadTail<HeadGeneric, TailGeneric>
+/*impl<EndGeneric, HeadGeneric, TailGeneric> Reconcilable<Tail<EndGeneric>> for HeadTail<HeadGeneric, TailGeneric>
 where TailGeneric : Reconcilable<EndGeneric>
 {
     type Reconciled = HeadTail<HeadGeneric, TailGeneric::Reconciled>;
     type Unreconciled = Unchanged<HeadTail<>, EndGeneric::Unreconciled>;
-}
+}*/
 
 
 impl<HeadGeneric> HeadTail<HeadGeneric, Nothing> {
