@@ -33,7 +33,7 @@
     "app"
   ],
   "dependencies": {
-    "@babel/core": "^7.15.5",
+    "@babel/core": "^7.18.13",
     "@buildplan/core": "workspace:^",
     "@fault/addon-mutation-localization": "workspace:^",
     "@fault/addon-sbfl": "workspace:^",

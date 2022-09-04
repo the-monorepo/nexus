@@ -35,9 +35,9 @@
     "benchmark"
   ],
   "dependencies": {
-    "@babel/core": "^7.15.5",
-    "@babel/parser": "^7.15.7",
-    "@babel/register": "^7.15.3",
+    "@babel/core": "^7.18.13",
+    "@babel/parser": "^7.18.13",
+    "@babel/register": "^7.18.9",
     "@fault/addon-sbfl": "workspace:^",
     "@fault/istanbul-util": "workspace:^",
     "@fault/record-faults": "workspace:^",
