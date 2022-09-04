@@ -12,23 +12,18 @@ jobs:
         os:
           -
             id: ubuntu-latest
-            scriptplan-path: ./scriptplan-linux-gnu
           -
             id: macos-latest
-            scriptplan-path: ./scriptplan
-          -
-            id: windows-latest
-            scriptplan-path: .\scriptplan.exe
         node-version: [14.x]
 
     runs-on: ${{ matrix.os.id }}
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+    - uses: cachix/install-nix-action@v17
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: yarn install --immutable
-    - run: ${{matrix.os.scriptplan-path}} build
-    - run: ${{matrix.os.scriptplan-path}} test
+        extra_nix_config: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn install --immutable
+    - run: nix --experimental-features 'nix-command flakes' develop --command scriptplan build
+    - run: nix --experimental-features 'nix-command flakes' develop --command scriptplan test

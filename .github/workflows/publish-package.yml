@@ -12,12 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 14
-    - run: yarn install --immutable
-    - run: ./scriptplan-linux-gnu run:buildplan prepublish
-    - run: yarn version check
-    - run: yarn version apply
+    - uses: cachix/install-nix-action@v17
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn install --immutable
+    - run: nix --experimental-features 'nix-command flakes' develop --command scriptplan prepublish
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn version check
+    - run: nix --experimental-features 'nix-command flakes' develop --command yarn version apply
       env:
         NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
