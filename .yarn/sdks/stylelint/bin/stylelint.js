@@ -1,20 +1,3 @@
-#!/usr/bin/env node
-
-const {existsSync} = require(`fs`);
-const {createRequire, createRequireFromPath} = require(`module`);
-const {resolve} = require(`path`);
-
-const relPnpApiPath = "../../../../.pnp.js";
-
-const absPnpApiPath = resolve(__dirname, relPnpApiPath);
-const absRequire = (createRequire || createRequireFromPath)(absPnpApiPath);
-
-if (existsSync(absPnpApiPath)) {
-  if (!process.versions.pnp) {
-    // Setup the environment to be able to require stylelint/bin/stylelint.js
-    require(absPnpApiPath).setup();
-  }
-}
-
-// Defer to the real stylelint/bin/stylelint.js your application uses
-module.exports = absRequire(`stylelint/bin/stylelint.js`);
+version https://git-lfs.github.com/spec/v1
+oid sha256:f73615146344525eaea97a1bdbe382a8b01aed9b94c10dd599f9de0f818f565b
+size 653

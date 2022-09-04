@@ -1,20 +1,3 @@
-#!/usr/bin/env node
-
-const {existsSync} = require(`fs`);
-const {createRequire, createRequireFromPath} = require(`module`);
-const {resolve} = require(`path`);
-
-const relPnpApiPath = "../../../../.pnp.js";
-
-const absPnpApiPath = resolve(__dirname, relPnpApiPath);
-const absRequire = (createRequire || createRequireFromPath)(absPnpApiPath);
-
-if (existsSync(absPnpApiPath)) {
-  if (!process.versions.pnp) {
-    // Setup the environment to be able to require typescript/lib/tsc.js
-    require(absPnpApiPath).setup();
-  }
-}
-
-// Defer to the real typescript/lib/tsc.js your application uses
-module.exports = absRequire(`typescript/lib/tsc.js`);
+version https://git-lfs.github.com/spec/v1
+oid sha256:f18fcd2876ccf668f20a97bfda5c10be61ed05532d2e7200380a74cd48b56f82
+size 638
