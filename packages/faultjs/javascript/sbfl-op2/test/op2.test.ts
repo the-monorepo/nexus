@@ -1,4 +1,4 @@
-import { op2 } from '../src/index.ts';
+import op2 from '../src/index.ts';
 
 describe('op2', () => {
   it('0 fails', () => {

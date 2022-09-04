@@ -1,4 +1,4 @@
-import { dStar } from '../src/index.ts';
+import dStar from '../src/index.ts';
 
 describe('dstar', () => {
   it('0/10 passes 0/10 fails', () => {

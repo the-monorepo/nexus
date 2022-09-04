@@ -1,4 +1,4 @@
-import { chunk } from '../src/index';
+import chunk from '../src/index.ts';
 import expect from 'expect';
 
 it(chunk.name, () => {

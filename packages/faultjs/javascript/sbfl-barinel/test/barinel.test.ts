@@ -1,4 +1,4 @@
-import { barinel } from '../src/index.ts';
+import barinel from '../src/index.ts';
 
 describe('barinel', () => {
   it('0 fails', () => {
