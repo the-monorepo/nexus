@@ -22,7 +22,8 @@
 
         scriptplanPkg = rustPlatform.buildRustPackage rec {
           pname = "scriptplan-cli";
-          version = "5.1.3";
+          version = "8.0.0";
+          src = ./.;
 
           cargoLock = {
             lockFile = ./Cargo.lock;
