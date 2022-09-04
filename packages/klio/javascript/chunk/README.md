@@ -1,15 +1,15 @@
 # Chunk
 
-Split an iterable into chunks
+Split an iterator into chunked iterators
 
 ## Installation
 
 ```bash
-npm install --save @klio/chunk@1.0.0-alpha.1
+npm install --save @klio/chunk@1.0.0-alpha.2
 ```
 or
 ```bash
-yarn add @klio/chunk@1.0.0-alpha.1
+yarn add @klio/chunk@1.0.0-alpha.2
 ```
 
 ---

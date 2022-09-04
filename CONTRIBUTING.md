@@ -1,19 +1,20 @@
 # Contributing
 
 ## Quick start
-To build everything:
-1. `./scriptplan install-osx`
-1. `./scriptplan build`
 
-To clean artifacts: `./scriptplan clean`
+1. Install [Nix](https://nix.dev/tutorials/install-nix).
+2. Run `nix --experimental-features 'nix-command flakes' develop`
+3. `scriptplan start`
+
+To clean artifacts: `scriptplan clean`
 
 To serve webapp packages:
-1. `./scriptplan serve --name <webpack-config-name>`
+1. `scriptplan serve --name <webpack-config-name>`
 2. The CLI will show what port the server is listening on
 You can currently find the names of various webpack configs in [webpack.config.ts](./webpack.config.ts);
 
 For anything else:
-1. Run `./scriptplan help`.
+1. Run `scriptplan help`.
 
 ## OS Support
 
