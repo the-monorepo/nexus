@@ -59,3 +59,7 @@ localhost.crt
 localhost.key
 
 target/
+
+# Nix
+packages/*/nix/**/result
+packages/*/nix/**/flake.lock
