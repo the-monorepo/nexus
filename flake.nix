@@ -42,6 +42,8 @@
             pkgs.git-lfs
 
             scriptplanPkg
+
+            pkgs.brotli
           ];
         };
       });
