@@ -11,9 +11,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3.0.2
-      with:
-        lfs: true
+    - uses: nschloe/action-cached-lfs-checkout@v1
     - uses: cachix/install-nix-action@v17
     - run: nix --experimental-features 'nix-command flakes' develop --command yarn install --immutable --immutable-cache
     - run: nix --experimental-features 'nix-command flakes' develop --command scriptplan prepublish
