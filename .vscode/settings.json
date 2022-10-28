@@ -14,7 +14,7 @@
   "stylelint.stylelintPath": ".yarn/sdks/stylelint/lib/index.js",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[rust]": {
-    "editor.defaultFormatter": "matklad.rust-analyzer"
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
   "[typescript]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
