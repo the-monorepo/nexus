@@ -72,12 +72,14 @@ where
         let result = self.ends.reconcile(value);
 
         match result {
-            Ok(reconciled) => {
-                todo!();
-            }
-            Err(unreconciled) => {
-                todo!();
-            }
+            Ok(reconciled) => Ok(ComponentManager {
+                iterator: self.iterator,
+                ends: reconciled,
+            }),
+            Err(unreconciled) => Err(ComponentManager {
+                iterator: self.iterator,
+                ends: unreconciled,
+            }),
         }
     }
 }
