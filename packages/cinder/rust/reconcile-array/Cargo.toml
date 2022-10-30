@@ -7,3 +7,4 @@ publish = false
 
 [dependencies]
 reconcilable-trait = { path="../reconcilable-trait", version = "0.1.0" }
+immutable-operators = { path="../immutable-operators", version = "0.1.0" }

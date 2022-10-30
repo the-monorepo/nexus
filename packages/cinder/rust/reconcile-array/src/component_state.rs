@@ -1,5 +1,6 @@
 use crate::*;
-use reconcilable_trait::{SplitSource, SplitValue, Unchanged};
+use immutable_operators::*;
+use reconcilable_trait::Unchanged;
 
 #[derive(Debug)]
 pub struct Allow;
@@ -24,89 +25,61 @@ impl<C> ComponentState<C, HeadTail<Allow, Allow>> {
     }
 }
 
-impl<C, SplitHead, Value> Reconcilable<Head<Value>> for ComponentState<C, SplitHead>
+impl<C, AllowTailGeneric, Value> Reconcilable<Tail<Value>> for ComponentState<C, AllowTailGeneric>
 where
     C: Reconcilable<Value>,
-    C::Unreconciled: SplitSource,
-    <C::Unreconciled as SplitSource>::Other: SplitValue,
-    SplitHead: SplitTrait<Head<Allow>>,
+    AllowTailGeneric: SplitTrait<Tail<Allow>>,
 {
-    type Reconciled = ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitHead>>;
-    type Unreconciled = ReconciledAndNewState<
-    <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
-    ComponentState<<C::Unreconciled as SplitSource>::Source, SplitHead::Other>,
->;
-    fn reconcile(
-        self,
-        value: Head<Value>,
-    ) -> Result<
-        Self::Reconciled,
-        Self::Unreconciled,
-    > {
+    type Reconciled = ComponentState<C::Reconciled, HeadTail<Allow, Allow>>;
+    type Unreconciled = ComponentState<C::Unreconciled, AllowTailGeneric::Other>;
+    fn reconcile(self, value: Tail<Value>) -> Result<Self::Reconciled, Self::Unreconciled> {
         match self.component.reconcile(value.0) {
-            Ok(reconciled) => Ok(ReconciledAndNewState {
-                data: reconciled,
-                state: ComponentState {
-                    component: Nothing,
-                    skip: self.skip,
-                },
+            Ok(reconciled) => Ok(ComponentState {
+                component: reconciled,
+                skip: HeadTail::new(Allow, Allow),
             }),
-            Err(err) => {
-                let (source, err) = err.split_source();
-                let (value, _) = err.split_value();
-                return Err(ReconciledAndNewState {
-                    data: value,
-                    state: ComponentState {
-                        component: source,
-                        skip: self.skip,
-                    }
-                    .skip_vh(),
-                });
+            Err(unreconciled) => Err(ComponentState {
+                component: unreconciled,
+                skip: self.skip,
             }
+            .skip_vt()),
         }
     }
 }
 
-impl<C, SplitTail, Value> Reconcilable<Tail<Value>> for ComponentState<C, SplitTail>
+impl<C, AllowHeadGeneric, Value> Reconcilable<Head<Value>> for ComponentState<C, AllowHeadGeneric>
 where
     C: Reconcilable<Value>,
-    C::Unreconciled: SplitSource,
-    <C::Unreconciled as SplitSource>::Other: SplitValue,
-    SplitTail: SplitTrait<Tail<Allow>>,
+    AllowHeadGeneric: SplitTrait<Head<Allow>>,
 {
-    type Reconciled = ReconciledAndNewState<C::Reconciled, ComponentState<Nothing, SplitTail>>;
-    type Unreconciled = ReconciledAndNewState<
-    <<C::Unreconciled as SplitSource>::Other as SplitValue>::Value,
-    ComponentState<<C::Unreconciled as SplitSource>::Source, SplitTail::Other>,
->;
-    fn reconcile(
-        self,
-        value: Tail<Value>,
-    ) -> Result<
-        Self::Reconciled,
-        Self::Unreconciled,
-    > {
+    type Reconciled = ComponentState<C::Reconciled, HeadTail<Allow, Allow>>;
+    type Unreconciled = ComponentState<C::Unreconciled, AllowHeadGeneric::Other>;
+    fn reconcile(self, value: Head<Value>) -> Result<Self::Reconciled, Self::Unreconciled> {
         match self.component.reconcile(value.0) {
-            Ok(reconciled) => Ok(ReconciledAndNewState {
-                data: reconciled,
-                state: ComponentState {
-                    component: Nothing,
-                    skip: self.skip,
-                },
+            Ok(reconciled) => Ok(ComponentState {
+                component: reconciled,
+                skip: HeadTail::new(Allow, Allow),
             }),
-            Err(err) => {
-                let (source, err) = err.split_source();
-                let (value, _) = err.split_value();
-                return Err(ReconciledAndNewState {
-                    data: value,
-                    state: ComponentState {
-                        component: source,
-                        skip: self.skip,
-                    }
-                    .skip_vt(),
-                });
+            Err(unreconciled) => Err(ComponentState {
+                component: unreconciled,
+                skip: self.skip,
             }
+            .skip_vh()),
         }
+    }
+}
+
+impl<Component, SkipGeneric> SplitTrait<Component> for ComponentState<Component, SkipGeneric> {
+    type Other = ComponentState<Nothing, HeadTail<Allow, Allow>>;
+
+    fn split(self) -> (Self::Other, Component) {
+        (
+            ComponentState {
+                component: Nothing,
+                skip: HeadTail::new(Allow, Allow),
+            },
+            self.component,
+        )
     }
 }
 
@@ -157,7 +130,7 @@ impl<C, MergeTail: MergeTrait<Tail<Allow>>> ComponentState<C, MergeTail> {
 
 #[cfg(test)]
 mod tests {
-    use reconcilable_trait::mocks::{ AlwaysReconcileValue, AlwaysUnreconcileValue };
+    use reconcilable_trait::mocks::{AlwaysReconcileValue, AlwaysUnreconcileValue};
 
     use super::*;
 
@@ -180,7 +153,7 @@ mod tests {
             ComponentState::component(AlwaysReconcileValue::<u32>::new())
                 .reconcile(Head(expected_value))
                 .unwrap()
-                .data,
+                .split_value(),
             expected_value
         );
     }
@@ -188,12 +161,14 @@ mod tests {
     #[test]
     fn reconcile_vh_error() {
         let expected_value = 1;
+        let original = AlwaysUnreconcileValue::<u32>::new();
         assert_eq!(
-            ComponentState::component(AlwaysUnreconcileValue::<u32>::new())
+            ComponentState::component(original)
                 .reconcile(Head(expected_value))
                 .unwrap_err()
-                .data,
-            expected_value
+                .split_value(),
+            // TODO: Feels a little smelly. At a glance, to me, it feels like I'd expect this to fail since it's a new instance. Maybe instead we could check if re-reconciling the new component produces the same behavior as the original component value?
+            Unchanged::new(AlwaysUnreconcileValue::<u32>::new(), expected_value)
         )
     }
 
@@ -204,8 +179,8 @@ mod tests {
             ComponentState::component(AlwaysReconcileValue::<u32>::new())
                 .reconcile(Tail(expected_value))
                 .unwrap()
-                .data,
-                expected_value
+                .split_value(),
+            expected_value
         )
     }
 
@@ -216,8 +191,8 @@ mod tests {
             ComponentState::component(AlwaysUnreconcileValue::<u32>::new())
                 .reconcile(Tail(expected_value))
                 .unwrap_err()
-                .data,
-                expected_value
+                .split_value(),
+            Unchanged::new(AlwaysUnreconcileValue::<u32>::new(), expected_value)
         )
     }
 }

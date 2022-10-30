@@ -1,8 +1,9 @@
-use reconcilable_trait::Reconcilable;
 use crate::*;
+use immutable_operators::*;
+use reconcilable_trait::Reconcilable;
 
 /**
- * Lowest level layer of reconiling an array. Pretty much all the work done in reconciling an array only requires referring to the 
+ * Lowest level layer of reconciling an array. Pretty much all the work done in reconciling an array only requires referring to the
  * head and the tail so we've made traits to communicate that in a generic way.
  */
 #[derive(Debug, PartialEq)]
@@ -26,58 +27,18 @@ impl HeadTail<Nothing, Nothing> {
     }
 }
 
-/**
- * An immutable trait for popping a value out of an object
- */
-pub trait SplitTrait<Value> {
-    type Other;
-    fn split(self) -> (Self::Other, Value);
-}
-
-/**
- * An immutable trait for adding a value int oa an object
- */
-pub trait MergeTrait<Value> {
-    type MergedObject;
-    fn merge(self, value: Value) -> Self::MergedObject;
-
-    fn merge_option(self, value_option: Option<Value>) -> Result<Self::MergedObject, Self>
-    where
-        Self: Sized,
-    {
-        if let Some(value) = value_option {
-            Ok(self.merge(value))
-        } else {
-            Err(self)
-        }
-    }
-}
-
-
-pub struct SplitMapped<M, R> {
-    pub mapped: M,
-    pub reduced: R,
-}
-
-pub trait MapTrait<Value, MappedValue> {
-    type MappedObject;
-    fn map<F: FnOnce(Value) -> MappedValue>(self, wrap_value: F) -> Self::MappedObject;
-}
-
 pub trait Wrapper {
     type Wrapped<T>;
     fn wrap<T>(value: T) -> Self::Wrapped<T>;
 }
-
 /**
  * Used to identify whether to operate on the head for head tail traits
  */
-#[derive(PartialEq)]
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct Head<H = ()>(pub H);
 pub const HEAD: Head<()> = Head(());
 
- impl<V> Wrapper for Head<V> {
+impl<V> Wrapper for Head<V> {
     type Wrapped<T> = Head<T>;
 
     fn wrap<T>(value: T) -> Self::Wrapped<T> {
@@ -94,19 +55,18 @@ impl<T> Head<T> {
 /**
  * Small utility so you don't have to access Head's reconcile method directly
  */
-impl<Value, H : Reconcilable<Value>> Reconcilable<Value> for Head<H> {
+impl<Value, H: Reconcilable<Value>> Reconcilable<Value> for Head<H> {
     type Reconciled = H::Reconciled;
     type Unreconciled = H::Unreconciled;
 
     fn reconcile(self, value: Value) -> Result<H::Reconciled, H::Unreconciled> {
         self.0.reconcile(value)
     }
-} 
+}
 /**
  * Used to identify whether to operate on the tail for head-tail traits
  */
-#[derive(PartialEq)]
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct Tail<T = ()>(pub T);
 pub const TAIL: Tail<()> = Tail(());
 
@@ -127,90 +87,82 @@ impl<T> Tail<T> {
 /**
  * Small utility so you don't have to access Tail's reconcile method directly
  */
-impl<Value, T : Reconcilable<Value>> Reconcilable<Value> for Tail<T> {
+impl<Value, T: Reconcilable<Value>> Reconcilable<Value> for Tail<T> {
     type Reconciled = T::Reconciled;
     type Unreconciled = T::Unreconciled;
 
     fn reconcile(self, value: Value) -> Result<T::Reconciled, T::Unreconciled> {
         self.0.reconcile(value)
     }
-} 
+}
 
-impl<CurrentHead, HeadGeneric, TailGeneric> MergeTrait<Head<HeadGeneric>> for HeadTail<CurrentHead, TailGeneric> {
-    type MergedObject = HeadTail<HeadGeneric, TailGeneric>;
-    fn merge(self, head: Head<HeadGeneric>) -> HeadTail<HeadGeneric, TailGeneric> {
+impl<H, T> HeadTail<H, T> {
+    fn merge_head<V>(self, head: V) -> HeadTail<V, T> {
         HeadTail {
-            head: head.0,
+            head,
             tail: self.tail,
         }
     }
-}
 
-impl<CurrentTail, HeadGeneric, TailGeneric> MergeTrait<Tail<TailGeneric>> for HeadTail<HeadGeneric, CurrentTail> {
-    type MergedObject = HeadTail<HeadGeneric, TailGeneric>;
-    fn merge(self, tail: Tail<TailGeneric>) -> HeadTail<HeadGeneric, TailGeneric> {
+    fn merge_tail<V>(self, tail: V) -> HeadTail<H, V> {
         HeadTail {
             head: self.head,
-            tail: tail.0,
+            tail,
         }
     }
 }
 
-impl<MappedValue, Value, T> MapTrait<Head<Value>, MappedValue> for T
-where
-    T: SplitTrait<Head<Value>>,
-    T::Other: MergeTrait<Head<MappedValue>>,
+impl<CurrentHead, HeadGeneric, TailGeneric> MergeTrait<Head<HeadGeneric>>
+    for HeadTail<CurrentHead, TailGeneric>
 {
-    type MappedObject = <T::Other as MergeTrait<Head<MappedValue>>>::MergedObject;
-    fn map<F: FnOnce(Head<Value>) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
-        let (other, head) = self.split();
-        let mapped = a_fn(head);
-        other.merge(Head(mapped))
+    type MergedObject = HeadTail<HeadGeneric, TailGeneric>;
+    fn merge(self, head: Head<HeadGeneric>) -> HeadTail<HeadGeneric, TailGeneric> {
+        self.merge_head(head.0)
     }
 }
 
-impl<MappedValue, Value, T> MapTrait<Tail<Value>, MappedValue> for T
-where
-    T: SplitTrait<Tail<Value>>,
-    T::Other: MergeTrait<Tail<MappedValue>>,
+impl<CurrentTail, HeadGeneric, TailGeneric> MergeTrait<Tail<TailGeneric>>
+    for HeadTail<HeadGeneric, CurrentTail>
 {
-    type MappedObject = <T::Other as MergeTrait<Tail<MappedValue>>>::MergedObject;
-    fn map<F: FnOnce(Tail<Value>) -> MappedValue>(self, a_fn: F) -> Self::MappedObject {
-        let (other, tail) = self.split();
-        let mapped = a_fn(tail);
-        other.merge(Tail(mapped))
+    type MergedObject = HeadTail<HeadGeneric, TailGeneric>;
+    fn merge(self, tail: Tail<TailGeneric>) -> HeadTail<HeadGeneric, TailGeneric> {
+        self.merge_tail(tail.0)
     }
 }
 
-impl<HeadGeneric, NewValue, CurrentValue> Reconcilable<Tail<NewValue>> for HeadTail<HeadGeneric, CurrentValue>
-where CurrentValue: Reconcilable<NewValue>
+impl<HeadGeneric, NewValue, CurrentValue> Reconcilable<Tail<NewValue>>
+    for HeadTail<HeadGeneric, CurrentValue>
+where
+    CurrentValue: Reconcilable<NewValue>,
 {
     type Reconciled = HeadTail<HeadGeneric, CurrentValue::Reconciled>;
     type Unreconciled = HeadTail<HeadGeneric, CurrentValue::Unreconciled>;
-    
+
     fn reconcile(self, new_value: Tail<NewValue>) -> Result<Self::Reconciled, Self::Unreconciled> {
         let (other, Tail(tail)) = self.split();
-        
-        match tail.reconcile(new_value.0) {
-            Ok(reconciled) => Ok(other.merge(Tail(reconciled))),
-            Err(unreconciled) => Err(other.merge(Tail(unreconciled))),
-        }
+
+        return match tail.reconcile(new_value.0) {
+            Ok(reconciled) => Ok(other.merge_tail(reconciled)),
+            Err(unreconciled) => Err(other.merge_tail(unreconciled)),
+        };
     }
 }
 
-impl<TailGeneric, NewValue, CurrentValue> Reconcilable<Head<NewValue>> for HeadTail<CurrentValue, TailGeneric>
-where CurrentValue: Reconcilable<NewValue>
+impl<TailGeneric, NewValue, CurrentValue> Reconcilable<Head<NewValue>>
+    for HeadTail<CurrentValue, TailGeneric>
+where
+    CurrentValue: Reconcilable<NewValue>,
 {
     type Reconciled = HeadTail<CurrentValue::Reconciled, TailGeneric>;
     type Unreconciled = HeadTail<CurrentValue::Unreconciled, TailGeneric>;
-    
+
     fn reconcile(self, new_value: Head<NewValue>) -> Result<Self::Reconciled, Self::Unreconciled> {
-        let (other, Head(tail)) = self.split();
-        
-        match tail.reconcile(new_value.0) {
-            Ok(reconciled) => Ok(other.merge(Head(reconciled))),
-            Err(unreconciled) => Err(other.merge(Head(unreconciled))),
-        }
+        let (other, Head(head)) = self.split();
+
+        return match head.reconcile(new_value.0) {
+            Ok(reconciled) => Ok(other.merge_head(reconciled)),
+            Err(unreconciled) => Err(other.merge_head(unreconciled)),
+        };
     }
 }
 
@@ -327,7 +279,9 @@ mod tests {
 
     #[test]
     fn reconcile_head() {
-        let reconciled = HeadTail::new(AlwaysReconcileValue::<u32>::new(), Nothing).reconcile(Head(1)).unwrap();
+        let reconciled = HeadTail::new(AlwaysReconcileValue::<u32>::new(), Nothing)
+            .reconcile(Head(1))
+            .unwrap();
         assert_eq!(reconciled, HeadTail::head(1));
     }
 }

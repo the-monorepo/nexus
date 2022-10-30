@@ -1,29 +1,34 @@
-
-
 use crate::*;
+use immutable_operators::*;
+use reconcilable_trait::Reconcilable;
 
-pub struct Components<CH, CT, HeadSkipState, TailSkipState> {
-    head_tail: HeadTail<ComponentState<CH, HeadSkipState>, ComponentState<CT, TailSkipState>>,
-}
+pub type Components<CH, CT, HeadSkipState, TailSkipState> =
+    HeadTail<ComponentState<CH, HeadSkipState>, ComponentState<CT, TailSkipState>>;
 
-impl<CH, CT, HeadSkipState, TailSkipState> MergeTrait<Head<CH>>
-    for Components<Nothing, CT, HeadSkipState, TailSkipState>
-{
-    type MergedObject = Components<CH, CT, HeadTail<Allow, Allow>, TailSkipState>;
-    fn merge(self, head: Head<CH>) -> Self::MergedObject {
-        Components {
-            head_tail: self.head_tail.map(|Head(component)| component.merge(head.0)),
-        }
-    }
-}
+#[cfg(test)]
+mod tests {
+    use reconcilable_trait::mocks::AlwaysReconcileValue;
 
-impl<CH, CT, HeadSkipState, TailSkipState> MergeTrait<Tail<CT>>
-    for Components<CH, Nothing, HeadSkipState, TailSkipState>
-{
-    type MergedObject = Components<CH, CT, HeadSkipState, HeadTail<Allow, Allow>>;
-    fn merge(self, tail: Tail<CT>) -> Self::MergedObject {
-        Components {
-            head_tail: self.head_tail.map(|Tail(component)| component.merge(tail.0)),
-        }
+    use super::*;
+
+    #[test]
+    fn reconcile_chvh() {
+        let expected_value = 3;
+        let components: Components<
+            AlwaysReconcileValue<i32>,
+            Nothing,
+            HeadTail<Allow, Allow>,
+            HeadTail<Allow, Allow>,
+        > = HeadTail::new(
+            ComponentState::component(AlwaysReconcileValue::<i32>::new()),
+            ComponentState::component(Nothing),
+        );
+
+        let Head(head_state) = components
+            .reconcile(Head(Head(expected_value)))
+            .unwrap()
+            .split_value();
+
+        assert_eq!(head_state.split_value(), expected_value);
     }
 }

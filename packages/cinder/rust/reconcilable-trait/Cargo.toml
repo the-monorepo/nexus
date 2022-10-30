@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2021"
 publish = false
+
+[dependencies]
+immutable-operators = { path="../immutable-operators", version = "0.1.0" }

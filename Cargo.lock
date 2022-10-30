@@ -221,6 +221,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "immutable-operators"
+version = "0.1.0"
+
+[[package]]
 name = "indexmap"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -339,6 +343,17 @@ dependencies = [
 [[package]]
 name = "reconcilable-trait"
 version = "0.1.0"
+dependencies = [
+ "immutable-operators",
+]
+
+[[package]]
+name = "reconcile-array"
+version = "0.1.0"
+dependencies = [
+ "immutable-operators",
+ "reconcilable-trait",
+]
 
 [[package]]
 name = "regex"

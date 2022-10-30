@@ -1,10 +1,12 @@
+use immutable_operators::*;
+
 pub trait Reconcilable<Value> {
     type Unreconciled; // = Unchanged<Self, Self::Value>;
     type Reconciled;
     fn reconcile(self, new_value: Value) -> Result<Self::Reconciled, Self::Unreconciled>;
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Unchanged<Source, Value> {
     pub source: Source,
     pub value: Value,
@@ -13,57 +15,52 @@ pub struct Unchanged<Source, Value> {
 pub struct Nothing;
 
 impl<Source, Value> Unchanged<Source, Value> {
-    fn new(source: Source, value: Value) -> Unchanged<Source, Value> {
+    pub fn new(source: Source, value: Value) -> Unchanged<Source, Value> {
         Unchanged { source, value }
     }
 }
 
 impl<Source> Unchanged<Source, Nothing> {
-    fn source(source: Source) -> Unchanged<Source, Nothing> {
+    pub fn source(source: Source) -> Unchanged<Source, Nothing> {
         Unchanged::new(source, Nothing)
     }
 }
 
 impl<Value> Unchanged<Nothing, Value> {
-    fn value(value: Value) -> Unchanged<Nothing, Value> {
+    pub fn value(value: Value) -> Unchanged<Nothing, Value> {
         Unchanged::new(Nothing, value)
     }
 }
 
-pub trait SplitSource {
-    type Source;
-    type Other;
-    fn split_source(self) -> (Self::Source, Self::Other);
-}
+#[derive(Debug, PartialEq)]
+pub struct Source<T>(pub T);
+#[derive(Debug, PartialEq)]
+pub struct Value<T>(pub T);
 
-pub trait SplitValue {
-    type Value;
-    type Other;
-    fn split_value(self) -> (Self::Value, Self::Other);
-}
-
-impl<Source, Value> SplitSource for Unchanged<Source, Value> {
-    type Source = Source;
-    type Other = Unchanged<Nothing, Value>;
-    fn split_source(self) -> (Self::Source, Self::Other) {
-        return (self.source, Unchanged::value(self.value));
+impl<SourceGeneric, ValueGeneric> SplitTrait<Value<ValueGeneric>>
+    for Unchanged<SourceGeneric, ValueGeneric>
+{
+    type Other = Unchanged<SourceGeneric, Nothing>;
+    fn split(self) -> (Self::Other, Value<ValueGeneric>) {
+        return (Unchanged::new(self.source, Nothing), Value(self.value));
     }
 }
 
-impl<Source, Value> SplitValue for Unchanged<Source, Value> {
-    type Value = Value;
-    type Other = Unchanged<Source, Nothing>;
-    fn split_value(self) -> (Self::Value, Self::Other) {
-        return (self.value, Unchanged::source(self.source));
+impl<SourceGeneric, ValueGeneric> SplitTrait<Source<SourceGeneric>>
+    for Unchanged<SourceGeneric, ValueGeneric>
+{
+    type Other = Unchanged<Nothing, ValueGeneric>;
+    fn split(self) -> (Self::Other, Source<SourceGeneric>) {
+        return (Unchanged::new(Nothing, self.value), Source(self.source));
     }
 }
 
 pub mod mocks {
     use crate::{Reconcilable, Unchanged};
 
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     pub enum Never {}
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     pub struct AlwaysReconcileValue<Type> {
         phantom: std::marker::PhantomData<Type>,
     }
@@ -86,7 +83,7 @@ pub mod mocks {
         }
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     pub struct AlwaysUnreconcileValue<Type> {
         phantom: std::marker::PhantomData<Type>,
     }
