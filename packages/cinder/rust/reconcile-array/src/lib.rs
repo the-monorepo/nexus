@@ -146,7 +146,7 @@ struct ReconcileState<
 > {
     components: ComponentManager<
         ComponentsManagerGeneric,
-        Components<CH, CT, HeadSkipState, TailSkipState>
+        Components<CH, CT, HeadSkipState, TailSkipState>,
     >,
     values: ComponentManager<ValuesManagerGeneric, HeadTail<VH, VT>>,
 }

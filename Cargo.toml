@@ -6,6 +6,7 @@ members = [
     "./packages/scriptplan/rust/nu",
     #"./packages/scriptplan/rust/task-parser",
     "./packages/cinder/rust/core",
+    "./packages/cinder/rust/immutable-operators",
     "./packages/cinder/rust/reconcilable-trait",
-    #"./packages/cinder/rust/reconcile-array"
+    "./packages/cinder/rust/reconcile-array"
 ]
