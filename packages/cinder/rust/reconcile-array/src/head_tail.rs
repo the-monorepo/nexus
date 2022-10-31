@@ -31,70 +31,102 @@ pub trait Wrapper {
     type Wrapped<T>;
     fn wrap<T>(value: T) -> Self::Wrapped<T>;
 }
-/**
- * Used to identify whether to operate on the head for head tail traits
- */
-#[derive(PartialEq, Debug)]
-pub struct Head<H = ()>(pub H);
-pub const HEAD: Head<()> = Head(());
+
+pub trait Unwrapper {
+    type Unwrapped;
+    fn unwrap(self) -> Self::Unwrapped;
+}
+
+impl<CurrentValue, NewValue> Reconcilable<NewValue> for Head<CurrentValue>
+where
+    CurrentValue: Reconcilable<NewValue>,
+{
+    type Reconciled = Head<CurrentValue::Reconciled>;
+    type Unreconciled = Head<CurrentValue::Unreconciled>;
+
+    fn reconcile(self, new_value: NewValue) -> Result<Self::Reconciled, Self::Unreconciled> {
+        self.unwrap()
+            .reconcile(new_value)
+            .map(Self::wrap)
+            .map_err(Self::wrap)
+    }
+}
+
+impl<CurrentValue, NewValue> Reconcilable<NewValue> for Tail<CurrentValue>
+where
+    CurrentValue: Reconcilable<NewValue>,
+{
+    type Reconciled = Tail<CurrentValue::Reconciled>;
+    type Unreconciled = Tail<CurrentValue::Unreconciled>;
+
+    fn reconcile(self, new_value: NewValue) -> Result<Self::Reconciled, Self::Unreconciled> {
+        self.unwrap()
+            .reconcile(new_value)
+            .map(Self::wrap)
+            .map_err(Self::wrap)
+    }
+}
 
 impl<V> Wrapper for Head<V> {
     type Wrapped<T> = Head<T>;
 
     fn wrap<T>(value: T) -> Self::Wrapped<T> {
-        return Head(value);
-    }
-}
-
-impl<T> Head<T> {
-    pub fn new(value: T) -> Head<T> {
         Head(value)
     }
 }
 
-/**
- * Small utility so you don't have to access Head's reconcile method directly
- */
-impl<Value, H: Reconcilable<Value>> Reconcilable<Value> for Head<H> {
-    type Reconciled = H::Reconciled;
-    type Unreconciled = H::Unreconciled;
+impl<V> Wrapper for Tail<V> {
+    type Wrapped<T> = Tail<T>;
 
-    fn reconcile(self, value: Value) -> Result<H::Reconciled, H::Unreconciled> {
-        self.0.reconcile(value)
+    fn wrap<T>(value: T) -> Self::Wrapped<T> {
+        Tail(value)
     }
 }
+
+impl<T> Unwrapper for Head<T> {
+    type Unwrapped = T;
+    fn unwrap(self) -> T {
+        self.0
+    }
+}
+
+impl<T> Unwrapper for Tail<T> {
+    type Unwrapped = T;
+    fn unwrap(self) -> T {
+        self.0
+    }
+}
+
+/**
+ * Used to identify whether to operate on the head for head tail traits
+ */
+#[derive(PartialEq, Debug)]
+pub struct Head<H = ()>(pub H);
+
+/*impl<T, NewValue> Reconcilable<NewValue> for T
+where
+    T: Wrapper,
+    T: Unwrapper,
+    T::Unwrapped: Reconcilable<NewValue>,
+{
+    type Reconciled = T::Wrapped<<T::Unwrapped as Reconcilable<NewValue>>::Reconciled>;
+    type Unreconciled = T::Wrapped<<T::Unwrapped as Reconcilable<NewValue>>::Unreconciled>;
+
+    fn reconcile(self, new_value: NewValue) -> Result<Self::Reconciled, Self::Unreconciled> {
+        self.unwrap()
+            .reconcile(new_value)
+            .map_or_else(T::wrap, T::wrap)
+    }
+}*/
+
+pub const HEAD: Head<()> = Head(());
+
 /**
  * Used to identify whether to operate on the tail for head-tail traits
  */
 #[derive(PartialEq, Debug)]
 pub struct Tail<T = ()>(pub T);
 pub const TAIL: Tail<()> = Tail(());
-
-impl<V> Wrapper for Tail<V> {
-    type Wrapped<T> = Tail<T>;
-
-    fn wrap<T>(value: T) -> Self::Wrapped<T> {
-        return Tail(value);
-    }
-}
-
-impl<T> Tail<T> {
-    pub fn new(value: T) -> Tail<T> {
-        Tail(value)
-    }
-}
-
-/**
- * Small utility so you don't have to access Tail's reconcile method directly
- */
-impl<Value, T: Reconcilable<Value>> Reconcilable<Value> for Tail<T> {
-    type Reconciled = T::Reconciled;
-    type Unreconciled = T::Unreconciled;
-
-    fn reconcile(self, value: Value) -> Result<T::Reconciled, T::Unreconciled> {
-        self.0.reconcile(value)
-    }
-}
 
 impl<H, T> HeadTail<H, T> {
     fn merge_head<V>(self, head: V) -> HeadTail<V, T> {
@@ -117,7 +149,7 @@ impl<CurrentHead, HeadGeneric, TailGeneric> MergeTrait<Head<HeadGeneric>>
 {
     type MergedObject = HeadTail<HeadGeneric, TailGeneric>;
     fn merge(self, head: Head<HeadGeneric>) -> HeadTail<HeadGeneric, TailGeneric> {
-        self.merge_head(head.0)
+        self.merge_head(head.unwrap())
     }
 }
 
@@ -126,7 +158,7 @@ impl<CurrentTail, HeadGeneric, TailGeneric> MergeTrait<Tail<TailGeneric>>
 {
     type MergedObject = HeadTail<HeadGeneric, TailGeneric>;
     fn merge(self, tail: Tail<TailGeneric>) -> HeadTail<HeadGeneric, TailGeneric> {
-        self.merge_tail(tail.0)
+        self.merge_tail(tail.unwrap())
     }
 }
 
@@ -139,11 +171,11 @@ where
     type Unreconciled = HeadTail<HeadGeneric, CurrentValue::Unreconciled>;
 
     fn reconcile(self, new_value: Tail<NewValue>) -> Result<Self::Reconciled, Self::Unreconciled> {
-        let (other, Tail(tail)) = self.split();
+        let (other, tail): (_, Tail<_>) = self.split();
 
-        return match tail.reconcile(new_value.0) {
-            Ok(reconciled) => Ok(other.merge_tail(reconciled)),
-            Err(unreconciled) => Err(other.merge_tail(unreconciled)),
+        return match tail.reconcile(new_value.unwrap()) {
+            Ok(reconciled) => Ok(other.merge(reconciled)),
+            Err(unreconciled) => Err(other.merge(unreconciled)),
         };
     }
 }
@@ -157,11 +189,11 @@ where
     type Unreconciled = HeadTail<CurrentValue::Unreconciled, TailGeneric>;
 
     fn reconcile(self, new_value: Head<NewValue>) -> Result<Self::Reconciled, Self::Unreconciled> {
-        let (other, Head(head)) = self.split();
+        let (other, head): (_, Head<_>) = self.split();
 
-        return match head.reconcile(new_value.0) {
-            Ok(reconciled) => Ok(other.merge_head(reconciled)),
-            Err(unreconciled) => Err(other.merge_head(unreconciled)),
+        return match head.reconcile(new_value.unwrap()) {
+            Ok(reconciled) => Ok(other.merge(reconciled)),
+            Err(unreconciled) => Err(other.merge(unreconciled)),
         };
     }
 }
