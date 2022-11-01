@@ -47,7 +47,7 @@ task('test', 'Runs unit tests (without building)', require.resolve('./tasks/test
 
 task(
   'webpack',
-  'Bundke all Webpack-bundled packages',
+  'Bundle all Webpack-bundled packages',
   require.resolve('./tasks/webpack.ts'),
 );
 
