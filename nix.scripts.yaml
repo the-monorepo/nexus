@@ -1,1 +1,2 @@
 default: nix --extra-experimental-features 'nix-command flakes' develop --command scriptplan
+format: nix --extra-experimental-features 'nix-command flakes' fmt
