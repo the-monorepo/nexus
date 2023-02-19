@@ -6,7 +6,6 @@
     utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-    #formatter.url = "github:serokell/nixfmt";
     formatter.url = "github:kamadorueda/alejandra";
     formatter.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -35,7 +34,6 @@
         cargoLock = {lockFile = ./Cargo.lock;};
       };
     in {
-      # formatter = formatter.packages.${system}.nixfmt;
       formatter = formatter.packages.${system}.default;
       devShells.default = pkgs.mkShell {
         buildInputs = [

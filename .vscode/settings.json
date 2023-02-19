@@ -8,7 +8,7 @@
     ".yarn/**": true,
     "yarn-error.log": true,
     "**/.yarn": true,
-    "**/.pnp.*": true
+    "**/.pnp.*": true,
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "stylelint.stylelintPath": ".yarn/sdks/stylelint/lib/index.js",
