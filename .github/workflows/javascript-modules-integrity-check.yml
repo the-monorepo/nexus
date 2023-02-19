@@ -14,7 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: nschloe/action-cached-lfs-checkout@v1
+    #- uses: nschloe/action-cached-lfs-checkout@v1
     - uses: cachix/install-nix-action@v17
     - run: nix --experimental-features 'nix-command flakes' develop --command yarn install --immutable --immutable-cache --check-cache
  
