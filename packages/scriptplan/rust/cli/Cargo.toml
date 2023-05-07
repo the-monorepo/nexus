@@ -4,7 +4,7 @@ path = "src/main.rs"
 
 [package]
 name = "scriptplan-cli"
-version = "8.0.0"
+version = "9.0.0"
 authors = ["Patrick Shaw <mail@patrickshaw.me>"]
 edition = "2021"
 license = "MIT"
