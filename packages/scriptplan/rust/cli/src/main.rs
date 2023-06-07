@@ -26,7 +26,7 @@ fn new_cli_app<'a>(name: &'a str) -> Command<'a> {
             .short('s')
             .long("script-file")
             .takes_value(true)
-            .default_value("./scripts.yaml"),
+            .default_value("./default.scripts.yaml"),
     )
 }
 
