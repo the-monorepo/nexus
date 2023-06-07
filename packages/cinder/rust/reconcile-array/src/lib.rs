@@ -1,3 +1,4 @@
+#![feature(generic_associated_types)]
 use std::iter::DoubleEndedIterator;
 
 use reconcilable_trait::Reconcilable;

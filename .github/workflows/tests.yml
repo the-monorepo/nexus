@@ -19,7 +19,6 @@ jobs:
     runs-on: ${{ matrix.os.id }}
 
     steps:
-    - uses: actions/checkout@v3
     #- uses: nschloe/action-cached-lfs-checkout@v1
     - uses: cachix/install-nix-action@v17
       with:
