@@ -53,7 +53,7 @@ impl Command for BashCommand {
 
         let args: VecDeque<&str> = vars.iter().map(|x| (*x).as_str()).collect();
         let mut process = tokio::process::Command::new("bash")
-            .stdin(Stdio::piped())
+            .stdin(Stdio::inherit())
             .stdout(Stdio::inherit())
             .env("PS0", "")
             .env("PS1", "")
