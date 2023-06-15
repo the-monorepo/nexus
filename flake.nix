@@ -33,7 +33,8 @@
         devShells.default = pkgs.mkShell {
           buildInputs = [
             pkgs.nodejs-16_x
-            pkgs.yarn
+            # See: https://github.com/NixOS/nixpkgs/issues/145634
+            # pkgs.yarn
             pkgs.rust-bin.stable.latest.default
             pkgs.openssl
 
