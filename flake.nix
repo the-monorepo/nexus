@@ -3,9 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    
     utils.url = "github:numtide/flake-utils";
+    
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
     formatter.url = "github:kamadorueda/alejandra";
     formatter.inputs.nixpkgs.follows = "nixpkgs";
   };
