@@ -38,7 +38,8 @@
   outputs = inputs:
     let
       createDerivation = system:
-        let pkgs = import inputs.nixpkgs { inherit system; };
+        let
+          pkgs = inputs.nixpkgs.legacyPackages.${system};
         in {
           "${system}".default = pkgs.stdenv.mkDerivation {
             pname = "cloudwatch";
