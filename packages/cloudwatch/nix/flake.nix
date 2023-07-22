@@ -42,7 +42,7 @@
         in {
           "${system}".default = pkgs.stdenv.mkDerivation {
             pname = "cloudwatch";
-            version = "1.0.0";
+            version = "v4.1.1";
 
             src = inputs.${system};
             sourceRoot = ".";
