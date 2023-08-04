@@ -39,6 +39,7 @@
             })
 
             pkgs.rust-bin.stable.latest.default
+
             pkgs.openssl
 
             pkgs.git
