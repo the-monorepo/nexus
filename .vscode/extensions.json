@@ -6,6 +6,8 @@
     "stylelint.vscode-stylelint",
     "matklad.rust-analyzer",
     "denoland.vscode-deno",
-    "bbenoist.Nix",
+    "bbenoist.nix",
+    "rust-lang.rust-analyzer",
+    "mkhl.direnv"
   ]
 }
