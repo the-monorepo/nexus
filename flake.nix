@@ -14,8 +14,7 @@
   outputs = { self, nixpkgs, utils, rust-overlay, formatter, }:
     utils.lib.eachDefaultSystem (system:
       let
-        overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs { inherit system overlays; };
+        pkgs = nixpkgs.legacyPackages.${system}.appendOverlays [rust-overlay.overlays.default];
 
         rustPlatform = pkgs.makeRustPlatform {
           cargo = pkgs.rust-bin.stable.latest.default;
