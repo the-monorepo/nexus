@@ -2,8 +2,6 @@
   description = "Monorepo environment";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    
     utils.url = "github:numtide/flake-utils";
     
     rust-overlay.url = "github:oxalica/rust-overlay";
@@ -35,7 +33,7 @@
         formatter = formatter.packages.${system}.default;
         devShells.default = pkgs.mkShell {
           buildInputs = [
-            pkgs.nodejs-16_x
+            pkgs.nodejs_20
             # See: https://github.com/NixOS/nixpkgs/issues/145634
             # pkgs.yarn
             pkgs.rust-bin.stable.latest.default
