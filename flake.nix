@@ -30,8 +30,8 @@
         };
       in {
         formatter = formatter.packages.${system}.default;
-        devShells.default = pkgs.mkShell {
-          buildInputs = [
+        devShells.default = let 
+          runtimeInputs = [
             pkgs.nodejs_20
             (pkgs.yarn.override {
               # See: https://github.com/NixOS/nixpkgs/issues/145634
@@ -48,7 +48,17 @@
             scriptplanPkg
 
             pkgs.brotli
+            
+            (pkgs.uutils-coreutils.override {
+              prefix = "";
+            })
           ];
+        in pkgs.stdenv.mkDerivation {
+          name = "shell";
+
+          shellHook = ''
+            export PATH="${nixpkgs.lib.makeBinPath runtimeInputs}:$PATH"
+          '';
         };
       });
 }
