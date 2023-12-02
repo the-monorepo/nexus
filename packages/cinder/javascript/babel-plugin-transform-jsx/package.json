@@ -25,12 +25,12 @@
   },
   "types": "./src/index.ts",
   "dependencies": {
-    "@babel/core": "^7.18.13",
-    "@babel/helper-builder-react-jsx": "^7.18.6",
-    "@babel/helper-plugin-utils": "^7.18.9",
-    "@babel/plugin-syntax-jsx": "^7.18.6",
-    "@babel/traverse": "^7.18.13",
-    "@babel/types": "^7.18.13"
+    "@babel/core": "^7.23.5",
+    "@babel/helper-builder-react-jsx": "^7.22.10",
+    "@babel/helper-plugin-utils": "^7.22.5",
+    "@babel/plugin-syntax-jsx": "^7.23.3",
+    "@babel/traverse": "^7.23.5",
+    "@babel/types": "^7.23.5"
   },
   "gitHead": "c4cacbc88b7064237cbaf402b49b9ff15bb637b6"
 }
