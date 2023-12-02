@@ -4257,7 +4257,7 @@ __metadata:
     stream-filter-glob: "workspace:^"
     stream-to-promise: "npm:^3.0.0"
     through2: "npm:^4.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.3.2"
     vinyl: "npm:^2.2.1"
     vinyl-sourcemaps-apply: "npm:^0.2.1"
   languageName: unknown
@@ -17353,7 +17353,7 @@ __metadata:
     react-dom: "npm:^17.0.1"
     rewiremock: "npm:^3.14.3"
     stylelint: "npm:^14.7.1"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.3.2"
   languageName: unknown
   linkType: soft
 
@@ -22943,23 +22943,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.8.2":
-  version: 4.8.2
-  resolution: "typescript@npm:4.8.2"
+"typescript@npm:^5.3.2":
+  version: 5.3.2
+  resolution: "typescript@npm:5.3.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 1fbdc1e5f73de0c0c5a41210ed8679b86c55f54a4c6411a3f23071dc9ae54d0ab74ad4d41dbd7cb9e931d24b0bcfd1abb5444ecd03cb9075997b185dcc2d1df1
+  checksum: 415e5fb6611f5713e460bad48039f00bcfdbde53a2f911727862d5aa9c5d5edd250059a419df382d8f031709e15a169c41eb62b6a401da5eec7ac0f4e359d6ac
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^4.8.2#optional!builtin<compat/typescript>":
-  version: 4.8.2
-  resolution: "typescript@patch:typescript@npm%3A4.8.2#optional!builtin<compat/typescript>::version=4.8.2&hash=3b564f"
+"typescript@patch:typescript@npm%3A^5.3.2#optional!builtin<compat/typescript>":
+  version: 5.3.2
+  resolution: "typescript@patch:typescript@npm%3A5.3.2#optional!builtin<compat/typescript>::version=5.3.2&hash=e012d7"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 27090d5391b31e9d4c5409bcc7034b7d1b32bf0f4aa622b12342a76207fe2350b221419dd61533a90e1dff989eaff35bae040454afb4fb418170cb28d69e2e4c
+  checksum: 1b45cdfb577a78ae7a9a9d0b77a7b772142cb98ba05e4e5aefba7044a028ded885bcecef63166407a5986645cea816fe4986894336aacd5e791796ea79a6a7ed
   languageName: node
   linkType: hard
 
