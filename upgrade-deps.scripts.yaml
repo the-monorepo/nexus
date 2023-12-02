@@ -1,1 +1,2 @@
 babel: yarn up "@babel/*" "*babel*" # TODO: Figure out how to avoid local deps causing ambiguity"@*/*babel*"
+typescript: yarn up typescript @babel/*typescript* *typescript* @typescript-eslint/*
