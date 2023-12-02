@@ -77,7 +77,10 @@ module.exports = (api) => {
       },
       {
         test: ['./packages/*/javascript/**/*.tsx'],
-        plugins: plugins.concat(['@babel/plugin-syntax-jsx', require.resolve('@cinderjs/babel-plugin-transform-jsx')]),
+        plugins: plugins.concat([
+          '@babel/plugin-syntax-jsx',
+          require.resolve('@cinderjs/babel-plugin-transform-jsx'),
+        ]),
         presets: [
           [
             '@babel/preset-typescript',
