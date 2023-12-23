@@ -28,10 +28,10 @@
     "debugging"
   ],
   "dependencies": {
-    "@babel/generator": "^7.23.5",
-    "@babel/parser": "^7.23.5",
-    "@babel/traverse": "^7.23.5",
-    "@babel/types": "^7.23.5",
+    "@babel/generator": "^7.23.6",
+    "@babel/parser": "^7.23.6",
+    "@babel/traverse": "^7.23.6",
+    "@babel/types": "^7.23.6",
     "@fault/addon-hook-schema": "workspace:^",
     "@fault/istanbul-util": "workspace:^",
     "@fault/record-faults": "workspace:^",

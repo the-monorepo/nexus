@@ -34,8 +34,8 @@
     "regex"
   ],
   "devDependencies": {
-    "@babel/parser": "^7.23.5",
-    "@babel/types": "^7.23.5",
+    "@babel/parser": "^7.23.6",
+    "@babel/types": "^7.23.6",
     "@pipelines/core": "workspace:^",
     "@types/node": "^14.6.0"
   },

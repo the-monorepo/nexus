@@ -33,7 +33,7 @@
     "app"
   ],
   "dependencies": {
-    "@babel/core": "^7.23.5",
+    "@babel/core": "^7.23.6",
     "@buildplan/core": "workspace:^",
     "@fault/addon-mutation-localization": "workspace:^",
     "@fault/addon-sbfl": "workspace:^",
@@ -65,7 +65,7 @@
     "stream-filter-glob": "workspace:^",
     "stream-to-promise": "^3.0.0",
     "through2": "^4.0.2",
-    "typescript": "^5.3.2",
+    "typescript": "^5.3.3",
     "vinyl": "^2.2.1",
     "vinyl-sourcemaps-apply": "^0.2.1"
   }
