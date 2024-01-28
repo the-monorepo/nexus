@@ -20,6 +20,8 @@ jobs:
 
     steps:
     #- uses: nschloe/action-cached-lfs-checkout@v1
+    - name: Checkout
+      uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v17
       with:
         extra_nix_config: |
