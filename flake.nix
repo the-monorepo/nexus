@@ -50,9 +50,7 @@
 
             pkgs.brotli
             
-            (pkgs.uutils-coreutils.override {
-              prefix = "";
-            })
+            pkgs.uutils-coreutils-noprefix
           ];
         in pkgs.stdenv.mkDerivation {
           name = "shell";
