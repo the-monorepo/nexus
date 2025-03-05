@@ -1,0 +1,21 @@
+{
+  "name": "@klio/window",
+  "version": "1.0.0-alpha.1",
+  "description": "A window function for iterables",
+  "types": "./src/window.ts",
+  "module": "./esm/window.ts",
+  "main": "./commonjs/window.ts",
+  "files": [
+    "commonjs",
+    "src",
+    "esm"
+  ],
+  "license": "MIT",
+  "author": "Patrick Shaw <mail@patrickshaw.me>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "klio/javascript/window"
+  },
+  "keywords": []
+}
