@@ -11,14 +11,17 @@ pub struct IteratorManager<IteratorGeneric: DoubleEndedIterator, HasNext> {
 #[derive(Debug)]
 pub struct IteratorResult<IteratorGeneric: DoubleEndedIterator, ItemGeneric> {
     pub value: ItemGeneric,
-    pub manager: IteratorManager<IteratorGeneric, Allow>
+    pub manager: IteratorManager<IteratorGeneric, Allow>,
 }
 
 impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allow> {
     fn repopulate_base<F: FnOnce(&mut IteratorGeneric) -> Option<IteratorGeneric::Item>>(
         mut self,
         next: F,
-    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
+    ) -> Result<
+        IteratorResult<IteratorGeneric, IteratorGeneric::Item>,
+        IteratorManager<IteratorGeneric, Nothing>,
+    > {
         match next(&mut self.iterator) {
             Some(value) => Ok(IteratorResult {
                 manager: IteratorManager {
@@ -45,40 +48,43 @@ impl<IteratorGeneric: DoubleEndedIterator> IteratorManager<IteratorGeneric, Allo
 pub trait Repopulatable<EndIdentifier> {
     type OkGeneric;
     type FailureGeneric;
-    fn repopulate(
-        self,
-        identifier: EndIdentifier
-    ) -> Result<Self::OkGeneric, Self::FailureGeneric>;
+    fn repopulate(self, identifier: EndIdentifier)
+        -> Result<Self::OkGeneric, Self::FailureGeneric>;
 }
 
-impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<
-    Head
-> for IteratorManager<IteratorGeneric, Allow> {
+impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<Head>
+    for IteratorManager<IteratorGeneric, Allow>
+{
     type OkGeneric = IteratorResult<IteratorGeneric, IteratorGeneric::Item>;
     type FailureGeneric = IteratorManager<IteratorGeneric, Nothing>;
 
     fn repopulate(
         self,
-        identifier: Head
-    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
+        identifier: Head,
+    ) -> Result<
+        IteratorResult<IteratorGeneric, IteratorGeneric::Item>,
+        IteratorManager<IteratorGeneric, Nothing>,
+    > {
         self.repopulate_base(IteratorGeneric::next)
     }
 }
 
-impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<
-    Tail
-> for IteratorManager<IteratorGeneric, Allow> {
+impl<IteratorGeneric: DoubleEndedIterator> Repopulatable<Tail>
+    for IteratorManager<IteratorGeneric, Allow>
+{
     type OkGeneric = IteratorResult<IteratorGeneric, IteratorGeneric::Item>;
     type FailureGeneric = IteratorManager<IteratorGeneric, Nothing>;
 
     fn repopulate(
         self,
-        identifier: Tail
-    ) -> Result<IteratorResult<IteratorGeneric, IteratorGeneric::Item>, IteratorManager<IteratorGeneric, Nothing>> {
+        identifier: Tail,
+    ) -> Result<
+        IteratorResult<IteratorGeneric, IteratorGeneric::Item>,
+        IteratorManager<IteratorGeneric, Nothing>,
+    > {
         self.repopulate_base(IteratorGeneric::next_back)
     }
 }
-
 
 #[cfg(test)]
 mod tests {
