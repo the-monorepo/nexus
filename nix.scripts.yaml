@@ -1,2 +1,3 @@
 default: nix --extra-experimental-features 'nix-command flakes' develop --command scriptplan
 format: nix --extra-experimental-features 'nix-command flakes' fmt
+update-all: nix --extra-experimental-features nix-command --extra-experimental-features flakes flake update ".?submodules=1"

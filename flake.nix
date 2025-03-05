@@ -28,14 +28,15 @@
 
           cargoLock = { lockFile = ./Cargo.lock; };
         };
+        nodePkg = pkgs.nodejs_22;
       in {
         formatter = formatter.packages.${system}.default;
         devShells.default = let 
           runtimeInputs = [
-            pkgs.nodejs_20
+            nodePkg
             (pkgs.yarn.override {
               # See: https://github.com/NixOS/nixpkgs/issues/145634
-              nodejs = pkgs.nodejs_20;
+              nodejs = nodePkg;
             })
 
             pkgs.rust-bin.stable.latest.default

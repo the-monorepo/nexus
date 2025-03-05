@@ -4273,6 +4273,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@klio/window@workspace:packages/klio/javascript/window":
+  version: 0.0.0-use.local
+  resolution: "@klio/window@workspace:packages/klio/javascript/window"
+  languageName: unknown
+  linkType: soft
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.3
   resolution: "@leichtgewicht/ip-codec@npm:2.0.3"
@@ -7394,6 +7400,12 @@ __metadata:
   checksum: fe5c3ecb4ea84369e07cf5efe566989051e86582578666d2ceeac6b4281baa6ec242d1a027bb5e796473b4e852e47ea7b1bfc5a42facff25314223ec6f0ab79f
   languageName: node
   linkType: hard
+
+"a@workspace:packages/patrick-shaw/javascript/a":
+  version: 0.0.0-use.local
+  resolution: "a@workspace:packages/patrick-shaw/javascript/a"
+  languageName: unknown
+  linkType: soft
 
 "abab@npm:^2.0.5":
   version: 2.0.5

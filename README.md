@@ -8,6 +8,7 @@ Version | Package | Description
 --- | --- | ---
 1.0.0-alpha.2 | [`@klio/chunk`](packages/klio/javascript/chunk/README.md) | Split an iterator into chunked iterators
 1.0.0-alpha.1 | [`@klio/memoize`](packages/klio/javascript/memoize/README.md) | Memoize a function
+1.0.0-alpha.1 | [`@klio/window`](packages/klio/javascript/window/README.md) | A window function for iterables
 1.4.3 | [`@pshaw/convict-util`](packages/misc/javascript/convict-util/README.md) | A helper package for reading configs in using convict
 1.0.0-alpha.0 | [`@pshaw/fs`](packages/misc/javascript/pshaw-fs/README.md) | fs utilities
 1.0.0-alpha.0 | [`@pshaw/keyed-binary-heap`](packages/misc/javascript/keyed-binary-heap/README.md) | A implementation of a binary heap with O(1) search & item updates
@@ -110,6 +111,7 @@ Version | Package | Description
 1.4.2 | [`@pshaw/monorepo-config`](packages/patrick-shaw/javascript/monorepo-config/README.md) | My @monorepo/config preset settings
 1.0.0-alpha.0 | [`@pshaw/typography-scss`](packages/patrick-shaw/javascript/typography-scss/README.md) | Nice typograhpy SCSS package
 1.4.2 | [`@pshaw/webpack`](packages/patrick-shaw/javascript/webpack/README.md) | Some utilities for building webpack configs
+1.0.0 | [`a`](packages/patrick-shaw/javascript/a/README.md) | 
 
 
 ---
