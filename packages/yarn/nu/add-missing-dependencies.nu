@@ -11,14 +11,9 @@ let workspaces = (yarn workspaces list -R --json | lines | each { from json | up
 print $workspaces
 print "Above is are the workspaces that were found"
 
-print "Installing @yarnpkg/doctor"
-yarn add @yarnpkg/doctor
-
 print "Running @yarnpkg/doctor"
-let doctorOutput = (yarn run doctor)
+let doctorOutput = (yarn dlx @yarnpkg/doctor | tee { each { print --raw --no-newline } })
 print "@yarnpkg/doctor printed out the following:"
-
-print $doctorOutput
 
 let packagesToInstall = (
   $doctorOutput 
