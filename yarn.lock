@@ -4918,6 +4918,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@resultful/types@npm:0.0.13":
+  version: 0.0.13
+  resolution: "@resultful/types@npm:0.0.13::__archiveUrl=https%3A%2F%2Fpackages.atlassian.com%2Fapi%2Fnpm%2Fnpm-remote%2F%40resultful%2Ftypes%2F-%2Ftypes-0.0.13.tgz"
+  checksum: 10/10f1c755514fbfb0cacd6a240ed06fdf349912f0597bc45e910a8a7c3d918b25c0c4dca9d5434d9e8f623e0b04f1ea0a6381181e51afeb1e65a80b3c3aed26e1
+  languageName: node
+  linkType: hard
+
 "@resultful/utility-types@workspace:^, @resultful/utility-types@workspace:packages/resultful/javascript/utility-types":
   version: 0.0.0-use.local
   resolution: "@resultful/utility-types@workspace:packages/resultful/javascript/utility-types"
@@ -16187,6 +16194,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"jest-mock@npm:^26.1.0":
+  version: 26.6.2
+  resolution: "jest-mock@npm:26.6.2::__archiveUrl=https%3A%2F%2Fpackages.atlassian.com%2Fapi%2Fnpm%2Fnpm-remote%2Fjest-mock%2F-%2Fjest-mock-26.6.2.tgz"
+  dependencies:
+    "@jest/types": "npm:^26.6.2"
+    "@types/node": "npm:*"
+  checksum: 10/6ac5e23b0add61eaf45efbaa6b4ff2fe440cb5f976a871af6c094007ec34c12f05c8d70a6815e8125f003f56cea080212da63dc45c88ac9ec3cba556ef1ebbc9
+  languageName: node
+  linkType: hard
+
 "jest-mock@npm:^27.5.1":
   version: 27.5.1
   resolution: "jest-mock@npm:27.5.1"
@@ -21129,6 +21146,15 @@ __metadata:
   checksum: 10/f877dd8741796b909f2a82454ec111afb84eb45890eb49ac947d87991379406b3b83ff9673a46012fca0d7844bb989f45cc5b788254cf1a39b6b5a9659de0630
   languageName: node
   linkType: hard
+
+"resultful-original@workspace:packages/resultful/javascript/original":
+  version: 0.0.0-use.local
+  resolution: "resultful-original@workspace:packages/resultful/javascript/original"
+  dependencies:
+    "@resultful/types": "npm:0.0.13"
+    jest-mock: "npm:^26.1.0"
+  languageName: unknown
+  linkType: soft
 
 "resultful@workspace:^, resultful@workspace:packages/resultful/javascript/resultful":
   version: 0.0.0-use.local

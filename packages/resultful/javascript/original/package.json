@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0-alpha.0",
-  "name": "resultful",
+  "version": "0.0.16",
+  "name": "resultful-original",
   "description": "A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.",
   "keywords": [
     "util",
@@ -17,31 +17,31 @@
   "module": "./esm/index.ts",
   "main": "./commonjs/index.ts",
   "exports": {
-    "monorepo-original": "./src/index.ts",
-    "import": "./esm/index.ts",
-    "require": "./commonjs/index.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "monorepo-original": "./src/index.ts",
+      "import": "./esm/index.ts",
+      "require": "./commonjs/index.ts"
+    }
   },
   "files": [
-    "commonjs",
+    "lib",
     "src",
     "esm"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
-    "directory": "resultful/resultful"
+    "directory": "misc/resultful"
   },
   "publishConfig": {
     "access": "public"
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
-  "devDependencies": {
-    "@pshaw/markdown-util": "workspace:^",
-    "jest-mock": "^27.5.1"
-  },
   "dependencies": {
-    "@resultful/failure": "workspace:^",
-    "@resultful/result": "workspace:^",
-    "@resultful/utility-types": "workspace:^"
+    "@resultful/types": "0.0.13"
+  },
+  "devDependencies": {
+    "jest-mock": "^26.1.0"
   }
 }

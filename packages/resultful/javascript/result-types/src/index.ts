@@ -1,3 +1,3 @@
-export const OK = Symbol('ok');
-export const FAILURE = Symbol('error');
+export const OK = 'ok' as const;
+export const FAILURE = 'error' as const;
 export type ResultType = typeof OK | typeof FAILURE;
