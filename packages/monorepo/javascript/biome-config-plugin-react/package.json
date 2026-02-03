@@ -1,0 +1,40 @@
+{
+  "name": "@pshaw/biome-config-plugin-react",
+  "description": "A practical React style preset for Biome",
+  "keywords": [
+    "config",
+    "biome",
+    "javascript",
+    "react",
+    "style",
+    "lint",
+    "preset"
+  ],
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "monorepo-original": "./src/index.ts",
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "packages/monorepo/javascript/biome-config-plugin-react"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@biomejs/wasm-nodejs": "^1.9.0"
+  }
+}

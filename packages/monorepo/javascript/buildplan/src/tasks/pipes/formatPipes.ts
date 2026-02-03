@@ -1,86 +1,109 @@
-import { spawn } from 'child_process';
 import chalk from 'chalk';
-import { simplePipeLogger } from '../utils/simplePipeLogger';
+import { Readable } from 'node:stream';
+import { Biome } from '@biomejs/js-api/nodejs';
 
+import { simplePipeLogger } from '../utils/simplePipeLogger';
 import logger from '../utils/logger';
 
-import * as through2 from 'through2';
+interface VinylFile {
+  path: string;
+  contents: Buffer;
+}
 
-const runBiome = (
-  filePath: string,
-  content: string,
-): Promise<{ stdout: string; stderr: string; exitCode: number | null }> => {
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      'yarn',
-      ['run', 'biome', 'check', '--write', '--stdin-file-path', filePath],
-      {
-        stdio: ['pipe', 'pipe', 'pipe'],
-      },
-    );
+// Singleton Biome instance and project key - created lazily
+let biomeInstance: Biome | null = null;
+let projectKey: string | null = null;
 
-    let stdout = '';
-    let stderr = '';
+function getBiome(): { biome: Biome; projectKey: string } {
+  if (!biomeInstance || !projectKey) {
+    biomeInstance = new Biome();
+    const project = biomeInstance.openProject(process.cwd());
+    projectKey = project.projectKey;
+  }
+  return { biome: biomeInstance, projectKey };
+}
 
-    child.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
+/**
+ * Format a single file using Biome's JS API
+ */
+function formatFile(
+  biome: Biome,
+  projectKey: string,
+  file: VinylFile,
+  l: ReturnType<typeof logger.child>,
+): VinylFile {
+  const content = file.contents.toString('utf8');
+  const filePath = file.path;
 
-    child.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
+  try {
+    // Format the content
+    const formatted = biome.formatContent(projectKey, content, { filePath });
 
-    child.on('close', (exitCode) => {
-      resolve({ stdout, stderr, exitCode });
-    });
+    // Also run lint with fixes
+    const linted = biome.lintContent(projectKey, formatted.content, { filePath });
 
-    child.on('error', (error) => {
-      reject(error);
-    });
+    // Use the fixed content if available, otherwise use formatted
+    const finalContent = linted.content || formatted.content;
 
-    child.stdin.write(content);
-    child.stdin.end();
-  });
-};
+    // Print any diagnostics
+    if (linted.diagnostics.length > 0) {
+      const diagnosticsOutput = biome.printDiagnostics(linted.diagnostics, {
+        filePath,
+        fileSource: content,
+      });
+      if (diagnosticsOutput) {
+        process.stderr.write(diagnosticsOutput);
+      }
+    }
 
-const biomePipes = async (stream) => {
+    // Update file contents
+    file.contents = Buffer.from(finalContent, 'utf8');
+  } catch (error) {
+    l.warn(`Failed to format ${filePath}:`, error);
+    // Return original file on error
+  }
+
+  return file;
+}
+
+/**
+ * Async generator that yields formatted files from the input stream.
+ * Modern streaming approach using async iterators.
+ */
+async function* formatFilesIterator(
+  files: AsyncIterable<VinylFile>,
+  biome: Biome,
+  projectKey: string,
+  l: ReturnType<typeof logger.child>,
+): AsyncGenerator<VinylFile> {
+  for await (const file of files) {
+    yield formatFile(biome, projectKey, file, l);
+  }
+}
+
+/**
+ * Converts an async iterable to a readable stream.
+ */
+function asyncIterableToStream<T>(iterable: AsyncIterable<T>): Readable {
+  return Readable.from(iterable, { objectMode: true });
+}
+
+/**
+ * Format files in a gulp stream using Biome.
+ * Uses @biomejs/js-api for in-process formatting (no subprocess overhead).
+ */
+export async function formatPipes(stream: Readable): Promise<Readable> {
   const l = logger.child(chalk.magentaBright('biome'));
 
-  return stream.pipe(simplePipeLogger(l)).pipe(
-    through2.obj(async (file, enc, callback) => {
-      try {
-        const { stdout, stderr, exitCode } = await runBiome(
-          file.path,
-          file.contents.toString(),
-        );
+  // Initialize Biome
+  const { biome, projectKey: key } = getBiome();
 
-        if (stderr) {
-          process.stderr.write(stderr);
-        }
+  // Pipe through the simple logger first
+  const loggedStream = stream.pipe(simplePipeLogger(l));
 
-        // Only use the output if biome succeeded or partially succeeded (exit code 0 or 1)
-        // Exit code 1 means there were lint warnings/errors but formatting still happened
-        // Higher exit codes indicate failures (e.g., binary not found, invalid config)
-        if (exitCode !== null && exitCode <= 1 && stdout) {
-          file.contents = Buffer.from(stdout, 'utf8');
-        } else if (exitCode !== null && exitCode > 1) {
-          l.warn(
-            `Biome exited with code ${exitCode} for ${file.path}, skipping formatting`,
-          );
-          if (stdout) {
-            process.stderr.write(stdout);
-          }
-        }
+  // Use modern async iteration for processing
+  const formattedFiles = formatFilesIterator(loggedStream, biome, key, l);
 
-        callback(undefined, file);
-      } catch (error: unknown) {
-        l.error(`Failed to format ${file.path}:`, error);
-        callback(undefined, file);
-      }
-    }),
-  );
-};
-
-export const formatPipes = async (stream) => {
-  return await biomePipes(stream);
-};
+  // Convert back to a stream for gulp compatibility
+  return asyncIterableToStream(formattedFiles);
+}

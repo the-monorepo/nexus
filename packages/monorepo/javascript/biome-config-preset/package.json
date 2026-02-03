@@ -1,0 +1,45 @@
+{
+  "name": "@pshaw/biome-config-preset",
+  "description": "A practical style preset for Biome - combines all configs",
+  "keywords": [
+    "config",
+    "biome",
+    "javascript",
+    "typescript",
+    "react",
+    "style",
+    "lint",
+    "preset"
+  ],
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "monorepo-original": "./src/index.ts",
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-monorepo/monorepo.git",
+    "directory": "packages/monorepo/javascript/biome-config-preset"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@biomejs/wasm-nodejs": "^1.9.0",
+    "@pshaw/biome-config-core": "workspace:^",
+    "@pshaw/biome-config-plugin-cinder": "workspace:^",
+    "@pshaw/biome-config-plugin-react": "workspace:^",
+    "@pshaw/biome-config-plugin-typescript": "workspace:^"
+  }
+}
