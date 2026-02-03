@@ -1,4 +1,4 @@
-import { failure, ok, isFailure, Result } from '@resultful/result';
+import { type Result, failure, isFailure, ok } from '@resultful/result';
 
 class Mapper<I, O> implements AsyncIterable<O>, AsyncIterator<O> {
   constructor(

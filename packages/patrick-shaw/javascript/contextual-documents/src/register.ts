@@ -1,16 +1,16 @@
 import { OverrideHierachyElement } from '@contextual-documents/element';
 import {
-  PShawHeaderElement,
   PShawFooterElement,
-  PShawSectionElement,
   PShawH1Element,
   PShawH2Element,
   PShawH3Element,
   PShawH4Element,
   PShawH5Element,
   PShawH6Element,
+  PShawHeaderElement,
   PShawLabelElement,
   PShawPElement,
+  PShawSectionElement,
 } from './elements.ts';
 
 globalThis.customElements.define('pshaw-header', PShawHeaderElement);

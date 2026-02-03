@@ -4,9 +4,9 @@ import { parse } from '@babel/parser';
 
 import ErrorStackParser from 'error-stack-parser';
 
-import { TestResult } from '@fault/types';
+import type { TestResult } from '@fault/types';
 
-import { executionDistanceFromStart, evaluateStackDifference } from '../src/index.ts';
+import { evaluateStackDifference, executionDistanceFromStart } from '../src/index.ts';
 
 const stubTestResult = (key: string, stack): TestResult => ({
   type: 'submit-test-result',

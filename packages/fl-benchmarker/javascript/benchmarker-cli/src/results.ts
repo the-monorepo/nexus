@@ -1,7 +1,7 @@
 import 'source-map-support/register.js';
 
+import { basename, resolve } from 'path';
 import fs from 'fs/promises';
-import { resolve, basename } from 'path';
 
 import globby from 'globby';
 

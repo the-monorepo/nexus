@@ -1,6 +1,6 @@
 import { cloneCoverage } from '@fault/istanbul-util';
 
-import { ParentResult, IPC, RunTestsPayload } from '@fault/types';
+import { IPC, type ParentResult, type RunTestsPayload } from '@fault/types';
 
 import { client } from './client.ts';
 

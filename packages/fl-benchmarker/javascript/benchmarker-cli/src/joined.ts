@@ -1,10 +1,10 @@
 import 'source-map-support/register.js';
-import { readFile } from 'fs/promises';
-import { readJson } from '@pshaw/fs';
 import { resolve } from 'path';
+import { readJson } from '@pshaw/fs';
+import { readFile } from 'fs/promises';
 
 import { locationToKeyIncludingEnd } from '@fault/addon-mutation-localization';
-import { recordFaults, convertFileFaultDataToFaults } from '@fault/record-faults';
+import { convertFileFaultDataToFaults, recordFaults } from '@fault/record-faults';
 
 import { requestProjectDirs } from './requestProjectDirs.ts';
 

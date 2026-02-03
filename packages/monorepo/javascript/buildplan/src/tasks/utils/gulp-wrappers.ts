@@ -1,10 +1,10 @@
 import streamToPromise from 'stream-to-promise';
 
 import {
-  task as buildplanTask,
-  series as buildplanSeries,
-  parallel as buildplanParallel,
   TASK_INFO,
+  parallel as buildplanParallel,
+  series as buildplanSeries,
+  task as buildplanTask,
 } from '@buildplan/core';
 
 export const oldStreamToPromise = async (something) => {

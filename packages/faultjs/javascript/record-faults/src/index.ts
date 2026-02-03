@@ -2,12 +2,12 @@
 /* eslint-disable no-console */
 
 import { mkdirSync } from 'fs';
-import { readFile } from 'fs/promises';
 import { dirname, relative } from 'path';
+import { readFile } from 'fs/promises';
 
 import chalk from 'chalk';
 
-import { ExpressionLocation } from '@fault/istanbul-util';
+import type { ExpressionLocation } from '@fault/istanbul-util';
 import { readJson, writeJson } from '@pshaw/fs';
 
 export type ScorelessFault = {
@@ -80,8 +80,8 @@ export const convertFileFaultDataToFaults = (faultData: FaultData): Fault[] => {
           fileFault.score === true
             ? Number.POSITIVE_INFINITY
             : fileFault.score === false
-            ? Number.NEGATIVE_INFINITY
-            : fileFault.score,
+              ? Number.NEGATIVE_INFINITY
+              : fileFault.score,
       };
       faults.push(fault);
     }
@@ -130,10 +130,10 @@ export const recordFaults = (filePath: string, toRecord: Fault[]) => {
         fault.score === null
           ? null
           : Number.POSITIVE_INFINITY === fault.score
-          ? true
-          : Number.NEGATIVE_INFINITY === fault.score
-          ? false
-          : fault.score,
+            ? true
+            : Number.NEGATIVE_INFINITY === fault.score
+              ? false
+              : fault.score,
       location: fault.location,
       other: fault.other,
     };

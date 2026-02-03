@@ -1,18 +1,18 @@
-import {
-  readFile,
-  writeFile,
-  mkdtemp,
-  unlink,
-  rmdir,
-  mkdir,
-  copyFile,
-} from 'fs/promises';
 import { tmpdir } from 'os';
-import { join, resolve, basename, normalize } from 'path';
+import { basename, join, normalize, resolve } from 'path';
+import {
+  copyFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rmdir,
+  unlink,
+  writeFile,
+} from 'fs/promises';
 
 import generate from '@babel/generator';
-import { parse, ParserOptions } from '@babel/parser';
-import { NodePath } from '@babel/traverse';
+import { type ParserOptions, parse } from '@babel/parser';
+import type { NodePath } from '@babel/traverse';
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
 import { File } from '@babel/types';
@@ -22,17 +22,17 @@ import ErrorStackParser from 'error-stack-parser';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import * as micromatch from 'micromatch';
 
-import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import { ExpressionLocation } from '@fault/istanbul-util';
+import type { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import type { ExpressionLocation } from '@fault/istanbul-util';
 
-import { passFailStatsFromTests, Stats } from '@fault/localization-util';
-import { reportFaults, Fault, recordFaults } from '@fault/record-faults';
+import { type Stats, passFailStatsFromTests } from '@fault/localization-util';
+import { type Fault, recordFaults, reportFaults } from '@fault/record-faults';
 import dstar from '@fault/sbfl-dstar';
-import {
-  TesterResults,
-  TestResult,
+import type {
   FailingTestData,
   FinalTesterResults,
+  TestResult,
+  TesterResults,
 } from '@fault/types';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
@@ -53,7 +53,10 @@ class Queue<T> {
   private readonly arr: T[];
   private invalidated = false;
   private highest: T | undefined;
-  constructor(public readonly compareFn: (a: T, b: T) => number, arr: T[] = []) {
+  constructor(
+    public readonly compareFn: (a: T, b: T) => number,
+    arr: T[] = [],
+  ) {
     this.arr = [...arr];
     this.refindHighest();
   }
@@ -650,11 +653,9 @@ export const dependenciesToWriteKeys = (
   dependencies: Map<string, DependencyInfo>,
 ): string[] => [
   ...new Set(
-    [...dependencies]
-      .map(([filePath, dependency]) =>
-        dependency.writes.map((writePath) => pathToPrimaryKey(filePath, writePath)),
-      )
-      .flat(),
+    [...dependencies].flatMap(([filePath, dependency]) =>
+      dependency.writes.map((writePath) => pathToPrimaryKey(filePath, writePath)),
+    ),
   ),
 ];
 
@@ -2195,8 +2196,8 @@ export const evaluateModifiedTestResult = (
   const endResultChange: number = samePassFailResult
     ? EndResult.UNCHANGED
     : newResult.data.passed
-    ? EndResult.BETTER
-    : EndResult.WORSE;
+      ? EndResult.BETTER
+      : EndResult.WORSE;
   const errorChanged: boolean | null = (() => {
     if (!samePassFailResult) {
       return null;
@@ -2508,9 +2509,7 @@ export const mutationEvalatuationMapToFaults = (
   testInfoMap: Map<string, TestInformation>,
   coverageObjs: Map<string, Map<string, CoveragePathObj>>,
 ): Fault[] => {
-  const flattened = [...coverageObjs.values()]
-    .map((objMap) => [...objMap.values()])
-    .flat();
+  const flattened = [...coverageObjs.values()].flatMap((objMap) => [...objMap.values()]);
 
   const faults = flattened
     .sort((a, b) =>
@@ -2629,7 +2628,7 @@ export const shouldFinishMutations = (
 
   const allWriteDependencyKeys = [
     ...new Set(
-      instructionArr.map((instruction) => instruction.typedWriteDependencyKeys).flat(),
+      instructionArr.flatMap((instruction) => instruction.typedWriteDependencyKeys),
     ),
   ];
   const allDependencyEvaluations = allWriteDependencyKeys.map(
@@ -2695,9 +2694,9 @@ export const createDefaultIsFinishedFn = ({
 const getAffectedFilePaths = (instructions: Queue<Instruction<any>>): string[] => {
   const filePaths = [
     ...new Set(
-      [...instructions]
-        .map((instruction) => [...instruction.conflictDependencies.keys()])
-        .flat(),
+      [...instructions].flatMap((instruction) => [
+        ...instruction.conflictDependencies.keys(),
+      ]),
     ),
   ];
 

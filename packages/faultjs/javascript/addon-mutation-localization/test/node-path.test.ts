@@ -1,15 +1,15 @@
 import { parse } from '@babel/parser';
-import { NodePath } from '@babel/traverse';
+import type { NodePath } from '@babel/traverse';
 
 import {
-  getAstPath,
-  forceConsequentFactory,
-  leftNullifyBinaryOrLogicalOperatorFactory,
-  gatherInstructions,
   FORCE_CONSEQUENT,
   InstructionFactory,
   executeInstructions,
+  forceConsequentFactory,
+  gatherInstructions,
+  getAstPath,
   getDependencyPaths,
+  leftNullifyBinaryOrLogicalOperatorFactory,
   pathToKey,
   widenCoveragePath,
 } from '../src/index.ts';

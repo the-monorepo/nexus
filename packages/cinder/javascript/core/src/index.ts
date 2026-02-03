@@ -148,7 +148,10 @@ const setAttribute = (el: Element, key: string, value: any) => {
 };
 
 class AttributeField extends CachedField {
-  constructor(private readonly el: Element, private readonly key: string) {
+  constructor(
+    private readonly el: Element,
+    private readonly key: string,
+  ) {
     super();
   }
 
@@ -163,7 +166,10 @@ export const attribute = (el: Element, key: string): AttributeField => {
 
 export type PropertySetter = (node: Element, value: any) => any;
 class PropertyField extends CachedField {
-  constructor(private readonly el: Element, private readonly setter: PropertySetter) {
+  constructor(
+    private readonly el: Element,
+    private readonly setter: PropertySetter,
+  ) {
     super();
   }
 
@@ -200,7 +206,10 @@ const setEvent = (el: Element, key: string, state, newValue) => {
 };
 
 class EventField extends CachedField {
-  constructor(private readonly el: Element, private readonly key: string) {
+  constructor(
+    private readonly el: Element,
+    private readonly key: string,
+  ) {
     super();
   }
   set(value) {
@@ -400,7 +409,11 @@ export const updateComponentResultsArray = <C, V, N extends Node>(
 
 class DynamicSection implements Field {
   private readonly state: (RenderResult<unknown> | undefined)[];
-  constructor(private readonly el: Node, private readonly before: Node, length: number) {
+  constructor(
+    private readonly el: Node,
+    private readonly before: Node,
+    length: number,
+  ) {
     this.state = new Array(length).fill(undefined);
   }
 
@@ -439,7 +452,10 @@ export const dynamicSection = (el: Node, before: Node, length: number) => {
 
 class ChildrenField implements Field {
   private state: RenderResult<any, any> | undefined = undefined;
-  constructor(private readonly el: Node, private readonly before: Node | null) {}
+  constructor(
+    private readonly el: Node,
+    private readonly before: Node | null,
+  ) {}
 
   init(fieldValues, v) {
     return this.update(fieldValues, v);

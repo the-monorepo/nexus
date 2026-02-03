@@ -2,8 +2,8 @@ import { createCoverageMap } from 'istanbul-lib-coverage';
 import { createContext } from 'istanbul-lib-report';
 import { create } from 'istanbul-reports';
 
-import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import { FinalTesterResults } from '@fault/types';
+import type { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import type { FinalTesterResults } from '@fault/types';
 
 export const report = ({ coverage }: FinalTesterResults, contextOptions) => {
   const coverageMap = createCoverageMap(coverage);

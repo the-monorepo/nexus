@@ -1,8 +1,8 @@
 import {
-  matchSuffix,
+  type RetrievalObject,
+  type SuffixNode,
   createSuffixRoot,
-  RetrievalObject,
-  SuffixNode,
+  matchSuffix,
 } from '../src/index.ts';
 
 type TestNode = {

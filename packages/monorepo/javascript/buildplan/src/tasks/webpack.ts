@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
-import { webpackCompilers } from './utils/webpack-compilers.ts';
 import logger from './utils/logger.ts';
+import { webpackCompilers } from './utils/webpack-compilers.ts';
 
 // From: https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
 const humanReadableFileSize = (size: number) => {

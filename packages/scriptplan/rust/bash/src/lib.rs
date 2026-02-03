@@ -53,12 +53,10 @@ impl Command for BashCommand {
         let mut process = tokio::process::Command::new("bash")
             .stdin(Stdio::piped())
             .stdout(Stdio::inherit())
-
             // The following remove prompt strings from bash
             .env("PS0", "")
             .env("PS1", "")
             .env("PS2", "")
-
             // Stops input from being read by output
             .arg("-s")
             .arg("--")
@@ -67,9 +65,9 @@ impl Command for BashCommand {
             .unwrap();
 
         /*
-            By default, we want it to be easy for users to be able to apply arguments to the subprocesses that scriptplan executes.
-            However, if a user explicitly says, say, they want to use arguments in the following order: "$1 $2" then it's probably not a good idea to spread all arguments.
-         */
+           By default, we want it to be easy for users to be able to apply arguments to the subprocesses that scriptplan executes.
+           However, if a user explicitly says, say, they want to use arguments in the following order: "$1 $2" then it's probably not a good idea to spread all arguments.
+        */
         let has_params = self.command_str.contains("$");
         let spread_args = if has_params { "" } else { " $@" };
 

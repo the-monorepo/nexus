@@ -1,5 +1,5 @@
-import { readFile, writeFile, stat } from 'fs/promises';
-import { dirname, join, relative, normalize } from 'path';
+import { dirname, join, normalize, relative } from 'path';
+import { readFile, stat, writeFile } from 'fs/promises';
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -73,7 +73,7 @@ const readJson = async (aPath: string) => {
 
 const tryResolvePackage = (packageName: string, cwd: string) => {
   try {
-    Object.keys(require.cache).forEach(function (key) {
+    Object.keys(require.cache).forEach((key) => {
       delete require.cache[key];
     });
     return require.resolve(packageName, { paths: [cwd] });

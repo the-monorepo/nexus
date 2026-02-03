@@ -1,4 +1,4 @@
-import { resolve, relative, isAbsolute } from 'path';
+import { isAbsolute, relative, resolve } from 'path';
 const projectDir = resolve('.');
 
 const isSubDir = (projectDir: string, dir: string) => {

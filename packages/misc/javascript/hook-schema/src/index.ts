@@ -21,16 +21,16 @@ export type Hooks<H extends HookSchema> = {
   [K in keyof H]: H[K] extends HookSchema
     ? Hooks<H[K]>
     : H[K] extends HookCallbackFactory
-    ? ReturnType<H[K]>
-    : HookCallback;
+      ? ReturnType<H[K]>
+      : HookCallback;
 };
 
 type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
     ? RecursivePartial<U>[]
     : T[P] extends Record<string, any>
-    ? RecursivePartial<T[P]>
-    : T[P];
+      ? RecursivePartial<T[P]>
+      : T[P];
 };
 
 export type CompleteHooksOptions<K extends HookSchema, O extends HookSchema> = {

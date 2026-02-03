@@ -1,5 +1,5 @@
-import { TypeTest } from './TypeTest.ts';
-import { Type } from './type-info-types.ts';
+import type { TypeTest } from './TypeTest.ts';
+import type { Type } from './type-info-types.ts';
 import { nullCounts, undefinedCounts } from './util.ts';
 
 export function runTypeTests(

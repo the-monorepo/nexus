@@ -1,5 +1,5 @@
-import { readFile } from 'fs/promises';
 import { extname } from 'path';
+import { readFile } from 'fs/promises';
 
 import languagesObject from './languages.js';
 /**

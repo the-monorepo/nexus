@@ -1,6 +1,6 @@
 import { stub } from 'sinon';
 
-import { replaceFunctions, RecursionOptions } from 'replace-functions';
+import { type RecursionOptions, replaceFunctions } from 'replace-functions';
 
 const stubFunctions = <T>(
   value: T,

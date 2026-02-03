@@ -1,10 +1,10 @@
 import {
-  isBoolean,
-  isObject,
   isArray,
-  isString,
+  isBoolean,
   isFunction,
   isNumber,
+  isObject,
+  isString,
 } from '../../src/type-checks.ts';
 import { typeValues } from '../inputs/typeValues.ts';
 function testTypeCheckWithtypes(name, validValues, typeCheck) {

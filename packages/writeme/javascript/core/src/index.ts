@@ -1,13 +1,13 @@
+import { readJson } from '@pshaw/fs';
 /* eslint-disable require-atomic-updates */
 import { writeFile } from 'fs/promises';
-import { readJson } from '@pshaw/fs';
 
 import { join, relative, resolve } from 'path';
 
 import { pathExists } from 'fs-extra';
 import globby from 'globby';
 
-import { fromSchema, HookOptionsOf } from 'hook-schema';
+import { type HookOptionsOf, fromSchema } from 'hook-schema';
 
 function section(title, content) {
   let md = '';
@@ -289,8 +289,8 @@ export async function genReadmeFromPackageDir(
         context.packageJson.workspaces == null
           ? undefined
           : Array.isArray(context.packageJson.workspaces)
-          ? context.packageJson.workspaces
-          : context.packageJson.workspaces.packages,
+            ? context.packageJson.workspaces
+            : context.packageJson.workspaces.packages,
       ...context.config,
       dir: packageDir,
     };

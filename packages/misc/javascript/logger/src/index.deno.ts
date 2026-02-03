@@ -5,7 +5,10 @@ export const overrideUtilInspectStyle = () => {};
 
 // TODO
 class DenoConsole {
-  constructor(private readonly options, private readonly customOptions) {}
+  constructor(
+    private readonly options,
+    private readonly customOptions,
+  ) {}
   child(...subTags: string[]) {
     return new DenoConsole(this.options, {
       ...this.customOptions,

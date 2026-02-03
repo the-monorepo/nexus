@@ -1,12 +1,12 @@
 import {
-  TypeInfo,
-  ObjectType,
-  StringType,
-  NumberType,
-  ArrayType,
-  BooleanType,
-  Type,
+  type ArrayType,
+  type BooleanType,
   NumberFormat,
+  type NumberType,
+  type ObjectType,
+  type StringType,
+  type Type,
+  type TypeInfo,
 } from '@byexample/types';
 
 function addTypeInfoToOpenSchema(openApiType, typeInfo, options) {

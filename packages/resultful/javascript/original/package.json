@@ -1,5 +1,5 @@
 {
-  "version": "0.0.16",
+  "version": "0.0.17",
   "name": "resultful-original",
   "description": "A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.",
   "keywords": [
@@ -14,18 +14,19 @@
   ],
   "license": "MIT",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
   "exports": {
     ".": {
       "types": "./src/index.ts",
       "monorepo-original": "./src/index.ts",
-      "import": "./esm/index.ts",
-      "require": "./commonjs/index.ts"
+      "import": "./esm/index.js",
+      "require": "./commonjs/index.js"
     }
   },
   "files": [
     "lib",
+    "commonjs",
     "src",
     "esm"
   ],
@@ -39,7 +40,7 @@
   },
   "gitHead": "d2f1915c84abb72be13d2d33bd1091bd26993e34",
   "dependencies": {
-    "@resultful/types": "0.0.13"
+    "@resultful/types": "0.0.14"
   },
   "devDependencies": {
     "jest-mock": "^26.1.0"

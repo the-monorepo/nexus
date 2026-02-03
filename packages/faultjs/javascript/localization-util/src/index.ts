@@ -1,4 +1,4 @@
-import { TestResult } from '@fault/types';
+import type { TestResult } from '@fault/types';
 
 export type Stats = {
   passed: number;

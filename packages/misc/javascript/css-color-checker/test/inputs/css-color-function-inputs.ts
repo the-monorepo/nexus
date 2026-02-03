@@ -1,4 +1,4 @@
-import { TestInputs } from './test-inputs.ts';
+import type { TestInputs } from './test-inputs.ts';
 export type Bound = {
   value: number;
   inclusive: boolean;

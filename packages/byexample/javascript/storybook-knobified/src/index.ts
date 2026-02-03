@@ -1,15 +1,15 @@
 // TODO: Should probably mock @storybook/addon-knobs
 import { action } from '@storybook/addon-actions';
-import { text, boolean, number, object, array, color } from '@storybook/addon-knobs';
+import { array, boolean, color, number, object, text } from '@storybook/addon-knobs';
 
 import PropTypes from 'prop-types';
 
 import {
-  ObjectType,
   DefaultTypeName,
-  TypeInfo,
-  extractTypeInfo,
+  type ObjectType,
+  type TypeInfo,
   defaultTypeTests,
+  extractTypeInfo,
 } from '@byexample/types';
 import { isCssColor } from 'css-color-checker';
 
@@ -132,7 +132,7 @@ function propKeys(examples, Component = {}) {
   return new Set([
     ...Object.keys(propTypes ? propTypes : {}),
     ...Object.keys(defaultProps ? defaultProps : {}),
-    ...examples.map((example) => Object.keys(example)).flat(),
+    ...examples.flatMap((example) => Object.keys(example)),
   ]);
 }
 

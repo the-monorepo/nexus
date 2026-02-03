@@ -1,7 +1,7 @@
-import gulp from 'gulp';
 import config from '@monorepo/config';
-import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';
+import gulp from 'gulp';
 import filter from 'gulp-filter';
+import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';
 
 import { formatPipes } from './pipes/formatPipes.ts';
 

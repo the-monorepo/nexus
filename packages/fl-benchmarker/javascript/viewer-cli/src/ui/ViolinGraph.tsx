@@ -1,24 +1,24 @@
 import * as cinder from 'cinder';
-import { DomElement, UPDATE, MOUNT, UNMOUNT } from 'cinder';
+import { DomElement, MOUNT, UNMOUNT, UPDATE } from 'cinder';
 
-import { observable, action } from 'mobx';
+import { action, observable } from 'mobx';
 
 import cx from 'classnames';
 
 import {
-  scaleLinear,
-  axisBottom,
   area,
+  axisBottom,
+  axisLeft,
   curveMonotoneY,
   mean,
-  axisLeft,
-  select,
   scaleBand,
+  scaleLinear,
+  select,
 } from 'd3';
 
 import * as previousStyles from './ViolinGraph.scss';
-import * as figureStyles from './figure.scss';
 import styles from './ViolinGraphElement.scss';
+import * as figureStyles from './figure.scss';
 
 import { autorun } from 'mobx';
 

@@ -3,7 +3,7 @@ import 'unstyled';
 
 import cx from 'classnames';
 
-import { autorun, observable, action, computed } from 'mobx';
+import { action, autorun, computed, observable } from 'mobx';
 
 import * as cinder from 'cinder';
 

@@ -1,4 +1,4 @@
-import { failure, ok, isFailure, Result } from '@resultful/result';
+import { type Result, failure, isFailure, ok } from '@resultful/result';
 
 export type Cache<K, V> = Pick<Map<K, V>, 'set' | 'get'>;
 export type CacheConstructor<K, V> = {

@@ -1,20 +1,20 @@
 import {
-  failure,
-  ok,
-  isFailure,
-  isOk,
-  Result,
-  transform as transformResult,
-} from '@resultful/result';
-import {
+  type Failure,
   error,
-  unknown,
-  Failure,
   isError,
   isUnknown,
   transform as transformFailure,
+  unknown,
 } from '@resultful/failure';
-import { TypedObjectSchema } from '@resultful/utility-types';
+import {
+  type Result,
+  failure,
+  isFailure,
+  isOk,
+  ok,
+  transform as transformResult,
+} from '@resultful/result';
+import type { TypedObjectSchema } from '@resultful/utility-types';
 
 export { ok, isOk, error, unknown, failure };
 

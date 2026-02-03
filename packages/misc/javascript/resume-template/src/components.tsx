@@ -1,13 +1,13 @@
 /* eslint-disable */
 import './custom.d.ts';
-import { format as formatDate } from 'date-fns/esm/index';
-import envelope from './envelope.svg';
-import github from './github.svg';
-import linkedin from './linkedin.svg';
 import * as cinder from 'cinder';
 import { DomElement } from 'cinder';
 import cx from 'classnames';
+import { format as formatDate } from 'date-fns/esm/index';
 import * as styles from './components.scss';
+import envelope from './envelope.svg';
+import github from './github.svg';
+import linkedin from './linkedin.svg';
 
 const Typography = ({
   children,

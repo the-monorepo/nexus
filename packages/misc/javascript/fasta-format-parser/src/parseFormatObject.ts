@@ -1,8 +1,8 @@
-import { ok, failure, isOk, valueOf } from 'resultful';
+import { failure, isOk, ok, valueOf } from 'resultful';
 
 import * as ErrorTypes from './ErrorTypes.ts';
-import * as FormatTypes from './FormatTypes.ts';
 import * as FormatMetadata from './FormatMetadata.ts';
+import * as FormatTypes from './FormatTypes.ts';
 
 const defaultDelimiters = new Set(['|', '\n']);
 const nextString = async (

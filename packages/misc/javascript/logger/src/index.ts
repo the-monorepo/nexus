@@ -55,11 +55,11 @@ const createConsoleArgs = (
   const levelPrefix = (() => {
     switch (level) {
       case 'info':
-        return 'ℹ️';
+        return 'i';
       case 'error':
         return '❌';
       case 'warn':
-        return '⚠️';
+        return '!';
       case 'log':
         return '💬';
       case 'debug':

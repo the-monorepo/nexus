@@ -2,21 +2,21 @@ import { DefaultTypeName } from './DefaultTypeName.ts';
 import { typeTest } from './TypeTest.ts';
 import { extractTypeInfo } from './extractTypeInfo.ts';
 import {
-  isBoolean,
-  isObject,
   isArray,
-  isString,
+  isBoolean,
   isFunction,
   isNumber,
+  isObject,
+  isString,
 } from './type-checks.ts';
 import {
-  BooleanType,
-  StringType,
-  FunctionType,
-  NumberType,
+  type ArrayType,
+  type BooleanType,
+  type FunctionType,
   NumberFormat,
-  ArrayType,
-  ObjectType,
+  type NumberType,
+  type ObjectType,
+  type StringType,
 } from './type-info-types.ts';
 import { allAreIntegers } from './util.ts';
 

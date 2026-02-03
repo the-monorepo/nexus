@@ -1,5 +1,5 @@
-import through from 'through2';
 import chalk from 'chalk';
+import through from 'through2';
 
 export const simplePipeLogger = (l) => {
   return through.obj((file, enc, callback) => {

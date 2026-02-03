@@ -1,10 +1,10 @@
 export type { FailureType } from '@resultful/failure-types';
-import {
+import { ERROR, UNKNOWN } from '@resultful/failure-types';
+import type {
+  OptionIfTypeElseEmpty,
   ResultTransformer,
   TransformTypedObject,
-  OptionIfTypeElseEmpty,
 } from '@resultful/utility-types';
-import { ERROR, UNKNOWN } from '@resultful/failure-types';
 export { ERROR, UNKNOWN } from '@resultful/failure-types';
 
 export type ErrorFailure<ErrorType> = {
@@ -83,10 +83,9 @@ export type HandledUnknownResult<
   O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'unknown', typeof UNKNOWN>;
 
-export type HandledResult<
-  R extends TypedObjectSchema,
-  O extends TransformOptionsSchema,
-> = HandledErrorResult<R, O> | HandledUnknownResult<R, O>;
+export type HandledResult<R extends TypedObjectSchema, O extends TransformOptionsSchema> =
+  | HandledErrorResult<R, O>
+  | HandledUnknownResult<R, O>;
 
 export type FullOptionsBasedOnResult<
   R extends TypedResultfulSchema,
@@ -155,8 +154,8 @@ export type HandleFn = {
 export type ValueOf<R extends TypedResultfulSchema> = R extends ErrorFailure<infer E>
   ? E
   : R extends UnknownError
-  ? 1
-  : never;
+    ? 1
+    : never;
 const passThrough = <T>(value: T) => value;
 export type ValueOfFn = <F extends Failure<any>>(result: F) => ValueOf<F>;
 export const valueOf: ValueOfFn = <E>(result: Failure<E>): any =>

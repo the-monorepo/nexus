@@ -5,11 +5,11 @@ A utility package for avoiding throw, try and catch. Return exceptions, errors a
 ## Installation
 
 ```bash
-npm install --save resultful
+npm install --save resultful@1.0.0-alpha.0
 ```
 or
 ```bash
-yarn add resultful
+yarn add resultful@1.0.0-alpha.0
 ```
 
 ---

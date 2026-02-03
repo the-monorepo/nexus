@@ -1,5 +1,5 @@
 // TODO: Remove console.log(...)s
-import { fork, ForkOptions, ChildProcess } from 'child_process';
+import { type ChildProcess, type ForkOptions, fork } from 'child_process';
 
 import { cpus } from 'os';
 import { join, resolve } from 'path';
@@ -9,20 +9,20 @@ import globby from 'globby';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 
 import {
-  TestHookOptions,
-  PartialTestHookOptions,
+  type PartialTestHookOptions,
+  type TestHookOptions,
   schema,
 } from '@fault/addon-hook-schema';
-import { Coverage } from '@fault/istanbul-util';
+import type { Coverage } from '@fault/istanbul-util';
 import { ChildProcessWorkerClient } from '@fault/messages';
 import {
+  type ChildResult,
+  type FileFinishedData,
+  type FinalTesterResults,
   IPC,
-  TestResult,
-  ChildResult,
-  TesterResults,
-  FinalTesterResults,
-  RunTestData,
-  FileFinishedData,
+  type RunTestData,
+  type TestResult,
+  type TesterResults,
 } from '@fault/types';
 import { readJson, writeJson } from '@pshaw/fs';
 

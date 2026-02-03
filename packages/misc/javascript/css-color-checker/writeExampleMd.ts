@@ -1,19 +1,19 @@
 import fs from 'fs';
 import { basename } from 'path';
 
-import { TestInputs } from './tests/inputs/test-inputs.ts';
 import {
   default as cssColorFormat,
+  isColorName,
+  isCssColor,
   isHexColor,
-  isRgbColor,
-  isRgbaColor,
   isHslColor,
   isHslaColor,
-  isColorName,
   isHwbColor,
-  isCssColor,
+  isRgbColor,
+  isRgbaColor,
 } from './src/index.ts';
 import { inputs } from './tests/inputs/suites.ts';
+import type { TestInputs } from './tests/inputs/test-inputs.ts';
 
 function example(isColorFunction, input: string) {
   return `${isColorFunction.name}("${input}");`;

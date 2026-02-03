@@ -1,6 +1,6 @@
-import { formatPipes } from './pipes/formatPipes.ts';
-import gulp from 'gulp';
 import config from '@monorepo/config';
+import gulp from 'gulp';
+import { formatPipes } from './pipes/formatPipes.ts';
 
 const formatStream = (options?) =>
   gulp.src(

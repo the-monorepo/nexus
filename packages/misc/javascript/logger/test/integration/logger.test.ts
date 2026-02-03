@@ -14,7 +14,7 @@ class MockedWriteable extends Writable {
 }
 
 const levelName = 'info';
-const logLevelTag = 'ℹ️';
+const logLevelTag = 'i';
 function formatTester({ timestamp = '' }: any = {}) {
   return (expectedString) => {
     const output = `${timestamp}${logLevelTag} ${expectedString}\n`;

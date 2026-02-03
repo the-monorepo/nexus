@@ -1,12 +1,12 @@
-import { readFile, writeFile, mkdtemp, unlink, rmdir, mkdir } from 'fs/promises';
 import { tmpdir } from 'os';
-import { join, resolve, basename } from 'path';
+import { basename, join, resolve } from 'path';
+import { mkdir, mkdtemp, readFile, rmdir, unlink, writeFile } from 'fs/promises';
 
 import generate from '@babel/generator';
-import { parse, ParserOptions } from '@babel/parser';
-import { NodePath } from '@babel/traverse';
+import { type ParserOptions, parse } from '@babel/parser';
+import type { NodePath } from '@babel/traverse';
 import traverse from '@babel/traverse';
-import { File, BaseNode } from '@babel/types';
+import type { BaseNode, File } from '@babel/types';
 import * as t from '@babel/types';
 
 import del from 'del';
@@ -14,19 +14,19 @@ import ErrorStackParser from 'error-stack-parser';
 import { createCoverageMap } from 'istanbul-lib-coverage';
 import * as micromatch from 'micromatch';
 
-import { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import { ExpressionLocation, Coverage } from '@fault/istanbul-util';
+import type { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import type { Coverage, ExpressionLocation } from '@fault/istanbul-util';
 import {
-  reportFaults,
-  Fault,
+  type Fault,
   recordFaults,
+  reportFaults,
   sortBySuspciousness,
 } from '@fault/record-faults';
-import {
-  TesterResults,
-  TestResult,
+import type {
   FailingTestData,
   FinalTesterResults,
+  TestResult,
+  TesterResults,
 } from '@fault/types';
 
 const getHighest = <T>(arr: T[], compareFn: (a: T, b: T) => number) => {
@@ -47,7 +47,10 @@ class Heap<T> {
   private arr: T[];
   private invalidated = false;
   private highest: T | undefined;
-  constructor(public readonly compareFn: (a: T, b: T) => number, arr: T[] = []) {
+  constructor(
+    public readonly compareFn: (a: T, b: T) => number,
+    arr: T[] = [],
+  ) {
     this.arr = [...arr];
     this.refindHighest();
   }
@@ -559,7 +562,10 @@ class DeleteStatementInstruction implements Instruction {
   public mutationCount: number;
   private lastProcessedStatementBlock: StatementBlock = undefined!;
   private statementBlocks: Heap<StatementBlock>;
-  constructor(statements: StatementBlock[], private readonly maxRetries: number) {
+  constructor(
+    statements: StatementBlock[],
+    private readonly maxRetries: number,
+  ) {
     this.statementBlocks = new Heap(
       (a, b) => a.statements.length - b.statements.length,
       statements,
@@ -1055,7 +1061,10 @@ const REPLACE_BOOLEAN = Symbol('replace-boolean');
 class InvertBooleanLiteralInstruction extends SingleLocationInstruction {
   public readonly mutationsLeft: number = 1;
   public readonly type = REPLACE_BOOLEAN;
-  constructor(location: Location, public readonly totalNodes: number) {
+  constructor(
+    location: Location,
+    public readonly totalNodes: number,
+  ) {
     super(location);
   }
 
@@ -1079,7 +1088,10 @@ const REPLACE_IDENTIFIER = Symbol('replace-identifier');
 class ReplaceIdentifierInstruction extends SingleLocationInstruction {
   public readonly totalNodes: number = 1;
   public readonly type: symbol = REPLACE_IDENTIFIER;
-  constructor(location: Location, public readonly names: string[]) {
+  constructor(
+    location: Location,
+    public readonly names: string[],
+  ) {
     super(location);
   }
 
@@ -2019,8 +2031,8 @@ export const evaluateModifiedTestResult = (
   const endResultChange: number = samePassFailResult
     ? EndResult.UNCHANGED
     : newResult.data.passed
-    ? EndResult.BETTER
-    : EndResult.WORSE;
+      ? EndResult.BETTER
+      : EndResult.WORSE;
   const errorChanged: boolean | null = (() => {
     if (!samePassFailResult) {
       return null;

@@ -1,4 +1,4 @@
-import { HookOptions, CompleteHooksOptions, fromSchema } from 'hook-schema';
+import { type CompleteHooksOptions, type HookOptions, fromSchema } from 'hook-schema';
 
 const beforeAfterHookSchema = {};
 const onHookSchema = {

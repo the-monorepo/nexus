@@ -19,6 +19,7 @@ Version | Package | Description
 0.0.11 | [`@resultful/failure-types`](packages/resultful/javascript/failure-types/README.md) | Resultful type symbols
 0.0.11 | [`@resultful/result`](packages/resultful/javascript/result/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 0.0.11 | [`@resultful/result-types`](packages/resultful/javascript/result-types/README.md) | Resultful type symbols
+0.0.13 | [`@resultful/types`](packages/resultful/javascript/original-types/README.md) | Resultful type symbols
 0.0.4 | [`@resultful/utility-types`](packages/resultful/javascript/utility-types/README.md) | String constants for the different result types returned by resultful
 3.1.4-0 | [`@writeme/core`](packages/writeme/javascript/core/README.md) | A readme generator
 1.6.2-0 | [`css-color-checker`](packages/misc/javascript/css-color-checker/README.md) | Library for determining the CSS color format of string values
@@ -30,7 +31,7 @@ Version | Package | Description
 1.0.0-alpha.0 | [`node-import-map-generator`](packages/misc/javascript/node-import-map-generator/README.md) | Generate import nodes from package.json dependencies
 1.0.0 | [`nucleotide-bases`](packages/misc/javascript/nucleotide-bases/README.md) | A helper package for nucleotide bases
 4.0.0 | [`replace-functions`](packages/misc/javascript/replace-functions/README.md) | Mock all functions inside an array or object literal
-0.0.11 | [`resultful`](packages/resultful/javascript/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
+1.0.0-alpha.0 | [`resultful`](packages/resultful/javascript/resultful/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 0.0.16 | [`resultful-original`](packages/resultful/javascript/original/README.md) | A utility package for avoiding throw, try and catch. Return exceptions, errors and successful results.
 4.0.1-0 | [`sinon-stub-functions`](packages/misc/javascript/sinon-stub-functions/README.md) | Stub all functions inside an arrays, objects and classes with sinon
 1.0.0-alpha.6 | [`stream-filter-glob`](packages/misc/javascript/stream-filter-glob/README.md) | Filters out paths based off a micromatch glob

@@ -1,14 +1,14 @@
 import { join, resolve } from 'path';
 
 import {
-  createHtmlWebpackPlugin,
+  type Configuration,
+  CopyPlugin,
   createBundleAnalyzerPlugin,
-  recommendedRules,
+  createHtmlWebpackPlugin,
   //recommendedWebcomponentRules,
   createOutput,
-  CopyPlugin,
-  Configuration,
   distPath,
+  recommendedRules,
 } from '@pshaw/webpack';
 
 const projectResolve = (projectDirPath, packageDir) =>

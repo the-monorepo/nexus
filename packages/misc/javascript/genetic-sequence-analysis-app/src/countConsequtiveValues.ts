@@ -1,4 +1,4 @@
-import { Bases } from 'nucleotide-bases';
+import type { Bases } from 'nucleotide-bases';
 export type BaseLocation<T = Bases> = {
   index: number;
   count: number;

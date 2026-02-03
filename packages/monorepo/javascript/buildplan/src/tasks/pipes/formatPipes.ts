@@ -1,60 +1,86 @@
+import { spawn } from 'child_process';
 import chalk from 'chalk';
 import { simplePipeLogger } from '../utils/simplePipeLogger';
 
 import logger from '../utils/logger';
 
-import * as eslint from 'eslint';
-import prettier from 'prettier';
 import * as through2 from 'through2';
 
-const prettierPipes = async (stream) => {
-  const l = logger.child(chalk.magentaBright('prettier'));
+const runBiome = (
+  filePath: string,
+  content: string,
+): Promise<{ stdout: string; stderr: string; exitCode: number | null }> => {
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      'yarn',
+      ['run', 'biome', 'check', '--write', '--stdin-file-path', filePath],
+      {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    );
 
-  const prettierOptions = await prettier.resolveConfig();
+    let stdout = '';
+    let stderr = '';
 
-  return stream.pipe(simplePipeLogger(l)).pipe(
-    through2.obj(async (file, enc, callback) => {
-      const formattedText = prettier.format(file.contents.toString(), prettierOptions);
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
 
-      file.contents = Buffer.from(formattedText, 'utf8');
+    child.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
 
-      callback(undefined, file);
-    }),
-  );
+    child.on('close', (exitCode) => {
+      resolve({ stdout, stderr, exitCode });
+    });
+
+    child.on('error', (error) => {
+      reject(error);
+    });
+
+    child.stdin.write(content);
+    child.stdin.end();
+  });
 };
 
-const lintPipes = async (stream, lintOptions) => {
-  const l = logger.child(chalk.magentaBright('eslint'));
-
-  const instance = new eslint.ESLint({ ...lintOptions, fix: false });
-  const reporter = await instance.loadFormatter('unix');
+const biomePipes = async (stream) => {
+  const l = logger.child(chalk.magentaBright('biome'));
 
   return stream.pipe(simplePipeLogger(l)).pipe(
     through2.obj(async (file, enc, callback) => {
-      const results = await instance.lintText(file.contents.toString(), {
-        filePath: file.path,
-      });
+      try {
+        const { stdout, stderr, exitCode } = await runBiome(
+          file.path,
+          file.contents.toString(),
+        );
 
-      if (results.length > 0) {
-        if (results.length > 1) {
-          l.warn(`Received ${results.length} ESLint results for a single file`);
+        if (stderr) {
+          process.stderr.write(stderr);
         }
 
-        if (results[0].output !== undefined && lintOptions.fix) {
-          file.contents = Buffer.from(results[0].output, 'utf8');
+        // Only use the output if biome succeeded or partially succeeded (exit code 0 or 1)
+        // Exit code 1 means there were lint warnings/errors but formatting still happened
+        // Higher exit codes indicate failures (e.g., binary not found, invalid config)
+        if (exitCode !== null && exitCode <= 1 && stdout) {
+          file.contents = Buffer.from(stdout, 'utf8');
+        } else if (exitCode !== null && exitCode > 1) {
+          l.warn(
+            `Biome exited with code ${exitCode} for ${file.path}, skipping formatting`,
+          );
+          if (stdout) {
+            process.stderr.write(stdout);
+          }
         }
-      }
 
-      const reportedText = await reporter.format(results);
-      if (reportedText.length > 0) {
-        process.stdout.write(`${reportedText}\n`);
+        callback(undefined, file);
+      } catch (error: unknown) {
+        l.error(`Failed to format ${file.path}:`, error);
+        callback(undefined, file);
       }
-
-      callback(undefined, file);
     }),
   );
 };
 
 export const formatPipes = async (stream) => {
-  return await prettierPipes(await lintPipes(stream, { fix: true }));
+  return await biomePipes(stream);
 };

@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 
 import Mocha from 'mocha';
 
-import { subtractCoverage, Coverage } from '@fault/istanbul-util';
+import { type Coverage, subtractCoverage } from '@fault/istanbul-util';
 
 import { client } from './client.ts';
 

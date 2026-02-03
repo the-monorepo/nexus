@@ -48,9 +48,9 @@ const getConfig = () => {
 
   const nonIgnoredSourceFileGlobs = [`${concatenatedWorkspaces}/src/**/*`];
 
-  const nonIgnoredSourceCodeGlobs = nonIgnoredSourceFileGlobs
-    .map((glob) => `${glob}.${concatenatedCodeExtensions}`)
-    .flat();
+  const nonIgnoredSourceCodeGlobs = nonIgnoredSourceFileGlobs.flatMap(
+    (glob) => `${glob}.${concatenatedCodeExtensions}`,
+  );
 
   const buildableSourceCodeGlobs = [...nonIgnoredSourceCodeGlobs];
 

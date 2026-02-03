@@ -1,21 +1,21 @@
-import { parse, ParserOptions } from '@babel/parser';
+import { type ParserOptions, parse } from '@babel/parser';
 
 import {
-  AbstractSimpleInstructionFactory,
+  type AbstractSimpleInstructionFactory,
   InstructionFactory,
   deleteStatementFactory,
-  forceConsequentFactory,
   forceAlternateFactory,
-  replaceIdentifierFactory,
-  replaceBooleanFactory,
-  replaceStringFactory,
-  swapFunctionDeclarationParametersFactory,
-  swapFunctionCallArgumentsFactory,
-  replaceNumberFactory,
-  replaceBinaryOrLogicalOperatorFactory,
-  replaceAssignmentOperatorFactory,
+  forceConsequentFactory,
   leftNullifyBinaryOrLogicalOperatorFactory,
+  replaceAssignmentOperatorFactory,
+  replaceBinaryOrLogicalOperatorFactory,
+  replaceBooleanFactory,
+  replaceIdentifierFactory,
+  replaceNumberFactory,
+  replaceStringFactory,
   rightNullifyBinaryOrLogicalOperatorFactory,
+  swapFunctionCallArgumentsFactory,
+  swapFunctionDeclarationParametersFactory,
 } from '../src/index.ts';
 type Code = string;
 type Factory = AbstractSimpleInstructionFactory<any, any>;

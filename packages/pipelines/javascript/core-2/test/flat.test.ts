@@ -1,5 +1,5 @@
+import { arrayFrom, flat, map, of } from '../src/index.ts';
 import { threeCountersCountingThreeEach } from './test-utils.ts';
-import { map, flat, arrayFrom, of } from '../src/index.ts';
 
 describe(flat.name, () => {
   it(`${threeCountersCountingThreeEach.name} with default depth`, async () => {

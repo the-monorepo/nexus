@@ -1,11 +1,11 @@
-import { MatcherInfo } from '@contextual-documents/matcher-info';
+import type { MatcherInfo } from '@contextual-documents/matcher-info';
 import {
+  type GetChildrenFn,
+  type GetKeyFn,
+  type GetValueFn,
+  type SuffixNode,
   createSuffixRoot,
   matchSuffix,
-  GetChildrenFn,
-  GetValueFn,
-  GetKeyFn,
-  SuffixNode,
 } from 'tree-suffix-mapper';
 
 export const getChildren: GetChildrenFn<MatcherInfo> = (node) => node.children;

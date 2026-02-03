@@ -1,4 +1,4 @@
-import { createBlueprint, componentResult, renderValue, FC } from '@cinder/core';
+import { type FC, componentResult, createBlueprint, renderValue } from '@cinder/core';
 
 let currentHooks: any[] | undefined = undefined;
 let currentHookIndex = 0;
@@ -26,7 +26,10 @@ const isSame = (previousData, currentData) => {
 
 class UseEffectHook implements HookDefinition {
   private unmountCallback;
-  constructor(private readonly callback, private readonly currentDependencies) {}
+  constructor(
+    private readonly callback,
+    private readonly currentDependencies,
+  ) {}
 
   mount() {
     this.unmountCallback = this.callback();

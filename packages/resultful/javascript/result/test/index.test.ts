@@ -1,6 +1,6 @@
 import * as jest from 'jest-mock';
 
-import { failure, ok, isFailure, isOk, map, OK, FAILURE } from '../src/index.ts';
+import { FAILURE, OK, failure, isFailure, isOk, map, ok } from '../src/index.ts';
 
 const successPayload = {
   type: OK,

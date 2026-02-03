@@ -1,15 +1,15 @@
 import {
-  HeaderElement,
   FooterElement,
-  SectionElement,
   H1Element,
   H2Element,
   H3Element,
   H4Element,
   H5Element,
   H6Element,
-  PElement,
+  HeaderElement,
   LabelElement,
+  PElement,
+  SectionElement,
 } from '@contextual-documents/html-elements';
 import styles from '@pshaw/contextual-documents-scss';
 

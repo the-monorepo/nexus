@@ -1,11 +1,11 @@
 import {
-  getReplacementIdentifierNode,
-  AccessInfo,
-  MEMBER_ACCESS,
-  FUNCTION_ACCESS,
+  type AccessInfo,
   CONSTRUCTOR_ACCESS,
+  FUNCTION_ACCESS,
+  MEMBER_ACCESS,
+  type MemberAccessInfo,
   UNKNOWN_ACCESS,
-  MemberAccessInfo,
+  getReplacementIdentifierNode,
 } from '../src/index.ts';
 const accessInfoToString = (info: AccessInfo) => {
   switch (info.type) {

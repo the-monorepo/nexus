@@ -1,9 +1,9 @@
-import minimist from 'minimist';
-import { webpack } from '@pshaw/webpack';
-import { isMatch } from 'micromatch';
 import { existsSync } from 'fs';
-import { readFile } from 'fs/promises';
 import { resolve } from 'path';
+import { webpack } from '@pshaw/webpack';
+import { readFile } from 'fs/promises';
+import { isMatch } from 'micromatch';
+import minimist from 'minimist';
 
 export const webpackCompilers = async () => {
   const { default: webpackConfigs } = await import(

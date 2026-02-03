@@ -3,7 +3,9 @@ import { window } from './window';
 const arbitraryWindowLength = 5;
 const arbitraryList = [1, 2, 3];
 
-const windowWithLists = (theList, windowLength) => [...window(theList, windowLength).map((a) => [...a])];
+const windowWithLists = (theList, windowLength) => [
+  ...window(theList, windowLength).map((a) => [...a]),
+];
 
 describe(window.name, () => {
   it('empty list => yields empty list', () => {
@@ -15,9 +17,7 @@ describe(window.name, () => {
   });
 
   it('window of 1 => yields each item in its own window', () => {
-    expect(windowWithLists(arbitraryList, 1)).toEqual(
-      arbitraryList.map((v) => [v]),
-    );
+    expect(windowWithLists(arbitraryList, 1)).toEqual(arbitraryList.map((v) => [v]));
   });
 
   it('window of 2 => windows through each item in pairs of 2', () => {
@@ -25,12 +25,11 @@ describe(window.name, () => {
       [1, 2],
       [2, 3],
       [3, 4],
-      [4, 5]
+      [4, 5],
     ]);
   });
 
   it('window bigger than list => returns an empty list', () => {
-    expect([...window([1, 2, 3, 4, 5], 6).map((a) => [...a])]).toEqual([
-    ]);
+    expect([...window([1, 2, 3, 4, 5], 6).map((a) => [...a])]).toEqual([]);
   });
 });

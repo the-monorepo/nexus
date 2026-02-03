@@ -1,4 +1,4 @@
-import { Coverage } from '@fault/istanbul-util';
+import type { Coverage } from '@fault/istanbul-util';
 
 import * as IPC from './ipc.ts';
 export { IPC };

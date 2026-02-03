@@ -16,16 +16,7 @@ beforeEach(() => {
     returnObject: () => aObjectFunctionReturnValue,
     someRegex: /regex/,
   };
-  anArray = [
-    function () {
-      return anArrayFunctionReturnValue;
-    },
-    1,
-    3,
-    undefined,
-    null,
-    /regex/,
-  ];
+  anArray = [() => anArrayFunctionReturnValue, 1, 3, undefined, null, /regex/];
 });
 describe('empty containers', () => {
   it('set', () => {

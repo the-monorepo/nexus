@@ -1,4 +1,4 @@
-import { subtractCoverage, cloneCoverage } from '../src/index.ts';
+import { cloneCoverage, subtractCoverage } from '../src/index.ts';
 describe('subtractCoverage', () => {
   const populatedCoverage1 = {
     aPath: {

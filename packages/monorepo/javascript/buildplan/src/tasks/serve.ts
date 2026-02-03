@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
-import { webpackCompilers } from './utils/webpack-compilers.ts';
 import logger from './utils/logger.ts';
+import { webpackCompilers } from './utils/webpack-compilers.ts';
 
 const serveBundles = async () => {
   const { WebpackDevServer } = await import('@pshaw/webpack');

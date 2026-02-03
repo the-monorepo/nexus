@@ -7,7 +7,7 @@ import styles from './index.scss';
 
 import './ViolinGraph';
 
-import { autorun, observable, action } from 'mobx';
+import { action, autorun, observable } from 'mobx';
 
 const kernalBandwidth = observable.box(0.2);
 const resolution = observable.box(10);

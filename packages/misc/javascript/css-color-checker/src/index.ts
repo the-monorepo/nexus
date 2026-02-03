@@ -2,9 +2,9 @@ import * as cssColors from 'named-css-colors';
 
 import {
   isValidAlphaValue,
-  isValidPercentageString,
-  isValidPercentage,
   isValidHue,
+  isValidPercentage,
+  isValidPercentageString,
   isValidRgbVal,
 } from './value-checks.ts';
 

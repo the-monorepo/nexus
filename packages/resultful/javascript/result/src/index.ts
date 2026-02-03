@@ -1,14 +1,14 @@
-import { OK, FAILURE } from '@resultful/result-types';
+import { FAILURE, OK } from '@resultful/result-types';
 import type { ResultType } from '@resultful/result-types';
-import {
-  TransformTypedObject,
+import type {
   Include,
-  TypeHolder,
-  TypedResultfulSchema,
-  TypedObjectSchema,
-  TransformOptionsSchema,
-  ResultTransformer,
   OptionIfTypeElseEmpty,
+  ResultTransformer,
+  TransformOptionsSchema,
+  TransformTypedObject,
+  TypeHolder,
+  TypedObjectSchema,
+  TypedResultfulSchema,
 } from '@resultful/utility-types';
 export { OK, FAILURE } from '@resultful/result-types';
 export type { ResultType };
@@ -125,10 +125,9 @@ export type HandledFailureResult<
   O extends TransformOptionsSchema,
 > = TransformTypedObject<R, O, 'failure', typeof FAILURE>;
 
-export type HandledResult<
-  R extends TypedObjectSchema,
-  O extends TransformOptionsSchema,
-> = HandledOkResult<R, O> | HandledFailureResult<R, O>;
+export type HandledResult<R extends TypedObjectSchema, O extends TransformOptionsSchema> =
+  | HandledOkResult<R, O>
+  | HandledFailureResult<R, O>;
 
 export type TransformFn = {
   <R extends TypedResultfulSchema>(result: R, options?: undefined): typeof result;
@@ -186,8 +185,8 @@ export type HandleFn = {
 export type ValueOf<R extends TypedResultfulSchema> = R extends OkResult<infer P>
   ? P
   : R extends FailureResult<infer E>
-  ? E
-  : never;
+    ? E
+    : never;
 export type ValueOfFn = <R extends Result<any, any>>(result: R) => ValueOf<R>;
 export const valueOf: ValueOfFn = <P, E>(result: Result<P, E>): P | E => {
   return map(result, {

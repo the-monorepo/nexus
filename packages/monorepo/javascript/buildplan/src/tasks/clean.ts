@@ -1,5 +1,5 @@
-import del from 'del';
 import config from '@monorepo/config';
+import del from 'del';
 
 const clean = async () => {
   await del(config.buildArtifactGlobs);

@@ -1,6 +1,5 @@
 {
   "editor.tabSize": 2,
-  "eslint.nodePath": ".yarn/sdks",
   "search.exclude": {
     ".pnp.{mjs,cjs,js}": true,
     ".yarn/**": true,
@@ -12,24 +11,31 @@
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "stylelint.stylelintPath": ".yarn/sdks/stylelint/lib/index.js",
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "biomejs.biome"
   },
-  "eslint.enable": true,
-  "eslint.format.enable": true,
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
   "files.associations": {
     "array": "cpp",
     "iterator": "cpp",

@@ -1,4 +1,4 @@
-import { CoverageMapData } from 'istanbul-lib-coverage';
+import type { CoverageMapData } from 'istanbul-lib-coverage';
 
 export const cloneCoverage = (coverage) => {
   if (Array.isArray(coverage)) {

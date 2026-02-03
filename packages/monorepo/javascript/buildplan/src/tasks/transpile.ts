@@ -1,15 +1,15 @@
 import chalk from 'chalk';
 
+import changed from 'gulp-changed';
+import gulpPlumber from 'gulp-plumber';
 import logger from './utils/logger.ts';
 import { createSrcDirSwapper } from './utils/path.ts';
-import gulpPlumber from 'gulp-plumber';
-import changed from 'gulp-changed';
 
 import rename from 'gulp-rename';
 
+import through from 'through2';
 import { packagesSrcCodeStream } from './utils/path.ts';
 import { simplePipeLogger } from './utils/simplePipeLogger.ts';
-import through from 'through2';
 
 import gulp from 'gulp';
 import { oldStreamToPromise } from './utils/gulp-wrappers.ts';
@@ -17,7 +17,7 @@ import { oldStreamToPromise } from './utils/gulp-wrappers.ts';
 import Vinyl from 'vinyl';
 
 const touch = () =>
-  through.obj(function (file, _, cb) {
+  through.obj((file, _, cb) => {
     if (file.stat) {
       file.stat.atime = file.stat.mtime = file.stat.ctime = new Date();
     }
@@ -42,7 +42,7 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
     .pipe(simplePipeLogger(l))
     .pipe(sourcemaps.init())
     .pipe(
-      through.obj(async function (file, _, done) {
+      through.obj(async (file, _, done) => {
         try {
           // Copied from https://github.com/babel/gulp-babel/blob/master/index.js
           const { code, map } = await bableTransform(file.contents.toString(), {
@@ -76,6 +76,7 @@ const transpilePipes = async (stream, babelOptions, dir, logName = dir, chalkFn)
       rename((filePath) => {
         return {
           ...filePath,
+          extname: ['.ts', '.tsx'].includes(filePath.extname) ? '.js' : filePath.extname,
           dirname: renamePath(filePath.dirname),
         };
       }),

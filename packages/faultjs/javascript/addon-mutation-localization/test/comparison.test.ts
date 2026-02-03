@@ -1,18 +1,18 @@
 import { parse } from '@babel/parser';
 
 import {
-  compareMutationEvaluations,
-  compareInstruction,
-  MutationEvaluation,
-  InstructionEvaluation,
+  type DependencyInfo,
   Instruction,
+  type InstructionEvaluation,
+  type MutationEvaluation,
+  type NodeInformation,
+  compareInstruction,
+  compareMutationEvaluations,
+  createInstructionBlocks,
+  createInstructionQueue,
   getAstPath,
-  DependencyInfo,
   initialiseEvaluationMaps,
   pathToPrimaryKey,
-  createInstructionQueue,
-  createInstructionBlocks,
-  NodeInformation,
 } from '../src/index.ts';
 const arrToString = (arr: number[]) => `[${arr.join(', ')}]`;
 

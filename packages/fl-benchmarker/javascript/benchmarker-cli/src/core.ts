@@ -1,24 +1,24 @@
 import 'source-map-support/register.js';
 
-import { resolve, normalize } from 'path';
+import { normalize, resolve } from 'path';
 
 import chalk from 'chalk';
 
 import * as micromatch from 'micromatch';
 
 import { createPlugin } from '@fault/addon-sbfl';
-import { readCoverageFile, getTotalExecutedStatements } from '@fault/istanbul-util';
-import { convertFileFaultDataToFaults, ScorelessFault } from '@fault/record-faults';
+import { getTotalExecutedStatements, readCoverageFile } from '@fault/istanbul-util';
+import { type ScorelessFault, convertFileFaultDataToFaults } from '@fault/record-faults';
 import * as flRunner from '@fault/runner';
 import { barinel } from '@fault/sbfl-barinel';
 import { dStar } from '@fault/sbfl-dstar';
 import { ochiai } from '@fault/sbfl-ochiai';
 import { op2 } from '@fault/sbfl-op2';
 import { tarantula } from '@fault/sbfl-tarantula';
-import { writeJson, readJson } from '@pshaw/fs';
+import { readJson, writeJson } from '@pshaw/fs';
 import createLogger from '@pshaw/logger';
 
-import { BenchmarkConfig, ProjectConfig } from './config.ts';
+import type { BenchmarkConfig, ProjectConfig } from './config.ts';
 import benchmarkConfig from './config.ts';
 import { requestProjectDirs } from './requestProjectDirs.ts';
 

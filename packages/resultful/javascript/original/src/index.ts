@@ -215,7 +215,7 @@ export type OptionIfTypeElseEmpty<
   R extends TypedResultfulSchema,
   ResultType,
   ResultKey extends keyof R,
-  HandlerReturnType
+  HandlerReturnType,
 > = ResultType extends R['type']
   ? ResultHandlerOption<
       ResultKey,
@@ -228,7 +228,7 @@ export type FullOptionsBasedOnResult<
   R extends TypedResultfulSchema,
   PR,
   ER,
-  EXR
+  EXR,
 > = OptionIfTypeElseEmpty<R, typeof ResultTypes.SUCCESS, 'payload', PR> &
   OptionIfTypeElseEmpty<R, typeof ResultTypes.ERROR, 'error', ER> &
   OptionIfTypeElseEmpty<R, typeof ResultTypes.EXCEPTION, 'exception', EXR>;
@@ -250,7 +250,7 @@ export type HandledTypedObject<
   ResultObjectType extends TypedObjectSchema,
   OptionsObjectType extends OptionsSchema,
   OptionsKey extends keyof OptionsSchema,
-  ResultType extends ResultObjectType['type']
+  ResultType extends ResultObjectType['type'],
 > = ResultType extends ResultObjectType['type']
   ? OptionsObjectType[OptionsKey] extends (...args: any[]) => any
     ? ReturnType<NonUndefined<OptionsObjectType[OptionsKey]>>
@@ -259,17 +259,17 @@ export type HandledTypedObject<
 
 export type HandledPayloadResult<
   R extends TypedObjectSchema,
-  O extends OptionsSchema
+  O extends OptionsSchema,
 > = HandledTypedObject<R, O, 'payload', typeof ResultTypes.SUCCESS>;
 
 export type HandledErrorResult<
   R extends TypedObjectSchema,
-  O extends OptionsSchema
+  O extends OptionsSchema,
 > = HandledTypedObject<R, O, 'error', typeof ResultTypes.ERROR>;
 
 export type HandledExceptionResult<
   R extends TypedObjectSchema,
-  O extends OptionsSchema
+  O extends OptionsSchema,
 > = HandledTypedObject<R, O, 'exception', typeof ResultTypes.EXCEPTION>;
 
 export type HandledResult<R extends TypedObjectSchema, O extends OptionsSchema> =
@@ -282,7 +282,7 @@ export type CatchlessHandleFn = {
   <
     R extends TypedResultfulSchema,
     O extends OptionsBasedOnResult<R, any, any, any> &
-      Record<string | number | symbol, unknown>
+      Record<string | number | symbol, unknown>,
   >(
     result: R,
     options: O,
@@ -331,7 +331,7 @@ export type HandleFn = {
   <
     R extends TypedResultfulSchema,
     O extends OptionsBasedOnResult<R, any, any, any> &
-      Record<string | number | symbol, unknown>
+      Record<string | number | symbol, unknown>,
   >(
     result: R,
     options: O,

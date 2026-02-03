@@ -1,17 +1,17 @@
-import { ChildProcess } from 'child_process';
+import type { ChildProcess } from 'child_process';
 import { promisify } from 'util';
 
 import {
+  type FailingTestData,
+  type FileFinishedData,
   IPC,
-  PassingTestData,
-  FailingTestData,
-  FileFinishedData,
-  StoppedWorkerData,
-  StopWorkerData,
-  NoMoreTestsForWorkerData,
-  TestTakingTooLongData,
-  WorkingOnTestData,
-  RunTestsData,
+  type NoMoreTestsForWorkerData,
+  type PassingTestData,
+  type RunTestsData,
+  type StopWorkerData,
+  type StoppedWorkerData,
+  type TestTakingTooLongData,
+  type WorkingOnTestData,
 } from '@fault/types';
 
 import IPCFIFOProcessor from 'ipc-fifo-processor';

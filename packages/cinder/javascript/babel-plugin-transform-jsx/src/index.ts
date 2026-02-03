@@ -2,8 +2,8 @@ import * as core from '@babel/core';
 import helper from '@babel/helper-builder-react-jsx';
 import { declare } from '@babel/helper-plugin-utils';
 import jsx from '@babel/plugin-syntax-jsx';
-import * as tr from '@babel/traverse';
-import type { JSXElement, JSXText, JSXExpressionContainer } from '@babel/types';
+import type * as tr from '@babel/traverse';
+import type { JSXElement, JSXExpressionContainer, JSXText } from '@babel/types';
 import * as t from '@babel/types';
 
 import PRAGMA from './DefaultPragma.ts';
@@ -1105,7 +1105,7 @@ export default declare((api, options) => {
     },
   };
 
-  visitor.JSXFragment = function (path: tr.NodePath<t.JSXFragment>) {
+  visitor.JSXFragment = (path: tr.NodePath<t.JSXFragment>) => {
     if (isRootJSXNode(path)) {
       const outerPath = path.findParent(
         (parentPath) => parentPath === undefined || parentPath.parentPath.isProgram(),

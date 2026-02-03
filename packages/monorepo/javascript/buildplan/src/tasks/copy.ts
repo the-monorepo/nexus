@@ -1,14 +1,14 @@
 import gulp from 'gulp';
-import rename from 'gulp-rename';
 import changed from 'gulp-changed';
+import rename from 'gulp-rename';
 
 import chalk from 'chalk';
 
 import { oldStreamToPromise } from './utils/gulp-wrappers.ts';
 
-import { packagesSrcAssetStream, createSrcDirSwapper } from './utils/path.ts';
-import { simplePipeLogger } from './utils/simplePipeLogger.ts';
 import logger from './utils/logger.ts';
+import { createSrcDirSwapper, packagesSrcAssetStream } from './utils/path.ts';
+import { simplePipeLogger } from './utils/simplePipeLogger.ts';
 
 const copyPipes = (stream, l, dir) => {
   const renamePath = createSrcDirSwapper(dir);

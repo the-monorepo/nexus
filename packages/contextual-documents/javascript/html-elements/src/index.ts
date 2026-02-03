@@ -1,4 +1,5 @@
 import {
+  FOOTER,
   HEADER,
   HEADING_1,
   HEADING_2,
@@ -6,9 +7,8 @@ import {
   HEADING_4,
   HEADING_5,
   HEADING_6,
-  PARAGRAPH,
-  FOOTER,
   LABEL,
+  PARAGRAPH,
   SECTION,
 } from '@contextual-documents/html-symbols';
 

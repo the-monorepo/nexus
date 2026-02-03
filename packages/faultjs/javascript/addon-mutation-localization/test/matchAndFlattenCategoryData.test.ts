@@ -1,8 +1,8 @@
 import {
-  matchAndFlattenCategoryData,
+  type CategoryData,
   assignmentCategories,
   binaryOperationCategories,
-  CategoryData,
+  matchAndFlattenCategoryData,
 } from '../src/index.ts';
 
 const expectCategory = <T>(categories: CategoryData<T>) => {

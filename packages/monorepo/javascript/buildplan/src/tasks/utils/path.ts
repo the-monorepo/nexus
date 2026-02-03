@@ -1,4 +1,4 @@
-import { sep, relative, join } from 'path';
+import { join, relative, sep } from 'path';
 import config from '@monorepo/config';
 import gulp from 'gulp';
 import getStagableFiles from 'lint-staged/lib/getStagedFiles.js';

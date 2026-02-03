@@ -1,11 +1,11 @@
 import {
-  isHexColor,
-  isRgbColor,
-  isRgbaColor,
   isColorName,
+  isHexColor,
   isHslColor,
   isHslaColor,
   isHwbColor,
+  isRgbColor,
+  isRgbaColor,
 } from '../src/index.ts';
 import { testFunction } from './helpers/test-function.ts';
 import { inputs } from './inputs/suites.ts';

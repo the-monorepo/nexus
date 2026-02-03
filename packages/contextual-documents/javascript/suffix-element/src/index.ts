@@ -1,4 +1,4 @@
-import { pickClassName, createStyleRoot } from '@contextual-documents/classname-picker';
+import { createStyleRoot, pickClassName } from '@contextual-documents/classname-picker';
 import type { StyleRoot } from '@contextual-documents/classname-picker';
 import createContext from 'dom-context';
 

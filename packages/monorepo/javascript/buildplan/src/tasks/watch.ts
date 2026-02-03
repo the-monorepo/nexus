@@ -2,9 +2,9 @@ import config from '@monorepo/config';
 import chalk from 'chalk';
 import gulp from 'gulp';
 
-import { parallel } from './utils/gulp-wrappers.ts';
 import copy from './copy.ts';
 import transpile from './transpile.ts';
+import { parallel } from './utils/gulp-wrappers.ts';
 import logger from './utils/logger.ts';
 
 const watch = async () => {

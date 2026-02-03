@@ -1,12 +1,12 @@
 // TODO: Maybe disable this rule for this package
 /* eslint-disable no-console */
-import { relative, dirname, basename, join } from 'path';
+import { basename, dirname, join, relative } from 'path';
 
 import chalk from 'chalk';
 
-import { PartialTestHookOptions } from '@fault/addon-hook-schema';
+import type { PartialTestHookOptions } from '@fault/addon-hook-schema';
 import { report } from '@fault/addon-istanbul';
-import { TestResult, FinalTesterResults } from '@fault/types';
+import type { FinalTesterResults, TestResult } from '@fault/types';
 
 const simplifyPath = (absoluteFilePath) => relative(process.cwd(), absoluteFilePath);
 

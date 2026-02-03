@@ -1,5 +1,5 @@
 import { parse } from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
+import traverse, { type NodePath } from '@babel/traverse';
 
 import { Instruction, initialiseEvaluationMaps, pathToPrimaryKey } from '../src/index.ts';
 const code = 'let a = 0; 1 + 2; () => {}';

@@ -1,4 +1,4 @@
-import { concat, of, arrayFrom } from '../src/index.ts';
+import { arrayFrom, concat, of } from '../src/index.ts';
 
 it.skip(concat.name, async () => {
   await expect(

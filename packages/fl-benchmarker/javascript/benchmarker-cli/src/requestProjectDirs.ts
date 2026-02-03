@@ -1,5 +1,5 @@
-import { readdir } from 'fs/promises';
 import { resolve } from 'path';
+import { readdir } from 'fs/promises';
 
 import * as micromatch from 'micromatch';
 export const requestProjectDirs = async (path: string | string[] = '*') => {
