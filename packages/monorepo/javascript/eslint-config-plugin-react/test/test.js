@@ -1,3 +1,3 @@
-it('can be imported', () => {
-  require('../src/index');
+it("can be imported", () => {
+	require("../src/index");
 });

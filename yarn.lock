@@ -3554,6 +3554,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@biomejs/js-api@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "@biomejs/js-api@npm:0.7.1::__archiveUrl=https%3A%2F%2Fpackages.atlassian.com%2Fapi%2Fnpm%2Fnpm-remote%2F%40biomejs%2Fjs-api%2F-%2Fjs-api-0.7.1.tgz"
+  peerDependencies:
+    "@biomejs/wasm-bundler": ^1.9.2
+    "@biomejs/wasm-nodejs": ^1.9.2
+    "@biomejs/wasm-web": ^1.9.2
+  peerDependenciesMeta:
+    "@biomejs/wasm-bundler":
+      optional: true
+    "@biomejs/wasm-nodejs":
+      optional: true
+    "@biomejs/wasm-web":
+      optional: true
+  checksum: 10/108d314ba659e79c2733e6aa9f06ba24e6dae330e00a1bbc3d50ea774964614b2920d461a95b7dbabe6b326cbee7356f285061bdda544bfd4b6e7fda1b6dc85c
+  languageName: node
+  linkType: hard
+
+"@biomejs/wasm-nodejs@npm:^1.9.2":
+  version: 1.9.4
+  resolution: "@biomejs/wasm-nodejs@npm:1.9.4::__archiveUrl=https%3A%2F%2Fpackages.atlassian.com%2Fapi%2Fnpm%2Fnpm-remote%2F%40biomejs%2Fwasm-nodejs%2F-%2Fwasm-nodejs-1.9.4.tgz"
+  checksum: 10/77cf4ae4228bcb04e17a2ec4330f79a70b646000534e84c8a7eea40d14a1043eaed63a7406f66260ccf4e05687b1b076f04e28e54530439a67251e107fffeb8e
+  languageName: node
+  linkType: hard
+
 "@buildplan/core@workspace:^, @buildplan/core@workspace:packages/buildplan/javascript/core":
   version: 0.0.0-use.local
   resolution: "@buildplan/core@workspace:packages/buildplan/javascript/core"
@@ -4360,7 +4385,8 @@ __metadata:
   resolution: "@monorepo/buildplan@workspace:packages/monorepo/javascript/buildplan"
   dependencies:
     "@babel/core": "npm:^7.23.6"
-    "@biomejs/biome": "npm:^1.9.0"
+    "@biomejs/js-api": "npm:^0.7.1"
+    "@biomejs/wasm-nodejs": "npm:^1.9.2"
     "@buildplan/core": "workspace:^"
     "@fault/addon-mutation-localization": "workspace:^"
     "@fault/addon-sbfl": "workspace:^"
@@ -4677,6 +4703,50 @@ __metadata:
   checksum: 10/d8c9c6fbba8bdc99235fc01946f171bb4a110a4683e5eb5016dc0fba81e2daf41053a1dffd0b1bb33f15d8e243c03c5721aadfa91b3bbcc32292b005201a3780
   languageName: node
   linkType: hard
+
+"@pshaw/biome-config-core@workspace:^, @pshaw/biome-config-core@workspace:packages/monorepo/javascript/biome-config-core":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/biome-config-core@workspace:packages/monorepo/javascript/biome-config-core"
+  dependencies:
+    "@biomejs/wasm-nodejs": "npm:^1.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/biome-config-plugin-cinder@workspace:^, @pshaw/biome-config-plugin-cinder@workspace:packages/monorepo/javascript/biome-config-plugin-cinder":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/biome-config-plugin-cinder@workspace:packages/monorepo/javascript/biome-config-plugin-cinder"
+  dependencies:
+    "@biomejs/wasm-nodejs": "npm:^1.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/biome-config-plugin-react@workspace:^, @pshaw/biome-config-plugin-react@workspace:packages/monorepo/javascript/biome-config-plugin-react":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/biome-config-plugin-react@workspace:packages/monorepo/javascript/biome-config-plugin-react"
+  dependencies:
+    "@biomejs/wasm-nodejs": "npm:^1.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/biome-config-plugin-typescript@workspace:^, @pshaw/biome-config-plugin-typescript@workspace:packages/monorepo/javascript/biome-config-plugin-typescript":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/biome-config-plugin-typescript@workspace:packages/monorepo/javascript/biome-config-plugin-typescript"
+  dependencies:
+    "@biomejs/wasm-nodejs": "npm:^1.9.2"
+  languageName: unknown
+  linkType: soft
+
+"@pshaw/biome-config-preset@workspace:packages/monorepo/javascript/biome-config-preset":
+  version: 0.0.0-use.local
+  resolution: "@pshaw/biome-config-preset@workspace:packages/monorepo/javascript/biome-config-preset"
+  dependencies:
+    "@biomejs/wasm-nodejs": "npm:^1.9.2"
+    "@pshaw/biome-config-core": "workspace:^"
+    "@pshaw/biome-config-plugin-cinder": "workspace:^"
+    "@pshaw/biome-config-plugin-react": "workspace:^"
+    "@pshaw/biome-config-plugin-typescript": "workspace:^"
+  languageName: unknown
+  linkType: soft
 
 "@pshaw/colors-scss@workspace:packages/patrick-shaw/javascript/colors-scss":
   version: 0.0.0-use.local

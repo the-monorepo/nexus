@@ -1,21 +1,21 @@
 export function* chunk<T>(
-  iterator: Iterator<T>,
-  chunkLength: number,
+	iterator: Iterator<T>,
+	chunkLength: number,
 ): Iterable<Iterable<T>> {
-  let i = iterator.next();
+	let i = iterator.next();
 
-  let currentArray: T[] = [];
+	let currentArray: T[] = [];
 
-  while (!i.done) {
-    if (currentArray.length === chunkLength) {
-      yield currentArray;
-      currentArray = [];
-    }
+	while (!i.done) {
+		if (currentArray.length === chunkLength) {
+			yield currentArray;
+			currentArray = [];
+		}
 
-    currentArray.push(i.value);
+		currentArray.push(i.value);
 
-    i = iterator.next();
-  }
+		i = iterator.next();
+	}
 
-  yield currentArray;
+	yield currentArray;
 }

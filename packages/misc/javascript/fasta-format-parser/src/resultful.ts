@@ -1,1 +1,1 @@
-export * from 'resultful';
+export * from "resultful";

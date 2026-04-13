@@ -1,1 +1,1 @@
-import '@monorepo/buildplan';
+import "@monorepo/buildplan";

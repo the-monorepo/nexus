@@ -36,7 +36,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@biomejs/wasm-nodejs": "^1.9.0",
+    "@biomejs/wasm-nodejs": "^1.9.2",
     "@pshaw/biome-config-core": "workspace:^",
     "@pshaw/biome-config-plugin-cinder": "workspace:^",
     "@pshaw/biome-config-plugin-react": "workspace:^",

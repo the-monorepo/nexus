@@ -1,37 +1,37 @@
-import * as resultful from 'resultful';
+import * as resultful from "resultful";
 
-import { IPCReporter } from './recordTests.ts';
+import { IPCReporter } from "./recordTests.ts";
 
 export const createMochaInstance = (Mocha, options, requireFiles: string[]) => {
-  const mochaInstance = new Mocha({
-    color: true,
-    reporter: IPCReporter,
-    fullStackTrace: true,
-    ...options,
-  } as any);
+	const mochaInstance = new Mocha({
+		color: true,
+		reporter: IPCReporter,
+		fullStackTrace: true,
+		...options,
+	} as any);
 
-  for (const requireFile of requireFiles) {
-    mochaInstance.addFile(requireFile);
-  }
+	for (const requireFile of requireFiles) {
+		mochaInstance.addFile(requireFile);
+	}
 
-  mochaInstance.addFile(require.resolve('./recordTests'));
+	mochaInstance.addFile(require.resolve("./recordTests"));
 
-  return mochaInstance;
+	return mochaInstance;
 };
 
 export const runMochaInstance = (
-  mochaInstance,
+	mochaInstance,
 ): Promise<resultful.Result<undefined, any, any>> =>
-  new Promise((resolve) => {
-    try {
-      mochaInstance.run((failures) => {
-        if (failures) {
-          resolve(resultful.errorFailure(failures));
-        } else {
-          resolve(resultful.ok);
-        }
-      });
-    } catch (err) {
-      resolve(resultful.unknownFailure(err));
-    }
-  });
+	new Promise((resolve) => {
+		try {
+			mochaInstance.run((failures) => {
+				if (failures) {
+					resolve(resultful.errorFailure(failures));
+				} else {
+					resolve(resultful.ok);
+				}
+			});
+		} catch (err) {
+			resolve(resultful.unknownFailure(err));
+		}
+	});

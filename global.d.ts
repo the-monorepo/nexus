@@ -1,2 +1,2 @@
-import type expectFn from 'expect';
+import type expectFn from "expect";
 declare const expect = typeof expectFn;

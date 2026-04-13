@@ -1,3 +1,4 @@
+'use strict';
 const config = require('@monorepo/config');
 
 module.exports = (api) => {

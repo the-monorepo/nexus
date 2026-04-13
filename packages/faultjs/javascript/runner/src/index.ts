@@ -413,7 +413,10 @@ const runAndRecycleProcesses = async ({
                   console.log('entered');
                   const endTime = Date.now();
                   const totalDuration = endTime - startTime;
-                  const results: TesterResults = { testResults, duration: totalDuration };
+                  const results: TesterResults = {
+                    testResults,
+                    duration: totalDuration,
+                  };
 
                   const newFilesToAdd: Set<string> = new Set();
                   await writeJson(durationsPath, testDurations);

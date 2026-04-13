@@ -1,5 +1,11 @@
 import 'source-map-support/register.js';
 
+// Force color output for chalk and other color libraries
+// This ensures ANSI colors work even when stdout isn't detected as a TTY
+if (process.stdout.isTTY) {
+  process.env.FORCE_COLOR = '1';
+}
+
 import { run } from '@buildplan/core';
 
 import { task } from './tasks/utils/gulp-wrappers.ts';

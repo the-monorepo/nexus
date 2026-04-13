@@ -34,8 +34,8 @@
   ],
   "dependencies": {
     "@babel/core": "^7.23.6",
-    "@biomejs/js-api": "^0.6.2",
-    "@biomejs/wasm-nodejs": "^1.9.0",
+    "@biomejs/js-api": "^0.7.1",
+    "@biomejs/wasm-nodejs": "^1.9.2",
     "@buildplan/core": "workspace:^",
     "@fault/addon-mutation-localization": "workspace:^",
     "@fault/addon-sbfl": "workspace:^",

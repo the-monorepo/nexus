@@ -35,6 +35,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@biomejs/wasm-nodejs": "^1.9.0"
+    "@biomejs/wasm-nodejs": "^1.9.2"
   }
 }

@@ -1,16 +1,16 @@
 export const typeValues = {
-  boolean: [true, false],
-  string: ['true', 'false', ''],
-  object: [
-    {},
-    {
-      test: 'test',
-    },
-  ],
-  array: [[], ['test'], [{}]],
-  number: [1, -1, 0, 2.32],
-  function: [() => {}, () => {}, function namedFunction() {}],
-  class: [class {}, class NamedClass {}],
-  null: [null],
-  undefined: [undefined],
+	boolean: [true, false],
+	string: ["true", "false", ""],
+	object: [
+		{},
+		{
+			test: "test",
+		},
+	],
+	array: [[], ["test"], [{}]],
+	number: [1, -1, 0, 2.32],
+	function: [() => {}, () => {}, function namedFunction() {}],
+	class: [class {}, class NamedClass {}],
+	null: [null],
+	undefined: [undefined],
 };

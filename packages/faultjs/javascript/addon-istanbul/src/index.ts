@@ -1,34 +1,34 @@
-import { createCoverageMap } from 'istanbul-lib-coverage';
-import { createContext } from 'istanbul-lib-report';
-import { create } from 'istanbul-reports';
+import { createCoverageMap } from "istanbul-lib-coverage";
+import { createContext } from "istanbul-lib-report";
+import { create } from "istanbul-reports";
 
-import type { PartialTestHookOptions } from '@fault/addon-hook-schema';
-import type { FinalTesterResults } from '@fault/types';
+import type { PartialTestHookOptions } from "@fault/addon-hook-schema";
+import type { FinalTesterResults } from "@fault/types";
 
 export const report = ({ coverage }: FinalTesterResults, contextOptions) => {
-  const coverageMap = createCoverageMap(coverage);
+	const coverageMap = createCoverageMap(coverage);
 
-  const context = createContext({
-    ...contextOptions,
-    coverageMap,
-  });
+	const context = createContext({
+		...contextOptions,
+		coverageMap,
+	});
 
-  for (const reportType of ['text', 'json', 'lcov']) {
-    const report = create(reportType);
+	for (const reportType of ["text", "json", "lcov"]) {
+		const report = create(reportType);
 
-    report.execute(context);
-  }
+		report.execute(context);
+	}
 };
 
 export const createPlugin = (contextOptions) => {
-  const plugin: PartialTestHookOptions = {
-    on: {
-      complete: (testerResults: FinalTesterResults) => {
-        report(testerResults, contextOptions);
-      },
-    },
-  };
-  return plugin;
+	const plugin: PartialTestHookOptions = {
+		on: {
+			complete: (testerResults: FinalTesterResults) => {
+				report(testerResults, contextOptions);
+			},
+		},
+	};
+	return plugin;
 };
 export const defaultPlugin = createPlugin();
 

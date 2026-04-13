@@ -139,7 +139,11 @@ const createContext = (contextName?: string) => {
           kind: 'field',
           key: CONSUMERS,
           placement: 'own',
-          descriptor: { configurable: false, writable: false, enumerable: false },
+          descriptor: {
+            configurable: false,
+            writable: false,
+            enumerable: false,
+          },
           initializer: () => new Set(),
         },
         {

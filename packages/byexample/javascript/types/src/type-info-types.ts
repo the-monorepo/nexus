@@ -2,66 +2,66 @@
  * TODO: Not a great file name
  * To be honest, if it didn't sound confusing, I would call this type-types :P
  */
-import type { DefaultTypeName } from './DefaultTypeName.ts';
+import type { DefaultTypeName } from "./DefaultTypeName.ts";
 
 export type Type = {
-  name: string;
-  [k: string]: any;
+	name: string;
+	[k: string]: any;
 };
 
 export enum NumberFormat {
-  none = 'none',
-  integer = 'integer',
-  // TODO: float
+	none = "none",
+	integer = "integer",
+	// TODO: float
 }
 
 export type NumberType = {
-  name: DefaultTypeName.number;
-  format: NumberFormat;
+	name: DefaultTypeName.number;
+	format: NumberFormat;
 } & Type;
 
 export type StringType = {
-  name: DefaultTypeName.string;
+	name: DefaultTypeName.string;
 } & Type;
 
 export type Fields = {
-  [key: string]: TypeInfo;
+	[key: string]: TypeInfo;
 };
 
 export type ObjectType = {
-  name: DefaultTypeName.object;
-  fields: Fields;
+	name: DefaultTypeName.object;
+	fields: Fields;
 } & Type;
 
 export type ArrayType = {
-  name: DefaultTypeName.array;
-  items: TypeInfo;
+	name: DefaultTypeName.array;
+	items: TypeInfo;
 } & Type;
 
 export type FunctionType = {
-  name: DefaultTypeName.function;
+	name: DefaultTypeName.function;
 } & Type;
 
 export type BooleanType = {
-  name: DefaultTypeName.boolean;
+	name: DefaultTypeName.boolean;
 } & Type;
 
 export type DefaultType =
-  | NumberType
-  | StringType
-  | ObjectType
-  | ArrayType
-  | FunctionType
-  | BooleanType;
+	| NumberType
+	| StringType
+	| ObjectType
+	| ArrayType
+	| FunctionType
+	| BooleanType;
 
 export type TypeInfo = {
-  types: Type[];
-  undefinedCount: number;
-  nullCount: number;
+	types: Type[];
+	undefinedCount: number;
+	nullCount: number;
 };
 
 export type DefaultTypeInfo = {
-  types: DefaultType[];
-  undefinedCount: number;
-  nullCount: number;
+	types: DefaultType[];
+	undefinedCount: number;
+	nullCount: number;
 };

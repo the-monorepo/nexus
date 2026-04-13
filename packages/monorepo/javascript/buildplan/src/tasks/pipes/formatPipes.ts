@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { Readable } from 'node:stream';
-import { Biome } from '@biomejs/js-api/nodejs';
+import { spawnSync } from 'node:child_process';
 
 import { simplePipeLogger } from '../utils/simplePipeLogger';
 import logger from '../utils/logger';
@@ -10,100 +10,59 @@ interface VinylFile {
   contents: Buffer;
 }
 
-// Singleton Biome instance and project key - created lazily
-let biomeInstance: Biome | null = null;
-let projectKey: string | null = null;
-
-function getBiome(): { biome: Biome; projectKey: string } {
-  if (!biomeInstance || !projectKey) {
-    biomeInstance = new Biome();
-    const project = biomeInstance.openProject(process.cwd());
-    projectKey = project.projectKey;
-  }
-  return { biome: biomeInstance, projectKey };
-}
-
 /**
- * Format a single file using Biome's JS API
- */
-function formatFile(
-  biome: Biome,
-  projectKey: string,
-  file: VinylFile,
-  l: ReturnType<typeof logger.child>,
-): VinylFile {
-  const content = file.contents.toString('utf8');
-  const filePath = file.path;
-
-  try {
-    // Format the content
-    const formatted = biome.formatContent(projectKey, content, { filePath });
-
-    // Also run lint with fixes
-    const linted = biome.lintContent(projectKey, formatted.content, { filePath });
-
-    // Use the fixed content if available, otherwise use formatted
-    const finalContent = linted.content || formatted.content;
-
-    // Print any diagnostics
-    if (linted.diagnostics.length > 0) {
-      const diagnosticsOutput = biome.printDiagnostics(linted.diagnostics, {
-        filePath,
-        fileSource: content,
-      });
-      if (diagnosticsOutput) {
-        process.stderr.write(diagnosticsOutput);
-      }
-    }
-
-    // Update file contents
-    file.contents = Buffer.from(finalContent, 'utf8');
-  } catch (error) {
-    l.warn(`Failed to format ${filePath}:`, error);
-    // Return original file on error
-  }
-
-  return file;
-}
-
-/**
- * Async generator that yields formatted files from the input stream.
- * Modern streaming approach using async iterators.
- */
-async function* formatFilesIterator(
-  files: AsyncIterable<VinylFile>,
-  biome: Biome,
-  projectKey: string,
-  l: ReturnType<typeof logger.child>,
-): AsyncGenerator<VinylFile> {
-  for await (const file of files) {
-    yield formatFile(biome, projectKey, file, l);
-  }
-}
-
-/**
- * Converts an async iterable to a readable stream.
- */
-function asyncIterableToStream<T>(iterable: AsyncIterable<T>): Readable {
-  return Readable.from(iterable, { objectMode: true });
-}
-
-/**
- * Format files in a gulp stream using Biome.
- * Uses @biomejs/js-api for in-process formatting (no subprocess overhead).
+ * Format files in a gulp stream using Biome CLI.
+ *
+ * Uses the biome CLI for formatting/linting which:
+ * - Properly reads biome.json config (including quoteStyle: 'single')
+ * - Outputs ANSI colored diagnostics to terminal
+ * - Handles all file types correctly
  */
 export async function formatPipes(stream: Readable): Promise<Readable> {
   const l = logger.child(chalk.magentaBright('biome'));
 
-  // Initialize Biome
-  const { biome, projectKey: key } = getBiome();
-
-  // Pipe through the simple logger first
+  // Collect all files using async iteration
+  const files: VinylFile[] = [];
   const loggedStream = stream.pipe(simplePipeLogger(l));
 
-  // Use modern async iteration for processing
-  const formattedFiles = formatFilesIterator(loggedStream, biome, key, l);
+  for await (const file of loggedStream) {
+    files.push(file as VinylFile);
+  }
 
-  // Convert back to a stream for gulp compatibility
-  return asyncIterableToStream(formattedFiles);
+  if (files.length === 0) {
+    return Readable.from([]);
+  }
+
+  // Get the file paths for biome to process
+  const filePaths = files.map((f) => f.path);
+
+  l.info(`Running biome on ${filePaths.length} files...`);
+
+  // Run biome check --write on all files at once
+  // --colors=force ensures ANSI output even when not a TTY
+  const result = spawnSync(
+    'npx',
+    ['@biomejs/biome@1.9.0', 'check', '--write', '--colors=force', ...filePaths],
+    {
+      encoding: 'utf8',
+      maxBuffer: 50 * 1024 * 1024,
+      cwd: process.cwd(),
+    },
+  );
+
+  // Output diagnostics (these will have proper ANSI colors)
+  if (result.stderr) {
+    process.stderr.write(result.stderr);
+  }
+  if (result.stdout) {
+    process.stdout.write(result.stdout);
+  }
+
+  if (result.status !== null && result.status > 1) {
+    l.warn(`Biome exited with code ${result.status}`);
+  }
+
+  // Biome modified the files in place on disk, so gulp.dest will
+  // re-read them with the updated content
+  return Readable.from(files, { objectMode: true });
 }
