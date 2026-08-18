@@ -16,14 +16,14 @@ let doctorOutput = (yarn dlx @yarnpkg/doctor | tee { each { print --raw --no-new
 print "@yarnpkg/doctor printed out the following:"
 
 let packagesToInstall = (
-  $doctorOutput 
+  $doctorOutput   
     | lines
     | each {
       |doctorLine|
       # Filtering against "➤ YN0000: │ /some/path/to/a/file.ts:6:1: Undeclared dependency on @scope/package"
       let dataStr = ($doctorLine | sd '.*YN0000: │ ([^:]+).* Undeclared dependency on ([^\s]+).*' '$1 $2')
       
-      if $dataStr == $doctorLine { continue }
+      if $dataStr == $doctorLine { return null }
 
       let data = ($dataStr | split row " ")
 
@@ -41,7 +41,7 @@ let packagesToInstall = (
 
       if ($candidateWorkspaces | length) == 0 {
         print $"\nNo candiate workspace found for file ($data.0)"
-        continue
+        return null
       } else {
         print --no-newline .
       }
@@ -51,6 +51,7 @@ let packagesToInstall = (
         | insert missingPackage $data.1
         | insert exampleUsage $data.0
     }
+    | compact
     | uniq-by name missingPackage
     | each {
       |missingDep|
@@ -79,7 +80,7 @@ $workspaces | each {
       | get missingPackage
   )
 
-  if ($missingDeps | length) <= 0 { continue }
+  if ($missingDeps | length) <= 0 { return null }
 
   do {
     let workspacePath = ([$rootRepoPath, $workspace.location] | path join | path expand)
