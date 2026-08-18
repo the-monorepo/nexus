@@ -52,6 +52,8 @@
             pkgs.brotli
             
             pkgs.uutils-coreutils-noprefix
+
+            pkgs.deno
           ];
         in pkgs.stdenv.mkDerivation {
           name = "shell";
