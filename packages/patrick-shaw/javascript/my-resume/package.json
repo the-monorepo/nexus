@@ -9,11 +9,11 @@
     "directory": "misc/my-resume"
   },
   "types": "./src/index.tsx",
-  "module": "./esm/index.tsx",
-  "main": "./commonjs/index.tsx",
+  "module": "./esm/index.jsx",
+  "main": "./commonjs/index.jsx",
   ".": {
-    "import": "./esm/index.tsx",
-    "require": "./commonjs/index.tsx"
+    "import": "./esm/index.jsx",
+    "require": "./commonjs/index.jsx"
   },
   "scripts": {
     "pdf": "yarn node ./commonjs/to-pdf.ts"

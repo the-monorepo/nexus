@@ -3,13 +3,9 @@
   "version": "1.6.2-0",
   "description": "Library for determining the CSS color format of string values",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",

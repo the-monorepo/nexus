@@ -4,13 +4,9 @@
   "version": "1.0.0-alpha.1",
   "description": "Fault AST localization",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {

@@ -3,13 +3,9 @@
   "version": "1.0.0-alpha.1",
   "description": "Report istanbul coverage",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {
@@ -17,14 +13,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "faultjs/istanbul-reporter"
   },
-  "keywords": [
-    "coverage",
-    "faultjs",
-    "testing",
-    "istanbul",
-    "logging",
-    "typescript"
-  ],
+  "keywords": ["coverage", "faultjs", "testing", "istanbul", "logging", "typescript"],
   "dependencies": {
     "@fault/addon-hook-schema": "workspace:^",
     "@fault/types": "workspace:^",

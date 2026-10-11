@@ -4,21 +4,17 @@
   "description": "TODO",
   "version": "1.0.0",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
   "exports": {
     ".": {
       "monorepo-original": "./src/index.ts",
-      "import": "./esm/index.ts",
-      "require": "./commonjs/index.ts",
+      "import": "./esm/index.js",
+      "require": "./commonjs/index.js",
       "deno": "./esm/index.deno.ts"
     }
   },
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {
@@ -26,12 +22,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "monorepo/javascript/buildplan"
   },
-  "keywords": [
-    "FASTA",
-    "genetics",
-    "typescript",
-    "app"
-  ],
+  "keywords": ["FASTA", "genetics", "typescript", "app"],
   "dependencies": {
     "@babel/core": "^7.23.6",
     "@biomejs/js-api": "^0.7.1",

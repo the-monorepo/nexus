@@ -1,20 +1,11 @@
 {
   "name": "@writeme/core",
   "description": "A readme generator",
-  "keywords": [
-    "build",
-    "readme",
-    "writeme",
-    "util"
-  ],
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "keywords": ["build", "readme", "writeme", "util"],
+  "files": ["commonjs", "src", "esm"],
   "version": "3.1.4-0",
-  "main": "./commonjs/index.ts",
-  "module": "./esm/index.ts",
+  "main": "./commonjs/index.js",
+  "module": "./esm/index.js",
   "types": "./src/index.ts",
   "license": "MIT",
   "repository": {

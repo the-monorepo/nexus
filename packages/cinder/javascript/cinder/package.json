@@ -9,22 +9,17 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "cinder/cinder"
   },
-  "files": [
-    "commonjs",
-    "src",
-    "esm",
-    "babel.js"
-  ],
+  "files": ["commonjs", "src", "esm", "babel.js"],
   "publishConfig": {
     "access": "public"
   },
-  "main": "./commonjs/index.ts",
-  "module": "./esm/index.ts",
+  "main": "./commonjs/index.js",
+  "module": "./esm/index.js",
   "exports": {
     ".": {
       "monorepo-original": "./src/index.ts",
-      "import": "./esm/index.ts",
-      "require": "./commonjs/index.ts"
+      "import": "./esm/index.js",
+      "require": "./commonjs/index.js"
     },
     "./babel": {
       "monorepo-original": "./src/babel.ts",

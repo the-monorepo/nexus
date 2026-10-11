@@ -3,8 +3,8 @@
   "version": "1.0.0-alpha.1",
   "description": "View your benchmarking results",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
   "bin": {
     "fl-benchmarker-viewer": "./commonjs/bin.js"
   },
@@ -17,11 +17,7 @@
     "serve": "yarn demo-serve",
     "build": "yarn demo-build"
   },
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {

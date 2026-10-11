@@ -3,13 +3,9 @@
   "description": "A helper package for nucleotide bases",
   "version": "1.0.0",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {
@@ -17,11 +13,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "misc/nucleotide-bases"
   },
-  "keywords": [
-    "nucleotide",
-    "genetics",
-    "typescript"
-  ],
+  "keywords": ["nucleotide", "genetics", "typescript"],
   "dependencies": {
     "@polymer/paper-radio-button": "^3.0.1",
     "@types/jest": "^26.0.10",

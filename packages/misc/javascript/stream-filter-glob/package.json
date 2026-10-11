@@ -2,24 +2,17 @@
   "version": "1.0.0-alpha.6",
   "name": "stream-filter-glob",
   "description": "Filters out paths based off a micromatch glob",
-  "keywords": [
-    "stream",
-    "glob"
-  ],
+  "keywords": ["stream", "glob"],
   "license": "MIT",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
   "exports": {
     "monorepo-original": "./src/index.ts",
-    "import": "./esm/index.ts",
-    "require": "./commonjs/index.ts"
+    "import": "./esm/index.js",
+    "require": "./commonjs/index.js"
   },
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "files": ["commonjs", "src", "esm"],
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",

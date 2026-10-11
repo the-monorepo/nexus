@@ -3,13 +3,9 @@
   "description": "Mock all functions inside an array or object literal with Jest",
   "version": "4.0.0",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {

@@ -3,13 +3,9 @@
   "version": "1.0.0-alpha.1",
   "description": "Makes IPC connections appear FIFO",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {
@@ -17,10 +13,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "misc/ipc-fifo-processor"
   },
-  "keywords": [
-    "ipc",
-    "typescript"
-  ],
+  "keywords": ["ipc", "typescript"],
   "devDependencies": {
     "@types/node": "^14.6.0"
   },

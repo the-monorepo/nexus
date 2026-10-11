@@ -9,21 +9,17 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "patrick-shaw/contextual-documents"
   },
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "files": ["commonjs", "src", "esm"],
   "publishConfig": {
     "access": "public"
   },
-  "main": "./commonjs/index.ts",
-  "module": "./esm/index.ts",
+  "main": "./commonjs/index.js",
+  "module": "./esm/index.js",
   "types": "./src/index.ts",
   "exports": {
     ".": {
-      "import": "./esm/index.ts",
-      "require": "./commonjs/index.ts"
+      "import": "./esm/index.js",
+      "require": "./commonjs/index.js"
     },
     "./register": {
       "import": "./esm/register.ts",

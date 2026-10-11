@@ -2,26 +2,18 @@
   "name": "node-import-map-generator",
   "version": "1.0.0-alpha.0",
   "description": "Generate import nodes from package.json dependencies",
-  "keywords": [
-    "import-maps",
-    "node",
-    "cli"
-  ],
-  "main": "./commonjs/index.ts",
-  "module": "./esm/index.ts",
+  "keywords": ["import-maps", "node", "cli"],
+  "main": "./commonjs/index.js",
+  "module": "./esm/index.js",
   "types": "./src/index.ts",
-  "bin": "./commonjs/index.ts",
+  "bin": "./commonjs/index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "misc/node-import-map-generator"
   },
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "files": ["commonjs", "src", "esm"],
   "publishConfig": {
     "access": "public"
   },

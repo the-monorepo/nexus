@@ -3,13 +3,9 @@
   "version": "1.0.0-alpha.1",
   "description": "The official Fault.js test runner",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {
@@ -17,13 +13,7 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "faultjs/runner"
   },
-  "keywords": [
-    "faultjs",
-    "test",
-    "testing",
-    "test-runner",
-    "typescript"
-  ],
+  "keywords": ["faultjs", "test", "testing", "test-runner", "typescript"],
   "dependencies": {
     "@fault/addon-hook-schema": "workspace:^",
     "@fault/addon-istanbul": "workspace:^",

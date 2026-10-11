@@ -3,13 +3,9 @@
   "version": "1.0.0-alpha.1",
   "description": "Package containing all type values for Fault.js",
   "types": "./src/index.ts",
-  "module": "./esm/index.ts",
-  "main": "./commonjs/index.ts",
-  "files": [
-    "commonjs",
-    "src",
-    "esm"
-  ],
+  "module": "./esm/index.js",
+  "main": "./commonjs/index.js",
+  "files": ["commonjs", "src", "esm"],
   "license": "MIT",
   "author": "Patrick Shaw <mail@patrickshaw.me>",
   "repository": {
@@ -17,11 +13,5 @@
     "url": "https://github.com/the-monorepo/monorepo.git",
     "directory": "faultjs/types"
   },
-  "keywords": [
-    "testing",
-    "test",
-    "typescript",
-    "fault-localization",
-    "faultjs"
-  ]
+  "keywords": ["testing", "test", "typescript", "fault-localization", "faultjs"]
 }

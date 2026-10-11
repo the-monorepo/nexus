@@ -4,12 +4,12 @@
   "version": "1.0.0-alpha.6",
   "license": "MIT",
   "bin": {
-    "byexample": "./commonjs/index.ts"
+    "byexample": "./commonjs/index.js"
   },
   "publishConfig": {
     "access": "public"
   },
-  "main": "./commonjs/index.ts",
+  "main": "./commonjs/index.js",
   "types": "./src/index.ts",
   "devPackage": true,
   "dependencies": {
